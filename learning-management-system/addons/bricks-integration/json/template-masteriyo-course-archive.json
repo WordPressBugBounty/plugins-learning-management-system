@@ -1,0 +1,84 @@
+{
+  "id": 7094,
+  "name": "masteriyo-course-archive-default",
+  "title": "Masteriyo Course Archive (Default)",
+  "date": "2024-05-21 07:27:50",
+  "date_formatted": "May 21, 2024",
+  "author": {
+    "name": "admin",
+    "avatar": "https://secure.gravatar.com/avatar/729ae85bf62b9917e93538db2f2688ca?s=60&d=mm&r=g",
+    "url": "http://masteriyo.me"
+  },
+  "permalink": "https://masteriyo.me/template/masteriyo-course-archive-default/",
+  "thumbnail": false,
+  "bundles": [],
+  "tags": [],
+  "type": "masteriyo-course-archive",
+  "content": [
+    {
+      "id": "zgajhl",
+      "name": "section",
+      "parent": 0,
+      "children": ["ydbopq"],
+      "settings": []
+    },
+    {
+      "id": "ydbopq",
+      "name": "container",
+      "parent": "zgajhl",
+      "children": ["duwloc"],
+      "settings": []
+    },
+    {
+      "id": "srackm",
+      "name": "single_search_courses",
+      "parent": "duwloc",
+      "children": [],
+      "settings": { "show_search_courses": "block" }
+    },
+    {
+      "id": "duwloc",
+      "name": "block",
+      "parent": "ydbopq",
+      "children": ["srackm", "dsqjst", "nikgxx"],
+      "settings": []
+    },
+    {
+      "id": "dsqjst",
+      "name": "course_archive_view_mode",
+      "parent": "duwloc",
+      "children": [],
+      "settings": {
+        "course_rating_color": {
+          "hex": "#f5f5f5",
+          "id": "5706f4",
+          "name": "Color #1"
+        }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "nikgxx",
+      "name": "courses",
+      "parent": "duwloc",
+      "children": [],
+      "settings": {
+        "per_page": 12,
+        "columns": 3,
+        "order": "DESC",
+        "order_by": "date",
+        "columns_gap": {
+          "top": "15px",
+          "right": "15px",
+          "bottom": "15px",
+          "left": "15px"
+        },
+        "show_thumbnail": "inline",
+        "difficulty_badge_vertical_position": "24px",
+        "difficulty_badge_horizontal_position": "24px",
+        "pagination_visibility": "flex"
+      }
+    }
+  ],
+  "templateType": "masteriyo-course-archive"
+}

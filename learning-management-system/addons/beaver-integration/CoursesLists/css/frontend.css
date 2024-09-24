@@ -1,0 +1,19 @@
+.masteriyo-course--content__rt .masteriyo-course-author a {
+	text-decoration: none;
+}
+
+.masteriyo-course--content__stats > div {
+	align-items: center !important;
+}
+
+.masteriyo-course-stats-students {
+	display: flex !important;
+}
+
+.masteriyo-course-stats-curriculum {
+	display: flex !important;
+}
+
+.masteriyo-course-stats-duration {
+	display: flex !important;
+}

@@ -1,0 +1,340 @@
+{
+  "id": 7467,
+  "name": "masteriyo-single-course-default",
+  "title": "Masteriyo Single Course (Default)",
+  "date": "2024-05-28 10:42:40",
+  "date_formatted": "May 28, 2024",
+  "author": {
+    "name": "admin",
+    "avatar": "https://secure.gravatar.com/avatar/729ae85bf62b9917e93538db2f2688ca?s=60&d=mm&r=g",
+    "url": "http://masteriyo.me"
+  },
+  "permalink": "https://masteriyo.me/template/masteriyo-single-course-default/",
+  "thumbnail": false,
+  "bundles": [],
+  "tags": [],
+  "type": "masteriyo-single-course",
+  "content": [
+    {
+      "id": "7bb81d",
+      "name": "section",
+      "parent": 0,
+      "children": ["71c593", "479df7"],
+      "settings": {
+        "_display": "flex",
+        "_flexWrap": "wrap",
+        "_direction": "row",
+        "_background": { "color": { "hex": "#ffffff" } },
+        "_alignSelf": "flex-start",
+        "_border": {
+          "radius": { "top": "5", "right": "5", "left": "5", "bottom": "5" }
+        },
+        "_widthMax": "1200",
+        "_direction:mobile_portrait": "column",
+        "_direction:mobile_landscape": "column",
+        "_alignSelf:mobile_portrait": "stretch"
+      }
+    },
+    {
+      "id": "71c593",
+      "name": "block",
+      "parent": "7bb81d",
+      "children": ["fbc112"],
+      "settings": {
+        "_width": "66%",
+        "_padding": {
+          "left": "15px",
+          "top": "15px",
+          "right": "15px",
+          "bottom": "15px"
+        },
+        "_widthMax": "66.66%",
+        "_background": { "color": { "hex": "#ffffff" } },
+        "_border": {
+          "color": { "hex": "#e0e0e0", "id": "4cd7fe", "name": "Color #2" },
+          "width": { "top": "1", "right": "1", "bottom": "1", "left": "1" },
+          "radius": { "top": "5", "right": "5", "left": "5", "bottom": "5" }
+        },
+        "_width:mobile_portrait": "90%",
+        "_widthMax:mobile_portrait": "90%",
+        "_widthMax:mobile_landscape": "100%",
+        "_width:mobile_landscape": "100%"
+      }
+    },
+    {
+      "id": "479df7",
+      "name": "block",
+      "parent": "7bb81d",
+      "children": ["ed1ab7", "fc59cf", "bb83ca"],
+      "settings": {
+        "_width": "33.33%",
+        "_padding": {
+          "left": "15px",
+          "top": "15px",
+          "right": "15px",
+          "bottom": "15px"
+        },
+        "_widthMax": "33.33%",
+        "_alignSelf": "flex-start",
+        "_border": {
+          "style": "solid",
+          "color": { "hex": "#e0e0e0", "id": "4cd7fe", "name": "Color #2" },
+          "radius": { "top": "5", "right": "5", "left": "5", "bottom": "5" },
+          "width": { "top": "1", "right": "1", "bottom": "1", "left": "1" }
+        },
+        "_display:mobile_portrait": "flex",
+        "_direction:mobile_portrait": "column",
+        "_alignSelf:mobile_portrait": "center",
+        "_width:mobile_portrait": "100%",
+        "_widthMax:mobile_portrait": "100%",
+        "_width:mobile_landscape": "100%",
+        "_widthMax:mobile_landscape": "100%",
+        "_display:mobile_landscape": "flex",
+        "_direction:mobile_landscape": "column",
+        "_alignSelf:mobile_landscape": "center"
+      }
+    },
+    {
+      "id": "ed1ab7",
+      "name": "block",
+      "parent": "479df7",
+      "children": ["931cab"],
+      "settings": { "_direction": "row", "_padding": { "top": "24px" } }
+    },
+    {
+      "id": "931cab",
+      "name": "block",
+      "parent": "ed1ab7",
+      "children": ["7bcb46", "3ee201"],
+      "settings": {
+        "_direction": "row",
+        "_padding": { "left": "24px", "right": "24px", "bottom": "24px" },
+        "_display": "flex",
+        "_justifyContent": "space-between",
+        "_border": {
+          "width": { "bottom": "1" },
+          "style": "solid",
+          "color": { "hex": "#e0e0e0", "id": "4cd7fe", "name": "Color #2" }
+        }
+      }
+    },
+    {
+      "id": "7bcb46",
+      "name": "block",
+      "parent": "931cab",
+      "children": ["3259b6"],
+      "settings": []
+    },
+    {
+      "id": "3259b6",
+      "name": "single_course_price",
+      "parent": "7bcb46",
+      "children": [],
+      "settings": {
+        "single_course_price_typography": {
+          "font-size": "28",
+          "text-transform": "uppercase",
+          "font-weight": "700"
+        }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "3ee201",
+      "name": "block",
+      "parent": "931cab",
+      "children": ["54e2eb", "e25825"],
+      "settings": {
+        "_direction": "row",
+        "_margin": { "left": "-1" },
+        "_alignSelf": "center",
+        "_alignItems": "center"
+      }
+    },
+    {
+      "id": "54e2eb",
+      "name": "single_course_retake",
+      "parent": "3ee201",
+      "children": [],
+      "settings": {
+        "course_rating_margin": "5px",
+        "course_retake_svg_size": "20",
+        "course_retake_color": {
+          "hex": "#616161",
+          "id": "666826",
+          "name": "Color #4"
+        }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "e25825",
+      "name": "single_course_button",
+      "parent": "3ee201",
+      "children": [],
+      "settings": { "show_course_button": "block" },
+      "themeStyles": []
+    },
+    {
+      "id": "fbc112",
+      "name": "block",
+      "parent": "71c593",
+      "children": ["9bf970", "a03ec4", "lbvhad", "e3de93", "5b2b2e"],
+      "settings": {
+        "_background": { "color": { "hex": "#ffffff" } },
+        "_border": {
+          "radius": {
+            "top": "8px",
+            "right": "8px",
+            "left": "8px",
+            "bottom": "8px"
+          },
+          "color": { "hex": "#e0e0e0", "id": "4cd7fe", "name": "Color #2" },
+          "style": "solid",
+          "width": { "top": "1", "right": "1", "bottom": "1", "left": "1" }
+        },
+        "_padding": { "left": "0", "top": "0", "right": "0", "bottom": "0" }
+      }
+    },
+    {
+      "id": "9bf970",
+      "name": "single_course_featured_image",
+      "parent": "fbc112",
+      "children": [],
+      "settings": {
+        "_padding": { "bottom": "11px" },
+        "show_thumbnail": "block",
+        "show_difficulty_badge": "inline",
+        "difficulty_badge_vertical_position": "24px",
+        "difficulty_badge_horizontal_position": "24px",
+        "_margin": { "bottom": "9" }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "a03ec4",
+      "name": "masteriyo-course--content__category",
+      "parent": "fbc112",
+      "children": [],
+      "settings": {
+        "visibility_course_categories": "block",
+        "_padding": {
+          "top": "0",
+          "bottom": "0",
+          "left": "32px",
+          "right": "32px"
+        }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "e3de93",
+      "name": "block",
+      "parent": "fbc112",
+      "children": ["322d9d", "fc3cfa"],
+      "settings": {
+        "_direction": "row",
+        "_padding": { "top": "0", "left": "32", "right": "32" },
+        "_margin": { "top": "11" },
+        "_display": "flex",
+        "_justifyContent": "space-between",
+        "_alignSelf": "flex-end"
+      }
+    },
+    {
+      "id": "322d9d",
+      "name": "single_course_author",
+      "parent": "e3de93",
+      "children": [],
+      "settings": {
+        "_margin": { "top": "0" },
+        "_width": "48",
+        "show_course_author_img": "inline",
+        "author_direction": "row",
+        "author_vertical_alignment": "center",
+        "course_author_image_border": {
+          "radius": { "top": "25", "right": "25", "left": "25", "bottom": "25" }
+        },
+        "course_author_margin": { "right": "0" },
+        "course_author_typography": {
+          "color": { "hex": "#212121", "id": "a0aa23", "name": "Color #6" },
+          "text-transform": "capitalize",
+          "font-weight": "700",
+          "letter-spacing": "0"
+        },
+        "course_author_hight_width:tablet_portrait": "47",
+        "course_author_text_margin:tablet_portrait": { "left": "12" },
+        "course_author_hight_width": "46",
+        "course_author_text_margin": { "left": "7" }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "5b2b2e",
+      "name": "single_course_contents",
+      "parent": "fbc112",
+      "children": [],
+      "settings": { "show_course_contents": "block" },
+      "themeStyles": []
+    },
+    {
+      "id": "fc59cf",
+      "name": "block",
+      "parent": "479df7",
+      "children": ["79fdfe"],
+      "settings": []
+    },
+    {
+      "id": "02fecf",
+      "name": "single_course_highlights",
+      "parent": "bb83ca",
+      "children": [],
+      "settings": {
+        "_padding": { "left": "31", "bottom": "0" },
+        "show_course_highlight": "block",
+        "_margin": { "bottom": "0", "top": "11" }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "bb83ca",
+      "name": "block",
+      "parent": "479df7",
+      "children": ["02fecf"],
+      "settings": []
+    },
+    {
+      "id": "79fdfe",
+      "name": "single_course_stats",
+      "parent": "fc59cf",
+      "children": [],
+      "settings": { "_margin": { "bottom": "8" } },
+      "themeStyles": []
+    },
+    {
+      "id": "fc3cfa",
+      "name": "single_course_ratings",
+      "parent": "e3de93",
+      "children": [],
+      "settings": {
+        "course_rating_color": "#e59819",
+        "course_rating_svg_size": "15",
+        "display_course_rating": "flex",
+        "display_course_rating_justify_content": "center",
+        "course_rating_text": { "right": "0", "left": "16", "top": "0" },
+        "course_rating_margin:tablet_portrait": { "top": "15" },
+        "course_rating_margin": { "top": "9" }
+      },
+      "themeStyles": []
+    },
+    {
+      "id": "lbvhad",
+      "name": "single_course_title",
+      "parent": "fbc112",
+      "children": [],
+      "settings": { "show_course_title": "block" },
+      "themeStyles": []
+    }
+  ],
+  "templateType": "masteriyo-course-archive"
+}

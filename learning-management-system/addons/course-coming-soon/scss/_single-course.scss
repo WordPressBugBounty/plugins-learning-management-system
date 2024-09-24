@@ -1,0 +1,109 @@
+.masteriyo-single-course--course-coming-soon-btn {
+	box-sizing: border-box;
+	color: var(--masteriyo-color-primary);
+	background: var(--masteriyo-color-white);
+	border: 1px solid var(--masteriyo-color-primary);
+	padding: 6px 16px;
+	border-radius: 2px;
+	font-size: 14px;
+	font-weight: 500;
+	text-decoration: none;
+
+	&:hover {
+		box-sizing: border-box;
+		color: var(--masteriyo-color-primary);
+		background: var(--masteriyo-color-white);
+		border: 1px solid var(--masteriyo-color-primary);
+		padding: 6px 16px;
+		border-radius: 2px;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	&:focus {
+		box-sizing: border-box;
+		color: var(--masteriyo-color-primary);
+		background: var(--masteriyo-color-white);
+		border: 1px solid var(--masteriyo-color-primary);
+		padding: 6px 16px;
+		border-radius: 2px;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+	}
+	&:active {
+		box-sizing: border-box;
+		color: var(--masteriyo-color-primary);
+		background: var(--masteriyo-color-white);
+		border: 1px solid var(--masteriyo-color-primary);
+		padding: 6px 16px;
+		border-radius: 2px;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+	}
+}
+
+.masteriyo-single-course--course-coming-soon-msg {
+	box-sizing: border-box;
+	color: var(--masteriyo-color-text);
+	padding: 10px;
+	border-radius: 5px;
+	font-size: 14px;
+
+	.masteriyo-single-course--course-coming-soon-text {
+		color: var(--masteriyo-color-text);
+		margin-top: 10px;
+	}
+
+	.masteriyo-single-course--course-coming-soon-timer {
+		box-sizing: border-box;
+		color: var(--masteriyo-color-text);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		padding: 10px;
+		background-color: white;
+		border: 1px solid var(--masteriyo-color-border);
+		border-radius: 5px;
+		font-size: 18px;
+		text-align: center;
+
+		.masteriyo-countdown-segment {
+			text-align: center;
+			margin: 5px 10px;
+
+			@media (max-width: 600px) {
+				margin: 5px;
+			}
+		}
+
+		.masteriyo-countdown-separator {
+			margin: 5px 0;
+		}
+		&:hover {
+			box-sizing: border-box;
+			color: var(--masteriyo-color-text);
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			padding: 10px;
+			background-color: white;
+			border: 1px solid var(--masteriyo-color-border);
+			border-radius: 5px;
+			font-size: 18px;
+			text-align: center;
+			.masteriyo-countdown-segment {
+				text-align: center;
+				margin: 5px 10px;
+				@media (max-width: 600px) {
+					margin: 5px;
+				}
+			}
+			.masteriyo-countdown-separator {
+				margin: 5px 0;
+			}
+		}
+	}
+}

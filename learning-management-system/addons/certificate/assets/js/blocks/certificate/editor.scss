@@ -1,0 +1,47 @@
+.masteriyo-certificate-background-control {
+	.masteriyo-control-head {
+		margin-bottom: 12px;
+	}
+	.masteriyo-control-body {
+		.components-placeholder {
+			min-height: auto;
+			box-shadow: inset 0 0 0 1px #c9c9c9;
+			padding: 12px;
+		}
+	}
+}
+
+.post-type-mto-certificate {
+	.components-panel__row {
+		.editor-post-trash {
+			display: none;
+		}
+	}
+}
+
+button.block-editor-button-block-appender {
+	padding: 0px !important;
+
+	svg {
+		width: 18px !important;
+		height: 18px !important;
+	}
+}
+
+.certificate {
+	width: 100%;
+	height: 100%;
+
+	.wp-block {
+		&.wp-block.wp-block {
+			max-width: initial !important;
+			margin-top: 0 !important;
+			margin-bottom: 0 !important;
+			line-height: 1 !important;
+		}
+	}
+
+	.certificate-content-wrapper {
+		margin-inline: auto;
+	}
+}

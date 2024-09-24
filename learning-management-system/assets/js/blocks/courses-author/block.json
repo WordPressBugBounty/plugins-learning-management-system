@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "name": "masteriyo/course-author",
+  "title": "Course Author",
+  "description": "Customize typography and style blockquotes with multiple setting options.",
+  "keywords": ["author", "course"],
+  "category": "masteriyo",
+  "textdomain": "masteriyo",
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    }
+  },
+  "example": {
+    "attributes": {}
+  },
+  "attributes": {
+    "clientId": {
+      "type": "string"
+    }
+  },
+  "style": "masteriyo-blocks",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-blocks-editor"
+}
