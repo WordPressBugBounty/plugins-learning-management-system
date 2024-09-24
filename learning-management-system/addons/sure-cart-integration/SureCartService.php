@@ -65,15 +65,11 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	 */
 	public function add_course_attributes( $attr, $course ) {
 
-		$query = new CourseProgressQuery(
-			array(
-				'course_id' => $course->get_id(),
-				'user_id'   => get_current_user_id(),
-				'status'    => array( CourseProgressStatus::STARTED ),
-			)
-		);
+		if ( is_null( $course ) ) {
+			return $attr;
+		}
 
-		$activity = current( $query->get_course_progress() );
+		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
 		if ( $activity ) {
 			$attr['data-course-activity'] = 'started';
@@ -222,15 +218,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		if ( masteriyo_is_single_course_page() ) {
 
-			$query = new CourseProgressQuery(
-				array(
-					'course_id' => $course->get_id(),
-					'user_id'   => get_current_user_id(),
-					'status'    => array( CourseProgressStatus::STARTED ),
-				)
-			);
-
-			$activity = current( $query->get_course_progress() );
+			$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
 			if ( $activity ) {
 				return $class;
@@ -272,15 +260,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $url;
 		}
 
-		$query = new CourseProgressQuery(
-			array(
-				'course_id' => $course->get_id(),
-				'user_id'   => get_current_user_id(),
-				'status'    => array( CourseProgressStatus::STARTED ),
-			)
-		);
-
-		$activity = current( $query->get_course_progress() );
+		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
 		if ( $activity ) {
 			return $url;
@@ -418,15 +398,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $text;
 		}
 
-		$query = new CourseProgressQuery(
-			array(
-				'course_id' => $course->get_id(),
-				'user_id'   => get_current_user_id(),
-				'status'    => array( CourseProgressStatus::STARTED ),
-			)
-		);
-
-		$activity = current( $query->get_course_progress() );
+		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
 		if ( $activity ) {
 			return $text;

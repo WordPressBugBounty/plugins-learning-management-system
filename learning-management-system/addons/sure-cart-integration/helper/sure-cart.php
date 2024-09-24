@@ -3,6 +3,7 @@
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Query\CourseProgressQuery;
+use Masteriyo\Query\UserCourseQuery;
 
 if ( ! function_exists( 'is_sure_cart_active' ) ) {
 	/**
@@ -14,6 +15,29 @@ if ( ! function_exists( 'is_sure_cart_active' ) ) {
 	 */
 	function is_sure_cart_active() {
 		return in_array( 'surecart/surecart.php', get_option( 'active_plugins', array() ), true );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_check_user_course_activity' ) ) {
+	/**
+	 * Return if user course is active.
+	 *
+	 * @since 1.13.2
+	 *
+	 * @param int $course_id
+	 *
+	 * @return object $activity user course activity.
+	 */
+	function masteriyo_check_user_course_activity( $course_id ) {
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+		$activity = current( $query->get_user_courses() );
+		return $activity;
 	}
 }
 

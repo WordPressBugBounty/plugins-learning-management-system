@@ -88,8 +88,8 @@ class Lesson extends Model {
 		'download_materials'  => array(),
 		'video_meta'          => array(
 			'time_stamps'               => array(),
-			'enable_video_share'        => true,
-			'enable_right_button_click' => true,
+			'enable_video_share'        => false,
+			'enable_right_button_click' => false,
 		),
 		'starts_at'           => '',
 		'ends_at'             => '',
