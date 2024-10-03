@@ -99,6 +99,7 @@ class ComposerStaticInit785ee30e54d0fb167b93580781886754
             'Masteriyo\\Addons\\Certificate\\' => 29,
             'Masteriyo\\Addons\\BunnyNet\\' => 26,
             'Masteriyo\\Addons\\BricksIntegration\\' => 35,
+            'Masteriyo\\Addons\\BrevoIntegration\\' => 34,
             'Masteriyo\\Addons\\BeaverIntegration\\' => 35,
             'Masteriyo\\' => 10,
         ),
@@ -276,6 +277,10 @@ class ComposerStaticInit785ee30e54d0fb167b93580781886754
         'Masteriyo\\Addons\\BricksIntegration\\' => 
         array (
             0 => __DIR__ . '/../..' . '/addons/bricks-integration',
+        ),
+        'Masteriyo\\Addons\\BrevoIntegration\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/addons/brevo-integration',
         ),
         'Masteriyo\\Addons\\BeaverIntegration\\' => 
         array (
@@ -529,6 +534,10 @@ class ComposerStaticInit785ee30e54d0fb167b93580781886754
         'Masteriyo\\Addons\\BeaverIntegration\\CoursesLists\\CoursesListsModule' => __DIR__ . '/../..' . '/addons/beaver-integration/CoursesLists/CoursesListsModule.php',
         'Masteriyo\\Addons\\BeaverIntegration\\Helper' => __DIR__ . '/../..' . '/addons/beaver-integration/Helper.php',
         'Masteriyo\\Addons\\BeaverIntegration\\Providers\\BeaverIntegrationServiceProvider' => __DIR__ . '/../..' . '/addons/beaver-integration/Providers/BeaverIntegrationServiceProvider.php',
+        'Masteriyo\\Addons\\BrevoIntegration\\API\\API' => __DIR__ . '/../..' . '/addons/brevo-integration/API/API.php',
+        'Masteriyo\\Addons\\BrevoIntegration\\BrevoIntegrationAddon' => __DIR__ . '/../..' . '/addons/brevo-integration/BrevoIntegrationAddon.php',
+        'Masteriyo\\Addons\\BrevoIntegration\\BrevoIntegrationSettings' => __DIR__ . '/../..' . '/addons/brevo-integration/BrevoIntegrationSettings.php',
+        'Masteriyo\\Addons\\BrevoIntegration\\Controllers\\BrevoIntegrationController' => __DIR__ . '/../..' . '/addons/brevo-integration/Controllers/BrevoIntegrationController.php',
         'Masteriyo\\Addons\\BricksIntegration\\BricksIntegrationAddon' => __DIR__ . '/../..' . '/addons/bricks-integration/BricksIntegrationAddon.php',
         'Masteriyo\\Addons\\BricksIntegration\\Elements\\CategoriesOfCourseElement' => __DIR__ . '/../..' . '/addons/bricks-integration/Elements/CategoriesOfCourseElement.php',
         'Masteriyo\\Addons\\BricksIntegration\\Elements\\CourseArchiveViewModeElement' => __DIR__ . '/../..' . '/addons/bricks-integration/Elements/CourseArchiveViewModeElement.php',
@@ -777,6 +786,8 @@ class ComposerStaticInit785ee30e54d0fb167b93580781886754
         'Masteriyo\\Database\\Model' => __DIR__ . '/../..' . '/includes/Database/Model.php',
         'Masteriyo\\DateTime' => __DIR__ . '/../..' . '/includes/DateTime.php',
         'Masteriyo\\Deactivation' => __DIR__ . '/../..' . '/includes/Deactivation.php',
+        'Masteriyo\\EmailMarketingAndCRM\\APIClient' => __DIR__ . '/../..' . '/includes/EmailMarketingAndCRM/APIClient.php',
+        'Masteriyo\\EmailMarketingAndCRM\\IntegrationSettings' => __DIR__ . '/../..' . '/includes/EmailMarketingAndCRM/IntegrationSettings.php',
         'Masteriyo\\Emails\\Admin\\InstructorApplyEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/InstructorApplyEmailToAdmin.php',
         'Masteriyo\\Emails\\Admin\\NewOrderEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/NewOrderEmailToAdmin.php',
         'Masteriyo\\Emails\\Admin\\NewWithdrawRequestEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/NewWithdrawRequestEmailToAdmin.php',

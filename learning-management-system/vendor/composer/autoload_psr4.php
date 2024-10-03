@@ -44,6 +44,7 @@ return array(
     'Masteriyo\\Addons\\Certificate\\' => array($baseDir . '/addons/certificate'),
     'Masteriyo\\Addons\\BunnyNet\\' => array($baseDir . '/addons/bunny-net'),
     'Masteriyo\\Addons\\BricksIntegration\\' => array($baseDir . '/addons/bricks-integration'),
+    'Masteriyo\\Addons\\BrevoIntegration\\' => array($baseDir . '/addons/brevo-integration'),
     'Masteriyo\\Addons\\BeaverIntegration\\' => array($baseDir . '/addons/beaver-integration'),
     'Masteriyo\\' => array($baseDir . '/includes'),
     'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-client/src', $vendorDir . '/league/oauth2-google/src'),

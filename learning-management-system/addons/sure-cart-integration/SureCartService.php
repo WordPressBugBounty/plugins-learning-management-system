@@ -71,7 +71,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
-		if ( $activity ) {
+		if ( 'active' === $activity ) {
 			$attr['data-course-activity'] = 'started';
 			return $attr;
 		}
@@ -220,7 +220,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 			$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
-			if ( $activity ) {
+			if ( 'active' === $activity ) {
 				return $class;
 			}
 
@@ -262,7 +262,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
-		if ( $activity ) {
+		if ( 'active' === $activity ) {
 			return $url;
 		}
 
@@ -400,7 +400,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
-		if ( $activity ) {
+		if ( 'active' === $activity ) {
 			return $text;
 		}
 
@@ -770,7 +770,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		// update course access.
 		if ( $add ) {
-			return masteriyo_enroll_surecart_user( $wp_user->ID, $course_id, 'active' );
+			return masteriyo_enroll_surecart_user( $wp_user->ID, $course_id );
 		} else {
 			return masteriyo_unenroll_surecart_user( $wp_user->ID, $course_id );
 		}

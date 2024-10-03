@@ -3,19 +3,26 @@ import {
 	Box,
 	Button,
 	Container,
+	Flex,
 	Heading,
 	HStack,
 	Icon,
 	Link,
 	Stack,
 	Text,
+	Tooltip,
 	useColorMode,
+	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import humanizeDuration from 'humanize-duration';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BiCalendar } from 'react-icons/bi';
+import {
+	BsArrowsCollapseVertical,
+	BsArrowsExpandVertical,
+} from 'react-icons/bs';
 import { RiLiveLine } from 'react-icons/ri';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -30,6 +37,8 @@ import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../assets/js/interac
 import { useCourseContext } from '../../../../assets/js/interactive/context/CourseContext';
 import { CourseProgressItemsMap } from '../../../../assets/js/interactive/schemas';
 import LessonSkeleton from '../../../../assets/js/interactive/skeleton/LessonSkeleton';
+import localized from '../../../../assets/js/interactive/utils/global';
+import { getContentWidths } from '../../../../assets/js/interactive/utils/helper';
 import RedirectNavigation, {
 	navigationProps,
 } from '../../../../assets/js/interactive/utils/RedirectNavigation';
@@ -56,6 +65,21 @@ const InteractiveGoogleMeet = () => {
 		isSidebarOpen,
 		setActiveContentId,
 	} = useCourseContext();
+
+	const [isLargerThan1100] = useMediaQuery('(min-width: 1100px)');
+	const [isLargerThan1400] = useMediaQuery('(min-width: 1400px)');
+	const isFocusModeEnabled = useMemo(() => {
+		return Boolean(localized?.enableFocusMode === 'yes');
+	}, []);
+
+	const [contentWidth, setContentWidth] = useState<string>(
+		getContentWidths(isLargerThan1400)[isFocusModeEnabled ? 1 : 0],
+	);
+
+	const isLargestContentWidthEnabledBasedOnScreenSize = useMemo(() => {
+		const contentWidths = getContentWidths(isLargerThan1400);
+		return Boolean(contentWidth === contentWidths[contentWidths?.length - 1]);
+	}, [contentWidth, isLargerThan1400]);
 
 	// To set active bg on sidebar item.
 	useEffect(() => {
@@ -119,6 +143,17 @@ const InteractiveGoogleMeet = () => {
 	const start_at: Date = new Date(googleMeetQuery?.data?.starts_at);
 	const end_at: Date = new Date(googleMeetQuery?.data?.ends_at);
 
+	const updateContentWidth = () => {
+		const contentWidths = getContentWidths(isLargerThan1400);
+		const indexOfCurrentWidth = contentWidths.indexOf(contentWidth);
+
+		if (indexOfCurrentWidth === contentWidths?.length - 1) {
+			setContentWidth(contentWidths[0]);
+		} else {
+			setContentWidth(contentWidths[indexOfCurrentWidth + 1]);
+		}
+	};
+
 	React.useEffect(() => {
 		googleMeetStatus();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,143 +180,22 @@ const InteractiveGoogleMeet = () => {
 		const localStartTime = googleMeetQuery?.data?.starts_at;
 
 		return (
-			<Container centerContent maxW="container.lg" py="16">
+			<Container
+				centerContent
+				maxW={
+					contentWidth !== 'full' ? `container.${contentWidth}` : contentWidth
+				}
+				py="16"
+			>
+				{' '}
 				<Box
 					bg={
 						COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
 							?.interactiveGoogleMeetBgColor
 					}
-					p={['5', null, '14']}
 					shadow="box"
 					w="full"
 				>
-					<Stack direction="column" spacing="8">
-						<Heading as="h5">{googleMeetQuery?.data?.name}</Heading>
-
-						<Stack spacing={4}>
-							<Stack>
-								<HStack spacing={4}>
-									<HStack
-										color={
-											COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-												?.interactiveGoogleMeetTextColor
-										}
-										fontSize="sm"
-									>
-										<Text fontWeight="medium">
-											{__('Time:', 'learning-management-system')}
-										</Text>
-										<Stack
-											direction="row"
-											spacing="2"
-											alignItems="center"
-											color={
-												COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-													?.interactiveGoogleMeetTextColor
-											}
-										>
-											<Icon as={BiCalendar} />
-											<Text fontSize="15px">
-												{getWordpressLocalTime(localStartTime, 'Y-m-d, h:i A')}
-											</Text>
-										</Stack>
-									</HStack>
-									{status === GoogleMeetStatus.Active ? (
-										<Badge bg="green.500" color="white" fontSize="10px">
-											{__('Ongoing', 'learning-management-system')}
-										</Badge>
-									) : null}
-									{status === GoogleMeetStatus.Expired ? (
-										<Badge bg="red.500" color="white" fontSize="10px">
-											{__('Expired', 'learning-management-system')}
-										</Badge>
-									) : null}
-									{status === GoogleMeetStatus.UpComing ? (
-										<Badge bg="primary.500" color="white" fontSize="10px">
-											{__('UpComing', 'learning-management-system')}
-										</Badge>
-									) : null}
-								</HStack>
-
-								{+googleMeetQuery.data?.duration ? (
-									<Stack>
-										<HStack
-											color={
-												COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-													?.interactiveGoogleMeetTextColor
-											}
-											fontSize="sm"
-										>
-											<Text fontWeight="medium">
-												{__('Duration:', 'learning-management-system')}
-											</Text>
-											<Text>
-												{humanizeDuration(
-													(googleMeetQuery.data?.duration || 0) * 60 * 1000,
-												)}
-											</Text>
-										</HStack>
-									</Stack>
-								) : null}
-
-								<Stack>
-									<HStack
-										color={
-											COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-												?.interactiveGoogleMeetTextColor
-										}
-										fontSize="sm"
-									>
-										<Text fontWeight="medium">
-											{__('Meeting ID:', 'learning-management-system')}
-										</Text>
-										<Text>{googleMeetQuery.data?.meeting_id}</Text>
-									</HStack>
-								</Stack>
-
-								{googleMeetQuery.data?.password ? (
-									<Stack>
-										<HStack
-											color={
-												COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-													?.interactiveGoogleMeetTextColor
-											}
-											fontSize="sm"
-										>
-											<Text fontWeight="medium">
-												{__('Password:', 'learning-management-system')}
-											</Text>
-											<Text>{googleMeetQuery.data?.password}</Text>
-										</HStack>
-									</Stack>
-								) : null}
-							</Stack>
-
-							{status === GoogleMeetStatus.Active ||
-							status === GoogleMeetStatus.UpComing ? (
-								<HStack>
-									<Link href={googleMeetQuery?.data?.meet_url} target="_blank">
-										<Button
-											colorScheme="blue"
-											size="xs"
-											leftIcon={<RiLiveLine />}
-											fontWeight="semibold"
-										>
-											{__('Join Meeting', 'learning-management-system')}
-										</Button>
-									</Link>
-								</HStack>
-							) : null}
-						</Stack>
-
-						<Text
-							className="masteriyo-interactive-description"
-							dangerouslySetInnerHTML={{
-								__html: googleMeetQuery?.data?.description,
-							}}
-						/>
-					</Stack>
-
 					{localStartTime && !meetingStarted ? (
 						<MeetingTimer
 							startAt={localStartTime}
@@ -289,6 +203,198 @@ const InteractiveGoogleMeet = () => {
 							onTimeout={() => setMeetingStarted(true)}
 						/>
 					) : null}
+					<Box p={['5', null, '14']}>
+						<Stack direction="column" spacing="8">
+							<HStack
+								alignItems={'center'}
+								mt={
+									contentWidth === 'full' && localStartTime && !meetingStarted
+										? '5'
+										: '0'
+								}
+							>
+								<Heading as="h5" flex={1}>
+									{googleMeetQuery?.data?.name}
+								</Heading>
+								<Tooltip
+									label={
+										!isLargestContentWidthEnabledBasedOnScreenSize
+											? __('Expand Content Width', 'learning-management-system')
+											: __(
+													'Collapse Content Width',
+													'learning-management-system',
+												)
+									}
+								>
+									<Flex
+										display={isLargerThan1100 ? 'flex' : 'none'}
+										justifyContent={'center'}
+										alignItems={'center'}
+										p={2}
+										borderWidth={1}
+										borderColor={'transparent'}
+										cursor={'pointer'}
+										sx={{
+											background:
+												colorMode === 'dark'
+													? 'rgba(0, 0, 0, 0.1)'
+													: 'rgba(255, 255, 255, 0.1)',
+											backdropFilter: 'blur(10px)',
+											borderRadius: '50%',
+											transition: 'all 0.3s ease-in-out',
+											'&:hover': {
+												borderColor:
+													colorMode === 'dark' ? 'gray.600' : 'gray.100',
+												boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+												'.icon': {
+													color:
+														colorMode === 'dark' ? 'yellow.500' : 'blue.500',
+												},
+											},
+										}}
+										onClick={updateContentWidth}
+									>
+										<Icon
+											as={
+												!isLargestContentWidthEnabledBasedOnScreenSize
+													? BsArrowsExpandVertical
+													: BsArrowsCollapseVertical
+											}
+											fontSize={'larger'}
+											className={'icon'}
+										/>
+									</Flex>
+								</Tooltip>
+							</HStack>{' '}
+							<Stack spacing={4}>
+								<Stack>
+									<HStack spacing={4}>
+										<HStack
+											color={
+												COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
+													?.interactiveGoogleMeetTextColor
+											}
+											fontSize="sm"
+										>
+											<Text fontWeight="medium">
+												{__('Time:', 'learning-management-system')}
+											</Text>
+											<Stack
+												direction="row"
+												spacing="2"
+												alignItems="center"
+												color={
+													COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
+														?.interactiveGoogleMeetTextColor
+												}
+											>
+												<Icon as={BiCalendar} />
+												<Text fontSize="15px">
+													{getWordpressLocalTime(
+														localStartTime,
+														'Y-m-d, h:i A',
+													)}
+												</Text>
+											</Stack>
+										</HStack>
+										{status === GoogleMeetStatus.Active ? (
+											<Badge bg="green.500" color="white" fontSize="10px">
+												{__('Ongoing', 'learning-management-system')}
+											</Badge>
+										) : null}
+										{status === GoogleMeetStatus.Expired ? (
+											<Badge bg="red.500" color="white" fontSize="10px">
+												{__('Expired', 'learning-management-system')}
+											</Badge>
+										) : null}
+										{status === GoogleMeetStatus.UpComing ? (
+											<Badge bg="primary.500" color="white" fontSize="10px">
+												{__('UpComing', 'learning-management-system')}
+											</Badge>
+										) : null}
+									</HStack>
+
+									{+googleMeetQuery.data?.duration ? (
+										<Stack>
+											<HStack
+												color={
+													COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
+														?.interactiveGoogleMeetTextColor
+												}
+												fontSize="sm"
+											>
+												<Text fontWeight="medium">
+													{__('Duration:', 'learning-management-system')}
+												</Text>
+												<Text>
+													{humanizeDuration(
+														(googleMeetQuery.data?.duration || 0) * 60 * 1000,
+													)}
+												</Text>
+											</HStack>
+										</Stack>
+									) : null}
+
+									<Stack>
+										<HStack
+											color={
+												COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
+													?.interactiveGoogleMeetTextColor
+											}
+											fontSize="sm"
+										>
+											<Text fontWeight="medium">
+												{__('Meeting ID:', 'learning-management-system')}
+											</Text>
+											<Text>{googleMeetQuery.data?.meeting_id}</Text>
+										</HStack>
+									</Stack>
+
+									{googleMeetQuery.data?.password ? (
+										<Stack>
+											<HStack
+												color={
+													COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
+														?.interactiveGoogleMeetTextColor
+												}
+												fontSize="sm"
+											>
+												<Text fontWeight="medium">
+													{__('Password:', 'learning-management-system')}
+												</Text>
+												<Text>{googleMeetQuery.data?.password}</Text>
+											</HStack>
+										</Stack>
+									) : null}
+								</Stack>
+
+								{status === GoogleMeetStatus.Active ||
+								status === GoogleMeetStatus.UpComing ? (
+									<HStack>
+										<Link
+											href={googleMeetQuery?.data?.meet_url}
+											target="_blank"
+										>
+											<Button
+												colorScheme="blue"
+												size="xs"
+												leftIcon={<RiLiveLine />}
+												fontWeight="semibold"
+											>
+												{__('Join Meeting', 'learning-management-system')}
+											</Button>
+										</Link>
+									</HStack>
+								) : null}
+							</Stack>
+							<Text
+								className="masteriyo-interactive-description"
+								dangerouslySetInnerHTML={{
+									__html: googleMeetQuery?.data?.description,
+								}}
+							/>
+						</Stack>
+					</Box>
 
 					<FloatingNavigation
 						navigation={googleMeetQuery?.data?.navigation}

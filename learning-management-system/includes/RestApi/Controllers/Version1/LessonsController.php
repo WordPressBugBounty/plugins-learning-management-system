@@ -1110,8 +1110,8 @@ class LessonsController extends PostsController {
 			$lesson->set_video_meta(
 				array(
 					'time_stamps'               => array(),
-					'enable_video_share'        => true,
-					'enable_right_button_click' => true,
+					'enable_video_share'        => false,
+					'enable_right_button_click' => false,
 				)
 			);
 

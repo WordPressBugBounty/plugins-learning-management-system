@@ -79,6 +79,8 @@ class ScriptStyle {
 
 		// Remove third party styles from learn page.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_styles_from_learn_page' ), PHP_INT_MAX );
+		// Remove third party styles from account page.
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_styles_from_account_page' ), PHP_INT_MAX );
 	}
 
 	/**
@@ -1165,6 +1167,7 @@ class ScriptStyle {
 						'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
 						'isQRLoginEnabled'        => masteriyo_bool_to_string( masteriyo_is_qr_login_enabled() ),
 						'QRLoginAttentionMessage' => masteriyo_get_setting( 'advance.qr_login.attention_message' ),
+						'showHeaderFooter'        => masteriyo_bool_to_string( masteriyo_get_setting( 'accounts_page.display.layout.enable_header_footer' ) ),
 					),
 				),
 				'login-form'              => array(
@@ -1294,6 +1297,7 @@ class ScriptStyle {
 						'showSidebar'                  => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_sidebar' ) ),
 						'showHeader'                   => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_header' ) ),
 						'reviewOptionIsVisible'        => masteriyo_bool_to_string( masteriyo_is_reviews_enabled_in_learn_page() ),
+						'isCurrentUserAdmin'           => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 					),
 				),
 				'courses'                 => array(
@@ -1306,7 +1310,7 @@ class ScriptStyle {
 						),
 					),
 				),
-			)
+			),
 		);
 
 		if ( masteriyo_is_categories_slider_enabled() ) {
@@ -1339,6 +1343,45 @@ class ScriptStyle {
 			return;
 		}
 
+		$whitelist = self::get_whitelist_styles_in_learn_page();
+
+		// Dequeue blacklist styles
+		foreach ( $wp_styles->registered as $style ) {
+			if ( ! in_array( $style->handle, $whitelist, true ) ) {
+				wp_deregister_style( $style->handle );
+			}
+		}
+
+		foreach ( $wp_styles->queue as $handle ) {
+			if ( ! in_array( $handle, $whitelist, true ) ) {
+				wp_dequeue_style( $handle );
+			}
+		}
+	}
+
+	/**
+	 * Remove styles in account page.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @return void
+	 */
+	public static function remove_styles_from_account_page() {
+		global $wp_styles;
+
+		// Bail early if the page is not learn.
+		if ( ! is_user_logged_in() || ! masteriyo_is_account_page() ) {
+			return;
+		}
+
+		$show_header_footer = masteriyo_get_setting( 'accounts_page.display.layout.enable_header_footer' );
+
+		// Return if header footer is enabled.
+		if ( $show_header_footer ) {
+			return;
+		}
+
+		#TODO make whitelist styles for account page separately.
 		$whitelist = self::get_whitelist_styles_in_learn_page();
 
 		// Dequeue blacklist styles

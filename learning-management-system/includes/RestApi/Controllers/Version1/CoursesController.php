@@ -239,6 +239,47 @@ class CoursesController extends PostsController {
 	}
 
 	/**
+	 * Restore courses.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function restore_items( $request ) {
+		$restored_objects = array();
+
+		$objects = $this->get_objects(
+			array(
+				'post_status'    => PostStatus::TRASH,
+				'post_type'      => $this->post_type,
+				'post__in'       => $request['ids'],
+				'posts_per_page' => -1,
+			)
+		);
+
+		$objects = isset( $objects['objects'] ) ? $objects['objects'] : array();
+
+		foreach ( $objects as $object ) {
+			if ( ! $this->check_item_permission( $this->post_type, 'delete', $object->get_id() ) ) {
+				continue;
+			}
+
+			wp_untrash_post( $object->get_id() );
+
+			// Read object again.
+			$object->set_status( PostStatus::DRAFT );
+
+			// do_action( 'masteriyo_rest_restore_course_item', $object->get_id(), $object );
+			$data               = $this->prepare_object_for_response( $object, $request );
+			$restored_objects[] = $this->prepare_response_for_collection( $data );
+		}
+
+		return rest_ensure_response( $restored_objects );
+	}
+
+	/**
 	 * Get the query params for collections of attachments.
 	 *
 	 * @since 1.0.0
@@ -1266,8 +1307,11 @@ class CoursesController extends PostsController {
 		}
 
 		wp_untrash_post( $object->get_id() );
+		$object->set_status( PostStatus::DRAFT );
+		$object->save();
 
-		// Read object again.
+		do_action( 'masteriyo_course_restore', $request['id'], $object );
+
 		$object = $this->get_object( (int) $request['id'] );
 
 		$data     = $this->prepare_object_for_response( $object, $request );

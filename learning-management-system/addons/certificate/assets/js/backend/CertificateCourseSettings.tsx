@@ -83,91 +83,119 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 			) : null}
 			{isCertificateEnabled && certificatesQuery.isSuccess ? (
 				<Collapse in={isCertificateEnabled}>
-					<FormControlTwoCol>
-						<FormLabel minW="160px" mb={0}>
-							{__('Certificate', 'learning-management-system')}
-							<Tooltip
-								label={__(
-									'Select which certificate to use for this course.',
-									'learning-management-system',
-								)}
-								hasArrow
-								fontSize="xs"
-							>
-								<Box as="span" sx={infoIconStyles}>
-									<Icon as={BiInfoCircle} />
-								</Box>
-							</Tooltip>
-						</FormLabel>
-						<Controller
-							name="certificate_id"
-							control={control}
-							defaultValue={
-								courseData?.certificate?.id
-									? {
-											value: courseData.certificate.id,
-											label: courseData.certificate.name,
-										}
-									: undefined
-							}
-							render={({ field: { onChange, value } }) => (
-								<AsyncSelect
-									styles={{
-										...reactSelectStyles,
-									}}
-									cacheOptions={true}
-									loadingMessage={() =>
-										__('Searching...', 'learning-management-system')
-									}
-									noOptionsMessage={({ inputValue }) =>
-										!isEmpty(inputValue)
-											? __(
-													'Certificate not found.',
-													'learning-management-system',
-												)
-											: __(
-													'Please enter one or more characters.',
-													'learning-management-system',
-												)
-									}
-									isClearable={true}
-									placeholder={__(
-										'Search certificate...',
+					<Stack direction={'column'} gap={8}>
+						<FormControlTwoCol>
+							<FormLabel minW="160px" mb={0}>
+								{__('Certificate', 'learning-management-system')}
+								<Tooltip
+									label={__(
+										'Select which certificate to use for this course.',
 										'learning-management-system',
 									)}
-									value={value}
-									onChange={onChange}
-									defaultOptions={
-										certificatesQuery.isSuccess
-											? certificatesQuery.data?.data?.map((certificate) => ({
-													value: certificate.id,
-													label: certificate.name,
-												}))
-											: []
-									}
-									loadOptions={(searchValue, callback) => {
-										if (isEmpty(searchValue)) {
-											return callback([]);
+									hasArrow
+									fontSize="xs"
+								>
+									<Box as="span" sx={infoIconStyles}>
+										<Icon as={BiInfoCircle} />
+									</Box>
+								</Tooltip>
+							</FormLabel>
+							<Controller
+								name="certificate_id"
+								control={control}
+								defaultValue={
+									courseData?.certificate?.id
+										? {
+												value: courseData.certificate.id,
+												label: courseData.certificate.name,
+											}
+										: undefined
+								}
+								render={({ field: { onChange, value } }) => (
+									<AsyncSelect
+										styles={{
+											...reactSelectStyles,
+										}}
+										cacheOptions={true}
+										loadingMessage={() =>
+											__('Searching...', 'learning-management-system')
 										}
-										getAllCertificates({
-											search: searchValue,
-											order: 'desc',
-											orderby: 'date',
-											status: CertificateStatus.Publish,
-											per_page: -1,
-										}).then((data) => {
-											callback(
-												data.data.map((certificate) => ({
-													value: certificate.id,
-													label: certificate.name,
-												})),
-											);
-										});
-									}}
+										noOptionsMessage={({ inputValue }) =>
+											!isEmpty(inputValue)
+												? __(
+														'Certificate not found.',
+														'learning-management-system',
+													)
+												: __(
+														'Please enter one or more characters.',
+														'learning-management-system',
+													)
+										}
+										isClearable={true}
+										placeholder={__(
+											'Search certificate...',
+											'learning-management-system',
+										)}
+										value={value}
+										onChange={onChange}
+										defaultOptions={
+											certificatesQuery.isSuccess
+												? certificatesQuery.data?.data?.map((certificate) => ({
+														value: certificate.id,
+														label: certificate.name,
+													}))
+												: []
+										}
+										loadOptions={(searchValue, callback) => {
+											if (isEmpty(searchValue)) {
+												return callback([]);
+											}
+											getAllCertificates({
+												search: searchValue,
+												order: 'desc',
+												orderby: 'date',
+												status: CertificateStatus.Publish,
+												per_page: -1,
+											}).then((data) => {
+												callback(
+													data.data.map((certificate) => ({
+														value: certificate.id,
+														label: certificate.name,
+													})),
+												);
+											});
+										}}
+									/>
+								)}
+							/>
+						</FormControlTwoCol>
+
+						<FormControlTwoCol>
+							<Stack direction="row">
+								<FormLabel minW="160px">
+									{__('Share Certificate', 'learning-management-system')}
+									<Tooltip
+										label={__(
+											'Allow students to view/share certificate from single course page after course completion.',
+											'learning-management-system',
+										)}
+										hasArrow
+										fontSize="xs"
+									>
+										<Box as="span" sx={infoIconStyles}>
+											<Icon as={BiInfoCircle} />
+										</Box>
+									</Tooltip>
+								</FormLabel>
+								<Switch
+									{...register('certificate_single_course_enabled')}
+									defaultChecked={
+										courseData?.certificate?.single_course_enabled
+									}
 								/>
-							)}
-						/>
-					</FormControlTwoCol>
+							</Stack>
+						</FormControlTwoCol>
+					</Stack>
 				</Collapse>
 			) : null}
 			{isCertificateEnabled && certificatesQuery.isLoading ? (

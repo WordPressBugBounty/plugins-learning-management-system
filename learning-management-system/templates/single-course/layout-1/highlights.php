@@ -49,4 +49,4 @@ do_action( 'masteriyo_before_single_course_highlights', $course );
  *
  * @since 1.10.0
  */
-do_action( 'masteriyo_after_single_course_highlights' );
+do_action( 'masteriyo_after_single_course_highlights', $course );

@@ -466,9 +466,12 @@ class Checkout {
 				masteriyo_create_new_user_username( $data['billing_email'] ),
 				'',
 				Roles::STUDENT,
-				array(
-					'first_name' => $data['billing_first_name'],
-					'last_name'  => $data['billing_last_name'],
+				array_merge(
+					array(
+						'first_name' => $data['billing_first_name'],
+						'last_name'  => $data['billing_last_name'],
+					),
+					$data
 				)
 			);
 

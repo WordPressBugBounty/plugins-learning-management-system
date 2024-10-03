@@ -257,7 +257,10 @@ const GoogleClassroomSetting = () => {
 										)}
 									</Text>
 									<Link
-										href={'https://console.cloud.google.com'}
+										// href={'https://console.cloud.google.com'}
+										href={
+											'https://docs.masteriyo.com/free-addons/google-classroom-integration'
+										}
 										target="_blank"
 										sx={{ textDecoration: 'underline' }}
 									>

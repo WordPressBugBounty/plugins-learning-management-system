@@ -6,7 +6,7 @@
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
  * Addon Type: feature
- * Plan: free
+ * Plan: Free
  */
 
 use Masteriyo\Addons\WishList\WishListAddon;

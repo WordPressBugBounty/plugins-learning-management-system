@@ -11,6 +11,7 @@ use Masteriyo\Addons\Scorm\Controllers\ScormController;
 use Masteriyo\Constants;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Pro\Addons;
+use Masteriyo\Query\CourseProgressQuery;
 
 /**
  * SCORM Addon main class for Masteriyo.
@@ -143,6 +144,15 @@ class ScormAddon {
 		if ( ! empty( $scorm_package ) ) {
 
 			$course_id = $course->get_id();
+
+			$query = new CourseProgressQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => get_current_user_id(),
+				)
+			);
+
+			$progress = current( $query->get_course_progress() );
 
 			require Constants::get( 'MASTERIYO_SCORM_ADDON_TEMPLATES' ) . '/scorm-learn.php';
 

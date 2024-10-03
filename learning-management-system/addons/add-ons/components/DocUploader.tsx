@@ -137,7 +137,7 @@ const DocUploader: React.FC<Props> = (props) => {
 				onFileChange: (attachments: any) => {
 					setFiles([
 						...files,
-						...attachments.map((attachment: any) => ({
+						...attachments?.map((attachment: any) => ({
 							id: attachment?.id,
 							url: attachment?.url,
 							title: getFileNameFromURL(attachment?.url),

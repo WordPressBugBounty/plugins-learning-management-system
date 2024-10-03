@@ -7,6 +7,7 @@
 
 use Masteriyo\Addons\Certificate\Models\Certificate;
 use Masteriyo\Addons\Certificate\PDF\BlockBuilders\Fallback;
+use Masteriyo\Roles;
 
 if ( ! function_exists( 'masteriyo_get_certificate' ) ) {
 	/**
@@ -663,5 +664,147 @@ if ( ! function_exists( 'masteriyo_get_image_relative_path' ) ) {
 		$relative_path = wp_make_link_relative( $url );
 
 		return ABSPATH . $relative_path;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_certificate_enabled_for_single_course' ) ) {
+	/**
+	 * Check if certificate is enabled for a single course page.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param integer $$course_id
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_is_certificate_enabled_for_single_course( $course_id ) {
+		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_single_course_enabled', true ) );
+	}
+}
+
+
+if ( ! function_exists( 'masteriyo_get_certificate_addon_view_url' ) ) {
+	/**
+	 * Get the certificate view url of a user.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param \Masteriyo\Models\Course $course The course object.
+	 * @param int|WP_User|Masteriyo\Database\Model $user User ID, WP_User object, or Masteriyo\Database\Model object.
+	 *
+	 * @return string $view_url The certificate view url.
+	 */
+	function masteriyo_get_certificate_addon_view_url( $course, $user, $certificate_id ) {
+
+		$certificate = masteriyo_get_certificate( $certificate_id );
+
+		$user = masteriyo_get_user( $user );
+
+		if ( is_null( $certificate ) || is_wp_error( $certificate ) ) {
+			return '';
+		}
+
+		$view_url = add_query_arg(
+			array(
+				'course_id'      => $course->get_id(),
+				'certificate_id' => $certificate_id,
+				'username'       => $user->get_username(),
+			),
+			// masteriyo_get_certificate_share_url( $user->get_username() ) // This is will be used later
+			home_url( '/' )
+		);
+
+		return $view_url;
+	}
+}
+
+// TODO - This function will be used later
+// if ( ! function_exists( 'masteriyo_get_certificate_share_url' ) ) {
+// 	/**
+// 	 * Retrieve the public profile URL for a masteriyo student/instructor.
+// 	 *
+// 	 * @since 1.13.3
+// 	 *
+// 	 * @param string $username Username of the user.
+// 	 * @return string The URL to the user's public profile.
+// 	 */
+// 	function masteriyo_get_certificate_share_url( $username ) {
+
+
+// 		$structure = get_option( 'permalink_structure' );
+
+// 		if ( 'plain' === $structure || '' === $structure ) {
+// 			$slug = '?username=' . $username;
+// 		} else {
+// 			$slug = $username;
+// 		}
+
+// 		return home_url( $slug );
+// 	}
+// }
+
+if ( ! function_exists( 'masteriyo_get_user_by_username_certificate' ) ) {
+	/**
+	 * Get the masteriyo user from username.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param string $username The username to validate.
+	 *
+	 * @return WP_User|Masteriyo\Database\Model|bool Returns Masteriyo\Database\Model object if valid and exists, false otherwise.
+	 */
+	function masteriyo_get_user_by_username_certificate( $username ) {
+
+		$username = masteriyo_validate_username_certificate( $username );
+
+		if ( ! $username ) {
+			return false;
+		}
+
+		$user = get_user_by( 'login', $username );
+
+		if ( $user ) {
+
+			$user = masteriyo_get_user( $user );
+
+			if ( ! $user || is_wp_error( $user ) ) {
+				return false;
+			}
+
+			if ( ! ( $user->has_role( Roles::STUDENT ) || $user->has_role( Roles::INSTRUCTOR ) || $user->has_role( Roles::ADMIN ) ) ) {
+				return false;
+			}
+
+			return $user;
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_validate_username_certificate' ) ) {
+	/**
+	 * Validates a username.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param string $username The username to validate.
+	 *
+	 * @return string|bool The validated username if valid and exists, false otherwise.
+	 */
+	function masteriyo_validate_username_certificate( $username ) {
+
+		if ( empty( $username ) ) {
+			return false;
+		}
+
+		$username = sanitize_text_field( $username );
+		$user     = get_user_by( 'login', $username );
+
+		if ( $user ) {
+			return $username;
+		}
+
+		return false;
 	}
 }

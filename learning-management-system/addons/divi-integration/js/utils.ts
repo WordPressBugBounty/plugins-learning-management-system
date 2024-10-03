@@ -94,7 +94,7 @@ export function processModuleStyleTemplates(moduleSlug: string, props: any) {
 				const settingName = match.slice(2, -2);
 				const value = isEmpty(props[settingName]) ? '' : props[settingName];
 
-				preparedStyle.declaration = preparedStyle.declaration.replaceAll(
+				preparedStyle.declaration = preparedStyle?.declaration?.replaceAll(
 					match,
 					value,
 				);

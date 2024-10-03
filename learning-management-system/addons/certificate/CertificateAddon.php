@@ -14,6 +14,8 @@ use Masteriyo\Addons\Certificate\PDF\CertificatePDF;
 use Masteriyo\Addons\Certificate\PostType\Certificate;
 use Masteriyo\Addons\Certificate\RestApi\Controllers\Version1\CertificatesController;
 use Masteriyo\Constants;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\ScriptStyle;
 
 defined( 'ABSPATH' ) || exit;
@@ -106,6 +108,203 @@ class CertificateAddon {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'add_submenus' ) );
+
+		add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
+		// add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
+
+		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_footer', array( $this, 'add_certificate_share_popup_modal' ) );
+
+		add_filter( 'query_vars', array( $this, 'add_certificate_share_query_vars' ) );
+		add_action( 'template_redirect', array( $this, 'handle_certificate_share_preview' ), 10 );
+	}
+
+	/**
+	 * Add certificate share query vars.
+	 *
+	 * @param array $query_vars The existing query vars.
+	 *
+	 * @return array The modified query vars.
+	 *
+	 * @since 1.13.3
+	 */
+	public function add_certificate_share_query_vars( $query_vars ) {
+
+		$query_vars[] = 'username';
+		$query_vars[] = 'certificate_id';
+		$query_vars[] = 'course_id';
+
+		return $query_vars;
+	}
+
+	/**
+	 * Handles the preview of a certificate.
+	 *
+	 * @since 1.13.3
+	 */
+	public function handle_certificate_share_preview() {
+		$username       = sanitize_text_field( get_query_var( 'username' ) );
+		$certificate_id = absint( get_query_var( 'certificate_id' ) );
+		$course_id      = absint( get_query_var( 'course_id' ) );
+
+		$user = masteriyo_get_user_by_username_certificate( $username );
+
+		if ( is_wp_error( $user ) ) {
+			return;
+		}
+
+		if ( $certificate_id && $course_id ) {
+			$certificate = masteriyo_get_certificate( $certificate_id );
+
+			if ( ! $certificate ) {
+				return;
+			}
+
+			$certificate_html_content = $certificate->get_html_content();
+
+			if ( is_wp_error( $certificate_html_content ) ) {
+				return;
+			}
+
+			$certificate_pdf = new CertificatePDF( $course_id, $user->get_id(), $certificate_html_content );
+
+			if ( ! $certificate_pdf || is_wp_error( $certificate_pdf ) ) {
+				return;
+			}
+
+			$certificate_pdf->serve_preview();
+		}
+	}
+
+	/**
+	 * Render certificate share button in single course page.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param \Masteriyo\Models\Course $course
+	 */
+	public function render_certificate_share_for_single_course_page( $course ) {
+
+		if ( ! $course ) {
+			return;
+		}
+
+		$certificate_id = get_post_meta( $course->get_id(), '_certificate_enabled', true );
+
+		if ( ! $certificate_id ) {
+			return;
+		}
+
+		$single_course_enabled = masteriyo_is_certificate_enabled_for_single_course( $course->get_id() );
+
+		if ( ! $single_course_enabled ) {
+			return;
+		}
+
+		$certificate_id = get_post_meta( $course->get_id(), '_certificate_id', true );
+
+		if ( ! $certificate_id ) {
+			return;
+		}
+
+		$certificate = masteriyo_get_certificate( $certificate_id );
+
+		if ( ! $certificate ) {
+			return;
+		}
+
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+				'status'    => array( CourseProgressStatus::COMPLETED ),
+			)
+		);
+
+		$activity = current( $query->get_course_progress() );
+
+		if ( ! $activity ) {
+			return;
+		}
+
+		require MASTERIYO_CERTIFICATE_TEMPLATES . '/certificate-share.php';
+	}
+
+	/**
+	 * Enqueue scripts.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param array $scripts Array of scripts.
+	 * @return array
+	 */
+	public function enqueue_scripts( $scripts ) {
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		return masteriyo_parse_args(
+			$scripts,
+			array(
+				'masteriyo-certificate-share-single-course' => array(
+					'src'      => plugin_dir_url( Constants::get( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_FILE' ) ) . 'assets/js/frontend/single-course' . $suffix . '.js',
+					'context'  => 'public',
+					'callback' => function() {
+						return masteriyo_is_single_course_page();
+					},
+					'deps'     => array( 'jquery' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Renders a popup modal with certificate preview on single course pages.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @return void
+	 */
+	public function add_certificate_share_popup_modal() {
+		if ( ! masteriyo_is_single_course_page() ) {
+			return;
+		}
+
+		$course = $GLOBALS['course'];
+		$course = masteriyo_get_course( $course );
+
+		if ( ! $course ) {
+			return;
+		}
+
+		$certificate_id = get_post_meta( $course->get_id(), '_certificate_id', true );
+
+		if ( ! $certificate_id ) {
+			return;
+		}
+
+		$certificate = masteriyo_get_certificate( $certificate_id );
+
+		if ( ! $certificate ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		$user = masteriyo_get_user( $user_id );
+
+		if ( is_wp_error( $user ) ) {
+			return;
+		}
+
+		$certificate_url = array(
+			'id'       => $certificate->get_id(),
+			'view_url' => masteriyo_get_certificate_addon_view_url( $course, $user_id, $certificate->get_id() ),
+		);
+
+		if ( empty( $certificate_url ) ) {
+			return;
+		}
+
+		require MASTERIYO_CERTIFICATE_TEMPLATES . '/certificate-share-modal.php';
 	}
 
 	/**
@@ -414,6 +613,11 @@ class CertificateAddon {
 		if ( isset( $request['certificate_id'], $request['certificate_id']['value'] ) ) {
 			update_post_meta( $id, '_certificate_id', absint( $request['certificate_id']['value'] ) );
 		}
+
+		if ( isset( $request['certificate_single_course_enabled'] ) ) {
+			update_post_meta( $id, '_certificate_single_course_enabled', masteriyo_array_get( $request, 'certificate_single_course_enabled', false ) );
+		}
+
 	}
 
 	/**
@@ -438,9 +642,10 @@ class CertificateAddon {
 		}
 
 		$data['certificate'] = array(
-			'id'      => $certificate_id,
-			'name'    => $certificate_name,
-			'enabled' => masteriyo_is_certificate_enabled_for_course( $course->get_id() ),
+			'id'                    => $certificate_id,
+			'name'                  => $certificate_name,
+			'enabled'               => masteriyo_is_certificate_enabled_for_course( $course->get_id() ),
+			'single_course_enabled' => masteriyo_is_certificate_enabled_for_single_course( $course->get_id() ),
 		);
 
 		return $data;
@@ -465,19 +670,25 @@ class CertificateAddon {
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
-							'id'            => array(
+							'id'                    => array(
 								'description' => __( 'Course certificate ID', 'learning-management-system' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
-							'enable'        => array(
+							'enable'                => array(
 								'description' => __( 'Enable course certificate', 'learning-management-system' ),
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
-							'email_enabled' => array(
+							'email_enabled'         => array(
 								'description' => __( 'Attach certificate to email after course completion.', 'learning-management-system' ),
+								'type'        => 'boolean',
+								'default'     => false,
+								'context'     => array( 'view', 'edit' ),
+							),
+							'single_course_enabled' => array(
+								'description' => __( 'Display certificate in single course page after course completion.', 'learning-management-system' ),
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),

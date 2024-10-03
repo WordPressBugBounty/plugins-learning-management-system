@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.6
 Requires PHP: 7.2
-Stable tag: 1.13.2
+Stable tag: 1.13.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,7 +48,7 @@ Schools, colleges, and coaching centers can take learning online with Masteriyo.
 With Masteriyo, you can get an online course platform up and running on your own, even if you don’t have a coding background. Focus on monetization of your knowledge, skills and expertise by selling them as courses and training modules. Leave everything from learner enrollment to payment management to Masteriyo.
 
 #### 🟢 Course Marketplace
-Create a Udemy and Coursera-like online learning platform utilizing the Masteriyo. Have instructors sign up and create courses on your platform. Learners will sign up and enroll in courses of their liking. They will be rewarded with certificates for course completion. Masteriyo can automate revenue sharing based on the agreement.
+Create a Udemy and Coursera-like online learning platform utilizing Masteriyo. Have instructors sign up and create courses on your platform. Learners will sign up and enroll in courses of their liking. They will be rewarded with certificates for course completion. Masteriyo can automate revenue sharing based on the agreement.
 
 #### 🟢 Corporate Office
 Corporate offices can use Masteriyo as their in-house training management system. It can facilitate the onboarding process and skill and personality development training. Customize the training platform to reflect your brand. Moreover, the comprehensive security features keep your data protected.
@@ -225,6 +225,21 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.13.3 - 03-10-2024 =
+- Feature - Brevo Integration.
+- Enhancement - Auto Sync in WooCommerce product if course is updated.
+- Enhancement - Added option to show or hide header/footer in the account page.
+- Enhancement - Countdown timer UI revamp in learn page.
+- Enhancement - Added certificate share option.
+- Enhancement - Certificate for SCORM course.
+- Enhancement - Content width adjustable in learn page.
+- Fix - Redirect to incorrect checkout page issue when WooCommerce product is in draft and Masteriyo course is in publish.
+- Fix - Other quiz attempts access by student if user id param is given.
+- Fix - Permission related issues.
+- Fix - Video mute on start issue in other platform except YouTube.
+- Fix - Video sharing option and right click option changed to false by default.
+
 
 = 1.13.2 - 24-09-2024 =
 - Enhancement - Added support and debug docs link in error page.

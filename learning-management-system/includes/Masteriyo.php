@@ -27,6 +27,7 @@ use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Emails\EmailScheduleActions;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\FileRestrictions\FileRestrictions;
+use Masteriyo\Shortcodes\AccountShortcode;
 use Masteriyo\ShowHideComponents\ShowHideArchiveCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideCategoryCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideInstructorCourseComponents;
@@ -409,6 +410,12 @@ class Masteriyo {
 			$template = masteriyo( 'template' )->locate( $layout_template );
 		} elseif ( masteriyo_is_learn_page() ) {
 			$template = $this->handle_learn_page();
+		} elseif ( masteriyo_is_account_page() ) {
+			if ( is_user_logged_in() ) {
+				if ( ! masteriyo_get_setting( 'accounts_page.display.layout.enable_header_footer' ) ) {
+					return masteriyo_locate_template( 'account-full-layout.php' );
+				}
+			}
 		}
 
 		if ( is_tax( 'course_cat' ) ) {

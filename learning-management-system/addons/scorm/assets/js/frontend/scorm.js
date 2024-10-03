@@ -48,11 +48,21 @@ var SCORM_API = {
 	 * @returns {String} "true" as a string indicating successful termination.
 	 */
 	Terminate: function () {
+		var course_id = this.CourseId;
 		this.ModuleRunning = false;
 		this.Initialized = false;
 		this.CourseId = null;
 		this.Data = {};
 		SCORM.connection.isActive = false;
+
+		var courseCompleted = localStorage.getItem(
+			'course_' + course_id + '_completed',
+		);
+
+		if (!courseCompleted) {
+			localStorage.setItem('course_' + course_id + '_completed', 'true');
+			location.reload(true);
+		}
 
 		/**
 		 * If specific progress conditions are met, the page is reloaded.

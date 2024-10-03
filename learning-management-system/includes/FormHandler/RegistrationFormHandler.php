@@ -105,9 +105,12 @@ class RegistrationFormHandler {
 			$data['username'],
 			$data['password'],
 			'masteriyo_student',
-			array(
-				'first_name' => $data['first-name'],
-				'last_name'  => $data['last-name'],
+			array_merge(
+				array(
+					'first_name' => $data['first-name'],
+					'last_name'  => $data['last-name'],
+				),
+				$data
 			)
 		);
 
@@ -249,6 +252,15 @@ class RegistrationFormHandler {
 		if ( masteriyo_show_gdpr_msg() ) {
 			array_push( $fields, 'gdpr' );
 		}
+
+		/**
+		 * Filters the list of fields to retrieve from the submitted form data.
+		 *
+		 * @since 1.13.3
+		 *
+		 * @param string[] $fields The list of fields to retrieve from the submitted form data.
+		 */
+		$fields = apply_filters( 'masteriyo_registration_form_fields', $fields );
 
 		foreach ( $fields as $key ) {
 			if ( ! isset( $_POST[ $key ] ) ) {

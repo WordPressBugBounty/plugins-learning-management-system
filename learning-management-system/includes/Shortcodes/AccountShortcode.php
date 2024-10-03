@@ -67,7 +67,11 @@ class AccountShortcode extends Shortcode {
 			return $this->get_lost_password_page_template();
 		}
 		if ( is_user_logged_in() ) {
-			return masteriyo( 'template' )->locate( 'account.php' );
+			if ( masteriyo_get_setting( 'accounts_page.display.layout.enable_header_footer' ) ) {
+				return masteriyo( 'template' )->locate( 'account.php' );
+			} else {
+				return masteriyo_locate_template( 'account-full-layout.php' );
+			}
 		}
 
 		return masteriyo( 'template' )->locate( 'account/form-login.php' );

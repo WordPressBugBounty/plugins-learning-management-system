@@ -44,8 +44,8 @@ const ClientId: React.FC<Props> = (props) => {
 				<Input
 					defaultValue={defaultValue}
 					{...register('client_id')}
-					placeholder="Client Id"
-					padding="inherit"
+					placeholder=" Client Id"
+					padding="2"
 					autoComplete="off"
 				/>
 			</InputGroup>

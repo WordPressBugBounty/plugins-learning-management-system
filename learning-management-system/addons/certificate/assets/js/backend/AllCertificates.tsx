@@ -348,7 +348,7 @@ const AllCertificates: React.FC = () => {
 													) {
 														setBulkIds(
 															e.target.checked
-																? certificatesQuery.data.data.map(
+																? certificatesQuery?.data?.data?.map(
 																		(certificate: Certificate) =>
 																			certificate.id.toString(),
 																	)

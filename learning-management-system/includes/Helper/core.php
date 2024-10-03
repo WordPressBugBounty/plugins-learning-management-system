@@ -2342,12 +2342,14 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 		 * @since 1.0.0
 		 *
 		 * @since 1.9.0 Added $key parameters.
+		 * @since 1.13.3 Added $args parameter.
 		 *
 		 * @param \Masteriyo\Models\User $user User object.
 		 * @param string $password_generated The generated password.
 		 * @param string $key The password reset key for the user.
+		 * @param array $args List of other arguments.
 		 */
-		do_action( 'masteriyo_created_customer', $user, $password_generated, $key );
+		do_action( 'masteriyo_created_customer', $user, $password_generated, $key, $args );
 
 		return $user;
 	}
@@ -3835,6 +3837,9 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_instructor_apply' => true,
 					'enable_edit_profile'     => true,
 					'enable_certificate_page' => true,
+					'layout'                  => array(
+						'enable_header_footer' => true,
+					),
 				),
 			),
 		);

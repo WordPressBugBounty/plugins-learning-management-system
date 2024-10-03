@@ -28,45 +28,23 @@ if ( ! function_exists( 'masteriyo_check_user_course_activity' ) ) {
 	 *
 	 * @return object $activity user course activity.
 	 */
-	function masteriyo_check_user_course_activity( $course_id ) {
+	function masteriyo_check_user_course_activity( $course_id, $user_id = '' ) {
+		if ( empty( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
 		$query = new UserCourseQuery(
 			array(
 				'course_id' => $course_id,
-				'user_id'   => get_current_user_id(),
+				'user_id'   => $user_id,
 			)
 		);
 
 		$activity = current( $query->get_user_courses() );
-		return $activity;
+		$status   = $activity ? $activity->get_status() : '';
+		return (string) $status;
 	}
 }
-
-if ( ! function_exists( 'masteriyo_get_user_enrollment_statuses' ) ) {
-	/**
-	 * Retrieves the current enrollment status for a given user and course item type.
-	 *
-	 * @since 1.12.0
-	 *
-	 * @param WP_User $user The user object whose enrollment status is to be retrieved.
-	 * @param int $course_id The ID of the course item for which to retrieve the enrollment status.
-	 *
-	 * @return string|null The current enrollment status of the user, or null if not found.
-	 */
-	function masteriyo_get_user_enrollment_statuses( $user, $course_id ) {
-		global $wpdb;
-
-		$enrollment_status_db = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT status FROM {$wpdb->prefix}masteriyo_user_items WHERE user_id = %d AND item_id = %d AND item_type = 'user_course'",
-				absint( $user ),
-				absint( $course_id )
-			)
-		);
-
-		return $enrollment_status_db ? $enrollment_status_db : null;
-	}
-}
-
 
 if ( ! function_exists( 'masteriyo_enroll_surecart_user' ) ) {
 	/**
@@ -78,131 +56,98 @@ if ( ! function_exists( 'masteriyo_enroll_surecart_user' ) ) {
 	 * @param array $emails User email addresses.
 	 * @param string $status New status to apply.
 	 */
-	function masteriyo_enroll_surecart_user( $user_id, $course_id, $status = '' ) {
+	function masteriyo_enroll_surecart_user( $user_id, $course_id ) {
 		global $wpdb;
 
-		if ( ! $wpdb || empty( $course_id ) || empty( $user_id ) || empty( $status ) ) {
+		if ( ! $wpdb || empty( $course_id ) || empty( $user_id ) ) {
+			return;
+		}
+
+		$course = masteriyo_get_course( $course_id );
+
+		if ( is_wp_error( $course ) ) {
 			return;
 		}
 
 		$user = masteriyo_get_user( $user_id );
 
 		if ( ! $user ) {
-
 			return;
 		}
 
-		if ( masteriyo_is_user_enrolled_in_course( $course_id, $user_id ) ) {
-			return;
-		}
-
-		$query = new CourseProgressQuery(
+		$query = new UserCourseQuery(
 			array(
 				'course_id' => $course_id,
 				'user_id'   => $user_id,
-				'status'    => array( CourseProgressStatus::PROGRESS ),
 			)
 		);
 
-		$activity = current( $query->get_course_progress() );
+		$activity = current( $query->get_user_courses() );
 
-		if ( $activity ) {
+		if ( empty( $activity ) ) {
+			$user_course = masteriyo( 'user-course' );
+
+			$user_course->set_course_id( $course_id );
+			$user_course->set_user_id( $user_id );
+			$user_course->set_status( UserCourseStatus::ACTIVE );
+			$user_course->set_date_start( current_time( 'mysql', true ) );
+
+			$result = $user_course->save();
+		} elseif ( 'active' === $activity->get_status() ) {
 			return;
+		} elseif ( 'inactive' === $activity->get_status() ) {
+			$activity->set_status( UserCourseStatus::ACTIVE );
+			$activity->save();
 		}
-
-		$status_db = masteriyo_get_user_enrollment_statuses( $user_id, $course_id );
-
-		if ( $status === $status_db ) {
-			return;
-		}
-
-		$table_name = $wpdb->prefix . 'masteriyo_user_items';
-
-		$user_items_data = array(
-			'user_id'       => $user_id,
-			'item_id'       => $course_id,
-			'item_type'     => 'user_course',
-			'status'        => UserCourseStatus::ACTIVE,
-			'date_start'    => current_time( 'Y-m-d H:i:s' ),
-			'date_modified' => current_time( 'Y-m-d H:i:s' ),
-		);
-
-		$wpdb->insert(
-			$table_name,
-			$user_items_data,
-			array( '%d', '%d', '%s', '%s', '%s', '%s' )
-		);
-
-		$masteriyo_user_activities_table_name = $wpdb->prefix . 'masteriyo_user_activities';
-		$masteriyo_user_activities_data       = array(
-			'user_id'         => $user_id,
-			'item_id'         => $course_id,
-			'activity_status' => CourseProgressStatus::STARTED,
-			'activity_type'   => 'course_progress',
-			'created_at'      => current_time( 'Y-m-d H:i:s' ),
-			'modified_at'     => current_time( 'Y-m-d H:i:s' ),
-		);
-
-		$format = array( '%d', '%d', '%s', '%s', '%s', '%s' );
-		$wpdb->insert( $masteriyo_user_activities_table_name, $masteriyo_user_activities_data, $format );
-
 	}
+}
 
-	if ( ! function_exists( 'masteriyo_unenroll_surecart_user' ) ) {
-		/**
-		 * Deletes the enrollment status for users based on their id.
-		 *
-		 * @since 1.12.0
-		 *
-		 * @param int $user_id User ID.
-		 * @param int $course_id Course ID.
-		 */
-		function masteriyo_unenroll_surecart_user( $user_id, $course_id ) {
-			global $wpdb;
+if ( ! function_exists( 'masteriyo_unenroll_surecart_user' ) ) {
+	/**
+	 * Deletes the enrollment status for users based on their id.
+	 *
+	 * @since 1.12.0
+	 *
+	 * @param int $user_id User ID.
+	 * @param int $course_id Course ID.
+	 */
+	function masteriyo_unenroll_surecart_user( $user_id, $course_id ) {
+		global $wpdb;
 
-			if ( ! $wpdb || empty( $course_id ) || empty( $user_id ) ) {
-				return;
-			}
-
-			$user = masteriyo_get_user( $user_id );
-
-			if ( ! $user ) {
-				return;
-			}
-
-			if ( ! masteriyo_is_user_enrolled_in_course( $course_id, $user_id ) ) {
-				return;
-			}
-
-			$table_name = $wpdb->prefix . 'masteriyo_user_items';
-			$wpdb->delete(
-				$table_name,
-				array(
-					'user_id'   => $user_id,
-					'item_id'   => $course_id,
-					'item_type' => 'user_course',
-				),
-				array(
-					'%d',
-					'%d',
-					'%s',
-				)
-			);
-
-			$masteriyo_user_activities_table_name = $wpdb->prefix . 'masteriyo_user_activities';
-			$wpdb->delete(
-				$masteriyo_user_activities_table_name,
-				array(
-					'user_id'       => $user_id,
-					'item_id'       => $course_id,
-					'activity_type' => 'course_progress',
-				),
-				array(
-					'%d',
-					'%d',
-					'%s',
-				)
-			);
+		if ( ! $wpdb || empty( $course_id ) || empty( $user_id ) ) {
+			return;
 		}
+
+		$course = masteriyo_get_course( $course_id );
+
+		if ( is_wp_error( $course ) ) {
+			return;
+		}
+
+		$user = masteriyo_get_user( $user_id );
+
+		if ( ! $user ) {
+			return;
+		}
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+			)
+		);
+
+		$activity = current( $query->get_user_courses() );
+
+		if ( empty( $activity ) ) {
+			return;
+		}
+
+		if ( 'inactive' === $activity->get_status() ) {
+			return;
+		}
+
+		$activity->set_status( UserCourseStatus::INACTIVE );
+		$activity->save();
 	}
 }

@@ -6609,6 +6609,32 @@ body.masteriyo {
   background: var(--masteriyo-color-badge-red);
   border-color: var(--masteriyo-color-badge-red);
 }
+.masteriyo-scorm-course-header__button-download {
+  border-radius: 4px;
+  border: 1px solid #646464;
+  background: #ffffff;
+  padding: 6px 14px;
+  color: #646464;
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+@media screen and (max-width: 460px) {
+  .masteriyo-scorm-course-header__button-download {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 16px;
+  }
+}
+.masteriyo-scorm-course-header__button-download:hover {
+  color: #ffffff;
+  background: #3ca03c;
+  border-color: #3ca03c;
+}
 
 .masteriyo-wrapper.scorm {
   position: relative;
@@ -7497,4 +7523,139 @@ body.masteriyo {
   fill: var(--masteriyo-color-primary);
   stroke: var(--masteriyo-color-primary);
   stroke-width: 2px;
+}
+
+.masteriyo-certificate-share-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.masteriyo-certificate-share-button {
+  box-sizing: border-box;
+  color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-white);
+  border: 1px solid var(--masteriyo-color-primary);
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.masteriyo-certificate-share-button:hover {
+  box-sizing: border-box;
+  color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-white);
+  border: 1px solid var(--masteriyo-color-primary);
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.masteriyo-certificate-share-modal .masteriyo-overlay {
+  align-items: center;
+}
+
+.masteriyo-certificate-share-popup {
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0px 0px 25px 0px rgba(10, 10, 10, 0.1);
+  display: flex;
+  width: 60%;
+  height: auto;
+  padding: 28px 28px 30px 28px;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.masteriyo-certificate-share__wrapper {
+  position: relative;
+}
+.masteriyo-certificate-share__heading {
+  color: #222222;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 18px;
+}
+.masteriyo-certificate-share__exit-popup {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 60px;
+  background: #eef1f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  cursor: pointer;
+}
+.masteriyo-certificate-share__exit-popup svg {
+  width: 14px;
+  height: 14px;
+}
+.masteriyo-certificate-share__title {
+  color: #111;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 26px;
+}
+.masteriyo-certificate-share__share-link {
+  text-decoration: none;
+}
+.masteriyo-certificate-share__share-link a {
+  text-decoration: none;
+}
+.masteriyo-certificate-share__share-button {
+  margin-top: 20px;
+  box-sizing: border-box;
+  color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-white);
+  border: 1px solid var(--masteriyo-color-primary);
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  width: 100%;
+}
+.masteriyo-certificate-share__share-button:hover {
+  box-sizing: border-box;
+  color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-white);
+  border: 1px solid var(--masteriyo-color-primary);
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  width: 100%;
+}
+.masteriyo-certificate-share__share-button:focus {
+  box-sizing: border-box;
+  color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-white);
+  border: 1px solid var(--masteriyo-color-primary);
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  width: 100%;
+}
+.masteriyo-certificate-share__share-button svg {
+  position: relative;
+  top: 4px;
+  right: 4px;
+}
+
+.masteriyo-share-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

@@ -12,7 +12,9 @@ namespace Masteriyo\Addons\WcIntegration;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Enums\CourseAccessMode;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Pro\Enums\SubscriptionStatus;
 
 defined( 'ABSPATH' ) || exit;
@@ -130,13 +132,78 @@ class WcIntegrationAddon {
 		}
 
 		add_action( 'masteriyo_rest_api_register_course_routes', array( $this, 'register_rest_api_course_routes' ), 10, 3 );
+		add_action( 'masteriyo_update_course', array( $this, 'update_wc_product_price' ), 10, 2 );
+		add_action( 'masteriyo_before_delete_course', array( $this, 'delete_wc_product' ), 10, 2 );
+		add_action( 'masteriyo_after_trash_course', array( $this, 'update_wc_product_price' ), 10, 2 );
+		add_action( 'masteriyo_course_restore', array( $this, 'update_wc_product_price' ), 10, 2 );
+		add_action( 'masteriyo_rest_restore_course_item', array( $this, 'update_wc_product_price' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_wd_integration_data_in_response' ), 10, 4 );
-
 		add_filter( 'masteriyo_enroll_button_class', array( $this, 'add_add_to_cart_btn_class' ), 10, 3 );
 
 		add_filter( 'masteriyo_single_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
 		add_filter( 'masteriyo_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
 	}
+
+	/**
+	 * delete wc product.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param int $item_id
+	 * @param  $item
+	 * @return void
+	 */
+	public function delete_wc_product( $item_id, $item ) {
+		global $wpdb;
+		$product_id = get_post_meta( $item_id, '_wc_product_id', true );
+
+		if ( PostType::COURSE === get_post_type( $product_id ) ) {
+			wp_delete_post( $product_id, true );
+			$wpdb->delete( "{$wpdb->prefix}wc_product_meta_lookup", array( 'product_id' => $product_id ), array( '%d' ) );
+			$wpdb->delete( "{$wpdb->prefix}wc_reserved_stock", array( 'product_id' => $product_id ), array( '%d' ) );
+			$wpdb->delete( "{$wpdb->prefix}term_relationships", array( 'object_id' => $product_id ), array( '%d' ) );
+			$wpdb->delete( "{$wpdb->prefix}wc_order_product_lookup", array( 'product_id' => $product_id ), array( '%d' ) );
+			$wpdb->delete( "{$wpdb->prefix}woocommerce_downloadable_product_permissions", array( 'product_id' => $product_id ), array( '%d' ) );
+		}
+	}
+
+	/**
+	 * wc product price update when course/course_bundle is updated.
+	 *
+	 * @since 1.13.3
+	 *
+	 * @param int $item_id
+	 * @param Masteriyo\Models\Course $item
+	 * @return void
+	 */
+	public function update_wc_product_price( $item_id, $item ) {
+		if ( empty( $item_id ) || empty( $item ) ) {
+			return;
+		}
+
+		$product_id = get_post_meta( $item_id, '_wc_product_id', true );
+
+		if ( ! $product_id ) {
+			return;
+		}
+
+		$product = \wc_get_product( $product_id );
+
+		if ( ! $product ) {
+			return;
+		}
+
+		$regular_price = method_exists( $item, 'get_regular_price' ) ? $item->get_regular_price() : $item->regular_price;
+		$sale_price    = method_exists( $item, 'get_sale_price' ) ? $item->get_sale_price() : $item->sale_price;
+		$status        = method_exists( $item, 'get_status' ) ? $item->get_status() : $item->status;
+
+		$product->set_regular_price( $regular_price );
+		$product->set_sale_price( $sale_price );
+		$product->set_status( $status );
+
+		$product->save();
+	}
+
 
 
 	/**
@@ -388,8 +455,11 @@ class WcIntegrationAddon {
 
 			if ( OrderStatus::COMPLETED === $to ) {
 				$user_course->set_status( UserCourseStatus::ACTIVE );
-			} elseif ( in_array( $to, $this->setting->get( 'unenrollment_status' ), true ) ) {
+			} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
 				$user_course->set_status( UserCourseStatus::INACTIVE );
+				$user_course->set_date_start( null );
+				$user_course->set_date_modified( null );
+				$user_course->set_date_end( null );
 			}
 
 			$user_course->save();
@@ -415,7 +485,7 @@ class WcIntegrationAddon {
 		$product_id = get_post_meta( $course->get_id(), '_wc_product_id', true );
 		$product    = wc_get_product( $product_id );
 
-		if ( ! $product ) {
+		if ( ! $product || ( $product && PostStatus::PUBLISH !== $product->get_status() ) ) {
 			return $url;
 		}
 
@@ -738,7 +808,7 @@ class WcIntegrationAddon {
 			if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
 				$user_course->set_status( UserCourseStatus::ACTIVE );
 				$user_course->set_date_start( current_time( 'mysql', true ) );
-			} elseif ( in_array( $wc_order->get_status(), $this->setting->get( 'unenrollment_status' ), true ) ) {
+			} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
 				$user_course->set_status( UserCourseStatus::INACTIVE );
 				$user_course->set_date_start( null );
 				$user_course->set_date_modified( null );

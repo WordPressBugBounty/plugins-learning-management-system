@@ -1,4 +1,18 @@
 == Changelog ==
+= 1.13.3 - 03-10-2024 =
+- Feature - Brevo Integration.
+- Enhancement - Auto Sync in WooCommerce product if course is updated.
+- Enhancement - Added option to show or hide header/footer in the account page.
+- Enhancement - Countdown timer UI revamp in learn page.
+- Enhancement - Added certificate share option.
+- Enhancement - Certificate for SCORM course.
+- Enhancement - Content width adjustable in learn page.
+- Fix - Redirect to incorrect checkout page issue when WooCommerce product is in draft and Masteriyo course is in publish.
+- Fix - Other quiz attempts access by student if user id param is given.
+- Fix - Permission related issues.
+- Fix - Video mute on start issue in other platform except YouTube.
+- Fix - Video sharing option and right click option changed to false by default.
+
 = 1.13.2 - 24-09-2024 =
 - Enhancement - Added support and debug docs link in error page.
 - Enhancement - Global setting minor UI update.
