@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.13.3\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.13.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-03T04:33:49-04:00\n"
+"POT-Creation-Date: 2024-10-22T11:10:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: learning-management-system\n"
@@ -3961,12 +3961,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:642
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:671
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:702
-#: includes/RestApi/Controllers/Version1/UsersController.php:1335
-#: includes/RestApi/Controllers/Version1/UsersController.php:1378
-#: includes/RestApi/Controllers/Version1/UsersController.php:1418
-#: includes/RestApi/Controllers/Version1/UsersController.php:1458
-#: includes/RestApi/Controllers/Version1/UsersController.php:1508
-#: includes/RestApi/Controllers/Version1/UsersController.php:1622
+#: includes/RestApi/Controllers/Version1/UsersController.php:1337
+#: includes/RestApi/Controllers/Version1/UsersController.php:1380
+#: includes/RestApi/Controllers/Version1/UsersController.php:1420
+#: includes/RestApi/Controllers/Version1/UsersController.php:1460
+#: includes/RestApi/Controllers/Version1/UsersController.php:1510
+#: includes/RestApi/Controllers/Version1/UsersController.php:1624
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:179
 #: includes/RestApi/Controllers/Version1/UtilitiesController.php:88
 msgid "Sorry, the permission object for this resource is null."
@@ -4087,8 +4087,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:95
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:214
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:767
-#: includes/RestApi/Controllers/Version1/UsersController.php:1342
-#: includes/RestApi/Controllers/Version1/UsersController.php:1355
+#: includes/RestApi/Controllers/Version1/UsersController.php:1344
+#: includes/RestApi/Controllers/Version1/UsersController.php:1357
 msgid "Sorry, you are not allowed to read resources."
 msgstr ""
 
@@ -4106,8 +4106,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:620
-#: includes/RestApi/Controllers/Version1/UsersController.php:1385
-#: includes/RestApi/Controllers/Version1/UsersController.php:1395
+#: includes/RestApi/Controllers/Version1/UsersController.php:1387
+#: includes/RestApi/Controllers/Version1/UsersController.php:1397
 msgid "Sorry, you cannot list resources."
 msgstr ""
 
@@ -4124,8 +4124,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:649
-#: includes/RestApi/Controllers/Version1/UsersController.php:1425
-#: includes/RestApi/Controllers/Version1/UsersController.php:1435
+#: includes/RestApi/Controllers/Version1/UsersController.php:1427
+#: includes/RestApi/Controllers/Version1/UsersController.php:1437
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:186
 msgid "Sorry, you are not allowed to create resources."
 msgstr ""
@@ -4143,8 +4143,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:711
-#: includes/RestApi/Controllers/Version1/UsersController.php:1486
-#: includes/RestApi/Controllers/Version1/UsersController.php:1525
+#: includes/RestApi/Controllers/Version1/UsersController.php:1488
+#: includes/RestApi/Controllers/Version1/UsersController.php:1527
 msgid "Sorry, you are not allowed to delete resources."
 msgstr ""
 
@@ -4160,8 +4160,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:680
-#: includes/RestApi/Controllers/Version1/UsersController.php:1629
-#: includes/RestApi/Controllers/Version1/UsersController.php:1641
+#: includes/RestApi/Controllers/Version1/UsersController.php:1631
+#: includes/RestApi/Controllers/Version1/UsersController.php:1643
 msgid "Sorry, you are not allowed to update resources."
 msgstr ""
 
@@ -4215,15 +4215,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:819
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1107
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:341
-#: includes/RestApi/Controllers/Version1/UsersController.php:1590
+#: includes/RestApi/Controllers/Version1/UsersController.php:1592
 msgid "The %s cannot be bulk deleted."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CommentsController.php:822
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1576
 #: includes/RestApi/Controllers/Version1/PostsController.php:246
-#: includes/RestApi/Controllers/Version1/UsersController.php:1474
-#: includes/RestApi/Controllers/Version1/UsersController.php:1515
+#: includes/RestApi/Controllers/Version1/UsersController.php:1476
+#: includes/RestApi/Controllers/Version1/UsersController.php:1517
 msgid "Sorry, you are not allowed to delete resources"
 msgstr ""
 
@@ -6853,20 +6853,20 @@ msgstr ""
 msgid "User billing phone number."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1467
+#: includes/RestApi/Controllers/Version1/UsersController.php:1469
 msgid "Sorry, you cannot delete yourself."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1651
+#: includes/RestApi/Controllers/Version1/UsersController.php:1653
 msgid "Sorry, invalid old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1706
-#: includes/RestApi/Controllers/Version1/UsersController.php:1716
+#: includes/RestApi/Controllers/Version1/UsersController.php:1708
+#: includes/RestApi/Controllers/Version1/UsersController.php:1718
 msgid "Old password does not match. Please verify your current password and try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1749
+#: includes/RestApi/Controllers/Version1/UsersController.php:1751
 msgid "No QR code available. Please generate one first."
 msgstr ""
 

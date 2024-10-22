@@ -1,4 +1,8 @@
 == Changelog ==
+= 1.13.4 - 22-10-2024 =
+- Fix - Resolved security vulnerabilities.
+- Fix - SCORM course type user progress issue.
+
 = 1.13.3 - 03-10-2024 =
 - Feature - Brevo Integration.
 - Enhancement - Auto Sync in WooCommerce product if course is updated.

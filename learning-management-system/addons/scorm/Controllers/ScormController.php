@@ -211,19 +211,15 @@ class ScormController extends RestController {
 	 * @return array|boolean
 	 */
 	public function get_course_progress( $request ) {
-		$user_id = get_current_user_id();
-
-		if ( 1 > $user_id ) {
-			return false;
-		}
-
 		global $wpdb;
 
+		$user_id     = get_current_user_id();
+		$course_id   = absint( $request['course_id'] );
 		$table       = "{$wpdb->prefix}masteriyo_user_scorm_course";
-		$user_course = masteriyo_get_user_course_by_user_and_course( get_current_user_id(), absint( $request['course_id'] ) );
+		$user_course = masteriyo_get_user_course_by_user_and_course( $user_id, $course_id );
 
 		if ( ! $user_course ) {
-			return false;
+			return new WP_Error( 'course_not_found', __( 'Course not found for user.', 'learning-management-system' ) );
 		}
 
 		$results = $wpdb->get_results(
@@ -254,21 +250,15 @@ class ScormController extends RestController {
 	 * @return array|boolean
 	 */
 	public function update_course_progress( $request ) {
-		$user_id   = get_current_user_id();
-		$course_id = absint( $request['course_id'] );
-
-		if ( 1 > $user_id ) {
-			return false;
-		}
-
 		global $wpdb;
 
-		$table = "{$wpdb->prefix}masteriyo_user_scorm_course";
-
-		$user_course = masteriyo_get_user_course_by_user_and_course( get_current_user_id(), $course_id );
+		$user_id     = get_current_user_id();
+		$course_id   = absint( $request['course_id'] );
+		$user_course = masteriyo_get_user_course_by_user_and_course( $user_id, $course_id );
+		$table       = "{$wpdb->prefix}masteriyo_user_scorm_course";
 
 		if ( ! $user_course ) {
-			return false;
+			return new WP_Error( 'course_not_found', __( 'Course not found for user.', 'learning-management-system' ) );
 		}
 
 		$query = new CourseProgressQuery(
@@ -320,7 +310,6 @@ class ScormController extends RestController {
 					masteriyo_update_user_scorm_course_progress( $course_id, $user_id, absint( $value ) );
 					$is_progress_updated = true;
 				} elseif ( false === $is_progress_updated && ( 'cmi.core.lesson_status' === $parameter || 'cmi.lesson_status' === $parameter ) ) {
-
 					$activity_status = 'incomplete' === $value ? CourseProgressStatus::STARTED : CourseProgressStatus::COMPLETED;
 
 					masteriyo_update_user_scorm_course_progress( $course_id, $user_id, $activity_status );
@@ -595,6 +584,8 @@ class ScormController extends RestController {
 			'dtd',
 			'ico',
 			'swf',
+			'svg',
+			'txt',
 		);
 
 		/**

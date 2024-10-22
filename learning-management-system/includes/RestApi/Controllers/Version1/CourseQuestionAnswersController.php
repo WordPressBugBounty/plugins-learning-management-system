@@ -552,7 +552,7 @@ class CourseQuestionAnswersController extends CommentsController {
 
 		// Course question-answer Content.
 		if ( isset( $request['content'] ) ) {
-			$mto_course_qa->set_content( $request['content'] );
+			$mto_course_qa->set_content( wp_kses_post( $request['content'] ) );
 		}
 
 		// Course question-answer Approved.

@@ -483,7 +483,7 @@ class NotificationsController extends CrudController {
 		);
 
 		// Update only required field if user is not admin or manager.
-		if ( ! current_user_can( 'manages_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			foreach ( $notification_data_keys as $key ) {
 				$request->offsetUnset( $key );
 			}

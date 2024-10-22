@@ -1135,11 +1135,13 @@ class UsersController extends CrudController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id   = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		/** @var Masteriyo\Database\Model $user */
 		$user = masteriyo( 'user' );
 
 		if ( 0 !== $id ) {
 			$user->set_id( $id );
+			/** @var Masteriyo\Repository\UserRepository $user_repo */
 			$user_repo = masteriyo( 'user.store' );
 			$user_repo->read( $user );
 		}
@@ -1235,7 +1237,7 @@ class UsersController extends CrudController {
 		}
 
 		// User's role.
-		if ( isset( $request['roles'] ) ) {
+		if ( current_user_can( 'manage_options' ) && isset( $request['roles'] ) ) {
 			$user->set_roles( $request['roles'] );
 		}
 
@@ -1723,7 +1725,7 @@ class UsersController extends CrudController {
 		$request->set_param( 'id', $user->ID );
 
 		// It denies the updating of the role of from account profile update page (frontend).
-		if ( ! current_user_can( 'manages_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			$request->offsetUnset( 'role' );
 			$request->offsetUnset( 'roles' );
 		}

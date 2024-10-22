@@ -95,10 +95,10 @@ if ( ! function_exists( 'masteriyo_get_iframe_url' ) ) {
 		$manifest = \simplexml_load_file( masteriyo_get_course_scorm_manifest( $scorm ) );
 
 		if (
-			! empty( $manifest )
-			&& ! empty( $manifest->resources )
-			&& ! empty( $manifest->resources->resource )
-			&& ! empty( $manifest->resources->resource->attributes() )
+		! empty( $manifest )
+		&& ! empty( $manifest->resources )
+		&& ! empty( $manifest->resources->resource )
+		&& ! empty( $manifest->resources->resource->attributes() )
 		) {
 			$atts = $manifest->resources->resource->attributes();
 			if ( ! empty( $atts->href ) ) {
@@ -218,6 +218,8 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 				$table,
 				$activity_data
 			);
+
+			$course_progress_id = $wpdb->insert_id;
 		} else {
 			$wpdb->update(
 				$table,
@@ -226,7 +228,11 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 					'id' => $activity->get_id(),
 				)
 			);
+
+			$course_progress_id = $activity->get_id();
 		}
+
+		masteriyo_transient_cache()->delete_cache( 'course_progress_' . $course_progress_id );
 	}
 }
 
@@ -239,7 +245,7 @@ if ( ! function_exists( 'masteriyo_scorm_upload_dir' ) ) {
 	 * @return string The directory path for SCORM uploads.
 	 */
 	function masteriyo_scorm_upload_dir() {
-		 $upload        = wp_upload_dir();
+		$upload         = wp_upload_dir();
 		$base_scorm_dir = masteriyo_scorm_base_dir();
 
 		return trailingslashit( $upload['basedir'] ) . $base_scorm_dir;
@@ -255,9 +261,13 @@ if ( ! function_exists( 'masteriyo_scorm_upload_url' ) ) {
 	 * @return string The URL for SCORM uploads.
 	 */
 	function masteriyo_scorm_upload_url() {
-		 $upload        = wp_upload_dir();
+		$upload         = wp_upload_dir();
 		$base_scorm_dir = masteriyo_scorm_base_dir();
 		$upload_url     = trailingslashit( $upload['baseurl'] ) . $base_scorm_dir;
+
+		if ( is_ssl() ) {
+			$upload_url = str_replace( 'http://', 'https://', $upload_url );
+		}
 
 		return $upload_url;
 	}
