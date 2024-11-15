@@ -1,4 +1,7 @@
 == Changelog ==
+= 1.13.5 - 15-11-2024 =
+- Fix – JavaScript 'Selectors' error in WP 6.7 version.
+
 = 1.13.4 - 22-10-2024 =
 - Fix - Resolved security vulnerabilities.
 - Fix - SCORM course type user progress issue.

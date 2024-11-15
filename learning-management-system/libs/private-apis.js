@@ -96,6 +96,7 @@
 		'@wordpress/reusable-blocks',
 		'@wordpress/router',
 		'@wordpress/dataviews',
+		'@wordpress/fields',
 	];
 
 	/**
