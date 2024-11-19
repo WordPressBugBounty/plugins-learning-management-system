@@ -13,11 +13,11 @@ import {
 	Stack,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiBook, BiChevronLeft, BiDotsHorizontalRounded } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { NavLink, Link as RouterLink, useParams } from 'react-router-dom';
 import {
 	Header,
@@ -72,14 +72,15 @@ const EditCertificate: React.FC = () => {
 	const toast = useToast();
 	const [fullscreenMode, setFullscreenMode] = useState(false);
 
-	const certificateQuery = useQuery(
-		[`certificate${certificateId}`, certificateId],
-		() => certificateAPI.get(`${certificateId}?context=edit`),
-	);
+	const certificateQuery = useQuery({
+		queryKey: [`certificate${certificateId}`, certificateId],
+		queryFn: () => certificateAPI.get(`${certificateId}?context=edit`),
+	});
 
-	const updateCertificate = useMutation(
-		(data: CertificateDataMap) => certificateAPI.update(certificateId, data),
-		{
+	const updateCertificate = useMutation({
+		mutationFn: (data: CertificateDataMap) =>
+			certificateAPI.update(certificateId, data),
+		...{
 			onSuccess(data: CertificateDataMap) {
 				toast({
 					title: __(
@@ -89,7 +90,7 @@ const EditCertificate: React.FC = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`certificate${data.id}`);
+				queryClient.invalidateQueries({ queryKey: [`certificate${data.id}`] });
 			},
 			onError: (error: any) => {
 				const message =
@@ -108,11 +109,11 @@ const EditCertificate: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
-	const draftCertificate = useMutation(
-		(data: any) => certificateAPI.update(certificateId, data),
-		{
+	const draftCertificate = useMutation({
+		mutationFn: (data: any) => certificateAPI.update(certificateId, data),
+		...{
 			onSuccess(data: CertificateDataMap) {
 				toast({
 					title: sprintf(
@@ -123,10 +124,10 @@ const EditCertificate: React.FC = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`certificate${data.id}`);
+				queryClient.invalidateQueries({ queryKey: [`certificate${data.id}`] });
 			},
 		},
-	);
+	});
 
 	const isPublished = () => certificateQuery.data?.status === 'publish';
 
@@ -158,7 +159,7 @@ const EditCertificate: React.FC = () => {
 				? __('Save to Draft', 'learning-management-system')
 				: __('Switch To Draft', 'learning-management-system'),
 			action: methods.handleSubmit((data) => onSubmit(data, 'draft')),
-			isLoading: draftCertificate.isLoading,
+			isLoading: draftCertificate.isPending,
 			variant: 'secondary',
 		},
 		{
@@ -166,7 +167,7 @@ const EditCertificate: React.FC = () => {
 				? __('Update', 'learning-management-system')
 				: __('Publish', 'learning-management-system'),
 			action: methods.handleSubmit((data) => onSubmit(data)),
-			isLoading: updateCertificate.isLoading,
+			isLoading: updateCertificate.isPending,
 			variant: 'primary',
 		},
 	];
@@ -230,7 +231,7 @@ const EditCertificate: React.FC = () => {
 						</Link>
 						<HeaderSecondaryButton
 							onClick={methods.handleSubmit((data) => onSubmit(data, 'draft'))}
-							isLoading={draftCertificate.isLoading}
+							isLoading={draftCertificate.isPending}
 							width={['90px', '110px', '120px']}
 						>
 							{isDrafted()
@@ -239,7 +240,7 @@ const EditCertificate: React.FC = () => {
 						</HeaderSecondaryButton>
 						<HeaderPrimaryButton
 							onClick={methods.handleSubmit((data) => onSubmit(data))}
-							isLoading={updateCertificate.isLoading}
+							isLoading={updateCertificate.isPending}
 							width={
 								isPublished()
 									? ['45px', '50px', '55px', '60px']

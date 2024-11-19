@@ -26,6 +26,7 @@ use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Emails\EmailScheduleActions;
 use Masteriyo\Enums\UserStatus;
+use Masteriyo\Exporter\CourseExporter;
 use Masteriyo\FileRestrictions\FileRestrictions;
 use Masteriyo\Shortcodes\AccountShortcode;
 use Masteriyo\ShowHideComponents\ShowHideArchiveCourseComponents;
@@ -101,6 +102,11 @@ class Masteriyo {
 		( new CategoryCourseComponentStyles() )->init();
 		( new InstructorCourseComponentStyles() )->init();
 		( new SingleCourseComponentStyles() )->init();
+
+		( new AdminFileDownloadHandler() )->init();
+
+		// Register file paths.
+		AdminFileDownloadHandler::register_file_path( CourseExporter::FILE_PATH_ID, CourseExporter::get_file_path() );
 
 		$this->define_tables();
 
@@ -961,6 +967,7 @@ class Masteriyo {
 						masteriyo_check_course_content_access_for_current_user( $course )
 					)
 				) {
+					/** @var \Masteriyo\Models\UserCourse $user_courses */
 					$user_courses = masteriyo( 'user-course' );
 					$user_courses->set_status( UserCourseStatus::ACTIVE );
 					$user_courses->set_course_id( $course_id );
@@ -968,6 +975,14 @@ class Masteriyo {
 					$user_courses->set_date_start( current_time( 'mysql', true ) );
 					$user_courses->save();
 					$user_courses->set_object_read( true );
+				}
+
+				if ( ! empty( $user_courses ) ) {
+					$user = get_user_by( 'id', absint( get_current_user_id() ) );
+
+					if ( $user && ! in_array( Roles::STUDENT, (array) $user->roles, true ) ) {
+						$user->add_role( Roles::STUDENT );
+					}
 				}
 
 				if ( empty( $user_courses ) || ! masteriyo_can_start_course( $course_id, get_current_user_id() ) ) {

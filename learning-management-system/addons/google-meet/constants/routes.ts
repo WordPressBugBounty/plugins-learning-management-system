@@ -3,7 +3,7 @@ const googleMeetRoutes = {
 		list: '/google-meet/meetings',
 		listRegex: /\/google-meet[\/]*$/,
 		add: '/courses/:courseId/google-meet/:sectionId/add-new-google-meet',
-		edit: '/edit/:googleMeetId',
+		edit: '/courses/:courseId/google-meet/edit/:googleMeetId',
 		setAPI: '/google-meet/setAPI',
 	},
 };

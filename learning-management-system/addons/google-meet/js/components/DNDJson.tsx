@@ -1,8 +1,8 @@
 import { Box, Container, Input, Text, useToast } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
 import { LuFileJson } from 'react-icons/lu';
-import { useQuery } from 'react-query';
 import API from '../../../../assets/js/back-end/utils/api';
 import GoogleMeetUrls from '../../constants/urls';
 
@@ -81,13 +81,13 @@ const DNDJson: React.FC<Props> = ({ handleFileUpload }) => {
 
 	const GoogleMeetAPI = new API(GoogleMeetUrls.settings);
 
-	const settingQuery = useQuery(
-		['googleMeetSettings'],
-		() => GoogleMeetAPI.list(),
-		{
+	const settingQuery = useQuery({
+		queryKey: ['googleMeetSettings'],
+		queryFn: () => GoogleMeetAPI.list(),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	return (
 		<Container

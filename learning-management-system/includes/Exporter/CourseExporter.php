@@ -10,8 +10,13 @@ namespace Masteriyo\Exporter;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\FileHandler;
+use Masteriyo\Addons\GoogleMeet\Enums\GoogleMeetStatus;
+use Masteriyo\AdminFileDownloadHandler;
 use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Helper\Utils;
+use Masteriyo\Jobs\CoursesExportJob;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Taxonomy\Taxonomy;
 use ZipArchive;
@@ -24,22 +29,48 @@ use ZipArchive;
 class CourseExporter {
 
 	/**
+	 * The directory where export files will be stored.
+	 *
+	 * @since 1.14.0
+	 */
+	const EXPORT_DIRECTORY = 'export/courses';
+
+	/**
+	 * The ID used to generate download URL for exported courses file.
+	 *
+	 * @since 1.14.0
+	 */
+	const FILE_PATH_ID = 'export_courses';
+
+	/**
 	 * Get exportable post types related to courses.
 	 *
 	 * @since 1.6.0
 	 *
+	 * @param array $course_items Optional. Specific course items to export (LESSON, QUIZ, ASSIGNMENT, GOOGLEMEET, ZOOM).
+	 *
 	 * @return array
 	 */
-	protected function get_post_types() {
-		return array_merge(
-			array(
-				PostType::COURSE,
-			),
-			CourseChildrenPostType::all(),
-			array(
-				PostType::QUESTION,
-			)
-		);
+	public static function get_post_types( $course_items = array() ) {
+		$post_types = array( PostType::COURSE );
+
+		if ( ! empty( $course_items ) ) {
+			$post_types[] = PostType::SECTION;
+
+			$post_types = array_merge( $post_types, $course_items );
+
+			if ( in_array( PostType::QUIZ, $course_items, true ) ) {
+				$post_types[] = PostType::QUESTION;
+			}
+		} else {
+			$post_types = array_merge(
+				$post_types,
+				CourseChildrenPostType::all(),
+				array( PostType::QUESTION )
+			);
+		}
+
+		return array_unique( $post_types );
 	}
 
 	/**
@@ -50,25 +81,28 @@ class CourseExporter {
 	 * @param string $post_type Post type slug.
 	 * @return string
 	 */
-	protected function get_post_type_label( $post_type ) {
+	public static function get_post_type_label( $post_type ) {
 		$post_object = get_post_type_object( $post_type );
 		return strtolower( $post_object->labels->name ?? '' );
 	}
 
 	/**
-	 * Export data.
-	 *
-	 * Includes courses, sections, lessons, quizzes, questions etc.
+	 * Export courses using background processing using Action Schedular.
 	 *
 	 * @since 1.6.0
-	 * @return \WP_Error|array Array of data (filename, download_url) on success else WP_Error on failure.
+	 *
+	 * @param array $course_items List of course items to export.
+	 * @param array $course_ids List of course ids to export.
+	 * @param bool  $compress Whether to compress the export file.
+	 *
+	 * @return array|WP_Error
 	 */
-	public function export( bool $compress = false ) {
+	public function export( $course_items = array(), $course_ids = array(), bool $compress = false ) {
 		wp_raise_memory_limit( 'admin' );
 
 		$export_file = $this->create_export_file();
 
-		if ( false === $export_file ) {
+		if ( empty( $export_file ) || is_wp_error( $export_file ) ) {
 			return new \WP_Error(
 				'export_error',
 				__( 'Unable to create export file.', 'learning-management-system' ),
@@ -76,27 +110,265 @@ class CourseExporter {
 			);
 		}
 
-		$terms       = $this->get_terms( Taxonomy::all() );
-		$posts       = $this->get_posts( $this->get_post_types() );
-		$meta_data   = $this->get_export_meta_data();
-		$attachments = array_merge( $terms['attachments'], $posts['attachments'] );
+		$file_path = $export_file['filepath'];
 
-		$data = array_merge(
-			array(
-				'manifest'    => $meta_data,
-				'terms'       => $terms['terms'],
-				'attachments' => $attachments,
-			),
-			$posts['posts']
-		);
-
-		$this->write( $export_file['filepath'], $data );
-
-		if ( $compress ) {
-			return $this->compress( $export_file['filepath'] );
+		if ( ! $file_path ) {
+			return new \WP_Error(
+				'file_open_error',
+				__( 'Unable to open export file for writing.', 'learning-management-system' ),
+				array( 'status' => 500 )
+			);
 		}
 
-		return $export_file;
+		if ( empty( $course_ids ) ) {
+			$course_ids = $this->get_all_course_ids();
+		}
+
+		if ( empty( $course_ids ) ) {
+			return new \WP_Error( 'course_not_found', 'No courses found to export.', array( 'status' => 404 ) );
+		}
+
+		Utils::set_cookie( 'masteriyo_course_export_is_in_progress_' . get_current_user_id(), '1', time() + ( HOUR_IN_SECONDS ) );
+
+		// Start the JSON structure
+		self::append( $file_path, '{' );
+
+		// Write manifest data
+		self::append( $file_path, '"manifest": ' . wp_json_encode( $this->get_export_meta_data() ) . ',' );
+
+		// Write terms data
+		self::append( $file_path, '"terms": ' . wp_json_encode( self::get_terms( $course_ids ) ) . ',' );
+
+		$post_types = self::get_post_types( $course_items );
+
+		if ( 10 >= count( $course_ids ) ) { // Only 10 courses can be exported at a time
+			return $this->write_posts_to_json( $course_ids, $post_types, $export_file );
+		}
+
+		$this->schedule_tasks( $course_ids, $post_types, $file_path );
+
+		return rest_ensure_response(
+			array(
+				'status'  => 'progress',
+				'message' => __( 'Export in progress. Please wait...', 'learning-management-system' ),
+			)
+		);
+	}
+
+	/**
+	 * Write posts data to the export file in chunks.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array $course_ids The course IDs.
+	 * @param array $post_types The post types to export.
+	 * @param array $export_file The export file data.
+	 *
+	 * @return array The export file data.
+	 */
+	public function write_posts_to_json( $course_ids, $post_types, $export_file ) {
+		$file_path = $export_file['filepath'];
+
+		$is_last_post_type = false;
+		$post_types_count  = count( $post_types );
+
+		foreach ( $post_types as $index => $post_type ) {
+			$label = self::get_post_type_label( $post_type );
+
+			CoursesExportJob::start_post_type_section( $file_path, $label );
+
+			CoursesExportJob::append_posts_data( $course_ids, $post_type, $file_path );
+
+			if ( $index + 1 === $post_types_count ) {
+				$is_last_post_type = true;
+			}
+
+			self::end_post_type_section( $file_path, $is_last_post_type );
+		}
+
+		self::append( $file_path, '}' );
+
+		$created_at = self::get_file_creation_time();
+
+		return rest_ensure_response(
+			array(
+				'status'       => 'completed',
+				'download_url' => self::get_download_url(),
+				'message'      => sprintf(
+					/* translators: %s: date and time. */
+					__( 'Export completed on %s.', 'learning-management-system' ),
+					$created_at
+				),
+			)
+		);
+	}
+
+	/**
+	 * Schedule batches for background processing.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array $course_ids List of course IDs.
+	 * @param array $post_types List of post types to export.
+	 * @param string $file_path Path to the export file.
+	 */
+	protected function schedule_tasks( $course_ids, $post_types, $file_path ) {
+		$first_post_type = array_shift( $post_types );
+
+		$args            = array( $course_ids, $first_post_type, $post_types, $file_path );
+		$current_user_id = get_current_user_id();
+
+		update_option( 'masteriyo_exporting_courses_args_' . $current_user_id, wp_json_encode( $args ) );
+
+		as_enqueue_async_action( CoursesExportJob::NAME, array( $current_user_id ), CoursesExportJob::GROUP_NAME );
+	}
+
+	/**
+	 * Fetches posts and their metadata based on given post types.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array  $course_ids      The course IDs to fetch posts for.
+	 * @param string $post_type       The post type to fetch.
+	 * @param bool   $get_attachments Whether to fetch attachments for the fetched posts.
+	 *
+	 * @return \Generator
+	 */
+	public static function get_posts_data( array $course_ids, string $post_type, bool $get_attachments = false ) : \Generator {
+		if ( empty( $course_ids ) ) {
+			return;
+		}
+
+		$get_attachments = in_array( $post_type, array( PostType::COURSE, PostType::LESSON ), true ) ? true : $get_attachments;
+
+		if ( PostType::COURSE === $post_type || '' === $post_type ) {
+			foreach ( $course_ids as $course_id ) {
+				$post = self::fetch_post_data( $course_id, $get_attachments );
+				if ( $post ) {
+					yield $post;
+				}
+			}
+			return;
+		}
+
+		$paged          = 1;
+		$posts_per_page = 100;
+		$has_more_posts = true;
+
+		$args = self::prepare_query_args( $course_ids, $post_type, $posts_per_page );
+
+		while ( $has_more_posts ) {
+			$args['paged'] = $paged;
+
+			$post_ids = get_posts( $args );
+
+			if ( empty( $post_ids ) ) {
+				break;
+			}
+
+			foreach ( $post_ids as $post_id ) {
+				$post = self::fetch_post_data( $post_id, $get_attachments );
+				if ( $post ) {
+					yield $post;
+				}
+			}
+
+			$paged++;
+			$has_more_posts = count( $post_ids ) === $posts_per_page;
+		}
+	}
+
+	/**
+	 * Fetch post data, including meta, terms, and attachments (if requested).
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param int    $post_id      Post ID.
+	 * @param bool   $get_attachments Whether to fetch attachments.
+	 *
+	 * @return array|null Post data, or null if post does not exist.
+	 */
+	private static function fetch_post_data( int $post_id, bool $get_attachments ) {
+		$post = get_post( $post_id, ARRAY_A );
+		if ( ! $post ) {
+			return null;
+		}
+
+		$post['postmeta'] = get_post_meta( $post_id );
+		$post['terms']    = self::get_post_terms( $post );
+
+		if ( $get_attachments ) {
+			$post['attachments'] = self::get_post_attachments( $post_id );
+		}
+
+		return $post;
+	}
+
+	/**
+	 * Prepare query arguments for fetching posts associated with courses.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array $course_ids Course IDs.
+	 * @param string $post_type Post type.
+	 * @param int $posts_per_page Number of posts per page.
+	 *
+	 * @return array Query arguments.
+	 */
+	public static function prepare_query_args( array $course_ids, string $post_type, int $posts_per_page ) : array {
+		$args = array(
+			'fields'         => 'ids',
+			'post_type'      => $post_type,
+			'post_status'    => array_diff( PostStatus::all(), array( PostStatus::TRASH ) ),
+			'posts_per_page' => $posts_per_page,
+			'meta_query'     => array(
+				array(
+					'key'     => '_course_id',
+					'value'   => $course_ids,
+					'compare' => 'IN',
+				),
+			),
+		);
+
+		if ( PostType::GOOGLEMEET === $post_type ) {
+			$args['post_status'] = array_merge( GoogleMeetStatus::all(), $args['post_status'] );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Get the IDs and count of items for a given post type.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array  $course_ids List of course IDs.
+	 * @param string $post_type  The post type.
+	 *
+	 * @return array Array of post IDs.
+	 */
+	public static function get_post_type_data( $course_ids, $post_type ) {
+		$args = self::prepare_query_args( $course_ids, $post_type, -1 );
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Get all course IDs.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return array Array of course IDs.
+	 */
+	protected function get_all_course_ids() {
+		$args = array(
+			'post_type'      => PostType::COURSE,
+			'post_status'    => array_diff( PostStatus::all(), array( PostStatus::TRASH ) ),
+			'fields'         => 'ids',
+			'posts_per_page' => -1,
+		);
+
+		return get_posts( $args );
 	}
 
 	/**
@@ -144,61 +416,158 @@ class CourseExporter {
 	}
 
 	/**
-	 * Write.
+	 * Append content to a file using core PHP functions.
 	 *
-	 * @since 1.6.0
+	 * @since 1.14.0
 	 *
-	 * @param string $filepath
-	 * @param array $contents
+	 * @param string $filepath The file path.
+	 * @param array|string $contents The content to append.
 	 */
-	protected function write( $filepath, $contents ) {
-		$filesystem = masteriyo_get_filesystem();
-
-		if ( $filesystem ) {
-			$filesystem->put_contents( $filepath, wp_json_encode( $contents ) );
+	public static function append( $filepath, $contents ) {
+		if ( is_array( $contents ) ) {
+			$contents = implode( PHP_EOL, $contents );
 		}
+
+		$file = fopen( $filepath, 'a' ); // phpcs:ignore
+
+		if ( ! $file ) {
+			return;
+		}
+
+		fwrite( $file, $contents ); // phpcs:ignore
+
+		fclose( $file ); // phpcs:ignore
 	}
 
 	/**
 	 * Create and return export file path.
 	 *
 	 * @since 1.6.0
-	 * @return bool|array Array of data on success or false on failure.
+	 *
+	 * @return array|WP_Error Array of data on success or WP_Error on failure.
 	 */
 	protected function create_export_file() {
-		$upload_dir = wp_upload_dir();
-		$filesystem = masteriyo_get_filesystem();
+		$file_handler = new FileHandler();
 
-		if ( ! $filesystem ) {
-			return false;
+		$prefix = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+
+		$this->cleanup_old_files( $file_handler, $prefix, self::EXPORT_DIRECTORY );
+
+		$filename = sprintf( 'masteriyo-courses-export-%s-%s.json', get_current_user_id(), gmdate( 'Y-m-d-H-i-s' ) );
+		$result   = $file_handler->create_file( self::EXPORT_DIRECTORY, $filename );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
-		if ( ! $filesystem->is_dir( $upload_dir['basedir'] . '/masteriyo' ) ) {
-			$filesystem->mkdir( $upload_dir['basedir'] . '/masteriyo' );
+		$file_info = array(
+			'filepath' => $result['file_path'],
+			'filename' => $result['filename'],
+		);
+
+		$file_info['download_url'] = AdminFileDownloadHandler::get_download_url( self::FILE_PATH_ID, $result['filename'] );
+
+		return $file_info;
+	}
+
+	/**
+	 * Clean up old files to avoid clutter.
+	 *
+	 * @param FileHandler $file_handler
+	 * @param string $prefix
+	 */
+	protected function cleanup_old_files( $file_handler, $prefix ) {
+		$old_files = $file_handler->search_files( $prefix, self::EXPORT_DIRECTORY );
+
+		if ( is_wp_error( $old_files ) ) {
+			return;
 		}
 
-		$export_files = $filesystem->dirlist( $upload_dir['basedir'] . '/masteriyo' );
-
-		// Remove old export file.
-		foreach ( $export_files as $file ) {
-			$prefix = sprintf( 'masteriyo-export-%s-', get_current_user_id() );
-			if ( masteriyo_starts_with( $file['name'], $prefix ) ) {
-				$filesystem->delete( $upload_dir['basedir'] . '/masteriyo/' . $file['name'] );
+		if ( ! empty( $old_files ) ) {
+			foreach ( $old_files as $old_file ) {
+				$file_handler->delete( self::EXPORT_DIRECTORY, $old_file['name'] );
 			}
 		}
+	}
 
-		$filename = sprintf( 'masteriyo-export-%s-%s.json', get_current_user_id(), gmdate( 'Y-m-d-H-i-s' ) );
-		$filepath = $upload_dir['basedir'] . '/masteriyo/' . $filename;
+	/**
+	 * Get the download URL for the exported courses file.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return string|false The download URL if exists, otherwise false.
+	 */
+	public static function get_download_url() {
+		$file_handler   = new FileHandler();
+		$prefix         = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+		$exported_files = $file_handler->search_files( $prefix, self::EXPORT_DIRECTORY );
 
-		if ( ! $filesystem->touch( $filepath ) ) {
+		if ( empty( $exported_files ) ) {
 			return false;
 		}
 
-		return array(
-			'filepath'     => $filepath,
-			'filename'     => $filename,
-			'download_url' => $upload_dir['baseurl'] . '/masteriyo/' . $filename,
-		);
+		foreach ( $exported_files as $file ) {
+			$prefix = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+
+			if ( ! isset( $file['name'] ) ) {
+				return false;
+			}
+
+			if ( masteriyo_starts_with( $file['name'], $prefix ) ) {
+				return AdminFileDownloadHandler::get_download_url( self::FILE_PATH_ID, $file['name'] );
+			}
+		}
+	}
+
+	/**
+	 * Get the full path of the exported courses file.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return string|false The full path of the exported courses file if exists, otherwise false.
+	 */
+	public static function get_full_file_path() {
+		$file_handler   = new FileHandler();
+		$prefix         = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+		$exported_files = $file_handler->search_files( $prefix, self::EXPORT_DIRECTORY );
+
+		if ( empty( $exported_files ) ) {
+			return false;
+		}
+
+		foreach ( $exported_files as $file ) {
+			$prefix = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+			if ( masteriyo_starts_with( $file['name'], $prefix ) ) {
+				return self::get_file_path() . DIRECTORY_SEPARATOR . $file['name'];
+			}
+		}
+	}
+
+	/**
+	 * Return the folder name where exported courses files are stored.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return string
+	 */
+	public static function get_file_path() {
+		$upload_dir = wp_upload_dir();
+		$export_dir = DIRECTORY_SEPARATOR . MASTERIYO_UPLOAD_DIR . DIRECTORY_SEPARATOR . self::EXPORT_DIRECTORY;
+
+		return $upload_dir['basedir'] . $export_dir;
+	}
+
+	/**
+	 * Get the export file creation time.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return string
+	 */
+	public static function get_file_creation_time() {
+		$file_time = filemtime( self::get_full_file_path() );
+
+		return masteriyo_rest_prepare_date_response( $file_time );
 	}
 
 	/**
@@ -206,34 +575,42 @@ class CourseExporter {
 	 *
 	 * @since 1.6.0
 	 *
-	 * @param array $taxonomies
+	 * @param array $course_ids Course IDs.
+	 *
 	 * @return array
 	 */
-	public function get_terms( $taxonomies ) {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => $taxonomies,
-				'hide_empty' => false,
-			)
-		);
+	protected static function get_terms( $course_ids ) {
+		$taxonomies = Taxonomy::all();
+		$all_terms  = array();
 
-		$terms = array_map(
-			function( $term ) {
-				return (array) $term;
-			},
-			$terms
-		);
+		foreach ( $course_ids as $course_id ) {
+			foreach ( $taxonomies as $taxonomy ) {
+				$terms = get_the_terms( $course_id, $taxonomy );
+
+				if ( ! $terms || is_wp_error( $terms ) ) {
+					continue;
+				}
+
+				$all_terms = array_merge( $all_terms, $terms );
+			}
+		}
 
 		$data = array(
 			'terms'       => array(),
 			'attachments' => array(),
 		);
 
-		if ( is_wp_error( $terms ) ) {
-			return $data;
+		if ( empty( $all_terms ) ) {
+			return $all_terms;
 		}
 
-		foreach ( $terms as $term ) {
+		foreach ( $all_terms as $term ) {
+			if ( ! $term instanceof \WP_Term ) {
+				continue;
+			}
+
+			$term = (array) $term;
+
 			$term_meta         = get_term_meta( $term['term_id'] );
 			$term['termmeta']  = $term_meta ?? array();
 			$featured_image_id = get_term_meta( $term['term_id'], '_featured_image', true );
@@ -262,7 +639,7 @@ class CourseExporter {
 	 *
 	 * @return array
 	 */
-	protected function get_post_terms( $post ) {
+	public static function get_post_terms( $post ) {
 		$taxonomies = get_object_taxonomies( $post['post_type'] );
 
 		if ( empty( $taxonomies ) ) {
@@ -288,77 +665,23 @@ class CourseExporter {
 	}
 
 	/**
-	 * Prepare data for export.
-	 *
-	 * @since 1.6.0
-	 *
-	 * @param string[] Post types to be exported.
-	 * @return array
-	 */
-	protected function get_posts( $post_types ) {
-		$posts = get_posts(
-			array(
-				'posts_per_page' => -1,
-				'post_type'      => $post_types,
-				'post_status'    => PostStatus::ANY,
-				'author'         => current_user_can( 'manage_masteriyo_settings' ) ? null : get_current_user_id(),
-			)
-		);
-
-		$posts = array_map(
-			function( $post ) {
-				return (array) $post;
-			},
-			$posts
-		);
-		$data  = array(
-			'posts'       => array(),
-			'attachments' => array(),
-		);
-
-		if ( empty( $posts ) ) {
-			return $data;
-		}
-
-		$posts = array_filter(
-			$posts,
-			function( $post ) {
-				$course_id = get_post_meta( $post['ID'], '_course_id', true );
-				if ( $course_id ) {
-					$status = get_post_status( $course_id );
-					if ( 'trash' === $status ) {
-						return false;
-					}
-				}
-				return true;
-			}
-		);
-
-		foreach ( $posts as $post ) {
-			$post['postmeta']          = get_post_meta( $post['ID'] );
-			$post['terms']             = $this->get_post_terms( $post );
-			$label                     = $this->get_post_type_label( $post['post_type'] );
-			$data['posts'][ $label ][] = $post;
-			$data['attachments']       = array_merge( $data['attachments'], $this->get_post_featured_attachments( $post['ID'] ) );
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Get featured attachments.
 	 *
 	 * @since 1.6.0
 	 * @param int $post_id Post ID.
 	 * @return array
 	 */
-	protected function get_post_featured_attachments( $post_id ) {
+	public static function get_post_attachments( $post_id ) {
 		$meta_keys = array(
 			'_thumbnail_id',
 		);
 
 		if ( 'self-hosted' === get_post_meta( $post_id, '_video_source', true ) ) {
 			$meta_keys[] = '_video_source_url';
+		}
+
+		if ( 'self-hosted' === get_post_meta( $post_id, '_featured_video_source', true ) ) {
+			$meta_keys[] = '_featured_video_url';
 		}
 
 		$attachments = array();
@@ -393,5 +716,18 @@ class CourseExporter {
 			'created_at' => gmdate( 'D, d M Y H:i:s +0000' ),
 			'base_url'   => home_url(),
 		);
+	}
+
+	/**
+	 * End the current section for a post type in the JSON file.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param string $file_path        The file path for export.
+	 * @param bool   $is_last_post_type If this is the last post type in the export.
+	 */
+	public static function end_post_type_section( $file_path, $is_last_post_type ) {
+		$separator = $is_last_post_type ? ']' : '],';
+		self::append( $file_path, $separator );
 	}
 }

@@ -9,6 +9,7 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useState } from 'react';
@@ -19,7 +20,6 @@ import {
 	BiTrash,
 } from 'react-icons/bi';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -95,43 +95,44 @@ const AllAnnouncements = () => {
 
 	const [min360px] = useMediaQuery('(min-width: 360px)');
 
-	const announcementQuery = useQuery(
-		['announcementList', filterParams],
-		() => announcementAPI.list(filterParams),
-		{
+	const announcementQuery = useQuery({
+		queryKey: ['announcementList', filterParams],
+		queryFn: () => announcementAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
-	const deleteAnnouncement = useMutation(
-		(id: number) => announcementAPI.delete(id, { force: true, children: true }),
-		{
+	const deleteAnnouncement = useMutation({
+		mutationFn: (id: number) =>
+			announcementAPI.delete(id, { force: true, children: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('announcementList');
+				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 				onClose();
 			},
 		},
-	);
+	});
 
-	const restoreAnnouncement = useMutation(
-		(id: number) => announcementAPI.restore(id),
-		{
+	const restoreAnnouncement = useMutation({
+		mutationFn: (id: number) => announcementAPI.restore(id),
+		...{
 			onSuccess: () => {
 				toast({
 					title: __('Announcement Restored', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
 				});
-				queryClient.invalidateQueries('announcementList');
+				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 			},
 		},
-	);
+	});
 
-	const trashAnnouncement = useMutation(
-		(id: number) => announcementAPI.delete(id),
-		{
+	const trashAnnouncement = useMutation({
+		mutationFn: (id: number) => announcementAPI.delete(id),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('announcementList');
+				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 				toast({
 					title: __('Announcement Trashed', 'learning-management-system'),
 					isClosable: true,
@@ -139,7 +140,7 @@ const AllAnnouncements = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onTrashPress = (courseId: number) => {
 		courseId && trashAnnouncement.mutate(courseId);
@@ -182,16 +183,16 @@ const AllAnnouncements = () => {
 		);
 
 	const onBulkActionApply = {
-		delete: useMutation(
-			(data: any) =>
+		delete: useMutation({
+			mutationFn: (data: any) =>
 				announcementAPI.bulkDelete('delete', {
 					ids: data,
 					force: true,
 					children: true,
 				}),
-			{
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('announcementList');
+					queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -201,12 +202,13 @@ const AllAnnouncements = () => {
 					});
 				},
 			},
-		),
-		trash: useMutation(
-			(data: any) => announcementAPI.bulkDelete('delete', { ids: data }),
-			{
+		}),
+		trash: useMutation({
+			mutationFn: (data: any) =>
+				announcementAPI.bulkDelete('delete', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('announcementList');
+					queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -216,12 +218,13 @@ const AllAnnouncements = () => {
 					});
 				},
 			},
-		),
-		restore: useMutation(
-			(data: any) => announcementAPI.bulkRestore('restore', { ids: data }),
-			{
+		}),
+		restore: useMutation({
+			mutationFn: (data: any) =>
+				announcementAPI.bulkRestore('restore', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('announcementList');
+					queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -231,7 +234,7 @@ const AllAnnouncements = () => {
 					});
 				},
 			},
-		),
+		}),
 	};
 
 	return (
@@ -457,7 +460,7 @@ const AllAnnouncements = () => {
 				action={bulkAction}
 				isLoading={
 					'' === bulkAction
-						? deleteAnnouncement.isLoading
+						? deleteAnnouncement.isPending
 						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{

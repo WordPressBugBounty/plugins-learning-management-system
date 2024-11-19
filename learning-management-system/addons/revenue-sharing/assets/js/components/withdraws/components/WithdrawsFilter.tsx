@@ -1,9 +1,9 @@
 import { Box, Grid, GridItem, Input } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { Controller, useForm } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
 import { UsersApiResponse } from '../../../../../../../assets/js/back-end/types/users';
@@ -30,14 +30,16 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 	const { handleSubmit, setValue, control } = useForm();
 	const usersAPI = new API(urls.users);
 
-	const usersQuery = useQuery<UsersApiResponse>('instructors', () =>
-		usersAPI.list({
-			orderby: 'display_name',
-			order: 'asc',
-			per_page: 10,
-			role: 'masteriyo_instructor',
-		}),
-	);
+	const usersQuery = useQuery<UsersApiResponse>({
+		queryKey: ['instructors'],
+		queryFn: () =>
+			usersAPI.list({
+				orderby: 'display_name',
+				order: 'asc',
+				per_page: 10,
+				role: 'masteriyo_instructor',
+			}),
+	});
 
 	const onChange = (data: FilterParams) => {
 		setFilterParams(

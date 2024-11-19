@@ -13,11 +13,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import {
@@ -67,22 +67,24 @@ const EditPriceZone: React.FC = () => {
 	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const pricingZoneQuery = useQuery<PriceZoneSchema>(
-		[`pricingZone${pricingZoneID}`, pricingZoneID],
-		() => pricingZoneAPI.get(pricingZoneID, 'edit'),
-		{
+	const pricingZoneQuery = useQuery<PriceZoneSchema>({
+		queryKey: [`pricingZone${pricingZoneID}`, pricingZoneID],
+		queryFn: () => pricingZoneAPI.get(pricingZoneID, 'edit'),
+		...{
 			onError: () => {
 				navigate(routes.notFound);
 			},
 		},
-	);
+	});
 
-	const updatePriceZone = useMutation<PriceZoneSchema>(
-		(data) => pricingZoneAPI.update(pricingZoneID, data),
-		{
+	const updatePriceZone = useMutation<PriceZoneSchema>({
+		mutationFn: (data) => pricingZoneAPI.update(pricingZoneID, data),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(`pricingZone${pricingZoneID}`);
-				queryClient.invalidateQueries(`pricingZonesList`);
+				queryClient.invalidateQueries({
+					queryKey: [`pricingZone${pricingZoneID}`],
+				});
+				queryClient.invalidateQueries({ queryKey: [`pricingZonesList`] });
 				toast({
 					title: __(
 						'PriceZone updated successfully.',
@@ -109,7 +111,7 @@ const EditPriceZone: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: any) => {
 		updatePriceZone.mutate(deepClean(data));
@@ -118,7 +120,7 @@ const EditPriceZone: React.FC = () => {
 	const FormButton = () => (
 		<ButtonGroup>
 			<PriceZoneActionBtn
-				isLoading={updatePriceZone.isLoading}
+				isLoading={updatePriceZone.isPending}
 				methods={methods}
 				onSubmit={onSubmit}
 				pricingZoneStatus={pricingZoneQuery?.data?.status}
@@ -126,7 +128,7 @@ const EditPriceZone: React.FC = () => {
 			<Button
 				size={buttonSize}
 				variant="outline"
-				isDisabled={updatePriceZone.isLoading}
+				isDisabled={updatePriceZone.isPending}
 				onClick={() =>
 					navigate({
 						pathname: multipleCurrencyBackendRoutes.list,

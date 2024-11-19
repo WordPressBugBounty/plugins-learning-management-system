@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
 
 use JsonMachine\Items;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use Masteriyo\Helper\Utils;
+use Masteriyo\Jobs\CoursesImportJob;
 use Masteriyo\PostType\PostType;
 
 /**
@@ -47,6 +49,36 @@ class CourseImporter {
 	 */
 	public function __construct( $imported_courses_status = null ) {
 		$this->imported_courses_status = $imported_courses_status;
+	}
+
+	/**
+	 * Starts the import process.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param string $file The file to import.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function start_import( $file ) {
+		$courses = Items::fromFile( $file, array( 'pointer' => '/courses' ) );
+
+		$courses_count = \iterator_count( $courses );
+
+		if ( $courses_count > 10 ) { // 10 is the maximum number of items that can be imported at once.
+			Utils::set_cookie( 'masteriyo_course_import_is_in_progress_' . get_current_user_id(), '1', time() + HOUR_IN_SECONDS );
+
+			$this->schedule_tasks( $file );
+
+			return rest_ensure_response(
+				array(
+					'status'  => 'progress',
+					'message' => __( 'Import in progress. Please wait...', 'learning-management-system' ),
+				)
+			);
+		}
+
+		$this->import( $file );
 	}
 
 	/**
@@ -96,6 +128,8 @@ class CourseImporter {
 		$this->map_term_parents();
 		$this->map_term_featured_image_ids();
 
+		unlink( $file );
+
 		/**
 		 * Fires after import.
 		 *
@@ -105,6 +139,16 @@ class CourseImporter {
 		 * @param array $history Import history data.
 		 */
 		do_action( 'masteriyo_after_import', $items, $this->history );
+	}
+
+
+	/**
+	 * Schedule a job.
+	 *
+	 * @since 1.14.0
+	 */
+	protected function schedule_tasks( $file ) {
+		as_enqueue_async_action( CoursesImportJob::NAME, array( $file ), CoursesImportJob::GROUP_NAME );
 	}
 
 	/**
@@ -132,6 +176,10 @@ class CourseImporter {
 			);
 			$data_to_insert['author'] = get_current_user_id();
 
+			if ( PostType::QUESTION === $data_to_insert['post_type'] ) {
+				$data_to_insert['post_content'] = addslashes( wp_json_encode( json_decode( $data_to_insert['post_content'] ), JSON_UNESCAPED_UNICODE ) );
+			}
+
 			if ( 'attachment' === $data_to_insert['post_type'] ) {
 				$post_id = $this->import_attachment( $post, $data_to_insert );
 			} else {
@@ -150,6 +198,10 @@ class CourseImporter {
 			$this->set_post_metas( $post_id, $post['postmeta'] ?? array() );
 
 			$this->history['posts'][ intval( $post['ID'] ) ] = $post_id;
+
+			if ( isset( $data_to_insert['attachments'] ) && is_array( $data_to_insert['attachments'] ) && ! empty( $data_to_insert['attachments'] ) ) {
+				$this->set_post_attachments( $data_to_insert['attachments'] );
+			}
 		}
 	}
 
@@ -253,6 +305,7 @@ class CourseImporter {
 		return array(
 			'_thumbnail_id',
 			'_video_source_url',
+			'_featured_video_url',
 		);
 	}
 
@@ -289,6 +342,21 @@ class CourseImporter {
 		foreach ( $new_terms as $taxonomy => $term_ids ) {
 			wp_set_post_terms( $post_id, $term_ids, $taxonomy );
 		}
+	}
+
+	/**
+	 * Set post attachments.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array $attachments_to_set Array of attachments data.
+	 */
+	protected function set_post_attachments( array $attachments_to_set ) {
+		if ( empty( $attachments_to_set ) ) {
+			return;
+		}
+
+		$this->import_posts( $attachments_to_set );
 	}
 
 	/**
@@ -355,6 +423,8 @@ class CourseImporter {
 	 * @return void
 	 */
 	protected function import_terms( $terms ) {
+		$terms = isset( $terms['terms'] ) ? $terms['terms'] : $terms;
+
 		foreach ( $terms as $term ) {
 			$term_id = term_exists( $term['slug'], $term['taxonomy'] );
 
@@ -393,6 +463,10 @@ class CourseImporter {
 			$this->history['terms'][ intval( $term['term_id'] ) ] = intval( $insert_term['term_id'] );
 
 			$this->set_term_metas( $insert_term['term_id'], $term['termmeta'] ?? array() );
+
+			if ( isset( $term['attachments'] ) && is_array( $term['attachments'] ) && ! empty( $term['attachments'] ) ) {
+				$this->set_post_attachments( $term['attachments'] );
+			}
 		}
 	}
 

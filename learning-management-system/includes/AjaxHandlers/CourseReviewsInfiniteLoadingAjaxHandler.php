@@ -79,14 +79,18 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 				$page
 			);
 
-			$per_page              = apply_filters( 'masteriyo_course_reviews_per_page', 5 );
-			$reviews_details       = masteriyo_get_course_reviews_and_replies( $course_id, $page, $per_page, $search, $rating );
-			$view_load_more_button = $reviews_details['viewed_total'] / $page;
+			$per_page        = apply_filters( 'masteriyo_course_reviews_per_page', 5 );
+			$reviews_details = masteriyo_get_course_reviews_and_replies( $course_id, $page, $per_page, $search, $rating );
+			$total_pages     = ceil( $reviews_details['viewed_total'] / $per_page );
+
+			if ( ! empty( $html ) ) {
+				$view_load_more_button = ( $page ) < $total_pages;
+			}
 
 			wp_send_json_success(
 				array(
 					'html'                  => $html,
-					'view_load_more_button' => $view_load_more_button > 1 ? true : false,
+					'view_load_more_button' => $view_load_more_button,
 				)
 			);
 		} catch ( \Exception $e ) {

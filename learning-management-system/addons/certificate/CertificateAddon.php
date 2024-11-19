@@ -143,14 +143,21 @@ class CertificateAddon {
 	 * @since 1.13.3
 	 */
 	public function handle_certificate_share_preview() {
-		$username       = sanitize_text_field( get_query_var( 'username' ) );
-		$certificate_id = absint( get_query_var( 'certificate_id' ) );
-		$course_id      = absint( get_query_var( 'course_id' ) );
-
-		$user = masteriyo_get_user_by_username_certificate( $username );
-
-		if ( is_wp_error( $user ) ) {
+		if ( ! isset( $_GET['username'], $_GET['certificate_id'], $_GET['course_id'] ) ) { // @phpcs:ignore WordPress.Security.NonceVerification
 			return;
+		}
+
+		$username             = sanitize_text_field( get_query_var( 'username' ) );
+		$certificate_id       = absint( get_query_var( 'certificate_id' ) );
+		$course_id            = absint( get_query_var( 'course_id' ) );
+		$user                 = get_user_by( 'login', $username );
+		$user_id              = $user ? $user->ID : 0;
+		$is_valid_certificate = masteriyo_get_course_certificate_id( $course_id ) === $certificate_id;
+		$current_user_id      = get_current_user_id();
+		$is_admin             = masteriyo_is_current_user_admin();
+
+		if ( ! ( $user_id && $user_id === $current_user_id ) && ! $is_admin || ! $is_valid_certificate ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to access this content.', 'learning-management-system' ) );
 		}
 
 		if ( $certificate_id && $course_id ) {
@@ -166,7 +173,7 @@ class CertificateAddon {
 				return;
 			}
 
-			$certificate_pdf = new CertificatePDF( $course_id, $user->get_id(), $certificate_html_content );
+			$certificate_pdf = new CertificatePDF( $course_id, $user_id, $certificate_html_content );
 
 			if ( ! $certificate_pdf || is_wp_error( $certificate_pdf ) ) {
 				return;

@@ -3,23 +3,24 @@ import {
 	Button,
 	ButtonGroup,
 	Container,
-	Flex,
-	Heading,
 	Stack,
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import BackToBuilder from '../../../../../assets/js/back-end/components/common/BackToBuilder';
 import routes from '../../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../../assets/js/back-end/constants/urls';
 import { UsersApiResponse } from '../../../../../assets/js/back-end/types/users';
 import API from '../../../../../assets/js/back-end/utils/api';
-import { deepMerge } from '../../../../../assets/js/back-end/utils/utils';
+import {
+	addContentToBuilderCache,
+	deepMerge,
+} from '../../../../../assets/js/back-end/utils/utils';
 import GoogleMeetUrls from '../../../constants/urls';
 import GoogleMeetingHeader from '../../headers/CourseGoogleMeetingHeader';
 import { GoogleMeetSchema } from '../../schemas';
@@ -45,18 +46,27 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 	const navigate = useNavigate();
 	const usersAPI = new API(urls.users);
 
-	const usersQuery = useQuery<UsersApiResponse>('users', () =>
-		usersAPI.list({
-			orderby: 'display_name',
-			order: 'asc',
-			per_page: 10,
-		}),
-	);
+	const usersQuery = useQuery<UsersApiResponse>({
+		queryKey: ['users'],
+		queryFn: () =>
+			usersAPI.list({
+				orderby: 'display_name',
+				order: 'asc',
+				per_page: 10,
+			}),
+	});
 
-	const addGoogleMeetMutation = useMutation(
-		(data: GoogleMeetSchema) => googleMeetAPI.store(data),
-		{
+	const addGoogleMeetMutation = useMutation({
+		mutationFn: (data: GoogleMeetSchema) => googleMeetAPI.store(data),
+		mutationKey: ['addGoogleMeet'],
+		...{
 			onSuccess: (data: GoogleMeetSchema) => {
+				addContentToBuilderCache(
+					queryClient,
+					[`builder${courseId}`, courseId],
+					data,
+					'google-meet',
+				);
 				toast({
 					title: sprintf(
 						__('%s has been added.', 'learning-management-system'),
@@ -65,7 +75,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`course${courseId}`);
+				queryClient.invalidateQueries({ queryKey: [`course${courseId}`] });
 				navigate({
 					pathname: routes.courses.edit.replace(':courseId', courseId),
 					search: '?page=builder&view=' + sectionId,
@@ -87,7 +97,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: any) => {
 		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
@@ -132,42 +142,32 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 									flexDirection="column"
 									justifyContent="space-between"
 								>
-									<Stack direction="column" spacing="8">
-										<Flex align="center" justify="space-between">
-											<Heading as="h1" fontSize="x-large">
-												{__(
-													'Add New Google Meeting',
-													'learning-management-system',
-												)}
-											</Heading>
-										</Flex>
-										<Stack direction="column" spacing="6">
-											<Title />
-											<Description />
+									<Stack direction="column" spacing="6">
+										<Title />
+										<Description />
 
-											<ButtonGroup>
-												<GoogleMeetActionButton
-													methods={methods}
-													onSubmit={onSubmit}
-													isLoading={addGoogleMeetMutation.isLoading}
-													type="add"
-												/>
-												<Button
-													variant="outline"
-													onClick={() =>
-														navigate({
-															pathname: routes.courses.edit.replace(
-																':courseId',
-																courseId,
-															),
-															search: '?page=builder',
-														})
-													}
-												>
-													{__('Cancel', 'learning-management-system')}
-												</Button>
-											</ButtonGroup>
-										</Stack>
+										<ButtonGroup>
+											<GoogleMeetActionButton
+												methods={methods}
+												onSubmit={onSubmit}
+												isLoading={addGoogleMeetMutation.isPending}
+												type="add"
+											/>
+											<Button
+												variant="outline"
+												onClick={() =>
+													navigate({
+														pathname: routes.courses.edit.replace(
+															':courseId',
+															courseId,
+														),
+														search: '?page=builder',
+													})
+												}
+											>
+												{__('Cancel', 'learning-management-system')}
+											</Button>
+										</ButtonGroup>
 									</Stack>
 								</Box>
 

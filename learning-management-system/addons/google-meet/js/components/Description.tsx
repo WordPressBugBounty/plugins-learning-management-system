@@ -1,9 +1,9 @@
 import { Flex, FormControl, FormLabel } from '@chakra-ui/react';
+import { UseQueryResult } from '@tanstack/react-query';
 import { createBlock, serialize } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import { UseFormReturn, useFormContext } from 'react-hook-form';
-import { UseQueryResult } from 'react-query';
 import BlockEditor from '../../../../assets/js/back-end/components/common/BlockEditor';
 import ContentCreateWithAIModal from '../../../../assets/js/back-end/components/common/ContentCreateWithAIModal';
 import Editor from '../../../../assets/js/back-end/components/common/Editor';

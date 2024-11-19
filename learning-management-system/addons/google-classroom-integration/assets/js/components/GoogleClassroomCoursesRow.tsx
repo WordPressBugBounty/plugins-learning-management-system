@@ -6,10 +6,10 @@ import {
 	Text,
 	useClipboard,
 } from '@chakra-ui/react';
+import { UseMutationResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { BiCheckCircle, BiCopy } from 'react-icons/bi';
-import { UseMutationResult } from 'react-query';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import routes from '../../../../../assets/js/back-end/constants/routes';
@@ -114,7 +114,7 @@ const GoogleClassroomCoursesRow: React.FC<Props> = (props) => {
 						size="xs"
 						isLoading={
 							courseId === addCourse.variables?.google_classroom_course_id
-								? addCourse.isLoading
+								? addCourse.isPending
 								: false
 						}
 						marginRight="70px"

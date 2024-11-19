@@ -7,13 +7,13 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { uploadMedia } from '@wordpress/media-utils';
 import React, { useEffect, useState } from 'react';
 import { Accept, useDropzone } from 'react-dropzone';
 import { useFormContext } from 'react-hook-form';
 import { BiPlus } from 'react-icons/bi';
-import { useMutation } from 'react-query';
 import MediaUploader from '../../../assets/js/back-end/components/common/MediaUploader';
 import MediaAPI from '../../../assets/js/back-end/utils/media';
 import {
@@ -65,21 +65,24 @@ const DocUploader: React.FC<Props> = (props) => {
 		setValue(keyIndex, files);
 	}, [files, setValue, keyIndex]);
 
-	const deleteFileMutation = useMutation((id: number) => API.delete(id), {
-		onSuccess: (data: { deleted: boolean; previous: any }) => {
-			toast({
-				title: `${data?.previous?.title?.raw} has been deleted`,
-				status: 'success',
-				isClosable: true,
-			});
-		},
+	const deleteFileMutation = useMutation({
+		mutationFn: (id: number) => API.delete(id),
+		...{
+			onSuccess: (data: { deleted: boolean; previous: any }) => {
+				toast({
+					title: `${data?.previous?.title?.raw} has been deleted`,
+					status: 'success',
+					isClosable: true,
+				});
+			},
 
-		onError: (data: any) => {
-			toast({
-				title: data?.message,
-				status: 'error',
-				isClosable: true,
-			});
+			onError: (data: any) => {
+				toast({
+					title: data?.message,
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 

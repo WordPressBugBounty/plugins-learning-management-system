@@ -6,12 +6,12 @@ import {
 	HStack,
 	Skeleton,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { ControlProps, OptionProps, components } from 'chakra-react-select';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
 import { reactSelectStyles } from '../../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
@@ -86,19 +86,19 @@ const Author: React.FC<Props> = (props) => {
 
 	const usersAPI = new API(urls.users);
 
-	const usersQuery = useQuery<UsersApiResponse>(
-		'users',
-		() =>
+	const usersQuery = useQuery<UsersApiResponse>({
+		queryKey: ['users'],
+		queryFn: () =>
 			usersAPI.list({
 				roles: 'administrator,masteriyo_instructor,masteriyo_student',
 				orderby: 'display_name',
 				order: 'asc',
 				per_page: 10,
 			}),
-		{
+		...{
 			enabled: canEditUsers,
 		},
-	);
+	});
 
 	return (
 		<FormControl>

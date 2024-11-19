@@ -78,6 +78,12 @@ class GoogleClassroomSettingController extends CrudController {
 					'permission_callback' => array( $this, 'save_google_classroom_setting_permission_check' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
 				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'reset_google_classroom_setting' ),
+					'permission_callback' => array( $this, 'save_google_classroom_setting_permission_check' ),
+				),
+
 			)
 		);
 
@@ -93,6 +99,39 @@ class GoogleClassroomSettingController extends CrudController {
 			)
 		);
 	}
+
+
+	/**
+	 * get import file.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param  Array $files Full files array.
+	 * @return WP_Error|boolean
+	 */
+	protected function get_import_file( $files ) {
+		if ( ! isset( $files['file']['tmp_name'] ) ) {
+			return new \WP_Error(
+				'rest_upload_no_data',
+				__( 'No data supplied.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if (
+			! isset( $files['file']['name'] ) ||
+			'json' !== pathinfo( $files['file']['name'], PATHINFO_EXTENSION )
+		) {
+			return new \WP_Error(
+				'invalid_file_ext',
+				__( 'Invalid file type for import.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $files['file']['tmp_name'];
+	}
+
 
 	/**
 	 * Check if a given request has access to create an item.
@@ -165,6 +204,28 @@ class GoogleClassroomSettingController extends CrudController {
 		return rest_ensure_response( $setting->get_data() );
 	}
 
+
+
+	/**
+	 * Reset google classroom client details
+	 *
+	 * @since 1.11.0
+	 *
+	 * @param  $request $request Full details about the request.
+	 * @return WP_Error|array
+	 */
+
+	public function reset_google_classroom_setting() {
+
+		$setting = new GoogleClassroomSetting();
+
+		$setting->delete();
+
+		return rest_ensure_response( $setting->get_data() );
+
+	}
+
+
 	/**
 	 * Provides the google classroom setting data(client_id, client_secret, account_id)  data
 	 *
@@ -185,29 +246,28 @@ class GoogleClassroomSettingController extends CrudController {
 	 * @return WP_Error|array
 	 */
 	public function save_google_classroom_setting( $request ) {
-		$client_id     = isset( $request['client_id'] ) ? sanitize_text_field( $request['client_id'] ) : '';
-		$client_secret = isset( $request['client_secret'] ) ? sanitize_text_field( $request['client_secret'] ) : '';
-		$access_code   = isset( $request['access_code'] ) && $request['access_code'] ?? false;
-		$setting       = new GoogleClassroomSetting();
 
-		if ( $setting->get( 'client_id' ) !== $request['client_id'] || $setting->get( 'client_secret' ) !== $request['client_secret'] || '' === $request['refresh_token'] ) {
-			$setting->set( 'refresh_token', '' );
-			$setting->set( 'access_token', '' );
+		$file = $this->get_import_file( $request->get_file_params() );
 
+		if ( is_wp_error( $file ) ) {
+			return $file;
+		}
+
+		$file_system = masteriyo_get_filesystem();
+
+		$file_contents = json_decode( $file_system->get_contents( $file ), true );
+
+		$setting = new GoogleClassroomSetting();
+		$setting->set( 'client_id', $file_contents['web']['client_id'] );
+		$setting->set( 'refresh_token', $file_contents['web']['token_uri'] );
+		$setting->set( 'client_secret', $file_contents['web']['client_secret'] );
+
+		if ( $setting->get( 'client_id' ) !== $file_contents['web']['client_id'] || $setting->get( 'client_secret' ) !== $file_contents['web']['client_secret'] ) {
 			update_option( 'masteriyo_google_classroom_data_' . masteriyo_get_current_user_id(), array() );
 		}
-		$setting->set( 'client_id', $client_id );
-		$setting->set( 'client_secret', $client_secret );
-
-		if ( masteriyo_is_current_user_admin() ) {
-			update_option( 'masteriyo_google_classroom_access_code_enabled', $access_code );
-
-			$setting->set( 'access_code', $access_code );
-		}
-
 		$setting->save();
-
 		return rest_ensure_response( $setting->get_data() );
+
 	}
 
 	/**

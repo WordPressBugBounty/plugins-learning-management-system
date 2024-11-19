@@ -1,24 +1,12 @@
-import {
-	Box,
-	Collapse,
-	FormLabel,
-	Icon,
-	Skeleton,
-	Stack,
-	Switch,
-	Tooltip,
-} from '@chakra-ui/react';
+import { Collapse, FormLabel, Skeleton, Stack, Switch } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
-import { useQuery } from 'react-query';
 import AsyncSelect from '../../../../../assets/js/back-end/components/common/AsyncSelect';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import {
-	infoIconStyles,
-	reactSelectStyles,
-} from '../../../../../assets/js/back-end/config/styles';
+import { reactSelectStyles } from '../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../assets/js/back-end/types/course';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
 import { getAllCertificates } from '../utils/certificates';
@@ -38,19 +26,19 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 		control,
 	});
 
-	const certificatesQuery = useQuery(
-		'certificatesList',
-		() =>
+	const certificatesQuery = useQuery({
+		queryKey: ['certificatesList'],
+		queryFn: () =>
 			getAllCertificates({
 				order: 'desc',
 				orderby: 'date',
 				status: CertificateStatus.Publish,
 				per_page: 10,
 			}),
-		{
+		...{
 			enabled: isCertificateEnabled,
 		},
-	);
+	});
 
 	return (
 		<Stack direction="column" spacing={8}>
@@ -58,18 +46,12 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 				<Stack direction="row">
 					<FormLabel minW="160px">
 						{__('Enable Certificate', 'learning-management-system')}
-						<Tooltip
+						<ToolTip
 							label={__(
 								'Allow students to get certificate after course completion.',
 								'learning-management-system',
 							)}
-							hasArrow
-							fontSize="xs"
-						>
-							<Box as="span" sx={infoIconStyles}>
-								<Icon as={BiInfoCircle} />
-							</Box>
-						</Tooltip>
+						/>
 					</FormLabel>
 					<Switch
 						{...register('certificate_enabled')}
@@ -87,18 +69,12 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 						<FormControlTwoCol>
 							<FormLabel minW="160px" mb={0}>
 								{__('Certificate', 'learning-management-system')}
-								<Tooltip
+								<ToolTip
 									label={__(
 										'Select which certificate to use for this course.',
 										'learning-management-system',
 									)}
-									hasArrow
-									fontSize="xs"
-								>
-									<Box as="span" sx={infoIconStyles}>
-										<Icon as={BiInfoCircle} />
-									</Box>
-								</Tooltip>
+								/>
 							</FormLabel>
 							<Controller
 								name="certificate_id"
@@ -174,18 +150,12 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 							<Stack direction="row">
 								<FormLabel minW="160px">
 									{__('Share Certificate', 'learning-management-system')}
-									<Tooltip
+									<ToolTip
 										label={__(
 											'Allow students to view/share certificate from single course page after course completion.',
 											'learning-management-system',
 										)}
-										hasArrow
-										fontSize="xs"
-									>
-										<Box as="span" sx={infoIconStyles}>
-											<Icon as={BiInfoCircle} />
-										</Box>
-									</Tooltip>
+									/>
 								</FormLabel>
 								<Switch
 									{...register('certificate_single_course_enabled')}

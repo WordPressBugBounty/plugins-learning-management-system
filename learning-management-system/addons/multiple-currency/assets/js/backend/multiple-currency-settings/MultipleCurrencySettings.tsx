@@ -1,8 +1,8 @@
 import { Box, Collapse, Container, Stack, useToast } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
 	Header,
 	HeaderPrimaryButton,
@@ -26,9 +26,10 @@ const MultipleCurrencySettings = () => {
 	const settingsAPI = new API(urls.settings);
 	const methods = useForm<MultipleCurrencySettingsSchema>();
 
-	const updateSettingsMutation = useMutation(
-		(data: MultipleCurrencySettingsSchema) => settingsAPI.store(data),
-		{
+	const updateSettingsMutation = useMutation({
+		mutationFn: (data: MultipleCurrencySettingsSchema) =>
+			settingsAPI.store(data),
+		...{
 			onSuccess: () => {
 				toast({
 					title: __(
@@ -39,7 +40,9 @@ const MultipleCurrencySettings = () => {
 					status: 'success',
 				});
 
-				queryClient.invalidateQueries(`multipleCurrencySettings`);
+				queryClient.invalidateQueries({
+					queryKey: [`multipleCurrencySettings`],
+				});
 			},
 			onError: (error: any) => {
 				const message: any = error?.message
@@ -57,11 +60,12 @@ const MultipleCurrencySettings = () => {
 				});
 			},
 		},
-	);
+	});
 
-	const settingQuery = useQuery('multipleCurrencySettings', () =>
-		settingsAPI.get(),
-	);
+	const settingQuery = useQuery({
+		queryKey: ['multipleCurrencySettings'],
+		queryFn: () => settingsAPI.get(),
+	});
 
 	const onSubmit = (data: MultipleCurrencySettingsSchema) => {
 		updateSettingsMutation.mutate(data);
@@ -75,7 +79,7 @@ const MultipleCurrencySettings = () => {
 					<HeaderRightSection>
 						<HeaderPrimaryButton
 							onClick={methods.handleSubmit(onSubmit)}
-							isLoading={updateSettingsMutation.isLoading}
+							isLoading={updateSettingsMutation.isPending}
 						>
 							{__('Save Setting', 'learning-management-system')}
 						</HeaderPrimaryButton>

@@ -543,6 +543,7 @@ class CourseProgressController extends CrudController {
 			'is_password_required'               => post_password_required( get_post( $course_progress->get_course_id() ) ),
 			'disable_course_content'             => $course ? $course->get_disable_course_content( $context ) : '',
 			'welcome_message_to_first_time_user' => masteriyo_get_learn_page_welcome_message_status( $course_progress->get_course_id( $context ), get_current_user_id(), $course_progress->get_status( $context ) ),
+			'review_after_course_completion'     => $course ? $course->get_review_after_course_completion( $context ) : '',
 		);
 
 		if ( 'completed' === $course_progress->get_status( 'edit' ) && $course ) {

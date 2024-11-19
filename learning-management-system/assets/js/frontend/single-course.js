@@ -641,27 +641,42 @@
 			var isLoadingReviews = false;
 			var currentPage = 1;
 			var searchText = '';
+			var prevSearchVal = '';
 			var rating = '';
+
+			$('button#masteriyo-course-reviews-search-button').on('click', () => {
+				var $button = $('button#masteriyo-course-reviews-search-button');
+
+				prevSearchVal = $button.siblings('input').val();
+			});
 
 			$('button.masteriyo-load-more').on('click', function () {
 				if (isLoadingReviews) {
 					return;
 				}
+				const prevRatingState = $(
+					'select#masteriyo-course-reviews-ratings-select',
+				).val();
 				var $button = $(this);
 
 				isLoadingReviews = true;
 				$button.text(mto_data.labels.loading);
 
 				masteriyo_api.getCourseReviewsPageHtml(
-					{ page: currentPage + 1, search: searchText, rating },
+					{
+						page: currentPage + 1,
+						search: searchText || prevSearchVal,
+						rating: rating || prevRatingState,
+					},
 					{
 						onSuccess: function (res) {
 							if (res.success) {
-								currentPage += 1;
-
-								if (currentPage >= mto_data.course_review_pages) {
+								if (res.data.view_load_more_button) {
+									$button.show();
+								} else {
 									$button.remove();
 								}
+								currentPage += 1;
 								$('.masteriyo-course-reviews-list').append(res.data.html);
 								$('.course-reviews .masteriyo-danger-msg').remove();
 							}
@@ -687,6 +702,9 @@
 						},
 						onComplete: function () {
 							isLoadingReviews = false;
+							if (currentPage >= mto_data.course_review_pages) {
+								$button.remove();
+							}
 							$button.text(mto_data.labels.see_more_reviews);
 						},
 					},
@@ -739,7 +757,6 @@
 						if (res.success) {
 							searchText = searchValue;
 							rating = ratingValue;
-
 							if (res.data.view_load_more_button) {
 								$loadMoreButton.show();
 							} else {

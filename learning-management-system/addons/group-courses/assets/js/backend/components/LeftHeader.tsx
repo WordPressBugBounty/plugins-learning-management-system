@@ -10,6 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import {
@@ -20,7 +21,6 @@ import {
 	BiGroup,
 	BiTrash,
 } from 'react-icons/bi';
-import { useQuery } from 'react-query';
 import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
 import {
 	HeaderLeftSection,
@@ -94,13 +94,13 @@ const LeftHeader: React.FC = (props) => {
 		}
 	}, [currentTab]);
 
-	const groupQuery = useQuery(
-		['groupsList', filterParams],
-		() => groupAPI.list(filterParams),
-		{
+	const groupQuery = useQuery({
+		queryKey: ['groupsList', filterParams],
+		queryFn: () => groupAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	const counts = groupQuery.data?.meta.groups_count;
 	const isCounting = groupQuery.isLoading;

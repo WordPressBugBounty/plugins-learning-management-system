@@ -46,7 +46,8 @@ foreach ( $additional_attributes as $key => $value ) {
 	<?php elseif ( $progress && CourseProgressStatus::PROGRESS === $progress->get_status() ) : ?>
 		<?php
 		$quiz_attempt = masteriyo_is_course_quiz_started( $course->get_id() );
-		if ( $quiz_attempt && masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) && $course->get_disable_course_content() ) :
+		$quiz_exists  = $quiz_attempt ? masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) : false;
+		if ( $quiz_exists && $quiz_attempt && $course->get_disable_course_content() ) :
 			?>
 			<a href="<?php echo esc_url( masteriyo_get_course_item_learn_page_url( $course, masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) ) ); ?>" target="_blank" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 				<?php echo wp_kses_post( $course->single_course_continue_quiz_text() ); ?>

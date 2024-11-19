@@ -126,4 +126,20 @@ class GoogleClassroomSetting {
 	public function set( $key, $value ) {
 		masteriyo_array_set( $this->data, $key, $value );
 	}
+
+
+	/**
+	 * Delete User Meta Data.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return void
+	 */
+	public function delete() {
+		delete_user_meta( get_current_user_id(), $this->name );
+	}
+
 }
+
+
+

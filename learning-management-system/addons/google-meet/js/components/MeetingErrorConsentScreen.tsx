@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { IoIosLink } from 'react-icons/io';
 import { RiRestartLine } from 'react-icons/ri';
 // import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup.tsx';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
 import API from '../../../../assets/js/back-end/utils/api';
 import GoogleMeetUrls from '../../constants/urls';
@@ -20,13 +20,13 @@ const MeetingErrorConsentScreen: React.FC<Props> = ({
 }) => {
 	const GoogleMeetAPI = new API(GoogleMeetUrls.settings);
 
-	const settingQuery = useQuery(
-		['googleMeetSettings'],
-		() => GoogleMeetAPI.list(),
-		{
+	const settingQuery = useQuery({
+		queryKey: ['googleMeetSettings'],
+		queryFn: () => GoogleMeetAPI.list(),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	const consentScreenButtons = useMemo(() => {
 		return [

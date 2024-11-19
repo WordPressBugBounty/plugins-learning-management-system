@@ -1,6 +1,6 @@
+import { QueryClient } from '@tanstack/react-query';
 import { InspectorControls } from '@wordpress/block-editor';
 import React from 'react';
-import { QueryClient } from 'react-query';
 
 const queryClient = new QueryClient();
 

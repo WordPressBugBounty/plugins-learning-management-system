@@ -1,8 +1,8 @@
 import { Box, Grid, Input } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useOnType } from 'use-ontype';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
@@ -36,21 +36,25 @@ const AnnouncementFilter: React.FC<Props> = ({
 	const [searchParams] = useSearchParams();
 	const announcementStatus = searchParams.get('status') || 'any';
 
-	const courseQueries = useQuery<CoursesResponse>('courseList', () =>
-		courseAPI.list({
-			order_by: 'name',
-			order: 'asc',
-			per_page: 5,
-		}),
-	);
+	const courseQueries = useQuery<CoursesResponse>({
+		queryKey: ['courseList'],
+		queryFn: () =>
+			courseAPI.list({
+				order_by: 'name',
+				order: 'asc',
+				per_page: 5,
+			}),
+	});
 
-	const userQueries = useQuery<UsersApiResponse>('userList', () =>
-		userAPI.list({
-			order_by: 'name',
-			order: 'asc',
-			per_page: 5,
-		}),
-	);
+	const userQueries = useQuery<UsersApiResponse>({
+		queryKey: ['userList'],
+		queryFn: () =>
+			userAPI.list({
+				order_by: 'name',
+				order: 'asc',
+				per_page: 5,
+			}),
+	});
 
 	const { handleSubmit, register, setValue } = useForm();
 

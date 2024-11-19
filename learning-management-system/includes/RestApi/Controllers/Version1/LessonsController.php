@@ -356,6 +356,7 @@ class LessonsController extends PostsController {
 			'ends_at'                   => masteriyo_rest_prepare_date_response( $lesson->get_ends_at( $context ) ),
 			'starts_at'                 => masteriyo_rest_prepare_date_response( $lesson->get_starts_at( $context ) ),
 			'live_chat_enabled'         => $lesson->get_live_chat_enabled( $context ),
+			'enable_lesson_comment'     => masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ),
 		);
 
 		$video_type       = $lesson->get_video_source( $context );
@@ -364,6 +365,12 @@ class LessonsController extends PostsController {
 		if ( 'live-stream' === $video_type && ! empty( $video_source_url ) ) {
 			$thumbnail_url                     = masteriyo_get_youtube_thumbnail( $video_source_url );
 			$data['live_stream_thumbnail_url'] = $thumbnail_url ?? '';
+		}
+
+		if ( masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ) ) {
+			$course = masteriyo_get_course( $lesson->get_course_id() );
+
+			$data['access_mode'] = $course->get_access_mode();
 		}
 
 		/**

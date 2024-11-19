@@ -17,12 +17,12 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import humanizeDuration from 'humanize-duration';
 import React from 'react';
 import { BiCalendar, BiEdit, BiTrash } from 'react-icons/bi';
 import { RiCalendar2Line, RiLiveLine } from 'react-icons/ri';
-import { useMutation, useQueryClient } from 'react-query';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import { AuthorMap } from '../../../../assets/js/back-end/types/course';
@@ -110,11 +110,12 @@ const MeetingRow: React.FC<Props> = (props) => {
 		googleMeetStatus();
 	}, [start_at, end_at]);
 
-	const deleteGoogleMeet = useMutation(
-		(id: number) => googleMeetMeetingsAPI.delete(id, { force: true }),
-		{
+	const deleteGoogleMeet = useMutation({
+		mutationFn: (id: number) =>
+			googleMeetMeetingsAPI.delete(id, { force: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('googleMeetList');
+				queryClient.invalidateQueries({ queryKey: ['googleMeetList'] });
 				toast({
 					title: __('Meeting Deleted', 'learning-management-system'),
 					isClosable: true,
@@ -139,7 +140,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	const onDeletePress = (googleMeetId: number) => {
 		onOpen();
@@ -267,7 +268,8 @@ const MeetingRow: React.FC<Props> = (props) => {
 							isExternal
 						>
 							<Button
-								colorScheme="blue"
+								colorScheme="primary"
+								variant="outline"
 								size="xs"
 								gap="2"
 								fontWeight="semibold"
@@ -281,8 +283,8 @@ const MeetingRow: React.FC<Props> = (props) => {
 					<Button
 						size="xs"
 						gap="2"
-						variant="solid"
-						colorScheme="blue"
+						colorScheme="primary"
+						variant="outline"
 						onClick={onEditPress}
 					>
 						<BiEdit />
@@ -326,7 +328,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 								</Button>
 								<Button
 									colorScheme="red"
-									isLoading={deleteGoogleMeet.isLoading}
+									isLoading={deleteGoogleMeet.isPending}
 									onClick={onDeleteConfirm}
 								>
 									{__('Delete', 'learning-management-system')}

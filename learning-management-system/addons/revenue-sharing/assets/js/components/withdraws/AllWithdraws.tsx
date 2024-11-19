@@ -6,6 +6,7 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useState } from 'react';
 import {
@@ -15,7 +16,6 @@ import {
 	BiXCircle,
 } from 'react-icons/bi';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
-import { useQuery } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import EmptyInfo from '../../../../../../assets/js/back-end/components/common/EmptyInfo';
@@ -105,10 +105,10 @@ const AllWithdraws: React.FC = () => {
 	const [actionId, setActionId] = useState<number>(0);
 
 	const withdrawAPI = new API(urls.withdraws);
-	const withdrawsQuery = useQuery<WithdrawResponseDataMap>(
-		['withdrawsList', filterParams],
-		() => withdrawAPI.list(filterParams),
-		{
+	const withdrawsQuery = useQuery<WithdrawResponseDataMap>({
+		queryKey: ['withdrawsList', filterParams],
+		queryFn: () => withdrawAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 			onSuccess(data: any) {
 				const withdrawCount = data?.meta?.withdraws_count;
@@ -120,7 +120,7 @@ const AllWithdraws: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const filterBy = (order: 'asc' | 'desc', orderBy: string) =>
 		setFilterParams(

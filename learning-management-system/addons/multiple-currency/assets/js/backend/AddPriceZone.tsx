@@ -13,11 +13,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import {
@@ -64,9 +64,9 @@ const AddPriceZone: React.FC = () => {
 	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const addGroup = useMutation<PriceZoneSchema>((data) =>
-		pricingZoneAPI.store(data),
-	);
+	const addGroup = useMutation<PriceZoneSchema>({
+		mutationFn: (data) => pricingZoneAPI.store(data),
+	});
 
 	const onSubmit = (data: any) => {
 		addGroup.mutate(deepClean(data), {
@@ -77,7 +77,7 @@ const AddPriceZone: React.FC = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`pricingZonesList`);
+				queryClient.invalidateQueries({ queryKey: [`pricingZonesList`] });
 				navigate({
 					pathname: multipleCurrencyBackendRoutes.edit.replace(
 						':pricingZoneID',
@@ -107,14 +107,14 @@ const AddPriceZone: React.FC = () => {
 	const FormButton = () => (
 		<ButtonGroup>
 			<PriceZoneActionBtn
-				isLoading={addGroup.isLoading}
+				isLoading={addGroup.isPending}
 				methods={methods}
 				onSubmit={onSubmit}
 			/>
 			<Button
 				size={buttonSize}
 				variant="outline"
-				isDisabled={addGroup.isLoading}
+				isDisabled={addGroup.isPending}
 				onClick={() =>
 					navigate({
 						pathname: multipleCurrencyBackendRoutes.list,

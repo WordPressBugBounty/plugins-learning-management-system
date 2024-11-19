@@ -35,7 +35,7 @@ class CheckoutShortcode extends Shortcode {
 	 * @return string
 	 */
 	public function get_content() {
-		global $wp;
+		 global $wp;
 
 		// Bail early if the cart is null.
 		if ( is_null( masteriyo( 'cart' ) ) ) {
@@ -159,6 +159,19 @@ class CheckoutShortcode extends Shortcode {
 		// Empty current cart.
 		masteriyo( 'cart' )->clear();
 
-		masteriyo_get_template( 'checkout/thankyou.php', array( 'order' => $order ) );
+		//after successful checkout, redirect to a custom page
+		$display_type = masteriyo_get_setting( 'general.pages.after_checkout_page' );
+
+		if ( 'default' === $display_type['display_type'] ) {
+			masteriyo_get_template( 'checkout/thankyou.php', array( 'order' => $order ) );
+		} elseif ( 'url' === $display_type['display_type'] ) {
+			$custom_url = $display_type['custom_url'];
+			echo '<script type="text/javascript">window.location.href = "' . esc_url( $custom_url ) . '";</script>';
+			exit;
+		} elseif ( 'wp_pages' === $display_type['display_type'] ) {
+			$permalink = get_permalink( $display_type['page_id'] );
+			echo '<script type="text/javascript">window.location.href = "' . esc_url( $permalink ) . '";</script>';
+			exit;
+		}
 	}
 }

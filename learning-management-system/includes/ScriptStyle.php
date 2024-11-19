@@ -1020,6 +1020,7 @@ class ScriptStyle {
 						'version'                   => masteriyo_get_version(),
 						'adminUrl'                  => get_admin_url(),
 						'rootApiUrl'                => esc_url_raw( untrailingslashit( rest_url() ) ),
+						'current_user_id'           => get_current_user_id(),
 						'nonce'                     => wp_create_nonce( 'wp_rest' ),
 						'review_notice_nonce'       => wp_create_nonce( 'masteriyo_review_notice_nonce' ),
 						'allow_usage_notice_nonce'  => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
@@ -1080,6 +1081,7 @@ class ScriptStyle {
 							),
 
 						),
+						'logo'                      => plugins_url( 'assets/img/logo.png', MASTERIYO_PLUGIN_FILE ),
 
 					),
 				),
@@ -1296,7 +1298,6 @@ class ScriptStyle {
 						'enableFocusMode'              => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.enable_focus_mode' ) ),
 						'showSidebar'                  => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_sidebar' ) ),
 						'showHeader'                   => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_header' ) ),
-						'reviewOptionIsVisible'        => masteriyo_bool_to_string( masteriyo_is_reviews_enabled_in_learn_page() ),
 						'isCurrentUserAdmin'           => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 					),
 				),

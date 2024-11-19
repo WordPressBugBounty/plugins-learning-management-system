@@ -15,6 +15,7 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import {
@@ -24,7 +25,6 @@ import {
 	BiShow,
 	BiTrash,
 } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import API from '../../../../../assets/js/back-end/utils/api';
@@ -61,12 +61,13 @@ const PriceZoneList: React.FC<Props> = (props) => {
 
 	const pricingZonePI = new API(urls.pricingZones);
 
-	const updateStatus = useMutation<PriceZoneSchema>(
-		(newStatus) => pricingZonePI.update(data?.id, { status: newStatus }),
-		{
+	const updateStatus = useMutation<PriceZoneSchema>({
+		mutationFn: (newStatus) =>
+			pricingZonePI.update(data?.id, { status: newStatus }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(`pricingZone${data?.id}`);
-				queryClient.invalidateQueries(`pricingZonesList`);
+				queryClient.invalidateQueries({ queryKey: [`pricingZone${data?.id}`] });
+				queryClient.invalidateQueries({ queryKey: [`pricingZonesList`] });
 				toast({
 					title: __(
 						'Pricing zone status updated successfully.',
@@ -92,7 +93,7 @@ const PriceZoneList: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	const handleStatusChange = (newStatus: any) => {
 		updateStatus.mutate(newStatus);
@@ -172,7 +173,7 @@ const PriceZoneList: React.FC<Props> = (props) => {
 						onChange={(e) =>
 							handleStatusChange(e.target.checked ? 'active' : 'inactive')
 						}
-						isDisabled={updateStatus.isLoading}
+						isDisabled={updateStatus.isPending}
 					/>
 					{'active' === data?.status ? (
 						<Badge colorScheme="green" fontSize="xs">
@@ -221,7 +222,12 @@ const PriceZoneList: React.FC<Props> = (props) => {
 								data?.id.toString(),
 							)}
 						>
-							<Button colorScheme="primary" leftIcon={<BiEdit />} size="xs">
+							<Button
+								colorScheme="primary"
+								variant="outline"
+								leftIcon={<BiEdit />}
+								size="xs"
+							>
 								{__('Edit', 'learning-management-system')}
 							</Button>
 						</RouterLink>

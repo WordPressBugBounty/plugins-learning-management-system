@@ -1,6 +1,7 @@
 import { Fragment } from '@wordpress/element';
 
 import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
@@ -8,7 +9,6 @@ import {
 	InnerBlocks,
 } from '@wordpress/block-editor';
 import React, { useEffect, useState } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import CourseFilterForBlocks from '../components/select-course/select-wrapper';
 import useClientId from '../hooks/useClientId';
 import { useBlockCSS } from './block-css';

@@ -13,11 +13,11 @@ import {
 	Stack,
 	Tooltip,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BsMegaphone } from 'react-icons/bs';
 import { FaPlus } from 'react-icons/fa';
-import { useQuery } from 'react-query';
 import { isEmpty } from '../../../../../../../assets/js/back-end/utils/utils';
 import API from './../../../../../../../assets/js/back-end/utils/api';
 import { urls } from './../../backend/constants/urls';
@@ -33,26 +33,29 @@ const Announcements: React.FC<Props> = (props) => {
 	const announcementAPI = new API(urls.courseAnnouncement);
 	const [readCount, setReadCount] = useState(0);
 
-	const announcementQuery = useQuery(
-		[`announcement${courseId}`, courseId],
-		() =>
+	const announcementQuery = useQuery({
+		queryKey: [`announcement${courseId}`, courseId],
+		queryFn: () =>
 			announcementAPI.list({
 				course_id: courseId,
 				per_page: -1,
 				status: 'publish',
 				request_from: 'learn',
 			}),
-		{
-			onSuccess: (announcements) => {
-				const unreadAnnouncements = announcements?.data?.filter(
-					(announcement: AnnouncementSchema) =>
-						announcement[`has_user_read_${announcement?.id}`] === false,
-				);
-				setReadCount(unreadAnnouncements?.length);
-			},
+		...{
 			refetchInterval: 300000,
 		},
-	);
+	});
+
+	useEffect(() => {
+		if (announcementQuery?.isSuccess) {
+			const unreadAnnouncements = announcementQuery?.data?.data?.filter(
+				(announcement: AnnouncementSchema) =>
+					announcement[`has_user_read_${announcement?.id}`] === false,
+			);
+			setReadCount(unreadAnnouncements?.length);
+		}
+	}, [announcementQuery?.data?.data, announcementQuery?.isSuccess]);
 
 	const isEmptyAnnouncement =
 		announcementQuery.isSuccess && isEmpty(announcementQuery?.data?.data);
@@ -62,7 +65,6 @@ const Announcements: React.FC<Props> = (props) => {
 		announcementQuery.isSuccess &&
 		!isEmpty(announcementQuery?.data?.data) &&
 		announcementQuery?.data?.data.length < 3;
-
 	return (
 		<Popover placement="bottom-end">
 			<PopoverTrigger>

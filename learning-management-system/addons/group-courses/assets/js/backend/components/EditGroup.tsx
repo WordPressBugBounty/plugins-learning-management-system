@@ -13,11 +13,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import {
@@ -67,22 +67,22 @@ const EditGroup: React.FC = () => {
 	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const groupQuery = useQuery<GroupSchema>(
-		[`group${groupId}`, groupId],
-		() => groupAPI.get(groupId, 'edit'),
-		{
+	const groupQuery = useQuery<GroupSchema>({
+		queryKey: [`group${groupId}`, groupId],
+		queryFn: () => groupAPI.get(groupId, 'edit'),
+		...{
 			onError: () => {
 				navigate(routes.notFound);
 			},
 		},
-	);
+	});
 
-	const updateGroup = useMutation<GroupSchema>(
-		(data) => groupAPI.update(groupId, data),
-		{
+	const updateGroup = useMutation<GroupSchema>({
+		mutationFn: (data) => groupAPI.update(groupId, data),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(`group${groupId}`);
-				queryClient.invalidateQueries(`groupsList`);
+				queryClient.invalidateQueries({ queryKey: [`group${groupId}`] });
+				queryClient.invalidateQueries({ queryKey: [`groupsList`] });
 				toast({
 					title: __(
 						'Group updated successfully.',
@@ -109,7 +109,7 @@ const EditGroup: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: any) => {
 		updateGroup.mutate(deepClean(data));
@@ -118,7 +118,7 @@ const EditGroup: React.FC = () => {
 	const FormButton = () => (
 		<ButtonGroup>
 			<GroupActionBtn
-				isLoading={updateGroup.isLoading}
+				isLoading={updateGroup.isPending}
 				methods={methods}
 				onSubmit={onSubmit}
 				groupStatus={groupQuery?.data?.status}
@@ -126,7 +126,7 @@ const EditGroup: React.FC = () => {
 			<Button
 				size={buttonSize}
 				variant="outline"
-				isDisabled={updateGroup.isLoading}
+				isDisabled={updateGroup.isPending}
 				onClick={() =>
 					navigate({
 						pathname: groupsBackendRoutes.list,

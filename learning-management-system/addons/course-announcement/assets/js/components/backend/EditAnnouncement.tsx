@@ -3,8 +3,6 @@ import {
 	Button,
 	ButtonGroup,
 	Container,
-	Flex,
-	Heading,
 	Icon,
 	List,
 	ListItem,
@@ -13,11 +11,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiSolidMegaphone } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -58,22 +56,24 @@ const EditAnnouncement: React.FC = () => {
 	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const announcementQuery = useQuery<AnnouncementSchema>(
-		[`announcement${courseAnnouncementId}`, courseAnnouncementId],
-		() => announcementAPI.get(courseAnnouncementId, 'edit'),
-		{
+	const announcementQuery = useQuery<AnnouncementSchema>({
+		queryKey: [`announcement${courseAnnouncementId}`, courseAnnouncementId],
+		queryFn: () => announcementAPI.get(courseAnnouncementId, 'edit'),
+		...{
 			onError: () => {
 				navigate(routes.notFound);
 			},
 		},
-	);
+	});
 
-	const updateAnnouncement = useMutation<AnnouncementSchema>(
-		(data) => announcementAPI.update(courseAnnouncementId, data),
-		{
+	const updateAnnouncement = useMutation<AnnouncementSchema>({
+		mutationFn: (data) => announcementAPI.update(courseAnnouncementId, data),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(`announcement${courseAnnouncementId}`);
-				queryClient.invalidateQueries(`announcementList`);
+				queryClient.invalidateQueries({
+					queryKey: [`announcement${courseAnnouncementId}`],
+				});
+				queryClient.invalidateQueries({ queryKey: [`announcementList`] });
 				toast({
 					title: __(
 						'Announcement updated successfully.',
@@ -101,7 +101,7 @@ const EditAnnouncement: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: any) => {
 		updateAnnouncement.mutate(deepClean(data));
@@ -110,7 +110,7 @@ const EditAnnouncement: React.FC = () => {
 	const FormButton = () => (
 		<ButtonGroup>
 			<AnnouncementActionBtn
-				isLoading={updateAnnouncement.isLoading}
+				isLoading={updateAnnouncement.isPending}
 				methods={methods}
 				onSubmit={onSubmit}
 				announcementStatus={announcementQuery?.data?.status}
@@ -118,7 +118,7 @@ const EditAnnouncement: React.FC = () => {
 			<Button
 				size={buttonSize}
 				variant="outline"
-				isDisabled={updateAnnouncement.isLoading}
+				isDisabled={updateAnnouncement.isPending}
 				onClick={() =>
 					navigate({
 						pathname: routes.courseAnnouncement.list,
@@ -186,24 +186,13 @@ const EditAnnouncement: React.FC = () => {
 										flexDirection="column"
 										justifyContent="space-between"
 									>
-										<Stack direction="column" spacing="8">
-											<Flex align="center" justify="space-between">
-												<Heading as="h1" fontSize="x-large">
-													{__(
-														'Edit Announcement',
-														'learning-management-system',
-													)}
-												</Heading>
-											</Flex>
+										<Stack direction="column" spacing="6">
+											<Name defaultValue={announcementQuery?.data?.title} />
+											<Description
+												defaultValue={announcementQuery?.data?.description}
+											/>
 
-											<Stack direction="column" spacing="6">
-												<Name defaultValue={announcementQuery?.data?.title} />
-												<Description
-													defaultValue={announcementQuery?.data?.description}
-												/>
-
-												{isLargerThan992 ? <FormButton /> : null}
-											</Stack>
+											{isLargerThan992 ? <FormButton /> : null}
 										</Stack>
 									</Box>
 									<Box w={{ lg: '400px' }} bg="white" p="10" shadow="box">

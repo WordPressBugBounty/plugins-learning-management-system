@@ -46,7 +46,7 @@ class InstructorRegistrationFormHandler {
 
 			// Check if instructor registration is enabled in the settings.
 			if ( ! masteriyo_get_setting( 'general.registration.enable_instructor_registration' ) || $is_user_registration_form_enabled ) {
-				masteriyo_add_notice( 'Sorry, registration failed!. The registration form is currently disabled.', Notice::ERROR );
+				masteriyo_add_notice( 'Sorry, registration failed! The registration form is currently disabled.', Notice::ERROR );
 				return;
 			}
 

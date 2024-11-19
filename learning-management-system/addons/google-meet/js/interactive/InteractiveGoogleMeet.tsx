@@ -15,6 +15,7 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import humanizeDuration from 'humanize-duration';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -24,7 +25,6 @@ import {
 	BsArrowsExpandVertical,
 } from 'react-icons/bs';
 import { RiLiveLine } from 'react-icons/ri';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import { ContentQueryError } from '../../../../assets/js/back-end/schemas';
@@ -86,29 +86,23 @@ const InteractiveGoogleMeet = () => {
 		setActiveContentId(googleMeetId);
 	}, [googleMeetId, setActiveContentId]);
 
-	const googleMeetQuery = useQuery<any, ContentQueryError>(
-		[`google-meet${googleMeetId}`, googleMeetId],
-		() => GoogleMeetAPI.get(googleMeetId),
-		{
-			onSuccess: (data) => {
-				setActiveIndex(data?.parent_menu_order);
-				setContentData(data);
-			},
-		},
-	);
+	const googleMeetQuery = useQuery<any, ContentQueryError>({
+		queryKey: [`google-meet${googleMeetId}`, googleMeetId],
+		queryFn: () => GoogleMeetAPI.get(googleMeetId),
+	});
 
-	const completeQuery = useQuery<CourseProgressItemsMap>(
-		[`completeQuery${googleMeetId}`, googleMeetId],
-		() =>
+	const completeQuery = useQuery<CourseProgressItemsMap>({
+		queryKey: [`completeQuery${googleMeetId}`, googleMeetId],
+		queryFn: () =>
 			progressItemAPI.list({
 				item_id: googleMeetId,
 				courseId: courseId,
 			}),
-	);
+	});
 
-	const completeMutation = useMutation((data: CourseProgressItemsMap) =>
-		progressItemAPI.store(data),
-	);
+	const completeMutation = useMutation({
+		mutationFn: (data: CourseProgressItemsMap) => progressItemAPI.store(data),
+	});
 
 	const onCompletePress = () => {
 		completeMutation.mutate(
@@ -120,8 +114,12 @@ const InteractiveGoogleMeet = () => {
 			},
 			{
 				onSuccess: () => {
-					queryClient.invalidateQueries(`completeQuery${googleMeetId}`);
-					queryClient.invalidateQueries(`courseProgress${courseId}`);
+					queryClient.invalidateQueries({
+						queryKey: [`completeQuery${googleMeetId}`],
+					});
+					queryClient.invalidateQueries({
+						queryKey: [`courseProgress${courseId}`],
+					});
 
 					toast({
 						title: __('Mark as Completed', 'learning-management-system'),
@@ -170,6 +168,18 @@ const InteractiveGoogleMeet = () => {
 			setStatus(GoogleMeetStatus.All);
 		}
 	};
+
+	useEffect(() => {
+		if (googleMeetQuery?.isSuccess) {
+			setActiveIndex(googleMeetQuery?.data?.parent_menu_order);
+			setContentData(googleMeetQuery?.data);
+		}
+	}, [
+		googleMeetQuery?.data,
+		googleMeetQuery?.isSuccess,
+		setActiveIndex,
+		setContentData,
+	]);
 
 	if (
 		courseProgress.isSuccess &&
@@ -407,7 +417,7 @@ const InteractiveGoogleMeet = () => {
 					navigation={googleMeetQuery?.data?.navigation}
 					courseId={courseId}
 					onCompletePress={onCompletePress}
-					isButtonLoading={completeMutation.isLoading}
+					isButtonLoading={completeMutation.isPending}
 					isButtonDisabled={completeQuery?.data?.completed}
 				/>
 			</Container>

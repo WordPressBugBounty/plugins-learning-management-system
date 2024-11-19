@@ -92,6 +92,10 @@ class Setting {
 	 * @return
 	 */
 	public function save( $setting, $request, $creating ) {
+		if ( ! isset( $request['payments']['revenue_sharing']['enable'] ) ) {
+			return $setting;
+		}
+
 		$setting_in_db = get_option( $this->name, $this->data );
 		$post_data     = masteriyo_array_get( $request, 'payments.revenue_sharing', $this->data );
 		$setting_arr   = wp_parse_args( $post_data, $setting_in_db );

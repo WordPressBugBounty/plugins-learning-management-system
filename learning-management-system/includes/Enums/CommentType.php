@@ -49,6 +49,15 @@ class CommentType {
 	const COURSE_QA = 'mto_course_qa';
 
 	/**
+	 * Lesson review type.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @var string
+	 */
+	const LESSON_REVIEW = 'mto_lesson_review';
+
+	/**
 	 * Get all comment types.
 	 *
 	 * @since 1.5.20
@@ -71,6 +80,7 @@ class CommentType {
 				self::ORDER_NOTE,
 				self::COURSE_QA,
 				self::QUIZ_REVIEW,
+				self::LESSON_REVIEW,
 			)
 		);
 

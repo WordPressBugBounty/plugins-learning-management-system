@@ -2,12 +2,10 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
-	Box,
 	Collapse,
 	FormErrorMessage,
 	FormLabel,
 	HStack,
-	Icon,
 	IconButton,
 	Input,
 	InputGroup,
@@ -15,14 +13,13 @@ import {
 	Link,
 	Switch,
 	Text,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BiHide, BiInfoCircle, BiShow } from 'react-icons/bi';
+import { BiHide, BiShow } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { MultipleCurrencySettingsSchema } from '../../types/multiCurrency';
 
 interface Props {
@@ -66,18 +63,12 @@ const MaxMind: React.FC<Props> = (props) => {
 			<FormControlTwoCol isInvalid={!!errors?.maxmind?.enabled}>
 				<FormLabel>
 					{__('Enable Geolocation Integration', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Enable Geolocation integration for accurate country detection using MaxMind.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Switch
 					defaultChecked={maxmind?.enabled || false}
@@ -91,18 +82,12 @@ const MaxMind: React.FC<Props> = (props) => {
 				<FormControlTwoCol>
 					<FormLabel minW="160px">
 						{__('MaxMind License Key', 'learning-management-system')}
-						<Tooltip
+						<ToolTip
 							label={__(
 								'Enter the license key for MaxMind Geolocation services.',
 								'learning-management-system',
 							)}
-							hasArrow
-							fontSize="xs"
-						>
-							<Box as="span" sx={infoIconStyles}>
-								<Icon as={BiInfoCircle} />
-							</Box>
-						</Tooltip>
+						/>
 					</FormLabel>
 					<InputGroup>
 						<Input

@@ -9,29 +9,15 @@ import {
 	Button,
 	ButtonGroup,
 	Container,
-	Flex,
-	Heading,
-	Icon,
-	IconButton,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
 	Stack,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import queryString from 'query-string';
 import React, { useRef } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiDotsVerticalRounded, BiTrash } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import {
-	Link as RouterLink,
-	useLocation,
-	useNavigate,
-	useParams,
-} from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import BackToBuilder from '../../../../../assets/js/back-end/components/common/BackToBuilder';
 import {
 	Header,
 	HeaderLeftSection,
@@ -44,11 +30,15 @@ import {
 	NavMenuLink,
 } from '../../../../../assets/js/back-end/components/common/Nav';
 import { navActiveStyles } from '../../../../../assets/js/back-end/config/styles';
+import routes from '../../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../../assets/js/back-end/constants/urls';
 import CourseSkeleton from '../../../../../assets/js/back-end/skeleton/CourseSkeleton';
 import { UsersApiResponse } from '../../../../../assets/js/back-end/types/users';
 import API from '../../../../../assets/js/back-end/utils/api';
-import { deepMerge } from '../../../../../assets/js/back-end/utils/utils';
+import {
+	deepMerge,
+	editContentInBuilderCache,
+} from '../../../../../assets/js/back-end/utils/utils';
 import googleMeetRoutes from '../../../constants/routes';
 import GoogleMeetUrls from '../../../constants/urls';
 import { GoogleMeetSchema } from '../../schemas';
@@ -63,33 +53,41 @@ interface Props {}
 const EditGoogleMeeting: React.FC<Props> = () => {
 	const methods = useForm<any>();
 	const { search } = useLocation();
-	const { referrer } = queryString.parse(search);
 	const cancelRef = useRef<any>();
 	const { courseId, googleMeetId }: any = useParams();
+
 	const googleMeetAPI = new API(GoogleMeetUrls.googleMeets);
 	const navigate = useNavigate();
 	const toast = useToast();
 	const queryClient = useQueryClient();
 	const usersAPI = new API(urls.users);
 
-	const usersQuery = useQuery<UsersApiResponse>('users', () =>
-		usersAPI.list({
-			orderby: 'display_name',
-			order: 'asc',
-			per_page: 10,
-		}),
-	);
+	const usersQuery = useQuery<UsersApiResponse>({
+		queryKey: ['users'],
+		queryFn: () =>
+			usersAPI.list({
+				orderby: 'display_name',
+				order: 'asc',
+				per_page: 10,
+			}),
+	});
 
-	const googleMeetQuery = useQuery([`/:${googleMeetId}`, googleMeetId], () =>
-		googleMeetAPI.get(googleMeetId),
-	);
+	const googleMeetQuery = useQuery({
+		queryKey: [`/:${googleMeetId}`, googleMeetId],
+		queryFn: () => googleMeetAPI.get(googleMeetId),
+	});
 
-	const updateGoogleMeet = useMutation(
-		(data: GoogleMeetSchema) =>
+	const updateGoogleMeet = useMutation({
+		mutationFn: (data: GoogleMeetSchema) =>
 			googleMeetAPI.update(googleMeetQuery.data.meeting_id, data),
-		{
-			onSuccess: () => {
-				queryClient.invalidateQueries(`google-meetId`);
+		...{
+			onSuccess: (data: any) => {
+				editContentInBuilderCache(
+					queryClient,
+					[`builder${courseId}`, courseId],
+					data,
+				);
+				queryClient.invalidateQueries({ queryKey: [`google-meetId`] });
 				toast({
 					title: __('Google Meeting Updated', 'learning-management-system'),
 					isClosable: true,
@@ -97,7 +95,8 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 				});
 
 				navigate({
-					pathname: googleMeetRoutes.googleMeet.list,
+					pathname: routes.courses.edit.replace(':courseId', courseId),
+					search: '?page=builder',
 				});
 			},
 			onError: (error: any) => {
@@ -116,7 +115,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: any) => {
 		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
@@ -131,7 +130,6 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 		updateGoogleMeet.mutate(deepMerge(data, newData));
 	};
-
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
@@ -154,17 +152,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 			<Container maxW="container.xl">
 				<Stack direction="column" spacing="6">
-					<ButtonGroup>
-						<RouterLink to={googleMeetRoutes.googleMeet.list}>
-							<Button
-								variant="link"
-								_hover={{ color: 'primary.500' }}
-								leftIcon={<Icon fontSize="xl" as={BiChevronLeft} />}
-							>
-								{__('Back to Google Meet', 'learning-management-system')}
-							</Button>
-						</RouterLink>
-					</ButtonGroup>
+					<BackToBuilder />
 					{googleMeetQuery.isSuccess ? (
 						<FormProvider {...methods}>
 							<form>
@@ -181,58 +169,34 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 										flexDirection="column"
 										justifyContent="space-between"
 									>
-										<Stack direction="column" spacing="8">
-											<Flex align="center" justify="space-between">
-												<Heading as="h1" fontSize="x-large">
-													{__(
-														'Edit Google Meeting',
-														'learning-management-system',
-													)}
-												</Heading>
-												<Menu placement="bottom-end">
-													<MenuButton
-														as={IconButton}
-														icon={<BiDotsVerticalRounded />}
-														variant="outline"
-														rounded="sm"
-														fontSize="large"
-													/>
-													<MenuList>
-														<MenuItem icon={<BiTrash />} onClick={() => {}}>
-															{__('Delete', 'learning-management-system')}
-														</MenuItem>
-													</MenuList>
-												</Menu>
-											</Flex>
-											<Stack direction="column" spacing="6">
-												<Title defaultValue={googleMeetQuery.data.name} />
+										<Stack direction="column" spacing="6">
+											<Title defaultValue={googleMeetQuery.data.name} />
 
-												<Description
-													defaultValue={googleMeetQuery.data.description}
-													data={googleMeetQuery}
+											<Description
+												defaultValue={googleMeetQuery.data.description}
+												data={googleMeetQuery}
+												methods={methods}
+												onSubmit={onSubmit}
+											/>
+
+											<ButtonGroup>
+												<GoogleMeetActionButton
 													methods={methods}
+													isLoading={updateGoogleMeet.isPending}
 													onSubmit={onSubmit}
+													type="edit"
 												/>
-
-												<ButtonGroup>
-													<GoogleMeetActionButton
-														methods={methods}
-														isLoading={updateGoogleMeet.isLoading}
-														onSubmit={onSubmit}
-														type="edit"
-													/>
-													<Button
-														variant="outline"
-														onClick={() => {
-															navigate({
-																pathname: googleMeetRoutes.googleMeet.list,
-															});
-														}}
-													>
-														{__('Cancel', 'learning-management-system')}
-													</Button>
-												</ButtonGroup>
-											</Stack>
+												<Button
+													variant="outline"
+													onClick={() => {
+														navigate({
+															pathname: googleMeetRoutes.googleMeet.list,
+														});
+													}}
+												>
+													{__('Cancel', 'learning-management-system')}
+												</Button>
+											</ButtonGroup>
 										</Stack>
 									</Box>
 

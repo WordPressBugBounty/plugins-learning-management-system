@@ -1,17 +1,13 @@
 import {
-	Box,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
-	Icon,
 	Input,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 
 interface Props {
 	defaultValue?: string;
@@ -27,18 +23,12 @@ const Name: React.FC<Props> = (props) => {
 		<FormControl isInvalid={!!errors?.title}>
 			<FormLabel>
 				{__('Zone Name', 'learning-management-system')}
-				<Tooltip
+				<ToolTip
 					label={__(
 						'This is the name of the zone for your reference.',
 						'learning-management-system',
 					)}
-					hasArrow
-					fontSize="xs"
-				>
-					<Box as="span" sx={infoIconStyles}>
-						<Icon as={BiInfoCircle} />
-					</Box>
-				</Tooltip>
+				/>
 			</FormLabel>
 			<Input
 				defaultValue={defaultValue}

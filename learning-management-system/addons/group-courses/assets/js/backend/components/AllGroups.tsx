@@ -9,11 +9,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -80,43 +80,49 @@ const AllGroups = () => {
 
 	const [min360px] = useMediaQuery('(min-width: 360px)');
 
-	const groupQuery = useQuery(
-		['groupsList', filterParams],
-		() => groupAPI.list(filterParams),
-		{
+	const groupQuery = useQuery({
+		queryKey: ['groupsList', filterParams],
+		queryFn: () => groupAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
-		},
-	);
-
-	const deleteGroup = useMutation(
-		(id: number) => groupAPI.delete(id, { force: true }),
-		{
-			onSuccess: () => {
-				queryClient.invalidateQueries('groupsList');
-				onClose();
-			},
-		},
-	);
-
-	const restoreGroup = useMutation((id: number) => groupAPI.restore(id), {
-		onSuccess: () => {
-			toast({
-				title: __('Group Restored', 'learning-management-system'),
-				isClosable: true,
-				status: 'success',
-			});
-			queryClient.invalidateQueries('groupsList');
 		},
 	});
 
-	const trashGroup = useMutation((id: number) => groupAPI.delete(id), {
-		onSuccess: () => {
-			queryClient.invalidateQueries('groupsList');
-			toast({
-				title: __('Group Trashed', 'learning-management-system'),
-				isClosable: true,
-				status: 'success',
-			});
+	const deleteGroup = useMutation({
+		mutationFn: (id: number) => groupAPI.delete(id, { force: true }),
+		...{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+				onClose();
+			},
+		},
+	});
+
+	const restoreGroup = useMutation({
+		mutationFn: (id: number) => groupAPI.restore(id),
+		...{
+			onSuccess: () => {
+				toast({
+					title: __('Group Restored', 'learning-management-system'),
+					isClosable: true,
+					status: 'success',
+				});
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+			},
+		},
+	});
+
+	const trashGroup = useMutation({
+		mutationFn: (id: number) => groupAPI.delete(id),
+		...{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+				toast({
+					title: __('Group Trashed', 'learning-management-system'),
+					isClosable: true,
+					status: 'success',
+				});
+			},
 		},
 	});
 
@@ -148,15 +154,15 @@ const AllGroups = () => {
 		);
 
 	const onBulkActionApply = {
-		delete: useMutation(
-			(data: any) =>
+		delete: useMutation({
+			mutationFn: (data: any) =>
 				groupAPI.bulkDelete('delete', {
 					ids: data,
 					force: true,
 				}),
-			{
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('groupsList');
+					queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -166,12 +172,12 @@ const AllGroups = () => {
 					});
 				},
 			},
-		),
-		trash: useMutation(
-			(data: any) => groupAPI.bulkDelete('delete', { ids: data }),
-			{
+		}),
+		trash: useMutation({
+			mutationFn: (data: any) => groupAPI.bulkDelete('delete', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('groupsList');
+					queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -181,12 +187,12 @@ const AllGroups = () => {
 					});
 				},
 			},
-		),
-		restore: useMutation(
-			(data: any) => groupAPI.bulkRestore('restore', { ids: data }),
-			{
+		}),
+		restore: useMutation({
+			mutationFn: (data: any) => groupAPI.bulkRestore('restore', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('groupsList');
+					queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -196,7 +202,7 @@ const AllGroups = () => {
 					});
 				},
 			},
-		),
+		}),
 	};
 
 	return (
@@ -399,7 +405,7 @@ const AllGroups = () => {
 				action={bulkAction}
 				isLoading={
 					'' === bulkAction
-						? deleteGroup.isLoading
+						? deleteGroup.isPending
 						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{

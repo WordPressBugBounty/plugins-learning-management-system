@@ -38,7 +38,7 @@ class RegistrationFormHandler {
 
 			// Check if student registration is enabled in the settings.
 			if ( ! masteriyo_get_setting( 'general.registration.enable_student_registration' ) || $is_user_registration_form_enabled ) {
-				masteriyo_add_notice( 'Sorry, registration failed!. The registration form is currently disabled.', Notice::ERROR );
+				masteriyo_add_notice( 'Sorry, registration failed! The registration form is currently disabled.', Notice::ERROR );
 				return;
 			}
 
@@ -128,7 +128,10 @@ class RegistrationFormHandler {
 			}
 		}
 
-		$this->redirect( $user, $request['redirect_to'] );
+		$request['redirect_to'] = masteriyo_get_page_permalink( 'account' ) . '/#/dashboard';
+		if ( isset( $request['redirect_to'] ) && ! empty( $request['redirect_to'] ) ) {
+			$this->redirect( $user, $request['redirect_to'] );
+		}
 
 		return true;
 	}

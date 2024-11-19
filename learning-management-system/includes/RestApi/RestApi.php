@@ -41,6 +41,7 @@ use Masteriyo\RestApi\Controllers\Version1\UserCoursesController;
 use Masteriyo\RestApi\Controllers\Version1\UsersController;
 use Masteriyo\RestApi\Controllers\Version1\AnalyticsController;
 use Masteriyo\RestApi\Controllers\Version1\ChangelogController;
+use Masteriyo\RestApi\Controllers\Version1\LessonReviewsController;
 use Masteriyo\RestApi\Controllers\Version1\QuizzesImportExportController;
 use Masteriyo\RestApi\Controllers\Version1\RolesController;
 use Masteriyo\RestApi\Controllers\Version1\WebhooksController;
@@ -136,6 +137,7 @@ class RestApi {
 			'users'                 => UsersController::class,
 			'settings'              => SettingsController::class,
 			'courses.reviews'       => CourseReviewsController::class,
+			'lessons.reviews'       => LessonReviewsController::class,
 			'quizzes.reviews'       => QuizReviewsController::class,
 			'courses.qas'           => CourseQuestionAnswersController::class,
 			'courses.builder'       => CourseBuilderController::class,
@@ -157,7 +159,7 @@ class RestApi {
 			'quizzes.import-export' => QuizzesImportExportController::class,
 			'tools.utilities'       => UtilitiesController::class,
 			'changelog'             => ChangelogController::class,
-			'logger' 								=> LogsController::class
+			'logger'                => LogsController::class,
 
 		);
 	}

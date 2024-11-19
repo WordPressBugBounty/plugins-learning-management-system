@@ -1,21 +1,13 @@
-import {
-	Box,
-	FormErrorMessage,
-	FormLabel,
-	Icon,
-	Skeleton,
-	Tooltip,
-} from '@chakra-ui/react';
+import { FormErrorMessage, FormLabel, Skeleton } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
-import { useQuery } from 'react-query';
 import Select from 'react-select';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../assets/js/back-end/constants/urls';
 import { CurrenciesSchema } from '../../../../../../assets/js/back-end/schemas';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { MultipleCurrencySettingsSchema } from '../../types/multiCurrency';
 
@@ -37,7 +29,10 @@ const Country: React.FC<Props> = ({ defaultValue, testModeWatch }) => {
 		formState: { errors },
 	} = useFormContext<MultipleCurrencySettingsSchema>();
 
-	const countriesQuery = useQuery('countries', () => countriesAPI.list());
+	const countriesQuery = useQuery({
+		queryKey: ['countries'],
+		queryFn: () => countriesAPI.list(),
+	});
 
 	const countryOptions = useMemo(() => {
 		return countriesQuery.isSuccess
@@ -57,18 +52,12 @@ const Country: React.FC<Props> = ({ defaultValue, testModeWatch }) => {
 		>
 			<FormLabel>
 				{__('Test Country', 'learning-management-system')}
-				<Tooltip
+				<ToolTip
 					label={__(
 						'Select the country for testing purposes.',
 						'learning-management-system',
 					)}
-					hasArrow
-					fontSize="xs"
-				>
-					<Box as="span" sx={infoIconStyles}>
-						<Icon as={BiInfoCircle} />
-					</Box>
-				</Tooltip>
+				/>
 			</FormLabel>
 			{countriesQuery.isLoading ? (
 				<Skeleton height="40px" width="100%" />

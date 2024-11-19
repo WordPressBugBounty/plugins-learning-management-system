@@ -58,8 +58,6 @@ $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
 		<div class="masteriyo-stab--citems <?php echo esc_attr( 0 === $index ? 'active' : '' ); ?>">
 			<div class="masteriyo-cheader">
 				<h5 class="masteriyo-ctitle"><?php echo esc_html( $section->get_name() ); ?></h5>
-
-				<div class="masteriyo-ltc masteriyo-flex-ycenter">
 					<?php
 						/**
 						 * Display single course curriculum summary.( Sections, Lessons and Quizzes count)
@@ -71,7 +69,6 @@ $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
 						 */
 					do_action( 'masteriyo_single_course_curriculum_section_summary', $course, $section );
 					?>
-				</div>
 			</div>
 
 			<div class="masteriyo-cbody">

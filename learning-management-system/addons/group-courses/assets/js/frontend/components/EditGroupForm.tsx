@@ -8,10 +8,10 @@ import {
 	useBreakpointValue,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import Editor from '../../../../../../assets/js/back-end/components/common/Editor';
 import API from '../../../../../../assets/js/back-end/utils/api';
@@ -35,12 +35,12 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 	const queryClient = useQueryClient();
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const updateGroup = useMutation<GroupSchema>(
-		(data) => groupAPI.update(group.id, data),
-		{
+	const updateGroup = useMutation<GroupSchema>({
+		mutationFn: (data) => groupAPI.update(group.id, data),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(`group${group.id}`);
-				queryClient.invalidateQueries(`groupsList`);
+				queryClient.invalidateQueries({ queryKey: [`group${group.id}`] });
+				queryClient.invalidateQueries({ queryKey: [`groupsList`] });
 				onExpandedGroupsChange(null);
 				toast({
 					title: __(
@@ -69,7 +69,7 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 				});
 			},
 		},
-	);
+	});
 
 	const onSubmit = (data: GroupSchema) => {
 		updateGroup.mutate(deepClean(data));
@@ -98,7 +98,7 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 								type="submit"
 								size={buttonSize}
 								colorScheme="primary"
-								isLoading={updateGroup.isLoading}
+								isLoading={updateGroup.isPending}
 							>
 								{__('Update Group', 'learning-management-system')}
 							</Button>

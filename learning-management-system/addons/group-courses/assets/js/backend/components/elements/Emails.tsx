@@ -5,11 +5,11 @@ import {
 	Skeleton,
 	Stack,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import { reactSelectStyles } from '../../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
@@ -43,19 +43,19 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 		useSelect((select: any) => select('core').canUser('create', 'users'), []) ||
 		false;
 
-	const usersQuery = useQuery<UsersApiResponse>(
-		'users',
-		() =>
+	const usersQuery = useQuery<UsersApiResponse>({
+		queryKey: ['users'],
+		queryFn: () =>
 			usersAPI.list({
 				roles: 'administrator,masteriyo_instructor,masteriyo_student',
 				orderby: 'email',
 				order: 'asc',
 				per_page: 10,
 			}),
-		{
+		...{
 			enabled: canEditUsers,
 		},
-	);
+	});
 
 	const options: SelectOption[] = useMemo(() => {
 		return usersQuery.isSuccess

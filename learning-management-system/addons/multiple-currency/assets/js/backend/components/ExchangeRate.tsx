@@ -1,9 +1,7 @@
 import {
-	Box,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
-	Icon,
 	InputGroup,
 	InputLeftAddon,
 	NumberDecrementStepper,
@@ -11,13 +9,11 @@ import {
 	NumberInput,
 	NumberInputField,
 	NumberInputStepper,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import localized from '../../../../../../assets/js/back-end/utils/global';
 
 interface Props {
@@ -34,18 +30,12 @@ const ExchangeRate: React.FC<Props> = (props) => {
 			<FormControl isInvalid={!!errors?.exchange_rate}>
 				<FormLabel>
 					{__('Exchange Rate', 'learning-management-system')}{' '}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Enter the exchange rate manually.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Controller
 					name="exchange_rate"

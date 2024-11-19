@@ -14,6 +14,8 @@ use Masteriyo\Jobs\SendTrackingInfoJob;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Masteriyo\Jobs\CheckCourseEndDateJob;
+use Masteriyo\Jobs\CoursesExportJob;
+use Masteriyo\Jobs\CoursesImportJob;
 use Masteriyo\Jobs\CreateCourseContentJob;
 use Masteriyo\Jobs\CreateLessonsContentJob;
 use Masteriyo\Jobs\CreateQuizzesForSectionsJob;
@@ -72,6 +74,10 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 
 		// Addons tracking info.
 		$this->register_addons_info_tracking_job();
+
+		// Register courses export/import job.
+		$this->register_courses_export_job();
+		$this->register_courses_import_job();
 	}
 
 	/**
@@ -168,5 +174,23 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 		);
 
 		( new SendAddonsTrackingInfoJob() )->register();
+	}
+
+	/**
+	 * Register  courses_export_job.
+	 *
+	 * @since 1.14.0
+	 */
+	public function register_courses_export_job() {
+		( new CoursesExportJob() )->register();
+	}
+
+	/**
+	 * Register courses_import_job.
+	 *
+	 * @since 1.14.0
+	 */
+	public function register_courses_import_job() {
+		( new CoursesImportJob() )->register();
 	}
 }

@@ -9,11 +9,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -80,43 +80,43 @@ const AllPriceZones = () => {
 
 	const [min360px] = useMediaQuery('(min-width: 360px)');
 
-	const pricingZoneQuery = useQuery(
-		['pricingZonesList', filterParams],
-		() => pricingZoneAPI.list(filterParams),
-		{
+	const pricingZoneQuery = useQuery({
+		queryKey: ['pricingZonesList', filterParams],
+		queryFn: () => pricingZoneAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
-	const deletePricingZone = useMutation(
-		(id: number) => pricingZoneAPI.delete(id, { force: true }),
-		{
+	const deletePricingZone = useMutation({
+		mutationFn: (id: number) => pricingZoneAPI.delete(id, { force: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('pricingZonesList');
+				queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 				onClose();
 			},
 		},
-	);
+	});
 
-	const restorePricingZone = useMutation(
-		(id: number) => pricingZoneAPI.restore(id),
-		{
+	const restorePricingZone = useMutation({
+		mutationFn: (id: number) => pricingZoneAPI.restore(id),
+		...{
 			onSuccess: () => {
 				toast({
 					title: __('Pricing Zone Restored', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
 				});
-				queryClient.invalidateQueries('pricingZonesList');
+				queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 			},
 		},
-	);
+	});
 
-	const trashPricingZone = useMutation(
-		(id: number) => pricingZoneAPI.delete(id),
-		{
+	const trashPricingZone = useMutation({
+		mutationFn: (id: number) => pricingZoneAPI.delete(id),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('pricingZonesList');
+				queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 				toast({
 					title: __('Pricing Zone Trashed', 'learning-management-system'),
 					isClosable: true,
@@ -124,7 +124,7 @@ const AllPriceZones = () => {
 				});
 			},
 		},
-	);
+	});
 
 	const onTrashPress = (pricingZoneID: number) => {
 		pricingZoneID && trashPricingZone.mutate(pricingZoneID);
@@ -154,15 +154,15 @@ const AllPriceZones = () => {
 		);
 
 	const onBulkActionApply = {
-		delete: useMutation(
-			(data: any) =>
+		delete: useMutation({
+			mutationFn: (data: any) =>
 				pricingZoneAPI.bulkDelete('delete', {
 					ids: data,
 					force: true,
 				}),
-			{
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('pricingZonesList');
+					queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -172,12 +172,13 @@ const AllPriceZones = () => {
 					});
 				},
 			},
-		),
-		trash: useMutation(
-			(data: any) => pricingZoneAPI.bulkDelete('delete', { ids: data }),
-			{
+		}),
+		trash: useMutation({
+			mutationFn: (data: any) =>
+				pricingZoneAPI.bulkDelete('delete', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('pricingZonesList');
+					queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -187,12 +188,13 @@ const AllPriceZones = () => {
 					});
 				},
 			},
-		),
-		restore: useMutation(
-			(data: any) => pricingZoneAPI.bulkRestore('restore', { ids: data }),
-			{
+		}),
+		restore: useMutation({
+			mutationFn: (data: any) =>
+				pricingZoneAPI.bulkRestore('restore', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('pricingZonesList');
+					queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -202,7 +204,7 @@ const AllPriceZones = () => {
 					});
 				},
 			},
-		),
+		}),
 	};
 
 	return (
@@ -412,7 +414,7 @@ const AllPriceZones = () => {
 				action={bulkAction}
 				isLoading={
 					'' === bulkAction
-						? deletePricingZone.isLoading
+						? deletePricingZone.isPending
 						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{

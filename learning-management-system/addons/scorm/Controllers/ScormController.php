@@ -11,6 +11,7 @@
 
 namespace Masteriyo\Addons\Scorm\Controllers;
 
+use Masteriyo\Addons\Scorm\Setting;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
@@ -586,6 +587,9 @@ class ScormController extends RestController {
 			'swf',
 			'svg',
 			'txt',
+			'mpga',
+			'wav',
+			'woff2',
 		);
 
 		/**
@@ -596,6 +600,9 @@ class ScormController extends RestController {
 		 * @since 1.8.3
 		 */
 		$allowed_extensions = apply_filters( 'masteriyo_scorm_allowed_files_ext', $allowed );
+
+		$extra_extensions  = Setting::get_allowed_extensions() ? explode( ',', Setting::get_allowed_extensions() ) : array();
+		$merged_extensions = array_merge( $allowed_extensions, $extra_extensions );
 
 		$manifest_exists = false;
 		$macosx          = array();
@@ -614,12 +621,13 @@ class ScormController extends RestController {
 				$manifest_exists = true;
 			}
 
-			if ( ! in_array( $item_ext, $allowed_extensions, true ) ) {
+			if ( ! in_array( $item_ext, $merged_extensions, true ) ) {
 				$zip->close();
 				unlink( $file );
 				return new WP_Error(
 					'unacceptable_files',
-					__( 'Unacceptable files in package', 'learning-management-system' )
+					/* translators: %s is item extension. */
+					sprintf( __( 'Unacceptable files in package - "%s". Please add extension in Setting > Advance > SCORM > Allowed extensions.', 'learning-management-system' ), $item_ext )
 				);
 			}
 		}

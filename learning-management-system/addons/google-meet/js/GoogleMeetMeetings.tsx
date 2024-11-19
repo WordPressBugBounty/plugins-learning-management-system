@@ -12,9 +12,9 @@ import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import { deepMerge, isEmpty } from '../../../assets/js/back-end/utils/utils';
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import ActionDialog from '../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../assets/js/back-end/components/common/EmptyInfo';
@@ -63,18 +63,19 @@ const GoogleMeetMeetings: React.FC = () => {
 	const cancelRef = React.useRef<any>();
 	const toast = useToast();
 
-	const googleMeetSettingQuery = useQuery(
-		['googleMeetSetting'],
-		() => settingsAPI.list(),
-		{
+	const googleMeetSettingQuery = useQuery({
+		queryKey: ['googleMeetSetting'],
+		queryFn: () => settingsAPI.list(),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
-	const googleMeetMeetingQuery = useQuery(
-		['googleMeetList', filterParams, status],
-		() => meetingsAPI.list({ status: status || 'all', ...filterParams }),
-		{
+	const googleMeetMeetingQuery = useQuery({
+		queryKey: ['googleMeetList', filterParams, status],
+		queryFn: () =>
+			meetingsAPI.list({ status: status || 'all', ...filterParams }),
+		...{
 			onSuccess: (data: any) => {
 				if (data?.meta?.googleMeetCounts) {
 					setGoogleMeetStatusCount({
@@ -85,7 +86,7 @@ const GoogleMeetMeetings: React.FC = () => {
 				}
 			},
 		},
-	);
+	});
 
 	const onDeleteConfirm = () => {
 		googleMeetMeetingQuery.data?.id
@@ -93,27 +94,27 @@ const GoogleMeetMeetings: React.FC = () => {
 			: null;
 	};
 
-	const deleteGoogleMeet = useMutation(
-		(id: any) => meetingsAPI.delete(id, { force: true }),
-		{
+	const deleteGoogleMeet = useMutation({
+		mutationFn: (id: any) => meetingsAPI.delete(id, { force: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('googleMeetList', status);
+				queryClient.invalidateQueries({ queryKey: ['googleMeetList', status] });
 				onClose();
 				setBulkIds([]);
 			},
 		},
-	);
+	});
 
 	const onBulkActionApply = {
-		delete: useMutation(
-			(data: any) =>
+		delete: useMutation({
+			mutationFn: (data: any) =>
 				meetingsAPI.bulkDelete('delete', {
 					ids: data,
 					force: true,
 				}),
-			{
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('googleMeetList');
+					queryClient.invalidateQueries({ queryKey: ['googleMeetList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -123,7 +124,7 @@ const GoogleMeetMeetings: React.FC = () => {
 					});
 				},
 			},
-		),
+		}),
 	};
 
 	const filterMeetingsBy = (order: 'asc' | 'desc', orderBy?: string) =>
@@ -335,7 +336,7 @@ const GoogleMeetMeetings: React.FC = () => {
 				action={bulkAction}
 				isLoading={
 					'' === bulkAction
-						? deleteGoogleMeet.isLoading
+						? deleteGoogleMeet.isPending
 						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{

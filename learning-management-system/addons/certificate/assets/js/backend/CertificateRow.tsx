@@ -22,6 +22,7 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef } from 'react';
 import {
@@ -32,7 +33,6 @@ import {
 	BiShow,
 	BiTrash,
 } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import API from '../../../../../assets/js/back-end/utils/api';
@@ -69,11 +69,11 @@ const CertificateRow: React.FC<Props> = (props) => {
 	const toast = useToast();
 	const { onClose, onOpen, isOpen } = useDisclosure();
 
-	const deleteCertificate = useMutation(
-		(id: number) => certificatesAPI.delete(id, { force: true }),
-		{
+	const deleteCertificate = useMutation({
+		mutationFn: (id: number) => certificatesAPI.delete(id, { force: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('certificatesList');
+				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				onClose();
 				toast({
 					title: __(
@@ -85,13 +85,13 @@ const CertificateRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
-	const restoreCertificate = useMutation(
-		(id: number) => certificatesAPI.restore(id),
-		{
+	const restoreCertificate = useMutation({
+		mutationFn: (id: number) => certificatesAPI.restore(id),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('certificatesList');
+				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				toast({
 					title: __('Certificate Restored', 'learning-management-system'),
 					isClosable: true,
@@ -99,13 +99,13 @@ const CertificateRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
-	const trashCertificate = useMutation(
-		(id: number) => certificatesAPI.delete(id, { force: false }),
-		{
+	const trashCertificate = useMutation({
+		mutationFn: (id: number) => certificatesAPI.delete(id, { force: false }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('certificatesList');
+				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				toast({
 					title: __('Certificate Trashed', 'learning-management-system'),
 					isClosable: true,
@@ -113,13 +113,13 @@ const CertificateRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
-	const cloneCertificate = useMutation(
-		(id: number) => certificatesAPI.cloneData(id),
-		{
+	const cloneCertificate = useMutation({
+		mutationFn: (id: number) => certificatesAPI.cloneData(id),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('certificatesList');
+				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				toast({
 					title: __(
 						'Certificate duplicated successfully.',
@@ -139,7 +139,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	const onTrashPress = () => {
 		trashCertificate.mutate(id);
@@ -250,7 +250,12 @@ const CertificateRow: React.FC<Props> = (props) => {
 								id.toString(),
 							)}
 						>
-							<Button colorScheme="primary" leftIcon={<BiEdit />} size="xs">
+							<Button
+								colorScheme="primary"
+								variant="outline"
+								leftIcon={<BiEdit />}
+								size="xs"
+							>
 								{__('Edit', 'learning-management-system')}
 							</Button>
 						</RouterLink>
@@ -308,7 +313,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 									</Button>
 									<Button
 										colorScheme="red"
-										isLoading={deleteCertificate.isLoading}
+										isLoading={deleteCertificate.isPending}
 										onClick={onDeleteConfirm}
 									>
 										{__('Delete', 'learning-management-system')}

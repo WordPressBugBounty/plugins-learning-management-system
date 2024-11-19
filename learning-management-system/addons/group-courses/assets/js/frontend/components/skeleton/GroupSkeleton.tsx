@@ -15,7 +15,7 @@ const GroupsSkeleton: React.FC = () => {
 		<>
 			<Row>
 				{[...Array(skeletonRows)].map((_, index) => (
-					<Col xs={12} md={6} key={Date.now().toString()}>
+					<Col xs={12} md={6} key={Date.now().toString() + index}>
 						<Box
 							borderRadius={'lg'}
 							key={index}

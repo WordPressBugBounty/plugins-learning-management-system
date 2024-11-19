@@ -59,7 +59,7 @@ type AddonResponse = Addon & {
 };
 
 interface AddonsResponse {
-	addons: Addons;
+	data: Addons;
 	menu_items?: Addon['menu_items'];
 }
 

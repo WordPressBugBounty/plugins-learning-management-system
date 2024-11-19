@@ -748,6 +748,49 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_get_instructor_lesson_ids' ) ) {
+	/**
+	 * Retrieves the lesson IDs associated with a given instructor.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
+	 *
+	 * @return array An array of lesson IDs associated with the specified instructor.
+	 */
+	function masteriyo_get_instructor_lesson_ids( $instructor_id = null ) {
+		if ( is_null( $instructor_id ) ) {
+			$instructor_id = masteriyo_is_current_user_instructor() ? get_current_user_id() : 0;
+		}
+
+		if ( ! $instructor_id ) {
+			return array();
+		}
+
+		$args = array(
+			'post_type'      => PostType::LESSON,
+			'post_status'    => PostStatus::PUBLISH,
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'author'         => $instructor_id,
+		);
+
+		$lesson_ids = get_posts( $args );
+
+		/**
+		 * Filter the list of lesson IDs for an instructor.
+		 *
+		 * @since 1.14.0
+		 *
+		 * @param array $lesson_ids The array of lesson IDs.
+		 * @param int $instructor_id The instructor ID.
+		 */
+		$lesson_ids = apply_filters( 'masteriyo_get_instructor_lesson_ids', $lesson_ids, $instructor_id );
+
+		return $lesson_ids;
+	}
+}
+
 if ( ! function_exists( 'masteriyo_user_has_completed_course' ) ) {
 	/**
 	 * Check if a user has completed a course.

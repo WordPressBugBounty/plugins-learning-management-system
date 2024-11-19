@@ -14,10 +14,10 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import Select from '../../../../../../../assets/js/back-end/components/common/Select';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../../constants/urls';
@@ -71,14 +71,14 @@ const ActionDialog: React.FC<Props> = (props) => {
 
 	const withdrawAPI = new API(urls.withdraws);
 
-	const approveWithdraw = useMutation(
-		(id: number) =>
+	const approveWithdraw = useMutation({
+		mutationFn: (id: number) =>
 			withdrawAPI.update(id, {
 				status: WithdrawStatus.Approved,
 			}),
-		{
+		...{
 			onSuccess() {
-				queryClient.invalidateQueries('withdrawsList');
+				queryClient.invalidateQueries({ queryKey: ['withdrawsList'] });
 				onClose();
 				reset();
 				toast({
@@ -91,10 +91,10 @@ const ActionDialog: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
-	const rejectWithdraw = useMutation(
-		(data: {
+	const rejectWithdraw = useMutation({
+		mutationFn: (data: {
 			id: number;
 			rejection: {
 				reason: string;
@@ -105,9 +105,9 @@ const ActionDialog: React.FC<Props> = (props) => {
 				status: WithdrawStatus.Rejected,
 				rejection_detail: data.rejection,
 			}),
-		{
+		...{
 			onSuccess() {
-				queryClient.invalidateQueries('withdrawsList');
+				queryClient.invalidateQueries({ queryKey: ['withdrawsList'] });
 				onClose();
 				reset();
 				toast({
@@ -120,7 +120,7 @@ const ActionDialog: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	return (
 		<AlertDialog
@@ -214,8 +214,8 @@ const ActionDialog: React.FC<Props> = (props) => {
 								colorScheme={'reject' === action ? 'red' : 'primary'}
 								isLoading={
 									'reject' === action
-										? rejectWithdraw.isLoading
-										: approveWithdraw.isLoading
+										? rejectWithdraw.isPending
+										: approveWithdraw.isPending
 								}
 								onClick={() =>
 									'reject' === action

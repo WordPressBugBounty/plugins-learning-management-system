@@ -1,4 +1,45 @@
 == Changelog ==
+= 1.14.0 - 19-11-2024 =
+- Feature - Fluent CRM Integration.
+- Feature - Stripe payment gateway.
+- Feature - Lesson Comments.
+- Feature - Added support for Math equations in lesson, quiz and assignment.
+- Feature - Individual or multiple courses exportable from course listing page.
+- Compatibility - Compatible with WordPress v6.7.
+- Enhancement - Import/Export overall optimization in backend processing.
+- Enhancement - Lessons now have individual type (Text, Video and Live Stream lesson.)
+- Enhancement - Add new content in course builder now appear in modal instead of popover.
+- Enhancement - Added option for post checkout landing page in page setting.
+- Enhancement - Added shortcode `[masteriyo_student_registration]` for student registration form.
+- Enhancement - Added progress bar and started at info in single course page.
+- Enhancement - Added SCORM in advance global setting to add additional extension file type.
+- Refactor - Lesson builder UI revamp.
+- Refactor - Backend pages minor UI revamp (Button outline, colors, font sizes and styles, icons).
+- Refactor - Google classroom backend revamp.
+- Update - JS packages upgraded.
+- Tweak - Group member limit error message.
+- Fix - Global settings UI.
+- Fix - Single course page UI issues.
+- Fix - Prevent error when retrieving capabilities for non-existent roles.
+- Fix - Account page access to other user roles.
+- Fix - Error in account page when SCORM addon is active.
+- Fix - Hide Lemon Squeezy Settings from course page if it's disabled on global setting.
+- Fix - Accordance Issue in Setting Page.
+- Fix - Permission check for certificate share preview.
+- Fix - Forward ref issue in async select.
+- Fix - See More Issue in Review Filter in Single Course Page.
+- Fix - Revenue sharing withdraw section box UI.
+- Fix - Tooltip now consistent with global settings.
+- Fix - Body color removed from single course block.
+- Fix - Console warning related to react defaultProps.
+- Fix - Hide curriculum tab for SCORM and Google classroom courses.
+- Fix - Dynamic primary colour not reflecting for course archive layout 1 and 2.
+- Fix - Add student role to enrolled users if user has no student role.
+- Fix - Allow download/preview of certificate link even when certificate option is disabled on the course.
+- Fix - Rate this course for guest non logged in users in learn page after course completion.
+- Fix - Issue in course purchase after WooCommerce product trash or deletion.
+- Fix - Compatibility issue with GIFT4U - Gift Cards All in One for WooCommerce.
+
 = 1.13.5 - 15-11-2024 =
 - Fix – JavaScript 'Selectors' error in WP 6.7 version.
 

@@ -323,6 +323,57 @@ function masteriyo_get_course_qas( $args = array() ) {
 }
 
 /**
+ * Determine if curriculum should be displayed for the course.
+ *
+ * @since 1.14.0
+ *
+ * @param \Masteriyo\Models\Course $course Course object.
+ *
+ * @return boolean false if course is a scorm or google classroom course, true otherwise.
+ */
+function masteriyo_should_show_curriculum( $course ) {
+
+	$curriculum = masteriyo_is_standard_course_type( $course );
+
+	/**
+	 * Filters curriculum visibility.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param boolean $curriculum Indicates if curriculum should be shown.
+   * @param \Masteriyo\Models\Course $course course object.
+	 *
+	 */
+	return apply_filters( 'masteriyo_should_show_curriculum', $curriculum, $course );
+
+}
+
+/**
+ * Check if the course is a standard type (not SCORM or Google Classroom).
+ *
+ * @since 1.14.0
+ *
+ * @param \Masteriyo\Models\Course $course course object.
+ *
+ * @return boolean False if course is SCORM or Google Classroom, true otherwise.
+ */
+function masteriyo_is_standard_course_type( $course ) {
+
+	if ( get_post_meta( $course->get_id(), '_google_classroom_course_id', true ) ) {
+		return false;
+	}
+
+	$scorm_package_meta = get_post_meta( $course->get_id(), '_scorm_package', true );
+
+	if ( $scorm_package_meta ) {
+		return false;
+	}
+
+	return true;
+
+}
+
+/**
  * Get course category.
  *
  * @since 1.0.0
@@ -2410,6 +2461,81 @@ function masteriyo_get_course_review( $course_review ) {
 }
 
 /**
+ * Get lesson review.
+ *
+ * @since 1.14.0
+ *
+ * @param  int|WP_Comment|Model $lesson_review Object ID or WP_Comment or Model.
+ * @return LessonReview|null
+ */
+function masteriyo_get_lesson_review( $lesson_review ) {
+	$lesson_review_obj   = masteriyo( 'lesson_review' );
+	$lesson_review_store = masteriyo( 'lesson_review.store' );
+
+	if ( is_a( $lesson_review, 'Masteriyo\Models\LessonReview' ) ) {
+		$id = $lesson_review->get_id();
+	} elseif ( is_a( $lesson_review, 'WP_Comment' ) ) {
+		$id = $lesson_review->comment_ID;
+	} else {
+		$id = $lesson_review;
+	}
+
+	try {
+		$id = absint( $id );
+		$lesson_review_obj->set_id( $id );
+		$lesson_review_store->read( $lesson_review_obj );
+	} catch ( \Exception $e ) {
+		return null;
+	}
+
+	/**
+	 * Filters lesson review object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \Masteriyo\Models\CourseReview $lesson_review_obj Course review object.
+	 * @param int|WP_Comment|\Masteriyo\Models\CourseReview $lesson_review Object ID or WP_Comment or Model.
+	 */
+	return apply_filters( 'masteriyo_get_lesson_review', $lesson_review_obj, $lesson_review );
+}
+
+/**
+ * Get count of a lesson review's replies.
+ *
+ * @since 1.14.0
+ *
+ * @param integer $lesson_review_id
+ *
+ * @return integer
+ */
+function masteriyo_get_lesson_review_replies_count( $lesson_review_id ) {
+	global $wpdb;
+
+	$replies_count = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"
+			SELECT COUNT(*) FROM $wpdb->comments
+			WHERE comment_parent = %d
+			AND comment_approved = '1'
+			AND comment_type = 'mto_lesson_review'
+			",
+			absint( $lesson_review_id )
+		)
+	);
+
+	/**
+	 * Filters replies count for a lesson review.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param integer $replies_count
+	 * @param integer $lesson_review_id
+	 */
+	return apply_filters( 'masteriyo_get_lesson_review_replies_count', absint( $replies_count ), $lesson_review_id );
+}
+
+
+/**
  * Get quiz review.
  *
  * @since 1.7.0
@@ -3507,6 +3633,11 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 						'custom_url'   => '',
 					),
 					'instructors_list_page_id'        => '',
+					'after_checkout_page'             => array(
+						'display_type' => 'default',
+						'page_id'      => 0,
+						'custom_url'   => '',
+					),
 				),
 				'course_access' => array(
 					'enable_course_content_access_without_enrollment' => false,
@@ -3599,6 +3730,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_focus_mode'        => false,
 					'show_sidebar'             => false,
 					'show_header'              => false,
+					'enable_lesson_comment'    => false,
 				),
 			),
 			'payments'       => array(
@@ -3811,7 +3943,9 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'remove_data' => false,
 				),
 				'tracking'            => array(
-					'allow_usage' => false,
+					'allow_usage'       => false,
+					'subscribe_updates' => false,
+					'email'             => get_bloginfo( 'admin_email' ),
 				),
 				'gdpr'                => array(
 					'enable'  => false,

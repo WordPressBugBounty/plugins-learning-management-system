@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Exporter\SettingExporter;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Models\Setting;
+use WP_Error;
 
 class SettingsController extends CrudController {
 
@@ -118,6 +119,33 @@ class SettingsController extends CrudController {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'import' ),
 				'permission_callback' => array( $this, 'export_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/setup-wizard/email-collection-data-sharing-content',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'collect_email_and_data_sharing_consent' ),
+				'permission_callback' => array( $this, 'collect_email_and_data_sharing_consent_permissions_check' ),
+				'args'                => array(
+					'allow_usage'       => array(
+						'required'    => true,
+						'type'        => 'boolean',
+						'description' => __( 'User consent for sharing diagnostic data.', 'learning-management-system' ),
+					),
+					'subscribe_updates' => array(
+						'required'    => true,
+						'type'        => 'boolean',
+						'description' => __( 'User consent for receiving updates and offers.', 'learning-management-system' ),
+					),
+					'email'             => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => __( 'User email for communications.', 'learning-management-system' ),
+					),
+				),
 			)
 		);
 	}
@@ -273,6 +301,27 @@ class SettingsController extends CrudController {
 	}
 
 	/**
+	 * Check if a given request has access to update an data sharing consent.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function collect_email_and_data_sharing_consent_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_create',
+				__( 'Sorry, you are not allowed to submit setup preferences.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the query params for collections of attachments.
 	 *
 	 * @since 1.0.0
@@ -379,6 +428,17 @@ class SettingsController extends CrudController {
 								),
 								'course_thankyou_page' => array(
 									'description' => __( 'Course Thankyou page ID', 'learning-management-system' ),
+									'type'        => 'object',
+									'context'     => array( 'view', 'edit' ),
+									'items'       => array(
+										'display_type' => 'string',
+										'page_id'      => 'integer',
+										'wp_page_url'  => 'string',
+										'custom_url'   => 'string',
+									),
+								),
+								'after_checkout_page'  => array(
+									'description' => __( 'Landing Page ID', 'learning-management-system' ),
 									'type'        => 'object',
 									'context'     => array( 'view', 'edit' ),
 									'items'       => array(
@@ -602,6 +662,11 @@ class SettingsController extends CrudController {
 								),
 								'show_header'              => array(
 									'description' => __( 'Show or hide header in focus mode.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_lesson_comment'    => array(
+									'description' => __( 'Show or hide lesson comments in learn page.', 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -1479,5 +1544,94 @@ class SettingsController extends CrudController {
 	 */
 	protected function process_objects_collection( $settings ) {
 		return array_shift( $settings );
+	}
+
+	/**
+	 * Collect email and data sharing consent.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function collect_email_and_data_sharing_consent( \WP_REST_Request $request ) {
+		try {
+			$allow_usage       = isset( $request['allow_usage'] ) ? masteriyo_string_to_bool( $request['allow_usage'] ) : false;
+			$subscribe_updates = isset( $request['subscribe_updates'] ) ? masteriyo_string_to_bool( $request['subscribe_updates'] ) : false;
+			$email             = isset( $request['email'] ) ? sanitize_email( $request['email'] ) : '';
+
+			if ( ! is_email( $email ) ) {
+				return new WP_Error(
+					'masteriyo_invalid_email',
+					__( 'Please provide a valid email address.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$old_email = masteriyo_get_setting( 'advance.tracking.email' );
+
+			masteriyo_set_setting( 'advance.tracking.allow_usage', $allow_usage );
+			masteriyo_set_setting( 'advance.tracking.subscribe_updates', $subscribe_updates );
+			masteriyo_set_setting( 'advance.tracking.email', $email );
+
+			if ( $old_email && $old_email === $email ) {
+				return rest_ensure_response(
+					array(
+						'status'  => 'success',
+						'message' => __( 'Email has been collected already.', 'learning-management-system' ),
+					)
+				);
+			}
+
+			if ( $subscribe_updates ) {
+				$this->send_email_to_tracking_server( $email );
+			}
+
+			return rest_ensure_response(
+				array(
+					'status'  => 'success',
+					'message' => __( 'Email and data sharing consent collected.', 'learning-management-system' ),
+				)
+			);
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'masteriyo_internal_error',
+				__( 'An unexpected error occurred.', 'learning-management-system' ),
+				array( 'status' => 500 )
+			);
+		}
+	}
+
+	/**
+	 * Send email to tracking server.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param string $email Email address.
+	 *
+	 * @return void
+	 */
+	private function send_email_to_tracking_server( $email ) {
+		wp_remote_post(
+			'https://stats.wpeverest.com/wp-json/tgreporting/v1/process-email/',
+			array(
+				'method'      => 'POST',
+				'timeout'     => 10,
+				'redirection' => 5,
+				'httpversion' => '1.0',
+				'headers'     => array(
+					'user-agent' => 'Masteriyo/' . masteriyo_get_version() . '; ' . get_bloginfo( 'url' ),
+				),
+				'body'        => array(
+					'data' => array(
+						'email'       => $email,
+						'website_url' => get_bloginfo( 'url' ),
+						'plugin_name' => is_plugin_active( 'learning-management-system-pro/lms.php' ) ? 'Masteriyo PRO' : 'Masteriyo',
+						'plugin_slug' => plugin_basename( MASTERIYO_PLUGIN_FILE ),
+					),
+				),
+			)
+		);
 	}
 }

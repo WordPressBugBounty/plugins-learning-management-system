@@ -938,10 +938,17 @@ class CertificatesController extends PostsController {
 				continue;
 			}
 
+			$certificate_id = get_post_meta( $course->get_id(), '_certificate_id', true );
+
+			if ( ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), '_certificate_enabled', true ) ) || ! $certificate_id ) {
+				continue;
+			}
+
 			$course_author = masteriyo_get_user( $course->get_author_id( $context ) );
 			$certificate   = array(
 				'id'           => $progress->get_id(),
 				'download_url' => masteriyo_generate_certificate_download_url( $course ),
+				'view_url'     => masteriyo_get_certificate_addon_view_url( $course, get_current_user_id(), $certificate_id ),
 				'course'       => array(
 					'id'                 => $course->get_id(),
 					'name'               => wp_specialchars_decode( $course->get_name( $context ) ),

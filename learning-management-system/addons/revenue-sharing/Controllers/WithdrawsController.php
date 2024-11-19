@@ -352,6 +352,88 @@ class WithdrawsController extends PostsController {
 	}
 
 	/**
+	 * Get a collection of withdraws.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function get_items( $request ) {
+		$query_args = $this->prepare_objects_query( $request );
+
+		$query_results   = $this->get_objects( $query_args );
+		$current_user_id = masteriyo_get_current_user_id();
+		$objects         = array();
+		foreach ( $query_results['objects'] as $object ) {
+			if ( ! $this->check_item_permission( $this->post_type, 'read', $object->get_id() ) ) {
+				continue;
+			}
+
+			if ( $current_user_id !== $object->get_user_id() && ! masteriyo_is_current_user_admin() ) {
+				continue;
+			}
+
+			$data      = $this->prepare_object_for_response( $object, $request );
+			$objects[] = $this->prepare_response_for_collection( $data );
+		}
+
+		/**
+		 * Filters objects collection before processing.
+		 *
+		 * @since 1.14.0
+		 *
+		 * @param array $objects Objects collection.
+		 * @param array $query_vars Query vars.
+		 * @param array $query_results Query results.
+		 */
+		$objects = apply_filters( 'masteriyo_before_process_objects_collection', $objects, $query_args, $query_results );
+
+		if ( is_callable( array( $this, 'process_objects_collection' ) ) ) {
+			$objects = $this->process_objects_collection( $objects, $query_args, $query_results );
+		}
+
+		/**
+		 * Filters objects collection after processing.
+		 *
+		 * @since 1.14.0
+		 *
+		 * @param array $objects Objects collection.
+		 * @param array $query_vars Query vars.
+		 * @param array $query_results Query results.
+		 */
+		$objects = apply_filters( 'masteriyo_after_process_objects_collection', $objects, $query_args, $query_results );
+
+		$page      = (int) $query_args['paged'];
+		$max_pages = $query_results['pages'];
+
+		$response = rest_ensure_response( $objects );
+		$response->header( 'X-WP-Total', $query_results['total'] );
+		$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+		$base = $this->rest_base;
+		$base = add_query_arg( $request->get_query_params(), rest_url( sprintf( '/%s/%s', $this->namespace, $base ) ) );
+
+		if ( $page > 1 ) {
+			$prev_page = $page - 1;
+			if ( $prev_page > $max_pages ) {
+				$prev_page = $max_pages;
+			}
+			$prev_link = add_query_arg( 'page', $prev_page, $base );
+			$response->link_header( 'prev', $prev_link );
+		}
+		if ( $max_pages > $page ) {
+			$next_page = $page + 1;
+			$next_link = add_query_arg( 'page', $next_page, $base );
+			$response->link_header( 'next', $next_link );
+		}
+
+		return $response;
+
+	}
+
+	/**
 	 * @param \Masteriyo\Database\Model $withdraw_obj
 	 * @param \WP_REST_Request $request
 	 */

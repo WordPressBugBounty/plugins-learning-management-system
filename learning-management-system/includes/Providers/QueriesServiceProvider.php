@@ -12,6 +12,7 @@ use Masteriyo\Query\CourseQuestionAnswerQuery;
 use Masteriyo\Query\CourseReviewQuery;
 use Masteriyo\Query\QuizReviewQuery;
 use Masteriyo\Query\LessonQuery;
+use Masteriyo\Query\LessonReviewQuery;
 use Masteriyo\Query\OrderItemQuery;
 use Masteriyo\Query\OrderQuery;
 use Masteriyo\Query\QuizQuery;
@@ -38,6 +39,7 @@ class QueriesServiceProvider extends AbstractServiceProvider {
 		'query.orders',
 		'query.order-items',
 		'query.course-reviews',
+		'query.lesson-reviews',
 		'query.course-qas',
 		'query.quizes-reviews',
 
@@ -48,6 +50,7 @@ class QueriesServiceProvider extends AbstractServiceProvider {
 		'\Masteriyo\Query\OrderQuery',
 		'\Masteriyo\Query\OrderItemQuery',
 		'\Masteriyo\Query\CourseReviewQuery',
+		'\Masteriyo\Query\LessonReviewQuery',
 		'\Masteriyo\Query\QuizReviewQuery',
 		'\Masteriyo\Query\CourseQuestionAnswerQuery',
 	);
@@ -68,6 +71,7 @@ class QueriesServiceProvider extends AbstractServiceProvider {
 		$this->getContainer()->add( 'query.orders', OrderQuery::class );
 		$this->getContainer()->add( 'query.order-items', OrderItemQuery::class );
 		$this->getContainer()->add( 'query.course-reviews', CourseReviewQuery::class );
+		$this->getContainer()->add( 'query.lesson-reviews', LessonReviewQuery::class );
 		$this->getContainer()->add( 'query.quizes-reviews', QuizReviewQuery::class );
 		$this->getContainer()->add( 'query.course-qas', CourseQuestionAnswerQuery::class );
 

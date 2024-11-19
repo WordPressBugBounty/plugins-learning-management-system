@@ -17,6 +17,7 @@ use Masteriyo\Shortcodes\CoursesShortcode;
 use Masteriyo\Shortcodes\InstructorRegistrationShortcode;
 use Masteriyo\Shortcodes\InstructorsListShortcode;
 use Masteriyo\Shortcodes\RelatedCoursesShortcode;
+use Masteriyo\Shortcodes\RegisterUserShortcode;
 
 class ShortcodesServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 	/**
@@ -97,6 +98,8 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 			'masteriyo_shortcodes',
 			array(
 				'account'                 => AccountShortcode::class,
+				'register-user'           => RegisterUserShortcode::class,
+
 				'checkout'                => CheckoutShortcode::class,
 				'cart'                    => CartShortcode::class,
 				'courses'                 => CoursesShortcode::class,

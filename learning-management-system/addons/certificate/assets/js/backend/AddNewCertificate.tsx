@@ -10,9 +10,9 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { useMutation } from 'react-query';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
 	Header,
@@ -42,9 +42,10 @@ if (isArray(certificateSamples) && certificateSamples.length) {
 const AddNewCertificate: React.FC = () => {
 	const toast = useToast();
 	const navigate = useNavigate();
-	const cloneTemplateMutation = useMutation((id: string) =>
-		cloneCertificateTemplate(id),
-	);
+
+	const cloneTemplateMutation = useMutation({
+		mutationFn: (id: string) => cloneCertificateTemplate(id),
+	});
 
 	const onTemplatePress = (id: string) => {
 		cloneTemplateMutation.mutate(id, {
@@ -143,7 +144,7 @@ const AddNewCertificate: React.FC = () => {
 							</Box>
 						))}
 					</SimpleGrid>
-					{cloneTemplateMutation.isLoading ? (
+					{cloneTemplateMutation.isPending ? (
 						<Center
 							pos="fixed"
 							top="0"

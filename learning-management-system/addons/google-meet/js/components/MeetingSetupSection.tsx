@@ -1,9 +1,9 @@
 import { Container, useClipboard, useToast } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Col, Row } from 'react-grid-system';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
 import DisplayModal from '../../../../assets/js/back-end/components/common/DisplayModal';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -30,13 +30,13 @@ const MeetingSetupSection: React.FC<Props> = () => {
 
 	const GoogleMeetAPI = new API(GoogleMeetUrls.settings);
 
-	const settingQuery = useQuery(
-		['googleMeetSettings'],
-		() => GoogleMeetAPI.list(),
-		{
+	const settingQuery = useQuery({
+		queryKey: ['googleMeetSettings'],
+		queryFn: () => GoogleMeetAPI.list(),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	const resetButton = () => {
 		return http({ path: GoogleMeetUrls.settings, method: 'DELETE' });
@@ -51,8 +51,8 @@ const MeetingSetupSection: React.FC<Props> = () => {
 		window.location.href = url;
 	};
 
-	const handleFileUpload = useMutation(
-		(data: any) => {
+	const handleFileUpload = useMutation({
+		mutationFn: (data: any) => {
 			const formData = new FormData();
 			formData.append('file', data);
 
@@ -62,7 +62,7 @@ const MeetingSetupSection: React.FC<Props> = () => {
 				body: formData,
 			});
 		},
-		{
+		...{
 			onSuccess() {
 				toast({
 					title: __('Import complete', 'learning-management-system'),
@@ -71,7 +71,7 @@ const MeetingSetupSection: React.FC<Props> = () => {
 					isClosable: true,
 				});
 				reset();
-				queryClient.invalidateQueries('googleMeetSettings');
+				queryClient.invalidateQueries({ queryKey: ['googleMeetSettings'] });
 			},
 			onError(data: any) {
 				toast({
@@ -83,7 +83,7 @@ const MeetingSetupSection: React.FC<Props> = () => {
 				});
 			},
 		},
-	);
+	});
 
 	//  Reset Credential API is needed to be called here
 	const onResetCredentialConfirmationClick = useCallback(() => {

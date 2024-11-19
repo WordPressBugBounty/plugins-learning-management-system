@@ -15,28 +15,22 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
+import React from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { WithdrawPreferenceDataMap } from '../../../types/withdraw';
 
 const WITHDRAW_METHODS = [
-	{
-		id: 'paypal',
-		name: __('Paypal', 'learning-management-system'),
-	},
+	{ id: 'paypal', name: __('Paypal', 'learning-management-system') },
 	{
 		id: 'bank_transfer',
 		name: __('Bank Transfer', 'learning-management-system'),
 	},
-	{
-		id: 'e_check',
-		name: __('E-Check', 'learning-management-system'),
-	},
+	{ id: 'e_check', name: __('E-Check', 'learning-management-system') },
 ];
 
 type Props = {
@@ -47,55 +41,86 @@ type Props = {
 
 const WithdrawMethodForm: React.FC<Props> = (props) => {
 	const { data, onClose, isOpen } = props;
-	const { register, handleSubmit, watch } =
+	const { register, handleSubmit, watch, control } =
 		useForm<WithdrawPreferenceDataMap>();
-
 	const queryClient = useQueryClient();
+	const withdrawMethod = watch('method', data?.method ?? '');
 
-	const withdrawMethod = useRef<string>();
-	withdrawMethod.current = watch('method', data?.method ?? '');
+	const watchedFields = useWatch({
+		control,
+		name: [
+			'paypal_email',
+			'physical_address',
+			'bank_name',
+			'account_name',
+			'account_number',
+			'iban',
+			'swift_code',
+		],
+	});
+
+	const [
+		paypalEmail,
+		physicalAddress,
+		bankName,
+		accountName,
+		accountNumber,
+		iban,
+		swiftCode,
+	] = watchedFields;
+
+	const isFormValid = () => {
+		switch (withdrawMethod) {
+			case 'paypal':
+				return !!paypalEmail;
+			case 'e_check':
+				return !!physicalAddress;
+			case 'bank_transfer':
+				return (
+					!!bankName &&
+					!!accountName &&
+					!!accountNumber &&
+					!!iban &&
+					!!swiftCode
+				);
+			default:
+				return false;
+		}
+	};
 
 	const userAPI = new API(urls.currentUser);
 	const toast = useToast();
 
-	const updateWithdrawData = useMutation(
-		(data: WithdrawPreferenceDataMap) =>
-			userAPI.store({
-				withdraw_method_preference: data,
-			}),
-		{
-			onSuccess() {
-				queryClient.invalidateQueries('userProfile');
-				onClose();
-				toast({
-					title: __(
-						'Withdraw method updated successfully',
-						'learning-management-system',
-					),
-					status: 'success',
-					isClosable: true,
-					containerStyle: {
-						fontSize: 'sm',
-					},
-				});
-			},
-			onError(error: Error) {
-				onClose();
-				toast({
-					status: 'error',
-					isClosable: true,
-					title: __(
-						'Failed to update withdraw method',
-						'learning-management-system',
-					),
-					description: error.message,
-					containerStyle: {
-						fontSize: 'sm',
-					},
-				});
-			},
+	const updateWithdrawData = useMutation({
+		mutationFn: (data: WithdrawPreferenceDataMap) =>
+			userAPI.store({ withdraw_method_preference: data }),
+		onSuccess() {
+			queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+			onClose();
+			toast({
+				title: __(
+					'Withdraw method updated successfully',
+					'learning-management-system',
+				),
+				status: 'success',
+				isClosable: true,
+				containerStyle: { fontSize: 'sm' },
+			});
 		},
-	);
+		onError(error: Error) {
+			onClose();
+			toast({
+				status: 'error',
+				isClosable: true,
+				title: __(
+					'Failed to update withdraw method',
+					'learning-management-system',
+				),
+				description: error.message,
+				containerStyle: { fontSize: 'sm' },
+			});
+		},
+	});
 
 	const onSubmit = (data: WithdrawPreferenceDataMap) => {
 		updateWithdrawData.mutate(data);
@@ -145,7 +170,8 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 											))}
 										</Select>
 									</FormControl>
-									{'e_check' === withdrawMethod.current && (
+
+									{'e_check' === withdrawMethod && (
 										<FormControl>
 											<FormLabel>
 												{__('Physical Address', 'learning-management-system')}
@@ -156,7 +182,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 											/>
 										</FormControl>
 									)}
-									{'paypal' === withdrawMethod.current && (
+									{'paypal' === withdrawMethod && (
 										<FormControl>
 											<FormLabel>
 												{__(
@@ -170,7 +196,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 											/>
 										</FormControl>
 									)}
-									{'bank_transfer' === withdrawMethod.current && (
+									{'bank_transfer' === withdrawMethod && (
 										<>
 											<FormControl>
 												<FormLabel>
@@ -227,7 +253,8 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 						</form>
 					)}
 				</ModalBody>
-				{localized.withdraw_methods?.length && (
+
+				{localized.withdraw_methods?.length ? (
 					<ModalFooter
 						display="flex"
 						justifyContent="space-between"
@@ -240,19 +267,20 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 							variant="outline"
 							mr={3}
 							onClick={onClose}
-							isDisabled={updateWithdrawData.isLoading}
+							isDisabled={updateWithdrawData.isPending}
 						>
 							{__('Cancel', 'learning-management-system')}
 						</Button>
 						<Button
 							colorScheme="primary"
 							onClick={handleSubmit(onSubmit)}
-							isLoading={updateWithdrawData.isLoading}
+							isLoading={updateWithdrawData.isPending}
+							isDisabled={!isFormValid()}
 						>
 							{__('Save', 'learning-management-system')}
 						</Button>
 					</ModalFooter>
-				)}
+				) : null}
 			</ModalContent>
 		</Modal>
 	);

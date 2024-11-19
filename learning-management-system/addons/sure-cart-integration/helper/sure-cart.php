@@ -123,9 +123,16 @@ if ( ! function_exists( 'masteriyo_unenroll_surecart_user' ) ) {
 		if ( is_wp_error( $course ) ) {
 			return;
 		}
+		if ( ! $wpdb || empty( $course_id ) || empty( $user_id ) ) {
+			return;
+		}
 
 		$user = masteriyo_get_user( $user_id );
+		$user = masteriyo_get_user( $user_id );
 
+		if ( ! $user ) {
+			return;
+		}
 		if ( ! $user ) {
 			return;
 		}

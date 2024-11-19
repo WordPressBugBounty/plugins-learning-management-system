@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying course stats in single course page
  *
@@ -25,6 +26,7 @@ do_action( 'masteriyo_before_single_course_stats' );
 
 ?>
 <div class="masteriyo-single-course-stats">
+
 	<!-- Duration -->
 	<div class="duration">
 		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
@@ -41,7 +43,7 @@ do_action( 'masteriyo_before_single_course_stats' );
 		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 			<?php masteriyo_get_svg( 'group', true ); ?>
 			<span>
-			<?php
+				<?php
 				printf(
 					/* translators: %d: Enrolled  students count */
 					esc_html( _nx( '%s Student', '%s Students', $enrolled_users_count, 'Enrolled Students Count', 'learning-management-system' ) ),
@@ -54,51 +56,67 @@ do_action( 'masteriyo_before_single_course_stats' );
 
 	<!-- Difficulty -->
 	<?php if ( $course->get_difficulty() ) : ?>
-	<div class="difficulty">
-		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
-			<?php masteriyo_get_svg( 'level', true ); ?>
-			<span>
-				<?php echo esc_html( $course->get_difficulty()['name'] ); ?>
-			</span>
+		<div class="difficulty">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'level', true ); ?>
+				<span>
+					<?php echo esc_html( $course->get_difficulty()['name'] ); ?>
+				</span>
+			</div>
 		</div>
-	</div>
 	<?php endif; ?>
 
 	<!-- Date Modified -->
 	<?php if ( $course->get_date_modified() ) : ?>
-	<div class="last-updated">
-		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
-			<?php masteriyo_get_svg( 'last-updated', true ); ?>
-			<span>
-				<?php
-				$modified_date  = strtotime( $course->get_date_modified() );
-				$formatted_date = gmdate( 'F j, Y', $modified_date );
-				/* translators: %s: Formatted Date */
-				echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), $formatted_date ) );
-				?>
-			</span>
+		<div class="last-updated">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'last-updated', true ); ?>
+				<span>
+					<?php
+					$modified_date  = strtotime( $course->get_date_modified() );
+					$formatted_date = gmdate( 'F j, Y', $modified_date );
+					/* translators: %s: Formatted Date */
+					echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), $formatted_date ) );
+					?>
+				</span>
+			</div>
 		</div>
-	</div>
-<?php endif; ?>
+	<?php endif; ?>
 
+	<!-- Date Started -->
+	<?php if ( $progress ) : ?>
+		<div class="course-started-at">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'calender', true ); ?>
+				<span>
+					<?php
+					$started_date   = strtotime( $progress->get_started_at() );
+					$formatted_date = gmdate( 'F j, Y', $started_date );
+					/* translators: %s: Formatted Date */
+					echo esc_html( sprintf( __( 'Started At: %s', 'learning-management-system' ), $formatted_date ) );
+					?>
+				</span>
+			</div>
+		</div>
+	<?php endif; ?>
 
 	<!-- Available seats for students-->
 	<?php if ( $course->get_enrollment_limit() > 0 ) : ?>
-	<div class="masteriyo-available-seats-for-students">
-		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
-			<?php masteriyo_get_svg( 'available-seats-for-students', true ); ?>
-			<span>
-				<?php
-								printf(
-									/* translators: %d: Available Seats Count */
-									esc_html( _nx( 'Available Seat: %s', 'Available Seats: %s', $remaining_available_seats, 'Available Seats Count', 'learning-management-system' ) ),
-									esc_html( $remaining_available_seats )
-								);
-				?>
-			</span>
+		<div class="masteriyo-available-seats-for-students">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'available-seats-for-students', true ); ?>
+				<span>
+					<?php
+					printf(
+						/* translators: %d: Available Seats Count */
+						esc_html( _nx( 'Available Seat: %s', 'Available Seats: %s', $remaining_available_seats, 'Available Seats Count', 'learning-management-system' ) ),
+						esc_html( $remaining_available_seats )
+					);
+					?>
+				</span>
+			</div>
 		</div>
-	</div>
-<?php endif; ?>
+	<?php endif; ?>
 
 </div>
 <?php

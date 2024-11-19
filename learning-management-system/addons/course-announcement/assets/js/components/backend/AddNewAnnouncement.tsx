@@ -3,8 +3,6 @@ import {
 	Button,
 	ButtonGroup,
 	Container,
-	Flex,
-	Heading,
 	Icon,
 	List,
 	ListItem,
@@ -13,11 +11,11 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiSolidMegaphone } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 import {
@@ -56,9 +54,9 @@ const AddNewAnnouncement: React.FC = () => {
 	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
-	const addAnnouncement = useMutation<AnnouncementSchema>((data) =>
-		announcementAPI.store(data),
-	);
+	const addAnnouncement = useMutation<AnnouncementSchema>({
+		mutationFn: (data) => announcementAPI.store(data),
+	});
 
 	const onSubmit = (data: any) => {
 		addAnnouncement.mutate(deepClean(data), {
@@ -69,7 +67,7 @@ const AddNewAnnouncement: React.FC = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`announcementList`);
+				queryClient.invalidateQueries({ queryKey: [`announcementList`] });
 				navigate({
 					pathname: routes.courseAnnouncement.edit.replace(
 						':courseAnnouncementId',
@@ -99,14 +97,14 @@ const AddNewAnnouncement: React.FC = () => {
 	const FormButton = () => (
 		<ButtonGroup>
 			<AnnouncementActionBtn
-				isLoading={addAnnouncement.isLoading}
+				isLoading={addAnnouncement.isPending}
 				methods={methods}
 				onSubmit={onSubmit}
 			/>
 			<Button
 				size={buttonSize}
 				variant="outline"
-				isDisabled={addAnnouncement.isLoading}
+				isDisabled={addAnnouncement.isPending}
 				onClick={() =>
 					navigate({
 						pathname: routes.courseAnnouncement.list,
@@ -173,22 +171,11 @@ const AddNewAnnouncement: React.FC = () => {
 									flexDirection="column"
 									justifyContent="space-between"
 								>
-									<Stack direction="column" spacing="8">
-										<Flex align="center" justify="space-between">
-											<Heading as="h1" fontSize="x-large">
-												{__(
-													'Add New Announcement',
-													'learning-management-system',
-												)}
-											</Heading>
-										</Flex>
+									<Stack direction="column" spacing="6">
+										<Name />
+										<Description />
 
-										<Stack direction="column" spacing="6">
-											<Name />
-											<Description />
-
-											{isLargerThan992 ? <FormButton /> : null}
-										</Stack>
+										{isLargerThan992 ? <FormButton /> : null}
 									</Stack>
 								</Box>
 								<Box w={{ lg: '400px' }} bg="white" p="10" shadow="box">

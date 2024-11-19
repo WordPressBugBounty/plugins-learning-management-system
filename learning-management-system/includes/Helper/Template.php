@@ -997,6 +997,42 @@ if ( ! function_exists( 'masteriyo_single_course_price_and_enroll_button' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_single_course_progress_bar' ) ) {
+	/**
+	 * Show course stats in single course page.
+	 *
+	 * @since 1.14.0
+	 */
+	function masteriyo_single_course_progress_bar( $course ) {
+
+		$check_course = masteriyo_is_standard_course_type( $course );
+
+		if ( ! $check_course ) {
+			return;
+		}
+
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+		$progress = current( $query->get_course_progress() );
+
+		$summary = $progress ? $progress->get_summary( 'all' ) : '';
+
+		masteriyo_get_template(
+			'single-course/course-progress.php',
+			array(
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
+			)
+		);
+	}
+}
+
 if ( ! function_exists( 'masteriyo_single_course_stats' ) ) {
 	/**
 	 * Show course stats in single course page.
@@ -1030,6 +1066,17 @@ if ( ! function_exists( 'masteriyo_single_course_stats' ) ) {
 			}
 		}
 
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+		$progress = current( $query->get_course_progress() );
+
+		$summary = $progress ? $progress->get_summary( 'all' ) : '';
+
 		masteriyo_get_template(
 			'single-course/course-stats.php',
 			array(
@@ -1037,6 +1084,44 @@ if ( ! function_exists( 'masteriyo_single_course_stats' ) ) {
 				'comments_count'            => $comments_count,
 				'enrolled_users_count'      => masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count(),
 				'remaining_available_seats' => $course->get_enrollment_limit() > 0 ? $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) : 0,
+				'progress'                  => $progress,
+				'summary'                   => $summary,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_single_course_layout_1_progress' ) ) {
+	/**
+	 * Show course stats in single course page for layout-1.
+	 *
+	 * @since 1.14.0
+	 */
+	function masteriyo_single_course_layout_1_progress( $course ) {
+
+		$check_course = masteriyo_is_standard_course_type( $course );
+
+		if ( ! $check_course ) {
+			return;
+		}
+
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+		$progress = current( $query->get_course_progress() );
+
+		$summary = $progress ? $progress->get_summary( 'all' ) : '';
+
+		masteriyo_get_template(
+			'single-course/layout-1/course-progress.php',
+			array(
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
 			)
 		);
 	}
@@ -1076,6 +1161,17 @@ if ( ! function_exists( 'masteriyo_single_course_layout_1_stats' ) ) {
 			}
 		}
 
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+		$progress = current( $query->get_course_progress() );
+
+		$summary = $progress ? $progress->get_summary( 'all' ) : '';
+
 		masteriyo_get_template(
 			'single-course/layout-1/course-stats.php',
 			array(
@@ -1084,6 +1180,8 @@ if ( ! function_exists( 'masteriyo_single_course_layout_1_stats' ) ) {
 				'enrolled_users_count'      => masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count(),
 				'remaining_available_seats' => $course->get_enrollment_limit() > 0 ? $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) : 0,
 				'difficulty'                => $difficulty,
+				'progress'                  => $progress,
+				'summary'                   => $summary,
 			)
 		);
 	}
@@ -1174,10 +1272,14 @@ if ( ! function_exists( 'masteriyo_single_course_tab_handles' ) ) {
 	 * @since 1.0.0
 	 */
 	function masteriyo_single_course_tab_handles( $course ) {
+
+		$show_curriculum = masteriyo_should_show_curriculum( $course );
+
 		masteriyo_get_template(
 			'single-course/tab-handles.php',
 			array(
-				'course' => $course,
+				'course'          => $course,
+				'show_curriculum' => $show_curriculum,
 			)
 		);
 	}
@@ -1206,16 +1308,20 @@ if ( ! function_exists( 'masteriyo_single_course_curriculum' ) ) {
 	 * @since 1.0.0
 	 */
 	function masteriyo_single_course_curriculum( $course ) {
-		if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
-			$sections = masteriyo_get_course_structure( $course->get_id() );
 
-			masteriyo_get_template(
-				'single-course/curriculum.php',
-				array(
-					'course'   => $course,
-					'sections' => $sections,
-				)
-			);
+		$show_curriculum = masteriyo_should_show_curriculum( $course );
+		if ( $show_curriculum ) {
+			if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
+				$sections = masteriyo_get_course_structure( $course->get_id() );
+
+				masteriyo_get_template(
+					'single-course/curriculum.php',
+					array(
+						'course'   => $course,
+						'sections' => $sections,
+					)
+				);
+			}
 		}
 	}
 }
@@ -2245,16 +2351,6 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 						esc_html( number_format_i18n( $quiz_count ) )
 					),
 				),
-				array(
-					'wrapper_start' => '<span class="masteriyo-cplus masteriyo-icon-svg">',
-					'wrapper_end'   => '</span>',
-					'content'       => masteriyo_get_svg( 'plus' ),
-				),
-				array(
-					'wrapper_start' => '<span class="masteriyo-cminus masteriyo-icon-svg">',
-					'wrapper_end'   => '</span>',
-					'content'       => masteriyo_get_svg( 'minus' ),
-				),
 			),
 			$course,
 			$section,
@@ -2263,6 +2359,29 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 
 		$html = '';
 		foreach ( $summaries as $summary ) {
+			$html .= $summary['wrapper_start'] . $summary['content'] . $summary['wrapper_end'];
+		}
+
+		$summary_wrapper = array(
+			'wrapper_start' => '<div class="masteriyo-ltc masteriyo-flex-ycenter">',
+			'wrapper_end'   => '</div>',
+		);
+
+		$html = $summary_wrapper['wrapper_start'] . $html . $summary_wrapper['wrapper_end'];
+
+		$summary_plus_minus[] = array(
+			'wrapper_start' => '<span class="masteriyo-cplus masteriyo-icon-svg">',
+			'wrapper_end'   => '</span>',
+			'content'       => masteriyo_get_svg( 'plus' ),
+		);
+
+		$summary_plus_minus[] = array(
+			'wrapper_start' => '<span class="masteriyo-cminus masteriyo-icon-svg">',
+			'wrapper_end'   => '</span>',
+			'content'       => masteriyo_get_svg( 'minus' ),
+		);
+
+		foreach ( $summary_plus_minus as $summary ) {
 			$html .= $summary['wrapper_start'] . $summary['content'] . $summary['wrapper_end'];
 		}
 
@@ -2835,10 +2954,14 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_main_content' ) ) {
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
 	function masteriyo_layout_1_single_course_main_content( $course ) {
+
+		$show_curriculum = masteriyo_should_show_curriculum( $course );
+
 		masteriyo_get_template(
 			'single-course/layout-1/main-content.php',
 			array(
-				'course' => $course,
+				'course'          => $course,
+				'show_curriculum' => $show_curriculum,
 			)
 		);
 	}

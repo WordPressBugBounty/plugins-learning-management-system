@@ -10,6 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import {
@@ -20,7 +21,6 @@ import {
 	BiPauseCircle,
 	BiTrash,
 } from 'react-icons/bi';
-import { useQuery } from 'react-query';
 import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
 import {
 	HeaderLeftSection,
@@ -96,13 +96,13 @@ const LeftHeader: React.FC = (props) => {
 		}
 	}, [currentTab]);
 
-	const pricingZoneQuery = useQuery(
-		['pricingZonesList', filterParams],
-		() => pricingZoneAPI.list(filterParams),
-		{
+	const pricingZoneQuery = useQuery({
+		queryKey: ['pricingZonesList', filterParams],
+		queryFn: () => pricingZoneAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	const counts = pricingZoneQuery.data?.meta.pricing_zones_count;
 	const isCounting = pricingZoneQuery.isLoading;

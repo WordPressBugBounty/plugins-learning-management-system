@@ -43,6 +43,9 @@ class ScormAddon {
 		add_filter( 'masteriyo_rest_prepare_course_builder_collection', array( $this, 'rest_prepare_course_builder_collection' ), 10, 2 );
 		add_filter( 'masteriyo_rest_course_builder_schema', array( $this, 'add_scorm_schema_to_course_builder' ) );
 		add_filter( 'masteriyo_whitelist_styles_learn_page', array( $this, 'whitelist_styles_learn_page' ), 10, 1 );
+		// Setting related hooks.
+		add_filter( 'masteriyo_new_setting', array( $this, 'save_setting' ), 10 );
+		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
 	}
 
 	/**
@@ -168,39 +171,41 @@ class ScormAddon {
 	 * @param array $scripts
 	 */
 	public function enqueue_scripts( $scripts ) {
-		$scripts['learn']['callback'] = function () {
-			if ( masteriyo_is_learn_page() ) {
-				if ( ( new Addons() )->is_active( 'scorm' ) ) {
-					$preview   = masteriyo_string_to_bool( get_query_var( 'mto-preview', false ) );
+		$old_callback = $scripts['learn']['callback'];
+
+		$scripts['learn']['callback'] = function () use ( $old_callback ) {
+			if ( masteriyo_is_learn_page() && ( new Addons() )->is_active( 'scorm' ) ) {
+				$preview   = masteriyo_string_to_bool( get_query_var( 'mto-preview', false ) );
+				$course_id = get_query_var( 'course_name', 0 );
+
+				if ( '' === get_option( 'permalink_structure' ) || $preview ) {
 					$course_id = get_query_var( 'course_name', 0 );
+				} else {
+					$course_slug = get_query_var( 'course_name', '' );
 
-					if ( '' === get_option( 'permalink_structure' ) || $preview ) {
-						$course_id = get_query_var( 'course_name', 0 );
-					} else {
-						$course_slug = get_query_var( 'course_name', '' );
+					$courses = get_posts(
+						array(
+							'post_type'   => 'mto-course',
+							'name'        => $course_slug,
+							'numberposts' => 1,
+							'fields'      => 'ids',
+						)
+					);
 
-						$courses = get_posts(
-							array(
-								'post_type'   => 'mto-course',
-								'name'        => $course_slug,
-								'numberposts' => 1,
-								'fields'      => 'ids',
-							)
-						);
-
-						$course_id = is_array( $courses ) ? array_shift( $courses ) : 0;
-					}
-
-					$scorm_package = json_decode( get_post_meta( $course_id, '_scorm_package', true ), true );
-
-					if ( ! empty( $scorm_package ) ) {
-						return false;
-					}
+					$course_id = is_array( $courses ) ? array_shift( $courses ) : 0;
 				}
+
+				$scorm_package = json_decode( get_post_meta( $course_id, '_scorm_package', true ), true );
+
+				if ( ! empty( $scorm_package ) ) {
+					return false;
+				}
+
+				return $old_callback;
 			}
 
-			return true;
 		};
+
 		return $scripts;
 	}
 
@@ -253,5 +258,49 @@ class ScormAddon {
 		$migrations[] = plugin_dir_path( MASTERIYO_SCORM_FILE ) . 'migrations';
 
 		return $migrations;
+	}
+
+	/**
+	 * Save setting.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param \Masteriyo\Models\Setting $setting
+	 */
+	public function save_setting() {
+		$request = masteriyo_current_http_request();
+
+		if ( ! masteriyo_is_rest_api_request() ) {
+			return;
+		}
+
+		if ( ! isset( $request['advance']['scorm']['allowed_extensions'] ) ) {
+			return;
+		}
+
+		Setting::read();
+
+		// Sanitization.
+		if ( isset( $request['advance']['scorm']['allowed_extensions'] ) ) {
+			Setting::set( 'allowed_extensions', sanitize_text_field( $request['advance']['scorm']['allowed_extensions'] ) );
+		}
+	}
+
+	/**
+	 * Append setting to response.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param array $data Setting data.
+	 * @param \Masteriyo\Models\Setting $setting Setting object.
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @param \Masteriyo\RestApi\Controllers\Version1\SettingsController $controller REST settings controller object.
+	 *
+	 * @return array
+	 */
+	public function append_setting_in_response( $data, $setting, $context, $controller ) {
+		$data['advance']['scorm'] = Setting::all();
+
+		return $data;
 	}
 }

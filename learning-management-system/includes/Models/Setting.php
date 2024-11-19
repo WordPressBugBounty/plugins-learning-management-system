@@ -50,6 +50,11 @@ class Setting extends Model {
 					'page_id'      => 'absint',
 					'custom_url'   => 'string',
 				),
+				'after_checkout_page'             => array(
+					'display_type' => 'string',
+					'page_id'      => 'absint',
+					'custom_url'   => 'string',
+				),
 				'instructors_list_page_id'        => 'absint',
 			),
 			'course_access' => array(
@@ -84,7 +89,7 @@ class Setting extends Model {
 				'enable_focus_mode'        => 'masteriyo_string_to_bool',
 				'show_sidebar'             => 'masteriyo_string_to_bool',
 				'show_header'              => 'masteriyo_string_to_bool',
-
+				'enable_lesson_comment'    => 'masteriyo_string_to_bool',
 			),
 		),
 		'payments'       => array(
@@ -274,7 +279,9 @@ class Setting extends Model {
 				'remove_data' => 'masteriyo_string_to_bool',
 			),
 			'tracking'            => array(
-				'allow_usage' => 'masteriyo_string_to_bool',
+				'allow_usage'       => 'masteriyo_string_to_bool',
+				'subscribe_updates' => 'masteriyo_string_to_bool',
+				'email'             => 'sanitize_email',
 			),
 			'gdpr'                => array(
 				'enable'  => 'masteriyo_string_to_bool',

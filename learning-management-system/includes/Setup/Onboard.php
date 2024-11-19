@@ -104,6 +104,9 @@ class Onboard {
 				),
 				'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
 				'ajaxNonce'               => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
+				'allowUsage'              => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.allow_usage' ) ),
+				'subscribeUpdates'        => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.subscribe_updates' ) ),
+				'subscriptionEmail'       => masteriyo_get_setting( 'advance.tracking.email' ),
 				'show_allow_usage_notice' => masteriyo_bool_to_string( masteriyo_show_usage_tracking_notice() ),
 			)
 		);

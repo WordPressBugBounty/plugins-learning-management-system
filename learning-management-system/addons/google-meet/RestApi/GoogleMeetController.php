@@ -712,8 +712,12 @@ class GoogleMeetController extends PostsController {
 				'meet_url'                     => $event['hangoutLink'],
 				'add_all_students_as_attendee' => $request['add_all_students_as_attendee'],
 			);
-			$this->save_object( $event_data );
-			return true;
+			$now                 = $this->save_object( $event_data, true );
+			$event['parent_id']  = $request['section_id'];
+			$event['name']       = $request['summary'];
+			$event['menu_order'] = $now->get_menu_order();
+
+			return $event;
 		} else {
 			return false;
 		}
@@ -899,7 +903,11 @@ class GoogleMeetController extends PostsController {
 				return new \WP_Error( "masteriyo_rest_{$this->object_type}_exists", sprintf( __( 'Cannot create existing %s.', 'learning-management-system' ), $this->object_type ), array( 'status' => 400 ) );
 			}
 
-			$this->save_object( $event_data, true );
+			$now                 = $this->save_object( $event_data, true );
+			$event['parent_id']  = $request['section_id'];
+			$event['name']       = $request['summary'];
+			$event['menu_order'] = $now->get_menu_order();
+
 			return $event;
 		} else {
 			return false;

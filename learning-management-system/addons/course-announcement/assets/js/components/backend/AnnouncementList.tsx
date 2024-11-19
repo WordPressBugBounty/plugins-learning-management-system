@@ -144,7 +144,12 @@ const AnnouncementList: React.FC<Props> = (props) => {
 								data?.id.toString(),
 							)}
 						>
-							<Button colorScheme="primary" leftIcon={<BiEdit />} size="xs">
+							<Button
+								colorScheme="primary"
+								variant="outline"
+								leftIcon={<BiEdit />}
+								size="xs"
+							>
 								{__('Edit', 'learning-management-system')}
 							</Button>
 						</RouterLink>

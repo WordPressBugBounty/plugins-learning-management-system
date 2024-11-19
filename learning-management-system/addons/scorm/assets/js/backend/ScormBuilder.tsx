@@ -9,10 +9,10 @@ import {
 	useToast,
 	useToken,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FaFileAlt, FaTrash } from 'react-icons/fa';
-import { useMutation, useQueryClient } from 'react-query';
 import API from '../../../../../assets/js/back-end/utils/api';
 import { urls } from './constants/urls';
 
@@ -34,9 +34,9 @@ const ScormBuilder: React.FC<Props> = (props) => {
 
 	const deleteAPI = new API(urls.scormDelete);
 
-	const { mutate: deleteMutate, isLoading: isDeleting } = useMutation(
-		(id: number) => deleteAPI.delete(id),
-		{
+	const { mutate: deleteMutate, isPending: isDeleting } = useMutation({
+		mutationFn: (id: number) => deleteAPI.delete(id),
+		...{
 			onSuccess() {
 				toast({
 					title: __(
@@ -46,7 +46,9 @@ const ScormBuilder: React.FC<Props> = (props) => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries('builder' + courseId.toString());
+				queryClient.invalidateQueries({
+					queryKey: ['builder' + courseId.toString()],
+				});
 			},
 			onError(error: any) {
 				toast({
@@ -57,7 +59,7 @@ const ScormBuilder: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	const iconColor = useColorModeValue('blue.500', 'blue.200');
 	const [deleteButtonColor, deleteButtonColorHover] = useToken('colors', [

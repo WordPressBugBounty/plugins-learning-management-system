@@ -140,6 +140,7 @@ class LemonSqueezyIntegrationAddon {
 		if ( $course instanceof \Masteriyo\Models\Course ) {
 			$data['lemon_squeezy_integration'] = array(
 				'product_id' => get_post_meta( $course->get_id(), '_lemon_squeezy_product_id', true ),
+				'enabled'    => masteriyo_string_to_bool( Setting::get( 'enable' ) ),
 			);
 		}
 

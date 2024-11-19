@@ -15,10 +15,10 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiFile, BiImport } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import http from '../../../../../assets/js/back-end/utils/http';
 import { urls } from './constants/urls';
 
@@ -38,8 +38,8 @@ const Scorm: React.FC<Props> = (props) => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
 
-	const importMutation = useMutation<ImportResponse, Error, File>(
-		(selectedFile) => {
+	const importMutation = useMutation<ImportResponse, Error, File>({
+		mutationFn: (selectedFile) => {
 			const formData = new FormData();
 			formData.append('file', selectedFile);
 			formData.append('course_id', courseId.toString());
@@ -50,26 +50,28 @@ const Scorm: React.FC<Props> = (props) => {
 				body: formData,
 			});
 		},
-		{
+		...{
 			onSuccess() {
 				toast({
 					title: __('Import Successful', 'learning-management-system'),
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries('builder' + courseId.toString());
+				queryClient.invalidateQueries({
+					queryKey: ['builder' + courseId.toString()],
+				});
 				onClose();
 			},
 			onError(error: any) {
 				toast({
 					title: __('Import Failed', 'learning-management-system'),
-					description: `${error.response?.data?.message}`,
+					description: `${error?.message}`,
 					status: 'error',
 					isClosable: true,
 				});
 			},
 		},
-	);
+	});
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files) {
@@ -97,7 +99,7 @@ const Scorm: React.FC<Props> = (props) => {
 					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody mb={6}>
-						{importMutation.isLoading ? (
+						{importMutation.isPending ? (
 							<Flex direction="column" align="center" justify="center" p={6}>
 								<Spinner size="xl" />
 								<Text mt={4} fontWeight="bold">

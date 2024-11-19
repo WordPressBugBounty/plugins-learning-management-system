@@ -1,5 +1,6 @@
 type UserCertificate = {
 	id: number;
+	view_url: string;
 	download_url: string;
 	course: import('../../../../../assets/js/back-end/schemas').CourseSchema & {
 		featured_image_url: string;

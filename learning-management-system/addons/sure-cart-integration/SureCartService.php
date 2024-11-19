@@ -663,9 +663,9 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		$course_query = new \WP_Query(
 			array(
-				'post_type' => 'mto-course',
-				's'         => $search,
-				'per_page'  => -1,
+				'post_type'      => 'mto-course',
+				's'              => $search,
+				'posts_per_page' => -1,
 			)
 		);
 

@@ -1,10 +1,8 @@
 import {
-	Box,
 	Collapse,
 	Divider,
 	FormControl,
 	FormLabel,
-	Icon,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
 	NumberInput,
@@ -14,14 +12,12 @@ import {
 	RadioGroup,
 	Stack,
 	Switch,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { decodeEntity } from '../../../../../../assets/js/back-end/utils/utils';
 import { ActivePricingZone } from '../../types/multiCurrency';
 
@@ -51,18 +47,12 @@ const RenderPricingZone: React.FC<Props> = ({ zone, zoneId }) => {
 				<FormLabel>
 					{__('Enable ', 'learning-management-system')} {zone.title} (
 					{decodeEntity(zone?.currency_symbol)})
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Toggle to activate this pricing zone for the course. Once activated, you can set prices specifically for this course within this pricing zone.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Stack direction={'column'} gap={6}>
 					<FormControl>
@@ -76,18 +66,12 @@ const RenderPricingZone: React.FC<Props> = ({ zone, zoneId }) => {
 							<FormControl>
 								<FormLabel>
 									{__('Price Method', 'learning-management-system')}
-									<Tooltip
+									<ToolTip
 										label={__(
 											'Choose how prices are managed. "Calculate prices by the exchange rate" automatically converts prices based on exchange rates. "Set prices manually" allows you to define prices for each currency.',
 											'learning-management-system',
 										)}
-										hasArrow
-										fontSize="xs"
-									>
-										<Box as="span" sx={infoIconStyles}>
-											<Icon as={BiInfoCircle} />
-										</Box>
-									</Tooltip>
+									/>
 								</FormLabel>
 								<Controller
 									control={control}

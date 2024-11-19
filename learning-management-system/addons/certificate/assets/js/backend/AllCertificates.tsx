@@ -20,9 +20,10 @@ import {
 	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
 	BiBook,
@@ -32,7 +33,6 @@ import {
 	BiTrash,
 } from 'react-icons/bi';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -137,17 +137,18 @@ const AllCertificates: React.FC = () => {
 		certificateAddonUrls.certificatesSetting,
 	);
 
-	const certificatesSettingQuery = useQuery(
-		['certificatesSetting', filterParams],
-		() => certificatesSettingAPI.get(),
-		{
+	const certificatesSettingQuery = useQuery({
+		queryKey: ['certificatesSetting', filterParams],
+		queryFn: () => certificatesSettingAPI.get(),
+		...{
 			enabled: isSettingOpen,
 		},
-	);
+	});
 
-	const updateCertificateSettingsMutation = useMutation(
-		(data: CertificateSettingsSchema) => certificatesSettingAPI.store(data),
-		{
+	const updateCertificateSettingsMutation = useMutation({
+		mutationFn: (data: CertificateSettingsSchema) =>
+			certificatesSettingAPI.store(data),
+		...{
 			onSuccess: () => {
 				toast({
 					title: __(
@@ -157,7 +158,7 @@ const AllCertificates: React.FC = () => {
 					isClosable: true,
 					status: 'success',
 				});
-				queryClient.invalidateQueries('certificatesSetting');
+				queryClient.invalidateQueries({ queryKey: ['certificatesSetting'] });
 			},
 			onError: (error: any) => {
 				const message: any = error?.message
@@ -175,23 +176,15 @@ const AllCertificates: React.FC = () => {
 				});
 			},
 		},
-	);
+	});
 
-	const certificatesQuery = useQuery(
-		['certificatesList', filterParams],
-		() => getAllCertificates(filterParams),
-		{
-			onSuccess: (data) => {
-				setStatusCount({
-					any: data?.meta?.counts?.any,
-					publish: data?.meta?.counts?.publish,
-					draft: data?.meta?.counts?.draft,
-					trash: data?.meta?.counts?.trash,
-				});
-			},
+	const certificatesQuery = useQuery({
+		queryKey: ['certificatesList', filterParams],
+		queryFn: () => getAllCertificates(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	const filterBy = (order: 'asc' | 'desc', orderBy: string) =>
 		setFilterParams({
@@ -207,32 +200,33 @@ const AllCertificates: React.FC = () => {
 		setBulkAction('');
 	};
 
-	const deleteCertificate = useMutation(
-		(id: number) => certificatesAPI.delete(id, { force: true, children: true }),
-		{
+	const deleteCertificate = useMutation({
+		mutationFn: (id: number) =>
+			certificatesAPI.delete(id, { force: true, children: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('certificatesList');
+				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				onClose();
 				setBulkIds([]);
 			},
 		},
-	);
+	});
 
 	const onDeleteConfirm = () => {
 		deleteCertificateId ? deleteCertificate.mutate(deleteCertificateId) : null;
 	};
 
 	const onBulkActionApply = {
-		delete: useMutation(
-			(data: any) =>
+		delete: useMutation({
+			mutationFn: (data: any) =>
 				certificatesAPI.bulkDelete('delete', {
 					ids: data,
 					force: true,
 					children: true,
 				}),
-			{
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('certificatesList');
+					queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -242,12 +236,13 @@ const AllCertificates: React.FC = () => {
 					});
 				},
 			},
-		),
-		trash: useMutation(
-			(data: any) => certificatesAPI.bulkDelete('delete', { ids: data }),
-			{
+		}),
+		trash: useMutation({
+			mutationFn: (data: any) =>
+				certificatesAPI.bulkDelete('delete', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('certificatesList');
+					queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -257,12 +252,13 @@ const AllCertificates: React.FC = () => {
 					});
 				},
 			},
-		),
-		restore: useMutation(
-			(data: any) => certificatesAPI.bulkRestore('restore', { ids: data }),
-			{
+		}),
+		restore: useMutation({
+			mutationFn: (data: any) =>
+				certificatesAPI.bulkRestore('restore', { ids: data }),
+			...{
 				onSuccess() {
-					queryClient.invalidateQueries('certificatesList');
+					queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 					onClose();
 					setBulkIds([]);
 					toast({
@@ -272,12 +268,23 @@ const AllCertificates: React.FC = () => {
 					});
 				},
 			},
-		),
+		}),
 	};
 
 	const onSettingSubmit = (data: CertificateSettingsSchema) => {
 		updateCertificateSettingsMutation.mutate(data);
 	};
+
+	useEffect(() => {
+		if (certificatesQuery?.isSuccess) {
+			setStatusCount({
+				any: certificatesQuery?.data?.meta?.counts?.any,
+				publish: certificatesQuery?.data?.meta?.counts?.publish,
+				draft: certificatesQuery?.data?.meta?.counts?.draft,
+				trash: certificatesQuery?.data?.meta?.counts?.trash,
+			});
+		}
+	}, [certificatesQuery?.data, certificatesQuery?.isSuccess]);
 
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
@@ -465,7 +472,7 @@ const AllCertificates: React.FC = () => {
 				action={bulkAction}
 				isLoading={
 					'' === bulkAction
-						? deleteCertificate.isLoading
+						? deleteCertificate.isPending
 						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{
@@ -529,7 +536,7 @@ const AllCertificates: React.FC = () => {
 									<Button
 										type="submit"
 										colorScheme="blue"
-										isLoading={updateCertificateSettingsMutation?.isLoading}
+										isLoading={updateCertificateSettingsMutation?.isPending}
 									>
 										{__('Save Setting', 'learning-management-system')}
 									</Button>

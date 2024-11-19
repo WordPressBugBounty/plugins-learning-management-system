@@ -12,10 +12,10 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiDotsVerticalRounded, BiShow } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import TimeAgo from 'timeago-react';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../backend/constants/urls';
@@ -40,17 +40,17 @@ const Message: React.FC<Props> = ({ announcement }) => {
 		lineBreak: 'auto',
 	};
 
-	const updateAnnouncement = useMutation<AnnouncementSchema>(
-		() =>
+	const updateAnnouncement = useMutation<AnnouncementSchema>({
+		mutationFn: () =>
 			announcementAPI.update(announcement?.id, {
 				has_read: true,
 				request_from: 'learn',
 			}),
-		{
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(
-					`announcement${announcement?.course?.id}`,
-				);
+				queryClient.invalidateQueries({
+					queryKey: [`announcement${announcement?.course?.id}`],
+				});
 				toast({
 					title: __('Marked as read.', 'learning-management-system'),
 					isClosable: true,
@@ -71,7 +71,7 @@ const Message: React.FC<Props> = ({ announcement }) => {
 				});
 			},
 		},
-	);
+	});
 
 	const readAnnouncement = () => {
 		updateAnnouncement.mutate();

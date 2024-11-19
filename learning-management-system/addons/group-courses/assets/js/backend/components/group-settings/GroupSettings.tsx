@@ -1,8 +1,8 @@
 import { Box, Container, Stack, useToast } from '@chakra-ui/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQuery } from 'react-query';
 import {
 	Header,
 	HeaderPrimaryButton,
@@ -23,9 +23,9 @@ const GroupSettings = () => {
 	const settingsAPI = new API(urls.settings);
 	const methods = useForm<GroupSettingsSchema>();
 
-	const updateGroupSettingsMutation = useMutation(
-		(data: GroupSettingsSchema) => settingsAPI.store(data),
-		{
+	const updateGroupSettingsMutation = useMutation({
+		mutationFn: (data: GroupSettingsSchema) => settingsAPI.store(data),
+		...{
 			onSuccess: () => {
 				toast({
 					title: __(
@@ -52,10 +52,11 @@ const GroupSettings = () => {
 				});
 			},
 		},
-	);
-	const groupSettingQuery = useQuery('groupCoursesSettings', () =>
-		settingsAPI.get(),
-	);
+	});
+	const groupSettingQuery = useQuery({
+		queryKey: ['groupCoursesSettings'],
+		queryFn: () => settingsAPI.get(),
+	});
 
 	const onSubmit = (data: GroupSettingsSchema) => {
 		updateGroupSettingsMutation.mutate(data);

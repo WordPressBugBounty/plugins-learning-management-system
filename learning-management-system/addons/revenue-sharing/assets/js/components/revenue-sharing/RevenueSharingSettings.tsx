@@ -35,26 +35,30 @@ const PAYOUT_METHODS = [
 ];
 
 const RevenueSharingSettings: React.FC<Props> = (props) => {
-	const { register, getValues } = useFormContext();
+	const { register, getValues, control } = useFormContext();
 
 	const watchRevenueSharingEnable = useWatch({
 		name: 'payments.revenue_sharing.enable',
 		defaultValue: props.data?.enable ?? false,
+		control,
 	});
 
 	const watchFeeEnable = useWatch({
 		name: 'payments.revenue_sharing.deductible_fee.enable',
 		defaultValue: props.data?.deductible_fee?.enable ?? false,
+		control,
 	});
 
 	const watchFeeType = useWatch({
 		name: 'payments.revenue_sharing.deductible_fee.type',
 		defaultValue: props.data?.deductible_fee?.type ?? 'percentage',
+		control,
 	});
 
 	const watchPayoutMethods = useWatch({
 		name: 'payments.revenue_sharing.withdraw.methods',
 		defaultValue: props.data?.withdraw?.methods ?? [],
+		control,
 	});
 
 	const currency = getValues()?.payments?.currency?.currency ?? 'USD';
@@ -274,7 +278,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 									<InputGroup>
 										<NumberInput
 											width="full"
-											min={1}
+											min={0}
 											defaultValue={field.value}
 											onChange={field.onChange}
 										>

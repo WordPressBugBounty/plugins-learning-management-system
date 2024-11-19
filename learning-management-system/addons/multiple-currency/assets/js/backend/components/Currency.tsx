@@ -1,21 +1,17 @@
 import {
-	Box,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
-	Icon,
 	Skeleton,
-	Tooltip,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
-import { useQuery } from 'react-query';
 import Select from 'react-select';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../assets/js/back-end/constants/urls';
 import { CurrenciesSchema } from '../../../../../../assets/js/back-end/schemas';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { PriceZoneSchema } from '../../types/multiCurrency';
 
@@ -32,7 +28,10 @@ const Currency: React.FC<Props> = ({ defaultValue }) => {
 		trigger,
 	} = useFormContext();
 
-	const currenciesQuery = useQuery('currencies', () => currenciesAPI.list());
+	const currenciesQuery = useQuery({
+		queryKey: ['currencies'],
+		queryFn: () => currenciesAPI.list(),
+	});
 
 	const currencyOptions = useMemo(() => {
 		return currenciesQuery.isSuccess
@@ -50,18 +49,12 @@ const Currency: React.FC<Props> = ({ defaultValue }) => {
 		<FormControl isInvalid={!!errors?.currency}>
 			<FormLabel>
 				{__('Currency', 'learning-management-system')}
-				<Tooltip
+				<ToolTip
 					label={__(
 						'Choose the currency of this zone. Customers from the countries of this zone will see the prices and pay in this currency.',
 						'learning-management-system',
 					)}
-					hasArrow
-					fontSize="xs"
-				>
-					<Box as="span" sx={infoIconStyles}>
-						<Icon as={BiInfoCircle} />
-					</Box>
-				</Tooltip>
+				/>
 			</FormLabel>
 			{currenciesQuery.isLoading ? (
 				<Skeleton height="40px" width="100%" />

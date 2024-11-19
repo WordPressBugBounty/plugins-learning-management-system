@@ -1,46 +1,27 @@
 import {
-	Alert,
-	AlertIcon,
-	Box,
-	Button,
-	ButtonGroup,
 	Container,
-	FormLabel,
-	Icon,
 	IconButton,
-	Input,
-	InputGroup,
-	InputRightElement,
-	Link,
 	Menu,
 	MenuButton,
 	MenuItem,
 	MenuList,
 	Stack,
-	Switch,
-	Text,
-	Tooltip,
 	useClipboard,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import {
-	BiBook,
-	BiCog,
-	BiDotsHorizontalRounded,
-	BiInfoCircle,
-	BiTrash,
-} from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Col, Row } from 'react-grid-system';
+import { useForm } from 'react-hook-form';
+import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink } from 'react-router-dom';
-import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
+import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
+import DisplayModal from '../../../../assets/js/back-end/components/common/DisplayModal';
 import {
 	Header,
 	HeaderLeftSection,
 	HeaderLogo,
-	HeaderRightSection,
 	HeaderTop,
 } from '../../../../assets/js/back-end/components/common/Header';
 import {
@@ -50,18 +31,19 @@ import {
 } from '../../../../assets/js/back-end/components/common/Nav';
 import {
 	headerResponsive,
-	infoIconStyles,
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
 import routes from '../../../../assets/js/back-end/constants/routes';
 import API from '../../../../assets/js/back-end/utils/api';
 import localized from '../../../../assets/js/back-end/utils/global';
+import http from '../../../../assets/js/back-end/utils/http';
 import googleClassroomUrls from '../../constants/urls';
 import { GoogleClassroomSettingsSkeleton } from './GoogleClassroomSkeleton';
-import PermissionCheck from './components/PermissionCheck';
-import ClientId from './settings/components/ClientId';
-import ClientSecret from './settings/components/ClientSecret';
+import ClassroomErrorConsentScreen from './components/ClassroomErrorConsentScreen';
+import ClassroomSuccessConsentScreen from './components/ClassroomSuccessConsentScreen';
+import ClassroomTextAndLinkSection from './components/ClassroomTextAndLinkSection';
+import DNDJson from './components/DNDJson';
 
 export interface GoogleClassroomSettingsSchema {
 	client_id: string;
@@ -72,92 +54,111 @@ export interface GoogleClassroomSettingsSchema {
 	token_available?: boolean;
 }
 
+export const defaultCopyValue = `${localized.home_url}/wp-admin/admin.php?page=masteriyo`;
+
 const GoogleClassroomSetting = () => {
 	const methods = useForm<GoogleClassroomSettingsSchema>();
 	const googleClassroomSetting = new API(googleClassroomUrls.settings);
 	const toast = useToast();
 	const queryClient = useQueryClient();
-	const [errorMessage, setErrorMessage] = useState('');
-	const { hasCopied: googleCopy, onCopy: clipToCopyForGoogle } = useClipboard(
-		`${localized.home_url}/wp-admin/admin.php?page=masteriyo`,
-	);
-	const googleClassroomCoursesApi = new API(
-		googleClassroomUrls.googleClassroom,
-	);
+	const [resetCredentialsModal, setResetCredentialsModal] =
+		useState<boolean>(false);
+	const { reset } = useForm();
+	const {
+		hasCopied: googleCopy,
+		onCopy: clipToCopyForGoogle,
+		value,
+		setValue,
+	} = useClipboard(`${localized.home_url}/wp-admin/admin.php?page=masteriyo`);
 
-	const googleClassroomSettingQuery = useQuery('settings', () =>
-		googleClassroomSetting.list(),
-	);
-	const updateGoogleClassroomSettingsMutation = useMutation(
-		(data: GoogleClassroomSettingsSchema) => googleClassroomSetting.store(data),
-		{
-			onSuccess: () => {
-				queryClient.invalidateQueries('settings');
-				toast({
-					title: __(
-						'Google Classroom Settings Updated',
-						'learning-management-system',
-					),
-					isClosable: true,
-					status: 'success',
-				});
-			},
-			onError: (error: any) => {
-				const message: any = error?.message
-					? error?.message
-					: error?.data?.message;
-
-				toast({
-					title: __(
-						'Could not update the google classroom settings.',
-						'learning-management-system',
-					),
-					description: message || '',
-					status: 'error',
-					isClosable: true,
-				});
-			},
-		},
-	);
-
-	const items = useMutation<any, unknown, void>(
-		() => googleClassroomCoursesApi.list('forced=true'),
-		{
-			onSuccess(data) {
-				queryClient.invalidateQueries('googleClassroomCourseList');
-				toast({
-					title: __('Synced Successfully.', 'learning-management-system'),
-					status: 'success',
-					isClosable: true,
-				});
-				setErrorMessage('');
-			},
-			onError: (err: any) => {
-				setErrorMessage(err?.message);
-				toast({
-					title: err?.message,
-					status: 'error',
-					isClosable: true,
-				});
-			},
-		},
-	);
-
-	const onSubmit = (data: GoogleClassroomSettingsSchema) => {
-		updateGoogleClassroomSettingsMutation.mutate(data);
-	};
+	const googleClassroomSettingQuery = useQuery({
+		queryKey: ['googleClassroomSettings'],
+		queryFn: () => googleClassroomSetting.list(),
+	});
 
 	const onClearData = () => {
-		let data: GoogleClassroomSettingsSchema = {
-			client_id: '',
-			client_secret: '',
-			access_token: '',
-			refresh_token: '',
-		};
-		updateGoogleClassroomSettingsMutation.mutate(data);
-		methods.setValue('client_id', '');
-		methods.setValue('client_secret', '');
+		return http({ path: googleClassroomUrls.settings, method: 'DELETE' });
 	};
+
+	const onCopyValueChange = (copyText: string) => {
+		setValue(copyText);
+	};
+
+	const handleFileUpload = useMutation({
+		mutationFn: (data: any) => {
+			const formData = new FormData();
+			formData.append('file', data);
+			return http({
+				path: googleClassroomUrls.settings,
+				method: 'POST',
+				body: formData,
+			});
+		},
+
+		...{
+			onSuccess() {
+				toast({
+					title: __('Import complete', 'learning-management-system'),
+					status: 'success',
+					duration: 3000,
+					isClosable: true,
+				});
+				reset();
+				queryClient.invalidateQueries({
+					queryKey: ['googleClassroomSettings'],
+				});
+			},
+			onError(data: any) {
+				toast({
+					title: __('Import failed!', 'learning-management-system'),
+					description: data?.message,
+					status: 'error',
+					duration: 3000,
+					isClosable: true,
+				});
+			},
+		},
+	});
+
+	const onResetCredentialsModalChange = useCallback((value: boolean) => {
+		return setResetCredentialsModal(value);
+	}, []);
+
+	const onHandleConsentScreen = (data: any) => {
+		const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${data?.client_id}&redirect_uri=${defaultCopyValue}&response_type=code&access_type=offline&scope=https://www.googleapis.com/auth/classroom.courses.readonly+https://www.googleapis.com/auth/classroom.rosters.readonly+https://www.googleapis.com/auth/classroom.profile.emails&state=masteriyo_google_classroom&prompt=consent`;
+		window.location.href = url;
+	};
+
+	const onResetCredentialConfirmationClick = useCallback(() => {
+		onClearData();
+		window.location.reload();
+		return onResetCredentialsModalChange(false);
+	}, [onResetCredentialsModalChange]);
+
+	const resetCredentialConfirmationButtons = useMemo(() => {
+		return [
+			{
+				title: __(`No I am not`, 'learning-management-system'),
+				variant: 'outline',
+				onClick: () => onResetCredentialsModalChange(false),
+			},
+			{
+				title: __('Yes I am sure', 'learning-management-system'),
+				onClick: () => onResetCredentialConfirmationClick(),
+				colorScheme: 'primary',
+			},
+		];
+	}, [onResetCredentialConfirmationClick, onResetCredentialsModalChange]);
+
+	useEffect(() => {
+		if (handleFileUpload.isSuccess) {
+			toast({
+				title: __(`File uploaded successfully`, 'learning-management-system'),
+				status: 'success',
+				isClosable: true,
+			});
+		}
+	}, [handleFileUpload.isSuccess, toast]);
 
 	return (
 		<>
@@ -234,241 +235,72 @@ const GoogleClassroomSetting = () => {
 								</Menu>
 							</NavMenu>
 						</HeaderLeftSection>
-
-						{googleClassroomSettingQuery.data && (
-							<HeaderRightSection>
-								<PermissionCheck
-									googleSettingCredentials={googleClassroomSettingQuery.data}
-								/>
-							</HeaderRightSection>
-						)}
 					</HeaderTop>
 				</Header>
-				<Container maxW="container.xl">
-					<Stack direction="column" spacing={5}>
-						<Stack shadow="box">
-							<Alert status="info">
-								<AlertIcon />
-								<Stack spacing={1} direction="row">
-									<Text>
-										{__(
-											'Please see the following documentation page for instructions on how to obtain the credentials.',
-											'learning-management-system',
-										)}
-									</Text>
-									<Link
-										// href={'https://console.cloud.google.com'}
-										href={
-											'https://docs.masteriyo.com/free-addons/google-classroom-integration'
-										}
-										target="_blank"
-										sx={{ textDecoration: 'underline' }}
-									>
-										{__('Documentation', 'learning-management-system')}
-									</Link>
-								</Stack>
-							</Alert>
-						</Stack>
-
-						{googleClassroomSettingQuery.isSuccess ? (
-							<Stack direction="column" spacing="6">
-								<FormProvider {...methods}>
-									<form onSubmit={methods.handleSubmit(onSubmit)}>
-										<Stack
-											direction={['column', 'column', 'column', 'row']}
-											spacing={8}
-										>
-											<Box bg="white" p="10" shadow="box" gap="6" width="full">
-												<Stack direction="column" spacing="6" pb="6">
-													<ClientId
-														defaultValue={
-															googleClassroomSettingQuery?.data?.client_id
-														}
-													/>
-
-													<ClientSecret
-														defaultValue={
-															googleClassroomSettingQuery?.data?.client_secret
-														}
-													/>
-
-													<FormControlTwoCol>
-														<FormLabel>
-															{__('Redirect Url', 'learning-management-system')}
-															<Tooltip
-																label={__(
-																	'You must Copy the redirect url and paste it in the google console credentials otherwise it will not work.',
-																	'learning-management-system',
-																)}
-																hasArrow
-																fontSize="xs"
-															>
-																<Box as="span" sx={infoIconStyles}>
-																	<Icon as={BiInfoCircle} />
-																</Box>
-															</Tooltip>
-														</FormLabel>
-
-														<InputGroup>
-															<Input
-																type={'text'}
-																disabled
-																_placeholder={{ fontSize: '12px' }}
-																defaultValue={`${localized.home_url}/wp-admin/admin.php?page=masteriyo`}
-															/>
-															<InputRightElement width="11">
-																<Button
-																	variant="solid"
-																	onClick={clipToCopyForGoogle}
-																	rounded="true"
-																	boxShadow="none"
-																	colorScheme="primary"
-																>
-																	{googleCopy
-																		? __('Copied', 'learning-management-system')
-																		: __('Copy', 'learning-management-system')}
-																</Button>
-															</InputRightElement>
-														</InputGroup>
-													</FormControlTwoCol>
-
-													{localized.isCurrentUserAdmin === 'yes' ? (
-														<FormControlTwoCol flexDirection={'row'}>
-															<FormLabel
-																display={'flex'}
-																alignItems={'flex-start'}
-															>
-																{__(
-																	'Code For Logged In Users Only',
-																	'learning-management-system',
-																)}
-																<Tooltip
-																	label={__(
-																		'When enabled, this option restricts the access to the classroom invite code. For free classrooms, only logged-in users can see the code.',
-																		'learning-management-system',
-																	)}
-																	hasArrow
-																	fontSize="xs"
-																>
-																	<Box as="span" sx={infoIconStyles}>
-																		<Icon as={BiInfoCircle} />
-																	</Box>
-																</Tooltip>
-															</FormLabel>
-															<Switch
-																w="100%"
-																{...methods.register('access_code')}
-																defaultChecked={
-																	googleClassroomSettingQuery?.data?.access_code
-																}
-															/>
-														</FormControlTwoCol>
-													) : null}
-
-													{googleClassroomSettingQuery?.data?.refresh_token ? (
-														<FormControlTwoCol flexDirection={'row'}>
-															<FormLabel
-																display={'flex'}
-																alignItems={'flex-start'}
-															>
-																{__(
-																	'Clear Course Cache',
-																	'learning-management-system',
-																)}
-																<Tooltip
-																	label={__(
-																		'Deletes the existing caches data and requests for new course data from google classroom',
-																		'learning-management-system',
-																	)}
-																	hasArrow
-																	fontSize="xs"
-																>
-																	<Box as="span" sx={infoIconStyles}>
-																		<Icon as={BiInfoCircle} />
-																	</Box>
-																</Tooltip>
-															</FormLabel>
-															<Box width={'100px'}>
-																<Button
-																	onClick={() => items.mutate()}
-																	isLoading={items.isLoading}
-																	rounded="xl"
-																	loadingText={__(
-																		'Syncing...',
-																		'learning-management-system',
-																	)}
-																	variant="outline"
-																	height={'24px'}
-																>
-																	{__('Sync', 'learning-management-system')}
-																</Button>
-															</Box>
-														</FormControlTwoCol>
-													) : null}
-
-													{googleClassroomSettingQuery?.data?.refresh_token ? (
-														<FormControlTwoCol flexDirection={'row'}>
-															<FormLabel
-																display={'flex'}
-																alignItems={'flex-start'}
-															>
-																{__(
-																	'Clears All Data',
-																	'learning-management-system',
-																)}
-																<Tooltip
-																	label={__(
-																		'Deletes the all the data, so user have to sign in again to sync the data to google classroom',
-																		'learning-management-system',
-																	)}
-																	hasArrow
-																	fontSize="xs"
-																>
-																	<Box as="span" sx={infoIconStyles}>
-																		<Icon as={BiInfoCircle} />
-																	</Box>
-																</Tooltip>
-															</FormLabel>
-															<Box width={'100px'}>
-																<IconButton
-																	onClick={() => onClearData()}
-																	isLoading={
-																		updateGoogleClassroomSettingsMutation.isLoading
-																	}
-																	icon={<BiTrash size="20px" />}
-																	_hover={{ color: 'red' }}
-																	rounded="xl"
-																	border={'none'}
-																	variant="outline"
-																	aria-label="Delete All data"
-																/>
-															</Box>
-														</FormControlTwoCol>
-													) : null}
-												</Stack>
-
-												<ButtonGroup>
-													<Button
-														colorScheme="primary"
-														type="submit"
-														isLoading={
-															updateGoogleClassroomSettingsMutation.isLoading
-														}
-													>
-														{__('Save Settings', 'learning-management-system')}
-													</Button>
-												</ButtonGroup>
-											</Box>
-										</Stack>
-									</form>
-								</FormProvider>
-							</Stack>
-						) : (
-							<GoogleClassroomSettingsSkeleton />
-						)}
-					</Stack>
-				</Container>
 			</Stack>
+
+			<Container
+				maxW="container.xl"
+				width={'100%'}
+				borderRadius={10}
+				bg={'white'}
+				boxShadow={'14px 14px 100px #f2f2f2,-14px -14px 100px #ffffff;'}
+				padding={10}
+			>
+				{resetCredentialsModal && (
+					<>
+						<DisplayModal
+							isOpen={resetCredentialsModal}
+							onClose={() => onResetCredentialsModalChange(false)}
+							title={'Do you want to delete this permanently?'}
+							size={'lg'}
+							extraInfo={__(
+								'You cannot restore after you reset your credentials.',
+								'learning-management-system',
+							)}
+						>
+							{/* Can conditionally render different buttons based on which consent screen is enabled */}
+							<ButtonsGroup buttons={resetCredentialConfirmationButtons} />
+						</DisplayModal>
+					</>
+				)}
+				{!googleClassroomSettingQuery.isFetching &&
+				googleClassroomSettingQuery?.data?.access_token &&
+				googleClassroomSettingQuery?.data?.refresh_token ? (
+					<ClassroomSuccessConsentScreen
+						onCopy={clipToCopyForGoogle}
+						value={value}
+						hasCopied={googleCopy}
+						onCopyValueChange={onCopyValueChange}
+						onResetCredentialsModalChange={onResetCredentialsModalChange}
+					/>
+				) : googleClassroomSettingQuery.isFetching &&
+				  (!googleClassroomSettingQuery?.data ||
+						(googleClassroomSettingQuery?.data?.access_token &&
+							googleClassroomSettingQuery?.data?.refresh_token)) ? (
+					<GoogleClassroomSettingsSkeleton />
+				) : googleClassroomSettingQuery.isSuccess &&
+				  googleClassroomSettingQuery?.data.client_id ? (
+					<ClassroomErrorConsentScreen
+						onResetCredentialsModalChange={onResetCredentialsModalChange}
+						onHandleConsentScreen={onHandleConsentScreen}
+					/>
+				) : (
+					<Row align={'center'}>
+						<Col xs={12} md={6}>
+							<ClassroomTextAndLinkSection
+								onCopyValueChange={onCopyValueChange}
+								hasCopied={googleCopy}
+								value={value}
+								onCopy={clipToCopyForGoogle}
+							/>
+						</Col>
+						<Col xs={12} md={6}>
+							<DNDJson handleFileUpload={handleFileUpload} />
+						</Col>
+					</Row>
+				)}
+			</Container>
 		</>
 	);
 };

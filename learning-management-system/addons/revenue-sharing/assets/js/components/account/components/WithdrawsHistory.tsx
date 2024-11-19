@@ -1,7 +1,7 @@
 import { Badge, Box, Stack, Text } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
 import { Table, Tbody, Td, Th, Thead, Tr } from 'react-super-responsive-table';
 import EmptyTableData from '../../../../../../../assets/js/account/common/EmptyTableData';
 import localized from '../../../../../../../assets/js/account/utils/global';
@@ -26,13 +26,13 @@ const WithdrawsHistory: React.FC = () => {
 		instructor: localized.current_user_id,
 	});
 
-	const withdrawsQuery = useQuery<WithdrawResponseDataMap>(
-		['withdrawsList', filterParams],
-		() => withdrawAPI.list(filterParams),
-		{
+	const withdrawsQuery = useQuery<WithdrawResponseDataMap>({
+		queryKey: ['withdrawsList', filterParams],
+		queryFn: () => withdrawAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
+	});
 
 	return (
 		<Stack spacing="8">
@@ -99,16 +99,21 @@ const WithdrawsHistory: React.FC = () => {
 					</Tbody>
 				</Table>
 			</Box>
-			{withdrawsQuery.isSuccess && !isEmpty(withdrawsQuery.data.meta) && (
-				<MasteriyoPagination
-					metaData={withdrawsQuery.data.meta}
-					setFilterParams={setFilterParams}
-					perPageText={__('Withdraws Per Page:', 'learning-management-system')}
-					extraFilterParams={{
-						instructor: localized.current_user_id,
-					}}
-				/>
-			)}
+			{withdrawsQuery.isSuccess &&
+				!isEmpty(withdrawsQuery.data.meta) &&
+				withdrawsQuery.data?.data.length > 0 && (
+					<MasteriyoPagination
+						metaData={withdrawsQuery.data.meta}
+						setFilterParams={setFilterParams}
+						perPageText={__(
+							'Withdraws Per Page:',
+							'learning-management-system',
+						)}
+						extraFilterParams={{
+							instructor: localized.current_user_id,
+						}}
+					/>
+				)}
 		</Stack>
 	);
 };

@@ -1,5 +1,6 @@
 import {
 	Box,
+	Button,
 	IconButton,
 	Menu,
 	MenuButton,
@@ -8,16 +9,19 @@ import {
 	Stack,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { IoRefreshOutline } from 'react-icons/io5';
 import { NavLink } from 'react-router-dom';
+
 import { Container } from '../../../../assets/js/back-end/components/common/Container';
 import {
 	Header,
 	HeaderLeftSection,
 	HeaderLogo,
+	HeaderRightSection,
 	HeaderTop,
 } from '../../../../assets/js/back-end/components/common/Header';
 import {
@@ -34,6 +38,7 @@ import routes from '../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
 import googleClassroomUrls from '../../constants/urls';
+import { GoogleClassroomSettingsSchema } from './GoogleClassroomSetting';
 import { GoogleClassroomListSkeleton } from './GoogleClassroomSkeleton';
 import GoogleClassroomCoursesList from './components/GoogleClassroomCoursesList';
 
@@ -110,20 +115,55 @@ function GoogleClassroom() {
 		googleClassroomUrls.googleClassroomStudents,
 	);
 
-	const googleClassroomQuery = useQuery<googleClassroomCoursesList>(
-		'googleClassroomCourseList',
-		() => googleClassroomCoursesApi.list(),
-	);
+	const googleClassroomSetting = new API(googleClassroomUrls.settings);
+
+	const googleClassroomSettingQuery = useQuery<GoogleClassroomSettingsSchema>({
+		queryKey: ['googleClassroomSettings'],
+		queryFn: () => googleClassroomSetting.list(),
+	});
+
+	const googleClassroomQuery = useQuery<googleClassroomCoursesList>({
+		queryKey: ['googleClassroomCourseList'],
+		queryFn: () => googleClassroomCoursesApi.list(),
+	});
 	const queryClient = useQueryClient();
 	const courseAPI = new API(urls.courses);
 
-	const addCourse = useMutation((data: newData) => courseAPI.store(data));
+	const addCourse = useMutation({
+		mutationFn: (data: newData) => courseAPI.store(data),
+	});
 
-	const addStudents = useMutation((data: { students: any; course_id: any }) =>
-		googleClassroomUsersApi.store(data),
-	);
+	const addStudents = useMutation({
+		mutationFn: (data: { students: any; course_id: any }) =>
+			googleClassroomUsersApi.store(data),
+	});
 
 	const toast = useToast();
+
+	const syncHandle = useMutation<any, unknown, void>({
+		mutationFn: () => googleClassroomCoursesApi.list('forced=true'),
+
+		...{
+			onSuccess(data) {
+				queryClient.invalidateQueries({
+					queryKey: ['googleClassroomCourseList'],
+				});
+				toast({
+					title: __('Synced Successfully.', 'learning-management-system'),
+					status: 'success',
+					isClosable: true,
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title: err?.message,
+					status: 'error',
+					isClosable: true,
+				});
+			},
+		},
+	});
+
 	// On Add Course
 	const onImportClick = (data: googleClassroomCourses) => {
 		const newData: newData = {
@@ -136,7 +176,9 @@ function GoogleClassroom() {
 		};
 		addCourse.mutate(newData, {
 			onSuccess: () => {
-				queryClient.invalidateQueries('googleClassroomCourseList');
+				queryClient.invalidateQueries({
+					queryKey: ['googleClassroomCourseList'],
+				});
 				{
 					toast({
 						title: __(
@@ -162,6 +204,10 @@ function GoogleClassroom() {
 
 		addStudents.mutate(newData, {
 			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['googleClassroomCourseList'],
+				});
+
 				{
 					toast({
 						title: __(
@@ -174,6 +220,10 @@ function GoogleClassroom() {
 				}
 			},
 		});
+	};
+
+	const onSyncClick = () => {
+		syncHandle.mutate();
 	};
 
 	return (
@@ -250,6 +300,23 @@ function GoogleClassroom() {
 							</Menu>
 						</NavMenu>
 					</HeaderLeftSection>
+					<HeaderRightSection>
+						{googleClassroomSettingQuery?.data?.access_token &&
+							googleClassroomSettingQuery?.data?.refresh_token && (
+								<Box width={'fit-content'}>
+									<Button
+										leftIcon={<IoRefreshOutline size={18} />}
+										colorScheme={'primary'}
+										onClick={onSyncClick}
+										isLoading={syncHandle?.isPending}
+										rounded="md"
+										loadingText={__('Syncing...', 'learning-management-system')}
+									>
+										{__('Sync', 'learning-management-system')}
+									</Button>
+								</Box>
+							)}
+					</HeaderRightSection>
 				</HeaderTop>
 			</Header>
 			<Container maxW="container.xl">

@@ -1,19 +1,15 @@
 import {
-	Box,
 	Button,
 	ButtonGroup,
 	FormLabel,
-	Icon,
 	Stack,
-	Tooltip,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { BiInfoCircle } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { WCIntegrationSchema } from '../../../../assets/js/back-end/types/course';
 import API from '../../../../assets/js/back-end/utils/api';
 import { deepClean } from '../../../../assets/js/back-end/utils/utils';
@@ -33,9 +29,9 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 	const courseId = WCIntegrationData?.course_id || 0;
 	const hasExistingProduct = WCIntegrationData?.product_create || false;
 
-	const createProductMutation = useMutation<WCIntegrationSchema>((data) =>
-		createProductAPI.store(data),
-	);
+	const createProductMutation = useMutation<WCIntegrationSchema>({
+		mutationFn: (data) => createProductAPI.store(data),
+	});
 
 	const handleCreateProduct = (data: WCIntegrationSchema) => {
 		createProductMutation.mutate(deepClean(data), {
@@ -51,7 +47,7 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`course${courseId}`);
+				queryClient.invalidateQueries({ queryKey: [`course${courseId}`] });
 			},
 
 			onError: (error: any) => {
@@ -74,18 +70,12 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 			<FormControlTwoCol>
 				<FormLabel minW="160px">
 					{__('Create as a Product', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Create a new product in WooCommerce for this course. Ensure this course is set to be paid.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<ButtonGroup>
 					<Button
@@ -97,10 +87,10 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 							})
 						}
 						colorScheme={'primary'}
-						isLoading={createProductMutation.isLoading}
+						isLoading={createProductMutation.isPending}
 						isDisabled={hasExistingProduct}
 					>
-						{createProductMutation.isLoading
+						{createProductMutation.isPending
 							? __('Creating Product...', 'learning-management-system')
 							: hasExistingProduct
 								? __('Product Created', 'learning-management-system')

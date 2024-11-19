@@ -142,6 +142,63 @@ class WcIntegrationAddon {
 
 		add_filter( 'masteriyo_single_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
 		add_filter( 'masteriyo_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
+		add_action( 'wp_trash_post', array( $this, 'before_trash_post' ) );
+		add_action( 'untrashed_post', array( $this, 'after_untrash_post' ) );
+		add_action( 'before_delete_post', array( $this, 'remove_wc_product_meta' ) );
+	}
+
+	/**
+	 * Before delete wc product delete course meta data of wc product from course.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
+	public function remove_wc_product_meta( $post_id ) {
+		$course_id       = get_post_meta( $post_id, '_masteriyo_course_id_trash', true );
+		$course_id_trash = get_post_meta( $post_id, '_masteriyo_course_id_trash', true );
+		if ( $course_id || $course_id_trash ) {
+			delete_post_meta( $course_id, '_wc_product_id_trash', $post_id );
+			delete_post_meta( $post_id, '_masteriyo_course_id_trash', $course_id );
+			delete_post_meta( $course_id, '_wc_product_id', $post_id );
+			delete_post_meta( $post_id, '_masteriyo_course_id', $course_id );
+		}
+	}
+
+	/**
+	 * after restore wc product update course wp_product_id from course.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
+	public function after_untrash_post( $post_id ) {
+		$course_id = get_post_meta( $post_id, '_masteriyo_course_id_trash', true );
+		if ( $course_id ) {
+			delete_post_meta( $course_id, '_wc_product_id_trash', $post_id );
+			delete_post_meta( $post_id, '_masteriyo_course_id_trash', $course_id );
+			update_post_meta( $course_id, '_wc_product_id', $post_id );
+			update_post_meta( $post_id, '_masteriyo_course_id', $course_id );
+		}
+	}
+
+	/**
+	 * before trash wc product removing wp_product_id from course.
+	 *
+	 * @since 1.14.0
+	 * @param int $post_id
+	 * @return void
+	 */
+	public function before_trash_post( $post_id ) {
+		$course_id = get_post_meta( $post_id, '_masteriyo_course_id', true );
+		if ( $course_id ) {
+			delete_post_meta( $course_id, '_wc_product_id', $post_id );
+			delete_post_meta( $post_id, '_masteriyo_course_id', $course_id );
+			update_post_meta( $course_id, '_wc_product_id_trash', $post_id );
+			update_post_meta( $post_id, '_masteriyo_course_id_trash', $course_id );
+		}
 	}
 
 	/**
@@ -581,6 +638,7 @@ class WcIntegrationAddon {
 		// Show general in course.
 		$tabs['general']['class'][] = 'show_if_simple';
 		$tabs['general']['class'][] = 'show_if_external';
+		$tabs['general']['class'][] = 'show_if_giftcard';
 		$tabs['general']['class'][] = 'show_if_mto_course show_if_mto_course_recurring';
 
 		$tabs['inventory']['class'][] = 'show_if_mto_course show_if_mto_course_recurring';

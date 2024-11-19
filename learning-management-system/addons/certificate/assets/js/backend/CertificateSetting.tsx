@@ -5,16 +5,15 @@ import {
 	Icon,
 	Stack,
 	Switch,
-	Tooltip,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BiImport, BiInfoCircle } from 'react-icons/bi';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { BiImport } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../../assets/js/back-end/utils/api';
 import http from '../../../../../assets/js/back-end/utils/http';
 import { CertificateSettingsSchema } from '../utils/certificates';
@@ -35,20 +34,22 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		certificateAddonUrls.importCertificateFonts,
 	);
 
-	const additionalCertificateFontsSettingQuery = useQuery(
-		['additionalCertificateFontsSetting'],
-		() => certificatesFontAPI.get(),
-	);
+	const additionalCertificateFontsSettingQuery = useQuery({
+		queryKey: ['additionalCertificateFontsSetting'],
+		queryFn: () => certificatesFontAPI.get(),
+	});
 
-	const importAllCertificateFonts = useMutation(
-		() =>
+	const importAllCertificateFonts = useMutation({
+		mutationFn: () =>
 			http({
 				path: certificateAddonUrls.importCertificateFonts,
 				method: 'POST',
 			}),
-		{
+		...{
 			onSuccess(data: any) {
-				queryClient.invalidateQueries('additionalCertificateFontsSetting');
+				queryClient.invalidateQueries({
+					queryKey: ['additionalCertificateFontsSetting'],
+				});
 				toast({
 					title: __(
 						'Certificate fonts installed',
@@ -73,24 +74,18 @@ const CertificateSetting: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 	return (
 		<Stack spacing="4">
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Use Image Absolute Path', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Enable this option if images are not showing in the certificate. This will use the absolute path for images in the certificate instead of relative path.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Box display="flex" justifyContent="flex-end">
 					<Switch
@@ -103,18 +98,12 @@ const CertificateSetting: React.FC<Props> = (props) => {
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Use SSL Verify Host', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Enable this option only if images are not showing in the certificate. This will use HTTPS for images in the certificate instead of HTTP.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Box display="flex" justifyContent="flex-end">
 					<Switch
@@ -127,23 +116,17 @@ const CertificateSetting: React.FC<Props> = (props) => {
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Install Certificate Fonts', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Install additional fonts required for certificates.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Box display="flex" justifyContent="flex-end">
 					<Button
 						colorScheme="primary"
-						isLoading={importAllCertificateFonts.isLoading}
+						isLoading={importAllCertificateFonts.isPending}
 						variant="outline"
 						type="button"
 						leftIcon={<Icon as={BiImport} fontSize="md" />}

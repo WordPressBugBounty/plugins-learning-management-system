@@ -1,8 +1,8 @@
 import { Icon, Stack, Text } from '@chakra-ui/react';
+import { UseMutationResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiInfoCircle } from 'react-icons/bi';
-import { UseMutationResult } from 'react-query';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import { googleClassroomCoursesList, newData } from '../GoogleClassroom';
 import GoogleClassroomCoursesRow from './GoogleClassroomCoursesRow';

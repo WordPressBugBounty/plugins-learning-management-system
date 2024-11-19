@@ -15,13 +15,15 @@ use League\OAuth2\Client\Grant\RefreshToken;
 use Masteriyo\Addons\GoogleClassroomIntegration\Models\GoogleClassroomSetting;
 use Masteriyo\Enums\CourseProgressStatus;
 use WP_Error;
+use Masteriyo\ModelException;
+use Masteriyo\RestApi\Controllers\Version1\CoursesController;
 
-use Masteriyo\RestApi\Controllers\Version1\PostsController;
+
 use Masteriyo\Helper\Permission;
-use Masteriyo\PostType\PostType;
 use WP_REST_Response;
 
-class GoogleClassroomIntegrationController extends PostsController {
+class GoogleClassroomIntegrationController extends CoursesController {
+
 
 	/**
 	 * Endpoint namespace.
@@ -110,6 +112,26 @@ class GoogleClassroomIntegrationController extends PostsController {
 				),
 			)
 		);
+			register_rest_route(
+				$this->namespace,
+				'/' . $this->rest_base . '/(?P<id>[\d]+)',
+				array(
+					'args'   => array(
+						'id' => array(
+							'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+							'type'        => 'integer',
+						),
+					),
+					array(
+						'methods'             => \WP_REST_Server::EDITABLE,
+						'callback'            => array( $this, 'update_item' ),
+						'permission_callback' => array( $this, 'update_item_permissions_check' ),
+						'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
+					),
+					'schema' => array( $this, 'get_public_item_schema' ),
+				)
+			);
+
 	}
 
 
@@ -143,6 +165,27 @@ class GoogleClassroomIntegrationController extends PostsController {
 	}
 
 	/**
+	 * Sync data from google classroom.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return void
+	 */
+	public function sync_from_classroom() {
+
+		$google_setting_data = ( new GoogleClassroomSetting() )->get_data();
+		$google_provider     = create_google_client( $google_setting_data );
+
+		if ( $google_setting_data['refresh_token'] ) {
+			$grant               = new RefreshToken();
+			$token               = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+			$data_from_classroom = masteriyo_google_classroom_course_data_insertion( $token, $google_provider );
+			update_option( 'masteriyo_google_classroom_data_' . masteriyo_get_current_user_id(), $data_from_classroom );
+		}
+	}
+
+
+	/**
 	 * Get the courses from google classroom.
 	 *
 	 * @since 1.8.3
@@ -150,16 +193,7 @@ class GoogleClassroomIntegrationController extends PostsController {
 	public function get_google_courses( $request ) {
 
 		if ( $request['forced'] ) {
-			$google_setting_data = ( new GoogleClassroomSetting() )->get_data();
-			$google_provider     = create_google_client( $google_setting_data );
-
-			if ( $google_setting_data['refresh_token'] ) {
-				$grant               = new RefreshToken();
-				$token               = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
-				$data_from_classroom = masteriyo_google_classroom_course_data_insertion( $token, $google_provider );
-				update_option( 'masteriyo_google_classroom_data_' . masteriyo_get_current_user_id(), $data_from_classroom );
-
-			}
+			$this->sync_from_classroom();
 		} else {
 			$data_from_classroom = get_option( 'masteriyo_google_classroom_data_' . masteriyo_get_current_user_id() );
 		}
@@ -167,21 +201,21 @@ class GoogleClassroomIntegrationController extends PostsController {
 		if ( ! empty( $data_from_classroom['courses'] ) ) {
 			$google_courses = array();
 			foreach ( $data_from_classroom['courses'] as $google_course ) {
-								$post = current(
-									get_posts(
+						$post = current(
+							get_posts(
+								array(
+									'post_type'   => 'mto-course',
+									'post_status' => 'any',
+									'meta_query'  => array(
 										array(
-											'post_type'   => 'mto-course',
-											'post_status' => 'any',
-											'meta_query'  => array(
-												array(
-													'key' => '_google_classroom_course_id',
-													'value' => $google_course['id'],
-													'compare' => '==',
-												),
-											),
-										)
-									)
-								);
+											'key'     => '_google_classroom_course_id',
+											'value'   => $google_course['id'],
+											'compare' => '==',
+										),
+									),
+								)
+							)
+						);
 
 				if ( ! empty( $post ) ) {
 					$course                          = masteriyo_get_course( $post->ID );
@@ -210,6 +244,10 @@ class GoogleClassroomIntegrationController extends PostsController {
 		//list down the users from the request
 		$data      = $request->get_json_params();
 		$course_id = $data['course_id'];
+
+		// sync Classroom Data.
+
+		$this->sync_from_classroom();
 
 		//iterate over users and see if they exists in the database, if not create the user then enroll the user to the given course,
 		try {
@@ -279,6 +317,55 @@ class GoogleClassroomIntegrationController extends PostsController {
 			);
 		}
 	}
+
+
+	/**
+	 * Sync and Update a single course.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function update_item( $request ) {
+
+		$object = $this->get_object( (int) $request['id'] );
+
+		if ( ! $object || 0 === $object->get_id() ) {
+			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+
+		$this->sync_from_classroom();
+
+		$object = $this->save_object( $request, false );
+
+		if ( is_wp_error( $object ) ) {
+			return $object;
+		}
+
+		try {
+			$this->update_additional_fields_for_object( $object, $request );
+
+			/**
+			 * Fires after a single object is created or updated via the REST API.
+			 *
+			 * @param \Masteriyo\Database\Model $object Inserted object.
+			 * @param WP_REST_Request $request   Request object.
+			 * @param boolean         $creating  True when creating object, false when updating.
+			 */
+			do_action( "masteriyo_rest_insert_{$this->object_type}_object", $object, $request, false );
+		} catch ( ModelException $e ) {
+			return new \WP_Error( $e->getErrorCode(), $e->getMessage(), $e->getErrorData() );
+		} catch ( ModelException $e ) {
+			return new \WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
+		}
+
+		$request->set_param( 'context', 'edit' );
+		$response = $this->prepare_object_for_response( $object, $request );
+		return rest_ensure_response( $response );
+	}
+
 
 
 	/**

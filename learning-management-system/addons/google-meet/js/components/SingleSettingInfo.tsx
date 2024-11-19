@@ -2,20 +2,17 @@ import {
 	Box,
 	Flex,
 	FormLabel,
-	Icon,
 	Input,
 	Radio,
 	RadioGroup,
 	Select,
 	Text,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
 
 interface Props {
 	field: {
@@ -92,15 +89,7 @@ const SingleSettingInfo: React.FC<Props> = ({
 		<FormControlTwoCol>
 			<FormLabel display={'flex'} alignItems={'center'}>
 				{__(title, 'learning-management-system')}
-				<Tooltip
-					label={__(description, 'learning-management-system')}
-					hasArrow
-					fontSize="xs"
-				>
-					<Box as="span" sx={infoIconStyles}>
-						<Icon as={BiInfoCircle} />
-					</Box>
-				</Tooltip>
+				<ToolTip label={__(description, 'learning-management-system')} />
 			</FormLabel>
 
 			<Controller

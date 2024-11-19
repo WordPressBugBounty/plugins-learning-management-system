@@ -1,8 +1,8 @@
 import { Box, Grid, Input } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useOnType } from 'use-ontype';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
@@ -30,13 +30,15 @@ const GroupFilter: React.FC<Props> = ({ filterParams, setFilterParams }) => {
 	const [searchParams] = useSearchParams();
 	const groupStatus = searchParams.get('status') || 'any';
 
-	const userQueries = useQuery<UsersApiResponse>('userList', () =>
-		userAPI.list({
-			order_by: 'name',
-			order: 'asc',
-			per_page: 5,
-		}),
-	);
+	const userQueries = useQuery<UsersApiResponse>({
+		queryKey: ['userList'],
+		queryFn: () =>
+			userAPI.list({
+				order_by: 'name',
+				order: 'asc',
+				per_page: 5,
+			}),
+	});
 
 	const { handleSubmit, register, setValue } = useForm();
 

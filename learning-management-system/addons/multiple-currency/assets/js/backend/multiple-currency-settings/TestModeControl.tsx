@@ -1,17 +1,9 @@
-import {
-	Box,
-	FormErrorMessage,
-	FormLabel,
-	Icon,
-	Switch,
-	Tooltip,
-} from '@chakra-ui/react';
+import { FormErrorMessage, FormLabel, Switch } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { MultipleCurrencySettingsSchema } from '../../types/multiCurrency';
 
 interface Props {
@@ -39,18 +31,12 @@ const TestModeControl: React.FC<Props> = (props) => {
 			<FormControlTwoCol isInvalid={!!errors?.test_mode?.enabled}>
 				<FormLabel>
 					{__('Enable Test Mode', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Enable test mode to simulate pricing for a specific country.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Switch
 					defaultChecked={defaultValue || false}

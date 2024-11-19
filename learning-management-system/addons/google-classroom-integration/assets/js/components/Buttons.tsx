@@ -10,13 +10,18 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import {
+	UseMutationResult,
+	useMutation,
+	useQueryClient,
+} from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { BiDotsVerticalRounded, BiShow, BiTrash } from 'react-icons/bi';
-import { UseMutationResult, useMutation, useQueryClient } from 'react-query';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
 import urls from '../../../../../assets/js/back-end/constants/urls';
 import API from '../../../../../assets/js/back-end/utils/api';
+import googleClassroomUrls from '../../../constants/urls';
 import { googleClassroomCourses, newData } from '../GoogleClassroom';
 
 interface GoogleClassroomUpdateCourse {
@@ -49,19 +54,25 @@ function Buttons(props: {
 		courseId,
 	);
 
-	const updateCourse = useMutation<GoogleClassroomUpdateCourse>(
-		(data: any) => courseAPI.update(courseId, data),
-		{
+	const googleClassroomCoursesApi = new API(
+		googleClassroomUrls.googleClassroom,
+	);
+
+	const updateCourse = useMutation<GoogleClassroomUpdateCourse>({
+		mutationFn: (data: any) => courseAPI.update(courseId, data),
+		...{
 			onSuccess: (data: any) => {
 				toast({
 					title: __('Course Updated', 'learning-management-system'),
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`googleClassroomCourseList`);
+				queryClient.invalidateQueries({
+					queryKey: [`googleClassroomCourseList`],
+				});
 			},
 		},
-	);
+	});
 	const updateNPublishCourse = (data: googleClassroomCourses) => {
 		const newData: any = {
 			google_classroom_course_id: data.id,
@@ -74,11 +85,14 @@ function Buttons(props: {
 		updateCourse.mutate(newData);
 	};
 
-	const deleteCourse = useMutation(
-		(id: number) => courseAPI.delete(id, { force: true, children: true }),
-		{
+	const deleteCourse = useMutation({
+		mutationFn: (id: number) =>
+			courseAPI.delete(id, { force: true, children: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('googleClassroomCourseList');
+				queryClient.invalidateQueries({
+					queryKey: ['googleClassroomCourseList'],
+				});
 				toast({
 					title: __('Course Deleted', 'learning-management-system'),
 					isClosable: true,
@@ -86,7 +100,7 @@ function Buttons(props: {
 				});
 			},
 		},
-	);
+	});
 	const onDeletePress = (courseId?: number) => {
 		onOpen();
 		setDeleteCourseId(courseId);
@@ -109,7 +123,7 @@ function Buttons(props: {
 								colorScheme="primary"
 								marginRight="36px"
 								boxShadow="none"
-								isLoading={updateCourse.isLoading}
+								isLoading={updateCourse.isPending}
 							>
 								{__('Publish', 'learning-management-system')}
 							</Button>
@@ -178,7 +192,7 @@ function Buttons(props: {
 						isOpen={isOpen}
 						onClose={onClose}
 						onConfirm={() => onDeleteConfirm()}
-						isLoading={deleteCourse.isLoading}
+						isLoading={deleteCourse.isPending}
 						dialogTexts={{
 							default: {
 								header: __('Deleting course', 'learning-management-system'),

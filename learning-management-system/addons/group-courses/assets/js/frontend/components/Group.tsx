@@ -17,10 +17,10 @@ import {
 	Tooltip,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
 import { BiBook, BiEdit, BiGroup, BiTrash } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../constants/urls';
 import { GroupStatus } from '../../enums/Enum';
@@ -46,11 +46,11 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 		onOpen();
 	};
 
-	const deleteGroup = useMutation(
-		() => groupAPI.delete(group.id, { force: true }),
-		{
+	const deleteGroup = useMutation({
+		mutationFn: () => groupAPI.delete(group.id, { force: true }),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries(['groupsList']);
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				toast({
 					title: __(
 						'Group created successfully.',
@@ -70,7 +70,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 				});
 			},
 		},
-	);
+	});
 
 	const isPublished = group.status === GroupStatus.Publish;
 
@@ -101,7 +101,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								colorScheme="red"
 								onClick={() => deleteGroup.mutate()}
 								ml={3}
-								isLoading={deleteGroup.isLoading}
+								isLoading={deleteGroup.isPending}
 							>
 								{__('Delete', 'learning-management-system')}
 							</Button>
@@ -188,8 +188,8 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 							<IconButton
 								_hover={{ color: 'red.500', background: 'none' }}
 								cursor={'pointer'}
-								isDisabled={deleteGroup.isLoading}
-								isLoading={deleteGroup.isLoading}
+								isDisabled={deleteGroup.isPending}
+								isLoading={deleteGroup.isPending}
 								onClick={handleDeleteClick}
 								variant="unstyled"
 								icon={<Icon fontSize="lg" as={BiTrash} />}

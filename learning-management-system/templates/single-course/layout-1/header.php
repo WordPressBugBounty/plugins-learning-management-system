@@ -37,7 +37,11 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 		<?php if ( ! empty( $course->get_categories() ) ) : ?>
 			<div class="masteriyo-single-header__content--category">
 				<?php foreach ( $course->get_categories() as $category ) : ?>
-					<span class="masteriyo-single-header__content--category-list"><?php echo esc_html( $category->get_name() ); ?></span>
+					<a href="<?php echo esc_attr( $category->get_permalink() ); ?>"
+						alt="<?php echo esc_attr( $category->get_name() ); ?>"
+						class="masteriyo-single-header__content--category-list">
+						<?php echo esc_html( $category->get_name() ); ?>
+					</a>
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
@@ -80,8 +84,14 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 		?>
 		<div class="masteriyo-single-header__content--author-rating">
 			<div class="masteriyo-single--author">
-				<img class="masteriyo-single--author-img" src="<?php echo esc_url( $author->profile_image_url() ); ?>" alt="<?php echo esc_html( $author->get_display_name() ); ?>">
-				<span class="masteriyo-single--author-name"><?php echo esc_html( $author->get_display_name() ); ?></span>
+				<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
+					<img
+						class="masteriyo-single--author-img"
+						src="<?php echo esc_attr( $author->profile_image_url() ); ?>"
+						alt="<?php echo esc_attr( $author->get_display_name() ); ?>"
+						title="<?php echo esc_attr( $author->get_display_name() ); ?>">
+					<span class="masteriyo-single--author-name"><?php echo esc_html( $author->get_display_name() ); ?></span>
+				</a>
 			</div>
 
 			<div class="masteriyo-single-header__content--rating">
@@ -116,14 +126,14 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 
 			<!-- Five Column( duration, students, difficulty , last updated and seats ) -->
 			<?php
-				/**
-				 * Fire for masteriyo archive course meta data.
-				 *
-				 * @since 1.12.0
-				 *
-				 * @param \Masteriyo\Models\Course $course Course object.
-				 */
-				do_action( 'masteriyo_course_layout_1_meta_data', $course );
+			/**
+			 * Fire for masteriyo archive course meta data.
+			 *
+			 * @since 1.12.0
+			 *
+			 * @param \Masteriyo\Models\Course $course Course object.
+			 */
+			do_action( 'masteriyo_course_layout_1_meta_data', $course );
 			?>
 
 			<?php

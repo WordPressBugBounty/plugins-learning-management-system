@@ -50,6 +50,7 @@ return array_unique(
 			'Masteriyo\Providers\QueriesServiceProvider',
 			'Masteriyo\Providers\EmailsServiceProvider',
 			'Masteriyo\Providers\CourseReviewServiceProvider',
+			'Masteriyo\Providers\LessonReviewServiceProvider',
 			'Masteriyo\Providers\QuizReviewServiceProvider',
 			'Masteriyo\Providers\CourseQuestionAnswerServiceProvider',
 			'Masteriyo\Providers\CountriesServiceProvider',

@@ -86,6 +86,17 @@ $categories = $course->get_categories( 'name' );
 				</div>
 			<?php endif; ?>
 		</div>
+		<?php
+		/**
+		 * Fires an action before the layout 1 course title wrapper is displayed.
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 *
+		 * @since 1.9.5 [Free]
+		 */
+		do_action( 'masteriyo_before_layout_1_course_title_wrapper', $course );
+		?>
+		<div class="masteriyo-course-title-wrapper">
 
 		<?php
 		/**
@@ -97,7 +108,6 @@ $categories = $course->get_categories( 'name' );
 		 */
 		do_action( 'masteriyo_before_layout_1_course_title', $course );
 		?>
-
 		<a href="<?php echo esc_url( $course->get_permalink() ); ?>" class="masteriyo-archive-card__content--course-title">
 			<h3 class="masteriyo-course-title"><?php echo esc_html( $course->get_title() ); ?></h3>
 		</a>
@@ -111,6 +121,17 @@ $categories = $course->get_categories( 'name' );
 		 * @since 1.10.0
 		 */
 		do_action( 'masteriyo_after_layout_1_course_title', $course );
+		?>
+
+		</div>
+
+		<?php
+		/**
+		 * Action hook fired after the course title wrapper in the layout 1 course template.
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		do_action( 'masteriyo_after_layout_1_course_title_wrapper', $course );
 		?>
 
 		<div class="masteriyo-archive-card__content--rating-amount">

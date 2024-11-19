@@ -147,6 +147,10 @@ class GoogleMeetAddon {
 
 		$google_meet_count = $this->get_google_meet_course_section_children_count_by_course( $course->get_id(), PostType::GOOGLEMEET );
 
+		if ( 0 === $google_meet_count ) {
+			return;
+		}
+
 		$html  = '<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">';
 		$html .= sprintf(
 			/* translators: %1$s: Google Meet count */
@@ -174,6 +178,10 @@ class GoogleMeetAddon {
 		}
 
 		$google_meet_count = $this->get_google_meet_course_section_children_count_by_section( $section->get_id(), PostType::GOOGLEMEET );
+
+		if ( 0 === $google_meet_count ) {
+			return;
+		}
 
 		$html  = '<span class="masteriyo-single-body-accordion-info">';
 		$html .= sprintf(
@@ -310,6 +318,10 @@ class GoogleMeetAddon {
 			0
 		);
 
+		if ( 0 === $google_meet_count ) {
+			return $summaries;
+		}
+
 		$google_meet_summary = array(
 			array(
 				'wrapper_start' => '<span class="masteriyo-google-meets-count">',
@@ -350,6 +362,10 @@ class GoogleMeetAddon {
 			},
 			0
 		);
+
+		if ( 0 === $google_meet_count ) {
+			return $summaries;
+		}
 
 		$google_meet_summary = array(
 			array(

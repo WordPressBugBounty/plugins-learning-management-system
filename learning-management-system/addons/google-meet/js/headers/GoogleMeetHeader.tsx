@@ -8,11 +8,11 @@ import {
 	SkeletonCircle,
 	Stack,
 } from '@chakra-ui/react';
+import { UseQueryResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { MdCancelPresentation } from 'react-icons/md';
-import { UseQueryResult } from 'react-query';
 import { NavLink } from 'react-router-dom';
 import {
 	Header,
@@ -58,7 +58,7 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.list}
 							leftIcon={<BiBook />}
-							iconSx={{ fontSize: 'lg', marginTop: '2px' }}
+							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
 						>
 							{__('Meetings', 'learning-management-system')}
 							{googleMeetSetting &&
@@ -85,7 +85,7 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 								marginRight: 0,
 							}}
 							_hover={{ textDecoration: 'none' }}
-							iconSx={{ fontSize: 'lg', marginTop: '2px' }}
+							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.setAPI}
 							leftIcon={<BiCog />}

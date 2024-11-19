@@ -174,9 +174,11 @@ if ( ! function_exists( 'masteriyo_get_earning_summary' ) ) {
 					GREATEST(
 						IFNULL(
 							SUM(
-								CASE WHEN pm.meta_key = '_instructor_amount' AND p.post_date <= DATE(
-									DATE_SUB(NOW(), INTERVAL %d DAY)
-								) THEN pm.meta_value END
+								CASE 
+									WHEN pm.meta_key = '_instructor_amount' 
+									AND (%d = 0 OR p.post_date <= DATE(DATE_SUB(NOW(), INTERVAL %d DAY))) 
+									THEN pm.meta_value 
+								END
 							),
 							0
 						)
@@ -188,6 +190,7 @@ if ( ! function_exists( 'masteriyo_get_earning_summary' ) ) {
 				WHERE (p.post_type = %s OR p.post_type = %s)
 					AND p.post_author = %d
 					AND (p.post_status = %s OR p.post_status = %s)",
+				$maturity_period,
 				$maturity_period,
 				PostType::EARNING,
 				PostType::WITHDRAW,

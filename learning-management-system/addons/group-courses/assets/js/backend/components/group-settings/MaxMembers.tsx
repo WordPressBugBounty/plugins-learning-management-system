@@ -1,22 +1,18 @@
 import {
-	Box,
 	FormErrorMessage,
 	FormLabel,
-	Icon,
 	InputGroup,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
 	NumberInput,
 	NumberInputField,
 	NumberInputStepper,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { GroupSettingsSchema } from '../../../types/group';
 
 interface Props {
@@ -33,18 +29,12 @@ const MaxMembers: React.FC<Props> = (props) => {
 			<FormControlTwoCol isInvalid={!!errors?.max_members}>
 				<FormLabel>
 					{__('Maximum Members', 'learning-management-system')}{' '}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'The maximum number of members that can be in a group. Leave blank for unlimited.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Controller
 					name="max_members"

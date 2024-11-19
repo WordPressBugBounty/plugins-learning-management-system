@@ -267,6 +267,12 @@ class Capabilities {
 			'edit_published_course_reviews' => true,
 			'delete_course_reviews'         => true,
 
+			// lesson reviews
+			'read_lesson_reviews'           => true,
+			'publish_lesson_reviews'        => true,
+			'edit_lesson_reviews'           => true,
+			'delete_lesson_reviews'         => true,
+
 			// User courses
 			'read_user_courses'             => true,
 
@@ -277,7 +283,8 @@ class Capabilities {
 			'get_google-meets'              => true,
 		);
 
-		$subscriber_caps = get_role( 'subscriber' )->capabilities;
+		$subscriber      = get_role( 'subscriber' );
+		$subscriber_caps = $subscriber ? $subscriber->capabilities : array();
 		$capabilities    = array_merge( $capabilities, $subscriber_caps );
 
 		/**
@@ -355,6 +362,12 @@ class Capabilities {
 			'delete_course_reviews'             => true,
 			'delete_published_course_reviews'   => true,
 			'delete_private_course_reviews'     => true,
+			
+			// lesson reviews
+			'read_lesson_reviews'                 => true,
+			'publish_lesson_reviews'              => true,
+			'edit_lesson_reviews'                 => true,
+			'delete_lesson_reviews'               => true,
 
 			// Quiz reviews
 			'publish_quiz_reviews'              => true,
@@ -578,7 +591,8 @@ class Capabilities {
 	 */
 	public static function get_admin_capabilities() {
 		$capabilities       = array();
-		$administrator_caps = get_role( 'administrator' )->capabilities;
+		$administrator      = get_role( 'administrator' );
+		$administrator_caps = $administrator ? $administrator->capabilities : array();
 		$capabilities       = array_merge( $capabilities, $administrator_caps );
 		$capabilities       = array_merge( $capabilities, self::get_manager_capabilities() );
 

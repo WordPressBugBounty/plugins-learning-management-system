@@ -12,6 +12,9 @@ use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Exceptions\RestException;
+use Masteriyo\ModelException;
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -253,6 +256,7 @@ abstract class PostsController extends CrudController {
 		return true;
 	}
 
+
 	/**
 	 * Check if a given request has access to update an item.
 	 *
@@ -296,7 +300,7 @@ abstract class PostsController extends CrudController {
 	}
 
 
-		/**
+	/**
 	 * Get previous and next links for the request.
 	 *
 	 * @since 1.0.0

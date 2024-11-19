@@ -19,6 +19,7 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef } from 'react';
 import {
@@ -28,7 +29,6 @@ import {
 	BiShow,
 	BiTrash,
 } from 'react-icons/bi';
-import { useMutation, useQueryClient } from 'react-query';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import API from '../../../../../../../assets/js/back-end/utils/api';
@@ -55,62 +55,68 @@ const GroupRow: React.FC<Props> = (props) => {
 	const groupsAPI = new API(urls.groups);
 	const { onClose, onOpen, isOpen } = useDisclosure();
 
-	const restoreGroup = useMutation((id: number) => groupsAPI.restore(id), {
-		onSuccess: () => {
-			queryClient.invalidateQueries('groupsList');
-			toast({
-				title: __('Group Restored', 'learning-management-system'),
-				isClosable: true,
-				status: 'success',
-			});
-		},
-
-		onError: (error: any) => {
-			const message: any = error?.message
-				? error?.message
-				: error?.data?.message;
-
-			toast({
-				title: __('Failed to restore group.', 'learning-management-system'),
-				description: message ? `${message}` : undefined,
-				status: 'error',
-				isClosable: true,
-			});
-		},
-	});
-
-	const trashGroup = useMutation((id: number) => groupsAPI.delete(id), {
-		onSuccess: () => {
-			queryClient.invalidateQueries('groupsList');
-			toast({
-				title: __('Group moved to trash', 'learning-management-system'),
-				isClosable: true,
-				status: 'success',
-			});
-		},
-
-		onError: (error: any) => {
-			const message: any = error?.message
-				? error?.message
-				: error?.data?.message;
-
-			toast({
-				title: __(
-					'Failed to move a group to trash.',
-					'learning-management-system',
-				),
-				description: message ? `${message}` : undefined,
-				status: 'error',
-				isClosable: true,
-			});
-		},
-	});
-
-	const deleteGroup = useMutation(
-		(id: number) => groupsAPI.delete(id, { force: true }),
-		{
+	const restoreGroup = useMutation({
+		mutationFn: (id: number) => groupsAPI.restore(id),
+		...{
 			onSuccess: () => {
-				queryClient.invalidateQueries('groupsList');
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+				toast({
+					title: __('Group Restored', 'learning-management-system'),
+					isClosable: true,
+					status: 'success',
+				});
+			},
+
+			onError: (error: any) => {
+				const message: any = error?.message
+					? error?.message
+					: error?.data?.message;
+
+				toast({
+					title: __('Failed to restore group.', 'learning-management-system'),
+					description: message ? `${message}` : undefined,
+					status: 'error',
+					isClosable: true,
+				});
+			},
+		},
+	});
+
+	const trashGroup = useMutation({
+		mutationFn: (id: number) => groupsAPI.delete(id),
+		...{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+				toast({
+					title: __('Group moved to trash', 'learning-management-system'),
+					isClosable: true,
+					status: 'success',
+				});
+			},
+
+			onError: (error: any) => {
+				const message: any = error?.message
+					? error?.message
+					: error?.data?.message;
+
+				toast({
+					title: __(
+						'Failed to move a group to trash.',
+						'learning-management-system',
+					),
+					description: message ? `${message}` : undefined,
+					status: 'error',
+					isClosable: true,
+				});
+			},
+		},
+	});
+
+	const deleteGroup = useMutation({
+		mutationFn: (id: number) => groupsAPI.delete(id, { force: true }),
+		...{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				onClose();
 			},
 
@@ -127,7 +133,7 @@ const GroupRow: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 
 	const onTrashPress = () => {
 		trashGroup.mutate(data.id);
@@ -265,7 +271,7 @@ const GroupRow: React.FC<Props> = (props) => {
 								</Button>
 								<Button
 									colorScheme="red"
-									isLoading={deleteGroup.isLoading}
+									isLoading={deleteGroup.isPending}
 									onClick={onDeleteConfirm}
 								>
 									{__('Delete', 'learning-management-system')}

@@ -1,5 +1,4 @@
 import {
-	Box,
 	Button,
 	Collapse,
 	FormLabel,
@@ -11,20 +10,19 @@ import {
 	Select,
 	Stack,
 	Text,
-	Tooltip,
 	VStack,
 	useSteps,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BiInfoCircle, BiRightArrowAlt } from 'react-icons/bi';
+import { BiRightArrowAlt } from 'react-icons/bi';
 import { IoIosMove } from 'react-icons/io';
 import { IoAlertCircleOutline } from 'react-icons/io5';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../assets/js/back-end/utils/api';
 import { deepClean, isEmpty } from '../../../../assets/js/back-end/utils/utils';
 import {
@@ -58,12 +56,17 @@ interface MigrationData {
 
 function useLMSsQuery() {
 	const LMSsAPI = new API(urls.migrationLMSs);
-	return useQuery(['migrationLMSsList'], () => LMSsAPI.list());
+	return useQuery({
+		queryKey: ['migrationLMSsList'],
+		queryFn: () => LMSsAPI.list(),
+	});
 }
 
 function useMigrateMutation() {
 	const migrationAPI = new API(urls.migrations);
-	return useMutation((data: MigrationData) => migrationAPI.store(data));
+	return useMutation({
+		mutationFn: (data: MigrationData) => migrationAPI.store(data),
+	});
 }
 
 const Migration: React.FC = () => {
@@ -187,7 +190,7 @@ const Migration: React.FC = () => {
 					newStatus.questions_n_answers === COMPLETED;
 
 				if (allCompleted) {
-					queryClient.invalidateQueries('courseList');
+					queryClient.invalidateQueries({ queryKey: ['courseList'] });
 				}
 
 				return newStatus;
@@ -334,7 +337,7 @@ const Migration: React.FC = () => {
 		if (allCompleted) {
 			return;
 		}
-		if (!migrate.isLoading) {
+		if (!migrate.isPending) {
 			const lsmName = getValues('lms_name');
 			(
 				[COURSES, ORDERS, REVIEWS, ANNOUNCEMENTS, QUESTIONSANDANSWERS] as Array<
@@ -377,24 +380,18 @@ const Migration: React.FC = () => {
 				<FormControlTwoCol isInvalid={!!errors?.lms_name}>
 					<FormLabel htmlFor="lms_name">
 						{__('Migration From', 'learning-management-system')}
-						<Tooltip
+						<ToolTip
 							label={__(
 								'Choose an LMS from the list to migrate.',
 								'learning-management-system',
 							)}
-							hasArrow
-							fontSize="xs"
-						>
-							<Box as="span" sx={infoIconStyles}>
-								<Icon as={BiInfoCircle} />
-							</Box>
-						</Tooltip>
+						/>
 					</FormLabel>
 					<VStack>
 						<HStack width={'full'}>
 							<Select
 								id="lms_name"
-								isDisabled={migrate.isLoading}
+								isDisabled={migrate.isPending}
 								placeholder={__('Select an LMS', 'learning-management-system')}
 								{...register('lms_name', {
 									required: __('Select an LMS.', 'learning-management-system'),
@@ -405,8 +402,8 @@ const Migration: React.FC = () => {
 							<Button
 								colorScheme="blue"
 								type="submit"
-								isLoading={migrate.isLoading}
-								isDisabled={migrate.isLoading}
+								isLoading={migrate.isPending}
+								isDisabled={migrate.isPending}
 								loadingText={__('Migrating...', 'learning-management-system')}
 								size="md"
 								rightIcon={<IoIosMove size={15} />}

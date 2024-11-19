@@ -1,8 +1,8 @@
 import { FormControl, FormLabel, Skeleton } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useQuery } from 'react-query';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
 import { reactSelectStyles } from '../../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
@@ -21,13 +21,15 @@ const CourseSelect: React.FC<Props> = (props) => {
 	const courseAPI = new API(urls.courses);
 	const { setValue } = useFormContext();
 
-	const courseQueries = useQuery<any>('courseList', () =>
-		courseAPI.list({
-			order_by: 'name',
-			order: 'asc',
-			per_page: 10,
-		}),
-	);
+	const courseQueries = useQuery<any>({
+		queryKey: ['courseList'],
+		queryFn: () =>
+			courseAPI.list({
+				order_by: 'name',
+				order: 'asc',
+				per_page: 10,
+			}),
+	});
 
 	return (
 		<FormControl>

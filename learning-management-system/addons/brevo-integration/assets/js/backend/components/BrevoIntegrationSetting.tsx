@@ -16,11 +16,11 @@ import {
 	Tooltip,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BiHide, BiShow, BiSync } from 'react-icons/bi';
-import { useMutation, useQuery } from 'react-query';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import urls from '../../../../../../assets/js/back-end/constants/urls';
 import SingleComponentsWrapper from '../../../../../../assets/js/back-end/screens/settings/components/SingleComponentsWrapper';
@@ -59,23 +59,23 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 		control,
 	});
 
-	const brevoListQuery = useQuery<BrevoList[]>(
-		['brevoLists'],
-		() => brevoIntegrationAPI.list({ force: isSyncing }),
-		{
+	const brevoListQuery = useQuery<BrevoList[]>({
+		queryKey: ['brevoLists'],
+		queryFn: () => brevoIntegrationAPI.list({ force: isSyncing }),
+		...{
 			enabled: isAPIKeyConnected,
 			onError: (err: any) => {},
 		},
-	);
+	});
 
-	const connectMutation = useMutation(
-		(verifyAgain?: boolean) =>
+	const connectMutation = useMutation({
+		mutationFn: (verifyAgain?: boolean) =>
 			brevoIntegrationConnectAPI.store({
 				api_key: verifyAgain ? '' : apiKeyWatchValue,
 				verify_again: verifyAgain,
 			}),
-		{
-			onSuccess(response) {
+		...{
+			onSuccess(response: any) {
 				setIsAPIKeyConnected(true);
 				toast({
 					title: response.message,
@@ -98,12 +98,12 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 				setIsAPIKeyConnected(false);
 			},
 		},
-	);
+	});
 
-	const disConnectMutation = useMutation(
-		() => brevoIntegrationDisconnectAPI.deleteResource(),
-		{
-			onSuccess(response) {
+	const disConnectMutation = useMutation({
+		mutationFn: () => brevoIntegrationDisconnectAPI.deleteResource(),
+		...{
+			onSuccess(response: any) {
 				setIsAPIKeyConnected(false);
 				toast({
 					title: response.message,
@@ -124,7 +124,7 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 				});
 			},
 		},
-	);
+	});
 
 	useEffect(() => {
 		if (isSyncing) {
@@ -160,7 +160,7 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 						<HStack spacing={0}>
 							<Input
 								mr={0}
-								isDisabled={!isAPIKeyConnected && connectMutation?.isLoading}
+								isDisabled={!isAPIKeyConnected && connectMutation?.isPending}
 								type={showApiKey ? 'text' : 'password'}
 								defaultValue={brevoIntegration?.api_key}
 								{...register('integrations.brevo_integration.api_key')}
@@ -299,8 +299,8 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 								width={'fit-content'}
 								colorScheme={'primary'}
 								onClick={() => connectMutation.mutate(true)}
-								isLoading={connectMutation?.isLoading}
-								isDisabled={connectMutation?.isLoading}
+								isLoading={connectMutation?.isPending}
+								isDisabled={connectMutation?.isPending}
 							>
 								{__('Verify Connection Again', 'learning-management-system')}
 							</Button>
@@ -316,13 +316,13 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 						}
 						isDisabled={
 							(!isAPIKeyConnected && !apiKeyWatchValue) ||
-							connectMutation?.isLoading ||
-							disConnectMutation?.isLoading
+							connectMutation?.isPending ||
+							disConnectMutation?.isPending
 						}
 						isLoading={
 							isAPIKeyConnected
-								? disConnectMutation?.isLoading
-								: connectMutation?.isLoading
+								? disConnectMutation?.isPending
+								: connectMutation?.isPending
 						}
 					>
 						{isAPIKeyConnected

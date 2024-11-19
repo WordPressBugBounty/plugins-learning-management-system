@@ -21,10 +21,10 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
 import API from '../../../../../../../assets/js/back-end/utils/api';
@@ -59,12 +59,12 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 		});
 	};
 
-	const withdrawRequestMutation = useMutation(
-		(data: any) => withdrawAPI.store(data),
-		{
+	const withdrawRequestMutation = useMutation({
+		mutationFn: (data: any) => withdrawAPI.store(data),
+		...{
 			onSuccess() {
 				reset();
-				queryClient.invalidateQueries('withdrawsList');
+				queryClient.invalidateQueries({ queryKey: ['withdrawsList'] });
 				onClose();
 				toast({
 					title: __(
@@ -95,21 +95,23 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				});
 			},
 		},
-	);
+	});
 	return (
 		<>
 			<Tooltip
 				label={__('Insufficient balance', 'learning-management-system')}
 				placement="top"
 				isDisabled={
-					availableBalance && availableBalance >= minWithdrawAmount
+					Number(availableBalance) &&
+					Number(availableBalance) >= Number(minWithdrawAmount)
 						? true
 						: false
 				}
 			>
 				<Button
 					isDisabled={
-						!availableBalance || availableBalance < minWithdrawAmount
+						!Number(availableBalance) ||
+						Number(availableBalance) < Number(minWithdrawAmount)
 							? true
 							: false
 					}
@@ -202,13 +204,13 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 							variant="outline"
 							mr={3}
 							onClick={onClose}
-							isDisabled={withdrawRequestMutation.isLoading}
+							isDisabled={withdrawRequestMutation.isPending}
 						>
 							{__('Cancel', 'learning-management-system')}
 						</Button>
 						<Button
 							colorScheme="primary"
-							isLoading={withdrawRequestMutation.isLoading}
+							isLoading={withdrawRequestMutation.isPending}
 							onClick={handleSubmit(onSubmit)}
 						>
 							{__('Submit', 'learning-management-system')}

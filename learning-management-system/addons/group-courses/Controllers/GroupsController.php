@@ -832,7 +832,7 @@ class GroupsController extends PostsController {
 				$max_members_setting = masteriyo_get_groups_limit();
 
 				if ( $max_members_setting && $group_count > $max_members_setting ) {
-					return new \WP_Error( "masteriyo_rest_{$this->post_type}_group_limit_reached", __( 'You have reached the group limit.', 'learning-management-system' ), array( 'status' => 400 ) );
+					return new \WP_Error( "masteriyo_rest_{$this->post_type}_group_limit_reached", __( 'Group member limit reached. Please remove members or create a new group.', 'learning-management-system' ), array( 'status' => 400 ) );
 				}
 			}
 		}

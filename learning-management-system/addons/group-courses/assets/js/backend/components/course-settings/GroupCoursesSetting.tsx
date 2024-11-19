@@ -1,20 +1,16 @@
 import {
-	Box,
 	FormLabel,
-	Icon,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
 	NumberInput,
 	NumberInputField,
 	NumberInputStepper,
-	Tooltip,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller } from 'react-hook-form';
-import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { infoIconStyles } from '../../../../../../../assets/js/back-end/config/styles';
+import ToolTip from '../../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../../../assets/js/back-end/types/course';
 import localized from '../../../../../../../assets/js/back-end/utils/global';
 
@@ -32,18 +28,12 @@ const GroupCoursesSetting: React.FC<Props> = (props) => {
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Group Price', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Set the price for enrolling as a group. This allows multiple students to enroll together at a discounted rate compared to individual enrollments.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 				<Controller
 					name="group_courses.group_price"
@@ -66,18 +56,12 @@ const GroupCoursesSetting: React.FC<Props> = (props) => {
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Maximum Group Size', 'learning-management-system')}
-					<Tooltip
+					<ToolTip
 						label={__(
 							'Specify the maximum number of students that can enroll as part of a single group. Helps in managing class size and interaction. Leave zero for unlimited.',
 							'learning-management-system',
 						)}
-						hasArrow
-						fontSize="xs"
-					>
-						<Box as="span" sx={infoIconStyles}>
-							<Icon as={BiInfoCircle} />
-						</Box>
-					</Tooltip>
+					/>
 				</FormLabel>
 
 				<Controller

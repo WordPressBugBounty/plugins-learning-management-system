@@ -7,12 +7,12 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useState } from 'react';
 import { Col, Row } from 'react-grid-system';
 import { IoIosArrowBack } from 'react-icons/io';
 import { IoAddOutline } from 'react-icons/io5';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import EmptyGroup from '../../../../../../assets/js/account/common/EmptyGroup';
 import PageTitle from '../../../../../../assets/js/account/common/PageTitle';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
@@ -51,16 +51,16 @@ const Groups: React.FC = () => {
 		orderby: 'date',
 	});
 
-	const groupQuery = useQuery(
-		['groupsList', filterParams],
-		() => groupAPI.list(filterParams),
-		{
+	const groupQuery = useQuery({
+		queryKey: ['groupsList', filterParams],
+		queryFn: () => groupAPI.list(filterParams),
+		...{
 			keepPreviousData: true,
 		},
-	);
-	const addGroupMutation = useMutation<GroupSchema>((data) =>
-		groupAPI.store(data),
-	);
+	});
+	const addGroupMutation = useMutation<GroupSchema>({
+		mutationFn: (data) => groupAPI.store(data),
+	});
 
 	const handleAddNewGroup = (data: GroupSchema) => {
 		addGroupMutation.mutate(deepClean(data), {
@@ -72,7 +72,7 @@ const Groups: React.FC = () => {
 					status: 'success',
 					isClosable: true,
 				});
-				queryClient.invalidateQueries(`groupsList`);
+				queryClient.invalidateQueries({ queryKey: [`groupsList`] });
 			},
 
 			onError: (error: any) => {
@@ -141,7 +141,7 @@ const Groups: React.FC = () => {
 			{isOpen && (
 				<AddGroupForm
 					handleAddNewGroup={handleAddNewGroup}
-					isLoading={addGroupMutation.isLoading}
+					isLoading={addGroupMutation.isPending}
 					onClose={onClose}
 				/>
 			)}

@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.13.5
+Stable tag: 1.14.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,41 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.14.0 - 19-11-2024 =
+- Feature - Fluent CRM Integration.
+- Feature - Stripe payment gateway.
+- Feature - Lesson Comments.
+- Feature - Added support for Math equations in lesson, quiz and assignment.
+- Feature - Individual or multiple courses exportable from course listing page.
+- Compatibility - Compatible with WordPress v6.7.
+- Enhancement - Import/Export overall optimization in backend processing.
+- Enhancement - Lessons now have individual type (Text, Video and Live Stream lesson.)
+- Enhancement - Add new content in course builder now appear in modal instead of popover.
+- Enhancement - Added option for post checkout landing page in page setting.
+- Enhancement - Added shortcode `[masteriyo_student_registration]` for student registration form.
+- Enhancement - Added progress bar and started at info in single course page.
+- Enhancement - Added SCORM in advance global setting to add additional extension file type.
+- Refactor - Lesson builder UI revamp.
+- Refactor - Backend pages minor UI revamp (Button outline, colors, font sizes and styles, icons).
+- Refactor - Google classroom backend revamp.
+- Update - JS packages upgraded.
+- Fix - Global settings UI.
+- Fix - Single course page UI issues.
+- Fix - Prevent error when retrieving capabilities for non-existent roles.
+- Fix - Account page access to other user roles.
+- Fix - Error in account page when SCORM addon is active.
+- Fix - Hide Lemon Squeezy Settings from course page if it's disabled on global setting.
+- Fix - Accordance Issue in Setting Page.
+- Fix - Permission check for certificate share preview.
+- Fix - Forward ref issue in async select.
+- Fix - See More Issue in Review Filter in Single Course Page.
+- Fix - Revenue sharing withdraw section box UI.
+- Fix - Tooltip now consistent with global settings.
+- Fix - Body color removed from single course block.
+- Fix - Console warning related to react defaultProps.
+- Fix - Hide curriculum tab for SCORM and Google classroom courses.
+- Fix - Dynamic primary colour not reflecting for course archive layout 1 and 2.
 
 = 1.13.5 - 15-11-2024 =
 - Fix – JavaScript 'Selectors' error in WP 6.7 version.
@@ -468,40 +503,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - User Registration Integration compatible issue with User Registration PRO.
 - Fix - Account Section responsiveness.
 - Fix - Old attempted quiz data duplicated in new quiz attempt issue.
-
-= 1.8.4 - 20-03-2024 =
-- Update - Text domain from `masteriyo` to `learning-management-system`, conforming to WordPress standards.
-
-= 1.8.3 - 07-03-2024 =
-- Feature - SCORM Complaint.
-- Feature - Google Classroom Integration.
-- Enhancement - Added option to enable/disable review in individual course setting.
-- Fix - Quiz reviews error if user doesn't exist.
-- Fix - Course enrollment duplication issue.
-- Fix - Sanitize course review after course completion fields.
-- Fix - Quiz user attempt data not clearing from session storage after submission.
-- Fix - Localized editor settings in masteriyo page only.
-
-= 1.8.2 - 27-02-2024 =
-- Fix - Fatal error while downloading order PDF invoice.
-
-= 1.8.1 - 26-02-2024 =
-- Feature - WooCommerce Integration.
-- Enhancement - Loading spinner changed to skeleton in addons page.
-- Fix - Prevent page from reloading on enter while filtering data in backend.
-- Fix - Order itemmeta inserting issue while WooCommerce plugin is active.
-- Fix - Setup wizard responsive issue.
-- Fix - Masteriyo blocks effecting widgets section.
-
-= 1.8.0 - 15-02-2024 =
-- Feature - Migration from Learnpress and LearnDash LMS.
-- Feature - Course access via password.
-- Feature - Restrict course content access during quiz.
-- Enhancement - Admin can download order PDF invoice.
-- Refactor - Notifications content manage from backend.
-- Fix - Course featured image issue.
-- Fix - Ordering issue for lesson and quizzes of course created using OpenAI.
-- Fix - Ensure access to courses when pricing is added post-enrollment.
-- Fix - Course retake text duplication.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

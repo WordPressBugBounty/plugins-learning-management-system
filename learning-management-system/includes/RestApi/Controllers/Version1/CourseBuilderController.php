@@ -28,6 +28,7 @@ use Masteriyo\RestApi\Controllers\Version1\PostsController;
  */
 class CourseBuilderController extends PostsController {
 
+
 	/**
 	 * Endpoint namespace.
 	 *
