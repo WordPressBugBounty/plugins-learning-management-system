@@ -267,7 +267,7 @@ class CoursesImportExportController extends RestController {
 
 		try {
 			$importer = new CourseImporter( $status );
-			$importer->import( $file );
+			$importer->import( $file, 'sample-courses' );
 		} catch ( \Exception $e ) {
 			return new \WP_Error(
 				'masteriyo_rest_import_sample_courses_error',

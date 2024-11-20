@@ -286,7 +286,7 @@ class StripeAddon {
 					},
 				),
 				'stripe'          => array(
-					'src'      => plugin_dir_url( MASTERIYO_STRIPE_ADDON_FILE ) . 'assets/frontend/stripe' . $suffix . '.js',
+					'src'      => plugin_dir_url( MASTERIYO_STRIPE_ADDON_FILE ) . 'assets/js/frontend/stripe' . $suffix . '.js',
 					'context'  => 'public',
 					'version'  => Constants::get( 'MASTERIYO_STRIPE_VERSION' ),
 					'callback' => function () {

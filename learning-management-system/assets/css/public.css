@@ -6652,6 +6652,17 @@ body.theme-twentytwentyfour.single-mto-course .masteriyo-single-course--main__co
   padding: 10px;
 }
 
+body.theme-twentytwentyfive .wp-block-post-title {
+  max-width: 1280px;
+}
+body.theme-twentytwentyfive #masteriyo-account-page {
+  max-width: 1280px;
+}
+body.theme-twentytwentyfive .wp-block-template-part .wp-block-navigation .wp-block-navigation__container li .wp-block-pages-list__item__link {
+  pointer-events: unset;
+  cursor: pointer;
+}
+
 body.masteriyo {
   margin: 0;
 }

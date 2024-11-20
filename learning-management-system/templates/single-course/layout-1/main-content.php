@@ -15,6 +15,8 @@
  * @version 1.10.0
  */
 
+use Masteriyo\PostType\PostType;
+
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
 
@@ -79,24 +81,59 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 					<div id="masteriyoSingleCourseCurriculumTab" class="masteriyo-single-body__main--curriculum-content masteriyo-hidden">
 						<div class="masteriyo-single-body__main--curriculum-content-top">
 							<ul class="masteriyo-single-body__main--curriculum-content-top--shortinfo">
-								<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
-									<?php
-									echo esc_html( masteriyo_get_sections_count_by_course( $course->get_id() ) );
-									esc_html_e( ' Sections', 'learning-management-system' );
+								<?php
+								$section_count = masteriyo_get_sections_count_by_course( $course->get_id() );
+
+								if ( $section_count > 0 ) :
 									?>
-								</li>
-								<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
-									<?php
-									echo esc_html( get_course_section_children_count_by_course( $course->get_id(), 'lesson' ) );
-									esc_html_e( ' Lessons', 'learning-management-system' );
+									<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
+										<?php
+										printf(
+											/* translators: %1$s: Sections count */
+											esc_html( _nx( '%1$s Section', '%1$s Sections', $section_count, 'Sections Count', 'learning-management-system' ) ),
+											esc_html( number_format_i18n( $section_count ) )
+										);
+										?>
+									</li>
+								<?php endif; ?>
+
+								<?php
+								$lesson_count = get_course_section_children_count_by_course( $course->get_id(), 'lesson' );
+
+								if ( $lesson_count > 0 ) :
 									?>
-								</li>
-								<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
-									<?php
-									echo esc_html( get_course_section_children_count_by_course( $course->get_id(), 'quiz' ) );
-									esc_html_e( ' Quizzes', 'learning-management-system' );
+
+									<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
+										<?php
+										// $lesson_count = get_course_section_children_count_by_course( $course->get_id(), PostType::LESSON );
+
+										printf(
+											/* translators: %1$s: Lessons count */
+											esc_html( _nx( '%1$s Lesson', '%1$s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
+											esc_html( number_format_i18n( $lesson_count ) )
+										);
+										?>
+									</li>
+								<?php endif; ?>
+
+								<?php
+								$quiz_count = get_course_section_children_count_by_course( $course->get_id(), 'quiz' );
+
+								if ( $quiz_count > 0 ) :
 									?>
-								</li>
+
+									<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
+										<?php
+
+										printf(
+											/* translators: %1$s: Quizzes count */
+											esc_html( _nx( '%1$s Quiz', '%1$s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
+											esc_html( number_format_i18n( $quiz_count ) )
+										);
+										?>
+									</li>
+								<?php endif; ?>
+
 								<?php
 								/**
 								 * Fires after the tab bar in the main content area for the single course layout 1.
@@ -127,18 +164,42 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 											<h4 class="masteriyo-single-body__main--curriculum-content-bottom__accordion--header-title"><?php echo esc_html( $section->get_name() ); ?></h4>
 
 											<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--header-misc">
-												<span class="masteriyo-single-body-accordion-info">
-													<?php
-													echo esc_html( get_course_section_children_count_by_section( $section->get_id(), 'lesson' ) );
-													esc_html_e( ' Lessons', 'learning-management-system' );
+
+												<?php
+												$lesson_count = get_course_section_children_count_by_section( $section->get_id(), 'lesson' );
+												if ( $lesson_count > 0 ) :
 													?>
-												</span>
-												<span class="masteriyo-single-body-accordion-info">
-													<?php
-													echo esc_html( get_course_section_children_count_by_section( $section->get_id(), 'quiz' ) );
-													esc_html_e( ' Quizzes', 'learning-management-system' );
+
+													<span class="masteriyo-single-body-accordion-info">
+														<?php
+														printf(
+															/* translators: %1$s: Lessons count */
+															esc_html( _nx( '%1$s Lesson', '%1$s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
+															esc_html( number_format_i18n( $lesson_count ) )
+														);
+														?>
+													</span>
+
+												<?php endif; ?>
+
+												<?php
+												$quiz_count = get_course_section_children_count_by_section( $section->get_id(), 'quiz' );
+
+												if ( $quiz_count > 0 ) :
 													?>
-												</span>
+
+													<span class="masteriyo-single-body-accordion-info">
+														<?php
+														printf(
+															/* translators: %1$s: Quizzes count */
+															esc_html( _nx( '%1$s Quiz', '%1$s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
+															esc_html( number_format_i18n( $quiz_count ) )
+														);
+														?>
+													</span>
+
+												<?php endif; ?>
+
 												<?php
 												/**
 												 * Fires an action to render the curriculum accordion header info item for a single course page layout 1.

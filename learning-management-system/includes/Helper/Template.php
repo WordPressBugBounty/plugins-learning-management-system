@@ -1022,14 +1022,16 @@ if ( ! function_exists( 'masteriyo_single_course_progress_bar' ) ) {
 
 		$summary = $progress ? $progress->get_summary( 'all' ) : '';
 
-		masteriyo_get_template(
-			'single-course/course-progress.php',
-			array(
-				'course'   => $course,
-				'progress' => $progress,
-				'summary'  => $summary,
-			)
-		);
+		if ( ! empty( $summary ) && isset( $summary['total']['total'] ) && $summary['total']['total'] > 0 ) {
+			masteriyo_get_template(
+				'single-course/course-progress.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
+		}
 	}
 }
 
@@ -1116,14 +1118,16 @@ if ( ! function_exists( 'masteriyo_single_course_layout_1_progress' ) ) {
 
 		$summary = $progress ? $progress->get_summary( 'all' ) : '';
 
-		masteriyo_get_template(
-			'single-course/layout-1/course-progress.php',
-			array(
-				'course'   => $course,
-				'progress' => $progress,
-				'summary'  => $summary,
-			)
-		);
+		if ( ! empty( $summary ) && isset( $summary['total']['total'] ) && $summary['total']['total'] > 0 ) {
+			masteriyo_get_template(
+				'single-course/layout-1/course-progress.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
+		}
 	}
 }
 
@@ -2215,6 +2219,58 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 			0
 		);
 
+		$summaries = array();
+
+		// Add only if section count is greater than 0.
+		if ( $section_count > 0 ) {
+			$summaries[] = array(
+				'wrapper_start' => '<li class="masteriyo-list-none">',
+				'wrapper_end'   => '</li>',
+				'content'       => sprintf(
+					/* translators: %d: Course sections count */
+					esc_html( _nx( '%s Section', '%s Sections', $section_count, 'Sections Count', 'learning-management-system' ) ),
+					esc_html( number_format_i18n( $section_count ) )
+				),
+			);
+		}
+
+		// Add only if lesson count is greater than 0.
+		if ( $lesson_count > 0 ) {
+			$summaries[] = array(
+				'wrapper_start' => '<li>',
+				'wrapper_end'   => '</li>',
+				'content'       => sprintf(
+					/* translators: %d: Course lessons count */
+					esc_html( _nx( '%s Lesson', '%s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
+					esc_html( number_format_i18n( $lesson_count ) )
+				),
+			);
+		}
+
+		// Add only if quiz count is greater than 0.
+		if ( $quiz_count > 0 ) {
+			$summaries[] = array(
+				'wrapper_start' => '<li>',
+				'wrapper_end'   => '</li>',
+				'content'       => sprintf(
+					/* translators: %d: Course quiz count */
+					esc_html( _nx( '%s Quiz', '%s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
+					esc_html( number_format_i18n( $quiz_count ) )
+				),
+			);
+		}
+
+		// Always include the duration summary.
+		$summaries[] = array(
+			'wrapper_start' => '<li>',
+			'wrapper_end'   => '</li>',
+			'content'       => sprintf(
+				/* translators: %s: Lecture hours */
+				__( '%s Duration', 'learning-management-system' ),
+				masteriyo_minutes_to_time_length_string( $course->get_duration() )
+			),
+		);
+
 		/**
 		 * Filters masteriyo single course summaries.
 		 *
@@ -2226,44 +2282,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 		 */
 		$summaries = apply_filters(
 			'masteriyo_single_course_curriculum_summaries',
-			array(
-				array(
-					'wrapper_start' => '<li class="masteriyo-list-none">',
-					'wrapper_end'   => '</li>',
-					'content'       => sprintf(
-						/* translators: %d: Course sections count */
-						esc_html( _nx( '%s Section', '%s Sections', $section_count, 'Sections Count', 'learning-management-system' ) ),
-						esc_html( number_format_i18n( $section_count ) )
-					),
-				),
-				array(
-					'wrapper_start' => '<li>',
-					'wrapper_end'   => '</li>',
-					'content'       => sprintf(
-						/* translators: %d: Course lessons count */
-						esc_html( _nx( '%s Lesson', '%s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
-						esc_html( number_format_i18n( $lesson_count ) )
-					),
-				),
-				array(
-					'wrapper_start' => '<li>',
-					'wrapper_end'   => '</li>',
-					'content'       => sprintf(
-						/* translators: %d: Course quiz count */
-						esc_html( _nx( '%s Quiz', '%s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
-						esc_html( number_format_i18n( $quiz_count ) )
-					),
-				),
-				array(
-					'wrapper_start' => '<li>',
-					'wrapper_end'   => '</li>',
-					'content'       => sprintf(
-						/* translators: %s: Lecture hours */
-						__( '%s Duration', 'learning-management-system' ),
-						masteriyo_minutes_to_time_length_string( $course->get_duration() )
-					),
-				),
-			),
+			$summaries,
 			$course,
 			$posts
 		);
@@ -2320,6 +2339,34 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 			0
 		);
 
+		$summaries = array();
+
+		// Add only if lesson count is greater than 0.
+		if ( $lesson_count > 0 ) {
+			$summaries[] = array(
+				'wrapper_start' => '<span class="masteriyo-clessons">',
+				'wrapper_end'   => '</span>',
+				'content'       => sprintf(
+					/* translators: %d: Section lessons count */
+					esc_html( _nx( '%s Lesson', '%s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
+					esc_html( number_format_i18n( $lesson_count ) )
+				),
+			);
+		}
+
+		// Add only if quiz count is greater than 0.
+		if ( $quiz_count > 0 ) {
+			$summaries[] = array(
+				'wrapper_start' => '<span class="masteriyo-cquizzes">',
+				'wrapper_end'   => '</span>',
+				'content'       => sprintf(
+					/* translators: %d: Section quizzes count */
+					esc_html( _nx( '%s Quiz', '%s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
+					esc_html( number_format_i18n( $quiz_count ) )
+				),
+			);
+		}
+
 		/**
 		 * Filters single course curriculum section summaries.
 		 *
@@ -2332,26 +2379,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 		 */
 		$summaries = apply_filters(
 			'masteriyo_single_course_curriculum_section_summaries',
-			array(
-				array(
-					'wrapper_start' => '<span class="masteriyo-clessons">',
-					'wrapper_end'   => '</span>',
-					'content'       => sprintf(
-						/* translators: %d: Section lessons count */
-						esc_html( _nx( '%s Lesson', '%s Lessons', $lesson_count, 'Lessons Count', 'learning-management-system' ) ),
-						esc_html( number_format_i18n( $lesson_count ) )
-					),
-				),
-				array(
-					'wrapper_start' => '<span class="masteriyo-cquizzes">',
-					'wrapper_end'   => '</span>',
-					'content'       => sprintf(
-						/* translators: %d: Section quizzes count */
-						esc_html( _nx( '%s Quiz', '%s Quizzes', $quiz_count, 'Quizzes Count', 'learning-management-system' ) ),
-						esc_html( number_format_i18n( $quiz_count ) )
-					),
-				),
-			),
+			$summaries,
 			$course,
 			$section,
 			$posts

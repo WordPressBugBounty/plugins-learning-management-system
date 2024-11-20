@@ -1,4 +1,12 @@
 == Changelog ==
+= 1.14.1 - 20-11-2024 =
+- Fix - Sample courses file not found issue after first sample course install.
+- Fix - Instructor approval issue in add new instructor page.
+- Fix - Course progress bar division by zero error.
+- Fix - WooCommerce add to cart issue if product is not publish and start course issue.
+- Fix - Account page UI issue in twenty twenty five theme.
+- Fix - Stripe JS not loading on checkout.
+
 = 1.14.0 - 19-11-2024 =
 - Feature - Fluent CRM Integration.
 - Feature - Stripe payment gateway.

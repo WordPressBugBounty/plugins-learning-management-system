@@ -8,6 +8,8 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+use Masteriyo\Enums\PostStatus;
+
 class Helper {
 	/**
 	 * Return if WooCommerce is active.
@@ -42,7 +44,7 @@ class Helper {
 	public static function is_course_added_to_cart( $course_id ) {
 		$product_id = self::is_course_wc_product( $course_id );
 
-		if ( ! $product_id ) {
+		if ( ! $product_id || PostStatus::PUBLISH !== get_post_status( $product_id ) ) {
 			return null;
 		}
 

@@ -87,8 +87,9 @@ class CourseImporter {
 	 * @since 1.6.0
 	 * @throws \JsonMachine\Exception\InvalidArgumentException
 	 * @param string $file Import file.
+	 * @param string $import_type Import type. Default is null.
 	 */
-	public function import( $file ) {
+	public function import( $file, $import_type = null ) {
 		wp_raise_memory_limit( 'admin' );
 
 		$items = Items::fromFile(
@@ -128,7 +129,9 @@ class CourseImporter {
 		$this->map_term_parents();
 		$this->map_term_featured_image_ids();
 
-		unlink( $file );
+		if ( is_null( $import_type ) ) {
+			unlink( $file );
+		}
 
 		/**
 		 * Fires after import.

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.0\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-19T07:40:53+00:00\n"
+"POT-Creation-Date: 2024-11-20T11:17:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: learning-management-system\n"
@@ -371,7 +371,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:178
 #: includes/AdminMenu.php:179
-#: templates/single-course/layout-1/main-content.php:51
+#: templates/single-course/layout-1/main-content.php:53
 #: templates/single-course/layout-1/user-review-content.php:22
 #: templates/single-course/tab-handles.php:33
 msgid "Reviews"
@@ -1244,7 +1244,7 @@ msgstr ""
 
 #. translators: Cart total order
 #: includes/Gateways/Offline/Offline.php:69
-#: includes/Helper/Template.php:1440
+#: includes/Helper/Template.php:1444
 msgid "Confirm Payment"
 msgstr ""
 
@@ -2398,25 +2398,25 @@ msgstr ""
 msgid "You are not allowed to view this content."
 msgstr ""
 
-#: includes/Helper/Template.php:1645
+#: includes/Helper/Template.php:1649
 msgid "Select View:"
 msgstr ""
 
-#: includes/Helper/Template.php:1650
+#: includes/Helper/Template.php:1654
 msgid "View on list Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1659
+#: includes/Helper/Template.php:1663
 msgid "View on Grid Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1691
+#: includes/Helper/Template.php:1695
 #: assets/js/build/masteriyo-backend.js:1
 msgid "No courses found."
 msgstr ""
 
 #. translators: %d: Course sections count
-#: includes/Helper/Template.php:2235
+#: includes/Helper/Template.php:2231
 msgctxt "Sections Count"
 msgid "%s Section"
 msgid_plural "%s Sections"
@@ -2426,7 +2426,7 @@ msgstr[1] ""
 #. translators: %d: Course lessons count
 #. translators: %d: Section lessons count
 #: includes/Helper/Template.php:2244
-#: includes/Helper/Template.php:2341
+#: includes/Helper/Template.php:2351
 msgctxt "Lessons Count"
 msgid "%s Lesson"
 msgid_plural "%s Lessons"
@@ -2435,8 +2435,8 @@ msgstr[1] ""
 
 #. translators: %d: Course quiz count
 #. translators: %d: Section quizzes count
-#: includes/Helper/Template.php:2253
-#: includes/Helper/Template.php:2350
+#: includes/Helper/Template.php:2257
+#: includes/Helper/Template.php:2364
 msgctxt "Quizzes Count"
 msgid "%s Quiz"
 msgid_plural "%s Quizzes"
@@ -2444,7 +2444,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Lecture hours
-#: includes/Helper/Template.php:2262
+#: includes/Helper/Template.php:2269
 msgid "%s Duration"
 msgstr ""
 
@@ -2466,15 +2466,15 @@ msgstr ""
 msgid "Import in progress. Please wait..."
 msgstr ""
 
-#: includes/Importer/CourseImporter.php:380
+#: includes/Importer/CourseImporter.php:383
 msgid "WordPress Filesystem API is not initialized."
 msgstr ""
 
-#: includes/Importer/CourseImporter.php:407
+#: includes/Importer/CourseImporter.php:410
 msgid "Remote file is incorrect size"
 msgstr ""
 
-#: includes/Importer/CourseImporter.php:412
+#: includes/Importer/CourseImporter.php:415
 msgid "Zero size file downloaded"
 msgstr ""
 
@@ -7342,13 +7342,13 @@ msgstr ""
 #: includes/ScriptStyle.php:1211
 #: includes/ScriptStyle.php:1248
 #: templates/single-course/curriculum.php:53
-#: templates/single-course/layout-1/main-content.php:120
+#: templates/single-course/layout-1/main-content.php:157
 msgid "Expand All"
 msgstr ""
 
 #: includes/ScriptStyle.php:1212
 #: includes/ScriptStyle.php:1249
-#: templates/single-course/layout-1/main-content.php:120
+#: templates/single-course/layout-1/main-content.php:157
 msgid "Collapse All"
 msgstr ""
 
@@ -8340,13 +8340,15 @@ msgstr ""
 msgid "Students Count"
 msgstr ""
 
-#: templates/single-course/course-progress.php:36
-#: templates/single-course/layout-1/course-progress.php:35
+#. translators: 1: Number of completed items, 2: Total number of items
+#: templates/single-course/course-progress.php:37
+#: templates/single-course/layout-1/course-progress.php:36
 msgid "%1$d of %2$d Completed"
 msgstr ""
 
-#: templates/single-course/course-progress.php:42
-#: templates/single-course/layout-1/course-progress.php:41
+#. translators: %s: Progress percentage
+#: templates/single-course/course-progress.php:44
+#: templates/single-course/layout-1/course-progress.php:43
 msgid "Progress: %.0f%%"
 msgstr ""
 
@@ -8429,7 +8431,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: templates/single-course/curriculum.php:37
-#: templates/single-course/layout-1/main-content.php:47
+#: templates/single-course/layout-1/main-content.php:49
 #: templates/single-course/tab-handles.php:28
 msgid "Curriculum"
 msgstr ""
@@ -8470,28 +8472,40 @@ msgstr[1] ""
 msgid "Course Includes"
 msgstr ""
 
-#: templates/single-course/layout-1/main-content.php:42
+#: templates/single-course/layout-1/main-content.php:44
 #: templates/single-course/tab-handles.php:22
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Overview"
 msgstr ""
 
-#: templates/single-course/layout-1/main-content.php:85
-msgid " Sections"
-msgstr ""
+#. translators: %1$s: Sections count
+#: templates/single-course/layout-1/main-content.php:93
+msgctxt "Sections Count"
+msgid "%1$s Section"
+msgid_plural "%1$s Sections"
+msgstr[0] ""
+msgstr[1] ""
 
-#: templates/single-course/layout-1/main-content.php:91
-#: templates/single-course/layout-1/main-content.php:133
-msgid " Lessons"
-msgstr ""
+#. translators: %1$s: Lessons count
+#: templates/single-course/layout-1/main-content.php:112
+#: templates/single-course/layout-1/main-content.php:177
+msgctxt "Lessons Count"
+msgid "%1$s Lesson"
+msgid_plural "%1$s Lessons"
+msgstr[0] ""
+msgstr[1] ""
 
-#: templates/single-course/layout-1/main-content.php:97
-#: templates/single-course/layout-1/main-content.php:139
-msgid " Quizzes"
-msgstr ""
+#. translators: %1$s: Quizzes count
+#: templates/single-course/layout-1/main-content.php:130
+#: templates/single-course/layout-1/main-content.php:195
+msgctxt "Quizzes Count"
+msgid "%1$s Quiz"
+msgid_plural "%1$s Quizzes"
+msgstr[0] ""
+msgstr[1] ""
 
-#: templates/single-course/layout-1/main-content.php:115
+#: templates/single-course/layout-1/main-content.php:152
 msgid " Duration"
 msgstr ""
 
@@ -16945,7 +16959,7 @@ msgid "You will get your response as soon as possible."
 msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1
-msgid "Your Comment has been Deleted."
+msgid "Your comment has been deleted."
 msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1
