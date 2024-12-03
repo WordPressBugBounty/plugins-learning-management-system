@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
+class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -12,6 +12,7 @@ class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        'ace6d88241f812b4accb2d847454aef6' => __DIR__ . '/..' . '/halaxa/json-machine/src/functions.php',
         'db356362850385d08a5381de2638b5fd' => __DIR__ . '/..' . '/mpdf/mpdf/src/functions.php',
         '9be579fcc9ba214f8e9df01e0653f265' => __DIR__ . '/../..' . '/includes/Helper/depreciated.php',
         'ff7464d0280649f7648508e9f6dc0bf3' => __DIR__ . '/../..' . '/includes/Helper/Arr.php',
@@ -357,6 +358,7 @@ class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
         'DeepCopy\\Matcher\\PropertyTypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/PropertyTypeMatcher.php',
         'DeepCopy\\Reflection\\ReflectionHelper' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Reflection/ReflectionHelper.php',
         'DeepCopy\\TypeFilter\\Date\\DateIntervalFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DateIntervalFilter.php',
+        'DeepCopy\\TypeFilter\\Date\\DatePeriodFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DatePeriodFilter.php',
         'DeepCopy\\TypeFilter\\ReplaceFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ReplaceFilter.php',
         'DeepCopy\\TypeFilter\\ShallowCopyFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ShallowCopyFilter.php',
         'DeepCopy\\TypeFilter\\Spl\\ArrayObjectFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/ArrayObjectFilter.php',
@@ -450,11 +452,14 @@ class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
         'GuzzleHttp\\RetryMiddleware' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/RetryMiddleware.php',
         'GuzzleHttp\\TransferStats' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/TransferStats.php',
         'GuzzleHttp\\Utils' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Utils.php',
+        'JsonMachine\\Exception\\BadMethodCallException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/BadMethodCallException.php',
         'JsonMachine\\Exception\\InvalidArgumentException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/InvalidArgumentException.php',
         'JsonMachine\\Exception\\JsonMachineException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/JsonMachineException.php',
+        'JsonMachine\\Exception\\OutOfBoundsException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/OutOfBoundsException.php',
         'JsonMachine\\Exception\\PathNotFoundException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/PathNotFoundException.php',
         'JsonMachine\\Exception\\SyntaxErrorException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/SyntaxErrorException.php',
         'JsonMachine\\Exception\\UnexpectedEndSyntaxErrorException' => __DIR__ . '/..' . '/halaxa/json-machine/src/Exception/UnexpectedEndSyntaxErrorException.php',
+        'JsonMachine\\FacadeTrait' => __DIR__ . '/..' . '/halaxa/json-machine/src/FacadeTrait.php',
         'JsonMachine\\FileChunks' => __DIR__ . '/..' . '/halaxa/json-machine/src/FileChunks.php',
         'JsonMachine\\Items' => __DIR__ . '/..' . '/halaxa/json-machine/src/Items.php',
         'JsonMachine\\ItemsOptions' => __DIR__ . '/..' . '/halaxa/json-machine/src/ItemsOptions.php',
@@ -464,9 +469,12 @@ class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
         'JsonMachine\\JsonDecoder\\InvalidResult' => __DIR__ . '/..' . '/halaxa/json-machine/src/JsonDecoder/InvalidResult.php',
         'JsonMachine\\JsonDecoder\\ItemDecoder' => __DIR__ . '/..' . '/halaxa/json-machine/src/JsonDecoder/ItemDecoder.php',
         'JsonMachine\\JsonDecoder\\PassThruDecoder' => __DIR__ . '/..' . '/halaxa/json-machine/src/JsonDecoder/PassThruDecoder.php',
+        'JsonMachine\\JsonDecoder\\StringOnlyDecoder' => __DIR__ . '/..' . '/halaxa/json-machine/src/JsonDecoder/StringOnlyDecoder.php',
         'JsonMachine\\JsonDecoder\\ValidResult' => __DIR__ . '/..' . '/halaxa/json-machine/src/JsonDecoder/ValidResult.php',
         'JsonMachine\\Parser' => __DIR__ . '/..' . '/halaxa/json-machine/src/Parser.php',
         'JsonMachine\\PositionAware' => __DIR__ . '/..' . '/halaxa/json-machine/src/PositionAware.php',
+        'JsonMachine\\RecursiveItems' => __DIR__ . '/..' . '/halaxa/json-machine/src/RecursiveItems.php',
+        'JsonMachine\\ResumableIteratorAggregateProxy' => __DIR__ . '/..' . '/halaxa/json-machine/src/ResumableIteratorAggregateProxy.php',
         'JsonMachine\\StreamChunks' => __DIR__ . '/..' . '/halaxa/json-machine/src/StreamChunks.php',
         'JsonMachine\\StringChunks' => __DIR__ . '/..' . '/halaxa/json-machine/src/StringChunks.php',
         'JsonMachine\\Tokens' => __DIR__ . '/..' . '/halaxa/json-machine/src/Tokens.php',
@@ -1808,9 +1816,9 @@ class ComposerStaticInit3c3aa712c835250dd6a67ca31110046d
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit3c3aa712c835250dd6a67ca31110046d::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit3c3aa712c835250dd6a67ca31110046d::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit3c3aa712c835250dd6a67ca31110046d::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$classMap;
 
         }, null, ClassLoader::class);
     }

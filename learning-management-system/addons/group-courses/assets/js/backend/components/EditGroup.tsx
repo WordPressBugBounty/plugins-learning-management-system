@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
@@ -70,12 +70,13 @@ const EditGroup: React.FC = () => {
 	const groupQuery = useQuery<GroupSchema>({
 		queryKey: [`group${groupId}`, groupId],
 		queryFn: () => groupAPI.get(groupId, 'edit'),
-		...{
-			onError: () => {
-				navigate(routes.notFound);
-			},
-		},
 	});
+
+	useEffect(() => {
+		if (groupQuery?.isError) {
+			navigate(routes.notFound);
+		}
+	}, [groupQuery?.isError, navigate]);
 
 	const updateGroup = useMutation<GroupSchema>({
 		mutationFn: (data) => groupAPI.update(groupId, data),

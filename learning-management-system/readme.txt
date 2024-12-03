@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.14.1
+Stable tag: 1.14.2
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,19 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.14.2 - 03-12-2024 =
+- Enhancement - Added course completion button in SCORM course.
+- Enhancement - Added option to update course review reply status.
+- Tweak - Default course content access to true.
+- Fix - Do not add student role for admin & instructor while starting course.
+- Fix - Valid phone number showing as invalid in checkout.
+- Fix - Course ID not found issue for password protected course with WooCommerce Integration.
+- Fix - Bracket displaying in course list of Bricks builder.
+- Fix - Certificates not listing in account page.
+- Fix - Translation properly not working issue.
+- Fix - Incorrect user course progress data in account dashboard tab.
+- Fix - Large quiz attempt data not updating issue.
 
 = 1.14.1 - 20-11-2024 =
 - Fix - Sample courses file not found issue after first sample course install.

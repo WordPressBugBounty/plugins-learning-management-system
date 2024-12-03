@@ -165,9 +165,9 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 	 *
 	 * @param int $course_id Course id.
 	 * @param int $user_id User id.
-	 * @param int $progress Progress percentage.
+	 * @param string|int $progress Progress percentage.
 	 *
-	 * @return void
+	 * @return bool|\WP_Error Returns true if successful or false or WP_Error otherwise.
 	 */
 	function masteriyo_update_user_scorm_course_progress( $course_id, $user_id, $progress ) {
 
@@ -202,7 +202,7 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 		$activity = current( $query->get_course_progress() );
 
 		if ( $activity && CourseProgressStatus::COMPLETED === $activity->get_status() ) {
-			return;
+			return false;
 		}
 
 		if ( ! $activity ) {
@@ -214,14 +214,19 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 			);
 
 			$activity_data = array_merge( $activity_data, $progress_args );
-			$wpdb->insert(
+
+			$result = $wpdb->insert(
 				$table,
 				$activity_data
 			);
 
+			if ( ! $result ) {
+				return new WP_Error( 'unable_create_course_progress', __( 'Sorry!, an error occurred while creating an course progress.', 'learning-management-system' ) );
+			}
+
 			$course_progress_id = $wpdb->insert_id;
 		} else {
-			$wpdb->update(
+			$update_result = $wpdb->update(
 				$table,
 				$progress_args,
 				array(
@@ -229,10 +234,16 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 				)
 			);
 
+			if ( ! $update_result ) {
+				return new WP_Error( 'unable_to_update', __( 'Sorry!, an error occurred while updating the course progress.', 'learning-management-system' ) );
+			}
+
 			$course_progress_id = $activity->get_id();
 		}
 
 		masteriyo_transient_cache()->delete_cache( 'course_progress_' . $course_progress_id );
+
+		return true;
 	}
 }
 

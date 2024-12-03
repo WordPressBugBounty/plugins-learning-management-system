@@ -482,21 +482,21 @@
         },
         {
             "name": "halaxa/json-machine",
-            "version": "1.1.4",
-            "version_normalized": "1.1.4.0",
+            "version": "1.2.0",
+            "version_normalized": "1.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/halaxa/json-machine.git",
-                "reference": "5147f38f74d7ab3e27733e3f3bdabbd2fd28e3fa"
+                "reference": "c889fdff2d5a51affae0033464ff24b0ae936b72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/5147f38f74d7ab3e27733e3f3bdabbd2fd28e3fa",
-                "reference": "5147f38f74d7ab3e27733e3f3bdabbd2fd28e3fa",
+                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/c889fdff2d5a51affae0033464ff24b0ae936b72",
+                "reference": "c889fdff2d5a51affae0033464ff24b0ae936b72",
                 "shasum": ""
             },
             "require": {
-                "php": "7.0 - 8.3"
+                "php": "7.2 - 8.4"
             },
             "require-dev": {
                 "ext-json": "*",
@@ -508,10 +508,13 @@
                 "ext-json": "To run JSON Machine out of the box without custom decoders.",
                 "guzzlehttp/guzzle": "To run example with GuzzleHttp"
             },
-            "time": "2023-11-28T21:12:40+00:00",
+            "time": "2024-11-24T12:48:58+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
                 "psr-4": {
                     "JsonMachine\\": "src/"
                 },
@@ -532,7 +535,7 @@
             "description": "Efficient, easy-to-use and fast JSON pull parser",
             "support": {
                 "issues": "https://github.com/halaxa/json-machine/issues",
-                "source": "https://github.com/halaxa/json-machine/tree/1.1.4"
+                "source": "https://github.com/halaxa/json-machine/tree/1.2.0"
             },
             "funding": [
                 {
@@ -757,30 +760,28 @@
         },
         {
             "name": "maxmind-db/reader",
-            "version": "v1.11.1",
-            "version_normalized": "1.11.1.0",
+            "version": "v1.12.0",
+            "version_normalized": "1.12.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maxmind/MaxMind-DB-Reader-php.git",
-                "reference": "1e66f73ffcf25e17c7a910a1317e9720a95497c7"
+                "reference": "5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maxmind/MaxMind-DB-Reader-php/zipball/1e66f73ffcf25e17c7a910a1317e9720a95497c7",
-                "reference": "1e66f73ffcf25e17c7a910a1317e9720a95497c7",
+                "url": "https://api.github.com/repos/maxmind/MaxMind-DB-Reader-php/zipball/5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90",
+                "reference": "5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
             "conflict": {
-                "ext-maxminddb": "<1.11.1,>=2.0.0"
+                "ext-maxminddb": "<1.11.1 || >=2.0.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "3.*",
-                "php-coveralls/php-coveralls": "^2.1",
                 "phpstan/phpstan": "*",
-                "phpunit/phpcov": ">=6.0.0",
                 "phpunit/phpunit": ">=8.0.0,<10.0.0",
                 "squizlabs/php_codesniffer": "3.*"
             },
@@ -789,7 +790,7 @@
                 "ext-gmp": "bcmath or gmp is required for decoding larger integers with the pure PHP decoder",
                 "ext-maxminddb": "A C-based database decoder that provides significantly faster lookups"
             },
-            "time": "2023-12-02T00:09:23+00:00",
+            "time": "2024-11-14T22:43:47+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -819,23 +820,23 @@
             ],
             "support": {
                 "issues": "https://github.com/maxmind/MaxMind-DB-Reader-php/issues",
-                "source": "https://github.com/maxmind/MaxMind-DB-Reader-php/tree/v1.11.1"
+                "source": "https://github.com/maxmind/MaxMind-DB-Reader-php/tree/v1.12.0"
             },
             "install-path": "../maxmind-db/reader"
         },
         {
             "name": "mpdf/mpdf",
-            "version": "v8.2.4",
-            "version_normalized": "8.2.4.0",
+            "version": "v8.2.5",
+            "version_normalized": "8.2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mpdf/mpdf.git",
-                "reference": "9e3ff91606fed11cd58a130eabaaf60e56fdda88"
+                "reference": "e175b05e3e00977b85feb96a8cccb174ac63621f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/9e3ff91606fed11cd58a130eabaaf60e56fdda88",
-                "reference": "9e3ff91606fed11cd58a130eabaaf60e56fdda88",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/e175b05e3e00977b85feb96a8cccb174ac63621f",
+                "reference": "e175b05e3e00977b85feb96a8cccb174ac63621f",
                 "shasum": ""
             },
             "require": {
@@ -845,7 +846,7 @@
                 "mpdf/psr-log-aware-trait": "^2.0 || ^3.0",
                 "myclabs/deep-copy": "^1.7",
                 "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
-                "php": "^5.6 || ^7.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
+                "php": "^5.6 || ^7.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
                 "psr/http-message": "^1.0 || ^2.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "setasign/fpdi": "^2.1"
@@ -862,7 +863,7 @@
                 "ext-xml": "Needed mainly for SVG manipulation",
                 "ext-zlib": "Needed for compression of embedded resources, such as fonts"
             },
-            "time": "2024-06-14T16:06:41+00:00",
+            "time": "2024-11-18T15:30:42+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -895,7 +896,7 @@
                 "utf-8"
             ],
             "support": {
-                "docs": "http://mpdf.github.io",
+                "docs": "https://mpdf.github.io",
                 "issues": "https://github.com/mpdf/mpdf/issues",
                 "source": "https://github.com/mpdf/mpdf"
             },
@@ -1007,17 +1008,17 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.12.0",
-            "version_normalized": "1.12.0.0",
+            "version": "1.12.1",
+            "version_normalized": "1.12.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
+                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/123267b2c49fbf30d78a7b2d333f6be754b94845",
+                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845",
                 "shasum": ""
             },
             "require": {
@@ -1033,7 +1034,7 @@
                 "phpspec/prophecy": "^1.10",
                 "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
             },
-            "time": "2024-06-12T14:39:25+00:00",
+            "time": "2024-11-08T17:47:46+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1058,7 +1059,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.1"
             },
             "funding": [
                 {
@@ -1967,8 +1968,8 @@
         },
         {
             "name": "themegrill/openai",
-            "version": "dev-MAS-1770-single-course-page-enhancement-free",
-            "version_normalized": "dev-MAS-1770-single-course-page-enhancement-free",
+            "version": "dev-cleanup-files",
+            "version_normalized": "dev-cleanup-files",
             "dist": {
                 "type": "path",
                 "url": "./packages/openai",
@@ -1990,21 +1991,21 @@
         },
         {
             "name": "woocommerce/action-scheduler",
-            "version": "3.8.2",
-            "version_normalized": "3.8.2.0",
+            "version": "3.9.0",
+            "version_normalized": "3.9.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/action-scheduler.git",
-                "reference": "2bc91d88fdbc2c07ab899cbb56b983e11e62cf69"
+                "reference": "90b98e6fe97d455679b1d288f050cad8f6f79771"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/2bc91d88fdbc2c07ab899cbb56b983e11e62cf69",
-                "reference": "2bc91d88fdbc2c07ab899cbb56b983e11e62cf69",
+                "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/90b98e6fe97d455679b1d288f050cad8f6f79771",
+                "reference": "90b98e6fe97d455679b1d288f050cad8f6f79771",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.0"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "phpunit/phpunit": "^7.5",
@@ -2012,7 +2013,7 @@
                 "wp-cli/wp-cli": "~2.5.0",
                 "yoast/phpunit-polyfills": "^2.0"
             },
-            "time": "2024-09-12T23:12:58+00:00",
+            "time": "2024-11-15T00:11:39+00:00",
             "type": "wordpress-plugin",
             "extra": {
                 "scripts-description": {
@@ -2030,7 +2031,7 @@
             "homepage": "https://actionscheduler.org/",
             "support": {
                 "issues": "https://github.com/woocommerce/action-scheduler/issues",
-                "source": "https://github.com/woocommerce/action-scheduler/tree/3.8.2"
+                "source": "https://github.com/woocommerce/action-scheduler/tree/3.9.0"
             },
             "install-path": "../woocommerce/action-scheduler"
         }

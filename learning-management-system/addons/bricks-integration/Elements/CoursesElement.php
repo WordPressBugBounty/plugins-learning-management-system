@@ -1230,7 +1230,6 @@ class CoursesElement extends \Bricks\Element {
 		echo "<div {$this->render_attributes( '_root' )}>";//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<div class='<?php echo 'masteriyo'; ?>' style='<?php echo ( ( 1 === $count || 2 === $count ) && 1 === $columns ) ? 'width:1130px;' : ''; ?>'>
-	> 
 		<?php
 		masteriyo_set_loop_prop( 'columns', $columns );
 		if ( count( $courses ) > 0 ) {

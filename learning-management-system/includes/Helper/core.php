@@ -3640,7 +3640,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					),
 				),
 				'course_access' => array(
-					'enable_course_content_access_without_enrollment' => false,
+					'enable_course_content_access_without_enrollment' => true,
 					'restrict_instructors' => true,
 				),
 				'registration'  => array(

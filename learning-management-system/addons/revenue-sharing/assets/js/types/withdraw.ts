@@ -44,5 +44,6 @@ export interface WithdrawResponseDataMap {
 		pages: number;
 		current_page: number;
 		per_page: number;
+		withdraws_count: any;
 	};
 }

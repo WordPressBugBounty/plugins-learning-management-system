@@ -406,7 +406,7 @@ const AllGroups = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGroup.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

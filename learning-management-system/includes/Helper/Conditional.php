@@ -255,11 +255,11 @@ if ( ! function_exists( 'masteriyo_prices_include_tax' ) ) {
  * @return bool
  */
 function masteriyo_is_phone( $phone ) {
-	if ( 0 < strlen( trim( preg_replace( '/[\s\#0-9_\-\+\/\(\)\.]/', '', $phone ) ) ) ) {
-		return false;
-	}
+	// Remove all allowed characters from the phone number.
+	$cleaned_phone = trim( preg_replace( '/[\s\#0-9_\-\+\/\(\)\.]/', '', $phone ) );
 
-	return true;
+	// If any characters remain after cleaning, it's not a valid phone number.
+	return strlen( $cleaned_phone ) === 0;
 }
 
 /**

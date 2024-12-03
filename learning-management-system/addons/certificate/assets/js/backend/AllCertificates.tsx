@@ -473,7 +473,7 @@ const AllCertificates: React.FC = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteCertificate.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

@@ -46,6 +46,39 @@ class ScormAddon {
 		// Setting related hooks.
 		add_filter( 'masteriyo_new_setting', array( $this, 'save_setting' ), 10 );
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
+
+		add_action( 'template_redirect', array( $this, 'course_complete_handler' ) );
+	}
+	/**
+	 * Handles course completion for SCORM courses.
+	 *
+	 * @since 1.14.2
+	 */
+	public function course_complete_handler() {
+		if ( ! isset( $_GET['masteriyo_scorm_complete'] ) || ! is_user_logged_in() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$course_id = absint( $_GET['masteriyo_scorm_complete'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$course    = masteriyo_get_course( $course_id );
+		$user_id   = get_current_user_id();
+
+		if ( ! $user_id || ! $course instanceof \Masteriyo\Models\Course ) {
+			return;
+		}
+
+		$user_course = masteriyo_get_user_course_by_user_and_course( $user_id, $course_id );
+
+		if ( ! $user_course ) {
+			return;
+		}
+
+		masteriyo_update_user_scorm_course_progress( $course_id, $user_id, CourseProgressStatus::COMPLETED );
+
+		$learn_page_url = masteriyo_get_page_permalink( 'learn' );
+		$url            = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
+		wp_safe_redirect( $url );
+		exit;
 	}
 
 	/**
@@ -150,12 +183,13 @@ class ScormAddon {
 
 			$query = new CourseProgressQuery(
 				array(
-					'course_id' => $course->get_id(),
+					'course_id' => $course_id,
 					'user_id'   => get_current_user_id(),
 				)
 			);
 
-			$progress = current( $query->get_course_progress() );
+			$progress        = current( $query->get_course_progress() );
+			$certificate_url = masteriyo_generate_certificate_download_url( $course_id );
 
 			require Constants::get( 'MASTERIYO_SCORM_ADDON_TEMPLATES' ) . '/scorm-learn.php';
 

@@ -193,9 +193,8 @@ const UiPlacement: React.FC<Props> = (props) => {
 									: isEmpty(data.types)
 										? __('All Types', 'learning-management-system')
 										: rewardTypeOptions
-												.filter(
-													(rewardType) =>
-														data.types?.includes(rewardType.value),
+												.filter((rewardType) =>
+													data.types?.includes(rewardType.value),
 												)
 												.map((type) => type.label)
 												.join(', ')}
@@ -233,8 +232,8 @@ const UiPlacement: React.FC<Props> = (props) => {
 										closeMenuOnSelect={false}
 										isClearable={true}
 										placeholder="All"
-										defaultValue={rewardTypeOptions.filter(
-											(rewardType) => data.types?.includes(rewardType.value),
+										defaultValue={rewardTypeOptions.filter((rewardType) =>
+											data.types?.includes(rewardType.value),
 										)}
 										options={rewardTypeOptions}
 										noOptionsMessage={({ inputValue }) => {

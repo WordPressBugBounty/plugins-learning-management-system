@@ -7,6 +7,7 @@
  * @package Masteriyo\Helper
  */
 
+use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\PostType\PostType;
@@ -409,5 +410,173 @@ if ( ! function_exists( 'masteriyo_is_user_already_enrolled' ) ) {
 
 		$count = $wpdb->get_var( $wpdb->prepare( $query, $args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return $count > 0;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_request_from_account_dashboard' ) ) {
+	/**
+	 * Determines if the request is from the account dashboard.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param WP_REST_Request|null $request Optional. The request object. Defaults to current HTTP request.
+	 *
+	 * @return bool True if the request is from the account dashboard, false otherwise.
+	 */
+	function masteriyo_is_request_from_account_dashboard( $request = null ) {
+		$request = $request ?? masteriyo_current_http_request();
+
+		if ( ! $request instanceof \WP_REST_Request ) {
+			return false;
+		}
+
+		return masteriyo_string_to_bool( $request['from_account_dashboard'] ) ?? false;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_user_progress_course_ids' ) ) {
+
+	/**
+	 * Retrieves an array of course IDs for a given user filtered by the specified course status.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param Masteriyo\Models\User|int|null $user Optional. User object or ID. Defaults to the current user.
+	 * @param string $course_status Optional. The status of the course. Defaults to 'progress'.
+	 *
+	 * @return array The array of course IDs matching the specified status for the user.
+	 */
+	function masteriyo_get_user_course_ids_by_course_status( $user = null, $course_status = CourseProgressStatus::PROGRESS ) {
+
+		$user_id = is_a( $user, 'Masteriyo\Models\User' ) ? $user->get_id() : absint( $user ) ?? get_current_user_id();
+
+		if ( ! $user_id ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		$courses_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT a.item_id
+					FROM {$wpdb->prefix}masteriyo_user_activities a
+					WHERE a.user_id = %d
+					AND a.activity_type = %s
+					AND a.activity_status = %s
+					AND a.item_id IN (
+						SELECT b.item_id FROM {$wpdb->prefix}masteriyo_user_items b WHERE b.status = %s
+					)
+					AND a.item_id IN (
+						SELECT c.ID FROM {$wpdb->prefix}posts c WHERE c.post_type = %s AND c.post_status = %s
+					) ORDER BY a.item_id DESC",
+				array(
+					absint( $user_id ),
+					'course_progress',
+					$course_status,
+					UserCourseStatus::ACTIVE,
+					PostType::COURSE,
+					PostStatus::PUBLISH,
+				)
+			)
+		);
+
+		return $courses_ids;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_user_courses_count_by_course_status' ) ) {
+
+	/**
+	 * Get the count of user courses by course status.
+	 *
+	 * Retrieves the number of courses for a given user based on the specified course status.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param Masteriyo\Models\User|int|null $user Optional. User object or ID. Defaults to the current user.
+	 * @param string $course_status Optional. The status of the course. Defaults to 'progress'.
+	 *
+	 * @return int The count of courses matching the specified status for the user.
+	 */
+	function masteriyo_get_user_courses_count_by_course_status( $user = null, $course_status = CourseProgressStatus::PROGRESS ) {
+		$user_id = is_a( $user, 'Masteriyo\Models\User' ) ? $user->get_id() : absint( $user ) ?? get_current_user_id();
+
+		if ( ! $user_id ) {
+			return 0;
+		}
+
+		global $wpdb;
+
+		$courses_count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+					FROM {$wpdb->prefix}masteriyo_user_activities a
+					WHERE a.user_id = %d
+					AND a.activity_type = %s
+					AND a.activity_status = %s
+					AND a.item_id IN (
+						SELECT b.item_id FROM {$wpdb->prefix}masteriyo_user_items b WHERE b.status = %s
+					)
+					AND a.item_id IN (
+						SELECT c.ID FROM {$wpdb->prefix}posts c WHERE c.post_type = %s AND c.post_status = %s
+					) ORDER BY a.item_id DESC",
+				array(
+					absint( $user_id ),
+					'course_progress',
+					$course_status,
+					UserCourseStatus::ACTIVE,
+					PostType::COURSE,
+					PostStatus::PUBLISH,
+				)
+			)
+		);
+
+		return $courses_count ? absint( $courses_count ) : 0;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_user_enrolled_courses_count' ) ) {
+
+	/**
+	 * Retrieves the number of courses in which a user is enrolled.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param int|WP_User|Masteriyo\Database\Model $user User ID, WP_User object, or Masteriyo\Database\Model object.
+	 *
+	 * @return int The number of enrolled courses for the user.
+	 */
+	function masteriyo_get_user_enrolled_courses_count( $user = null ) {
+		$user_id = is_a( $user, 'Masteriyo\Models\User' ) ? $user->get_id() : absint( $user ) ?? get_current_user_id();
+
+		if ( ! $user_id ) {
+			return 0;
+		}
+
+		global $wpdb;
+
+		$courses_count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+					FROM {$wpdb->prefix}masteriyo_user_activities a
+					WHERE a.user_id = %d
+					AND a.activity_type = %s
+					AND a.item_id IN (
+						SELECT b.item_id FROM {$wpdb->prefix}masteriyo_user_items b WHERE b.status = %s
+					)
+					AND a.item_id IN (
+						SELECT c.ID FROM {$wpdb->prefix}posts c WHERE c.post_type = %s AND c.post_status = %s
+					) ORDER BY a.item_id DESC",
+				array(
+					absint( $user_id ),
+					'course_progress',
+					UserCourseStatus::ACTIVE,
+					PostType::COURSE,
+					PostStatus::PUBLISH,
+				)
+			)
+		);
+
+		return $courses_count ? absint( $courses_count ) : 0;
 	}
 }

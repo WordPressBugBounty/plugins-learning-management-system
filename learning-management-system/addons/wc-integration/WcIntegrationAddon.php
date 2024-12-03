@@ -142,6 +142,30 @@ class WcIntegrationAddon {
 
 		add_filter( 'masteriyo_single_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
 		add_filter( 'masteriyo_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
+
+		add_filter( 'masteriyo_enroll_button_class', array( $this, 'remove_password_protected_class' ), 15, 2 );
+	}
+
+	/**
+	 * Remove 'masteriyo-password-protected' class from the enroll button classes array if the course is a WooCommerce product and the user can't start the course.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param string[] $classes The array of classes for the enroll button.
+	 * @param \Masteriyo\Models\Course $course The course object.
+	 *
+	 * @return string[]
+	 */
+	public function remove_password_protected_class( $classes, $course ) {
+		if ( ! $course instanceof \Masteriyo\Models\Course ) {
+			return $classes;
+		}
+
+		if ( ! masteriyo_can_start_course( $course ) && Helper::is_course_wc_product( $course->get_id() ) ) {
+			return array_diff( $classes, array( 'masteriyo-password-protected' ) );
+		}
+
+		return $classes;
 	}
 
 	/**
@@ -200,6 +224,17 @@ class WcIntegrationAddon {
 		$product->set_regular_price( $regular_price );
 		$product->set_sale_price( $sale_price );
 		$product->set_status( $status );
+
+		$post_password = $product->get_post_password();
+
+		/**
+		 * It is the fix for a bug where user not enter password for buying the course.
+		 *
+		 * @since 1.14.2
+		 */
+		if ( ! empty( $post_password ) ) {
+			$product->set_post_password( '' );
+		}
 
 		$product->save();
 	}
@@ -1023,7 +1058,6 @@ class WcIntegrationAddon {
 		$product->get_tag_ids( $course->get_tag_ids() );
 		$product->set_reviews_allowed( $course->get_reviews_allowed() );
 		$product->set_catalog_visibility( $course->get_catalog_visibility() );
-		$product->set_post_password( $course->get_post_password() );
 
 		$product_id = $product->save();
 

@@ -268,7 +268,7 @@ class Masteriyo {
 		 */
 		$locale = apply_filters( 'plugin_locale', $locale, 'learning-management-system' );
 
-		unload_textdomain( 'learning-management-system' );
+		unload_textdomain( 'learning-management-system', true );
 		load_textdomain( 'learning-management-system', WP_LANG_DIR . '/masteriyo/learning-management-system-' . $locale . '.mo' );
 		load_plugin_textdomain( 'learning-management-system', false, plugin_basename( dirname( MASTERIYO_PLUGIN_FILE ) ) . '/i18n/languages' );
 	}
@@ -977,7 +977,7 @@ class Masteriyo {
 					$user_courses->set_object_read( true );
 				}
 
-				if ( ! empty( $user_courses ) ) {
+				if ( ! empty( $user_courses ) && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() ) {
 					$user = get_user_by( 'id', absint( get_current_user_id() ) );
 
 					if ( $user && ! in_array( Roles::STUDENT, (array) $user->roles, true ) ) {

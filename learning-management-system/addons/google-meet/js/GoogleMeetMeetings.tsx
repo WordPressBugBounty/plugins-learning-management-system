@@ -14,7 +14,7 @@ import { deepMerge, isEmpty } from '../../../assets/js/back-end/utils/utils';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import ActionDialog from '../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../assets/js/back-end/components/common/EmptyInfo';
@@ -75,18 +75,19 @@ const GoogleMeetMeetings: React.FC = () => {
 		queryKey: ['googleMeetList', filterParams, status],
 		queryFn: () =>
 			meetingsAPI.list({ status: status || 'all', ...filterParams }),
-		...{
-			onSuccess: (data: any) => {
-				if (data?.meta?.googleMeetCounts) {
-					setGoogleMeetStatusCount({
-						...data?.meta?.googleMeetCounts,
-					});
-					setBulkIds([]);
-					setBulkAction('');
-				}
-			},
-		},
 	});
+
+	useEffect(() => {
+		if (googleMeetMeetingQuery?.isSuccess) {
+			if (googleMeetMeetingQuery?.data?.meta?.googleMeetCounts) {
+				setGoogleMeetStatusCount({
+					...googleMeetMeetingQuery?.data?.meta?.googleMeetCounts,
+				});
+				setBulkIds([]);
+				setBulkAction('');
+			}
+		}
+	}, [googleMeetMeetingQuery]);
 
 	const onDeleteConfirm = () => {
 		googleMeetMeetingQuery.data?.id
@@ -337,7 +338,7 @@ const GoogleMeetMeetings: React.FC = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGoogleMeet.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

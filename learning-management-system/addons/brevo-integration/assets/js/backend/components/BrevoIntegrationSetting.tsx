@@ -64,7 +64,6 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 		queryFn: () => brevoIntegrationAPI.list({ force: isSyncing }),
 		...{
 			enabled: isAPIKeyConnected,
-			onError: (err: any) => {},
 		},
 	});
 

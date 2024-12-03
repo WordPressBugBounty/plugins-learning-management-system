@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	BiCheckCircle,
 	BiLoaderCircle,
@@ -110,17 +110,20 @@ const AllWithdraws: React.FC = () => {
 		queryFn: () => withdrawAPI.list(filterParams),
 		...{
 			keepPreviousData: true,
-			onSuccess(data: any) {
-				const withdrawCount = data?.meta?.withdraws_count;
-				setWithdrawStatusCount({
-					any: withdrawCount?.any,
-					approved: withdrawCount?.approved,
-					pending: withdrawCount?.pending,
-					rejected: withdrawCount?.rejected,
-				});
-			},
 		},
 	});
+
+	useEffect(() => {
+		if (withdrawsQuery?.isSuccess) {
+			const withdrawCount = withdrawsQuery?.data?.meta?.withdraws_count;
+			setWithdrawStatusCount({
+				any: withdrawCount?.any,
+				approved: withdrawCount?.approved,
+				pending: withdrawCount?.pending,
+				rejected: withdrawCount?.rejected,
+			});
+		}
+	}, [withdrawsQuery]);
 
 	const filterBy = (order: 'asc' | 'desc', orderBy: string) =>
 		setFilterParams(

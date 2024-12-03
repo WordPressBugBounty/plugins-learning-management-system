@@ -11,6 +11,7 @@ return array(
     '37a3dc5111fe8f707ab4c132ef1dbc62' => $vendorDir . '/guzzlehttp/guzzle/src/functions_include.php',
     'a4a119a56e50fbb293281d9a48007e0e' => $vendorDir . '/symfony/polyfill-php80/bootstrap.php',
     '6124b4c8570aa390c21fafd04a26c69f' => $vendorDir . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+    'ace6d88241f812b4accb2d847454aef6' => $vendorDir . '/halaxa/json-machine/src/functions.php',
     'db356362850385d08a5381de2638b5fd' => $vendorDir . '/mpdf/mpdf/src/functions.php',
     '9be579fcc9ba214f8e9df01e0653f265' => $baseDir . '/includes/Helper/depreciated.php',
     'ff7464d0280649f7648508e9f6dc0bf3' => $baseDir . '/includes/Helper/Arr.php',

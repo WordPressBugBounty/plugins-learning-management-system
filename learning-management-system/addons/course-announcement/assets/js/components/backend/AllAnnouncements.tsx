@@ -461,7 +461,7 @@ const AllAnnouncements = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteAnnouncement.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

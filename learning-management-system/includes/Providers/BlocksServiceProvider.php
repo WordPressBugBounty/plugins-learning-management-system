@@ -62,7 +62,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 		}
 
 		add_action( 'init', array( $this, 'register_blocks' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'my_custom_editor_inline_styles' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_masteriyo_editor_custom_styles' ) );
 	}
 
 	/**
@@ -72,7 +72,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 	 *
 	 * @return void
 	 */
-	public function my_custom_editor_inline_styles() {
+	public function enqueue_masteriyo_editor_custom_styles() {
 		$custom_css = "
         .editor-styles-wrapper .wp-block[data-type='masteriyo/course-price'] {
             margin: 0;

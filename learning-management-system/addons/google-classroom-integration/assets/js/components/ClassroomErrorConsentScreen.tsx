@@ -23,7 +23,6 @@ const ClassroomErrorConsentScreen: React.FC<Props> = ({
 	const settingQuery = useQuery({
 		queryKey: ['googleClassroomSettings'],
 		queryFn: () => GoogleClassroomAPI.list(),
-
 		...{
 			keepPreviousData: true,
 		},

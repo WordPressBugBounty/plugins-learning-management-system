@@ -6729,10 +6729,10 @@ body.masteriyo {
 }
 .masteriyo-scorm-course-header__button-download {
   border-radius: 4px;
-  border: 1px solid #646464;
+  border: 1px solid var(--masteriyo-color-primary);
   background: #ffffff;
   padding: 6px 14px;
-  color: #646464;
+  color: var(--masteriyo-color-primary);
   font-family: Inter;
   font-size: 14px;
   font-weight: 500;
@@ -6750,8 +6750,58 @@ body.masteriyo {
 }
 .masteriyo-scorm-course-header__button-download:hover {
   color: #ffffff;
+  background: var(--masteriyo-color-primary-light);
+  border-color: var(--masteriyo-color-primary-light);
+}
+.masteriyo-scorm-course-header__button-complete {
+  border-radius: 4px;
+  border: 1px solid #3ca03c;
   background: #3ca03c;
-  border-color: #3ca03c;
+  padding: 6px 14px;
+  color: #ffffff;
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  opacity: 0.8;
+}
+@media screen and (max-width: 460px) {
+  .masteriyo-scorm-course-header__button-complete {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 16px;
+  }
+}
+.masteriyo-scorm-course-header__button-complete:hover {
+  color: #ffffff;
+}
+.masteriyo-scorm-course-header__button-continue {
+  border-radius: 4px;
+  border: 1px solid var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-primary);
+  padding: 6px 14px;
+  color: #ffffff;
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+@media screen and (max-width: 460px) {
+  .masteriyo-scorm-course-header__button-continue {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 16px;
+  }
+}
+.masteriyo-scorm-course-header__button-continue:hover {
+  color: var(--masteriyo-color-primary);
+  background: #ffffff;
 }
 
 .masteriyo-wrapper.scorm {

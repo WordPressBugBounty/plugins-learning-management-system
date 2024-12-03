@@ -757,7 +757,7 @@ class ScriptStyle {
     ';
 		wp_add_inline_style( 'admin-bar', $custom_css );
 
-		$button_color = masteriyo_get_setting( 'general.styling.button_color' );
+		$button_color = masteriyo_get_setting( 'general.styling.button_color' ) ?? '';
 
 		if ( trim( $button_color ) ) {
 			$button_color_light = masteriyo_color_luminance( $button_color, 0.3 );

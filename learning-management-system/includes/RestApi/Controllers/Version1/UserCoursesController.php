@@ -11,7 +11,7 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Query\UserCourseQuery;
@@ -239,6 +239,13 @@ class UserCoursesController extends CrudController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
+		$params['from_account_dashboard'] = array(
+			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'type'              => 'boolean',
+			'default'           => false,
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+
 		return $params;
 	}
 
@@ -266,10 +273,10 @@ class UserCoursesController extends CrudController {
 	 *
 	 * @since  1.3.1
 	 *
-	 * @param  Masteriyo\Database\Model $object  Model object.
-	 * @param  WP_REST_Request $request Request object.
+	 * @param  \Masteriyo\Database\Model $object  Model object.
+	 * @param  \WP_REST_Request $request Request object.
 	 *
-	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
@@ -385,7 +392,7 @@ class UserCoursesController extends CrudController {
 	 * @return array
 	 */
 	protected function process_objects_collection( $objects, $query_args, $query_results ) {
-		return array(
+		$response = array(
 			'data' => $objects,
 			'meta' => array(
 				'total'        => $query_results['total'],
@@ -394,6 +401,12 @@ class UserCoursesController extends CrudController {
 				'per_page'     => $query_args['per_page'],
 			),
 		);
+
+		if ( masteriyo_is_request_from_account_dashboard() ) {
+			$response['courses_stat'] = $this->get_courses_stat( current( $query_args['user__in'] ) );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -419,6 +432,10 @@ class UserCoursesController extends CrudController {
 		);
 
 		$args['paged'] = $args['page'];
+
+		if ( masteriyo_is_request_from_account_dashboard( $request ) ) {
+			$args['course__in'] = masteriyo_get_user_course_ids_by_course_status( current( $args['user__in'] ) );
+		}
 
 		/**
 		 * Filter the query arguments for a request.
@@ -506,11 +523,13 @@ class UserCoursesController extends CrudController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id          = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		/** @var \Masteriyo\Models\UserCourse $user_course */
 		$user_course = masteriyo( 'user-course' );
 
 		if ( 0 !== $id ) {
 			$user_course->set_id( $id );
+			/** @var \Masteriyo\Repository\UserCourseRepository */
 			$user_course_repo = masteriyo( 'user-course.store' );
 			$user_course_repo->read( $user_course );
 		}
@@ -842,5 +861,25 @@ class UserCoursesController extends CrudController {
 		$terms = 'difficulty' === $taxonomy ? array_shift( $terms ) : $terms;
 
 		return $terms;
+	}
+
+	/**
+	 * Get courses statistics.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return array Associative array of course statistics.
+	 *               Keys: completed_count, in_progress_count, enrolled_count.
+	 */
+	private function get_courses_stat( $user_id = null ) {
+		$courses_stat = array(
+			'completed_count'   => masteriyo_get_user_courses_count_by_course_status( $user_id, CourseProgressStatus::COMPLETED ),
+			'in_progress_count' => masteriyo_get_user_courses_count_by_course_status( $user_id ),
+			'enrolled_count'    => masteriyo_get_user_enrolled_courses_count( $user_id ),
+		);
+
+		return $courses_stat;
 	}
 }

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiSolidMegaphone } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
@@ -59,12 +59,13 @@ const EditAnnouncement: React.FC = () => {
 	const announcementQuery = useQuery<AnnouncementSchema>({
 		queryKey: [`announcement${courseAnnouncementId}`, courseAnnouncementId],
 		queryFn: () => announcementAPI.get(courseAnnouncementId, 'edit'),
-		...{
-			onError: () => {
-				navigate(routes.notFound);
-			},
-		},
 	});
+
+	useEffect(() => {
+		if (announcementQuery?.isError) {
+			navigate(routes.notFound);
+		}
+	}, [announcementQuery?.isError, navigate]);
 
 	const updateAnnouncement = useMutation<AnnouncementSchema>({
 		mutationFn: (data) => announcementAPI.update(courseAnnouncementId, data),

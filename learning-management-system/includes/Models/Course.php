@@ -63,6 +63,16 @@ class Course extends Model {
 	protected $cache_group = 'courses';
 
 	/**
+	 * Course Progress.
+	 *
+	 * @since 1.14.2
+	 *
+	 * @var \Masteriyo\Models\CourseProgressItem|null
+	 * Default: null
+	 */
+	public $progress = null;
+
+	/**
 	 * Stores course data.
 	 *
 	 * @since 1.0.0

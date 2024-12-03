@@ -83,7 +83,7 @@ const LeftHeader: React.FC = (props) => {
 	const currentTab =
 		'/multiple-currency/settings' === pathname
 			? ''
-			: searchParams.get('status') ?? 'any';
+			: (searchParams.get('status') ?? 'any');
 
 	const pricingZoneAPI = new API(urls.pricingZones);
 

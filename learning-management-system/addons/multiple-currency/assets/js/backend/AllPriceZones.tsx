@@ -415,7 +415,7 @@ const AllPriceZones = () => {
 				isLoading={
 					'' === bulkAction
 						? deletePricingZone.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

@@ -915,8 +915,8 @@ class CertificatesController extends PostsController {
 	 */
 	public function get_user_certificates( $request ) {
 
-		$per_page    = intval( preg_replace( '/[^0-9]/', '', $_GET['per_page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$page_number = intval( preg_replace( '/[^0-9]/', '', $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$per_page    = intval( preg_replace( '/[^0-9]/', '', $_GET['per_page'] ?? 5 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page_number = intval( preg_replace( '/[^0-9]/', '', $_GET['page'] ?? 1 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$context = 'view';
 		$query   = new CourseProgressQuery(

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.1\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-20T11:17:59+00:00\n"
+"POT-Creation-Date: 2024-12-03T11:35:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: learning-management-system\n"
@@ -106,6 +106,7 @@ msgid "Google Classroom"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:53
+#: addons/scorm/templates/scorm-header.php:34
 msgid "Complete Course"
 msgstr ""
 
@@ -223,13 +224,21 @@ msgstr ""
 msgid "Course Name:"
 msgstr ""
 
-#: addons/scorm/templates/scorm-header.php:26
+#: addons/scorm/templates/scorm-header.php:27
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Download Certificate"
 msgstr ""
 
-#: addons/scorm/templates/scorm-header.php:30
+#: addons/scorm/templates/scorm-header.php:32
+#: includes/Models/Course.php:1956
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Completed"
+msgstr ""
+
+#: addons/scorm/templates/scorm-header.php:37
 msgid "Exit"
 msgstr ""
 
@@ -2448,7 +2457,7 @@ msgstr[1] ""
 msgid "%s Duration"
 msgstr ""
 
-#: includes/Helper/user-course.php:85
+#: includes/Helper/user-course.php:86
 msgctxt "User Course status"
 msgid "Active"
 msgstr ""
@@ -2622,57 +2631,50 @@ msgstr[1] ""
 msgid "%1$s in %2$s on line %3$s"
 msgstr ""
 
-#: includes/Models/Course.php:1835
-#: includes/Models/Course.php:2093
+#: includes/Models/Course.php:1845
+#: includes/Models/Course.php:2103
 msgid "Buy Now"
 msgstr ""
 
-#: includes/Models/Course.php:1838
+#: includes/Models/Course.php:1848
 msgid "Need Registration"
 msgstr ""
 
-#: includes/Models/Course.php:1868
+#: includes/Models/Course.php:1878
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Start Course"
 msgstr ""
 
-#: includes/Models/Course.php:1887
+#: includes/Models/Course.php:1897
 #: assets/js/build/masteriyo-account.js:1
 msgid "Retake"
 msgstr ""
 
-#: includes/Models/Course.php:1906
+#: includes/Models/Course.php:1916
 #: assets/js/build/masteriyo-account.js:1
 msgid "Continue"
 msgstr ""
 
-#: includes/Models/Course.php:1925
+#: includes/Models/Course.php:1935
 msgid "Continue Quiz"
 msgstr ""
 
-#: includes/Models/Course.php:1946
-#: assets/js/build/masteriyo-account.js:1
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Completed"
-msgstr ""
-
-#: includes/Models/Course.php:2090
+#: includes/Models/Course.php:2100
 msgid "Read more"
 msgstr ""
 
-#: includes/Models/Course.php:2097
+#: includes/Models/Course.php:2107
 msgid "Register Now"
 msgstr ""
 
 #. translators: %s: Course title
-#: includes/Models/Course.php:2129
+#: includes/Models/Course.php:2139
 msgid "Read more about &ldquo;%s&rdquo;"
 msgstr ""
 
 #. translators: %s: Course title
-#: includes/Models/Course.php:2133
+#: includes/Models/Course.php:2143
 msgid "Enroll &ldquo;%s&rdquo; course"
 msgstr ""
 
@@ -3656,7 +3658,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/SectionsController.php:110
 #: includes/RestApi/Controllers/Version1/SectionsController.php:320
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:125
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:453
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:470
 #: includes/RestApi/Controllers/Version1/UsersController.php:142
 #: includes/RestApi/Controllers/Version1/UsersController.php:874
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:106
@@ -4091,11 +4093,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/SettingsController.php:258
 #: includes/RestApi/Controllers/Version1/SettingsController.php:277
 #: includes/RestApi/Controllers/Version1/SettingsController.php:296
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:590
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:613
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:642
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:671
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:702
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:609
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:632
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:661
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:690
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:721
 #: includes/RestApi/Controllers/Version1/UsersController.php:1337
 #: includes/RestApi/Controllers/Version1/UsersController.php:1380
 #: includes/RestApi/Controllers/Version1/UsersController.php:1420
@@ -4242,7 +4244,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:738
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:620
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:639
 #: includes/RestApi/Controllers/Version1/UsersController.php:1387
 #: includes/RestApi/Controllers/Version1/UsersController.php:1397
 msgid "Sorry, you cannot list resources."
@@ -4260,7 +4262,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:425
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:649
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:668
 #: includes/RestApi/Controllers/Version1/UsersController.php:1427
 #: includes/RestApi/Controllers/Version1/UsersController.php:1437
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:186
@@ -4280,7 +4282,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:859
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:711
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:730
 #: includes/RestApi/Controllers/Version1/UsersController.php:1488
 #: includes/RestApi/Controllers/Version1/UsersController.php:1527
 msgid "Sorry, you are not allowed to delete resources."
@@ -4298,7 +4300,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:997
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:680
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:699
 #: includes/RestApi/Controllers/Version1/UsersController.php:1631
 #: includes/RestApi/Controllers/Version1/UsersController.php:1643
 msgid "Sorry, you are not allowed to update resources."
@@ -4517,7 +4519,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:188
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:270
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:191
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:459
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:476
 msgid "User ID"
 msgstr ""
 
@@ -4530,7 +4532,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1078
 #: includes/RestApi/Controllers/Version1/SectionsController.php:364
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:464
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:481
 #: templates/order/invoice.php:227
 msgid "Course ID"
 msgstr ""
@@ -4547,21 +4549,22 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:210
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:208
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:215
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:243
 msgid "Limit response to resources started after a given ISO8601 compliant date."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:658
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:475
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:492
 msgid "Course progress status."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:664
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:481
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:498
 msgid "Course progress start date in GMT."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:670
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:487
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:504
 msgid "Course progress modified date in GMT."
 msgstr ""
 
@@ -4571,7 +4574,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:993
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:726
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:761
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:780
 msgid "User ID is invalid."
 msgstr ""
 
@@ -4582,8 +4585,8 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:1033
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:778
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:801
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:810
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:820
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:829
 msgid "Course ID is invalid."
 msgstr ""
 
@@ -6961,11 +6964,11 @@ msgstr ""
 msgid "User course status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:470
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:487
 msgid "Item type (e.g. Course)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:771
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:790
 msgid "User cannot access other's course progress."
 msgstr ""
 

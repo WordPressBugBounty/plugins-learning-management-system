@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
@@ -70,12 +70,13 @@ const EditPriceZone: React.FC = () => {
 	const pricingZoneQuery = useQuery<PriceZoneSchema>({
 		queryKey: [`pricingZone${pricingZoneID}`, pricingZoneID],
 		queryFn: () => pricingZoneAPI.get(pricingZoneID, 'edit'),
-		...{
-			onError: () => {
-				navigate(routes.notFound);
-			},
-		},
 	});
+
+	useEffect(() => {
+		if (pricingZoneQuery?.isError) {
+			navigate(routes.notFound);
+		}
+	}, [pricingZoneQuery?.isError, navigate]);
 
 	const updatePriceZone = useMutation<PriceZoneSchema>({
 		mutationFn: (data) => pricingZoneAPI.update(pricingZoneID, data),
