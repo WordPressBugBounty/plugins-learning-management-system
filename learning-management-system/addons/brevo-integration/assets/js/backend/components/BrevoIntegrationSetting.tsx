@@ -127,7 +127,7 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 
 	useEffect(() => {
 		if (isSyncing) {
-			brevoListQuery.refetch().then(() => {
+			brevoListQuery?.refetch()?.then(() => {
 				setIsSyncing(false);
 				toast({
 					title: __('Lists Synced Successfully.', 'learning-management-system'),
@@ -257,8 +257,8 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 											>
 												{brevoListQuery?.isSuccess &&
 													brevoListQuery?.data?.map((list) => (
-														<option key={list.id} value={list.id}>
-															{list.name}
+														<option key={list?.id} value={list?.id}>
+															{list?.name}
 														</option>
 													))}
 											</Select>

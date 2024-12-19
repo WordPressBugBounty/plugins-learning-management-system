@@ -249,8 +249,8 @@ const AllGroups = () => {
 													groupQuery.isRefetching
 												}
 												isIndeterminate={
-													groupQuery?.data?.data?.length !== bulkIds.length &&
-													bulkIds.length > 0
+													groupQuery?.data?.data?.length !== bulkIds?.length &&
+													bulkIds?.length > 0
 												}
 												isChecked={
 													groupQuery?.data?.data?.length === bulkIds.length &&
@@ -259,8 +259,8 @@ const AllGroups = () => {
 												onChange={(e) =>
 													setBulkIds(
 														e.target.checked
-															? groupQuery?.data?.data?.map((group: any) =>
-																	group.id.toString(),
+															? groupQuery?.data?.data?.map(
+																	(group: any) => group?.id?.toString(),
 																)
 															: [],
 													)
@@ -406,7 +406,7 @@ const AllGroups = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGroup.isPending
-						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
+						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{
 					default: {

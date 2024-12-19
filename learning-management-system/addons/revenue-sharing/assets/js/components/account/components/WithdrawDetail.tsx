@@ -58,7 +58,7 @@ const WithdrawDetail: React.FC = () => {
 							subtitle={
 								userDataQuery.data?.revenue_sharing
 									?.available_amount_formatted ??
-								localized.currency.symbol + '0'
+								localized?.currency?.symbol + '0'
 							}
 							colorScheme="primary"
 							icon={<BiMoney />}
@@ -70,7 +70,7 @@ const WithdrawDetail: React.FC = () => {
 							subtitle={
 								userDataQuery.data?.revenue_sharing
 									?.withdrawable_amount_formatted ??
-								localized.currency.symbol + '0'
+								localized?.currency?.symbol + '0'
 							}
 							colorScheme="green"
 							icon={<BiMoneyWithdraw />}

@@ -36,12 +36,12 @@ const Country: React.FC<Props> = ({ defaultValue, testModeWatch }) => {
 
 	const countryOptions = useMemo(() => {
 		return countriesQuery.isSuccess
-			? countriesQuery.data?.map((country: CurrenciesSchema) => ({
-					value: country.code,
-					label: country.name,
+			? countriesQuery?.data?.map((country: CurrenciesSchema) => ({
+					value: country?.code,
+					label: country?.name,
 				}))
 			: [];
-	}, [countriesQuery.isSuccess, countriesQuery.data]);
+	}, [countriesQuery.isSuccess, countriesQuery?.data]);
 
 	const noOptionsMessage = () =>
 		__('No country found.', 'learning-management-system');

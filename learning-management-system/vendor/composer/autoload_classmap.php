@@ -762,6 +762,7 @@ return array(
     'Masteriyo\\RestApi\\Controllers\\Version1\\CoursesImportExportController' => $baseDir . '/includes/RestApi/Controllers/Version1/CoursesImportExportController.php',
     'Masteriyo\\RestApi\\Controllers\\Version1\\CrudController' => $baseDir . '/includes/RestApi/Controllers/Version1/CrudController.php',
     'Masteriyo\\RestApi\\Controllers\\Version1\\DataController' => $baseDir . '/includes/RestApi/Controllers/Version1/DataController.php',
+    'Masteriyo\\RestApi\\Controllers\\Version1\\ErrorReportsController' => $baseDir . '/includes/RestApi/Controllers/Version1/ErrorReportsController.php',
     'Masteriyo\\RestApi\\Controllers\\Version1\\InstructorsController' => $baseDir . '/includes/RestApi/Controllers/Version1/InstructorsController.php',
     'Masteriyo\\RestApi\\Controllers\\Version1\\LessonReviewsController' => $baseDir . '/includes/RestApi/Controllers/Version1/LessonReviewsController.php',
     'Masteriyo\\RestApi\\Controllers\\Version1\\LessonsController' => $baseDir . '/includes/RestApi/Controllers/Version1/LessonsController.php',

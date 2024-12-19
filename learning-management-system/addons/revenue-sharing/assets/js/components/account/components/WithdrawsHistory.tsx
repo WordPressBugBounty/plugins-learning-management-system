@@ -51,22 +51,22 @@ const WithdrawsHistory: React.FC = () => {
 							<SkeletonWithdrawsList />
 						) : withdrawsQuery.isSuccess &&
 						  !isEmpty(withdrawsQuery?.data?.data) ? (
-							withdrawsQuery.data?.data.map((withdraw) => (
-								<Tr key={withdraw.id}>
+							withdrawsQuery.data?.data?.map((withdraw) => (
+								<Tr key={withdraw?.id}>
 									<Td>
 										<Text fontSize="sm" color="gray.600">
-											{withdraw.date_created}
+											{withdraw?.date_created}
 										</Text>
 									</Td>
 									<Td>
 										<Text fontSize="sm" color="gray.600">
-											{withdraw.withdraw_amount}
+											{withdraw?.withdraw_amount}
 										</Text>
 									</Td>
 									<Td>
 										<Text fontSize="sm" color="gray.600">
 											{withdrawMethods?.[
-												withdraw.withdraw_method?.method ?? ''
+												withdraw?.withdraw_method?.method ?? ''
 											] ?? ''}
 										</Text>
 									</Td>

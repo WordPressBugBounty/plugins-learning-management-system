@@ -41,6 +41,7 @@ use Masteriyo\RestApi\Controllers\Version1\UserCoursesController;
 use Masteriyo\RestApi\Controllers\Version1\UsersController;
 use Masteriyo\RestApi\Controllers\Version1\AnalyticsController;
 use Masteriyo\RestApi\Controllers\Version1\ChangelogController;
+use Masteriyo\RestApi\Controllers\Version1\ErrorReportsController;
 use Masteriyo\RestApi\Controllers\Version1\LessonReviewsController;
 use Masteriyo\RestApi\Controllers\Version1\QuizzesImportExportController;
 use Masteriyo\RestApi\Controllers\Version1\RolesController;
@@ -160,6 +161,7 @@ class RestApi {
 			'tools.utilities'       => UtilitiesController::class,
 			'changelog'             => ChangelogController::class,
 			'logger'                => LogsController::class,
+			'error_reports'         => ErrorReportsController::class,
 
 		);
 	}

@@ -35,66 +35,69 @@ const CourseSelect: React.FC<Props> = (props) => {
 		<FormControl>
 			<FormLabel>{__('Course', 'learning-management-system')}</FormLabel>
 			{!courseQueries.isLoading ? (
-				<AsyncSelect
-					styles={reactSelectStyles}
-					cacheOptions={true}
-					loadingMessage={() =>
-						__('Searching...', 'learning-management-system')
-					}
-					noOptionsMessage={({ inputValue }) =>
-						!isEmpty(inputValue)
-							? __('Courses not found.', 'learning-management-system')
-							: __(
-									'Please enter one or more characters.',
-									'learning-management-system',
-								)
-					}
-					isClearable={true}
-					placeholder={__(
-						'Please select a course.',
-						'learning-management-system',
-					)}
-					defaultValue={
-						defaultData
-							? {
-									value: defaultData.id,
-									label: defaultData.name,
-								}
-							: null
-					}
-					onChange={(selectedOption: any) => {
-						setValue('course_id', selectedOption?.value);
-					}}
-					defaultOptions={
-						courseQueries.isSuccess
-							? courseQueries.data?.data?.map((course: any) => {
-									return {
-										value: course.id,
-										label: course.name,
-									};
-								})
-							: []
-					}
-					loadOptions={(searchValue, callback) => {
-						if (isEmpty(searchValue)) {
-							return callback([]);
+				courseQueries?.isSuccess &&
+				!isEmpty(courseQueries.data?.data) && (
+					<AsyncSelect
+						styles={reactSelectStyles}
+						cacheOptions={true}
+						loadingMessage={() =>
+							__('Searching...', 'learning-management-system')
 						}
-						courseAPI
-							.list({
-								search: searchValue,
-							})
-							.then((data) => {
-								callback(
-									data.data.map((course: any) => {
+						noOptionsMessage={({ inputValue }) =>
+							!isEmpty(inputValue)
+								? __('Courses not found.', 'learning-management-system')
+								: __(
+										'Please enter one or more characters.',
+										'learning-management-system',
+									)
+						}
+						isClearable={true}
+						placeholder={__(
+							'Please select a course.',
+							'learning-management-system',
+						)}
+						defaultValue={
+							defaultData
+								? {
+										value: defaultData.id,
+										label: defaultData.name,
+									}
+								: null
+						}
+						onChange={(selectedOption: any) => {
+							setValue('course_id', selectedOption?.value);
+						}}
+						defaultOptions={
+							courseQueries.isSuccess
+								? courseQueries.data?.data?.map((course: any) => {
 										return {
 											value: course.id,
 											label: course.name,
 										};
-									}),
-								);
-							});
-					}}
-				/>
+									})
+								: []
+						}
+						loadOptions={(searchValue, callback) => {
+							if (isEmpty(searchValue)) {
+								return callback([]);
+							}
+							courseAPI
+								.list({
+									search: searchValue,
+								})
+								.then((data) => {
+									callback(
+										data.data.map((course: any) => {
+											return {
+												value: course.id,
+												label: course.name,
+											};
+										}),
+									);
+								});
+						}}
+					/>
+				)
 			) : (
 				<Skeleton height="40px" width="100%" />
 			)}

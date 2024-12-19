@@ -128,9 +128,10 @@ class RegistrationFormHandler {
 			}
 		}
 
-		$request['redirect_to'] = masteriyo_get_page_permalink( 'account' ) . '/#/dashboard';
 		if ( isset( $request['redirect_to'] ) && ! empty( $request['redirect_to'] ) ) {
 			$this->redirect( $user, $request['redirect_to'] );
+		} else {
+			$this->redirect( $user, masteriyo_get_page_permalink( 'account' ) );
 		}
 
 		return true;

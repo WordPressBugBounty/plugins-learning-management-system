@@ -108,7 +108,7 @@ const InteractiveGoogleMeet = () => {
 		completeMutation.mutate(
 			{
 				course_id: courseId,
-				item_id: googleMeetQuery.data.id,
+				item_id: googleMeetQuery?.data?.id,
 				item_type: 'google-meet',
 				completed: true,
 			},
@@ -209,7 +209,7 @@ const InteractiveGoogleMeet = () => {
 					{localStartTime && !meetingStarted ? (
 						<MeetingTimer
 							startAt={localStartTime}
-							duration={googleMeetQuery?.data.duration}
+							duration={googleMeetQuery?.data?.duration}
 							onTimeout={() => setMeetingStarted(true)}
 						/>
 					) : null}
@@ -324,7 +324,7 @@ const InteractiveGoogleMeet = () => {
 										) : null}
 									</HStack>
 
-									{+googleMeetQuery.data?.duration ? (
+									{+googleMeetQuery?.data?.duration ? (
 										<Stack>
 											<HStack
 												color={
@@ -338,7 +338,7 @@ const InteractiveGoogleMeet = () => {
 												</Text>
 												<Text>
 													{humanizeDuration(
-														(googleMeetQuery.data?.duration || 0) * 60 * 1000,
+														(googleMeetQuery?.data?.duration || 0) * 60 * 1000,
 													)}
 												</Text>
 											</HStack>
@@ -356,11 +356,11 @@ const InteractiveGoogleMeet = () => {
 											<Text fontWeight="medium">
 												{__('Meeting ID:', 'learning-management-system')}
 											</Text>
-											<Text>{googleMeetQuery.data?.meeting_id}</Text>
+											<Text>{googleMeetQuery?.data?.meeting_id}</Text>
 										</HStack>
 									</Stack>
 
-									{googleMeetQuery.data?.password ? (
+									{googleMeetQuery?.data?.password ? (
 										<Stack>
 											<HStack
 												color={
@@ -372,7 +372,7 @@ const InteractiveGoogleMeet = () => {
 												<Text fontWeight="medium">
 													{__('Password:', 'learning-management-system')}
 												</Text>
-												<Text>{googleMeetQuery.data?.password}</Text>
+												<Text>{googleMeetQuery?.data?.password}</Text>
 											</HStack>
 										</Stack>
 									) : null}

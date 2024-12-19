@@ -116,7 +116,7 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 										onChange={onChange}
 										defaultOptions={
 											certificatesQuery.isSuccess
-												? certificatesQuery.data?.data?.map((certificate) => ({
+												? certificatesQuery?.data?.data?.map((certificate) => ({
 														value: certificate.id,
 														label: certificate.name,
 													}))
@@ -134,7 +134,7 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 												per_page: -1,
 											}).then((data) => {
 												callback(
-													data.data.map((certificate) => ({
+													data?.data?.map((certificate) => ({
 														value: certificate.id,
 														label: certificate.name,
 													})),

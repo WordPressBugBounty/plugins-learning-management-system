@@ -222,10 +222,9 @@ const DocUploader: React.FC<Props> = (props) => {
 									id: attachment?.id,
 									url: attachment?.url,
 									title: getFileNameFromURL(attachment?.url),
-									mime_type: attachment?.mime_type,
-									formatted_file_size:
-										attachment?.masteriyo?.formatted_file_size,
-									file_size: attachment?.masteriyo?.file_size,
+									mime_type: attachment?.mime,
+									formatted_file_size: attachment?.filesizeHumanReadable,
+									file_size: attachment?.filesizeInBytes,
 								})),
 							]);
 						}}

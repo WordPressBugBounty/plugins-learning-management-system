@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.14.2
+Stable tag: 1.14.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,15 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.14.3 - 19-12-2024 =
+- Enhancement - Added report issue button on error page.
+- Enhancement - Added logic to clear duplicate lesson progress from `Clear Cache` button.
+- Update - Added states for Venezuela.
+- Fix - Video Lesson `Mark as complete` issue.
+- Fix - Setting `Advance` title updated to `Advanced`.
+- Fix - Download material preview issue.
+- Fix - Student redirection to course page issue after registration.
 
 = 1.14.2 - 03-12-2024 =
 - Enhancement - Added course completion button in SCORM course.

@@ -161,8 +161,8 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 											{...register('method')}
 											defaultValue={data?.method}
 										>
-											{WITHDRAW_METHODS.filter((x) =>
-												localized.withdraw_methods?.includes(x.id),
+											{WITHDRAW_METHODS.filter(
+												(x) => localized.withdraw_methods?.includes(x.id),
 											).map((x) => (
 												<option key={x.id} value={x.id}>
 													{x.name}

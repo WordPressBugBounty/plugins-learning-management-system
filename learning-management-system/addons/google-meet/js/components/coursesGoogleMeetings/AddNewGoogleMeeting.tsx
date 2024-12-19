@@ -100,7 +100,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
+		const all_users = usersQuery?.data?.data?.map((user: any) => user?.id);
 
 		const newData = {
 			course_id: courseId,

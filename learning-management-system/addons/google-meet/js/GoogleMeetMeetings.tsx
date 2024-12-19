@@ -90,8 +90,8 @@ const GoogleMeetMeetings: React.FC = () => {
 	}, [googleMeetMeetingQuery]);
 
 	const onDeleteConfirm = () => {
-		googleMeetMeetingQuery.data?.id
-			? deleteGoogleMeet.mutate(googleMeetMeetingQuery.data.id)
+		googleMeetMeetingQuery?.data?.id
+			? deleteGoogleMeet.mutate(googleMeetMeetingQuery?.data?.id)
 			: null;
 	};
 
@@ -182,8 +182,8 @@ const GoogleMeetMeetings: React.FC = () => {
 												onChange={(e) => {
 													setBulkIds(
 														e.target.checked
-															? googleMeetMeetingQuery.data.data.map(
-																	(meeting: any) => meeting.id.toString(),
+															? googleMeetMeetingQuery?.data?.data?.map(
+																	(meeting: any) => meeting?.id?.toString(),
 																)
 															: [],
 													);
@@ -338,7 +338,7 @@ const GoogleMeetMeetings: React.FC = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGoogleMeet.isPending
-						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
+						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{
 					default: {

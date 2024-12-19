@@ -124,9 +124,9 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 								usersQuery.isSuccess
 									? usersQuery.data?.data?.map((user) => {
 											return {
-												value: user.id,
-												label: `${user.display_name} (#${user.id} - ${user.email})`,
-												avatar_url: user.avatar_url,
+												value: user?.id,
+												label: `${user?.display_name} (#${user?.id} - ${user?.email})`,
+												avatar_url: user?.avatar_url,
 											};
 										})
 									: []
@@ -135,12 +135,12 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 								if (isEmpty(searchValue)) {
 									return callback([]);
 								}
-								usersAPI.list({ search: searchValue }).then((data) => {
+								usersAPI.list({ search: searchValue }).then((data: any) => {
 									callback(
-										data.data.map((user: any) => {
+										data?.data?.map((user: any) => {
 											return {
-												value: user.id,
-												label: `${user.display_name} (#${user.id} - ${user.email})`,
+												value: user?.id,
+												label: `${user?.display_name} (#${user?.id} - ${user?.email})`,
 											};
 										}),
 									);

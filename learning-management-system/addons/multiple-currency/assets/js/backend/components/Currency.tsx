@@ -35,12 +35,12 @@ const Currency: React.FC<Props> = ({ defaultValue }) => {
 
 	const currencyOptions = useMemo(() => {
 		return currenciesQuery.isSuccess
-			? currenciesQuery.data?.map((currency: CurrenciesSchema) => ({
-					value: currency.code,
+			? currenciesQuery?.data?.map((currency: CurrenciesSchema) => ({
+					value: currency?.code,
 					label: `${currency.name} (${currency.symbol})`,
 				}))
 			: [];
-	}, [currenciesQuery.isSuccess, currenciesQuery.data]);
+	}, [currenciesQuery.isSuccess, currenciesQuery?.data]);
 
 	const noOptionsMessage = () =>
 		__('No currency found.', 'learning-management-system');

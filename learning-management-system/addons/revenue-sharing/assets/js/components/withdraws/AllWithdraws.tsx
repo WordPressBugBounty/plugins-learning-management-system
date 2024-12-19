@@ -150,7 +150,7 @@ const AllWithdraws: React.FC = () => {
 	};
 
 	const selectedWithdraw = useMemo(() => {
-		return withdrawsQuery.data?.data?.find((item) => item.id === actionId);
+		return withdrawsQuery.data?.data?.find((item) => item?.id === actionId);
 	}, [actionId, withdrawsQuery.data?.data]);
 
 	return (
@@ -263,7 +263,7 @@ const AllWithdraws: React.FC = () => {
 										<SkeletonWithdrawsList />
 									) : withdrawsQuery.isSuccess &&
 									  !isEmpty(withdrawsQuery?.data?.data) ? (
-										withdrawsQuery.data.data.map((withdraw: any) => (
+										withdrawsQuery?.data?.data?.map((withdraw: any) => (
 											<WithdrawRow
 												key={withdraw?.id}
 												data={withdraw}

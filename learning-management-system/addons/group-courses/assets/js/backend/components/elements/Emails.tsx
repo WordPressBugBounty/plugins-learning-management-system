@@ -61,12 +61,12 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 		return usersQuery.isSuccess
 			? usersQuery.data?.data?.map((user) => {
 					return {
-						value: user.email,
-						label: user.email,
+						value: user?.email,
+						label: user?.email,
 					};
 				})
 			: [];
-	}, [usersQuery.isSuccess, usersQuery.data]);
+	}, [usersQuery.isSuccess, usersQuery?.data]);
 
 	const defaultOptions: SelectOption[] = useMemo(() => {
 		return Array.isArray(defaultValue)
@@ -108,8 +108,8 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 									usersQuery.isSuccess
 										? usersQuery.data?.data?.map((user) => {
 												return {
-													value: user.email,
-													label: user.email,
+													value: user?.email,
+													label: user?.email,
 												};
 											})
 										: []
@@ -129,10 +129,10 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 										})
 										.then((data) => {
 											callback(
-												data.data.map((user: any) => {
+												data?.data?.map((user: any) => {
 													return {
-														value: user.email,
-														label: user.email,
+														value: user?.email,
+														label: user?.email,
 													};
 												}),
 											);

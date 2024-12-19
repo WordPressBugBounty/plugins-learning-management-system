@@ -93,7 +93,7 @@ const Groups: React.FC = () => {
 	// This specifies that any one of the group is opened to be edited
 
 	const groupToBeEdited = useMemo(() => {
-		return groupQuery?.data?.data.find((d: any) => d?.id === expandedGroupId);
+		return groupQuery?.data?.data?.find((d: any) => d?.id === expandedGroupId);
 	}, [expandedGroupId, groupQuery]);
 
 	return (
@@ -166,7 +166,7 @@ const Groups: React.FC = () => {
 					<Row>
 						{!groupToBeEdited ? (
 							groupQuery?.data?.data?.map((group: GroupSchema) => (
-								<Col xs={12} md={6} key={group.id}>
+								<Col xs={12} md={6} key={group?.id}>
 									<Group
 										group={group}
 										onExpandedGroupsChange={(id) =>

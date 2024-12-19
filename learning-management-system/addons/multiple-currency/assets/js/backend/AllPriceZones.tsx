@@ -252,7 +252,7 @@ const AllPriceZones = () => {
 												}
 												isIndeterminate={
 													pricingZoneQuery?.data?.data?.length !==
-														bulkIds.length && bulkIds.length > 0
+														bulkIds?.length && bulkIds?.length > 0
 												}
 												isChecked={
 													pricingZoneQuery?.data?.data?.length ===
@@ -264,7 +264,7 @@ const AllPriceZones = () => {
 														e.target.checked
 															? pricingZoneQuery?.data?.data?.map(
 																	(pricingZone: any) =>
-																		pricingZone.id.toString(),
+																		pricingZone?.id?.toString(),
 																)
 															: [],
 													)
@@ -415,7 +415,7 @@ const AllPriceZones = () => {
 				isLoading={
 					'' === bulkAction
 						? deletePricingZone.isPending
-						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
+						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{
 					default: {

@@ -251,7 +251,7 @@ const AllAnnouncements = () => {
 							tabs={tabButtons}
 							defaultActive="any"
 							onTabChange={onChangeAnnouncementStatus}
-							counts={announcementQuery.data?.meta.announcement_count}
+							counts={announcementQuery.data?.meta?.announcement_count}
 							isCounting={announcementQuery.isLoading}
 						/>
 					</HeaderLeftSection>
@@ -295,7 +295,7 @@ const AllAnnouncements = () => {
 												}
 												isIndeterminate={
 													announcementQuery?.data?.data?.length !==
-														bulkIds.length && bulkIds.length > 0
+														bulkIds?.length && bulkIds?.length > 0
 												}
 												isChecked={
 													announcementQuery?.data?.data?.length ===
@@ -307,7 +307,7 @@ const AllAnnouncements = () => {
 														e.target.checked
 															? announcementQuery?.data?.data?.map(
 																	(announcement: any) =>
-																		announcement.id.toString(),
+																		announcement?.id?.toString(),
 																)
 															: [],
 													)
@@ -461,7 +461,7 @@ const AllAnnouncements = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteAnnouncement.isPending
-						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
+						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
 				}
 				dialogTexts={{
 					default: {

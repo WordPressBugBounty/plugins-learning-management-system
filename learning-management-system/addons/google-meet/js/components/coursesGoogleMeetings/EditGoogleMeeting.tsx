@@ -79,7 +79,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 	const updateGoogleMeet = useMutation({
 		mutationFn: (data: GoogleMeetSchema) =>
-			googleMeetAPI.update(googleMeetQuery.data.meeting_id, data),
+			googleMeetAPI.update(googleMeetQuery?.data?.meeting_id, data),
 		...{
 			onSuccess: (data: any) => {
 				editContentInBuilderCache(
@@ -118,13 +118,13 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
+		const all_users = usersQuery?.data?.data?.map((user: any) => user?.id);
 
 		const newData = {
-			meeting_id: googleMeetQuery.data.id,
+			meeting_id: googleMeetQuery?.data?.id,
 			time_zone: 'UTC',
-			starts_at: new Date(data.starts_at).toISOString(),
-			ends_at: new Date(data.ends_at).toISOString(),
+			starts_at: new Date(data.starts_at)?.toISOString(),
+			ends_at: new Date(data.ends_at)?.toISOString(),
 			attendees: all_users,
 		};
 
@@ -170,10 +170,10 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 										justifyContent="space-between"
 									>
 										<Stack direction="column" spacing="6">
-											<Title defaultValue={googleMeetQuery.data.name} />
+											<Title defaultValue={googleMeetQuery?.data?.name} />
 
 											<Description
-												defaultValue={googleMeetQuery.data.description}
+												defaultValue={googleMeetQuery?.data?.description}
 												data={googleMeetQuery}
 												methods={methods}
 												onSubmit={onSubmit}
@@ -190,7 +190,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 													variant="outline"
 													onClick={() => {
 														navigate({
-															pathname: googleMeetRoutes.googleMeet.list,
+															pathname: googleMeetRoutes?.googleMeet?.list,
 														});
 													}}
 												>
@@ -203,12 +203,12 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 									<Box w={{ lg: '400px' }} bg="white" p="10" shadow="box">
 										<Stack direction="column" spacing="6">
 											<StartTime
-												defaultValue={googleMeetQuery.data.starts_at}
+												defaultValue={googleMeetQuery?.data?.starts_at}
 											/>
-											<EndTime defaultValue={googleMeetQuery.data.ends_at} />
+											<EndTime defaultValue={googleMeetQuery?.data?.ends_at} />
 											<AddAttendees
 												defaultValue={
-													googleMeetQuery.data.add_all_students_as_attendee
+													googleMeetQuery?.data?.add_all_students_as_attendee
 												}
 											/>
 										</Stack>

@@ -52,12 +52,12 @@ const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 		return countriesQuery.isSuccess
 			? countriesQuery.data?.map((country: CountriesSchema) => {
 					return {
-						value: country.code,
-						label: country.name,
+						value: country?.code,
+						label: country?.name,
 					};
 				})
 			: [];
-	}, [countriesQuery.isSuccess, countriesQuery.data]);
+	}, [countriesQuery.isSuccess, countriesQuery?.data]);
 
 	useEffect(() => {
 		if (defaultValue) {

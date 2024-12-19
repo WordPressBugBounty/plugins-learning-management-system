@@ -102,7 +102,7 @@ const StartTime: React.FC<Props> = (props) => {
 													colorScheme="primary"
 												/>
 												<Select
-													value={date.getFullYear()}
+													value={date?.getFullYear()}
 													onChange={({ target: { value } }: any) =>
 														changeYear(value)
 													}
@@ -115,12 +115,12 @@ const StartTime: React.FC<Props> = (props) => {
 												</Select>
 
 												<Select
-													value={months[date.getMonth()]}
+													value={months[date?.getMonth()]}
 													onChange={({ target: { value } }) =>
-														changeMonth(months.indexOf(value))
+														changeMonth(months?.indexOf(value))
 													}
 												>
-													{months.map((option) => (
+													{months?.map((option) => (
 														<option key={option} value={option}>
 															{option}
 														</option>

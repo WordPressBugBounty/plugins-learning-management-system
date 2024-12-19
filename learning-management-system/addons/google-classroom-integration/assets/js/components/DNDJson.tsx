@@ -1,10 +1,7 @@
 import { Box, Container, Input, Text, useToast } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
 import { LuFileJson } from 'react-icons/lu';
-import API from '../../../../../assets/js/back-end/utils/api';
-import googleClassroomUrls from '../../../constants/urls';
 interface Props {
 	handleFileUpload: any;
 }
@@ -73,20 +70,10 @@ const DNDJson: React.FC<Props> = ({ handleFileUpload }) => {
 		}
 
 		// Might need an API call here
-		handleFileUpload.mutateAsync(e.dataTransfer.files[0]);
+		handleFileUpload.mutateAsync(e?.dataTransfer?.files?.[0]);
 
 		setFileDNDInProgress(false);
 	};
-
-	const googleClassroomApi = new API(googleClassroomUrls.settings);
-
-	const settingQuery = useQuery({
-		queryKey: ['googleClassRoomSettings'],
-		queryFn: () => googleClassroomApi.list(),
-		...{
-			keepPreviousData: true,
-		},
-	});
 
 	return (
 		<Container

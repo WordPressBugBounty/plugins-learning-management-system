@@ -141,9 +141,9 @@ const Author: React.FC<Props> = (props) => {
 						usersQuery.isSuccess
 							? usersQuery.data?.data?.map((user) => {
 									return {
-										value: user.id,
-										label: user.display_name,
-										avatar_url: user.avatar_url,
+										value: user?.id,
+										label: user?.display_name,
+										avatar_url: user?.avatar_url,
 									};
 								})
 							: [defaultAuthor]

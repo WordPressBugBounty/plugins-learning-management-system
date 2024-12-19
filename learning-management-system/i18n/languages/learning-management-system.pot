@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.2\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.14.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-12-03T11:35:51+00:00\n"
+"POT-Creation-Date: 2024-12-19T08:33:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: learning-management-system\n"
@@ -634,7 +634,7 @@ msgstr ""
 
 #: includes/Checkout.php:747
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:189
-#: includes/FormHandler/RegistrationFormHandler.php:185
+#: includes/FormHandler/RegistrationFormHandler.php:186
 msgid "Please check the privacy policy checkbox to proceed."
 msgstr ""
 
@@ -1129,39 +1129,39 @@ msgid "Your account has been created successfully."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:154
-#: includes/FormHandler/RegistrationFormHandler.php:150
+#: includes/FormHandler/RegistrationFormHandler.php:151
 msgid "Username is required."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:158
-#: includes/FormHandler/RegistrationFormHandler.php:154
+#: includes/FormHandler/RegistrationFormHandler.php:155
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Email is required."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:162
-#: includes/FormHandler/RegistrationFormHandler.php:158
+#: includes/FormHandler/RegistrationFormHandler.php:159
 msgid "Email is invalid."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:166
-#: includes/FormHandler/RegistrationFormHandler.php:162
+#: includes/FormHandler/RegistrationFormHandler.php:163
 msgid "First name is required."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:170
-#: includes/FormHandler/RegistrationFormHandler.php:166
+#: includes/FormHandler/RegistrationFormHandler.php:167
 msgid "Last name is required."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:175
-#: includes/FormHandler/RegistrationFormHandler.php:171
+#: includes/FormHandler/RegistrationFormHandler.php:172
 msgid "Password is required.."
 msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:179
 #: includes/FormHandler/PasswordResetFormHandler.php:116
-#: includes/FormHandler/RegistrationFormHandler.php:175
+#: includes/FormHandler/RegistrationFormHandler.php:176
 msgid "Confirm password is required..."
 msgstr ""
 
@@ -1181,7 +1181,7 @@ msgstr ""
 msgid "This key is invalid or has already been used. Please reset your password again if needed."
 msgstr ""
 
-#: includes/FormHandler/RegistrationFormHandler.php:179
+#: includes/FormHandler/RegistrationFormHandler.php:180
 msgid "The passwords do not match."
 msgstr ""
 
@@ -2383,6 +2383,7 @@ msgstr ""
 #: templates/single-course/retake-button-modal.php:27
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Cancel"
 msgstr ""
@@ -4038,6 +4039,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:977
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1339
 #: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:389
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:92
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:911
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:940
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:969
@@ -5200,6 +5202,26 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/DataController.php:245
 msgid "Invalid country code."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:98
+msgid "You are not allowed to perform this action."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:131
+msgid "Error code and message are required."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:158
+msgid "Error reported successfully."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:269
+msgid "Failed to send error report to the tracking server."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:279
+msgid "Unexpected response from the tracking server."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/InstructorsController.php:82
@@ -7173,16 +7195,20 @@ msgstr ""
 msgid "Sorry, you are not allowed to delete this."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UtilitiesController.php:128
+#: includes/RestApi/Controllers/Version1/UtilitiesController.php:122
 msgid "Course access refreshed successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UtilitiesController.php:167
+#: includes/RestApi/Controllers/Version1/UtilitiesController.php:163
 msgid "Failed to delete redundant enrollments."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/UtilitiesController.php:192
 msgid "Failed to update status for invalid users."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UtilitiesController.php:235
+msgid "Failed to delete redundant user activities for lesson."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:194
@@ -9005,6 +9031,69 @@ msgstr ""
 
 #: assets/js/build/certificate-blocks.js:2
 msgid "The text 'Completion Date' will be replaced by the actual course completion date of students when downloading."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Error reported successfully. Thank you for your help, our team will look into it."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Something went wrong. Please try again later."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Report Issue"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Report Information"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Please provide any additional information that might help us debug the issue. Your data will be used as per our "
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Privacy Policy"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Any additional info? (optional)"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Describe the problem or any other details..."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Report"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:1
@@ -12806,6 +12895,14 @@ msgid "Download Your File"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Export Completed"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Your Export has started. Please visit tools page to download your file."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Export failed!"
 msgstr ""
 
@@ -13537,7 +13634,7 @@ msgid "Ready to take your eLearning platform to the next level ?"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "With"
+msgid "With "
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -13623,7 +13720,7 @@ msgid "Payments"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Advance"
+msgid "Advanced"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -16688,10 +16785,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "We respect your privacy and will only use your data as outlined in our "
-msgstr ""
-
-#: assets/js/build/masteriyo-gettingStarted.js:1
-msgid "Privacy Policy"
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1

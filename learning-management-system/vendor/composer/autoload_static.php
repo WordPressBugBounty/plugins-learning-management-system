@@ -1094,6 +1094,7 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\RestApi\\Controllers\\Version1\\CoursesImportExportController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/CoursesImportExportController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\CrudController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/CrudController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\DataController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/DataController.php',
+        'Masteriyo\\RestApi\\Controllers\\Version1\\ErrorReportsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/ErrorReportsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\InstructorsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/InstructorsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\LessonReviewsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LessonReviewsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\LessonsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LessonsController.php',

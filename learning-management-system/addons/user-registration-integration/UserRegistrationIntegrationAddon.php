@@ -61,7 +61,33 @@ class UserRegistrationIntegrationAddon {
 
 		// Script localization hook.
 		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
+		add_filter( 'user_registration_form_redirect_url', array( $this, 'masteriyo_parse_redirect_url' ), 10, 2 );
+	}
 
+	/**
+	 * Modify redirect url for masteriyo.
+	 *
+	 * @since 1.14.3
+	 *
+	 * @param string $redirect_url Redirect URL.
+	 * @param int $form_id Form ID.
+	 *
+	 * @return string Redirect URL.
+	 */
+	public function masteriyo_parse_redirect_url( $redirect_url, $form_id ) {
+		$parsed_url = wp_parse_url( $redirect_url );
+
+		$redirect_to = null;
+
+		if ( isset( $parsed_url['query'] ) ) {
+			parse_str( $parsed_url['query'], $query_params );
+
+			if ( isset( $query_params['redirect_to'] ) ) {
+				$redirect_to = $query_params['redirect_to'];
+			}
+		}
+
+		return $redirect_to ? $redirect_to : $redirect_url;
 	}
 
 		/**

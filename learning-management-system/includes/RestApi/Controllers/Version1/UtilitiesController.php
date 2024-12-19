@@ -111,17 +111,11 @@ class UtilitiesController extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response WP_Error on failure, WP_REST_Response on success.
 	 */
 	public function refresh_course_access( $request ) {
-		$result = $this->delete_redundant_enrollments();
+		$this->delete_redundant_enrollments();
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
+		$this->update_invalid_users_status();
 
-		$result = $this->update_invalid_users_status();
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
+		$this->delete_redundant_lesson_activities();
 
 		return rest_ensure_response(
 			array(
@@ -164,8 +158,12 @@ class UtilitiesController extends WP_REST_Controller {
 		$result = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( false === $result ) {
+			masteriyo_get_logger()->error( 'Failed to delete redundant enrollments.', array( 'source' => 'tools-utility' ) );
+
 			return new WP_Error( 'masteriyo_deletion_failed', __( 'Failed to delete redundant enrollments.', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
+
+		masteriyo_get_logger()->info( 'Deleted redundant enrollments.', array( 'source' => 'tools-utility' ) );
 
 		return $result;
 	}
@@ -189,8 +187,55 @@ class UtilitiesController extends WP_REST_Controller {
 		$result = $wpdb->query( $update_invalid_users_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( false === $result ) {
+			masteriyo_get_logger()->error( 'Failed to update status for invalid users.', array( 'source' => 'tools-utility' ) );
+
 			return new WP_Error( 'masteriyo_update_invalid_users_failed', __( 'Failed to update status for invalid users.', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
+
+		masteriyo_get_logger()->info( 'Updated status for invalid users.', array( 'source' => 'tools-utility' ) );
+
+		return $result;
+	}
+
+	/**
+	 * Deletes redundant user activities for a lesson.
+	 *
+	 * @since 1.14.3
+	 *
+	 * @return int|WP_Error Number of rows affected on success, WP_Error on failure.
+	 */
+	private function delete_redundant_lesson_activities() {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'masteriyo_user_activities';
+
+		$query = "
+					DELETE FROM {$table_name}
+					WHERE id IN (
+							SELECT id FROM (
+									SELECT id,
+												ROW_NUMBER() OVER (
+														PARTITION BY user_id, item_id, parent_id, activity_type
+														ORDER BY
+																CASE WHEN activity_status = 'completed' THEN 0 ELSE 1 END,
+																id DESC
+												) as row_num
+									FROM {$table_name}
+									WHERE activity_type = 'lesson'
+							) as ranked
+							WHERE row_num > 1
+					)
+				";
+
+		$result = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( false === $result ) {
+			masteriyo_get_logger()->error( 'Failed to delete redundant user activities for lesson.', array( 'source' => 'tools-utility' ) );
+
+			return new WP_Error( 'masteriyo_delete_duplicate_user_lesson_activity', __( 'Failed to delete redundant user activities for lesson.', 'learning-management-system' ) );
+		}
+
+		masteriyo_get_logger()->info( 'Deleted redundant user activities for lesson.', array( 'source' => 'tools-utility' ) );
 
 		return $result;
 	}

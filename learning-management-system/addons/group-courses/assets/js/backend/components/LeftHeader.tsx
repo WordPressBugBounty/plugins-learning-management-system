@@ -81,9 +81,7 @@ const LeftHeader: React.FC = (props) => {
 	const [searchParams] = useSearchParams();
 	const { pathname } = useLocation();
 	const currentTab =
-		'/groups-settings' === pathname
-			? ''
-			: (searchParams.get('status') ?? 'any');
+		'/groups-settings' === pathname ? '' : searchParams.get('status') ?? 'any';
 
 	const groupAPI = new API(urls.groups);
 

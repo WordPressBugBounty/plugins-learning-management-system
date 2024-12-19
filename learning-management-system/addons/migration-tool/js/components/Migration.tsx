@@ -259,7 +259,7 @@ const Migration: React.FC = () => {
 	}, []);
 
 	const currentlyActiveLms = migrationLMSsQuery.data?.data.find(
-		(d: any) => d.name === getValues('lms_name'),
+		(d: any) => d?.name === getValues('lms_name'),
 	);
 
 	const migrationProcessInProgress = useMemo(() => {

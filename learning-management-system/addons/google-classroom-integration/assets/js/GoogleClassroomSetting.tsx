@@ -280,7 +280,7 @@ const GoogleClassroomSetting = () => {
 							googleClassroomSettingQuery?.data?.refresh_token)) ? (
 					<GoogleClassroomSettingsSkeleton />
 				) : googleClassroomSettingQuery.isSuccess &&
-				  googleClassroomSettingQuery?.data.client_id ? (
+				  googleClassroomSettingQuery?.data?.client_id ? (
 					<ClassroomErrorConsentScreen
 						onResetCredentialsModalChange={onResetCredentialsModalChange}
 						onHandleConsentScreen={onHandleConsentScreen}

@@ -64,7 +64,7 @@ const Announcements: React.FC<Props> = (props) => {
 	const isLimitedAnnouncement =
 		announcementQuery.isSuccess &&
 		!isEmpty(announcementQuery?.data?.data) &&
-		announcementQuery?.data?.data.length < 3;
+		announcementQuery?.data?.data?.length < 3;
 	return (
 		<Popover placement="bottom-end">
 			<PopoverTrigger>
@@ -142,7 +142,7 @@ const Announcements: React.FC<Props> = (props) => {
 								{__('No announcements found.', 'learning-management-system')}
 							</Alert>
 						) : (
-							announcementQuery?.data?.data.map(
+							announcementQuery?.data?.data?.map(
 								(announcement: AnnouncementSchema) => (
 									<Message key={announcement?.id} announcement={announcement} />
 								),

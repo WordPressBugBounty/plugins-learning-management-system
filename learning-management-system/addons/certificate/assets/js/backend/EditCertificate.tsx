@@ -129,9 +129,9 @@ const EditCertificate: React.FC = () => {
 		},
 	});
 
-	const isPublished = () => certificateQuery.data?.status === 'publish';
+	const isPublished = () => certificateQuery?.data?.status === 'publish';
 
-	const isDrafted = () => certificateQuery.data?.status === 'draft';
+	const isDrafted = () => certificateQuery?.data?.status === 'draft';
 
 	const onSubmit = (data: any, status: string = 'publish') => {
 		const newData = {
@@ -151,7 +151,7 @@ const EditCertificate: React.FC = () => {
 	const actions = [
 		{
 			label: __('Preview', 'learning-management-system'),
-			action: () => window.open(certificateQuery.data?.preview_link, '_blank'),
+			action: () => window.open(certificateQuery?.data?.preview_link, '_blank'),
 			variant: 'tertiary',
 		},
 		{
@@ -221,7 +221,7 @@ const EditCertificate: React.FC = () => {
 						</NavMenu>
 					</HeaderLeftSection>
 					<HeaderRightSection>
-						<Link href={certificateQuery.data?.preview_link} isExternal>
+						<Link href={certificateQuery?.data?.preview_link} isExternal>
 							<HeaderAccentButton
 								width={['50px', '60px', '70px']}
 								variant="tertiary"
@@ -281,9 +281,9 @@ const EditCertificate: React.FC = () => {
 								<FormProvider {...methods}>
 									<form method="post" onSubmit={(e) => e.preventDefault()}>
 										<Stack direction="column" spacing="6">
-											<Name defaultValue={certificateQuery.data?.name} />
+											<Name defaultValue={certificateQuery?.data?.name} />
 											<BlockEditor
-												defaultValue={certificateQuery.data?.html_content}
+												defaultValue={certificateQuery?.data?.html_content}
 												actions={actions as any}
 												fullscreenMode={fullscreenMode}
 												setFullscreenMode={setFullscreenMode}
