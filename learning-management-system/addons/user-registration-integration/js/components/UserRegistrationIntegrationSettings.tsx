@@ -22,13 +22,13 @@ const UserRegistrationIntegrationSettings: React.FC<Props> = (props) => {
 	const { register, control } = useFormContext();
 
 	const overrideStudentRegistration = useWatch({
-		name: 'advance.user_registration_integration.override_student_registration',
+		name: 'integrations.user_registration_integration.override_student_registration',
 		defaultValue: data?.override_student_registration,
 		control,
 	});
 
 	const overrideInstructorRegistration = useWatch({
-		name: 'advance.user_registration_integration.override_instructor_registration',
+		name: 'integrations.user_registration_integration.override_instructor_registration',
 		defaultValue: data?.override_instructor_registration,
 		control,
 	});
@@ -42,7 +42,7 @@ const UserRegistrationIntegrationSettings: React.FC<Props> = (props) => {
 			{/* 1. Override student registration */}
 			<FormControlTwoCol>
 				<Controller
-					name="advance.user_registration_integration.override_student_registration"
+					name="integrations.user_registration_integration.override_student_registration"
 					render={({ field }) => (
 						<>
 							<FormLabel htmlFor="override-student-registration">
@@ -72,7 +72,7 @@ const UserRegistrationIntegrationSettings: React.FC<Props> = (props) => {
 					<Select
 						id="student-registration-form"
 						{...register(
-							'advance.user_registration_integration.student_registration_form',
+							'integrations.user_registration_integration.student_registration_form',
 						)}
 						placeholder={__(
 							'Select User Registration Form',
@@ -93,7 +93,7 @@ const UserRegistrationIntegrationSettings: React.FC<Props> = (props) => {
 			{/* 2. Override instructor registration */}
 			<FormControlTwoCol>
 				<Controller
-					name="advance.user_registration_integration.override_instructor_registration"
+					name="integrations.user_registration_integration.override_instructor_registration"
 					render={({ field }) => (
 						<>
 							<FormLabel htmlFor="override-instructor-registration">
@@ -123,7 +123,7 @@ const UserRegistrationIntegrationSettings: React.FC<Props> = (props) => {
 					<Select
 						id="student-registration-form"
 						{...register(
-							'advance.user_registration_integration.instructor_registration_form',
+							'integrations.user_registration_integration.instructor_registration_form',
 						)}
 						placeholder={__(
 							'Select User Registration Form',

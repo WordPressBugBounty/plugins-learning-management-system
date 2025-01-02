@@ -19,6 +19,7 @@ use Masteriyo\Abstracts\CachePluginCompatibility;
 use Masteriyo\Compatibility\Cache\WPFastestCache;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
+use Masteriyo\Compatibility\Cache\JetPack;
 
 /**
  * Cache plugin compatibility service provider.
@@ -42,6 +43,7 @@ class CacheCompatibilityServiceProvider extends AbstractServiceProvider implemen
 		HummingBird::class,
 		LiteSpeed::class,
 		WPRocket::class,
+		JetPack::class,
 	);
 
 	/**

@@ -9,11 +9,12 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Enums\CourseAccessMode;
-use Masteriyo\Enums\CoursePriceType;
-use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Utils;
+use Masteriyo\Enums\CourseFlow;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Enums\CoursePriceType;
+use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Jobs\CheckCourseEndDateJob;
 
 class CoursesController extends PostsController {
@@ -457,7 +458,7 @@ class CoursesController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $course, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'general.editor.default_editor' );
+		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $course->get_description() ) ) : $course->get_description( $context );
 		}
@@ -542,6 +543,7 @@ class CoursesController extends PostsController {
 			'fake_enrolled_count'                => $course->get_fake_enrolled_count( $context ),
 			'welcome_message_to_first_time_user' => $course->get_welcome_message_to_first_time_user( $context ),
 			'course_badge'                       => $course->get_course_badge( $context ),
+			'flow'                               => $course->get_flow( $context ),
 		);
 
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' ) || user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
@@ -968,6 +970,13 @@ class CoursesController extends PostsController {
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'flow'                           => array(
+					'description' => __( 'Course flow', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'default'     => CourseFlow::FREE_FLOW,
+					'enum'        => CourseFlow::all(),
+				),
 				'meta_data'                      => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
@@ -1191,6 +1200,11 @@ class CoursesController extends PostsController {
 		// Course fake enrolled count.
 		if ( isset( $request['fake_enrolled_count'] ) ) {
 			$course->set_fake_enrolled_count( $request['fake_enrolled_count'] );
+		}
+
+		// Course flow.
+		if ( isset( $request['flow'] ) ) {
+			$course->set_flow( $request['flow'] );
 		}
 
 		/**

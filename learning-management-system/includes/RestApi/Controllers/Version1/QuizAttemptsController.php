@@ -683,10 +683,11 @@ class QuizAttemptsController extends CrudController {
 
 		if ( $quiz ) {
 			$data['quiz'] = array(
-				'id'        => $quiz->get_id(),
-				'name'      => $quiz->get_name(),
-				'pass_mark' => $quiz->get_pass_mark(),
-				'duration'  => $quiz->get_duration(),
+				'id'          => $quiz->get_id(),
+				'name'        => $quiz->get_name(),
+				'pass_mark'   => $quiz->get_pass_mark(),
+				'duration'    => $quiz->get_duration(),
+				'reveal_mode' => $quiz->get_reveal_mode(),
 			);
 		}
 

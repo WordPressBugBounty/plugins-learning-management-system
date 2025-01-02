@@ -23,6 +23,7 @@ use Masteriyo\PostType\PostType;
 use Masteriyo\Pro\Addons;
 use Masteriyo\Taxonomy\Taxonomy;
 use Masteriyo\LogHandlers\LogHandlerFile;
+use Masteriyo\Query\WPUserQuery;
 
 /**
  * Get course.
@@ -2360,6 +2361,7 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 			return $errors;
 		}
 
+		/** @var \Masteriyo\Models\User $user */
 		$user = masteriyo( 'user' );
 		$user->set_props( (array) $args );
 		$user->set_username( $username );
@@ -2371,6 +2373,10 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 			$user->set_status( UserStatus::SPAM );
 		} else {
 			$user->set_status( UserStatus::ACTIVE );
+		}
+
+		if ( $password_generated ) {
+			$user->set_auto_create_user( true );
 		}
 
 		$user->save();
@@ -2387,20 +2393,21 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 
 		$key = get_password_reset_key( $wp_user );
 
+		$args['reset_key'] = $key;
+		$args['password']  = $password;
+
 		/**
 		 * Fires after creating a new user.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @since 1.9.0 Added $key parameters.
 		 * @since 1.13.3 Added $args parameter.
 		 *
 		 * @param \Masteriyo\Models\User $user User object.
 		 * @param string $password_generated The generated password.
-		 * @param string $key The password reset key for the user.
 		 * @param array $args List of other arguments.
 		 */
-		do_action( 'masteriyo_created_customer', $user, $password_generated, $key, $args );
+		do_action( 'masteriyo_created_customer', $user, $password_generated, $args );
 
 		return $user;
 	}
@@ -2663,8 +2670,9 @@ function masteriyo_create_page( $slug, $setting_name = '', $page_title = '', $pa
 		// Search for an existing page with the specified page content (typically a shortcode).
 		$trashed_page_found = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type='page' AND post_status = 'trash' AND post_content LIKE %s LIMIT 1;", "%{$page_content}%" ) );
 	} else {
+		$trashed_slug = $slug . '__trashed';
 		// Search for an existing page with the specified page slug.
-		$trashed_page_found = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type='page' AND post_status = 'trash' AND post_name = %s LIMIT 1;", $slug ) );
+		$trashed_page_found = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type='page' AND post_status = 'trash' AND post_name = %s LIMIT 1;", $trashed_slug ) );
 	}
 
 	if ( $trashed_page_found ) {
@@ -3648,9 +3656,6 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_instructor_registration' => true,
 					'enable_guest_checkout'          => true,
 				),
-				'editor'        => array(
-					'default_editor' => 'classic_editor',
-				),
 				'player'        => array(
 					'enable_watch_full_video'            => false,
 					'enable_watch_full_video_every_time' => false,
@@ -3668,6 +3673,14 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'thumbnail_size' => 'masteriyo_thumbnail',
 					'order_by'       => 'date',
 					'order'          => 'DESC',
+					'template'       => array(
+						'custom_template' => array(
+							'enable'          => false,
+							'template_source' => 'elementor',
+							'template_id'     => 0,
+						),
+						'layout'          => 'default',
+					),
 				),
 				'components_visibility' => array(
 					'thumbnail'          => true,
@@ -3708,16 +3721,18 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_review_enrolled_users_only' => false,
 					'auto_approve_reviews'              => true,
 					'course_visibility'                 => false,
+					'template'                          => array(
+						'custom_template' => array(
+							'enable'          => false,
+							'template_source' => 'elementor',
+							'template_id'     => 0,
+						),
+						'layout'          => 'default',
+					),
 				),
 				'related_courses' => array(
 					'enable' => true,
 				),
-				'custom_template' => array(
-					'enable'          => false,
-					'template_source' => 'elementor',
-					'template_id'     => 0,
-				),
-				'layout'          => 'default',
 			),
 			'learn_page'     => array(
 				'general' => array(
@@ -3731,6 +3746,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'show_sidebar'             => false,
 					'show_header'              => false,
 					'enable_lesson_comment'    => false,
+					'auto_approve_comments'    => true,
 				),
 			),
 			'payments'       => array(
@@ -3793,8 +3809,9 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 			),
 			'quiz'           => array(
 				'display' => array(
-					'quiz_completion_button' => false,
-					'quiz_review_visibility' => false,
+					'quiz_completion_button'              => false,
+					'quiz_review_visibility'              => false,
+					'enable_quiz_previously_visited_page' => true,
 				),
 				'styling' => array(
 					'questions_display_per_page' => 5,
@@ -3805,90 +3822,40 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 				),
 			),
 			'emails'         => array(
-				'general'    => array(
-					'enable'     => true,
-					'from_name'  => '',
-					'from_email' => '',
-				),
 				'admin'      => array(
-					'new_order'            => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'You made a sale!',
-						'content'    => '',
-					),
-					'new_withdraw_request' => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'New withdraw request!',
-						'content'    => '',
-					),
-					'instructor_apply'     => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'A student has applied for instructor status.',
-						'content'    => '',
-					),
+					'new_order'               => masteriyo_get_default_email_contents()['admin']['new_order'],
+					'instructor_apply'        => masteriyo_get_default_email_contents()['admin']['instructor_apply'],
+					'new_withdraw_request'    => masteriyo_get_default_email_contents()['admin']['new_withdraw_request'],
+					'instructor_registration' => masteriyo_get_default_email_contents()['admin']['instructor_registration'],
+					'student_registration'    => masteriyo_get_default_email_contents()['admin']['student_registration'],
+					'course_start'            => masteriyo_get_default_email_contents()['admin']['course_start'],
+					'course_completion'       => masteriyo_get_default_email_contents()['admin']['course_completion'],
+					'new_quiz_attempt'        => masteriyo_get_default_email_contents()['admin']['new_quiz_attempt'],
 				),
 				'instructor' => array(
-					'instructor_registration'   => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Registration Complete!',
-						'content'    => '',
-					),
-					'withdraw_request_pending'  => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Withdraw request pending!',
-						'content'    => '',
-					),
-					'withdraw_request_approved' => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Withdraw request approved!',
-						'content'    => '',
-					),
-					'withdraw_request_rejected' => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Withdraw request rejected!',
-						'content'    => '',
-					),
-					'instructor_apply_approved' => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Exciting News! Your Application for Instructor Status Has Been Approved!',
-						'content'    => '',
-					),
+					'instructor_registration'   => masteriyo_get_default_email_contents()['instructor']['instructor_registration'],
+					'instructor_apply_approved' => masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved'],
+					'withdraw_request_pending'  => masteriyo_get_default_email_contents()['instructor']['withdraw_request_pending'],
+					'withdraw_request_approved' => masteriyo_get_default_email_contents()['instructor']['withdraw_request_approved'],
+					'course_start'              => masteriyo_get_default_email_contents()['instructor']['course_start'],
+					'course_completion'         => masteriyo_get_default_email_contents()['instructor']['course_completion'],
+					'withdraw_request_rejected' => masteriyo_get_default_email_contents()['instructor']['withdraw_request_rejected'],
+					'new_quiz_attempt'          => masteriyo_get_default_email_contents()['instructor']['new_quiz_attempt'],
 				),
 				'student'    => array(
-					'student_registration'      => array(
-						'enable'  => true,
-						'subject' => 'Registration Complete!',
-						'content' => '',
-					),
-					'instructor_apply_rejected' => array(
-						'enable'  => true,
-						'subject' => 'Update Regarding Your Application for Instructor Status',
-						'content' => '',
-					),
-					'completed_order'           => array(
-						'enable'  => true,
-						'subject' => 'Thanks for your purchase!',
-						'content' => '',
-					),
-					'onhold_order'              => array(
-						'enable'  => true,
-						'subject' => 'Order On-Hold!',
-						'content' => '',
-					),
-					'cancelled_order'           => array(
-						'enable'     => true,
-						'recipients' => array(),
-						'subject'    => 'Order Cancelled!',
-						'content'    => '',
-					),
+					'student_registration'      => masteriyo_get_default_email_contents()['student']['student_registration'],
+					'automatic_registration'    => masteriyo_get_default_email_contents()['student']['automatic_registration'],
+					'instructor_apply_rejected' => masteriyo_get_default_email_contents()['student']['instructor_apply_rejected'],
+					'completed_order'           => masteriyo_get_default_email_contents()['student']['completed_order'],
+					'onhold_order'              => masteriyo_get_default_email_contents()['student']['onhold_order'],
+					'cancelled_order'           => masteriyo_get_default_email_contents()['student']['cancelled_order'],
+					'course_completion'         => masteriyo_get_default_email_contents()['student']['course_completion'],
+					'group_course_enroll'       => masteriyo_get_default_email_contents()['student']['group_course_enroll'],
+					'group_joining'             => masteriyo_get_default_email_contents()['student']['group_joining'],
+				),
+				'everyone'   => array(
+					'password_reset'     => masteriyo_get_default_email_contents()['everyone']['password_reset'],
+					'email_verification' => masteriyo_get_default_email_contents()['everyone']['email_verification'],
 				),
 			),
 			'notification'   => array(
@@ -3919,49 +3886,54 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					),
 				),
 			),
+			'authentication' => array(
+				'email_verification'  => array(
+					'enable' => true,
+				),
+				'limit_login_session' => 0,
+				'qr_login'            => array(
+					'enable'            => false,
+					'attention_message' => 'Attention: Possession of the QR code or login link grants login access to anyone.',
+				),
+			),
 			'advance'        => array(
-				'permalinks'          => array(
+				'permalinks' => array(
 					'category_base'           => 'course-category',
 					'tag_base'                => 'course-tag',
 					'difficulty_base'         => 'course-difficulty',
 					'single_course_permalink' => 'course',
 				),
 				// Checkout endpoints.
-				'checkout'            => array(
+				'checkout'   => array(
 					'pay'                        => 'order-pay',
 					'order_received'             => 'order-received',
 					'add_payment_method'         => 'add-payment-method',
 					'delete_payment_method'      => 'delete-payment-method',
 					'set_default_payment_method' => 'set-default-payment-method',
 				),
-				'debug'               => array(
+				'debug'      => array(
 					'template_debug' => false,
 					'debug'          => false,
 					'enable_logger'  => false,
 				),
-				'uninstall'           => array(
+				'uninstall'  => array(
 					'remove_data' => false,
 				),
-				'tracking'            => array(
+				'tracking'   => array(
 					'allow_usage'       => false,
 					'subscribe_updates' => false,
 					'email'             => get_bloginfo( 'admin_email' ),
 				),
-				'gdpr'                => array(
+				'gdpr'       => array(
 					'enable'  => false,
 					'message' => "Check the box to confirm you've read our",
 				),
-				'openai'              => array(
+				'openai'     => array(
 					'api_key' => '',
 				),
-				'email_verification'  => array(
-					'enable' => true,
+				'editor'     => array(
+					'default_editor' => 'classic_editor',
 				),
-				'qr_login'            => array(
-					'enable'            => false,
-					'attention_message' => 'Attention: Possession of the QR code or login link grants login access to anyone.',
-				),
-				'limit_login_session' => 0,
 			),
 			'accounts_page'  => array(
 				'display' => array(
@@ -4570,7 +4542,7 @@ if ( ! function_exists( 'masteriyo_is_email_verification_enabled' ) ) {
 		 *
 		 * @param bool $enabled Whether email verification is enabled or not.
 		 */
-		return apply_filters( 'masteriyo_email_verification_enabled', masteriyo_get_setting( 'advance.email_verification.enable' ) );
+		return apply_filters( 'masteriyo_email_verification_enabled', masteriyo_get_setting( 'authentication.email_verification.enable' ) );
 	}
 }
 
@@ -4917,7 +4889,7 @@ if ( ! function_exists( 'masteriyo_is_qr_login_enabled' ) ) {
 		 *                      false otherwise. This value is derived from the Masteriyo
 		 *                      settings and can be altered through this filter.
 		 */
-		return apply_filters( 'masteriyo_qr_login_enabled', masteriyo_get_setting( 'advance.qr_login.enable' ) );
+		return apply_filters( 'masteriyo_qr_login_enabled', masteriyo_get_setting( 'authentication.qr_login.enable' ) );
 	}
 }
 
@@ -5517,5 +5489,267 @@ if ( ! function_exists( 'masteriyo_is_course_carousel_enabled' ) ) {
 		 * @return bool True if the course carousel is enabled, false otherwise.
 		 */
 		return apply_filters( 'masteriyo_is_course_carousel_enabled', false );
+	}
+}
+
+	/**
+ * Get currencies list.
+ *
+ * @since 1.15.0
+ *
+ * @return array
+ */
+if ( ! function_exists( 'masteriyo_get_currencies_array' ) ) {
+	/**
+	 * Get currencies list.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	function masteriyo_get_currencies_array() {
+		$currencies = masteriyo_get_currencies();
+
+		foreach ( $currencies as $code => $name ) {
+			$currencies_arr[] = array(
+				'code'   => $code,
+				'name'   => html_entity_decode( $name ),
+				'symbol' => html_entity_decode( masteriyo_get_currency_symbol( $code ) ),
+			);
+		}
+
+		$response = $currencies_arr;
+
+		return $response;
+	}
+}
+
+/**
+ * Get pages list.
+ *
+ * @since 1.15.0
+ *
+ * @return array
+ */
+if ( ! function_exists( 'masteriyo_get_all_pages' ) ) {
+	/**
+	 * Get pages list.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	function masteriyo_get_all_pages() {
+		$pages = get_pages();
+
+		$formatted_pages = array();
+
+		foreach ( $pages as $page ) {
+			$formatted_pages[] = array(
+				'id'    => $page->ID,
+				'title' => $page->post_title,
+			);
+		}
+
+		return $formatted_pages;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_states' ) ) {
+	/**
+	 * Get states list.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	function masteriyo_get_states() {
+		$countries = array_keys( masteriyo( 'countries' )->get_countries() );
+
+		foreach ( $countries as $country ) {
+			$states = masteriyo( 'countries' )->get_states( $country );
+
+			if ( empty( $states ) ) {
+				continue;
+			}
+
+			$states_list = array();
+			foreach ( $states as $state_code => $state_name ) {
+				$states_list[] = array(
+					'code' => $state_code,
+					'name' => $state_name,
+				);
+			}
+
+			$states_arr[] = array(
+				'country' => $country,
+				'states'  => $states_list,
+			);
+		}
+
+		return $states_arr;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_countries' ) ) {
+	/**
+	 * Get countries list.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	function masteriyo_get_countries() {
+		$countries = masteriyo( 'countries' )->get_countries();
+
+		$countries = array_map( 'html_entity_decode', $countries );
+
+		foreach ( $countries as $code => $name ) {
+			$countries_arr[] = array(
+				'code' => $code,
+				'name' => $name,
+			);
+		}
+
+		return $countries_arr;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
+	/**
+	 * Display an admin notice when required pages are missing or misconfigured.
+	 *
+	 * @since 1.15.0
+	 * @return void
+	 */
+	function masteriyo_notify_pages_missing() {
+		$page_slugs = array(
+			'learn',
+			'account',
+			'checkout',
+		);
+
+		$missing_pages = array();
+
+		foreach ( $page_slugs as $page_slug ) {
+			$page_id = masteriyo_get_page_id( $page_slug );
+			$page    = get_post( $page_id );
+
+			if ( ! $page || 'page' !== $page->post_type || 'publish' !== $page->post_status ) {
+				$missing_pages[] = ucfirst( $page_slug );
+			}
+		}
+
+		$page_id = absint( masteriyo_get_setting( 'general.pages.learn_page_id' ) );
+		$page    = get_post( $page_id );
+
+		if ( ! empty( $missing_pages ) ) {
+			add_action(
+				'masteriyo_admin_notices',
+				function () use ( $missing_pages, $page_slugs ) {
+					$notice_title = '<strong>' . __( 'Masteriyo:', 'learning-management-system' ) . '</strong>';
+
+					$missing_pages_count = count( $missing_pages );
+
+					$missing_pages = array_map(
+						function( $missing_page ) {
+							return "<strong>{$missing_page}</strong>";
+						},
+						$missing_pages
+					);
+
+					$missing_pages_list = implode( ', ', $missing_pages );
+					$notice_message     = sprintf(
+						/* translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages */
+						_n(
+							'%1$s %2$d page is missing: %3$s. Please configure it, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set it up automatically.',
+							'%1$s %2$d pages are missing: %3$s. Please configure them, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set them up automatically.',
+							$missing_pages_count,
+							'learning-management-system'
+						),
+						$notice_title,
+						$missing_pages_count,
+						wp_kses_post( $missing_pages_list ),
+						esc_html__( 'click here', 'learning-management-system' )
+					);
+
+					printf(
+						'<div class="notice notice-warning is-dismissible masteriyo-pages-missing-notice"><p>%s</p></div>',
+						wp_kses_post( $notice_message )
+					);
+
+					wp_enqueue_script( 'masteriyo-admin-notice', plugin_dir_url( __FILE__ ) . 'assets/js/admin-notice.js', array( 'jquery' ), MASTERIYO_VERSION, true );
+
+					wp_localize_script(
+						'masteriyo-admin-notice',
+						'masteriyoData',
+						array(
+							'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+							'nonce'         => wp_create_nonce( 'masteriyo-setup-pages' ),
+							'settingUpText' => __( 'Setting up...', 'learning-management-system' ),
+							'setupFailed'   => __( 'Failed to set up. Retry?', 'learning-management-system' ),
+							'setupSuccess'  => __( 'Pages set up successfully.', 'learning-management-system' ),
+							'pages'         => $page_slugs,
+						)
+					);
+
+					wp_add_inline_script(
+						'masteriyo-admin-notice',
+						"
+						jQuery(document).ready(function ($) {
+							$(document).on('click', '#masteriyo-setup-pages', function (e) {
+								e.preventDefault();
+								var link = $(this);
+								var notice = $(this).closest('.masteriyo-pages-missing-notice');
+								link.text(masteriyoData.settingUpText);
+								$.post(
+									masteriyoData.ajaxUrl,
+									{
+										action: 'masteriyo_setup_pages',
+										nonce: masteriyoData.nonce,
+										pages: masteriyoData.pages
+									},
+									function (response) {
+										if (response.success) {
+											notice.slideUp(300, function () {
+												$(this).remove();
+											});
+										} else {
+											link.text(masteriyoData.setupFailed);
+										}
+									},
+								);
+							});
+						});
+					"
+					);
+				}
+			);
+		}
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_total_user_count_by_roles_and_statuses' ) ) {
+	/**
+	 * Get the total count of users with specific roles and statuses.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param array $roles Array of user roles to include.
+	 * @param string $status Status of the users.
+	 *
+	 * @return int Total number of users matching the criteria.
+	 */
+	function masteriyo_get_total_user_count_by_roles_and_statuses( $roles, $status ) {
+		$args = array(
+			'fields'      => 'ID',
+			'user_status' => $status,
+			'role__in'    => $roles,
+		);
+
+		$user_query  = new WPUserQuery( $args );
+		$total_users = $user_query->total_users;
+
+		return absint( $total_users );
 	}
 }

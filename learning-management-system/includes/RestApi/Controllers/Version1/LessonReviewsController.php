@@ -2,7 +2,7 @@
 /**
  * LessonReviewsController class.
  *
- * @since 1.0.0
+ * @since 2.15.0
  *
  * @package Masteriyo\RestApi\Controllers\Version1;
  */
@@ -50,7 +50,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var Masteriyo\Helper\Permission;
 	 */
@@ -60,7 +60,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param Permission $permission Permission instance.
 	 */
@@ -71,7 +71,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Register Routes.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return void
 	 */
@@ -91,6 +91,19 @@ class LessonReviewsController extends CourseReviewsController {
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/items',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_lesson_comments' ),
+					'permission_callback' => array( $this, 'get_lesson_permissions_check' ),
+					'args'                => $this->get_collection_params(),
 				),
 			)
 		);
@@ -222,11 +235,13 @@ class LessonReviewsController extends CourseReviewsController {
 	}
 
 	/**
-	 * gets lesson comments and its replies
+	 * Gets all lesson comments and its replies for specific lesson.
+	 *
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
-	public function get_items( $request ) {
+	public function get_lesson_comments( $request ) {
 		$params            = $request->get_params();
 		$data              = $this->masteriyo_get_lesson_reviews_and_replies( $params['lesson_id'], $params['page'], $params['per_page'] );
 		$comments_object   = $data['reviews'];
@@ -242,7 +257,7 @@ class LessonReviewsController extends CourseReviewsController {
 			$converted_replies[ $key ] = array();
 
 			foreach ( $replies as $reply ) {
-					$converted_replies[ $key ][] = $this->get_lesson_review_data( $reply );
+				$converted_replies[ $key ][] = $this->get_lesson_review_data( $reply );
 			}
 		}
 
@@ -256,9 +271,9 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get lesson reviews and replies.
 	 *
-	 * @since 1.14.0
-	 * @since 1.14.0  Added parameter $page.
-	 * @since 1.14.0  Added parameter $per_page.
+	 * @since 2.15.0
+	 * @since 2.15.0  Added parameter $page.
+	 * @since 2.15.0  Added parameter $per_page.
 	 *
 	 * @param integer|string|\Masteriyo\Models\Lesson|\WP_Post $lesson_id Lesson ID or object.
 	 * @param integer                                          $page Page number if paginating. Default 1.
@@ -289,6 +304,13 @@ class LessonReviewsController extends CourseReviewsController {
 		);
 
 		$result = $this->masteriyo_get_lesson_reviews( $args );
+
+		if ( 0 === $result->total ) {
+			return array(
+				'reviews' => $result->lesson_review,
+				'replies' => array(),
+			);
+		}
 
 		$lesson_reviews     = $result->lesson_review;
 		$filtered_reviews   = array();
@@ -360,7 +382,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get lesson reviews.
 	 *
-	 * @since 1.0.0
+	 * @since 2.15.0
 	 *
 	 * @param array $args Query arguments.
 	 *
@@ -372,7 +394,7 @@ class LessonReviewsController extends CourseReviewsController {
 		/**
 		 * Filters queried lesson review objects.
 		 *
-		 * @since 1.0.0
+		 * @since 2.15.0
 		 *
 		 * @param \Masteriyo\Models\LessonReview|\Masteriyo\Models\LessonReview[] $lesson_reviews Queried Lesson reviews.
 		 * @param array $args Query args.
@@ -383,7 +405,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get replies of lesson reviews.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param integer[] $review_ids Review Ids.
 	 *
@@ -400,7 +422,7 @@ class LessonReviewsController extends CourseReviewsController {
 		/**
 		 * Filters replies of lesson reviews.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param \Masteriyo\Models\LessonReview $replies Replies for the given lesson reviews.
 		 * @param integer[] $review_ids lesson review IDs.
@@ -411,7 +433,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get the query params for collections of attachments.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
@@ -436,7 +458,7 @@ class LessonReviewsController extends CourseReviewsController {
 		 * collection parameter to an internal WP_Comment_Query parameter. Use the
 		 * `rest_comment_query` filter to set WP_Comment_Query parameters.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param array $params JSON Schema-formatted collection parameters.
 		 */
@@ -446,7 +468,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get object.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int|\WP_Comment|\Masteriyo\Models\lessonReview $object Object ID or WP_Comment or Model.
 	 *
@@ -473,7 +495,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get objects.
 	 *
-	 * @since  1.14.0
+	 * @since  2.15.0
 	 * @param  array $query_args Query args.
 	 * @return array
 	 */
@@ -503,7 +525,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get the total number of comments by comment type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $query_args WP_Comment_Query args.
 	 * @return int
@@ -531,7 +553,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Prepares the object for the REST response.
 	 *
-	 * @since  1.14.0
+	 * @since  2.15.0
 	 *
 	 * @param  Masteriyo\Database\Model $object  Model object.
 	 * @param  WP_REST_Request $request Request object.
@@ -552,7 +574,7 @@ class LessonReviewsController extends CourseReviewsController {
 		 * The dynamic portion of the hook name, $this->object_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param Masteriyo\Database\Model $object   Object data.
@@ -564,7 +586,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get lesson review data.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param Masteriyo\Models\LessonReview $lesson_review Lesson Review instance.
 	 * @param string       $context Request context.
@@ -593,13 +615,23 @@ class LessonReviewsController extends CourseReviewsController {
 			'replies_count'     => $lesson_review->total_replies_count(),
 		);
 
-		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ) ) ) {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.auto_approve_comments' ) ) ) {
 			$data['is_new'] = masteriyo_string_to_bool( $lesson_review->get_is_new( $context ) );
 		}
 
 		$lesson = masteriyo_get_lesson( $lesson_review->get_lesson_id() );
+
 		if ( $lesson ) {
-			$course         = masteriyo_get_course( $lesson->get_course_id() );
+			$course = masteriyo_get_course( $lesson->get_course_id() );
+			if ( ! empty( $course->get_author_id() ) ) {
+				$data['course_author_id'] = $course->get_author_id();
+			}
+			if ( ! empty( $course->get_id() ) && ! empty( $course->get_name() ) ) {
+				$data['course'] = array(
+					'id'   => $course->get_id(),
+					'name' => $course->get_name(),
+				);
+			}
 			$data['lesson'] = array(
 				'id'          => $lesson->get_id(),
 				'name'        => $lesson->get_name(),
@@ -608,15 +640,15 @@ class LessonReviewsController extends CourseReviewsController {
 		}
 
 		/**
-		 * Filter lesson reviews rest response data.
-		 *
-		 * @since 1.14.0
-		 *
-		 * @param array $data Lesson review data.
-		 * @param Masteriyo\Models\LessonReview $lesson_review Lesson review object.
-		 * @param string $context What the value is for. Valid values are view and edit.
-		 * @param Masteriyo\RestApi\Controllers\Version1\LessonReviewsController $controller REST lessons controller object.
-		 */
+			* Filter lesson reviews rest response data.
+			*
+			* @since 2.15.0
+			*
+			* @param array $data Lesson review data.
+			* @param Masteriyo\Models\LessonReview $lesson_review Lesson review object.
+			* @param string $context What the value is for. Valid values are view and edit.
+			* @param Masteriyo\RestApi\Controllers\Version1\LessonReviewsController $controller REST lessons controller object.
+			*/
 		return apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $lesson_review, $context, $this );
 	}
 
@@ -625,7 +657,7 @@ class LessonReviewsController extends CourseReviewsController {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
-	 * @since  1.14.0
+	 * @since  2.15.0
 	 *
 	 * @return array
 	 */
@@ -640,7 +672,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Get the Lesson review's schema, conforming to JSON Schema.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
@@ -760,7 +792,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Prepare a single lesson review object for create or update.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
@@ -768,12 +800,14 @@ class LessonReviewsController extends CourseReviewsController {
 	 * @return WP_Error|Masteriyo\Models\LessonReview
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id            = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+			/** @var \Masteriyo\Models\LessonReview */
 		$lesson_review = masteriyo( 'lesson_review' );
 		$user          = masteriyo_get_current_user();
 
 		if ( 0 !== $id ) {
 			$lesson_review->set_id( $id );
+			/** @var \Masteriyo\Repository\LessonReviewRepository */
 			$lesson_review_repo = masteriyo( \Masteriyo\Repository\LessonReviewRepository::class );
 			$lesson_review_repo->read( $lesson_review );
 		}
@@ -816,6 +850,14 @@ class LessonReviewsController extends CourseReviewsController {
 			$lesson_review->set_date_created( $request['date_created'] );
 		}
 
+		// Lesson ID.
+		if ( isset( $request['lesson_id'] ) ) {
+			$lesson_review->set_lesson_id( $request['lesson_id'] );
+		}
+
+		$lesson    = masteriyo_get_lesson( $lesson_review->get_lesson_id() );
+		$is_author = ! empty( $lesson ) ? masteriyo_is_current_user_post_author( $lesson->get_course_id() ) : false;
+
 		// Lesson Review Content.
 		if ( isset( $request['content'] ) ) {
 			$lesson_review->set_content( $request['content'] );
@@ -823,8 +865,8 @@ class LessonReviewsController extends CourseReviewsController {
 
 		$status = CommentStatus::APPROVE_STR;
 
-		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
-			if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ) ) ) {
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! $is_author ) {
+			if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.auto_approve_comments' ) ) ) {
 				$status = CommentStatus::HOLD_STR;
 				$lesson_review->set_is_new( true );
 			}
@@ -838,7 +880,7 @@ class LessonReviewsController extends CourseReviewsController {
 		$lesson_review->set_status( $status );
 
 		// Set is new status.
-		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ) ) && isset( $request['is_new'] ) ) {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'learn_page.display.auto_approve_comments' ) ) && isset( $request['is_new'] ) ) {
 			$lesson_review->set_is_new( $request['is_new'] );
 		}
 
@@ -850,11 +892,6 @@ class LessonReviewsController extends CourseReviewsController {
 		// Lesson Review Type.
 		if ( isset( $request['type'] ) ) {
 			$lesson_review->set_type( $request['type'] );
-		}
-
-		// Lesson ID.
-		if ( isset( $request['lesson_id'] ) ) {
-			$lesson_review->set_lesson_id( $request['lesson_id'] );
 		}
 
 		// Lesson Review Parent.
@@ -880,7 +917,7 @@ class LessonReviewsController extends CourseReviewsController {
 		 * The dynamic portion of the hook name, `$this->object_type`,
 		 * refers to the object type slug.
 		 *
-		 * @since 1.0.0
+		 * @since 2.15.0
 		 *
 		 * @param Masteriyo\Models\LessonReview $comment Lesson review object.
 		 * @param WP_REST_Request $request  Request object.
@@ -892,12 +929,42 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
 	 */
 	public function get_items_permissions_check( $request ) {
+
+		if ( is_null( $this->permission ) ) {
+			return new \WP_Error(
+				'masteriyo_null_permission',
+				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+			);
+		}
+
+		if ( ! $this->permission->rest_check_course_reviews_permissions( 'read' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you cannot list resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if a given request has access to read lesson comments.
+	 *
+	 * @since 2.15.0
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function get_lesson_permissions_check( $request ) {
 		$lesson = masteriyo_get_lesson( $request['lesson_id'] );
 		$course = masteriyo_get_course( $lesson->get_course_id() );
 
@@ -928,7 +995,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Checks if a given request has access to get a specific item.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return boolean|WP_Error True if the request has read access for the item, WP_Error object otherwise.
@@ -957,7 +1024,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -999,7 +1066,7 @@ class LessonReviewsController extends CourseReviewsController {
 		if ( ! $this->permission->rest_check_lesson_reviews_permissions( 'create' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_create',
-				__( 'Sorry, you are not allowed to lesson lesson reviews.', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to lesson reviews.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1052,7 +1119,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Check if a given request has access to delete an item.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -1070,6 +1137,7 @@ class LessonReviewsController extends CourseReviewsController {
 		}
 
 		$review = $this->get_object( absint( $request['id'] ) );
+		$lesson = ! empty( $review ) ? masteriyo_get_lesson( $review->get_lesson_id() ) : false;
 
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
@@ -1079,6 +1147,10 @@ class LessonReviewsController extends CourseReviewsController {
 					'status' => rest_authorization_required_code(),
 				)
 			);
+		}
+
+		if ( $lesson && masteriyo_is_current_user_post_author( $lesson->get_course_id() ) ) {
+			return true;
 		}
 
 		if ( get_current_user_id() !== $review->get_author_id() ) {
@@ -1107,7 +1179,7 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -1132,13 +1204,15 @@ class LessonReviewsController extends CourseReviewsController {
 			);
 		}
 
-		/**
-		 * change this
-		 */
 		$review_lesson_id  = $review->get_lesson_id();
 		$request_lesson_id = absint( $request['lesson_id'] );
+		$lesson            = masteriyo_get_lesson( $request['lesson_id'] );
 
 		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_post_author( $review_lesson_id ) ) {
+			return true;
+		}
+
+		if ( $lesson && masteriyo_is_current_user_post_author( $lesson->get_course_id() ) ) {
 			return true;
 		}
 
@@ -1176,24 +1250,9 @@ class LessonReviewsController extends CourseReviewsController {
 	}
 
 	/**
-	 * Check permissions for an item.
-	 *
-	 * @since 1.14.0
-	 *
-	 * @param string $object_type Object type.
-	 * @param string $context   Request context.
-	 * @param int    $object_id Post ID.
-	 *
-	 * @return bool
-	 */
-	protected function check_item_permission( $object_type, $context = 'read', $object_id = 0 ) {
-		return true;
-	}
-
-	/**
 	 * Restore lesson review.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -1224,20 +1283,17 @@ class LessonReviewsController extends CourseReviewsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
-	 * @param array $objects Lesson reviews data.
+	 * @param array $objects Course reviews data.
 	 * @param array $query_args Query arguments.
-	 * @param array $query_results Lesson reviews query result data.
+	 * @param array $query_results Course reviews query result data.
 	 *
 	 * @return array
 	 */
 	protected function process_objects_collection( $objects, $query_args, $query_results ) {
 		$lesson_ids = array();
 		if ( ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) ) {
-			/**
-			 * change it
-			 */
 			$lesson_ids = masteriyo_get_instructor_lesson_ids();
 			$lesson_ids = empty( $lesson_ids ) ? array( 0 ) : $lesson_ids;
 		}
@@ -1245,11 +1301,12 @@ class LessonReviewsController extends CourseReviewsController {
 		return array(
 			'data' => $objects,
 			'meta' => array(
-				'total'         => $query_results['total'],
-				'pages'         => $query_results['pages'],
-				'current_page'  => $query_args['paged'],
-				'per_page'      => $query_args['number'],
-				'reviews_count' => $this->get_comments_count( 0, $lesson_ids ),
+				'total'              => $query_results['total'],
+				'pages'              => $query_results['pages'],
+				'current_page'       => $query_args['paged'],
+				'per_page'           => $query_args['number'],
+				'reviews_count'      => $this->get_comments_count( 0, $lesson_ids ),
+				'pending_hold_count' => masteriyo_get_pending_course_reviews_and_lesson_comments_count(),
 			),
 		);
 	}

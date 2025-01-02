@@ -27,7 +27,7 @@ require_once __DIR__ . '/helper/sure-cart.php';
 
 if ( ( new Addons() )->is_active( MASTERIYO_SURECART_INTEGRATION_ADDON_SLUG && ! is_sure_cart_active() ) ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

@@ -761,6 +761,7 @@ abstract class CrudController extends RestController {
 				'modified',
 				'menu_order',
 				'rand',
+				'meta_value',
 			),
 			'validate_callback' => 'rest_validate_request_arg',
 		);

@@ -34,7 +34,7 @@ class UseTemplateForMasteriyoAction {
 	 */
 	public function init_hooks() {
 		add_filter( 'init', array( $this, 'handle' ) );
-		add_action( 'admin_notices', array( $this, 'show_notice' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'show_notice' ) );
 	}
 
 	/**
@@ -62,15 +62,15 @@ class UseTemplateForMasteriyoAction {
 		$template_type = sanitize_text_field( $_GET['template-type'] );
 
 		if ( CourseArchivePageDocumentType::TYPE_SLUG === $template_type ) {
-			masteriyo_set_setting( 'course_archive.custom_template.enable', true );
-			masteriyo_set_setting( 'course_archive.custom_template.template_source', 'elementor' );
-			masteriyo_set_setting( 'course_archive.custom_template.template_id', $template_id );
+			masteriyo_set_setting( 'course_archive.display.template.custom_template.enable', true );
+			masteriyo_set_setting( 'course_archive.display.template.custom_template.template_source', 'elementor' );
+			masteriyo_set_setting( 'course_archive.display.template.custom_template.template_id', $template_id );
 
 			set_transient( '_masteriyo_updated_template_settings', 1, 10 );
 		} elseif ( SingleCoursePageDocumentType::TYPE_SLUG === $template_type ) {
-			masteriyo_set_setting( 'single_course.custom_template.enable', true );
-			masteriyo_set_setting( 'single_course.custom_template.template_source', 'elementor' );
-			masteriyo_set_setting( 'single_course.custom_template.template_id', $template_id );
+			masteriyo_set_setting( 'single_course.display.template.custom_template.enable', true );
+			masteriyo_set_setting( 'single_course.display.template.custom_template.template_source', 'elementor' );
+			masteriyo_set_setting( 'single_course.display.template.custom_template.template_id', $template_id );
 
 			set_transient( '_masteriyo_updated_template_settings', 1, 10 );
 		} else {

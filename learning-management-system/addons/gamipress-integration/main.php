@@ -20,7 +20,7 @@ define( 'MASTERIYO_GAMIPRESS_INTEGRATION_SLUG', 'gamipress-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_GAMIPRESS_INTEGRATION_SLUG ) && ! Helper::is_gamipress_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

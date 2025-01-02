@@ -306,19 +306,21 @@ class CourseProgressItemsController extends CrudController {
 	 * @return array
 	 */
 	protected function get_course_progress_item_data( $course_progress_item, $context = 'view' ) {
-		$progress = \masteriyo_get_course_progress( $course_progress_item->get_progress_id( 'edit' ) );
+		$progress        = \masteriyo_get_course_progress( $course_progress_item->get_progress_id( 'edit' ) );
+		$current_user_id = get_current_user_id();
 
 		$data = array(
-			'id'           => $course_progress_item->get_id( $context ),
-			'progress_id'  => $course_progress_item->get_progress_id( $context ),
-			'course_id'    => is_null( $progress ) ? $course_progress_item->get_item_id( $context ) : $progress->get_course_id( $context ),
-			'user_id'      => $course_progress_item->get_user_id( $context ),
-			'item_id'      => $course_progress_item->get_item_id( $context ),
-			'item_type'    => $course_progress_item->get_item_type( $context ),
-			'completed'    => $course_progress_item->get_completed( $context ),
-			'started_at'   => masteriyo_rest_prepare_date_response( $course_progress_item->get_started_at( $context ) ),
-			'modified_at'  => masteriyo_rest_prepare_date_response( $course_progress_item->get_modified_at( $context ) ),
-			'completed_at' => masteriyo_rest_prepare_date_response( $course_progress_item->get_completed_at( $context ) ),
+			'id'                      => $course_progress_item->get_id( $context ),
+			'progress_id'             => $course_progress_item->get_progress_id( $context ),
+			'course_id'               => is_null( $progress ) ? $course_progress_item->get_item_id( $context ) : $progress->get_course_id( $context ),
+			'user_id'                 => $course_progress_item->get_user_id( $context ),
+			'item_id'                 => $course_progress_item->get_item_id( $context ),
+			'item_type'               => $course_progress_item->get_item_type( $context ),
+			'completed'               => $course_progress_item->get_completed( $context ),
+			'started_at'              => masteriyo_rest_prepare_date_response( $course_progress_item->get_started_at( $context ) ),
+			'modified_at'             => masteriyo_rest_prepare_date_response( $course_progress_item->get_modified_at( $context ) ),
+			'completed_at'            => masteriyo_rest_prepare_date_response( $course_progress_item->get_completed_at( $context ) ),
+			'previously_visited_page' => masteriyo_get_user_activity_meta( $current_user_id, $course_progress_item->get_item_id( $context ), '_previously_visited_page', 'quiz' ),
 		);
 
 		/**
@@ -512,6 +514,11 @@ class CourseProgressItemsController extends CrudController {
 			$course_progress_item->set_completed_at( $request['completed_at'] );
 		}
 
+		// previously_visited_page.
+		if ( isset( $request['previously_visited_page'] ) && isset( $request['course_progress_item_id'] ) ) {
+			$this->create_or_update_activity_meta( $request['course_progress_item_id'], $request['previously_visited_page'], '_previously_visited_page' );
+		}
+
 		/**
 		 * Filters an object before it is inserted via the REST API.
 		 *
@@ -525,6 +532,126 @@ class CourseProgressItemsController extends CrudController {
 		 * @param bool            $creating If is creating a new object.
 		 */
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $course_progress_item, $request, $creating );
+	}
+	/**
+	 * Get user activity ID.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int $user_id         User ID.
+	 * @param int $item_id         Item ID.
+	 * @param string $item_type    Item type. Default 'course_progress'.
+	 * @param int $parent_id      Parent ID. Default 0.
+	 *
+	 * @return int User activity ID.
+	 */
+	private function get_user_activity_id( $user_id, $item_id, $item_type = 'quiz', $parent_id = 0 ) {
+		global $wpdb;
+
+		$user_activity_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}masteriyo_user_activities
+					WHERE item_id = %d
+					AND user_id = %d
+					AND activity_type = %s
+					AND parent_id = %d",
+				$item_id,
+				$user_id,
+				$item_type,
+				$parent_id
+			)
+		);
+
+		return $user_activity_id ? absint( $user_activity_id ) : 0;
+	}
+
+	/**
+	 * create or update activity meta value.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param array $data_to_be_updated Data to be updated.
+	 *
+	 * @return array Sanitized data.
+	 */
+	private function create_or_update_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key = 'previously_visited_page' ) {
+		$data_to_be_updated    = $data_to_be_updated;
+		$user_activity_meta_id = $this->get_user_activity_meta_id( $user_activity_id, $meta_key );
+
+		if ( $user_activity_meta_id ) {
+			$this->update_activity_meta( $user_activity_meta_id, $data_to_be_updated );
+		} else {
+			$this->create_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key );
+		}
+	}
+
+	/**
+	 * Creates activity meta.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int $user_activity_id User activity ID.
+	 * @param array $meta_value Data to be updated in the activity meta.
+	 * @param string $meta_key The meta key.
+	 */
+	private function create_activity_meta( $user_activity_id, $meta_value, $meta_key = 'activity_log' ) {
+		global $wpdb;
+
+		$wpdb->insert(
+			"{$wpdb->prefix}masteriyo_user_activitymeta",
+			array(
+				'user_activity_id' => $user_activity_id,
+				'meta_key'         => $meta_key,
+				'meta_value'       => maybe_serialize( $meta_value ),
+			),
+			array( '%d', '%s', '%s' )
+		);
+	}
+
+	/**
+	 * Retrieves the meta ID for a given user activity ID and meta key.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int    $user_activity_id The user activity ID.
+	 * @param string $meta_key        The meta key. Default 'activity_log'.
+	 *
+	 * @return int The meta ID on success, 0 on failure.
+	 */
+	private function get_user_activity_meta_id( $user_activity_id, $meta_key = '_previously_visited_page' ) {
+		global $wpdb;
+
+		$user_activity_meta_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_id FROM {$wpdb->prefix}masteriyo_user_activitymeta
+					WHERE user_activity_id = %d
+					AND meta_key = %s",
+				$user_activity_id,
+				$meta_key
+			)
+		);
+
+		return $user_activity_meta_id ? absint( $user_activity_meta_id ) : 0;
+	}
+
+	/**
+	 * Updates activity meta.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int $user_activity_meta_id User activity meta ID.
+	 * @param array $meta_value Data to be updated in the activity meta.
+	 */
+	private function update_activity_meta( $user_activity_meta_id, $meta_value ) {
+		global $wpdb;
+
+		$wpdb->update(
+			"{$wpdb->prefix}masteriyo_user_activitymeta",
+			array( 'meta_value' => maybe_serialize( $meta_value ) ),
+			array( 'meta_id' => $user_activity_meta_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
 	}
 
 	/**
@@ -859,7 +986,7 @@ class CourseProgressItemsController extends CrudController {
 
 			$course_progress = $session->get( 'course_progress_items', array() );
 
-			$key                     = $progress_item->get_item_id() . ':' . $progress_item->get_item_type() . ':' . $progress_item->get_course_id();
+			$key                     = $progress_item->get_item_id();
 			$course_progress[ $key ] = $progress_item->get_data();
 
 			$session->put( 'course_progress_items', $course_progress );

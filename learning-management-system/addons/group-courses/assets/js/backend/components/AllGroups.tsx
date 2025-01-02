@@ -2,7 +2,6 @@ import {
 	Box,
 	Checkbox,
 	Container,
-	Icon,
 	Stack,
 	Text,
 	useDisclosure,
@@ -13,7 +12,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -26,6 +24,7 @@ import {
 	HeaderTop,
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
+import Sorting from '../../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepMerge,
@@ -259,8 +258,8 @@ const AllGroups = () => {
 												onChange={(e) =>
 													setBulkIds(
 														e.target.checked
-															? groupQuery?.data?.data?.map(
-																	(group: any) => group?.id?.toString(),
+															? groupQuery?.data?.data?.map((group: any) =>
+																	group?.id?.toString(),
 																)
 															: [],
 													)
@@ -272,31 +271,11 @@ const AllGroups = () => {
 												<Text fontSize="xs">
 													{__('Title', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'title'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterGroupsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'title',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterGroupsBy}
+													orderBy={'title'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Author', 'learning-management-system')}</Th>
@@ -309,31 +288,11 @@ const AllGroups = () => {
 												<Text fontSize="xs">
 													{__('Date', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'date'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterGroupsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'date',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterGroupsBy}
+													orderBy={'date'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Actions', 'learning-management-system')}</Th>
@@ -406,7 +365,7 @@ const AllGroups = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGroup.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

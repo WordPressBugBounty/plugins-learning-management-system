@@ -20,7 +20,7 @@ define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG', 'user-registration-integ
 
 if ( ( new Addons() )->is_active( MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG ) && ! Helper::is_user_registration_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

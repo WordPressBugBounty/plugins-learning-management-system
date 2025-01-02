@@ -560,8 +560,6 @@ type GeneralSettings = {
 		learn_page_id: number;
 		account_page_id: number;
 		checkout_page_id: number;
-		instructor_registration_page_id: number;
-		instructors_list_page_id: number;
 	};
 };
 

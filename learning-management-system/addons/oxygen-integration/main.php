@@ -21,7 +21,7 @@ define( 'MASTERIYO_OXYGEN_INTEGRATION_SLUG', 'oxygen-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_OXYGEN_INTEGRATION_SLUG ) && ! Helper::is_oxygen_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

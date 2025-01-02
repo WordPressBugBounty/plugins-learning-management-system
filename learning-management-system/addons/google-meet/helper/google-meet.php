@@ -72,12 +72,12 @@ if ( ! function_exists( 'masteriyo_google_calendar_meeting_data_insertion' ) ) {
 				$meeting = array(
 					'id'           => $event['id'],
 					'summary'      => $event['summary'],
-					'description'  => $event['description'],
+					'description'  => isset( $event['description'] ) ? $event['description'] : '',
 					'start'        => $event['start']['dateTime'],
 					'end'          => $event['end']['dateTime'],
 					'htmlLink'     => $event['htmlLink'],
 					'time_zone'    => $object_data['timeZone'],
-					'meeting_link' => $event['hangoutLink'],
+					'meeting_link' => isset( $event['hangoutLink'] ) ? $event['hangoutLink'] : '',
 				);
 
 				$meetings[] = $meeting;

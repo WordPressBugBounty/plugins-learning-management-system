@@ -15,6 +15,7 @@ use Masteriyo\Addons\GroupCourses\PostType\Group;
 use Masteriyo\Constants;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Roles;
 
 /**
@@ -87,7 +88,7 @@ class GroupCoursesAddon {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'add_group_courses_dependencies_to_account_page' ) );
 
 		add_action( 'masteriyo_group_course_new_user', array( __CLASS__, 'schedule_group_joined_email_to_new_member' ), 10, 3 );
-		add_action( 'masteriyo_group_enrollment_course_user_added', array( $this, 'schedule_group_course_enrollment_email_to_new_member' ), 10, 4 );
+		add_action( 'masteriyo_group_enrollment_course_user_added', array( $this, 'schedule_group_course_enrollment_email_to_new_member' ), 10, 5 );
 
 		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_group_course_content_to_cart_contents' ), 10, 1 );
 		add_filter( 'masteriyo_add_cart_item_data', array( $this, 'append_group_course_data_in_cart_item' ), 10, 4 );
@@ -438,13 +439,14 @@ class GroupCoursesAddon {
 	 * @param object $user      The user object of the new member.
 	 * @param int    $group_id  The ID of the group the user has been enrolled in.
 	 * @param int    $course_id The ID of the course the user has been enrolled in.
+	 * @param string $enrollment_status The enrollment status of the user.
 	 *
 	 * @return void
 	 */
-	public static function schedule_group_course_enrollment_email_to_new_member( $user_id, $user, $group_id, $course_id ) {
+	public static function schedule_group_course_enrollment_email_to_new_member( $user_id, $user, $group_id, $course_id, $enrollment_status ) {
 		$email = new GroupCourseEnrollmentEmailToNewMember();
 
-		if ( ! $email->is_enabled() ) {
+		if ( ! $email->is_enabled() || UserCourseStatus::ACTIVE !== $enrollment_status ) {
 			return;
 		}
 
@@ -934,7 +936,7 @@ class GroupCoursesAddon {
 	 * @return void
 	 */
 	public function masteriyo_template_group_buy_button_for_new_layout( $course ) {
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( masteriyo_is_single_course_page() && 'default' === $layout ) {
 			return;
@@ -953,7 +955,7 @@ class GroupCoursesAddon {
 	 * @return void
 	 */
 	public function masteriyo_template_group_buy_button( $course ) {
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( masteriyo_is_single_course_page() && 'layout1' === $layout ) {
 			return;
@@ -1383,8 +1385,9 @@ class GroupCoursesAddon {
 				 * @param WP_User $user      The WP_User object of the enrolled user.
 				 * @param int     $group_id The ID of the group the user was added to.
 				 * @param int     $course_id The ID of the course the user was enrolled into.
+				 * @param string  $status The enrollment status of the user.
 				 */
-				do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id );
+				do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id, $status );
 			}
 		}
 	}

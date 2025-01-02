@@ -34,6 +34,7 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 		'full_mark'                  => '_full_mark',
 		'duration'                   => '_duration',
 		'attempts_allowed'           => '_attempts_allowed',
+		'reveal_mode'                => '_reveal_mode',
 		'questions_display_per_page' => '_questions_display_per_page',
 	);
 

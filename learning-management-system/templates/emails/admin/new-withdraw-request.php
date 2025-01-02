@@ -23,22 +23,10 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Emails\Admin\NewWithdrawRequestEmailToAdmin $email Email object.
  * @param \Masteriyo\Addons\RevenueSharing\Models\Withdraw $withdraw Withdraw object.
  */
-do_action( 'masteriyo_email_header', $email, $withdraw ); ?>
+do_action( 'masteriyo_email_header', $email, $withdraw );
 
-<p class="email-template--info">
-	<?php /* translators: %s: Site title */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $site_title ) ); ?>
-</p>
-<p>
-	<?php
-	printf(
-		'%s has requested to withdraw funds in the amount of %s.',
-		esc_html( $withdrawer->get_first_name() ),
-		wp_kses_post( masteriyo_price( $withdraw->get_withdraw_amount() ) )
-	);
-	?>
-</p>
-<?php
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
+
 /**
  * Action hook for rendering withdraw details in new withdraw email.
  *

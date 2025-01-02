@@ -9,24 +9,34 @@
 
 namespace Masteriyo\Emails;
 
+use Masteriyo\Emails\Admin\CourseCompletionEmailToAdmin;
+use Masteriyo\Emails\Admin\CourseStartEmailToAdmin;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Emails\ResetPasswordEmail;
 use Masteriyo\Emails\Admin\InstructorApplyEmailToAdmin;
+use Masteriyo\Emails\Admin\InstructorRegistrationEmailToAdmin;
 use Masteriyo\Emails\Admin\NewOrderEmailToAdmin;
+use Masteriyo\Emails\Admin\NewQuizAttemptEmailToAdmin;
 use Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor;
 use Masteriyo\Emails\Student\OnHoldOrderEmailToStudent;
-use Masteriyo\Emails\Student\VerificationEmailToStudent;
 use Masteriyo\Emails\Admin\NewWithdrawRequestEmailToAdmin;
+use Masteriyo\Emails\Admin\StudentRegistrationEmailToAdmin;
+use Masteriyo\Emails\Instructor\CourseCompletionEmailToInstructor;
+use Masteriyo\Emails\Instructor\CourseStartEmailToInstructor;
 use Masteriyo\Emails\Student\CancelledOrderEmailToStudent;
 use Masteriyo\Emails\Student\CompletedOrderEmailToStudent;
-use Masteriyo\Emails\Instructor\VerificationEmailToInstructor;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
 use Masteriyo\Emails\Instructor\WithdrawRequestApprovedEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorRegistrationEmailToInstructor;
+use Masteriyo\Emails\Instructor\NewQuizAttemptEmailToInstructor;
 use Masteriyo\Emails\Instructor\WithdrawRequestPendingEmailToInstructor;
 use Masteriyo\Emails\Instructor\WithdrawRequestRejectedEmailToInstructor;
+use Masteriyo\Emails\Student\AutomaticRegistrationEmailToStudent;
+use Masteriyo\Emails\Student\CourseCompletionEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
+use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\InstructorApplyStatus;
+use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Roles;
 
 defined( 'ABSPATH' ) || exit;
@@ -46,13 +56,9 @@ class EmailHooks {
 	 */
 	public static function init() {
 		add_action( 'masteriyo_after_password_reset_email', array( __CLASS__, 'schedule_password_reset_request_email' ), 10, 3 );
-		add_action( 'masteriyo_created_customer', array( __CLASS__, 'schedule_password_reset_request_email_after_customer_creation' ), 10, 3 );
-
-		add_action( 'masteriyo_after_order_object_save', array( __CLASS__, 'schedule_new_order_email_to_admin' ), 10, 3 );
+		add_action( 'masteriyo_created_customer', array( __CLASS__, 'schedule_automatic_registration_email_to_student' ), 10, 3 );
 
 		// Apply for instructor from student profile.
-		add_action( 'masteriyo_apply_for_instructor', array( __CLASS__, 'schedule_instructor_apply_email_to_admin' ), 10, 1 );
-		add_action( 'masteriyo_update_user', array( __CLASS__, 'schedule_instructor_apply_approved_email_to_instructor' ), 10, 2 );
 		add_action( 'masteriyo_update_user', array( __CLASS__, 'schedule_instructor_apply_rejected_email_to_student' ), 10, 2 );
 
 		add_action( 'masteriyo_order_status_completed', array( __CLASS__, 'schedule_completed_order_email_to_student' ), 10, 2 );
@@ -60,19 +66,32 @@ class EmailHooks {
 		add_action( 'masteriyo_order_status_cancelled', array( __CLASS__, 'schedule_cancelled_order_email_to_student' ), 10, 2 );
 
 		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_student_registration_email_to_student' ), 10, 2 );
-		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_instructor_registration_email_to_instructor' ), 10, 2 );
 
 		add_action( 'masteriyo_after_user_registration_complete', array( __CLASS__, 'schedule_student_registration_email_to_student' ), 10, 2 );
-		add_action( 'masteriyo_after_user_registration_complete', array( __CLASS__, 'schedule_instructor_registration_email_to_instructor' ), 10, 2 );
 
 		// Email Verification Email.
-		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_verification_email_to_student' ), 11, 2 );
-		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_verification_email_to_instructor' ), 11, 2 );
+		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_email_verification_email' ), 11, 2 );
 
+		add_action( 'masteriyo_after_order_object_save', array( __CLASS__, 'schedule_new_order_email_to_admin' ), 10, 3 );
+		add_action( 'masteriyo_apply_for_instructor', array( __CLASS__, 'schedule_instructor_apply_email_to_admin' ), 10, 1 );
 		add_action( 'masteriyo_new_withdraw', array( __CLASS__, 'schedule_new_withdraw_request_email_to_admin' ) );
+		add_action( 'masteriyo_course_progress_status_changed', array( __CLASS__, 'schedule_course_completion_email_to_admin' ), 10, 4 );
+		add_action( 'masteriyo_after_learn_page_process', array( __CLASS__, 'schedule_course_start_email_to_admin' ), 10, 1 );
+		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_instructor_registration_email_to_admin' ), 10, 2 );
+		add_action( 'masteriyo_update_quiz_attempt', array( __CLASS__, 'schedule_new_quiz_attempt_email_to_admin' ), 10, 2 );
+		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_student_registration_email_to_admin' ), 10, 2 );
+
+		add_action( 'masteriyo_update_user', array( __CLASS__, 'schedule_instructor_apply_approved_email_to_instructor' ), 10, 2 );
+		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_instructor_registration_email_to_instructor' ), 10, 2 );
+		add_action( 'masteriyo_after_user_registration_complete', array( __CLASS__, 'schedule_instructor_registration_email_to_instructor' ), 10, 2 );
 		add_action( 'masteriyo_new_withdraw', array( __CLASS__, 'schedule_withdraw_request_pending_email_to_instructor' ) );
 		add_action( 'masteriyo_withdraw_status_approved', array( __CLASS__, 'schedule_withdraw_request_approved_email_to_instructor' ), 10, 2 );
 		add_action( 'masteriyo_withdraw_status_rejected', array( __CLASS__, 'schedule_withdraw_request_rejected_email_to_instructor' ), 10, 2 );
+		add_action( 'masteriyo_course_progress_status_changed', array( __CLASS__, 'schedule_course_completion_email_to_instructor' ), 10, 4 );
+		add_action( 'masteriyo_after_learn_page_process', array( __CLASS__, 'schedule_course_start_email_to_instructor' ), 10, 1 );
+		add_action( 'masteriyo_update_quiz_attempt', array( __CLASS__, 'schedule_new_quiz_attempt_email_to_instructor' ), 10, 2 );
+
+		add_action( 'masteriyo_course_progress_status_changed', array( __CLASS__, 'schedule_course_completion_email_to_student' ), 10, 4 );
 	}
 
 	/**
@@ -102,6 +121,37 @@ class EmailHooks {
 			);
 		} else {
 			$email->trigger( $user->get_id(), $reset_key );
+		}
+	}
+
+	/**
+	 * Schedule automatic registration email to student.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param \Masteriyo\Models\User $user User object.
+	 * @param string $is_password_generated The generated password.
+	 * @param array $args The list of additional arguments.
+	 */
+	public static function schedule_automatic_registration_email_to_student( $user, $is_password_generated, $args ) {
+		if ( ! $user->has_roles( 'masteriyo_student' ) || ! masteriyo_string_to_bool( $user->get_auto_create_user() ) ) {
+			return;
+		}
+
+		if ( UserStatus::SPAM === $user->get_status() ) {
+			return;
+		}
+
+		$email = new AutomaticRegistrationEmailToStudent();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $user->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $user, isset( $args['password'] ) ? $args['password'] : '', isset( $args['reset_key'] ) ? $args['reset_key'] : '' );
 		}
 	}
 
@@ -214,7 +264,7 @@ class EmailHooks {
 	 * @param \Masteriyo\Models\User $user User object.
 	 */
 	public static function schedule_student_registration_email_to_student( $user_id, $user ) {
-		if ( ! $user->has_roles( 'masteriyo_student' ) ) {
+		if ( ! $user->has_roles( 'masteriyo_student' ) || masteriyo_string_to_bool( $user->get_auto_create_user() ) ) {
 			return;
 		}
 
@@ -390,15 +440,13 @@ class EmailHooks {
 	/**
 	 * Schedule verification email to the student.
 	 *
-	 * @since 1.6.12
+	 * @since 1.15.0
 	 *
-	 * @param int    $user_id The ID of the user.
-	 * @param Masteriyo\Database\Model $user Masteriyo\Database\Model object.
-	 *
-	 * @return void
+	 * @param int $user_id The ID of the user.
+	 * @param \Masteriyo\Models\User $user Masteriyo\Database\Model object.
 	 */
-	public static function schedule_verification_email_to_student( $user_id, $user ) {
-		if ( ! $user->has_roles( 'masteriyo_student' ) ) {
+	public static function schedule_email_verification_email( $user_id, $user ) {
+		if ( ! ( $user->has_roles( Roles::STUDENT ) || $user->has_roles( Roles::INSTRUCTOR ) ) ) {
 			return;
 		}
 
@@ -406,39 +454,7 @@ class EmailHooks {
 			return;
 		}
 
-		$email = new VerificationEmailToStudent();
-
-		if ( ! $email->is_enabled() ) {
-			return;
-		}
-
-		if ( self::is_email_schedule_enabled() ) {
-			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $user->get_id() ), 'learning-management-system' );
-		} else {
-			$email->trigger( $user_id );
-		}
-	}
-
-	/**
-	 * Schedule verification email to the instructor.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @param int    $user_id The ID of the user.
-	 * @param Masteriyo\Database\Model $user Masteriyo\Database\Model object.
-	 *
-	 * @return void
-	 */
-	public static function schedule_verification_email_to_instructor( $user_id, $user ) {
-		if ( ! $user->has_roles( 'masteriyo_instructor' ) ) {
-			return;
-		}
-
-		if ( UserStatus::SPAM !== $user->get_status() ) {
-			return;
-		}
-
-		$email = new VerificationEmailToInstructor();
+		$email = new EmailVerificationEmail();
 
 		if ( ! $email->is_enabled() ) {
 			return;
@@ -530,6 +546,260 @@ class EmailHooks {
 			as_enqueue_async_action( $email->get_schedule_handle(), array( 'withdraw' => $withdraw ), 'learning-management-system' );
 		} else {
 			$email->trigger( $withdraw );
+		}
+	}
+
+	/**
+	 * Schedule course completion email to admin.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param integer $id Course progress ID.
+	 * @param string $old_status Old status.
+	 * @param string $new_status New status.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress The course progress object.
+	 */
+	public static function schedule_course_completion_email_to_admin( $id, $old_status, $new_status, $course_progress ) {
+		$email = new CourseCompletionEmailToAdmin();
+
+		if ( ! $email->is_enabled() || CourseProgressStatus::COMPLETED !== $new_status ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+		} else {
+			$email->trigger( $course_progress );
+		}
+	}
+
+	/**
+	 * Schedule course start email to admin.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	public static function schedule_course_start_email_to_admin( $course ) {
+		$email = new CourseStartEmailToAdmin();
+
+		if ( ! is_user_logged_in() || ! $course instanceof \Masteriyo\Models\Course || ! $email->is_enabled() ) {
+			return;
+		}
+
+		$course_id = $course->get_id();
+		$user_id   = get_current_user_id();
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+			)
+		);
+
+		$user_course = current( $query->get_user_courses() );
+
+		if ( empty( $user_course ) || ! $user_course instanceof \Masteriyo\Models\UserCourse ) {
+			return;
+		}
+
+		$is_first_learn_page_visit = get_user_meta( $user_id, "masteriyo_course_{$course_id}_first_learn_page_visit", true );
+
+		if ( 'no' === $is_first_learn_page_visit ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'user_course' => $user_course ), 'learning-management-system' );
+		} else {
+			$email->trigger( $user_course );
+		}
+	}
+
+	/**
+	 * Schedule new instructor registration email to admin.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int $user_id User ID.
+	 * @param \Masteriyo\Models\User $user User object.
+	 */
+	public static function schedule_instructor_registration_email_to_admin( $user_id, $user ) {
+		if ( ! $user->has_roles( 'masteriyo_instructor' ) ) {
+			return;
+		}
+
+		$email = new InstructorRegistrationEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $user_id ), 'learning-management-system' );
+		} else {
+			$email->trigger( $user_id );
+		}
+	}
+
+	/**
+	 * Schedule new quiz attempt email to admin.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param integer $id The quiz attempt ID.
+	 * @param \Masteriyo\Models\QuizAttempt $quiz_attempt The quiz attempt object.
+	 */
+	public static function schedule_new_quiz_attempt_email_to_admin( $id, $quiz_attempt ) {
+		$email = new NewQuizAttemptEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $quiz_attempt->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $quiz_attempt->get_id() );
+		}
+	}
+
+	/**
+	 * Schedule new student registration email to admin.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param int $user_id User ID.
+	 * @param \Masteriyo\Models\User $user User object.
+	 */
+	public static function schedule_student_registration_email_to_admin( $user_id, $user ) {
+		if ( ! $user->has_roles( 'masteriyo_student' ) ) {
+			return;
+		}
+
+		$email = new StudentRegistrationEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $user_id ), 'learning-management-system' );
+		} else {
+			$email->trigger( $user_id );
+		}
+	}
+
+	/**
+	 * Schedule course completion email to instructor.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param integer $id Course progress ID.
+	 * @param string $old_status Old status.
+	 * @param string $new_status New status.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress The course progress object.
+	 */
+	public static function schedule_course_completion_email_to_instructor( $id, $old_status, $new_status, $course_progress ) {
+		$email = new CourseCompletionEmailToInstructor();
+
+		if ( ! $email->is_enabled() || CourseProgressStatus::COMPLETED !== $new_status ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+		} else {
+			$email->trigger( $course_progress );
+		}
+	}
+
+	/**
+	 * Schedule course start email to instructor.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	public static function schedule_course_start_email_to_instructor( $course ) {
+		$email = new CourseStartEmailToInstructor();
+
+		if ( ! is_user_logged_in() || ! $course instanceof \Masteriyo\Models\Course || ! $email->is_enabled() ) {
+			return;
+		}
+
+		$course_id = $course->get_id();
+		$user_id   = get_current_user_id();
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+			)
+		);
+
+		$user_course = current( $query->get_user_courses() );
+
+		if ( empty( $user_course ) || ! $user_course instanceof \Masteriyo\Models\UserCourse ) {
+			return;
+		}
+
+		$is_first_learn_page_visit = get_user_meta( $user_id, "masteriyo_course_{$course_id}_first_learn_page_visit", true );
+
+		if ( 'no' === $is_first_learn_page_visit ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'user_course' => $user_course ), 'learning-management-system' );
+		} else {
+			$email->trigger( $user_course );
+		}
+	}
+
+	/**
+	 * Schedule new quiz attempt email to instructor.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param integer $id Quiz attempt ID.
+	 * @param \Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
+	 */
+	public static function schedule_new_quiz_attempt_email_to_instructor( $id, $quiz_attempt ) {
+		$email = new NewQuizAttemptEmailToInstructor();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $quiz_attempt->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $quiz_attempt->get_id() );
+		}
+	}
+
+	/**
+	 * Schedule course completion email to student.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param integer $id Course progress ID.
+	 * @param string $old_status Old status.
+	 * @param string $new_status New status.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress The course progress object.
+	 */
+	public static function schedule_course_completion_email_to_student( $id, $old_status, $new_status, $course_progress ) {
+		$email = new CourseCompletionEmailToStudent();
+
+		if ( ! $email->is_enabled() || CourseProgressStatus::COMPLETED !== $new_status ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+		} else {
+			$email->trigger( $course_progress );
 		}
 	}
 }

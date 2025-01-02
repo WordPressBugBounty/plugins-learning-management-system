@@ -3,13 +3,15 @@ import {
 	Divider,
 	FormLabel,
 	Heading,
+	Icon,
 	Stack,
 	Switch,
+	Text,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import EmptyInfo from '../../../../../../assets/js/back-end/components/common/EmptyInfo';
+import { BiInfoCircle } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import { MultipleCurrencyData } from '../../../../../../assets/js/back-end/types/course';
 import { isEmpty } from '../../../../../../assets/js/back-end/utils/utils';
@@ -60,12 +62,15 @@ const MultipleCurrencyCoursesSetting: React.FC<Props> = ({
 						</Stack>
 					</>
 				) : (
-					<EmptyInfo
-						message={__(
-							'No active pricing zone found.',
-							'learning-management-system',
-						)}
-					/>
+					<Stack direction="row" spacing="1" align="center">
+						<Icon as={BiInfoCircle} color="primary.400" />
+						<Text as="span" fontWeight="medium" color="gray.600" fontSize="sm">
+							{__(
+								'No active pricing zone found.',
+								'learning-management-system',
+							)}
+						</Text>
+					</Stack>
 				)}
 			</Collapse>
 		</Stack>

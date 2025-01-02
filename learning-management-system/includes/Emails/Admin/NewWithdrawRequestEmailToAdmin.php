@@ -99,9 +99,60 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.admin.new_withdraw_request.subject' ) );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['admin']['new_withdraw_request']['subject'] );
 
 		return $this->format_string( $subject );
+	}
+
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['admin']['new_withdraw_request']['content'];
+		$content = $this->format_string( $content );
+		$this->set( 'content', $content );
+		return parent::get_content();
+	}
+
+		/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+		/** @var \Masteriyo\Models\User $withdrawer */
+		$withdrawer = $this->get( 'withdrawer' );
+
+		/** @var \Masteriyo\Addons\RevenueSharing\Models\Withdraw $withdraw */
+		$withdraw = $this->get( 'withdraw' );
+
+		if ( $withdrawer ) {
+			$first_name = empty( $withdrawer->get_billing_first_name() ) ? $withdrawer->get_first_name() : $withdrawer->get_billing_first_name();
+			$last_name  = empty( $withdrawer->get_billing_last_name() ) ? $withdrawer->get_last_name() : $withdrawer->get_billing_last_name();
+
+			$placeholders['{withdrawer_display_name}'] = $withdrawer->get_display_name();
+			$placeholders['{withdrawer_first_name}']   = $first_name;
+			$placeholders['{withdrawer_last_name}']    = $last_name;
+			$placeholders['{withdrawer_username}']     = $withdrawer->get_username();
+			$placeholders['{withdrawer_nicename}']     = $withdrawer->get_nicename();
+			$placeholders['{withdrawer_nickname}']     = $withdrawer->get_nickname();
+			$placeholders['{withdrawer_name}']         = sprintf( '%s %s', $first_name, $last_name ) ?? $withdrawer->get_display_name();
+			$placeholders['{withdrawer_email}']        = $withdrawer->get_email();
+		}
+
+		if ( $withdraw ) {
+			$placeholders['{withdraw_amount}'] = masteriyo_price( $withdraw->get_withdraw_amount() );
+		}
+
+		return $placeholders;
 	}
 
 	/**

@@ -82,6 +82,7 @@ class Quiz extends Model {
 		'full_mark'                  => 0,
 		'duration'                   => 0, // Seconds
 		'attempts_allowed'           => 0,
+		'reveal_mode'                => false,
 		'questions_display_per_page' => 0,
 	);
 
@@ -519,6 +520,19 @@ class Quiz extends Model {
 	}
 
 	/**
+	 * Returns reveal mode.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return int Reveal mode.
+	 */
+	public function get_reveal_mode( $context = 'view' ) {
+		return $this->get_prop( 'reveal_mode', $context );
+	}
+
+	/**
 	 * Returns quiz questions display per page.
 	 *
 	 * @since 1.0.0
@@ -739,6 +753,17 @@ class Quiz extends Model {
 	 */
 	public function set_attempts_allowed( $attempts_allowed ) {
 		$this->set_prop( 'attempts_allowed', absint( $attempts_allowed ) );
+	}
+
+	/**
+		 * Set the reveal mode.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int $reveal_mode reveal mode.
+		 */
+	public function set_reveal_mode( $reveal_mode ) {
+		$this->set_prop( 'reveal_mode', masteriyo_string_to_bool( $reveal_mode ) );
 	}
 
 	/**

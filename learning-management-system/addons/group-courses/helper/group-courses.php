@@ -323,7 +323,7 @@ if ( ! function_exists( 'masteriyo_update_user_enrollments_status' ) ) {
 					continue;
 				}
 
-				$wpdb->update(
+				$result = $wpdb->update(
 					"{$wpdb->prefix}masteriyo_user_items",
 					array( 'status' => $status ),
 					array(
@@ -334,6 +334,21 @@ if ( ! function_exists( 'masteriyo_update_user_enrollments_status' ) ) {
 					array( '%s' ),
 					array( '%d', '%d', '%s' )
 				);
+
+				if ( false !== $result ) {
+					/**
+					 * Fires after a user is successfully enrolled into a course as part of a group.
+					 *
+					 * @since 1.9.0
+					 *
+					 * @param int     $user_id   The ID of the enrolled user.
+					 * @param WP_User $user      The WP_User object of the enrolled user.
+					 * @param int     $group_id The ID of the group the user was added to.
+					 * @param int     $course_id The ID of the course the user was enrolled into.
+					 * @param string  $status The enrollment status of the user.
+					 */
+					do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id, $status );
+				}
 			}
 		}
 	}

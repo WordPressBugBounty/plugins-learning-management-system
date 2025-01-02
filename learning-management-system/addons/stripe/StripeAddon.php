@@ -479,7 +479,6 @@ class StripeAddon {
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
 	protected function save_stripe_data($event, $order) {
-		error_log( print_r( $event, true ) );
 		masteriyo_get_logger()->info('Save stripe data method triggered: ' . print_r($event, true));
 		if (isset($event->type)) {
 			update_post_meta($order->get_id(), '_stripe_event_type', $event->type);

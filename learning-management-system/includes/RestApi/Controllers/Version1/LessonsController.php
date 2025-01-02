@@ -288,7 +288,7 @@ class LessonsController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $lesson, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'general.editor.default_editor' );
+		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $lesson->get_description() ) ) : $lesson->get_description( $context );
 		}
@@ -369,8 +369,9 @@ class LessonsController extends PostsController {
 
 		if ( masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ) ) {
 			$course = masteriyo_get_course( $lesson->get_course_id() );
-
-			$data['access_mode'] = $course->get_access_mode();
+			if ( $course ) {
+				$data['access_mode'] = null !== $course->get_access_mode() ? $course->get_access_mode() : false;
+			}
 		}
 
 		/**

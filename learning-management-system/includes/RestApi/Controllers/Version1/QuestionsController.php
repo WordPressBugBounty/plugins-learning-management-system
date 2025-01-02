@@ -348,7 +348,7 @@ class QuestionsController extends PostsController {
 	 */
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
-		$data    = $this->get_question_data( $object, $context );
+		$data    = $this->get_question_data( $object, $context, $request['show_correct_answer'] );
 
 		$data     = $this->add_additional_fields_to_object( $data, $request );
 		$data     = $this->filter_response_by_context( $data, $context );
@@ -381,7 +381,7 @@ class QuestionsController extends PostsController {
 	 *
 	 * @return array
 	 */
-	protected function get_question_data( $question, $context = 'view' ) {
+	protected function get_question_data( $question, $context = 'view', $show_correct_answer = false ) {
 		/**
 		 * Filters question description.
 		 *
@@ -413,10 +413,11 @@ class QuestionsController extends PostsController {
 			'enable_description'     => $question->get_enable_description( $context ),
 		);
 
-		$answers = $question->get_answers( $context );
+		$answers          = $question->get_answers( $context );
+		$filtered_answers = array();
 
 		// Remove answer correct key for view context.
-		if ( is_array( $answers ) ) {
+		if ( ! $show_correct_answer && is_array( $answers ) ) {
 			$filtered_answers = array_map(
 				function ( $obj ) {
 					return (object) array( 'name' => $obj->name );
@@ -425,7 +426,7 @@ class QuestionsController extends PostsController {
 			);
 		}
 
-		$data['answers'] = $filtered_answers;
+		$data['answers'] = ! $show_correct_answer ? $filtered_answers : $answers;
 
 		if ( 'view' === $context ) {
 			$data['formatted_answers'] = $this->process_answers( $filtered_answers, $question );

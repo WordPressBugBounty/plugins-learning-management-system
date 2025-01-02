@@ -58,15 +58,16 @@ class CourseProgressItem extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'user_id'      => 0,
-		'item_id'      => 0,
-		'item_type'    => '',
-		'progress_id'  => 0,
-		'course_id'    => 0,
-		'completed'    => false,
-		'started_at'   => null,
-		'modified_at'  => null,
-		'completed_at' => null,
+		'user_id'                 => 0,
+		'item_id'                 => 0,
+		'item_type'               => '',
+		'progress_id'             => 0,
+		'course_id'               => 0,
+		'completed'               => false,
+		'started_at'              => null,
+		'modified_at'             => null,
+		'completed_at'            => null,
+		'previously_visited_page' => array(),
 	);
 
 	/**
@@ -237,6 +238,19 @@ class CourseProgressItem extends Model {
 	}
 
 	/**
+	 * Get previously visited page.
+	 *
+	 * @since 1.15.0
+	 *
+	* @param  string $context What the value is for. valid values are view and edit.
+
+	 * @return string
+	 */
+	public function get_previously_visited_page( $context = 'view' ) {
+		return $this->get_prop( 'previously_visited_page', $context );
+	}
+
+	/**
 	 * Check whether the course progress item is completed or not.
 	 *
 	 * @since 1.0.0
@@ -345,6 +359,25 @@ class CourseProgressItem extends Model {
 	public function set_item_type( $type ) {
 		$this->set_prop( 'item_type', $type );
 	}
+
+	/**
+	 * Set previously visited page.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param  string $type Course progress type.
+	 */
+	public function set_previously_visited_page( $value ) {
+		$previously_visited = $this->get_previously_visited_page();
+
+		if ( ! is_array( $previously_visited ) ) {
+			$previously_visited = array();
+		}
+
+		$previously_visited[] = $value;
+		$this->set_prop( 'previously_visited_page', $previously_visited );
+	}
+
 
 	/**
 	 * Set course progress complete.

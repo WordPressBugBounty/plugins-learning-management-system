@@ -121,11 +121,13 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 		const all_users = usersQuery?.data?.data?.map((user: any) => user?.id);
 
 		const newData = {
+			course_id: courseId,
 			meeting_id: googleMeetQuery?.data?.id,
 			time_zone: 'UTC',
 			starts_at: new Date(data.starts_at)?.toISOString(),
 			ends_at: new Date(data.ends_at)?.toISOString(),
 			attendees: all_users,
+			parent_id: googleMeetQuery?.data?.parent_id,
 		};
 
 		updateGoogleMeet.mutate(deepMerge(data, newData));

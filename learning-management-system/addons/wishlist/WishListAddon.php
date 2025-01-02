@@ -74,7 +74,7 @@ class WishListAddon {
 			'masteriyo-wishlist-toggle',
 		);
 
-		$layout = masteriyo_get_setting( 'course_archive.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
 
 		if ( 'layout1' === $layout ) {
 			$class[] = 'masteriyo-archive-card__image-favorite-icon';

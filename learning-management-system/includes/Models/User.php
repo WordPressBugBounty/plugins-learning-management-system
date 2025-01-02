@@ -91,6 +91,7 @@ class User extends Model {
 		'billing_phone'           => '',
 		// Apply for instructor status.
 		'instructor_apply_status' => InstructorApplyStatus::DEFAULT,
+		'auto_create_user'        => false,
 	);
 
 	/**
@@ -659,6 +660,19 @@ class User extends Model {
 		return $this->get_prop( 'instructor_apply_status', $context );
 	}
 
+	/**
+	 * Get auto create user flag.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return boolean
+	 */
+	public function get_auto_create_user( $context = 'view' ) {
+		return $this->get_prop( 'auto_create_user', $context );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Setters
@@ -1084,6 +1098,18 @@ class User extends Model {
 	 */
 	public function set_instructor_apply_status( $status ) {
 		$this->set_prop( 'instructor_apply_status', $status );
+	}
+
+
+	/**
+	 * Set auto create user flag.
+	 *
+	 * @since  1.14.4
+	 *
+	 * @param  boolean $auto_create_user Whether to auto create user or not.
+	 */
+	public function set_auto_create_user( $auto_create_user ) {
+		$this->set_prop( 'auto_create_user', masteriyo_string_to_bool( $auto_create_user ) );
 	}
 
 	/*

@@ -2,7 +2,6 @@ import {
 	Box,
 	Checkbox,
 	Container,
-	Icon,
 	Stack,
 	Text,
 	useDisclosure,
@@ -19,7 +18,6 @@ import {
 	BiSolidMegaphone,
 	BiTrash,
 } from 'react-icons/bi';
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -36,6 +34,7 @@ import {
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
+import Sorting from '../../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepMerge,
@@ -319,31 +318,11 @@ const AllAnnouncements = () => {
 												<Text fontSize="xs">
 													{__('Title', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'title'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterAnnouncementsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'title',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterAnnouncementsBy}
+													orderBy={'title'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Author', 'learning-management-system')}</Th>
@@ -353,31 +332,11 @@ const AllAnnouncements = () => {
 												<Text fontSize="xs">
 													{__('Date', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'date'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterAnnouncementsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'date',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterAnnouncementsBy}
+													orderBy={'date'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Actions', 'learning-management-system')}</Th>
@@ -461,7 +420,7 @@ const AllAnnouncements = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteAnnouncement.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

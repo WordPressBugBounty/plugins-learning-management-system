@@ -895,7 +895,7 @@ class QuizesController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $quiz, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'general.editor.default_editor' );
+		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $quiz->get_description() ) ) : $quiz->get_description( $context );
@@ -950,6 +950,7 @@ class QuizesController extends PostsController {
 			'full_mark'                         => $quiz->get_full_mark( $context ),
 			'duration'                          => $quiz->get_duration( $context ),
 			'attempts_allowed'                  => $quiz->get_attempts_allowed( $context ),
+			'reveal_mode'                       => $quiz->get_reveal_mode( $context ),
 			'questions_display_per_page'        => $quiz->get_questions_display_per_page( $context ),
 			'questions_display_per_page_global' => masteriyo_get_setting( 'quiz.styling.questions_display_per_page' ),
 			'questions_count'                   => $quiz->get_questions_count(),
@@ -1161,6 +1162,12 @@ class QuizesController extends PostsController {
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'reveal_mode'                => array(
+					'description' => __( 'Reveal mode.', 'learning-management-system' ),
+					'type'        => 'boolean',
+					'required'    => false,
+					'context'     => array( 'view', 'edit' ),
+				),
 				'questions_display_per_page' => array(
 					'description' => __( 'Quiz questions per page.', 'learning-management-system' ),
 					'type'        => 'integer',
@@ -1291,6 +1298,11 @@ class QuizesController extends PostsController {
 		// Quiz attempts allowed.
 		if ( isset( $request['attempts_allowed'] ) ) {
 			$quiz->set_attempts_allowed( $request['attempts_allowed'] );
+		}
+
+		// Reveal Mode
+		if ( isset( $request['reveal_mode'] ) ) {
+			$quiz->set_reveal_mode( $request['reveal_mode'] );
 		}
 
 		// Quiz questions display per page.

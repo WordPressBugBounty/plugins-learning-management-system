@@ -5,6 +5,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogOverlay,
+	Avatar,
 	Badge,
 	Button,
 	ButtonGroup,
@@ -195,6 +196,15 @@ const MeetingRow: React.FC<Props> = (props) => {
 			</Td>
 
 			<Td>
+				<Stack direction="row" spacing="2" alignItems="center">
+					<Avatar src={author?.avatar_url} size="xs" />
+					<Text fontSize="xs" fontWeight="medium" color="gray.600">
+						{author?.display_name}
+					</Text>
+				</Stack>
+			</Td>
+
+			<Td>
 				<Badge
 					textTransform="uppercase"
 					colorScheme={
@@ -207,19 +217,6 @@ const MeetingRow: React.FC<Props> = (props) => {
 				>
 					{status}
 				</Badge>
-			</Td>
-
-			<Td>
-				<Link
-					_hover={{ textDecoration: 'none' }}
-					href={calender_url}
-					isExternal
-				>
-					<Button colorScheme="blue" size="xs" gap="2" fontWeight="semibold">
-						<RiCalendar2Line />
-						{__('Google Calender', 'learning-management-system')}
-					</Button>
-				</Link>
 			</Td>
 
 			<Td>
@@ -260,6 +257,23 @@ const MeetingRow: React.FC<Props> = (props) => {
 			</Td>
 			<Td>
 				<ButtonGroup alignItems="center">
+					<Link
+						_hover={{ textDecoration: 'none' }}
+						href={calender_url}
+						isExternal
+					>
+						<Button
+							variant="outline"
+							colorScheme="primary"
+							size="xs"
+							gap="2"
+							fontWeight="semibold"
+						>
+							<RiCalendar2Line />
+							{__('Google Calender', 'learning-management-system')}
+						</Button>
+					</Link>
+
 					{status === GoogleMeetStatus.UpComing ||
 					status === GoogleMeetStatus.Active ? (
 						<Link

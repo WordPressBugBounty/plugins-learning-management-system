@@ -176,8 +176,7 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 	public function update( Model &$course_progress_item ) {
 		global $wpdb;
 
-		$changes = $course_progress_item->get_changes();
-
+		$changes                        = $course_progress_item->get_changes();
 		$course_progress_item_data_keys = array(
 			'user_id',
 			'item_id',

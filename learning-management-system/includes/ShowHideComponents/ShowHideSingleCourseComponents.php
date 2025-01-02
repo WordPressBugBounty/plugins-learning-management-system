@@ -23,7 +23,7 @@ class SHowHideSingleCourseComponents extends ShowHideCourseComponents {
 	 * @return string
 	 */
 	protected function get_prefix_selector(): string {
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( 'layout1' === $layout ) {
 			return '.masteriyo-single';

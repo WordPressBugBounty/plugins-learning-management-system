@@ -24,4 +24,8 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 		<title><?php echo wp_kses_post( get_bloginfo( 'name', 'display' ) ); ?></title>
 	</head>
 	<body>
-		<div id="content" class="email-template">
+	<div class="email-template">
+		<div class="email-header">
+			<img src="<?php echo esc_url( masteriyo_get_email_template_header_logo() ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ) . esc_html__( ' Logo', 'learning-management-system' ); ?>" />
+		</div>
+		<div id="content" class="email-body">

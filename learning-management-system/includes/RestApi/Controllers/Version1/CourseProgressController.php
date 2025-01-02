@@ -1390,13 +1390,14 @@ class CourseProgressController extends CrudController {
 
 		$lessons_quizzes = array_filter(
 			array_map(
-				function( $lesson_quiz ) {
+				function( $lesson_quiz ) use ( $section_id ) {
 					$progress_item = $this->get_course_progress_item( $lesson_quiz );
 
 					if ( ! $progress_item ) {
 						$progress_item = masteriyo( 'course-progress-item' );
 						$progress_item->set_item_id( $lesson_quiz->ID );
 						$progress_item->set_item_type( str_replace( 'mto-', '', $lesson_quiz->post_type ) );
+						$progress_item->set_course_id( get_post_meta( $section_id, '_course_id', true ) );
 					}
 
 					return $this->get_course_progress_item_data( $progress_item );

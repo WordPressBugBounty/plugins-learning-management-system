@@ -2,13 +2,11 @@ import {
 	Box,
 	Checkbox,
 	Container,
-	Icon,
 	Stack,
 	Text,
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import { deepMerge, isEmpty } from '../../../assets/js/back-end/utils/utils';
 
@@ -20,6 +18,7 @@ import ActionDialog from '../../../assets/js/back-end/components/common/ActionDi
 import EmptyInfo from '../../../assets/js/back-end/components/common/EmptyInfo';
 import FloatingBulkAction from '../../../assets/js/back-end/components/common/FloatingBulkAction';
 import MasteriyoPagination from '../../../assets/js/back-end/components/common/MasteriyoPagination';
+import Sorting from '../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../assets/js/back-end/utils/api';
 import GoogleMeetUrls from '../constants/urls';
 import GoogleMeetFilter from './components/GoogleMeetFilter';
@@ -32,7 +31,7 @@ interface FilterParams {
 	status?: string;
 	per_page?: number;
 	page?: number;
-	// orderby: string;
+	orderby: string;
 	order: 'asc' | 'desc';
 }
 
@@ -52,6 +51,7 @@ const GoogleMeetMeetings: React.FC = () => {
 	const queryClient = useQueryClient();
 	const [filterParams, setFilterParams] = useState<FilterParams>({
 		order: 'desc',
+		orderby: 'meta_value',
 	});
 	const location = useLocation();
 
@@ -83,8 +83,6 @@ const GoogleMeetMeetings: React.FC = () => {
 				setGoogleMeetStatusCount({
 					...googleMeetMeetingQuery?.data?.meta?.googleMeetCounts,
 				});
-				setBulkIds([]);
-				setBulkAction('');
 			}
 		}
 	}, [googleMeetMeetingQuery]);
@@ -133,6 +131,7 @@ const GoogleMeetMeetings: React.FC = () => {
 			deepMerge({
 				...filterParams,
 				order: order,
+				orderby: orderBy,
 			}),
 		);
 
@@ -195,60 +194,30 @@ const GoogleMeetMeetings: React.FC = () => {
 												<Text fontSize="xs">
 													{__('Title', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterMeetingsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'title',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterMeetingsBy}
+													orderBy={'title'}
+												/>
 											</Stack>
 										</Th>
-
+										<Th>{__('Author', 'learning-management-system')}</Th>
 										<Th>{__('Status', 'learning-management-system')}</Th>
 
-										<Th>{__('Calender Link', 'learning-management-system')}</Th>
-
-										<Th>{__('Course', 'learning-management-system')}</Th>
+										<Th style={{ width: '200px' }}>
+											{__('Course', 'learning-management-system')}
+										</Th>
 
 										<Th>
 											<Stack direction="row" alignItems="center">
 												<Text fontSize="xs">
 													{__('Start Time', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterMeetingsBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'meta_value',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterMeetingsBy}
+													orderBy={'meta_value'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('End Time', 'learning-management-system')}</Th>
@@ -338,7 +307,7 @@ const GoogleMeetMeetings: React.FC = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteGoogleMeet.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

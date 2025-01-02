@@ -88,6 +88,18 @@ class GoogleMeetController extends PostsController {
 	protected $permission = null;
 
 	/**
+	 * Scopes for google calender event.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @var array
+	 */
+	public $scopes = array(
+		'https://www.googleapis.com/auth/calendar.events',
+		'https://www.googleapis.com/auth/calendar',
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.11.0
@@ -418,7 +430,13 @@ class GoogleMeetController extends PostsController {
 
 			if ( $google_setting_data['refresh_token'] ) {
 				$grant              = new RefreshToken();
-				$token              = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+				$token              = $google_provider->getAccessToken(
+					$grant,
+					array(
+						'refresh_token' => $google_setting_data['refresh_token'],
+						'scope'         => $this->scopes,
+					)
+				);
 				$data_from_calendar = masteriyo_google_calendar_meeting_data_insertion( $token, $google_provider );
 				update_option( 'masteriyo_google_calendar_data_' . masteriyo_get_current_user_id(), $data_from_calendar );
 			}
@@ -474,7 +492,13 @@ class GoogleMeetController extends PostsController {
 
 			if ( $google_setting_data['refresh_token'] ) {
 				$grant              = new RefreshToken();
-				$token              = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+				$token              = $google_provider->getAccessToken(
+					$grant,
+					array(
+						'refresh_token' => $google_setting_data['refresh_token'],
+						'scope'         => $this->scopes,
+					)
+				);
 				$data_from_calendar = masteriyo_google_calendar_meeting_data_insertion( $token, $google_provider );
 				update_option( 'masteriyo_google_calendar_data_' . masteriyo_get_current_user_id(), $data_from_calendar );
 			}
@@ -542,7 +566,13 @@ class GoogleMeetController extends PostsController {
 
 		if ( $google_setting_data['refresh_token'] ) {
 			$grant = new RefreshToken();
-			$token = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+			$token = $google_provider->getAccessToken(
+				$grant,
+				array(
+					'refresh_token' => $google_setting_data['refresh_token'],
+					'scope'         => $this->scopes,
+				)
+			);
 
 			$response = $this->create_google_calendar_event( $token, $google_provider, $request );
 
@@ -566,7 +596,13 @@ class GoogleMeetController extends PostsController {
 
 		if ( $google_setting_data['refresh_token'] ) {
 			$grant = new RefreshToken();
-			$token = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+			$token = $google_provider->getAccessToken(
+				$grant,
+				array(
+					'refresh_token' => $google_setting_data['refresh_token'],
+					'scope'         => $this->scopes,
+				)
+			);
 
 			$data_from_calender = $this->get_google_meet( $meta_meeting_id );
 
@@ -603,7 +639,13 @@ class GoogleMeetController extends PostsController {
 
 			if ( ! empty( $google_setting_data['refresh_token'] ) ) {
 				$grant = new RefreshToken();
-				$token = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+				$token = $google_provider->getAccessToken(
+					$grant,
+					array(
+						'refresh_token' => $google_setting_data['refresh_token'],
+						'scope'         => $this->scopes,
+					)
+				);
 
 				$data_from_calender = $this->get_google_meet( $meta_meeting_id );
 
@@ -625,7 +667,13 @@ class GoogleMeetController extends PostsController {
 
 		if ( $google_setting_data['refresh_token'] ) {
 			$grant = new RefreshToken();
-			$token = $google_provider->getAccessToken( $grant, array( 'refresh_token' => $google_setting_data['refresh_token'] ) );
+			$token = $google_provider->getAccessToken(
+				$grant,
+				array(
+					'refresh_token' => $google_setting_data['refresh_token'],
+					'scope'         => $this->scopes,
+				)
+			);
 
 			$response = $this->update_google_calendar_event( $token, $google_provider, $request );
 
@@ -698,8 +746,8 @@ class GoogleMeetController extends PostsController {
 			);
 
 		if ( $response->getStatusCode() === 200 ) {
-			$event      = json_decode( $response->getBody(), true );
-			$event_data = array(
+			$event               = json_decode( $response->getBody(), true );
+			$event_data          = array(
 				'id'                           => $request['meeting_id'],
 				'event_id'                     => $event['id'],
 				'summary'                      => $event['summary'],
@@ -711,9 +759,10 @@ class GoogleMeetController extends PostsController {
 				'time_zone'                    => $event['start']['timeZone'],
 				'meet_url'                     => $event['hangoutLink'],
 				'add_all_students_as_attendee' => $request['add_all_students_as_attendee'],
+				'parent_id'                    => $request['parent_id'],
 			);
 			$now                 = $this->save_object( $event_data, true );
-			$event['parent_id']  = $request['section_id'];
+			$event['parent_id']  = $request['parent_id'];
 			$event['name']       = $request['summary'];
 			$event['menu_order'] = $now->get_menu_order();
 
@@ -834,7 +883,7 @@ class GoogleMeetController extends PostsController {
 
 			$event_data = array(
 				'summary'        => $request['summary'],
-				'description'    => $request['description'],
+				'description'    => isset( $request['description'] ) ? $request['description'] : '',
 				'start'          => array(
 					'dateTime' => $request['starts_at'],
 					'timeZone' => $request['time_zone'],
@@ -886,7 +935,7 @@ class GoogleMeetController extends PostsController {
 			$event_data = array(
 				'event_id'                     => $event['id'],
 				'summary'                      => $event['summary'],
-				'description'                  => $event['description'],
+				'description'                  => isset( $event['description'] ) ? $event['description'] : '',
 				'starts_at'                    => $event['start']['dateTime'],
 				'ends_at'                      => $event['end']['dateTime'],
 				'author'                       => $event['id'],

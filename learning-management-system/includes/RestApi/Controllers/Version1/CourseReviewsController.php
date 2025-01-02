@@ -242,6 +242,15 @@ class CourseReviewsController extends CommentsController {
 			),
 		);
 
+		$params['status'] = array(
+			'default'     => CommentStatus::ALL,
+			'description' => __( 'Limit result set to course reviews assigned a specific status. One of `approved`, `hold`, `spam`, or `trash`.', 'learning-management-system' ),
+			'type'        => 'array | string',
+			'items'       => array(
+				'type' => 'string',
+			),
+		);
+
 		/**
 		 * Filters REST API collection parameters for the course reviews controller.
 		 *
@@ -592,12 +601,14 @@ class CourseReviewsController extends CommentsController {
 	 * @return WP_Error|Masteriyo\Models\CourseReview
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id            = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		/** @var \Masteriyo\Models\CourseReview */
 		$course_review = masteriyo( 'course_review' );
 		$user          = masteriyo_get_current_user();
 
 		if ( 0 !== $id ) {
 			$course_review->set_id( $id );
+			/** @var \Masteriyo\Repository\CourseReviewRepository */
 			$course_review_repo = masteriyo( \Masteriyo\Repository\CourseReviewRepository::class );
 			$course_review_repo->read( $course_review );
 		}
@@ -640,6 +651,11 @@ class CourseReviewsController extends CommentsController {
 			$course_review->set_date_created( $request['date_created'] );
 		}
 
+		// Course ID.
+		if ( isset( $request['course_id'] ) ) {
+			$course_review->set_course_id( $request['course_id'] );
+		}
+
 		// Course Review Title.
 		if ( isset( $request['title'] ) ) {
 			$course_review->set_title( $request['title'] );
@@ -657,7 +673,9 @@ class CourseReviewsController extends CommentsController {
 
 		$status = CommentStatus::APPROVE_STR;
 
-		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+		$is_author = ! empty( $course_review ) ? masteriyo_is_current_user_post_author( $course_review->get_course_id() ) : false;
+
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! $is_author ) {
 			if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ) ) {
 				$status = CommentStatus::HOLD_STR;
 				$course_review->set_is_new( true );
@@ -684,11 +702,6 @@ class CourseReviewsController extends CommentsController {
 		// Course Review Type.
 		if ( isset( $request['type'] ) ) {
 			$course_review->set_type( $request['type'] );
-		}
-
-		// Course ID.
-		if ( isset( $request['course_id'] ) ) {
-			$course_review->set_course_id( $request['course_id'] );
 		}
 
 		// Course Review Parent.
@@ -939,6 +952,10 @@ class CourseReviewsController extends CommentsController {
 			);
 		}
 
+		if ( $review && masteriyo_is_current_user_post_author( $review->get_course_id() ) ) {
+			return true;
+		}
+
 		if ( get_current_user_id() !== $review->get_author_id() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
@@ -1109,11 +1126,12 @@ class CourseReviewsController extends CommentsController {
 		return array(
 			'data' => $objects,
 			'meta' => array(
-				'total'         => $query_results['total'],
-				'pages'         => $query_results['pages'],
-				'current_page'  => $query_args['paged'],
-				'per_page'      => $query_args['number'],
-				'reviews_count' => $this->get_comments_count( 0, $course_ids ),
+				'total'              => $query_results['total'],
+				'pages'              => $query_results['pages'],
+				'current_page'       => $query_args['paged'],
+				'per_page'           => $query_args['number'],
+				'reviews_count'      => $this->get_comments_count( 0, $course_ids ),
+				'pending_hold_count' => masteriyo_get_pending_course_reviews_and_lesson_comments_count(),
 			),
 		);
 	}

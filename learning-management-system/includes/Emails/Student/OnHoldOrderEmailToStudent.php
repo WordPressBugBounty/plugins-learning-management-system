@@ -104,9 +104,93 @@ class OnHoldOrderEmailToStudent extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.onhold_order.subject' ) );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['onhold_order']['subject'] );
 
 		return $this->format_string( $subject );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['student']['onhold_order']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', $content );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $customer */
+		$customer = $this->get( 'customer' );
+
+		/** @var \Masteriyo\Models\Order\Order $order */
+		$order = $this->get( 'order' );
+
+		/** @var \Masteriyo\Models\Order\OrderItem $order_item */
+		$order_item = $this->get( 'order_item_course' );
+
+		if ( $customer ) {
+			$placeholders['{billing_first_name}'] = ! empty( $customer->get_billing_first_name() ) ? $customer->get_billing_first_name() : $customer->get_first_name();
+			$placeholders['{billing_last_name}']  = ! empty( $customer->get_billing_last_name() ) ? $customer->get_billing_last_name() : $customer->get_last_name();
+
+			$billing_first_name = $placeholders['{billing_first_name}'];
+			$billing_last_name  = $placeholders['{billing_last_name}'];
+			$billing_name       = trim( sprintf( '%s %s', $billing_first_name, $billing_last_name ) );
+
+			$placeholders['{billing_name}']       = ! empty( $billing_name ) ? $billing_name : $customer->get_display_name();
+			$placeholders['{billing_email}']      = ! empty( $customer->get_billing_email() ) ? $customer->get_billing_email() : $customer->get_email();
+			$placeholders['{account_login_link}'] = wp_kses_post(
+				'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+			);
+		}
+
+		if ( $order_item ) {
+			$placeholders['{course_name}'] = $order_item->get_name();
+		}
+
+		if ( $order ) {
+			$placeholders['{total_price}'] = masteriyo_price( $order->get_total() );
+			$placeholders['{order_id}']    = $order->get_order_number();
+			$placeholders['{order_date}']  = gmdate( 'd M Y', $order->get_date_created()->getTimestamp() );
+			$placeholders['{order_table}'] = $this->get_order_table( $order );
+		}
+
+		return $placeholders;
+	}
+
+	/**
+	 * Gets the order table HTML.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order The order object.
+	 *
+	 * @return string The order table HTML.
+	 */
+	private function get_order_table( $order ) {
+		return masteriyo_get_template_html(
+			'emails/order-details.php',
+			array(
+				'order' => $order,
+				'email' => $this,
+			)
+		);
 	}
 
 	/**

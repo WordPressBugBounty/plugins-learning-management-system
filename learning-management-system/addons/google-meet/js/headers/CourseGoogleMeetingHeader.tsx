@@ -14,7 +14,6 @@ import {
 	Header,
 	HeaderLeftSection,
 	HeaderLogo,
-	HeaderText,
 	HeaderTop,
 } from '../../../../assets/js/back-end/components/common/Header';
 import {
@@ -62,19 +61,6 @@ const CourseGoogleMeetingHeader: React.FC<Props> = ({}) => {
 				<HeaderLeftSection>
 					<Stack direction={['column', 'column', 'column', 'row']}>
 						<HeaderLogo />
-						<HeaderText
-							isLoading={false}
-							sx={{
-								overflow: 'hidden',
-								whiteSpace: 'nowrap',
-								textOverflow: 'ellipsis',
-							}}
-							width={['80px', '100px', '110px', '130px']}
-							textAlign="left"
-						>
-							Name
-							{/* {courseQuery?.data?.name} */}
-						</HeaderText>
 					</Stack>
 					<NavMenu sx={headerResponsive.larger}>
 						{HeaderData.map((data) => (

@@ -16,7 +16,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$footer_text = masteriyo_get_email_footer_text();
+$footer_text = str_replace( '{site_title}', get_bloginfo( 'name' ), $footer_text );
+
 ?>
 		</div>
-	</body>
+		<?php if ( ! empty( $footer_text ) ) : ?>
+		<div class="email-footer">
+			<p><?php echo wp_kses_post( $footer_text ); ?></p>
+		</div>
+		<?php endif; ?>
+	</div>
+</body>
 </html>

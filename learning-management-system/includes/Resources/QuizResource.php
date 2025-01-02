@@ -58,6 +58,7 @@ class QuizResource {
 			'full_mark'                         => $quiz->get_full_mark( $context ),
 			'duration'                          => $quiz->get_duration( $context ),
 			'attempts_allowed'                  => $quiz->get_attempts_allowed( $context ),
+			'reveal_mode'                       => $quiz->get_reveal_mode( $context ),
 			'questions_display_per_page'        => $quiz->get_questions_display_per_page( $context ),
 			'questions_display_per_page_global' => masteriyo_get_setting( 'quiz.styling.questions_display_per_page' ),
 			'questions_count'                   => $quiz->get_questions_count(),

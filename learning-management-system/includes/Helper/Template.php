@@ -516,8 +516,8 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 		 */
 		$class = apply_filters( 'masteriyo_enroll_button_class', $class, $course, $progress );
 
-		$layout               = masteriyo_get_setting( 'course_archive.layout' ) ?? 'default';
-		$single_course_layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout               = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
+		$single_course_layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( masteriyo_is_single_course_page() ) {
 			if ( 'layout1' === $single_course_layout ) {
@@ -1434,6 +1434,15 @@ if ( ! function_exists( 'masteriyo_checkout_payment' ) ) {
 		}
 
 		/**
+		 * Filters available payment gateways.
+		 *
+		 * @since 1.15.0
+		 *
+		 * @param array $available_gateways Array of available payment gateways.
+		 */
+		$available_gateways = apply_filters( 'masteriyo_checkout_available_gateways', $available_gateways );
+
+		/**
 		 * Filters order button text.
 		 *
 		 * @since 1.0.0
@@ -1622,7 +1631,7 @@ if ( ! function_exists( 'masteriyo_courses_view_mode' ) ) {
 	 * @since 1.6.7
 	 */
 	function masteriyo_courses_view_mode() {
-		$layout = masteriyo_get_setting( 'course_archive.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
 
 		$courses_class = 'masteriyo-course';
 		if ( 'layout1' === $layout ) {
@@ -1803,9 +1812,10 @@ if ( ! function_exists( 'masteriyo_get_email_order_items' ) ) {
 		ob_start();
 
 		$defaults = array(
-			'show_sku'   => false,
-			'show_image' => false,
-			'image_size' => array( 32, 32 ),
+			'show_sku'         => false,
+			'show_image'       => false,
+			'image_size'       => array( 32, 32 ),
+			'show_course_name' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -1828,6 +1838,7 @@ if ( ! function_exists( 'masteriyo_get_email_order_items' ) ) {
 					'show_purchase_note' => $order->is_paid(),
 					'show_image'         => $args['show_image'],
 					'image_size'         => $args['image_size'],
+					'show_course_name'   => $args['show_course_name'],
 				)
 			)
 		);
@@ -1947,7 +1958,7 @@ if ( ! function_exists( 'masteriyo_template_course_review' ) ) {
 			return;
 		}
 
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		$template = 'single-course/course-review.php';
 
@@ -1976,7 +1987,7 @@ if ( ! function_exists( 'masteriyo_template_course_review_reply' ) ) {
 	function masteriyo_template_course_review_reply( $args = array() ) {
 		$args['pp_placeholder'] = masteriyo_get_course_review_author_pp_placeholder();
 
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		$template = 'single-course/course-review-reply.php';
 
@@ -2025,7 +2036,7 @@ if ( ! function_exists( 'masteriyo_template_course_reviews_list' ) ) {
 	 */
 	function masteriyo_template_course_reviews_list( $course, $course_reviews, $replies ) {
 
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		$template = 'single-course/reviews-list.php';
 
@@ -2099,7 +2110,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_review_replies' ) ) {
 	function masteriyo_template_single_course_review_replies( $course_review, $replies ) {
 		if ( ! empty( $replies ) ) {
 
-			$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+			$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 			$template = 'single-course/review-replies.php';
 
@@ -2148,7 +2159,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_related_courses' ) ) {
 	function masteriyo_template_single_course_related_courses() {
 		if ( masteriyo_get_setting( 'single_course.related_courses.enable' ) ) {
 
-			$layout = masteriyo_get_setting( 'course_archive.layout' ) ?? 'default';
+			$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
 
 			$template = 'related-posts';
 
@@ -3097,7 +3108,7 @@ if ( ! function_exists( 'masteriyo_layout_1_template_single_course_review_replie
 	function masteriyo_layout_1_template_single_course_review_replies( $course_review, $replies ) {
 		if ( ! empty( $replies ) ) {
 
-			$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+			$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 			if ( 'layout1' !== $layout ) {
 				return;
@@ -3134,7 +3145,7 @@ if ( ! function_exists( 'masteriyo_layout_1_template_course_review_reply' ) ) {
 	function masteriyo_layout_1_template_course_review_reply( $args = array() ) {
 		$args['pp_placeholder'] = masteriyo_get_course_review_author_pp_placeholder();
 
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		$template = 'single-course/layout-1/course-review-reply.php';
 
@@ -3155,7 +3166,7 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_expiration_info' ) ) {
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
 	function masteriyo_layout_1_single_course_expiration_info( $course ) {
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( masteriyo_is_single_course_page() && 'layout1' === $layout ) {
 			masteriyo_course_expiration_info( $course );
@@ -3172,7 +3183,7 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_retake_button' ) ) {
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
 	function masteriyo_layout_1_single_course_retake_button( $course ) {
-		$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 		if ( masteriyo_is_single_course_page() && 'layout1' === $layout ) {
 			masteriyo_template_course_retake_button( $course );

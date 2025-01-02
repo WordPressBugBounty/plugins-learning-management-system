@@ -100,8 +100,8 @@ const BlockSettings = (props: any) => {
 									isMulti
 									closeMenuOnSelect={false}
 									placeholder={__('Select', 'learning-management-system')}
-									defaultValue={categoryOptions.filter(
-										(cate) => categoryIds?.includes(cate.value),
+									defaultValue={categoryOptions.filter((cate) =>
+										categoryIds?.includes(cate.value),
 									)}
 									options={categoryOptions}
 									noOptionsMessage={({ inputValue }) => {

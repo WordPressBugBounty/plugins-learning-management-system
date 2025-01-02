@@ -80,7 +80,7 @@ if ( ! function_exists( 'masteriyo_check_user_session' ) ) {
 			return true;
 		}
 
-		$masteriyo_max_active_login = masteriyo_get_setting( 'advance.limit_login_session' );
+		$masteriyo_max_active_login = masteriyo_get_setting( 'authentication.limit_login_session' );
 		// Get current user's session.
 		$sessions = WP_Session_Tokens::get_instance( $user_id );
 		// Get all his active WordPress sessions.

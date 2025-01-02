@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
+class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -102,6 +102,7 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
             'Masteriyo\\Addons\\CourseAnnouncement\\' => 36,
             'Masteriyo\\Addons\\Certificate\\' => 29,
             'Masteriyo\\Addons\\BunnyNet\\' => 26,
+            'Masteriyo\\Addons\\BuddyPress\\' => 28,
             'Masteriyo\\Addons\\BricksIntegration\\' => 35,
             'Masteriyo\\Addons\\BrevoIntegration\\' => 34,
             'Masteriyo\\Addons\\BeaverIntegration\\' => 35,
@@ -289,6 +290,10 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\Addons\\BunnyNet\\' => 
         array (
             0 => __DIR__ . '/../..' . '/addons/bunny-net',
+        ),
+        'Masteriyo\\Addons\\BuddyPress\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/addons/buddy-press',
         ),
         'Masteriyo\\Addons\\BricksIntegration\\' => 
         array (
@@ -527,6 +532,7 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'League\\OAuth2\\Client\\Token\\AccessToken' => __DIR__ . '/..' . '/league/oauth2-client/src/Token/AccessToken.php',
         'League\\OAuth2\\Client\\Token\\AccessTokenInterface' => __DIR__ . '/..' . '/league/oauth2-client/src/Token/AccessTokenInterface.php',
         'League\\OAuth2\\Client\\Token\\ResourceOwnerAccessTokenInterface' => __DIR__ . '/..' . '/league/oauth2-client/src/Token/ResourceOwnerAccessTokenInterface.php',
+        'League\\OAuth2\\Client\\Token\\SettableRefreshTokenInterface' => __DIR__ . '/..' . '/league/oauth2-client/src/Token/SettableRefreshTokenInterface.php',
         'League\\OAuth2\\Client\\Tool\\ArrayAccessorTrait' => __DIR__ . '/..' . '/league/oauth2-client/src/Tool/ArrayAccessorTrait.php',
         'League\\OAuth2\\Client\\Tool\\BearerAuthorizationTrait' => __DIR__ . '/..' . '/league/oauth2-client/src/Tool/BearerAuthorizationTrait.php',
         'League\\OAuth2\\Client\\Tool\\GuardedPropertyTrait' => __DIR__ . '/..' . '/league/oauth2-client/src/Tool/GuardedPropertyTrait.php',
@@ -583,6 +589,10 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\Addons\\BricksIntegration\\Elements\\CoursesSearchElement' => __DIR__ . '/../..' . '/addons/bricks-integration/Elements/CoursesSearchElement.php',
         'Masteriyo\\Addons\\BricksIntegration\\Helper' => __DIR__ . '/../..' . '/addons/bricks-integration/Helper.php',
         'Masteriyo\\Addons\\BricksIntegration\\Providers\\BricksIntegrationServiceProvider' => __DIR__ . '/../..' . '/addons/bricks-integration/Providers/BricksIntegrationServiceProvider.php',
+        'Masteriyo\\Addons\\BuddyPress\\BuddyPressAddon' => __DIR__ . '/../..' . '/addons/buddy-press/BuddyPressAddon.php',
+        'Masteriyo\\Addons\\BuddyPress\\Classes\\BuddyPressGroupSettings' => __DIR__ . '/../..' . '/addons/buddy-press/Classes/BuddyPressGroupSettings.php',
+        'Masteriyo\\Addons\\BuddyPress\\Helper' => __DIR__ . '/../..' . '/addons/buddy-press/Helper.php',
+        'Masteriyo\\Addons\\BuddyPress\\Providers\\BuddyPressServiceProvider' => __DIR__ . '/../..' . '/addons/buddy-press/Providers/BuddyPressServiceProvider.php',
         'Masteriyo\\Addons\\BunnyNet\\BunnyNetAddon' => __DIR__ . '/../..' . '/addons/bunny-net/BunnyNetAddon.php',
         'Masteriyo\\Addons\\BunnyNet\\Providers\\BunnyNetServiceProvider' => __DIR__ . '/../..' . '/addons/bunny-net/Providers/BunnyNetServiceProvider.php',
         'Masteriyo\\Addons\\Certificate\\Blocks' => __DIR__ . '/../..' . '/addons/certificate/Blocks.php',
@@ -783,6 +793,7 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\AjaxHandlers\\DeactivationFeedbackAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/DeactivationFeedbackAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\LoginAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/LoginAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\ReviewNoticeAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/ReviewNoticeAjaxHandler.php',
+        'Masteriyo\\AjaxHandlers\\SetupPagesAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/SetupPagesAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\UsageTrackingNoticeHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/UsageTrackingNoticeHandler.php',
         'Masteriyo\\Api' => __DIR__ . '/../..' . '/includes/Api.php',
         'Masteriyo\\Cache\\Cache' => __DIR__ . '/../..' . '/includes/Cache/Cache.php',
@@ -796,6 +807,7 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\Cli\\MigrationCli' => __DIR__ . '/../..' . '/includes/Cli/MigrationCli.php',
         'Masteriyo\\Cli\\UsageTrackingCli' => __DIR__ . '/../..' . '/includes/Cli/UsageTrackingCli.php',
         'Masteriyo\\Compatibility\\Cache\\HummingBird' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/HummingBird.php',
+        'Masteriyo\\Compatibility\\Cache\\JetPack' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/JetPack.php',
         'Masteriyo\\Compatibility\\Cache\\LiteSpeed' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/LiteSpeed.php',
         'Masteriyo\\Compatibility\\Cache\\W3TotalCache' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/W3TotalCache.php',
         'Masteriyo\\Compatibility\\Cache\\WPFastestCache' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/WPFastestCache.php',
@@ -827,29 +839,39 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
         'Masteriyo\\Deactivation' => __DIR__ . '/../..' . '/includes/Deactivation.php',
         'Masteriyo\\EmailMarketingAndCRM\\APIClient' => __DIR__ . '/../..' . '/includes/EmailMarketingAndCRM/APIClient.php',
         'Masteriyo\\EmailMarketingAndCRM\\IntegrationSettings' => __DIR__ . '/../..' . '/includes/EmailMarketingAndCRM/IntegrationSettings.php',
+        'Masteriyo\\Emails\\Admin\\CourseCompletionEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/CourseCompletionEmailToAdmin.php',
+        'Masteriyo\\Emails\\Admin\\CourseStartEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/CourseStartEmailToAdmin.php',
         'Masteriyo\\Emails\\Admin\\InstructorApplyEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/InstructorApplyEmailToAdmin.php',
+        'Masteriyo\\Emails\\Admin\\InstructorRegistrationEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/InstructorRegistrationEmailToAdmin.php',
         'Masteriyo\\Emails\\Admin\\NewOrderEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/NewOrderEmailToAdmin.php',
+        'Masteriyo\\Emails\\Admin\\NewQuizAttemptEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/NewQuizAttemptEmailToAdmin.php',
         'Masteriyo\\Emails\\Admin\\NewWithdrawRequestEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/NewWithdrawRequestEmailToAdmin.php',
+        'Masteriyo\\Emails\\Admin\\StudentRegistrationEmailToAdmin' => __DIR__ . '/../..' . '/includes/Emails/Admin/StudentRegistrationEmailToAdmin.php',
         'Masteriyo\\Emails\\EmailHooks' => __DIR__ . '/../..' . '/includes/Emails/EmailHooks.php',
         'Masteriyo\\Emails\\EmailScheduleActions' => __DIR__ . '/../..' . '/includes/Emails/EmailScheduleActions.php',
+        'Masteriyo\\Emails\\EmailVerificationEmail' => __DIR__ . '/../..' . '/includes/Emails/EmailVerificationEmail.php',
+        'Masteriyo\\Emails\\Instructor\\CourseCompletionEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/CourseCompletionEmailToInstructor.php',
+        'Masteriyo\\Emails\\Instructor\\CourseStartEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/CourseStartEmailToInstructor.php',
         'Masteriyo\\Emails\\Instructor\\InstructorApplyApprovedEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/InstructorApplyApprovedEmailToInstructor.php',
         'Masteriyo\\Emails\\Instructor\\InstructorRegistrationEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/InstructorRegistrationEmailToInstructor.php',
-        'Masteriyo\\Emails\\Instructor\\VerificationEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/VerificationEmailToInstructor.php',
+        'Masteriyo\\Emails\\Instructor\\NewQuizAttemptEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/NewQuizAttemptEmailToInstructor.php',
         'Masteriyo\\Emails\\Instructor\\WithdrawRequestApprovedEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/WithdrawRequestApprovedEmailToInstructor.php',
         'Masteriyo\\Emails\\Instructor\\WithdrawRequestPendingEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/WithdrawRequestPendingEmailToInstructor.php',
         'Masteriyo\\Emails\\Instructor\\WithdrawRequestRejectedEmailToInstructor' => __DIR__ . '/../..' . '/includes/Emails/Instructor/WithdrawRequestRejectedEmailToInstructor.php',
         'Masteriyo\\Emails\\ResetPasswordEmail' => __DIR__ . '/../..' . '/includes/Emails/ResetPasswordEmail.php',
+        'Masteriyo\\Emails\\Student\\AutomaticRegistrationEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/AutomaticRegistrationEmailToStudent.php',
         'Masteriyo\\Emails\\Student\\CancelledOrderEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/CancelledOrderEmailToStudent.php',
         'Masteriyo\\Emails\\Student\\CompletedOrderEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/CompletedOrderEmailToStudent.php',
+        'Masteriyo\\Emails\\Student\\CourseCompletionEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/CourseCompletionEmailToStudent.php',
         'Masteriyo\\Emails\\Student\\InstructorApplyRejectedEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/InstructorApplyRejectedEmailToStudent.php',
         'Masteriyo\\Emails\\Student\\OnHoldOrderEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/OnHoldOrderEmailToStudent.php',
         'Masteriyo\\Emails\\Student\\StudentRegistrationEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/StudentRegistrationEmailToStudent.php',
-        'Masteriyo\\Emails\\Student\\VerificationEmailToStudent' => __DIR__ . '/../..' . '/includes/Emails/Student/VerificationEmailToStudent.php',
         'Masteriyo\\Enums\\AddonStatus' => __DIR__ . '/../..' . '/includes/Enums/AddonStatus.php',
         'Masteriyo\\Enums\\CommentStatus' => __DIR__ . '/../..' . '/includes/Enums/CommentStatus.php',
         'Masteriyo\\Enums\\CommentType' => __DIR__ . '/../..' . '/includes/Enums/CommentType.php',
         'Masteriyo\\Enums\\CourseAccessMode' => __DIR__ . '/../..' . '/includes/Enums/CourseAccessMode.php',
         'Masteriyo\\Enums\\CourseChildrenPostType' => __DIR__ . '/../..' . '/includes/Enums/CourseChildrenPostType.php',
+        'Masteriyo\\Enums\\CourseFlow' => __DIR__ . '/../..' . '/includes/Enums/CourseFlow.php',
         'Masteriyo\\Enums\\CoursePriceType' => __DIR__ . '/../..' . '/includes/Enums/CoursePriceType.php',
         'Masteriyo\\Enums\\CourseProgressItemType' => __DIR__ . '/../..' . '/includes/Enums/CourseProgressItemType.php',
         'Masteriyo\\Enums\\CourseProgressPostType' => __DIR__ . '/../..' . '/includes/Enums/CourseProgressPostType.php',
@@ -1817,9 +1839,9 @@ class ComposerStaticInit3133e59b560c8a5cf890cbb08506b903
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit3133e59b560c8a5cf890cbb08506b903::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$classMap;
 
         }, null, ClassLoader::class);
     }

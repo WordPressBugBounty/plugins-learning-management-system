@@ -26,31 +26,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_email_header', $email );
 
-?>
-
-<p class="email-template--info">
-	<?php /* translators: %s: Username */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $user->get_username() ) ); ?>
-</p>
-
-<p class="email-template--info">
-	<?php /* translators: %s: Site name */ ?>
-	<?php esc_html_e( 'Congratulations! Your registration was successful. To access the dashboard, please reset your password by clicking on the password reset button: ', 'learning-management-system' ); ?>
-</p>
-
-<p class="email-template--info email-text--bold">
-	<?php /* translators: %s: Username */ ?>
-	<?php printf( esc_html__( 'Username: %s', 'learning-management-system' ), esc_html( $user->get_username() ) ); ?>
-</p>
-
-<a
-	class="email-template--button"
-	href="<?php echo esc_url( masteriyo_get_password_reset_link( $reset_key, $user->get_id() ) ); ?>"
->
-	<?php esc_html_e( 'Click here to reset your password.', 'learning-management-system' ); ?>
-</a>
-
-<?php
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 
 /**
  * Show user-defined additional content.

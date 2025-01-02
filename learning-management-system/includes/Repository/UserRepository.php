@@ -65,6 +65,9 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 		'billing_phone'           => '_billing_phone',
 		// Apply for instructor status.
 		'instructor_apply_status' => '_instructor_apply_status',
+
+		'auto_create_user'        => '_auto_create_user',
+
 	);
 
 	/**

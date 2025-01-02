@@ -603,7 +603,7 @@ class GroupsController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $group, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'general.editor.default_editor' );
+		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $group->get_description() ) ) : $group->get_description( $context );

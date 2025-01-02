@@ -1,4 +1,30 @@
 == Changelog ==
+= 1.15.0 - 02-01-2025 =
+- Feature - BuddyPress Integration.
+- Feature - Content drip (Sequential and Free Flow).
+- Tweak - `Reviews` submenu name updated with `Reviews & Comments`.
+- Tweak - Replace `Question Name` input field with WP basic editor.
+- Update - Emails content improvised.
+- Update - JS packages upgraded and fix console deprecation warning of several packages.
+- Refactor - Rearrangement global settings options and optimize API calls.
+- Refactor - Backend pages UI responsive fixes and minor revamp.
+- Refactor - Admin notices for Masteriyo Page.
+- Enhancement - Added quiz reveal mode.
+- Enhancement - Added multiple emails for admin, instructors and students.
+- Enhancement - Lesson comments can be accessible through `Reviews & Comments` page for editing and reviewing lesson comments.
+- Enhancement - Account section consistency with RTL languages.
+- Enhancement - Multiple cache plugin compatibility, auto set recommended settings and display warning for affected cache setting.
+- Enhancement - Notification count in backend submenus for Orders, Users and Reviews.
+- Enhancement - Added notice if Masteriyo pages not setup correctly and option for auto setup missing pages.
+- Enhancement - Quiz builder overall performance optimized.
+- Fix - Timestamp title crash issue with non ASCII characters.
+- Fix - Google meet course id null on update.
+- Fix - Show lemon squeezy checkout option for course link with lemon squeezy.
+- Fix - Quiz points minimum value set to 1.
+- Fix - UI issue in public profile.
+- Fix - Editor image alignment not working.
+- Fix - Learn page missing scrollbar for longer contents.
+
 = 1.14.3 - 19-12-2024 =
 - Enhancement - Added report issue button on error page.
 - Enhancement - Added logic to clear duplicate lesson progress from `Clear Cache` button.

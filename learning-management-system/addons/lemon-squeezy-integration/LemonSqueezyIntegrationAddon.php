@@ -106,6 +106,48 @@ class LemonSqueezyIntegrationAddon {
 
 		add_action( 'wp_ajax_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
 		add_action( 'wp_ajax_nopriv_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
+		add_filter( 'masteriyo_checkout_available_gateways', array( $this, 'remove_lemon_squeezy_gateway' ) );
+	}
+
+	/**
+	 * Remove Lemon Squeezy gateway.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param array $gateways
+	 *
+	 * @return array $gateways
+	 */
+	public function remove_lemon_squeezy_gateway( $gateways ) {
+		if ( ! isset( $gateways['lemon_squeezy'] ) ) {
+			return $gateways;
+		}
+
+		/** @var Masteriyo\Cart\Cart $cart */
+		$cart = masteriyo( 'cart' );
+
+		$cart_contents            = $cart->get_cart_contents();
+		$is_lemon_squeezy_enabled = true;
+
+		if ( ! empty( $cart_contents ) ) {
+			foreach ( $cart_contents as $cart_content ) {
+				if ( isset( $cart_content['item_id'] ) ) {
+					$item_id    = absint( $cart_content['item_id'] );
+					$product_id = get_post_meta( $item_id, '_lemon_squeezy_product_id', true );
+
+					if ( ! $product_id ) {
+						$is_lemon_squeezy_enabled = false;
+						break;
+					}
+				}
+			}
+		}
+
+		if ( ! $is_lemon_squeezy_enabled ) {
+			unset( $gateways['lemon_squeezy'] );
+		}
+
+		return $gateways;
 	}
 
 	/**

@@ -22,7 +22,7 @@ define( 'MASTERIYO_BRICKS_INTEGRATION_SLUG', 'bricks-integration' );
 // to check if the bricks build is activated or not
 if ( ( new Addons() )->is_active( MASTERIYO_BRICKS_INTEGRATION_SLUG ) && ! Helper::is_bricks_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

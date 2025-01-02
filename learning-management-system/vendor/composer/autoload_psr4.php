@@ -46,6 +46,7 @@ return array(
     'Masteriyo\\Addons\\CourseAnnouncement\\' => array($baseDir . '/addons/course-announcement'),
     'Masteriyo\\Addons\\Certificate\\' => array($baseDir . '/addons/certificate'),
     'Masteriyo\\Addons\\BunnyNet\\' => array($baseDir . '/addons/bunny-net'),
+    'Masteriyo\\Addons\\BuddyPress\\' => array($baseDir . '/addons/buddy-press'),
     'Masteriyo\\Addons\\BricksIntegration\\' => array($baseDir . '/addons/bricks-integration'),
     'Masteriyo\\Addons\\BrevoIntegration\\' => array($baseDir . '/addons/brevo-integration'),
     'Masteriyo\\Addons\\BeaverIntegration\\' => array($baseDir . '/addons/beaver-integration'),

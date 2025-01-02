@@ -11,6 +11,7 @@ namespace Masteriyo\Models;
 
 use Masteriyo\Helper\Utils;
 use Masteriyo\Database\Model;
+use Masteriyo\Enums\CourseFlow;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\CourseAccessMode;
@@ -132,6 +133,7 @@ class Course extends Model {
 		'currency'                           => '',
 		'exchange_rate'                      => '',
 		'pricing_method'                     => '',
+		'flow'                               => CourseFlow::FREE_FLOW,
 
 	);
 
@@ -1103,6 +1105,18 @@ class Course extends Model {
 		return $this->get_prop( 'pricing_method', $context );
 	}
 
+	/**
+	 * Return course flow.
+	 *
+	 * @since  1.15.0
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_flow( $context = 'view' ) {
+		return $this->get_prop( 'flow' );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Setters
@@ -1624,6 +1638,17 @@ class Course extends Model {
 	 */
 	public function set_pricing_method( $pricing_method ) {
 		$this->set_prop( 'pricing_method', $pricing_method );
+	}
+
+	/**
+	 * Set course flow.
+	 *
+	 * @since  1.15.0
+	 * @param  string $flow Course flow.
+	 * @return string
+	 */
+	public function set_flow( $flow ) {
+		$this->set_prop( 'flow', $flow );
 	}
 
 	/*

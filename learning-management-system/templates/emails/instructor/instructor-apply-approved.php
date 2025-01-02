@@ -23,16 +23,9 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Emails\Email $email Email object.
  * @param \Masteriyo\Models\User $instructor User object.
  */
-do_action( 'masteriyo_email_header', $email, $instructor ); ?>
+do_action( 'masteriyo_email_header', $email, $instructor );
 
-<p class="email-template--info">
-<?php /* translators: %s: Instructor Display Name */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $instructor->get_display_name() ) ); ?>
-</p>
-<p>
-	<?php esc_html_e( 'Congratulations! Your application for instructor status has been approved.', 'learning-management-system' ); ?>
-</p>
-<?php
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 
 /**
  * Action hook fired in email's footer section.

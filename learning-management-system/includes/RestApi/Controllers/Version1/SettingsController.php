@@ -588,6 +588,11 @@ class SettingsController extends CrudController {
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
+								'quiz_previous_page'     => array(
+									'description' => __( 'Show quiz previous page', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
 							),
 						),
 						'general' => array(
@@ -666,6 +671,11 @@ class SettingsController extends CrudController {
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_lesson_comment'    => array(
+									'description' => __( 'Show or hide lesson comments in learn page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'auto_approve_comments'    => array(
 									'description' => __( 'Show or hide lesson comments in learn page.', 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),

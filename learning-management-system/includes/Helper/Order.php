@@ -7,6 +7,7 @@
  */
 
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\PostType\PostType;
 
 /**
  * Get order.
@@ -444,4 +445,23 @@ function masteriyo_generate_order_download_url( $order_id ) {
 		return apply_filters( 'masteriyo_order_download_url', $url, $order );
 }
 
+if ( ! function_exists( 'masteriyo_get_pending_and_on_hold_orders_count' ) ) {
+	/**
+	 * Get the total count of orders with status 'pending' and 'on hold'.
+	 *
+	 * This function retrieves the count of orders that are marked as 'pending'
+	 * and 'on hold' from the WordPress posts count, using the custom order post type.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return int The total number of orders with 'pending' and 'on hold' status.
+	 */
+	function masteriyo_get_pending_and_on_hold_orders_count() {
+		$orders_count = (array) wp_count_posts( PostType::ORDER );
 
+		$pending = absint( masteriyo_array_get( $orders_count, OrderStatus::PENDING, 0 ) );
+		$on_hold = absint( masteriyo_array_get( $orders_count, OrderStatus::ON_HOLD, 0 ) );
+
+		return $pending + $on_hold;
+	}
+}

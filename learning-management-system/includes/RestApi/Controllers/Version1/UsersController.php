@@ -17,6 +17,7 @@ use Masteriyo\Enums\InstructorApplyStatus;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Query\WPUserQuery;
+use Masteriyo\Roles;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -672,6 +673,7 @@ class UsersController extends CrudController {
 				'pages'        => $query_results['pages'],
 				'current_page' => $query_args['paged'],
 				'per_page'     => $query_args['number'],
+				'inactive'     => masteriyo_get_total_user_count_by_roles_and_statuses( array( Roles::INSTRUCTOR, Roles::STUDENT ), UserStatus::INACTIVE ),
 			),
 		);
 	}

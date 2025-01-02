@@ -8,6 +8,10 @@
 
 namespace Masteriyo\Pro;
 
+use Masteriyo\Enums\CourseFlow;
+use Masteriyo\Enums\CourseChildrenPostType;
+use Masteriyo\Query\CourseProgressItemQuery;
+
 /**
  * Masteriyo pro class.
  *
@@ -55,6 +59,7 @@ class Pro {
 		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_addons_data' ) );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_public_scripts' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'register_submenus' ) );
+		add_filter( 'masteriyo_course_progress_item_data', array( $this, 'add_locked_status_to_course_progress_item' ), 10, 3 );
 	}
 
 	/**
@@ -165,5 +170,73 @@ class Pro {
 		);
 
 		return $submenus;
+	}
+
+	/**
+	 * Add locked status to course progress item like (lesson and quiz) for sequential.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param array $data The course progress item data.
+	 * @param \Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
+	* @param string $context Context.
+	 */
+	public function add_locked_status_to_course_progress_item( $data, $course_progress_item, $context ) {
+		$locked = false;
+		$course = masteriyo_get_course( $course_progress_item->get_course_id() );
+
+		if ( $course && CourseFlow::SEQUENTIAL === $course->get_flow() ) {
+			$current_index = 0;
+			$contents      = masteriyo_get_course_contents( $course );
+
+			$contents = array_values(
+				array_filter(
+					$contents,
+					function( $content ) {
+						return CourseChildrenPostType::SECTION !== $content->get_post_type();
+					}
+				)
+			);
+
+			foreach ( $contents as $index => $content ) {
+				if ( $content->get_id() === $course_progress_item->get_item_id() ) {
+					$current_index = $index;
+					break;
+				}
+			}
+
+			if ( $current_index > 0 ) {
+				$previous_content = $contents[ $current_index - 1 ];
+
+				if ( is_user_logged_in() ) {
+					$query = new CourseProgressItemQuery(
+						array(
+							'item_id' => $previous_content->get_id(),
+							'user_id' => masteriyo_get_current_user_id(),
+							'limit'   => 1,
+						)
+					);
+
+					$previous_course_progress_item = current( $query->get_course_progress_items() );
+				} else {
+					$session = masteriyo( 'session' );
+
+					$previous_course_progress_items = $session->get( 'course_progress_items', array() );
+
+					if ( isset( $previous_course_progress_items[ $previous_content->get_id() ] ) ) {
+						$previous_course_progress_item = masteriyo( 'course-progress-item' );
+						$previous_course_progress_item->set_item_id( $previous_content->get_id() );
+						$previous_course_progress_item->set_item_type( str_replace( 'mto-', '', $previous_content->get_post_type() ) );
+						$previous_course_progress_item->set_completed( $previous_course_progress_items[ $previous_content->get_id() ]['completed'] );
+					}
+				}
+
+				$locked = empty( $previous_course_progress_item ) || ( $previous_course_progress_item && ! $previous_course_progress_item->get_completed() );
+			}
+		}
+
+		$data['locked'] = $locked;
+
+		return $data;
 	}
 }

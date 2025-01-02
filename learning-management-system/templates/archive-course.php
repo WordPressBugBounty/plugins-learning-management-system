@@ -19,9 +19,9 @@ defined( 'ABSPATH' ) || exit;
 
 masteriyo_custom_header( 'courses' );
 
-$enable_custom_template = masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.custom_template.enable' ) );
-$template_source        = masteriyo_get_setting( 'course_archive.custom_template.template_source' );
-$template_id            = masteriyo_get_setting( 'course_archive.custom_template.template_id' );
+$enable_custom_template = masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.display.template.custom_template.enable' ) );
+$template_source        = masteriyo_get_setting( 'course_archive.display.template.custom_template.template_source' );
+$template_id            = masteriyo_get_setting( 'course_archive.display.template.custom_template.template_id' );
 
 if ( $enable_custom_template && $template_source && $template_id ) {
 	/**

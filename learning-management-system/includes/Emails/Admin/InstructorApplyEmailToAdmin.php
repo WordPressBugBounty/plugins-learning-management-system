@@ -88,15 +88,63 @@ class InstructorApplyEmailToAdmin extends Email {
 	 */
 	public function get_subject() {
 		/**
-		 * Filter student registration email subject to admin.
+		 * Filter instructor apply email subject to admin.
 		 *
 		 * @since 1.6.13
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.admin.instructor_apply.subject' ) );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['admin']['instructor_apply']['subject'] );
 
 		return $this->format_string( $subject );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['admin']['instructor_apply']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $student */
+		$student = $this->get( 'user' );
+
+		if ( $student ) {
+			$placeholders['{student_display_name}']    = $student->get_display_name();
+			$placeholders['{student_first_name}']      = $student->get_first_name();
+			$placeholders['{student_last_name}']       = $student->get_last_name();
+			$placeholders['{student_username}']        = $student->get_username();
+			$placeholders['{student_nicename}']        = $student->get_nicename();
+			$placeholders['{student_nickname}']        = $student->get_nickname();
+			$placeholders['{student_email}']           = $student->get_email();
+			$placeholders['{student_name}']            = ! empty( $name ) ? $name : $student->get_display_name();
+			$placeholders['{student_registered_date}'] = gmdate( 'd M Y', $student->get_date_created( 'edit' )->getOffsetTimestamp() );
+			$placeholders['{review_application_link}'] = wp_kses_post(
+				'<a href="' . admin_url( 'admin.php?page=masteriyo#/users/students/' ) . $student->get_id() . '" style="text-decoration: none;">Review Application</a>'
+			);
+		}
+
+		return $placeholders;
 	}
 
 	/**

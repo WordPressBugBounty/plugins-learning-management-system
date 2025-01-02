@@ -192,7 +192,7 @@ class UserRegistrationIntegrationAddon {
 	 * @return array
 	 */
 	public function append_setting_in_response( $data, $setting, $context, $controller ) {
-		$data['advance']['user_registration_integration'] = Setting::all();
+		$data['integrations']['user_registration_integration'] = Setting::all();
 
 		return $data;
 	}
@@ -211,11 +211,11 @@ class UserRegistrationIntegrationAddon {
 			return;
 		}
 
-		if ( ! isset( $request['advance']['user_registration_integration'] ) ) {
+		if ( ! isset( $request['integrations']['user_registration_integration'] ) ) {
 			return;
 		}
 
-		$settings = masteriyo_array_only( $request['advance']['user_registration_integration'], array_keys( Setting::all() ) );
+		$settings = masteriyo_array_only( $request['integrations']['user_registration_integration'], array_keys( Setting::all() ) );
 		$settings = masteriyo_parse_args( $settings, Setting::all() );
 
 		// Sanitization.

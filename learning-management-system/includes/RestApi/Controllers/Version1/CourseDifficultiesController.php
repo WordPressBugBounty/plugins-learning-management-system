@@ -245,7 +245,7 @@ class CourseDifficultiesController extends RestTermsController {
 	 * @return object
 	 */
 	protected function description_data( $course_difficulty, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'general.editor.default_editor' );
+		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $course_difficulty->get_description() ) ) : $course_difficulty->get_description( $context );

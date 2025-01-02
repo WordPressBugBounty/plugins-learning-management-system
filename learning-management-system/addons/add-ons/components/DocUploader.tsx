@@ -22,6 +22,47 @@ import {
 } from '../../../assets/js/back-end/utils/utils';
 import DocPreview from './DocPreview';
 
+const defaultAcceptedFileTypes = {
+	'image/*': ['.jpeg', '.png', '.jpg', '.gif'],
+	'video/*': ['.mp4', '.mkv', '.avi', '.flv', '.mov'],
+	'audio/*': ['.mpeg', '.wav'],
+	'application/zip': ['.zip'],
+	'application/msword': ['.msword'],
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+		'.docx',
+	],
+	'application/vnd.ms-powerpoint': ['.ppt'],
+	'application/vnd.openxmlformats-officedocument.presentationml.presentation': [
+		'.pptx',
+	],
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
+		'.xlsx',
+	],
+	'application/vnd.ms-excel': ['.xls'],
+};
+
+const defaultAcceptedFileTypesWPMedia = [
+	'application/pdf',
+	'application/zip',
+	'application/msword',
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'	application/vnd.ms-powerpoint',
+	'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'application/vnd.ms-excel',
+	'image/jpeg',
+	'image/png',
+	'image/jpg',
+	'image/gif',
+	'video/mp4',
+	'video/mkv',
+	'video/avi',
+	'video/flv',
+	'video/mov',
+	'audio/mpeg',
+	'audio/wav',
+];
+
 export type File = {
 	name: string;
 	preview: string;
@@ -85,46 +126,6 @@ const DocUploader: React.FC<Props> = (props) => {
 			},
 		},
 	});
-
-	const defaultAcceptedFileTypes = {
-		'image/*': ['.jpeg', '.png', '.jpg', '.gif'],
-		'video/*': ['.mp4', '.mkv', '.avi', '.flv', '.mov'],
-		'audio/*': ['.mpeg', '.wav'],
-		'application/zip': ['.zip'],
-		'application/msword': ['.msword'],
-		'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-			'.docx',
-		],
-		'application/vnd.ms-powerpoint': ['.ppt'],
-		'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-			['.pptx'],
-		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
-			'.xlsx',
-		],
-		'application/vnd.ms-excel': ['.xls'],
-	};
-
-	const defaultAcceptedFileTypesWPMedia = [
-		'application/pdf',
-		'application/zip',
-		'application/msword',
-		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		'	application/vnd.ms-powerpoint',
-		'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		'application/vnd.ms-excel',
-		'image/jpeg',
-		'image/png',
-		'image/jpg',
-		'image/gif',
-		'video/mp4',
-		'video/mkv',
-		'video/avi',
-		'video/flv',
-		'video/mov',
-		'audio/mpeg',
-		'audio/wav',
-	];
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		accept: !isEmpty(acceptedFileTypes)

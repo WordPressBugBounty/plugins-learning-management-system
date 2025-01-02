@@ -91,8 +91,7 @@ class InstructorRegistrationEmailToInstructor extends Email {
 	 * @return string
 	 */
 	public function get_subject() {
-		$subject = strval( masteriyo_get_setting( 'emails.instructor.instructor_registration.subject' ) );
-		$subject = empty( trim( $subject ) ) ? _x( 'Registration Complete', 'Email subject', 'learning-management-system' ) : $subject;
+		$subject = masteriyo_get_default_email_contents()['instructor']['instructor_registration']['subject'];
 
 		/**
 		 * Filter instructor registration email subject to instructor.
@@ -125,6 +124,53 @@ class InstructorRegistrationEmailToInstructor extends Email {
 		$heading = apply_filters( $this->get_full_id() . '_heading', masteriyo_get_setting( 'emails.instructor.instructor_registration.heading' ) );
 
 		return $this->format_string( $heading );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['instructor']['instructor_registration']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $instructor */
+		$instructor = $this->get( 'instructor' );
+
+		if ( $instructor ) {
+			$placeholders = $placeholders + array(
+				'{instructor_display_name}' => $instructor->get_display_name(),
+				'{instructor_first_name}'   => $instructor->get_first_name(),
+				'{instructor_last_name}'    => $instructor->get_last_name(),
+				'{instructor_username}'     => $instructor->get_username(),
+				'{instructor_nicename}'     => $instructor->get_nicename(),
+				'{instructor_nickname}'     => $instructor->get_nickname(),
+				'{account_login_link}'      => wp_kses_post(
+					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+				),
+			);
+		}
+
+		return $placeholders;
 	}
 
 	/**

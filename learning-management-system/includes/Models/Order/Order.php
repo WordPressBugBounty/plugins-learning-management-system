@@ -1769,9 +1769,9 @@ class Order extends AbstractOrder {
 	public function get_order_item_totals() {
 		$total_rows = array();
 
-		$this->add_order_item_totals_payment_method_row( $total_rows );
 		$this->add_order_item_totals_refund_rows( $total_rows );
 		$this->add_order_item_totals_total_row( $total_rows );
+		$this->add_order_item_totals_payment_method_row( $total_rows );
 
 		/**
 		 * Filters totals for display on pages and in emails.

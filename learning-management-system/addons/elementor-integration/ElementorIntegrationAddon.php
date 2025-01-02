@@ -626,17 +626,17 @@ class ElementorIntegrationAddon {
 
 		if ( CourseArchivePageDocumentType::TYPE_SLUG === $template_type ) {
 			if (
-				masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.custom_template.enable' ) ) &&
-				masteriyo_get_setting( 'course_archive.custom_template.template_source' ) === 'elementor' &&
-				absint( masteriyo_get_setting( 'course_archive.custom_template.template_id' ) ) === absint( $post->ID )
+				masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.display.template.custom_template.enable' ) ) &&
+				masteriyo_get_setting( 'course_archive.display.template.custom_template.template_source' ) === 'elementor' &&
+				absint( masteriyo_get_setting( 'course_archive.display.template.custom_template.template_id' ) ) === absint( $post->ID )
 			) {
 				$post_states['masteriyo_used_template'] = __( 'Used by Masteriyo', 'learning-management-system' );
 			}
 		} elseif ( SingleCoursePageDocumentType::TYPE_SLUG === $template_type ) {
 			if (
-				masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.custom_template.enable' ) ) &&
-				masteriyo_get_setting( 'single_course.custom_template.template_source' ) === 'elementor' &&
-				absint( masteriyo_get_setting( 'single_course.custom_template.template_id' ) ) === absint( $post->ID )
+				masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.template.custom_template.enable' ) ) &&
+				masteriyo_get_setting( 'single_course.display.template.custom_template.template_source' ) === 'elementor' &&
+				absint( masteriyo_get_setting( 'single_course.display.template.custom_template.template_id' ) ) === absint( $post->ID )
 			) {
 				$post_states['masteriyo_used_template'] = __( 'Used by Masteriyo', 'learning-management-system' );
 			}

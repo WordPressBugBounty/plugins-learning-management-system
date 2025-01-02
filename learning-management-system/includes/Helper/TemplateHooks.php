@@ -131,9 +131,10 @@ add_action( 'masteriyo_before_account', 'masteriyo_session_info_update' );
  */
 add_action( 'masteriyo_email_header', 'masteriyo_email_header' );
 add_action( 'masteriyo_email_footer', 'masteriyo_email_footer' );
-add_action( 'masteriyo_email_order_details', 'masteriyo_email_order_details', 10, 2 );
-add_action( 'masteriyo_email_order_details', 'masteriyo_email_order_meta', 20, 2 );
-add_action( 'masteriyo_email_customer_details', 'masteriyo_email_customer_addresses', 20 );
+/* Intentionally are we are not using these hooks, we have given smart tags to the users. */
+// add_action( 'masteriyo_email_order_details', 'masteriyo_email_order_details', 10, 2 );
+// add_action( 'masteriyo_email_order_details', 'masteriyo_email_order_meta', 20, 2 );
+// add_action( 'masteriyo_email_customer_details', 'masteriyo_email_customer_addresses', 20 );
 
 
 /**

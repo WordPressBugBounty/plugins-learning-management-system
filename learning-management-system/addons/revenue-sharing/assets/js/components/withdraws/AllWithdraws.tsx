@@ -1,11 +1,4 @@
-import {
-	Box,
-	Container,
-	Icon,
-	Stack,
-	Text,
-	useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Container, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -15,7 +8,6 @@ import {
 	BiWalletAlt,
 	BiXCircle,
 } from 'react-icons/bi';
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import EmptyInfo from '../../../../../../assets/js/back-end/components/common/EmptyInfo';
@@ -27,6 +19,7 @@ import {
 	HeaderTop,
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
+import Sorting from '../../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepMerge,
@@ -123,7 +116,7 @@ const AllWithdraws: React.FC = () => {
 				rejected: withdrawCount?.rejected,
 			});
 		}
-	}, [withdrawsQuery]);
+	}, [withdrawsQuery?.isSuccess, withdrawsQuery?.data?.meta?.withdraws_count]);
 
 	const filterBy = (order: 'asc' | 'desc', orderBy: string) =>
 		setFilterParams(
@@ -191,31 +184,11 @@ const AllWithdraws: React.FC = () => {
 												<Text fontSize="xs">
 													{__('Requested On', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'date'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'date',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterBy}
+													orderBy={'date'}
+												/>
 											</Stack>
 										</Th>
 										<Th>
@@ -223,31 +196,11 @@ const AllWithdraws: React.FC = () => {
 												<Text fontSize="xs">
 													{__('Requested By', 'learning-management-system')}
 												</Text>
-												<Stack direction="column">
-													<Icon
-														as={
-															filterParams?.order === 'desc'
-																? MdOutlineArrowDropDown
-																: MdOutlineArrowDropUp
-														}
-														h={6}
-														w={6}
-														cursor="pointer"
-														color={
-															filterParams?.orderby === 'id'
-																? 'black'
-																: 'lightgray'
-														}
-														transition="1s"
-														_hover={{ color: 'black' }}
-														onClick={() =>
-															filterBy(
-																filterParams?.order === 'desc' ? 'asc' : 'desc',
-																'id',
-															)
-														}
-													/>
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterBy}
+													orderBy={'id'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Amount', 'learning-management-system')}</Th>

@@ -131,7 +131,7 @@ class Masteriyo {
 	protected function init_hooks() {
 		add_action( 'init', array( $this, 'after_wp_init' ), 0 );
 		add_action( 'admin_bar_menu', array( $this, 'add_courses_page_link' ), 35 );
-		add_action( 'admin_notices', array( $this, 'masteriyo_display_compatibility_notice' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'masteriyo_display_compatibility_notice' ) );
 
 		add_filter( 'plugin_row_meta', array( $this, 'add_plugin_links' ), 10, 2 );
 		add_filter( 'plugin_action_links_' . Constants::get( 'MASTERIYO_PLUGIN_BASENAME' ), array( $this, 'add_plugin_action_links' ) );
@@ -145,9 +145,9 @@ class Masteriyo {
 		add_action( 'admin_init', array( $this, 'admin_redirects' ) );
 		add_action( 'after_setup_theme', array( $this, 'add_image_sizes' ) );
 
-		add_action( 'admin_notices', array( $this, 'add_review_notice' ) );
-		add_action( 'admin_notices', array( $this, 'display_allow_usage_notice' ) );
-		add_action( 'in_admin_header', array( $this, 'hide_admin_notices' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'add_review_notice' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'display_allow_usage_notice' ) );
+		add_action( 'in_admin_header', array( $this, 'display_masteriyo_notices_only' ) );
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_editor' );
 
@@ -174,9 +174,6 @@ class Masteriyo {
 		// Resolve item metadata insertion issue with WooCommerce plugin active.
 		add_action( 'masteriyo_after_order_item_created', array( $this, 'add_order_item_meta' ), 10, 3 );
 
-		// New reviews count for `Reviews` submenu item.
-		add_action( 'admin_menu', array( $this, 'update_reviews_submenu_title' ), 999 );
-
 		// Inactive the user course enrollment status when the user gest deleted.
 		add_action( 'delete_user', array( $this, 'update_invalid_users_status' ) );
 		register_shutdown_function( array( $this, 'log_errors' ) );
@@ -188,6 +185,35 @@ class Masteriyo {
 		// Add the lock icon to course items.
 		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon' ), 9, 2 );
 		add_action( 'masteriyo_after_layout_1_single_course_curriculum_accordion_body_item_title', array( $this, 'add_lock_icon_template_1' ) );
+
+		// Check for first time course start.
+		add_action( 'masteriyo_after_learn_page_process', array( $this, 'check_for_first_time_course_start' ), 999, 1 );
+	}
+
+	/**
+	 * Checks if the user has visited the course learn page for the first time.
+	 * If so, sets user meta to mark it as visited.
+	 *
+	 * @param \Masteriyo\Models\Course $course The course object.
+	 *
+	 * @since 1.15.0
+	 */
+	public function check_for_first_time_course_start( $course ) {
+		if ( ! is_user_logged_in() || ! $course instanceof \Masteriyo\Models\Course ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		$is_first_learn_page_visit = get_user_meta( $user_id, "masteriyo_course_{$course->get_id()}_first_learn_page_visit", true );
+
+		if ( 'no' !== $is_first_learn_page_visit ) {
+			update_user_meta( $user_id, "masteriyo_course_{$course->get_id()}_first_learn_page_visit", 'no' );
+		}
 	}
 
 	/**
@@ -222,6 +248,8 @@ class Masteriyo {
 		$this->setup_wizard();
 
 		$this->handle_paypal_ipn();
+
+		masteriyo_notify_pages_missing();
 
 		// Download the fonts.
 		masteriyo_download_certificate_fonts();
@@ -393,7 +421,7 @@ class Masteriyo {
 
 		if ( masteriyo_is_single_course_page() ) {
 			masteriyo_setup_course_data( $post );
-			$layout = masteriyo_get_setting( 'single_course.layout' ) ?? 'default';
+			$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
 
 			$layout_template = 'single-course.php';
 
@@ -403,7 +431,7 @@ class Masteriyo {
 
 			$template = masteriyo( 'template' )->locate( $layout_template );
 		} elseif ( masteriyo_is_archive_course_page() ) {
-			$layout = masteriyo_get_setting( 'course_archive.layout' ) ?? 'default';
+			$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
 
 			$layout_template = 'archive-course.php';
 
@@ -575,17 +603,15 @@ class Masteriyo {
 			return;
 		}
 
+		if ( ! ( $user->has_roles( Roles::STUDENT ) || $user->has_roles( Roles::INSTRUCTOR ) ) ) {
+			return;
+		}
+
 		if ( UserStatus::SPAM !== $user->get_status() ) {
 			return;
 		}
 
-		if ( $user->has_roles( 'masteriyo_student' ) ) {
-			EmailHooks::schedule_verification_email_to_student( $uid, $user );
-		}
-
-		if ( $user->has_roles( 'masteriyo_instructor' ) ) {
-			EmailHooks::schedule_verification_email_to_instructor( $uid, $user );
-		}
+		EmailHooks::schedule_email_verification_email( $uid, $user );
 
 		masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
 
@@ -715,44 +741,31 @@ class Masteriyo {
 	 *
 	 * @since 1.0.0
 	 */
-	public function hide_admin_notices() {
-		// Bail if we're not on a Masteriyo screen or page.
-		if ( empty( $_REQUEST['page'] ) || false === strpos( sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ), 'masteriyo' ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+	public function display_masteriyo_notices_only() {
+		$page = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+
+		add_action(
+			'admin_notices',
+			function () {
+				do_action( 'masteriyo_admin_notices' );
+			}
+		);
+
+		if ( empty( $page ) || strpos( $page, 'masteriyo' ) === false ) {
 			return;
 		}
 
-		global $wp_filter;
-		$ignore_notices = array( 'masteriyo_display_compatibility_notice' );
+		// Remove all default notices.
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
 
-		foreach ( array( 'user_admin_notices', 'admin_notices', 'all_admin_notices' ) as $wp_notice ) {
-			if ( empty( $wp_filter[ $wp_notice ] ) ) {
-				continue;
-			}
-
-			$hook_callbacks = $wp_filter[ $wp_notice ]->callbacks;
-
-			if ( empty( $hook_callbacks ) || ! is_array( $hook_callbacks ) ) {
-				continue;
-			}
-
-			foreach ( $hook_callbacks as $priority => $hooks ) {
-				foreach ( $hooks as $name => $callback ) {
-					if ( ! empty( $name ) && in_array( $name, $ignore_notices, true ) ) {
-						continue;
-					}
-					if (
-						! empty( $callback['function'] ) &&
-						! is_a( $callback['function'], '\Closure' ) &&
-						isset( $callback['function'][0], $callback['function'][1] ) &&
-						is_object( $callback['function'][0] ) &&
-						in_array( $callback['function'][1], $ignore_notices, true )
-					) {
-						continue;
-					}
-					unset( $wp_filter[ $wp_notice ]->callbacks[ $priority ][ $name ] );
-				}
-			}
-		}
+		/**
+		 * Trigger the 'masteriyo_admin_notices' action.
+		 *
+		 * @since 1.15.0
+		 */
+		do_action( 'masteriyo_admin_notices' );
 	}
 
 	/**
@@ -926,6 +939,11 @@ class Masteriyo {
 			$course_id = get_query_var( 'course_name', 0 );
 		} else {
 			$course_slug = get_query_var( 'course_name', '' );
+
+			if ( empty( $course_slug ) ) {
+				wp_safe_redirect( \masteriyo_get_courses_url(), 307 );
+				exit();
+			}
 
 			$courses = get_posts(
 				array(
@@ -1137,39 +1155,6 @@ class Masteriyo {
 		}
 
 		masteriyo_insert_item_meta_batch( $itemmeta_data );
-	}
-
-	/**
-	 * Updates the title of the "Reviews" submenu in the Masteriyo admin menu to include the count of new course reviews awaiting moderation.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @global array $submenu The WordPress global submenu array, used to modify the admin menu.
-	 *
-	 * @return void
-	 */
-	public function update_reviews_submenu_title() {
-		if ( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) || ! current_user_can( 'edit_courses' ) ) {
-			return;
-		}
-
-		global $submenu;
-
-		if ( isset( $submenu['masteriyo'] ) ) {
-			foreach ( $submenu['masteriyo'] as &$item ) {
-				if ( isset( $item[0] ) && 'Reviews' === $item[0] ) {
-
-					$awaiting_mod      = masteriyo_get_new_course_reviews_count();
-					$awaiting_mod_i18n = number_format_i18n( $awaiting_mod );
-					/* translators: %s: Number of reviews. */
-					$awaiting_mod_text = sprintf( _n( '%s Review in moderation', '%s Reviews in moderation', $awaiting_mod, 'learning-management-system' ), $awaiting_mod_i18n );
-
-					$item[0] .= ' <span class="awaiting-mod count-' . absint( $awaiting_mod ) . '"><span class="pending-count" aria-hidden="true">' . $awaiting_mod_i18n . '</span><span class="reviews-in-moderation-text screen-reader-text">' . $awaiting_mod_text . '</span></span>';
-					unset( $awaiting_mod );
-					break;
-				}
-			}
-		}
 	}
 
 	/**

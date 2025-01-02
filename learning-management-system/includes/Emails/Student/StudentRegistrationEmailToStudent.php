@@ -98,7 +98,7 @@ class StudentRegistrationEmailToStudent extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.student.student_registration.subject' ) );
+		$subject = apply_filters( $this->get_full_id(), masteriyo_get_default_email_contents()['student']['student_registration']['subject'] );
 
 		return $this->format_string( $subject );
 	}
@@ -121,6 +121,54 @@ class StudentRegistrationEmailToStudent extends Email {
 		$heading = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.student.student_registration.heading' ) );
 
 		return $this->format_string( $heading );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['student']['student_registration']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', $content );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $student */
+		$student = $this->get( 'student' );
+		if ( $student ) {
+			$placeholders = $placeholders + array(
+				'{student_display_name}' => $student->get_display_name(),
+				'{student_first_name}'   => empty( $student->get_first_name() ) ? $student->get_display_name() : $student->get_first_name(),
+				'{student_last_name}'    => empty( $student->get_last_name() ) ? $student->get_display_name() : $student->get_last_name(),
+				'{student_name}'         => sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_display_name(),
+				'{student_username}'     => $student->get_username(),
+				'{student_nicename}'     => $student->get_nicename(),
+				'{student_nickname}'     => $student->get_nickname(),
+				'{student_email}'        => $student->get_email(),
+				'{account_login_link}'   => wp_kses_post(
+					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+				),
+			);
+		}
+
+		return $placeholders;
 	}
 
 	/**

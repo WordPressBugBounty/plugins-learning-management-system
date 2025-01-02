@@ -46,7 +46,7 @@ class BrevoIntegrationAddon {
 		add_action( 'masteriyo_registration_form_before_submit_button', array( $this, 'render_container_for_brevo' ) );
 		add_action( 'masteriyo_checkout_form_content', array( $this, 'render_container_for_brevo' ), 125 );
 		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_brevo' ), 10, 2 );
-		add_action( 'masteriyo_created_customer', array( $this, 'handle_customer_creation' ), 10, 4 );
+		add_action( 'masteriyo_created_customer', array( $this, 'handle_customer_creation' ), 10, 3 );
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ) );
 		add_action( 'masteriyo_new_setting', array( $this, 'save_settings' ) );
 		add_filter( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_rest_namespaces' ) );
@@ -154,12 +154,11 @@ class BrevoIntegrationAddon {
 	 *
 	 * @since 1.13.3
 	 *
-	 * @param \Masteriyo\Models\User    $user The user object.
-	 * @param string                    $password_generated The generated password.
-	 * @param string                    $key The key.
-	 * @param array                     $args The form arguments.
+	 * @param \Masteriyo\Models\User $user User object.
+	 * @param string $is_password_generated The generated password.
+	 * @param array $args The list of additional arguments.
 	 */
-	public function handle_customer_creation( $user, $password_generated, $key, $args ) {
+	public function handle_customer_creation( $user, $password_generated, $args ) {
 		if ( ! $user instanceof \Masteriyo\Models\User ) {
 			return;
 		}

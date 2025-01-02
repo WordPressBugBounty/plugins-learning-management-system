@@ -153,6 +153,7 @@ if ( ! function_exists( 'masteriyo_get_new_course_reviews_count' ) ) {
 	 * class to perform this operation.
 	 *
 	 * @since 1.9.0
+	 * @deprecated 1.14.4
 	 *
 	 * @return int The count of new course reviews. Returns 0 on failure or if there are no new reviews.
 	 */
@@ -261,5 +262,85 @@ if ( ! function_exists( 'masteriyo_get_course_review_distribution_by_rating' ) )
 		}
 
 		return $ratings;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comments_count' ) ) {
+	/**
+	 * Retrieves the count of pending course reviews.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return int The count of pending course reviews. Returns 0 if there are no pending reviews.
+	 */
+	function masteriyo_get_pending_course_reviews_and_lesson_comments_count() {
+
+		global $wpdb;
+
+		if ( masteriyo_is_current_user_instructor() ) {
+			$course_ids = masteriyo_get_instructor_course_ids( get_current_user_id() );
+			if ( empty( $course_ids ) ) {
+				 return 0;
+			}
+			$course_ids_placeholders = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
+			$prepared_query          = $wpdb->prepare(
+				"
+							SELECT COUNT(*) FROM $wpdb->comments
+							WHERE comment_type = %s
+							AND comment_approved = %s
+            AND comment_post_ID IN ($course_ids_placeholders)
+							",
+				array_merge(
+					array( CommentType::COURSE_REVIEW, CommentStatus::HOLD ),
+					$course_ids
+				)
+			);
+
+			$course_review_count = $wpdb->get_var(
+				$prepared_query
+			);
+
+			$lesson_ids = masteriyo_get_instructor_lesson_ids( get_current_user_id() );
+
+			$lesson_comment_count = 0;
+
+			if ( ! empty( $lesson_ids ) ) {
+				$lesson_ids_placeholders     = implode( ',', array_fill( 0, count( $lesson_ids ), '%d' ) );
+				$prepared_query_lesson_count = $wpdb->prepare(
+					"
+								SELECT COUNT(*) FROM $wpdb->comments
+								WHERE comment_type = %s
+								AND comment_approved = %s
+							AND comment_post_ID IN ($lesson_ids_placeholders)
+								",
+					array_merge(
+						array( CommentType::LESSON_REVIEW, CommentStatus::HOLD ),
+						$lesson_ids
+					)
+				);
+				$lesson_comment_count        = $wpdb->get_var(
+					$prepared_query_lesson_count
+				);
+
+					return absint( $course_review_count ) + absint( $lesson_comment_count );
+			}
+
+			return absint( $course_review_count );
+
+		}
+
+		$pending_reviews_count = $wpdb->get_var(
+			$wpdb->prepare(
+				"
+				SELECT COUNT(*) FROM $wpdb->comments
+				WHERE comment_type = %s
+				AND comment_approved = %s
+				",
+				CommentType::COURSE_REVIEW,
+				CommentStatus::HOLD
+			)
+		);
+
+		return $pending_reviews_count ? absint( $pending_reviews_count ) : 0;
 	}
 }

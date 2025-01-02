@@ -64,7 +64,9 @@ class ResetPasswordEmail extends Email {
 			return;
 		}
 
-		$this->set_recipients( stripslashes( $user->get_email() ) );
+		$user_email = $user->get_email();
+
+		$this->set_recipients( $user_email );
 
 		// Bail if recipient is empty.
 		if ( empty( $this->get_recipients() ) ) {
@@ -73,6 +75,7 @@ class ResetPasswordEmail extends Email {
 
 		$this->setup_locale();
 		$this->set( 'user', $user );
+		$this->set( 'reset_link', esc_url( masteriyo_get_password_reset_link( $reset_key, $user->get_id() ) ) );
 		$this->set( 'reset_key', $reset_key );
 
 		$this->send(
@@ -92,29 +95,43 @@ class ResetPasswordEmail extends Email {
 	 * @return string
 	 */
 	public function get_default_subject() {
-		return __( 'Password Reset Request!', 'learning-management-system' );
+		return masteriyo_get_default_email_contents()['everyone']['password_reset']['subject'];
 	}
 
 	/**
-	 * Get default email heading.
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['everyone']['password_reset']['content'];
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Return additional content.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string
 	 */
-	public function get_default_heading() {
-		return __( 'Password Reset Request', 'learning-management-system' );
-	}
+	public function get_additional_content() {
+		/**
+		 * Filter password reset email additional content.
+		 *
+		 * @since 1.15.0
+		 *
+		 * @param string $additional_content.
+		 */
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.everyone.password_reset.additional_content' ) );
 
-	/**
-	 * Default content to show above the email footer.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
-	public function get_default_additional_content() {
-		return __( 'Thanks for reading.', 'learning-management-system' );
+		return $this->format_string( $additional_content );
 	}
 
 	/**
@@ -140,18 +157,6 @@ class ResetPasswordEmail extends Email {
 	}
 
 	/**
-	 * Return additional content.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
-	public function get_additional_content() {
-		return $this->get_default_additional_content();
-	}
-
-
-	/**
 	 * Return subject.
 	 *
 	 * @since 1.0.0
@@ -170,6 +175,7 @@ class ResetPasswordEmail extends Email {
 	 * @return boolean
 	 */
 	public function is_enabled() {
+		$is_enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'emails.everyone.password_reset.enable' ) );
 
 		/**
 		 * Filters boolean-like value: 'yes' if reset password email should be disabled, otherwise 'no'.
@@ -178,8 +184,32 @@ class ResetPasswordEmail extends Email {
 		 *
 		 * @param string $is_disabled 'yes' if reset password email should be disabled, otherwise 'no'.
 		 */
-		$is_disabled = masteriyo_string_to_bool( apply_filters( 'masteriyo_disable_reset_password_email', 'no' ) );
+		$is_disabled = masteriyo_string_to_bool( apply_filters( 'masteriyo_disable_reset_password_email', $is_enabled ? 'no' : 'yes' ) );
 
-		return ! $is_disabled;
+		return 'yes' === $is_disabled ? false : $is_enabled;
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $user */
+		$user = $this->get( 'user' );
+
+		if ( $user ) {
+			$placeholders['{user_email}']          = $user->get_email();
+			$placeholders['{username}']            = $user->get_username();
+			$placeholders['{password_reset_link}'] = wp_kses_post(
+				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">Reset Your Password</a>'
+			);
+		}
+
+		return $placeholders;
 	}
 }

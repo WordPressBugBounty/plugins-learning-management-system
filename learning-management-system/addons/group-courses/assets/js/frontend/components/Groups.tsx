@@ -27,6 +27,7 @@ import AddGroupForm from './AddGroupForm';
 import EditGroupForm from './EditGroupForm';
 import Group from './Group';
 import GroupSkeleton from './skeleton/GroupSkeleton';
+const isRTL = document.documentElement.dir === 'rtl';
 
 // isOpen specifies that new group is to be added
 // groupToBeEdited specified that any one of the group is being edited
@@ -116,7 +117,9 @@ const Groups: React.FC = () => {
 								mr={2}
 								cursor={'pointer'}
 							>
-								<IoIosArrowBack />
+								<IoIosArrowBack
+									style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }}
+								/>
 							</Box>
 						</Tooltip>
 					) : null

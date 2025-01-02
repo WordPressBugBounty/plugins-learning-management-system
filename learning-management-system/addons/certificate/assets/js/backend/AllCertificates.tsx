@@ -10,7 +10,6 @@ import {
 	DrawerFooter,
 	DrawerHeader,
 	DrawerOverlay,
-	Icon,
 	IconButton,
 	Portal,
 	Stack,
@@ -32,7 +31,6 @@ import {
 	BiCog,
 	BiTrash,
 } from 'react-icons/bi';
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -50,6 +48,7 @@ import {
 import MasteriyoPagination from '../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import FullScreenLoader from '../../../../../assets/js/back-end/components/layout/FullScreenLoader';
 import { Certificate } from '../../../../../assets/js/back-end/constants/images';
+import Sorting from '../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../assets/js/back-end/utils/api';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
 import { CertificatesListSkeleton } from '../components/skeletons';
@@ -370,31 +369,11 @@ const AllCertificates: React.FC = () => {
 										<Th>
 											<Stack direction="row" alignItems="center">
 												<Text>{__('Title', 'learning-management-system')}</Text>
-												<Stack direction="column">
-													{filterParams.order === 'desc' ? (
-														<Icon
-															as={MdOutlineArrowDropUp}
-															h={6}
-															w={6}
-															cursor="pointer"
-															color="lightgray"
-															transition="1s"
-															_hover={{ color: 'black' }}
-															onClick={() => filterBy('asc', 'title')}
-														/>
-													) : (
-														<Icon
-															as={MdOutlineArrowDropDown}
-															h={6}
-															w={6}
-															cursor="pointer"
-															color="lightgray"
-															transition="1s"
-															_hover={{ color: 'black' }}
-															onClick={() => filterBy('desc', 'title')}
-														/>
-													)}
-												</Stack>
+												<Sorting
+													filterParams={filterParams}
+													filterContentBy={filterBy}
+													orderBy={'title'}
+												/>
 											</Stack>
 										</Th>
 										<Th>{__('Author', 'learning-management-system')}</Th>
@@ -473,7 +452,7 @@ const AllCertificates: React.FC = () => {
 				isLoading={
 					'' === bulkAction
 						? deleteCertificate.isPending
-						: onBulkActionApply?.[bulkAction]?.isLoading ?? false
+						: (onBulkActionApply?.[bulkAction]?.isLoading ?? false)
 				}
 				dialogTexts={{
 					default: {

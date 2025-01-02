@@ -70,6 +70,8 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		'currency'                           => '_currency',
 		'exchange_rate'                      => '_exchange_rate',
 		'pricing_method'                     => '_pricing_method',
+
+		'flow'                               => '_flow',
 	);
 
 	/**

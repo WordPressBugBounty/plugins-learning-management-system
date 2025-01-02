@@ -25,7 +25,7 @@ define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_SLUG', 'fluent-crm' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_SLUG ) && ! Helper::is_fluent_crm_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

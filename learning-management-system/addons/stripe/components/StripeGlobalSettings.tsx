@@ -301,6 +301,9 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 								type={show.webhookKey ? 'text' : 'password'}
 								placeholder="Optional"
 								{...register('payments.stripe.webhook_secret')}
+								fontSize={'16px !important'}
+								fontWeight={'normal !important'}
+								pl={'4 !important'}
 								defaultValue={paymentsData?.stripe?.webhook_secret}
 							/>
 							<InputRightElement>

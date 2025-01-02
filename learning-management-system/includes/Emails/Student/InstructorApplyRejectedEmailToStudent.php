@@ -98,7 +98,7 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.subject' ) );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['subject'] );
 
 		return $this->format_string( $subject );
 	}
@@ -121,6 +121,50 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 		$heading = apply_filters( $this->get_full_id() . '_heading', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.heading' ) );
 
 		return $this->format_string( $heading );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', $content );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $student */
+		$student = $this->get( 'student' );
+
+		if ( $student ) {
+			$placeholders['{student_display_name}'] = $student->get_display_name();
+			$placeholders['{student_first_name}']   = empty( $student->get_first_name() ) ? $student->get_display_name() : $student->get_first_name();
+			$placeholders['{student_last_name}']    = empty( $student->get_last_name() ) ? $student->get_display_name() : $student->get_last_name();
+			$placeholders['{student_name}']         = sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_display_name();
+			$placeholders['{student_username}']     = $student->get_username();
+			$placeholders['{student_nicename}']     = $student->get_nicename();
+			$placeholders['{student_nickname}']     = $student->get_nickname();
+			$placeholders['{student_email}']        = $student->get_email();
+		}
+
+		return $placeholders;
 	}
 
 	/**

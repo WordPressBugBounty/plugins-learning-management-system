@@ -91,7 +91,7 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 	 * @return string
 	 */
 	public function get_subject() {
-		$subject = strval( masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.subject' ) );
+		$subject = masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['subject'];
 
 		/**
 		 * Filter instructor apply approved email subject to instructor.
@@ -124,6 +124,78 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 		$heading = apply_filters( $this->get_full_id() . '_heading', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.heading' ) );
 
 		return $this->format_string( $heading );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['content'];
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $instructor */
+		$instructor = $this->get( 'instructor' );
+
+		if ( $instructor ) {
+			$placeholders = $placeholders + array(
+				'{instructor_display_name}'               => $instructor->get_display_name(),
+				'{instructor_first_name}'                 => $instructor->get_first_name(),
+				'{instructor_last_name}'                  => $instructor->get_last_name(),
+				'{instructor_username}'                   => $instructor->get_username(),
+				'{instructor_nicename}'                   => $instructor->get_nicename(),
+				'{instructor_nickname}'                   => $instructor->get_nickname(),
+				'{instructor_approval_celebration_image}' => $this->get_celebration_image(),
+				'{account_login_link}'                    => wp_kses_post(
+					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+				),
+			);
+		}
+
+		return $placeholders;
+	}
+
+	/**
+	 * Retrieves the HTML or URL for the celebration image for course completion.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string The celebration image HTML or URL.
+	 */
+	private function get_celebration_image() {
+		/**
+		 * Retrieves the HTML for the course completion celebration image.
+		 *
+		 * @since 1.15.0
+		 *
+		 * @return string The HTML for the celebration image.
+		 */
+		return apply_filters(
+			'masteriyo_instructor_approval_email_celebration_image',
+			sprintf(
+				'<img src="%s" alt="celebration image">',
+				esc_url( masteriyo_get_plugin_url() . '/assets/img/new-order-celebration.png' )
+			)
+		);
 	}
 
 	/**

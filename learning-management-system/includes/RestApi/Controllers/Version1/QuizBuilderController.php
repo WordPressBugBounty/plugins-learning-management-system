@@ -15,6 +15,7 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Helper\Permission;
+use Masteriyo\PostType\PostType;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
 /**
@@ -194,18 +195,23 @@ class QuizBuilderController extends PostsController {
 			);
 		}
 
-		$objects = $this->get_quiz_contents( $request );
+		$data         = $this->get_quiz_contents( $request );
+		$objects      = $data['data'];
+		$data['data'] = array();
 
 		foreach ( $objects as $object ) {
 			if ( ! $this->check_item_permission( $this->post_type, 'read', $object->get_id() ) ) {
 				continue;
 			}
 
-			$data       = $this->prepare_object_for_response( $object, $request );
-			$response[] = $this->prepare_response_for_collection( $data );
+			/** @var \WP_REST_Response */
+			$res_object = $this->prepare_object_for_response( $object, $request );
+
+			$data['data'][] = $res_object->get_data();
 		}
 
-		return $response;
+		return $this->prepare_response_for_collection( $data );
+
 	}
 
 	/**
@@ -218,13 +224,19 @@ class QuizBuilderController extends PostsController {
 	 * @return Masteriyo\Models\Question\Question[]
 	 */
 	protected function get_quiz_contents( $request ) {
+		$page     = isset( $request['paged'] ) ? absint( $request['paged'] ) : 1;
+		$per_page = isset( $request['per_page'] ) ? absint( $request['per_page'] ) : 10;
+
+		$order_by = 'menu_order';
+		$order    = 'ASC';
+
 		$results = $this->get_objects(
 			array(
 				'post_parent'    => $request['id'],
-				'post_type'      => 'mto-question',
-				'orderby'        => 'menu_order',
-				'order'          => 'asc',
-				'posts_per_page' => -1,
+				'post_type'      => PostType::QUESTION,
+				'orderby'        => $order_by,
+				'order'          => $order,
+				'posts_per_page' => $per_page,
 			)
 		);
 
@@ -235,7 +247,19 @@ class QuizBuilderController extends PostsController {
 		 *
 		 * @param Masteriyo\Models\Question\Question[] $questions Quiz contents objects.
 		 */
-		return apply_filters( "masteriyo_{$this->object_type}_objects", $results['objects'] );
+		$objects = apply_filters( "masteriyo_{$this->object_type}_objects", $results['objects'] );
+
+		$data = array(
+			'data' => $objects,
+			'meta' => array(
+				'total'        => $results['total'],
+				'pages'        => $results['pages'],
+				'current_page' => $page,
+				'per_page'     => $per_page,
+			),
+		);
+
+		return $data;
 	}
 
 	/**

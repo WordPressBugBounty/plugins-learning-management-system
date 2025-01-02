@@ -25,7 +25,7 @@ define( 'MASTERIYO_WC_INTEGRATION_ADDON_SLUG', 'wc-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_WC_INTEGRATION_ADDON_SLUG ) && ! Helper::is_wc_active() ) {
 	add_action(
-		'admin_notices',
+		'masteriyo_admin_notices',
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',

@@ -25,24 +25,8 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Emails\Email $email Email object.
  */
 do_action( 'masteriyo_email_header', $email );
-?>
-<p class="email-template--info">
-	<?php /* translators: %s: Instructor display name */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $instructor->get_display_name() ) ); ?>
-</p>
 
-<p class="email-template--info">
-	<?php
-		printf(
-			/* translators: %1$s: Site title, %2$s: Username, %3$s: account link */
-			esc_html__( 'Thank you for registering at %1$s. You can now login to your account from %2$s', 'learning-management-system' ),
-			wp_kses_post( $site_title ),
-			wp_kses_post( make_clickable( masteriyo_get_page_permalink( 'account' ) ) )
-		);
-		?>
-</p>
-
-<?php
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 
 /**
  * Action hook fired in email's footer section.

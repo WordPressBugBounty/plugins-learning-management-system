@@ -23,28 +23,9 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Emails\Email $email Email object.
  */
 do_action( 'masteriyo_email_header', $email );
-?>
 
-<p>
-<?php
-	printf(
-		/* translators: %s: Customer first name */
-		esc_html__( 'Hi %s,', 'learning-management-system' ),
-		esc_html( $order->get_billing_first_name() )
-	);
-	?>
-</p>
-<p>
-<?php
-	printf(
-		/* translators: %s: Course name */
-		__( 'Your order just got cancelled for <b>%s</b>.', 'learning-management-system' ),
-		$order_item_course ? esc_html( $order_item_course->get_name() ) : ''
-	);
-	?>
-</p>
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 
-<?php
 /**
  * Action hook for rendering order details in cancelled order email.
  *

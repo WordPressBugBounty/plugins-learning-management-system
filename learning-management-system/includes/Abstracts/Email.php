@@ -109,6 +109,7 @@ abstract class Email {
 	public function format_string( $string ) {
 		$find    = array_keys( $this->get_placeholders() );
 		$replace = array_values( $this->get_placeholders() );
+		$string  = is_string( $string ) ? $string : '';
 
 		/**
 		 * Filters formatted string in email.
@@ -463,6 +464,7 @@ abstract class Email {
 			'{site_address}' => $this->get_site_url(),
 			'{site_url}'     => $this->get_site_url(),
 			'{admin_email}'  => $this->get_site_admin_email(),
+			'{account_url}'  => make_clickable( $this->get_account_url() ),
 		);
 	}
 
@@ -561,6 +563,17 @@ abstract class Email {
 	 */
 	public function get_site_url() {
 		return wp_parse_url( home_url(), PHP_URL_HOST );
+	}
+
+	/**
+	 * Get account url.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return string
+	 */
+	public function get_account_url() {
+		return masteriyo_get_account_url();
 	}
 
 	/**

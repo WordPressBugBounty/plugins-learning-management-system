@@ -23,26 +23,10 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Emails\Email $email Email object.
  * @param \Masteriyo\Emails\Order $order Order object.
  */
-do_action( 'masteriyo_email_header', $email, $order ); ?>
+do_action( 'masteriyo_email_header', $email, $order );
 
-<p class="email-template--info">
-	<?php /* translators: %s: Customer username */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $site_title ) ); ?>
-</p>
-<p>
-	<?php esc_html_e( 'Great News! You made a sale!', 'learning-management-system' ); ?>
-</p>
-<p>
-	<?php
-	printf(
-		'%s just purchased <b>%s</b> for %s.',
-		esc_html( $customer->get_billing_first_name() ),
-		$order_item_course ? esc_html( $order_item_course->get_name() ) : '',
-		wp_kses_post( masteriyo_price( $order->get_total() ) )
-	);
-	?>
-</p>
-<?php
+echo wp_kses_post( wpautop( wptexturize( $content ) ) );
+
 /**
  * Action hook for rendering order details in new order email.
  *

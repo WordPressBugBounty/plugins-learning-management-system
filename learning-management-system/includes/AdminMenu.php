@@ -10,6 +10,7 @@
 namespace Masteriyo;
 
 use Masteriyo\Constants;
+use Masteriyo\Enums\UserStatus;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -175,10 +176,10 @@ class AdminMenu {
 				'position'   => 35,
 			),
 			'reviews'            => array(
-				'page_title' => __( 'Reviews', 'learning-management-system' ),
-				'menu_title' => __( 'Reviews', 'learning-management-system' ),
+				'page_title' => __( 'Reviews & Comments', 'learning-management-system' ),
+				'menu_title' => __( 'Reviews & Comments', 'learning-management-system' ),
 				'capability' => 'edit_courses',
-				'position'   => 40,
+				'position'   => 35,
 			),
 			'question-answers'   => array(
 				'page_title' => __( 'Question & Answers', 'learning-management-system' ),
@@ -277,6 +278,7 @@ class AdminMenu {
 	private static function init_hooks() {
 		add_action( 'admin_menu', array( __CLASS__, 'init_menus' ), 10 );
 		add_action( 'admin_head', array( __CLASS__, 'admin_menu_css' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'add_status_counts_to_menu_items' ), 9999 );
 	}
 
 	/**
@@ -288,5 +290,88 @@ class AdminMenu {
 	 */
 	public static function display_main_page() {
 		require_once Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/templates/masteriyo.php';
+	}
+
+	/**
+	 * Adds counts to specific menu items.
+	 *
+	 * @since 1.15.0
+	 */
+	public static function add_status_counts_to_menu_items() {
+		global $submenu;
+
+		if ( ! isset( $submenu['masteriyo'] ) ) {
+			return;
+		}
+
+		foreach ( $submenu['masteriyo'] as &$menu_item ) {
+			if ( ! isset( $menu_item[0] ) ) {
+					continue;
+			}
+
+			$status = 'pending';
+
+			if ( 'Orders' === $menu_item[0] && current_user_can( 'edit_orders' ) ) {
+					self::add_menu_count(
+						$menu_item,
+						masteriyo_get_pending_and_on_hold_orders_count(),
+						'Order in pending',
+						'Orders in pending',
+						$status,
+						'orders'
+					);
+			} elseif ( 'Reviews & Comments' === $menu_item[0] && current_user_can( 'edit_courses' ) ) {
+				self::add_menu_count(
+					$menu_item,
+					masteriyo_get_pending_course_reviews_and_lesson_comments_count(),
+					'Review in moderation',
+					'Reviews in moderation',
+					$status,
+					'reviews-and-comments'
+				);
+			} elseif ( 'Users' === $menu_item[0] && current_user_can( 'edit_users' ) ) {
+				self::add_menu_count(
+					$menu_item,
+					masteriyo_get_total_user_count_by_roles_and_statuses( array( Roles::INSTRUCTOR, Roles::STUDENT ), UserStatus::INACTIVE ),
+					'User in moderation',
+					'Users in moderation',
+					$status,
+					'users'
+				);
+			}
+		}
+	}
+
+	/**
+	 * Adds a count badge to a menu item.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @param array  $menu_item The menu item array (passed by reference).
+	 * @param int    $count The count to display.
+	 * @param string $singular_label The singular label for the count.
+	 * @param string $plural_label The plural label for the count.
+	 * @param string $status The status of the count.
+	 * @param string $type The type of count.
+	 */
+	private static function add_menu_count( array &$menu_item, int $count, string $singular_label, string $plural_label, $status, $type ) {
+		$count_i18n = number_format_i18n( $count );
+		$text       = sprintf(
+			/* translators: %1$s: count, %2$s: label (singular/plural) */
+			_n( '%1$s %2$s', '%1$s %2$s', $count, 'learning-management-system' ),
+			$count_i18n,
+			1 === $count ? $singular_label : $plural_label
+		);
+
+		$id            = 'masteriyo-' . $type . '-moderation-count';
+		$menu_item[0] .= sprintf(
+			'<span class="awaiting-mod count-%1$d"><span class="%2$s-count" aria-hidden="true">%3$s</span><span class="%4$s-in-moderation-text screen-reader-text" id="%5$s">%6$s</span></span>',
+			absint( $count ),
+			esc_attr( $status ),
+			esc_html( $count_i18n ),
+			esc_attr( $type ),
+			esc_attr( $id ),
+			esc_html( $text )
+		);
 	}
 }

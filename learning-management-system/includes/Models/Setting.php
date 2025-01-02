@@ -90,6 +90,7 @@ class Setting extends Model {
 				'show_sidebar'             => 'masteriyo_string_to_bool',
 				'show_header'              => 'masteriyo_string_to_bool',
 				'enable_lesson_comment'    => 'masteriyo_string_to_bool',
+				'auto_approve_comments'    => 'masteriyo_string_to_bool',
 			),
 		),
 		'payments'       => array(
@@ -156,6 +157,16 @@ class Setting extends Model {
 			),
 			'layout'          => 'sanitize_text_field',
 		),
+		'authentication' => array(
+			'email_verification'  => array(
+				'enable' => 'masteriyo_string_to_bool',
+			),
+			'limit_login_session' => 'sanitize_number_field',
+			'qr_login'            => array(
+				'enable'            => 'masteriyo_string_to_bool',
+				'attention_message' => 'sanitize_text_field',
+			),
+		),
 		'advance'        => array(
 			'permalinks' => array(
 				'category_base'           => 'sanitize_title',
@@ -176,6 +187,7 @@ class Setting extends Model {
 			'display' => array(
 				'quiz_completion_button' => 'masteriyo_string_to_bool',
 				'quiz_review_visibility' => 'masteriyo_string_to_bool',
+				'quiz_previous_page'     => 'masteriyo_string_to_bool',
 			),
 			'styling' => array(
 				'questions_display_per_page' => 'absint',
@@ -252,6 +264,9 @@ class Setting extends Model {
 				'student_registration'      => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
+				'automatic_registration'    => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
 				'completed_order'           => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
@@ -267,37 +282,35 @@ class Setting extends Model {
 				'instructor_apply_rejected' => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
+				'group_course_enroll'       => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'group_joining'             => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
 			),
 		),
 		'advance'        => array(
-			'debug'               => array(
+			'debug'     => array(
 				'template_debug' => 'masteriyo_string_to_bool',
 				'debug'          => 'masteriyo_string_to_bool',
 				'enable_logger'  => 'masteriyo_string_to_bool',
 			),
-			'uninstall'           => array(
+			'uninstall' => array(
 				'remove_data' => 'masteriyo_string_to_bool',
 			),
-			'tracking'            => array(
+			'tracking'  => array(
 				'allow_usage'       => 'masteriyo_string_to_bool',
 				'subscribe_updates' => 'masteriyo_string_to_bool',
 				'email'             => 'sanitize_email',
 			),
-			'gdpr'                => array(
+			'gdpr'      => array(
 				'enable'  => 'masteriyo_string_to_bool',
 				'message' => 'sanitize_text_field',
 			),
-			'openai'              => array(
+			'openai'    => array(
 				'api_key' => 'sanitize_text_field',
 			),
-			'email_verification'  => array(
-				'enable' => 'masteriyo_string_to_bool',
-			),
-			'qr_login'            => array(
-				'enable'            => 'masteriyo_string_to_bool',
-				'attention_message' => 'sanitize_text_field',
-			),
-			'limit_login_session' => 'sanitize_number_field',
 		),
 		'accounts_page'  => array(
 			'display' => array(
