@@ -43,7 +43,7 @@ class Helper {
 		if ( in_array( $currency_code, self::get_zero_decimal_currencies(), true ) ) {
 			$new_total_amount = absint( $total_amount );
 		} else {
-			$new_total_amount = masteriyo_round( ceil( $total_amount ), 2 ) * 100;
+			$new_total_amount = masteriyo_round( $total_amount, 2 ) * 100;
 		}
 
 		return $new_total_amount;

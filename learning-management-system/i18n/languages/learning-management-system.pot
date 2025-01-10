@@ -2,16 +2,16 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.15.0\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.15.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-02T11:26:35+00:00\n"
+"POT-Creation-Date: 2025-01-10T16:25:01+05:45\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0-alpha\n"
 "X-Domain: learning-management-system\n"
 
 #. Plugin Name of the plugin
@@ -99,7 +99,7 @@ msgid "Import"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:33
-#: includes/Helper/core.php:5367
+#: includes/Helper/core.php:5376
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Classroom"
@@ -168,7 +168,7 @@ msgid "Group Details"
 msgstr ""
 
 #: addons/group-courses/templates/group-courses.php:18
-#: includes/Helper/core.php:5379
+#: includes/Helper/core.php:5388
 #: assets/js/build/masteriyo-account.js:1
 msgid "Groups"
 msgstr ""
@@ -489,7 +489,7 @@ msgid "No pages specified."
 msgstr ""
 
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:82
-#: includes/Helper/core.php:5691
+#: includes/Helper/core.php:5700
 msgid "Pages set up successfully."
 msgstr ""
 
@@ -2138,103 +2138,103 @@ msgstr ""
 msgid "Registration failed."
 msgstr ""
 
-#: includes/Helper/core.php:2711
+#: includes/Helper/core.php:2720
 msgid "Masteriyo Courses Page"
 msgstr ""
 
-#: includes/Helper/core.php:2715
+#: includes/Helper/core.php:2724
 msgid "Masteriyo Account Page"
 msgstr ""
 
-#: includes/Helper/core.php:2719
+#: includes/Helper/core.php:2728
 msgid "Masteriyo Checkout Page"
 msgstr ""
 
-#: includes/Helper/core.php:2723
+#: includes/Helper/core.php:2732
 msgid "Masteriyo Learn Page"
 msgstr ""
 
-#: includes/Helper/core.php:2727
+#: includes/Helper/core.php:2736
 msgid "Masteriyo Instructor Registration Page"
 msgstr ""
 
-#: includes/Helper/core.php:2731
+#: includes/Helper/core.php:2740
 msgid "Masteriyo Instructors List Page"
 msgstr ""
 
-#: includes/Helper/core.php:3172
+#: includes/Helper/core.php:3181
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Self Hosted"
 msgstr ""
 
-#: includes/Helper/core.php:3173
+#: includes/Helper/core.php:3182
 #: assets/js/build/masteriyo-backend.js:1
 msgid "YouTube"
 msgstr ""
 
-#: includes/Helper/core.php:3174
+#: includes/Helper/core.php:3183
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Vimeo"
 msgstr ""
 
-#: includes/Helper/core.php:3175
+#: includes/Helper/core.php:3184
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Embed Video"
 msgstr ""
 
-#: includes/Helper/core.php:3176
+#: includes/Helper/core.php:3185
 msgid "Live Stream"
 msgstr ""
 
 #. translators: %s: Class
-#: includes/Helper/core.php:5194
+#: includes/Helper/core.php:5203
 msgid "The class <code>%s</code> provided by masteriyo_logging_class filter must implement <code>Logger</code>."
 msgstr ""
 
-#: includes/Helper/core.php:5361
+#: includes/Helper/core.php:5370
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Announcements"
 msgstr ""
 
-#: includes/Helper/core.php:5373
+#: includes/Helper/core.php:5382
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Meet"
 msgstr ""
 
-#: includes/Helper/core.php:5385
+#: includes/Helper/core.php:5394
 msgid "Multiple Currency"
 msgstr ""
 
-#: includes/Helper/core.php:5391
+#: includes/Helper/core.php:5400
 msgid "Certificates"
 msgstr ""
 
-#: includes/Helper/core.php:5401
+#: includes/Helper/core.php:5410
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5650
+#: includes/Helper/core.php:5659
 msgid "Masteriyo:"
 msgstr ""
 
 #. translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages
-#: includes/Helper/core.php:5664
+#: includes/Helper/core.php:5673
 msgid "%1$s %2$d page is missing: %3$s. Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set it up automatically."
 msgid_plural "%1$s %2$d pages are missing: %3$s. Please configure them, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set them up automatically."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Helper/core.php:5673
+#: includes/Helper/core.php:5682
 #: assets/js/build/masteriyo-backend.js:1
 msgid "click here"
 msgstr ""
 
-#: includes/Helper/core.php:5689
+#: includes/Helper/core.php:5698
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5690
+#: includes/Helper/core.php:5699
 msgid "Failed to set up. Retry?"
 msgstr ""
 
@@ -2700,7 +2700,7 @@ msgid "Refund"
 msgstr ""
 
 #: includes/Models/Order/OrderItemCourse.php:186
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:808
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1003
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:906
 #: includes/RestApi/Controllers/Version1/QuizesController.php:264
@@ -3611,14 +3611,14 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:432
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:104
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:156
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:467
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:476
 #: includes/RestApi/Controllers/Version1/CoursesController.php:111
 #: includes/RestApi/Controllers/Version1/CoursesController.php:160
 #: includes/RestApi/Controllers/Version1/CoursesController.php:685
 #: includes/RestApi/Controllers/Version1/CourseTagsController.php:77
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:117
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:169
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:705
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:686
 #: includes/RestApi/Controllers/Version1/LessonsController.php:106
 #: includes/RestApi/Controllers/Version1/LessonsController.php:151
 #: includes/RestApi/Controllers/Version1/LessonsController.php:470
@@ -3729,7 +3729,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:392
 #: includes/RestApi/Controllers/Store/CheckoutController.php:390
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:737
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:718
 #: includes/RestApi/Controllers/Version1/LessonsController.php:493
 msgid "The date the lesson was created, in the site's timezone."
 msgstr ""
@@ -3884,9 +3884,9 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:541
 #: includes/RestApi/Controllers/Store/CheckoutController.php:539
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:553
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:562
 #: includes/RestApi/Controllers/Version1/CoursesController.php:981
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:780
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:761
 #: includes/RestApi/Controllers/Version1/LessonsController.php:707
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:778
@@ -3901,9 +3901,9 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:548
 #: includes/RestApi/Controllers/Store/CheckoutController.php:546
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:560
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:569
 #: includes/RestApi/Controllers/Version1/CoursesController.php:988
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:787
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:768
 #: includes/RestApi/Controllers/Version1/LessonsController.php:714
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:785
@@ -3918,9 +3918,9 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:554
 #: includes/RestApi/Controllers/Store/CheckoutController.php:552
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:566
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:575
 #: includes/RestApi/Controllers/Version1/CoursesController.php:994
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:793
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:774
 #: includes/RestApi/Controllers/Version1/LessonsController.php:720
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:791
@@ -3935,9 +3935,9 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:559
 #: includes/RestApi/Controllers/Store/CheckoutController.php:557
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:571
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:580
 #: includes/RestApi/Controllers/Version1/CoursesController.php:999
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:798
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:779
 #: includes/RestApi/Controllers/Version1/LessonsController.php:725
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:796
@@ -4020,20 +4020,20 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:698
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:731
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:786
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:741
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:770
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:799
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:926
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:985
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:751
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:780
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:809
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:936
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:995
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1353
 #: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:389
 #: includes/RestApi/Controllers/Version1/ErrorReportsController.php:92
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:961
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:997
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1026
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1055
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1150
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1210
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:943
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:979
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1008
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1037
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1132
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1192
 #: includes/RestApi/Controllers/Version1/LessonsController.php:979
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1025
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1071
@@ -4205,10 +4205,10 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:809
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:842
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:676
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:777
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:787
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1372
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1386
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1033
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1015
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:537
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1002
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1035
@@ -4224,9 +4224,9 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:246
 #: includes/RestApi/Controllers/Version1/CourseChildrenController.php:123
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:643
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:748
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:968
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1004
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:758
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:950
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:986
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:784
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:817
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:577
@@ -4264,8 +4264,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:306
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:938
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:764
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:963
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1188
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:973
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1170
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1049
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:678
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1129
@@ -4283,8 +4283,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:337
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:907
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:805
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1032
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1251
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1042
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1233
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1095
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:740
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1175
@@ -4305,13 +4305,13 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:799
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:744
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:795
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:939
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:994
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:949
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1004
 #: includes/RestApi/Controllers/Version1/CrudController.php:125
 #: includes/RestApi/Controllers/Version1/CrudController.php:240
 #: includes/RestApi/Controllers/Version1/CrudController.php:589
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1164
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1219
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1146
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1201
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1039
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1085
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:698
@@ -4518,7 +4518,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:399
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:653
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:438
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:473
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:482
 #: includes/RestApi/Controllers/Version1/LessonsController.php:563
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:612
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
@@ -4681,7 +4681,7 @@ msgid "The IP address of the question answerer."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:464
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:499
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:508
 #: includes/RestApi/Controllers/Version1/CoursesController.php:715
 msgid "The date the course was created, in the site's timezone."
 msgstr ""
@@ -4715,17 +4715,17 @@ msgid "You must be logged in to ask question."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:754
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:953
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1178
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:963
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1160
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:896
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:273
 msgid "Sorry, you are not allowed to delete this resource."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:845
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1082
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1092
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1320
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1286
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1268
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1459
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:1023
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:582
@@ -4757,109 +4757,113 @@ msgstr ""
 msgid "Limit result set to course reviews assigned to specific course IDs."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:478
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:247
+msgid "Limit result set to course reviews assigned a specific status. One of `approved`, `hold`, `spam`, or `trash`."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:487
 msgid "Course Reviewer Author."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:483
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:492
 msgid "Course Reviewer Author Email."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:488
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:497
 msgid "Course Reviewer Author URL."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:493
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:731
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:502
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:712
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:504
 msgid "The IP address of the reviewer"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:505
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:514
 msgid "Course Review Description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:510
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:519
 msgid "Course Review Title."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:515
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:524
 msgid "Course Review Content."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:521
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:530
 msgid "Course Review rating."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:527
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:536
 msgid "Course Review Status."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:532
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:541
 msgid "Course Review Agent."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:537
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:546
 msgid "Course Review Type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:542
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:551
 msgid "Course Review Parent."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:547
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:774
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:556
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:755
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:557
 msgid "The User ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:828
 msgid "Sorry, you can only create review for published courses."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:830
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1008
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:840
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1018
 msgid "Sorry, rating cannot be zero or less."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:844
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:854
 msgid "Sorry, you are not allowed to create course reviews."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:854
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:864
 msgid "Sorry , course reviews are currently disabled."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:864
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1108
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:874
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1090
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:810
 msgid "Sorry, author ID cannot be empty or zero."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:874
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:884
 msgid "Sorry, you are not allowed to create course reviews for others."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:884
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:894
 msgid "Course reviews are not allowed for this course."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:894
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:904
 msgid "You must be enrolled in this course to create a review. Please enroll in the course first."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:904
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:914
 msgid "Sorry, you cannot create review for your own course."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1022
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1241
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1032
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1223
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:908
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:963
 msgid "Sorry, you are not allowed to update this resource."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1042
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1052
 msgid "Sorry, you cannot move a review to another course."
 msgstr ""
 
@@ -5206,15 +5210,15 @@ msgstr ""
 msgid "Error code and message are required."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:158
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:165
 msgid "Error reported successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:269
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:277
 msgid "Failed to send error report to the tracking server."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:279
+#: includes/RestApi/Controllers/Version1/ErrorReportsController.php:287
 msgid "Unexpected response from the tracking server."
 msgstr ""
 
@@ -5230,71 +5234,71 @@ msgstr ""
 msgid "Limit result set to lesson reviews assigned to specific lesson IDs."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:711
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:692
 msgid "Lesson ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:716
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:697
 msgid "Lesson Reviewer Author."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:721
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:702
 msgid "Lesson Reviewer Author Email."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:726
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:707
 msgid "Lesson Reviewer Author URL."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:743
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:724
 msgid "Lesson Review Description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:748
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:729
 msgid "Lesson Review Content."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:754
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:735
 msgid "Lesson Review Status."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:759
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:740
 msgid "Lesson Review Agent."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:764
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:745
 msgid "Lesson Review Type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:769
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:750
 msgid "Lesson Review Parent."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1064
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1046
 msgid "Invalid lesson ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1074
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1056
 msgid "Sorry, you can only create review for published lessons."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1088
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1070
 msgid "Sorry, you are not allowed to lesson reviews."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1098
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1080
 msgid "Sorry , lesson reviews are currently disabled."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1118
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1100
 msgid "Sorry, you are not allowed to create lesson reviews for others."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1128
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1110
 msgid "Sorry, you cannot create review for your own lesson."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1261
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1243
 msgid "Sorry, you cannot move a review to another lesson."
 msgstr ""
 
@@ -15973,6 +15977,11 @@ msgid "Course difficulty badge color. If not set then default color will be set 
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "No content to show."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Some Error Occurred."
 msgstr ""
 
@@ -17097,10 +17106,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Live stream has already ended."
-msgstr ""
-
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "No content to show."
 msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1

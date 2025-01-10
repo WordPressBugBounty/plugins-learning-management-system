@@ -11,9 +11,9 @@ $course_id = get_the_ID();
 
 masteriyo_custom_header( 'single-course' );
 
-$enable_custom_template = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.custom_template.enable' ) );
-$template_source        = masteriyo_get_setting( 'single_course.custom_template.template_source' );
-$template_id            = masteriyo_get_setting( 'single_course.custom_template.template_id' );
+$enable_custom_template = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.template.custom_template.enable' ) );
+$template_source        = masteriyo_get_setting( 'single_course.display.template.custom_template.template_source' );
+$template_id            = masteriyo_get_setting( 'single_course.display.template.custom_template.template_id' );
 
 if ( masteriyo_user_must_login_to_view_course( $course_id ) ) {
 	masteriyo_get_template( 'account/form-login.php', $course_id );

@@ -46,11 +46,14 @@
 	 *
 	 * @since 1.13.0
 	 *
+	 *  @since 1.15.1 Added the `widgetId` parameter.
+	 *
 	 * @param {jQuery} element - The jQuery element representing the course carousel.
 	 * @param {string} swiperClass - The custom class name for the Swiper container.
+	 * @param {string} widgetId - The unique ID of the widget.
 	 * @returns {void}
 	 */
-	function initializeSwiper(element, swiperClass) {
+	function initializeSwiper(element, swiperClass, widgetId) {
 		var sliderData = $(element).data('settings');
 
 		if (typeof sliderData === 'string') {
@@ -96,7 +99,7 @@
 			rewind: !!data.rewind,
 		};
 
-		new Swiper(`.${swiperClass}.swiper`, swiperConfig);
+		new Swiper(`.${swiperClass}.swiper-${widgetId}`, swiperConfig);
 	}
 
 	/**
@@ -107,12 +110,70 @@
 	 * @returns {void}
 	 */
 	function initializeSwiperForNonElementorPage() {
-		$('.masteriyo-course-carousel').each(function () {
-			initializeSwiper($(this), 'masteriyo-courses-wrapper');
-		});
-		$('.masteriyo-category-carousel').each(function () {
-			initializeSwiper($(this), 'masteriyo-course-categories');
-		});
+		$('.elementor-widget.elementor-widget-masteriyo-course-carousel').each(
+			function () {
+				var widgetId = $(this).data('id');
+
+				if (!widgetId) {
+					return;
+				}
+
+				var swiperElement = $(this).find('.masteriyo-courses-wrapper');
+
+				if (0 === swiperElement.length) {
+					return;
+				}
+
+				swiperElement.addClass(`swiper-${widgetId}`);
+
+				initializeSwiper($(this), 'masteriyo-courses-wrapper', widgetId);
+			},
+		);
+
+		$('.elementor-widget.elementor-widget-masteriyo-category-carousel').each(
+			function () {
+				var widgetId = $(this).data('id');
+
+				if (!widgetId) {
+					return;
+				}
+
+				var swiperElement = $(this).find('.masteriyo-course-categories');
+
+				if (0 === swiperElement.length) {
+					return;
+				}
+
+				swiperElement.addClass(`swiper-${widgetId}`);
+
+				initializeSwiper($(this), 'masteriyo-course-categories', widgetId);
+			},
+		);
+	}
+
+	/**
+	 * Initializes a specific Swiper carousel for Elementor widgets.
+	 *
+	 * @since 1.15.1
+	 *
+	 * @param {jQuery} $scope - The jQuery object of the Elementor widget.
+	 * @param {string} selector - The selector for the carousel element.
+	 * @param {string} swiperClass - The custom class name for the Swiper container.
+	 * @returns {void}
+	 */
+	function initializeElementorSwiper($scope, selector, swiperClass) {
+		var $element = $scope.find(selector),
+			widgetId = $scope.data('id');
+
+		var swiperElement = $element.find(`.${swiperClass}.swiper`);
+
+		if (0 === $element.length || 0 === swiperElement.length) {
+			return;
+		}
+
+		swiperElement.addClass(`swiper-${widgetId}`);
+
+		initializeSwiper($element, swiperClass, widgetId);
 	}
 
 	/**
@@ -138,10 +199,11 @@
 		elementorFrontend.hooks.addAction(
 			'frontend/element_ready/masteriyo-course-carousel.default',
 			function ($scope, $) {
-				var $element = $scope.find('.masteriyo-course-carousel');
-				if ($element.length) {
-					initializeSwiper($element, 'masteriyo-courses-wrapper');
-				}
+				initializeElementorSwiper(
+					$scope,
+					'.masteriyo-course-carousel',
+					'masteriyo-courses-wrapper',
+				);
 			},
 		);
 
@@ -159,10 +221,11 @@
 		elementorFrontend.hooks.addAction(
 			'frontend/element_ready/masteriyo-category-carousel.default',
 			function ($scope, $) {
-				var $element = $scope.find('.masteriyo-category-carousel');
-				if ($element.length) {
-					initializeSwiper($element, 'masteriyo-course-categories');
-				}
+				initializeElementorSwiper(
+					$scope,
+					'.masteriyo-category-carousel',
+					'masteriyo-course-categories',
+				);
 			},
 		);
 	});
@@ -173,7 +236,7 @@
 	 * @since 1.13.0 [Free]
 	 */
 	$(document).ready(function () {
-		if (typeof elementorFrontend === undefined) {
+		if (typeof elementorFrontend === 'undefined') {
 			initializeSwiperForNonElementorPage();
 		}
 	});

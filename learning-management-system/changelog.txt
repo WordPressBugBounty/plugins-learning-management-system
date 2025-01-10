@@ -1,4 +1,16 @@
 == Changelog ==
+= 1.15.1 - 10-01-2025 =
+- Fix - Multiple pages creation on activation issue.
+- Fix - Elementor single course page template issue.
+- Fix - Multiple carousels to function on the same page.
+- Fix - Set iframe height to full for YouTube videos on Masteriyo Player.
+- Fix - Correct rounding logic for total amount calculation in Stripe addon.
+- Fix - Review and comment filter text and count issue.
+- Fix - Approve review and comment notice visible on update.
+- Fix - User Registration add-on does not automatically enable the Integrations tab in the settings.
+- Fix - Question name default value issue.
+- Fix - Not found child error on dashboard.
+
 = 1.15.0 - 02-01-2025 =
 - Feature - BuddyPress Integration.
 - Feature - Content drip (Sequential and Free Flow).

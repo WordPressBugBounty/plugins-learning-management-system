@@ -810,6 +810,7 @@ class LessonReviewsController extends CourseReviewsController {
 			/** @var \Masteriyo\Repository\LessonReviewRepository */
 			$lesson_review_repo = masteriyo( \Masteriyo\Repository\LessonReviewRepository::class );
 			$lesson_review_repo->read( $lesson_review );
+			$lesson_review->set_is_new( false );
 		}
 
 		if (

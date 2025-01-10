@@ -332,15 +332,17 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 		$pending_reviews_count = $wpdb->get_var(
 			$wpdb->prepare(
 				"
-				SELECT COUNT(*) FROM $wpdb->comments
-				WHERE comment_type = %s
-				AND comment_approved = %s
-				",
+            SELECT COUNT(*) FROM $wpdb->comments
+            WHERE comment_type IN (%s, %s)
+            AND comment_approved = %s
+            ",
 				CommentType::COURSE_REVIEW,
+				CommentType::LESSON_REVIEW,
 				CommentStatus::HOLD
 			)
 		);
 
 		return $pending_reviews_count ? absint( $pending_reviews_count ) : 0;
+
 	}
 }

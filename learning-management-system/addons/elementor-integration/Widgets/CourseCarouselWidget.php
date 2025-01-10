@@ -510,14 +510,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	 * @since 1.13.0
 	 */
 	protected function render() {
-		$course = Helper::get_elementor_preview_course();
-
-		if ( ! $course ) {
-			return;
-		}
-
-		$settings                = $this->get_settings();
-		$is_related_course_query = isset( $settings['source'] ) && 'related' === $settings['source'];
+		$settings = $this->get_settings();
 
 		$limit   = max( absint( $settings['limit'] ), 1 );
 		$columns = max( absint( $settings['slides_per_view'] ), 1 );
@@ -544,13 +537,6 @@ class CourseCarouselWidget extends CourseListWidget {
 			);
 		}
 
-		if ( $is_related_course_query ) {
-			$tax_query[] = array(
-				'taxonomy' => Taxonomy::COURSE_CATEGORY,
-				'terms'    => $course ? $course->get_category_ids() : array(),
-			);
-		}
-
 		$args = array(
 			'post_type'      => PostType::COURSE,
 			'status'         => array( PostStatus::PUBLISH ),
@@ -558,7 +544,6 @@ class CourseCarouselWidget extends CourseListWidget {
 			'order'          => 'DESC',
 			'orderby'        => 'date',
 			'tax_query'      => $tax_query,
-			'post__not_in'   => $is_related_course_query ? array( $course->get_id() ) : array(),
 		);
 
 		if ( ! empty( $settings['include_instructors'] ) ) {
@@ -683,7 +668,6 @@ class CourseCarouselWidget extends CourseListWidget {
 		}
 		echo '</div>';
 
-		add_filter( 'masteriyo_is_course_carousel_enabled', '__return_false' );
-
+		remove_filter( 'masteriyo_is_course_carousel_enabled', '__return_false' );
 	}
 }

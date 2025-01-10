@@ -611,6 +611,7 @@ class CourseReviewsController extends CommentsController {
 			/** @var \Masteriyo\Repository\CourseReviewRepository */
 			$course_review_repo = masteriyo( \Masteriyo\Repository\CourseReviewRepository::class );
 			$course_review_repo->read( $course_review );
+			$course_review->set_is_new( false );
 		}
 
 		if (

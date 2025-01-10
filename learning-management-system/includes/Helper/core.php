@@ -2675,8 +2675,17 @@ function masteriyo_create_page( $slug, $setting_name = '', $page_title = '', $pa
 		$trashed_page_found = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type='page' AND post_status = 'trash' AND post_name = %s LIMIT 1;", $trashed_slug ) );
 	}
 
-	if ( $trashed_page_found ) {
-		$page_id   = $trashed_page_found;
+	$page_id = $trashed_page_found;
+
+	if ( ! $page_id ) {
+		$post_page = get_page_by_path( $slug, OBJECT, 'page' );
+
+		if ( $post_page instanceof \WP_Post ) {
+			$page_id = $post_page->ID;
+		}
+	}
+
+	if ( $page_id ) {
 		$page_data = array(
 			'ID'          => $page_id,
 			'post_status' => PostStatus::PUBLISH,

@@ -5,7 +5,7 @@
  * Description: User Registration Integration addon integrates with User Registration Plugin to maximize registration process.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Addon Type: feature
+ * Addon Type: integration
  * Requires: User Registration
  * Plan: Free
  */

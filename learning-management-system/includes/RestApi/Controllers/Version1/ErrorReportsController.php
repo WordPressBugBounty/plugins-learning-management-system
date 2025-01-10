@@ -142,7 +142,12 @@ class ErrorReportsController extends WP_REST_Controller {
 			'request_data'    => $request_data,
 			'error_origin'    => $error_origin,
 			'error_category'  => $error_category,
-			'debug_context'   => wp_json_encode( array( 'user_defined_additional_info' => $additional_info ) ),
+			'debug_context'   => wp_json_encode(
+				array(
+					'user_browser_info'            => $user_agent,
+					'user_defined_additional_info' => $additional_info,
+				)
+			),
 		);
 
 		$data   = $this->get_error_reports_data( $error_data );
@@ -152,10 +157,13 @@ class ErrorReportsController extends WP_REST_Controller {
 			return $result;
 		}
 
+		$redirect_url = home_url( '/wp-admin/admin.php?page=masteriyo#/dashboard' );
+
 		return rest_ensure_response(
 			array(
-				'success' => true,
-				'message' => __( 'Error reported successfully.', 'learning-management-system' ),
+				'success'      => true,
+				'message'      => __( 'Error reported successfully.', 'learning-management-system' ),
+				'redirect_url' => $redirect_url,
 			)
 		);
 	}

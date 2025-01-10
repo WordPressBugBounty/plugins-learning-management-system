@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.15.0
+Stable tag: 1.15.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -226,6 +226,18 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
+= 1.15.1 - 10-01-2025 =
+- Fix - Multiple pages creation on activation issue.
+- Fix - Elementor single course page template issue.
+- Fix - Multiple carousels to function on the same page.
+- Fix - Set iframe height to full for YouTube videos on Masteriyo Player.
+- Fix - Correct rounding logic for total amount calculation in Stripe addon.
+- Fix - Review and comment filter text and count issue.
+- Fix - Approve review and comment notice visible on update.
+- Fix - User Registration add-on does not automatically enable the Integrations tab in the settings.
+- Fix - Question name default value issue.
+- Fix - Not found child error on dashboard.
+
 = 1.15.0 - 02-01-2025 =
 - Feature - BuddyPress Integration.
 - Feature - Content drip (Sequential and Free Flow).
@@ -372,192 +384,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - PHP8 deprecation warning.
 - Fix - Account page items can be seen from url even if disable in global setting.
 - Fix - User role not getting updated to Masteriyo Student after SureCart checkout.
-
-= 1.12.3 - 20-08-2024 =
-- Fix - Minor fixes.
-
-= 1.12.2 - 19-08-2024 =
-- Feature - Course Wishlist Addon.
-- Feature - Gutenberg blocks for single course.
-- Enhancement - System performance optimized.
-- Enhancement - Additional Elementor widgets (Course Coming Soon and Group Course).
-- Enhancement - Focus Mode in learn page.
-- Enhancement - Redirect user to course or checkout page if guest user logged in or sign up through course register now or buy now button.
-- Enhancement - Logger Functionality implemented.
-- Update - Requires WordPress version 6.5 or higher.
-- Update - Isolated Editor updated to version 2.29.0.
-- Fix - Added toast notification for the "Add New Google Meet" button on the builder page.
-- Fix - Bricks Builder UI Issue.
-- Fix - Google Meet Delete issue.
-- Fix - Text translation issue in order status and account page toggle.
-- Fix - Mark as complete button issue in interactive lesson.
-- Fix - Lesson's block editor text not highlighted.
-- Fix - Course announcement permission issue for instructors.
-- Fix - Divi categories and instructor include/exclude settings.
-- Fix - Logo changes are now reflected on the learning page.
-- Fix - issue with scrolling into view when adding a new section.
-- Fix - Addressed "Route not found" error on the learning page when Google Meet addon is disabled.
-
-= 1.12.1 - 05-08-2024 =
-- Enhancement - Replace text area with classic editor in question description field.
-- Fix - Mark as complete button issue in the learn page.
-- Fix - Thumbnail UI issue in player.
-
-= 1.12.0 - 24-07-2024 =
-- Feature - Added Masteriyo Player.
-- Feature - SureCart Integration Addon.
-- Feature - Course categories slider using shortcode.
-- Enhancement - Added Child theme support for Bricks Builder.
-- Enhancement - Restructure Masteriyo submenus.
-- Enhancement - Added minified JS files.
-- Fix - Unable to edit the course items while course is password protected.
-- Fix - Added coming soon timer for single course layout 1.
-- Fix - Single course page review section design issue.
-- Fix - Made notification content translatable.
-- Fix - Remove correct key from answer data in question API.
-- Fix - Prevent access to unpublished courses and course items.
-- Fix - Double password reset email to student.
-- Fix - Meta data not hidden for layout 1 single course for course coming soon.
-- Fix - Course coming soon UI issue in layout 1 single course.
-- Fix - Instructor approval email not sending to instructor.
-- Fix - Error on edit page while WC integration is enable and cart is not empty.
-- Fix - Course password and end date issue while updating the course items.
-- Fix - Isolated block editor UI issues.
-- Fix - UI issues in default themes for layout 1 single course.
-- Fix - User Registration Plugin compatibility issue fixes for forgot password.
-- Fix - Pointer events unset in default theme footer.
-
-= 1.11.6 - 17-07-2024 =
-- Fix – Compatibility issue with WordPress 6.6 version.
-
-= 1.11.5 - 09-07-2024 =
-- Fix - Course archive new layouts not reflecting in courses page.
-- Fix - Download materials not showing in the lesson learn page.
-- Fix - Ensure course is published before review creation.
-- Fix - Prevent unverified instructors from accessing users.
-- Fix - Unauthorized access to password protected course.
-- Fix - Blank heading tag issue if question heading is not set.
-
-= 1.11.4 - 28-06-2024 =
-- Fix - User first and last name blank issue on student registration webhook trigger.
-- Fix - Video ID issue while editing lesson.
-
-= 1.11.3 - 26-06-2024 =
-- Feature - Course archive styles customize from global settings.
-- Feature - Brick Single Course template for Courses and Single Course Page.
-- Feature - Add YouTube live stream option for lesson videos.
-- Enhancement - Added Add to cart option in WooCommerce integration.
-- Enhancement - Display reviews to all users; restrict review posting to enrolled users only.
-- Enhancement - Added dark and light mode in learn page.
-- Fix - Guest user not able to start quiz.
-- Fix - Permission issue on fetching changelog.
-- Fix - Addon requirement check for multisite network active.
-
-= 1.11.2 - 14-06-2024 =
-- Fix - Resolve multiple currency issue in courses shortcode page.
-- Fix - Resolve Elementor builder issue related to course retake feature.
-- Fix - Divi course description text format issue.
-
-= 1.11.1 - 07-06-2024 =
-- Fix - Course coming soon timer issue.
-- Fix - Checkout page login link increased font weight.
-- Fix - Google Meet filter issue.
-
-= 1.11.0 - 06-06-2024 =
-- Feature - Multiple Currency addon.
-- Feature - Google Meet integration addon.
-- Feature - BunnyNet integration addon.
-- Feature - Course coming soon addon.
-- Feature - Embed video option for lesson.
-- Enhancement - Implemented transient cache.
-- Enhancement - Implement auto woocommerce product creation from course setting.
-- Enhancement - User course progress query optimization.
-- Enhancement - Backend page UI responsiveness.
-- Enhancement - Course one time fee validation before updating course.
-- Enhancement - Added course retake and google classroom meta elementor widget.
-- Enhancement - Addons checkbox and description and prevent page from reloading after activating and deactivating addons.
-- Fix - PHP 8.2 deprecated notice.
-- Fix - Allow admin updates only to status for other groups.
-- Fix - Rating review and quiz review in learn page issue.
-- Fix - Backend course filter issue.
-- Fix - Prevent instructors from viewing other reviews, quiz attempts and Q&A.
-- Fix - Draft badge not showing for lesson and quiz.
-- Fix - Instructor unable to update the review on their course.
-
-= 1.10.1 - 22-05-2024 =
-- Fix - Question and answers not deleting issue.
-- Fix - Account page UI issue in Divi and Astra theme.
-- Fix - Account page responsive issue.
-- Fix - Individual course review setting issue.
-
-= 1.10.0 - 20-05-2024 =
-- Feature - New dashboard page.
-- Feature - Two new course archive layout and one new single course layout options.
-- Feature - Beaver Builder Integration.
-- Enhancement - Account section UI revamp.
-- Enhancement - Added H5P embed button in classic editor.
-- Enhancement - Added analytics tab on instructor dashboard.
-- Fix - Course preview on elementor editor.
-- Fix - Course badge value disappearing after course update.
-- Fix - Fatal error when deleting course review from single course page.
-- Fix - Gutenberg courses setting category filter not working in select options.
-- Fix - Course author issue while creating a course by instructor.
-
-= 1.9.4 - 01-05-2024 =
-- Refactor - Manage all addons permission from core capabilities file.
-- Fix - Instructor transfer issue while deleting the instructor.
-- Fix - Video and image preview not working on attachment.
-- Fix - Integration tab not showing on global setting when integration addon active.
-- Fix - Course welcome message and started time issue.
-- Fix - Remove login session limit for administrator.
-
-= 1.9.3 - 22-04-2024 =
-- Feature - Lemon Squeezy payment integration.
-- Feature - Login Session Management.
-- Enhancement - Added course Review filter in single course page. 
-- Enhancement - Welcome message to first time user in a course. 
-- Enhancement - Added static enroll count option in course setting. 
-- Enhancement - Addons page UI revamp. 
-- Enhancement - Added Lesson and Quiz clone option. 
-- Enhancement - Added Course badge option in course setting.
-- Enhancement - Added class name on the account profile page.
-- Tweak - Global settings search and Save setting position changed.
-- Fix - With course refresh access, set non existing enrolled users course status to inactive.
-- Fix - Deactivate user course enrollment upon user deletion.
-- Fix - Global setting tab issues.
-
-= 1.9.2 - 09-04-2024 =
-- Enhancement - Added lesson video URL type option for learn page.
-- Fix - Block editor error issue.
-- Fix - Course review issue in learn page.
-
-= 1.9.1 - 04-04-2024 =
-- Compatibility - Compatibility with WP 6.5.
-- Fix - Global setting issue.
-- Fix - Download materials showing twice on addons page.
-- Fix - PHP 8.2 warning: Deprecated strtolower() call.
-- Fix - Private js console error in WP 6.5.
-
-= 1.9.0 - 27-03-2024 =
-- Feature - Group Course.
-- Feature - QR Code Login.
-- Feature - Download Material.
-- Feature - Bricks Builder Integration.
-- Enhancement - Course review need approval.
-- Enhancement - Added Utilities tab in Tools page.
-- Enhancement - Added search functionality in Settings.
-- Enhancement - Show/Hide Components Supports for Courses Shortcode Page.
-- Enhancement - Added a Quick Edit Option in the Courses Section.
-- Enhancement - Draft options added for quiz and lessons.
-- Enhancement - Show Students available seats.
-- Enhancement - Notifications UI update and addition in learn page.
-- Enhancement - Added sale price option.
-- Enhancement - Added courses order and orderby option for courses listing page.
-- Enhancement - Added Shortcodes tab in tools page.
-- Enhancement - Added question description option.
-- Enhancement - Added "Download Invoice" Feature to the Thank You Page.
-- Fix - User Registration Integration compatible issue with User Registration PRO.
-- Fix - Account Section responsiveness.
-- Fix - Old attempted quiz data duplicated in new quiz attempt issue.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).
