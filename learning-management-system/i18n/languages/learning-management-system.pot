@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.15.1\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.15.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-10T16:25:01+05:45\n"
+"POT-Creation-Date: 2025-01-28T11:29:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -99,7 +99,7 @@ msgid "Import"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:33
-#: includes/Helper/core.php:5376
+#: includes/Helper/core.php:5377
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Classroom"
@@ -168,7 +168,7 @@ msgid "Group Details"
 msgstr ""
 
 #: addons/group-courses/templates/group-courses.php:18
-#: includes/Helper/core.php:5388
+#: includes/Helper/core.php:5389
 #: assets/js/build/masteriyo-account.js:1
 msgid "Groups"
 msgstr ""
@@ -489,7 +489,7 @@ msgid "No pages specified."
 msgstr ""
 
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:82
-#: includes/Helper/core.php:5700
+#: includes/Helper/core.php:5701
 msgid "Pages set up successfully."
 msgstr ""
 
@@ -2187,54 +2187,54 @@ msgid "Live Stream"
 msgstr ""
 
 #. translators: %s: Class
-#: includes/Helper/core.php:5203
+#: includes/Helper/core.php:5204
 msgid "The class <code>%s</code> provided by masteriyo_logging_class filter must implement <code>Logger</code>."
 msgstr ""
 
-#: includes/Helper/core.php:5370
+#: includes/Helper/core.php:5371
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Announcements"
 msgstr ""
 
-#: includes/Helper/core.php:5382
+#: includes/Helper/core.php:5383
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Meet"
 msgstr ""
 
-#: includes/Helper/core.php:5394
+#: includes/Helper/core.php:5395
 msgid "Multiple Currency"
 msgstr ""
 
-#: includes/Helper/core.php:5400
+#: includes/Helper/core.php:5401
 msgid "Certificates"
 msgstr ""
 
-#: includes/Helper/core.php:5410
+#: includes/Helper/core.php:5411
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5659
+#: includes/Helper/core.php:5660
 msgid "Masteriyo:"
 msgstr ""
 
 #. translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages
-#: includes/Helper/core.php:5673
+#: includes/Helper/core.php:5674
 msgid "%1$s %2$d page is missing: %3$s. Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set it up automatically."
 msgid_plural "%1$s %2$d pages are missing: %3$s. Please configure them, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set them up automatically."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Helper/core.php:5682
+#: includes/Helper/core.php:5683
 #: assets/js/build/masteriyo-backend.js:1
 msgid "click here"
 msgstr ""
 
-#: includes/Helper/core.php:5698
+#: includes/Helper/core.php:5699
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5699
+#: includes/Helper/core.php:5700
 msgid "Failed to set up. Retry?"
 msgstr ""
 
@@ -14700,6 +14700,30 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Student have to watch full video to every time even after completing the lesson. Not applicable for live-streams, embedded and external videos."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Unmuted Autoplay"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "If this option is enabled, videos will remain unmuted on autoplay."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "We don't recommend enabling this option."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Videos will remain unmuted on reload. However, this may lead to unexpected behavior, such as buffering issues, videos not playing correctly, autoplay restrictions being triggered, or playback interruptions due to browser policies."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid " Click here"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid " to view unmuted autoplay policy."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1

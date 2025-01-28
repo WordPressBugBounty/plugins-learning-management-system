@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.15.1
+Stable tag: 1.15.2
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,11 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.15.2 - 28-01-2025 =
+- Enhancement - Unmute autoplay option added in Masteriyo player settings.
+- Fix - Semicolon appear in single course page setting.
+- Fix - Backend pages not working with latest Gutenberg update.
 
 = 1.15.1 - 10-01-2025 =
 - Fix - Multiple pages creation on activation issue.

@@ -1,4 +1,9 @@
 == Changelog ==
+= 1.15.2 - 28-01-2025 =
+- Enhancement - Unmute autoplay option added in Masteriyo player settings.
+- Fix - Semicolon appear in single course page setting.
+- Fix - Backend pages not working with latest Gutenberg update.
+
 = 1.15.1 - 10-01-2025 =
 - Fix - Multiple pages creation on activation issue.
 - Fix - Elementor single course page template issue.

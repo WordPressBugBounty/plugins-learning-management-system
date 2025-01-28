@@ -75,6 +75,7 @@ class Setting extends Model {
 				'use_masteriyo_player_for_youtube'   => 'masteriyo_string_to_bool',
 				'use_masteriyo_player_for_vimeo'     => 'masteriyo_string_to_bool',
 				'seek_time'                          => 'absint',
+				'unmuted_autoplay'                   => 'masteriyo_string_to_bool',
 			),
 		),
 		'learn_page'     => array(

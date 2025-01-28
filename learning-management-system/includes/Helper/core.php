@@ -3671,6 +3671,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'use_masteriyo_player_for_youtube'   => true,
 					'use_masteriyo_player_for_vimeo'     => true,
 					'seek_time'                          => 5,
+					'unmuted_autoplay'                   => false,
 				),
 			),
 			'course_archive' => array(

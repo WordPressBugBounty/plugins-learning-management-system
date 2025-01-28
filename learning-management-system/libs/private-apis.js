@@ -97,6 +97,8 @@
 		'@wordpress/router',
 		'@wordpress/dataviews',
 		'@wordpress/fields',
+		'@wordpress/media-utils',
+		'@wordpress/upload-media',
 	];
 
 	/**
