@@ -5,6 +5,46 @@
 (function ($, mto_data) {
 	'use strict';
 
+	var filtersSidebar = {
+		$sidebar: $('.masteriyo-courses-filters'),
+
+		openFiltersSidebar: function () {
+			var scrollTop =
+				self.pageYOffset ||
+				document.documentElement.scrollTop ||
+				document.body.scrollTop;
+			var sidebarTopPadding = 20;
+
+			this.$sidebar.addClass('masteriyo-expanded');
+
+			if (
+				$('#wpadminbar').css('position') === 'fixed' ||
+				scrollTop < $('#wpadminbar').height() - sidebarTopPadding
+			) {
+				this.$sidebar.addClass('masteriyo-add-admin-bar-margin');
+			}
+			masteriyo_helper.lockScrolling();
+		},
+
+		closeFiltersSidebar: function () {
+			this.$sidebar.removeClass('masteriyo-expanded');
+			this.$sidebar.removeClass('masteriyo-add-admin-bar-margin');
+			masteriyo_helper.unlockScrolling();
+		},
+
+		isFiltersSidebarOpen: function () {
+			return this.$sidebar.hasClass('masteriyo-expanded');
+		},
+
+		toggleFiltersSidebar: function () {
+			if (this.isFiltersSidebarOpen()) {
+				this.closeFiltersSidebar();
+			} else {
+				this.openFiltersSidebar();
+			}
+		},
+	};
+
 	/**
 	 * MasteriyoCourses namespace.
 	 * @type {Object}
@@ -38,6 +78,8 @@
 
 			$(document).ready(function () {
 				MasteriyoCourses.init_password_projected_form_handler();
+				MasteriyoCourses.init_course_filters();
+				MasteriyoCourses.init_course_sorting();
 			});
 		},
 
@@ -211,6 +253,106 @@
 					onSubmit(e);
 				}
 			});
+		},
+
+		/**
+		 * Initialize course filters.
+		 *
+		 * @since 1.16.0
+		 */
+		init_course_filters: function () {
+			$(document.body).on(
+				'click',
+				'.masteriyo-toggle-course-filters-sidebar',
+				function () {
+					filtersSidebar.toggleFiltersSidebar();
+				},
+			);
+
+			$(document.body).on(
+				'click',
+				'.masteriyo-close-filters-sidebar, .masteriyo-course-filter-sidebar-overlay',
+				function () {
+					filtersSidebar.closeFiltersSidebar();
+				},
+			);
+
+			$(window).on('resize', function () {
+				if ($(this).height() <= 768) {
+					filtersSidebar.closeFiltersSidebar();
+				}
+			});
+
+			$(document.body).on(
+				'click',
+				'button.masteriyo-apply-price-filter',
+				function (e) {
+					$(this).closest('form').submit();
+				},
+			);
+
+			$(document.body).on(
+				'change',
+				'.masteriyo-courses-filters select, .masteriyo-courses-filters input[type="checkbox"]',
+				function () {
+					$(this).closest('form').submit();
+				},
+			);
+
+			$(document.body).on(
+				'change',
+				'.masteriyo-courses-filters select[name="price-type"]',
+				function () {
+					if ($(this).val() === 'free') {
+						$('.masteriyo-price-filter-section').addClass('masteriyo-hidden');
+					} else {
+						$('.masteriyo-price-filter-section').removeClass(
+							'masteriyo-hidden',
+						);
+					}
+				},
+			);
+
+			$(document.body).on(
+				'click',
+				'.masteriyo-see-more-categories',
+				function (e) {
+					e.preventDefault();
+					$(this).addClass('masteriyo-hidden');
+					$('.masteriyo-overflowed-category').removeClass('masteriyo-hidden');
+					$('.masteriyo-see-less-categories').removeClass('masteriyo-hidden');
+				},
+			);
+
+			$(document.body).on(
+				'click',
+				'.masteriyo-see-less-categories',
+				function (e) {
+					e.preventDefault();
+					$(this).addClass('masteriyo-hidden');
+					$('.masteriyo-overflowed-category').addClass('masteriyo-hidden');
+					$('.masteriyo-see-more-categories').removeClass('masteriyo-hidden');
+				},
+			);
+		},
+
+		/**
+		 * Initialize the course sorting.
+		 *
+		 * @since 1.16.0
+		 */
+		init_course_sorting: function () {
+			$(document.body).on(
+				'change',
+				'select.masteriyo-courses-order-by',
+				function () {
+					var order = $(this).find('option:selected').data('order');
+
+					$('input.masteriyo-courses-sorting-order').val(order);
+
+					$(this).closest('form').submit();
+				},
+			);
 		},
 	};
 

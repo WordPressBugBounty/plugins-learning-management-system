@@ -1704,6 +1704,16 @@ class UsersController extends CrudController {
 	public function update_logged_in_user( $request ) {
 		$user = wp_get_current_user();
 
+		if ( isset( $request['old_password'], $request['password'] ) && wp_check_password( $request['password'], $user->user_pass, $user->ID ) ) {
+			return new WP_Error(
+				'masteriyo_rest_user_old_password_same_as_new_password',
+				__( 'New password cannot be the same as the old password.', 'learning-management-system' ),
+				array(
+					'status' => 400,
+				)
+			);
+		}
+
 		if ( isset( $request['old_password'] ) && ! wp_check_password( $request['old_password'], $user->user_pass, $user->ID ) ) {
 			return new WP_Error(
 				'masteriyo_rest_user_old_password_does_not_match',

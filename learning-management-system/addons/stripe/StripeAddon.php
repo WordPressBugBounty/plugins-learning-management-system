@@ -12,6 +12,7 @@ namespace Masteriyo\Addons\Stripe;
 
 use Exception;
 use Stripe\Stripe;
+use Stripe\PaymentIntent;
 use Masteriyo\Constants;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Addons\Stripe\Setting;
@@ -224,6 +225,14 @@ class StripeAddon {
 			$cart    = masteriyo( 'cart' );
 			$cart->get_cart_from_session();
 
+			$email = '';
+			if ( $session->get_user_id() ) {
+				$user = masteriyo_get_user( $session->get_user_id() );
+				if ( ! is_wp_error( $user ) ) {
+					$email = $user->get_email();
+				}
+			}
+
 			$cart_total    = $cart->get_total();
 			$currency_code = masteriyo_get_setting( 'payments.currency.currency' );
 
@@ -240,7 +249,7 @@ class StripeAddon {
 				array(
 					'amount'               => $this->convert_cart_total_to_stripe_amount( $cart_total, $currency_code ),
 					'currency'             => masteriyo_strtolower( $currency_code ),
-					'receipt_email'        => get_bloginfo( 'admin_email' ),
+					'receipt_email'        => $email ? $email : get_bloginfo( 'admin_email' ),
 					'payment_method_types' => $payment_methods,
 				)
 			);
@@ -445,6 +454,20 @@ class StripeAddon {
 		if (! $status) {
 			masteriyo_get_logger()->error('Invalid event type.', array('source' => 'payment-stripe'));
 			throw new Exception(esc_html__('Invalid event type.', 'learning-management-system'), 400);
+		}
+
+		$payment_intent = $event->data->object;
+
+		if ($event->type === 'payment_intent.succeeded' && !empty($order->get_billing_email())) {
+			try {
+				PaymentIntent::update(
+					$payment_intent->id,
+					array('receipt_email' => $order->get_billing_email())
+				);
+				masteriyo_get_logger()->info('Receipt email updated for Payment Intent.', array('source' => 'payment-stripe'));
+			} catch (Exception $e) {
+				masteriyo_get_logger()->error('Failed to update receipt email: ' . $e->getMessage(), array('source' => 'payment-stripe'));
+			}
 		}
 
 		masteriyo_get_logger()->info('Before saving the stripe data', array('source' => 'payment-stripe'));

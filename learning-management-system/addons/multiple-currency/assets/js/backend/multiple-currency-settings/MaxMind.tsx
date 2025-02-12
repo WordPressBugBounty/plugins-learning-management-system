@@ -1,11 +1,7 @@
 import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
 	Collapse,
 	FormErrorMessage,
 	FormLabel,
-	HStack,
 	IconButton,
 	Input,
 	InputGroup,
@@ -18,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { BiHide, BiShow } from 'react-icons/bi';
+import CustomAlert from '../../../../../../assets/js/back-end/components/common/CustomAlert';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { MultipleCurrencySettingsSchema } from '../../types/multiCurrency';
@@ -39,27 +36,22 @@ const MaxMind: React.FC<Props> = (props) => {
 
 	return (
 		<>
-			<Alert status="info">
-				<AlertIcon />
-				<AlertDescription>
-					<HStack spacing="1" color="gray.600">
-						<Text>
-							{__(
-								'The MaxMind Geolocation integration enables accurate country detection for providing localized currency support to the customers.',
-								'learning-management-system',
-							)}
-							<Link
-								color="blue.500"
-								href="https://docs.masteriyo.com/free-addons/multiple-currency"
-								isExternal
-								ml="2"
-							>
-								{__('Learn more', 'learning-management-system')}
-							</Link>
-						</Text>
-					</HStack>
-				</AlertDescription>
-			</Alert>
+			<CustomAlert>
+				<Text>
+					{__(
+						'The MaxMind Geolocation integration enables accurate country detection for providing localized currency support to the customers.',
+						'learning-management-system',
+					)}
+					<Link
+						color="primary.600"
+						href="https://docs.masteriyo.com/free-addons/multiple-currency"
+						isExternal
+						ml="2"
+					>
+						{__('Learn more', 'learning-management-system')}
+					</Link>
+				</Text>
+			</CustomAlert>
 			<FormControlTwoCol isInvalid={!!errors?.maxmind?.enabled}>
 				<FormLabel>
 					{__('Enable Geolocation Integration', 'learning-management-system')}

@@ -83,6 +83,22 @@ class GoogleMeetAddon {
 
 		add_action( 'masteriyo_layout_1_single_course_curriculum_shortinfo_item', array( $this, 'shortinfo_item' ), 20, 1 );
 		add_action( 'masteriyo_layout_1_single_course_curriculum_accordion_header_info_item', array( $this, 'header_info_item' ), 20, 1 );
+		add_filter( 'masteriyo_post_type_default_labels', array( $this, 'append_post_type_default_label' ), 10 );
+	}
+
+	/**
+	 * Add post type default label.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @param string $post_type Post type slug.
+	 *
+	 * @return array default labels.
+	 */
+	public function append_post_type_default_label( $original_labels ) {
+		$original_labels[ PostType::GOOGLEMEET ] = 'Google Meet';
+
+		return $original_labels;
 	}
 
 	/**
@@ -127,7 +143,6 @@ class GoogleMeetAddon {
 		}
 
 		return $data;
-
 	}
 
 	/**
@@ -289,7 +304,6 @@ class GoogleMeetAddon {
 		}
 
 		return $data;
-
 	}
 
 
@@ -308,7 +322,7 @@ class GoogleMeetAddon {
 	public function include_google_meet_in_curriculum_section_summary( $summaries, $course, $section, $posts ) {
 		$google_meet_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( PostType::GOOGLEMEET === $post->post_type ) {
 					++$count;
 				}
@@ -353,7 +367,7 @@ class GoogleMeetAddon {
 	public function include_google_meet_in_curriculum_summary( $summaries, $course, $posts ) {
 		$google_meet_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( PostType::GOOGLEMEET === $post->post_type ) {
 					++$count;
 				}

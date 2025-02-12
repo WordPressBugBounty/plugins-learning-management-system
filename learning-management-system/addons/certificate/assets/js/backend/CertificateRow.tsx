@@ -36,7 +36,11 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import API from '../../../../../assets/js/back-end/utils/api';
-import { getWordpressLocalTime } from '../../../../../assets/js/back-end/utils/utils';
+import {
+	cloneOperationInCache,
+	getWordpressLocalTime,
+	removeOperationInCache,
+} from '../../../../../assets/js/back-end/utils/utils';
 import { certificateBackendRoutes } from '../utils/routes';
 import { certificateAddonUrls } from '../utils/urls';
 
@@ -72,7 +76,19 @@ const CertificateRow: React.FC<Props> = (props) => {
 	const deleteCertificate = useMutation({
 		mutationFn: (id: number) => certificatesAPI.delete(id, { force: true }),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					[
+						'certificatesList',
+						{
+							order: 'desc',
+							orderby: 'date',
+							status: 'any',
+						},
+					],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				onClose();
 				toast({
@@ -104,7 +120,19 @@ const CertificateRow: React.FC<Props> = (props) => {
 	const trashCertificate = useMutation({
 		mutationFn: (id: number) => certificatesAPI.delete(id, { force: false }),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					[
+						'certificatesList',
+						{
+							order: 'desc',
+							orderby: 'date',
+							status: 'any',
+						},
+					],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				toast({
 					title: __('Certificate Trashed', 'learning-management-system'),
@@ -118,7 +146,19 @@ const CertificateRow: React.FC<Props> = (props) => {
 	const cloneCertificate = useMutation({
 		mutationFn: (id: number) => certificatesAPI.cloneData(id),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				cloneOperationInCache(
+					queryClient,
+					[
+						'certificatesList',
+						{
+							order: 'desc',
+							orderby: 'date',
+							status: 'any',
+						},
+					],
+					data,
+				);
 				queryClient.invalidateQueries({ queryKey: ['certificatesList'] });
 				toast({
 					title: __(
@@ -166,12 +206,12 @@ const CertificateRow: React.FC<Props> = (props) => {
 			<Td>
 				<Checkbox
 					isDisabled={isLoading}
-					isChecked={bulkIds.includes(id.toString())}
+					isChecked={bulkIds.includes(id?.toString())}
 					onChange={(e) =>
 						setBulkIds(
 							e.target.checked
-								? [...bulkIds, id.toString()]
-								: bulkIds.filter((item) => item !== id.toString()),
+								? [...bulkIds, id?.toString()]
+								: bulkIds.filter((item) => item !== id?.toString()),
 						)
 					}
 				/>
@@ -184,7 +224,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 						as={RouterLink}
 						to={certificateBackendRoutes.certificate.edit.replace(
 							':certificateId',
-							id.toString(),
+							id?.toString(),
 						)}
 						fontWeight="semibold"
 						_hover={{ color: 'blue.500' }}
@@ -247,7 +287,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 						<RouterLink
 							to={certificateBackendRoutes.certificate.edit.replace(
 								':certificateId',
-								id.toString(),
+								id?.toString(),
 							)}
 						>
 							<Button

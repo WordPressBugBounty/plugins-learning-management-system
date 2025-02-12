@@ -34,7 +34,10 @@ import {
 	navLinkStyles,
 } from '../../../../../../assets/js/back-end/config/styles';
 import API from '../../../../../../assets/js/back-end/utils/api';
-import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
+import {
+	addOperationInCache,
+	deepClean,
+} from '../../../../../../assets/js/back-end/utils/utils';
 import Name from '../../common/components/Name';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -71,6 +74,11 @@ const AddGroup: React.FC = () => {
 	const onSubmit = (data: any) => {
 		addGroup.mutate(deepClean(data), {
 			onSuccess: (data) => {
+				addOperationInCache(
+					queryClient,
+					['groupsList', { order: 'desc', orderby: 'date' }],
+					data,
+				);
 				toast({
 					title:
 						data.title + __(' has been added.', 'learning-management-system'),

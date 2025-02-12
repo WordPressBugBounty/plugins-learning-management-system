@@ -27,8 +27,8 @@ use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Emails\EmailScheduleActions;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Exporter\CourseExporter;
+use Masteriyo\Exporter\QuizExporter;
 use Masteriyo\FileRestrictions\FileRestrictions;
-use Masteriyo\Shortcodes\AccountShortcode;
 use Masteriyo\ShowHideComponents\ShowHideArchiveCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideCategoryCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideInstructorCourseComponents;
@@ -93,6 +93,7 @@ class Masteriyo {
 		RestApi::init();
 		AdminMenu::init();
 		ScriptStyle::init();
+		( new RestAPIAuth() )->init();
 		( new ShowHideArchiveCourseComponents() )->init();
 		( new ShowHideCategoryCourseComponents() )->init();
 		( new ShowHideInstructorCourseComponents() )->init();
@@ -107,6 +108,7 @@ class Masteriyo {
 
 		// Register file paths.
 		AdminFileDownloadHandler::register_file_path( CourseExporter::FILE_PATH_ID, CourseExporter::get_file_path() );
+		AdminFileDownloadHandler::register_file_path( QuizExporter::FILE_PATH_ID, QuizExporter::get_file_path() );
 
 		$this->define_tables();
 

@@ -1,10 +1,11 @@
-import { Alert, Box, Link, Text, VStack } from '@chakra-ui/react';
+import { Box, Link, Text, VStack } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import CustomAlert from '../../../../../../assets/js/back-end/components/common/CustomAlert';
 
 const BrevoAlertMessage = () => {
 	return (
-		<Alert status="info" mb={6} padding="20px">
+		<CustomAlert status="info" mb="6" isAlertIconTop>
 			<VStack alignItems={'flex-start'} spacing={4}>
 				<Box display="flex" alignItems="center" mb={2}>
 					<Text fontWeight="bold" fontSize="lg" mr={2}>
@@ -50,7 +51,7 @@ const BrevoAlertMessage = () => {
 					)}
 				</Text>
 			</VStack>
-		</Alert>
+		</CustomAlert>
 	);
 };
 

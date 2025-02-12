@@ -24,8 +24,26 @@ import DocPreview from './DocPreview';
 
 const defaultAcceptedFileTypes = {
 	'image/*': ['.jpeg', '.png', '.jpg', '.gif'],
-	'video/*': ['.mp4', '.mkv', '.avi', '.flv', '.mov'],
-	'audio/*': ['.mpeg', '.wav'],
+	'video/*': ['.mp4', '.mkv', '.avi', '.flv', '.mov', '.webm', '.wmv'],
+	'video/x-flv': ['.flv'],
+	'audio/*': [
+		'.mpeg',
+		'.wav',
+		'.m4a',
+		'.ogg',
+		'.mp3',
+		'.oga',
+		'.opus',
+		'.flac',
+		'.wma',
+	],
+	'audio/x-m4a': ['.m4a'],
+	'audio/ogg': ['.oga', '.ogg'],
+	'audio/opus': ['.opus'],
+	'audio/flac': ['.flac'],
+	'audio/x-ms-wma': ['.wma'],
+	'video/webm': ['.webm'],
+	'video/x-ms-wmv': ['.wmv'],
 	'application/zip': ['.zip'],
 	'application/msword': ['.msword'],
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
@@ -39,6 +57,7 @@ const defaultAcceptedFileTypes = {
 		'.xlsx',
 	],
 	'application/vnd.ms-excel': ['.xls'],
+	'application/pdf': ['.pdf'],
 };
 
 const defaultAcceptedFileTypesWPMedia = [
@@ -46,7 +65,7 @@ const defaultAcceptedFileTypesWPMedia = [
 	'application/zip',
 	'application/msword',
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-	'	application/vnd.ms-powerpoint',
+	'application/vnd.ms-powerpoint',
 	'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 	'application/vnd.ms-excel',
@@ -59,8 +78,22 @@ const defaultAcceptedFileTypesWPMedia = [
 	'video/avi',
 	'video/flv',
 	'video/mov',
+	'video/webm',
+	'video/x-ms-wmv',
+	'video/x-flv',
+	'video/quicktime',
 	'audio/mpeg',
 	'audio/wav',
+	'audio/mpeg',
+	'audio/wav',
+	'audio/x-m4a',
+	'audio/mp4',
+	'audio/ogg',
+	'audio/opus',
+	'audio/flac',
+	'audio/x-ms-wma',
+	'audio/webm',
+	'audio/x-wav',
 ];
 
 export type File = {

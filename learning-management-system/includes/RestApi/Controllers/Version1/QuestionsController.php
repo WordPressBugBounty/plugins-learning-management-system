@@ -393,7 +393,7 @@ class QuestionsController extends PostsController {
 
 		$data = array(
 			'id'                     => $question->get_id(),
-			'name'                   => wp_specialchars_decode( $question->get_name( $context ) ),
+			'name'                   => wp_specialchars_decode( wpautop( do_shortcode( $question->get_name( $context ) ) ) ),
 			'permalink'              => $question->get_permalink(),
 			'status'                 => $question->get_status( $context ),
 			'description'            => $description,

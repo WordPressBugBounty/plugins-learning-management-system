@@ -26,7 +26,10 @@ import {
 import { navActiveStyles } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import API from '../../../../../../assets/js/back-end/utils/api';
-import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
+import {
+	deepClean,
+	editOperationInCache,
+} from '../../../../../../assets/js/back-end/utils/utils';
 import AnnouncementActionBtn from './components/AnnouncementActionBtn';
 import { AnnouncementSkeleton } from './components/AnnouncementSkeleton';
 import CourseSelect from './components/CourseSelect';
@@ -70,7 +73,18 @@ const EditAnnouncement: React.FC = () => {
 	const updateAnnouncement = useMutation<AnnouncementSchema>({
 		mutationFn: (data) => announcementAPI.update(courseAnnouncementId, data),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				editOperationInCache(
+					queryClient,
+					[
+						'announcementList',
+						{
+							order: 'desc',
+							orderby: 'date',
+						},
+					],
+					data,
+				);
 				queryClient.invalidateQueries({
 					queryKey: [`announcement${courseAnnouncementId}`],
 				});

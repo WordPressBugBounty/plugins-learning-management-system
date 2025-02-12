@@ -82,8 +82,17 @@ class CourseExporter {
 	 * @return string
 	 */
 	public static function get_post_type_label( $post_type ) {
-		$post_object = get_post_type_object( $post_type );
-		return strtolower( $post_object->labels->name ?? '' );
+		$original_labels = array(
+			PostType::COURSE   => 'Courses',
+			PostType::LESSON   => 'Lessons',
+			PostType::QUIZ     => 'Quizzes',
+			PostType::SECTION  => 'Sections',
+			PostType::QUESTION => 'Questions',
+		);
+
+		$original_labels = apply_filters( 'masteriyo_post_type_default_labels', $original_labels );
+
+		return strtolower( $original_labels[ $post_type ] ?? '' );
 	}
 
 	/**
@@ -449,9 +458,11 @@ class CourseExporter {
 	protected function create_export_file() {
 		$file_handler = new FileHandler();
 
-		$prefix = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+		$prefix     = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
+		$old_prefix = sprintf( 'masteriyo-export-%s-', get_current_user_id() );
 
 		$this->cleanup_old_files( $file_handler, $prefix, self::EXPORT_DIRECTORY );
+		$this->cleanup_old_files( $file_handler, $old_prefix, '' ); // This is for compatibility with old versions because export path is changed since 1.14.0.
 
 		$filename = sprintf( 'masteriyo-courses-export-%s-%s.json', get_current_user_id(), gmdate( 'Y-m-d-H-i-s' ) );
 		$result   = $file_handler->create_file( self::EXPORT_DIRECTORY, $filename );
@@ -473,11 +484,14 @@ class CourseExporter {
 	/**
 	 * Clean up old files to avoid clutter.
 	 *
+	 * @since 1.14.0
+	 *
 	 * @param FileHandler $file_handler
-	 * @param string $prefix
+	 * @param string      $prefix
+	 * @param string      $directory
 	 */
-	protected function cleanup_old_files( $file_handler, $prefix ) {
-		$old_files = $file_handler->search_files( $prefix, self::EXPORT_DIRECTORY );
+	protected function cleanup_old_files( $file_handler, $prefix, $directory = '' ) {
+		$old_files = $file_handler->search_files( $prefix, $directory );
 
 		if ( is_wp_error( $old_files ) ) {
 			return;
@@ -485,7 +499,7 @@ class CourseExporter {
 
 		if ( ! empty( $old_files ) ) {
 			foreach ( $old_files as $old_file ) {
-				$file_handler->delete( self::EXPORT_DIRECTORY, $old_file['name'] );
+				$file_handler->delete( $directory, $old_file['name'] );
 			}
 		}
 	}
@@ -537,7 +551,7 @@ class CourseExporter {
 
 		foreach ( $exported_files as $file ) {
 			$prefix = sprintf( 'masteriyo-courses-export-%s-', get_current_user_id() );
-			if ( masteriyo_starts_with( $file['name'], $prefix ) ) {
+			if ( isset( $file['name'] ) && masteriyo_starts_with( $file['name'], $prefix ) ) {
 				return self::get_file_path() . DIRECTORY_SEPARATOR . $file['name'];
 			}
 		}

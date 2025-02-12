@@ -11,7 +11,9 @@ namespace Masteriyo\Exporter;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\AdminFileDownloadHandler;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\FileHandler;
 use Masteriyo\PostType\PostType;
 
 /**
@@ -23,21 +25,38 @@ use Masteriyo\PostType\PostType;
 class QuizExporter {
 
 	/**
+	 * The ID used to generate download URL for exported quizzes file.
+	 *
+	 * @since 1.16.0
+	 */
+	const FILE_PATH_ID = 'export_quizzes';
+
+	/**
 	 * Main function to initiate the export process.
 	 *
 	 * @since 1.6.15
 	 *
+	 * @param int|null $quiz_id The ID of the quiz to export.
+	 *
 	 * @return array|null Information about the exported file or null if failed.
 	 */
-	public function export() {
+	public function export( $quiz_id = null ) {
 		wp_raise_memory_limit( 'admin' );
 
 		if ( ! $this->remove_old_export_file() ) {
 			return null;
 		}
 
-		$quizzes   = $this->get_posts( array( PostType::QUIZ ) );
-		$questions = $this->get_posts( array( PostType::QUESTION ) );
+		$quiz_args      = array( 'post_type' => PostType::QUIZ );
+		$questions_args = array( 'post_type' => PostType::QUESTION );
+
+		if ( ! is_null( $quiz_id ) ) {
+			$quiz_args['include']          = array( $quiz_id );
+			$questions_args['post_parent'] = $quiz_id;
+		}
+
+		$quizzes   = $this->get_posts( $quiz_args );
+		$questions = $this->get_posts( $questions_args );
 
 		if ( empty( $quizzes ) && empty( $questions ) ) {
 			return null;
@@ -61,15 +80,17 @@ class QuizExporter {
 	 *
 	 * @return array The fetched posts along with their metadata.
 	 */
-	protected function get_posts( $post_types ) {
-		$posts = get_posts(
+	protected function get_posts( $args ) {
+		$args = wp_parse_args(
+			$args,
 			array(
 				'posts_per_page' => -1,
-				'post_type'      => $post_types,
 				'post_status'    => PostStatus::ANY,
 				'author'         => current_user_can( 'manage_masteriyo_settings' ) ? null : get_current_user_id(),
 			)
 		);
+
+		$posts = get_posts( $args );
 
 		$posts_with_meta = array();
 
@@ -134,11 +155,27 @@ class QuizExporter {
 			return null;
 		}
 
+		$download_url = AdminFileDownloadHandler::get_download_url( self::FILE_PATH_ID, $filename );
+
 		return array(
 			'filepath'     => $filepath,
 			'filename'     => $filename,
-			'download_url' => trailingslashit( wp_upload_dir()['baseurl'] ) . 'masteriyo/' . $filename,
+			'download_url' => $download_url,
 		);
+	}
+
+	/**
+	 * Return the folder name where exported courses files are stored.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return string
+	 */
+	public static function get_file_path() {
+		$upload_dir = wp_upload_dir();
+		$export_dir = DIRECTORY_SEPARATOR . MASTERIYO_UPLOAD_DIR;
+
+		return $upload_dir['basedir'] . $export_dir;
 	}
 
 	/**
@@ -181,5 +218,4 @@ class QuizExporter {
 			'base_url'   => home_url(),
 		);
 	}
-
 }

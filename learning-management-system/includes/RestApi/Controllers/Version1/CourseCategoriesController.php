@@ -281,7 +281,7 @@ class CourseCategoriesController extends RestTermsController {
 	protected function get_course_cat_data( $course_cat, $context = 'view' ) {
 		$data = array(
 			'id'             => $course_cat->get_id(),
-			'name'           => $course_cat->get_name( $context ),
+			'name'           => wp_specialchars_decode( $course_cat->get_name( $context ) ),
 			'slug'           => $course_cat->get_slug( $context ),
 			'link'           => $course_cat->get_permalink( $context ),
 			'taxonomy'       => $course_cat->get_taxonomy( $context ),

@@ -50,6 +50,7 @@ use Masteriyo\RestApi\Controllers\Version1\OpenAIController;
 use Masteriyo\RestApi\Controllers\Version1\UsersImportExportController;
 use Masteriyo\RestApi\Controllers\Version1\UtilitiesController;
 use Masteriyo\RestApi\Controllers\Version1\LogsController;
+use Masteriyo\RestApi\Controllers\Version1\RestAuthController;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -162,7 +163,7 @@ class RestApi {
 			'changelog'             => ChangelogController::class,
 			'logger'                => LogsController::class,
 			'error_reports'         => ErrorReportsController::class,
-
+			'rest-api-auth'         => RestAuthController::class,
 		);
 	}
 

@@ -37,7 +37,6 @@ import {
 import routes from '../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
-import { isEmpty } from '../../../../assets/js/back-end/utils/utils';
 import googleClassroomUrls from '../../constants/urls';
 import { GoogleClassroomSettingsSchema } from './GoogleClassroomSetting';
 import { GoogleClassroomListSkeleton } from './GoogleClassroomSkeleton';
@@ -326,8 +325,7 @@ function GoogleClassroom() {
 						{googleClassroomQuery.isLoading ? (
 							<GoogleClassroomListSkeleton />
 						) : (
-							googleClassroomQuery?.isSuccess &&
-							!isEmpty(googleClassroomQuery?.data) && (
+							googleClassroomQuery?.isSuccess && (
 								<GoogleClassroomCoursesList
 									googleClassroomQueryData={googleClassroomQuery?.data}
 									onImportClick={onImportClick}

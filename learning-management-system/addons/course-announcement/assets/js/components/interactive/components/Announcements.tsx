@@ -1,6 +1,4 @@
 import {
-	Alert,
-	AlertIcon,
 	Box,
 	IconButton,
 	Popover,
@@ -18,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import { BsMegaphone } from 'react-icons/bs';
 import { FaPlus } from 'react-icons/fa';
+import CustomAlert from '../../../../../../../assets/js/back-end/components/common/CustomAlert';
 import { isEmpty } from '../../../../../../../assets/js/back-end/utils/utils';
 import API from './../../../../../../../assets/js/back-end/utils/api';
 import { urls } from './../../backend/constants/urls';
@@ -137,10 +136,9 @@ const Announcements: React.FC<Props> = (props) => {
 						{announcementQuery?.isLoading ? (
 							<Progress size="sm" isIndeterminate />
 						) : isEmptyAnnouncement ? (
-							<Alert status="info">
-								<AlertIcon />
+							<CustomAlert status="info">
 								{__('No announcements found.', 'learning-management-system')}
-							</Alert>
+							</CustomAlert>
 						) : (
 							announcementQuery?.data?.data?.map(
 								(announcement: AnnouncementSchema) => (

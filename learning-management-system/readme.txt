@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.15.2
+Stable tag: 1.16.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,42 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.16.0 - 12-02-2025 =
+- Feature - Mollie Payment Gateway.
+- Feature - MasterStudy and Lifter LMS migration.
+- Feature - REST API Authentication.
+- Feature - Individual quiz import and export option in course builder.
+- Feature - Added audio lesson type. [PRO]
+- Feature - Video subtitle upload options in video lesson. [PRO]
+- Enhancement - Filters and sorting option for courses page.
+- Enhancement - Wire transfer option in offline payment.
+- Enhancement - Added option to enable/disable OpenAI.
+- Enhancement - Additional file type support for audio and video types in doc uploader.
+- Enhancement - Masteriyo Global Setting UI minor revamp.
+- Enhancement - Added option to convert Youtube livestream to normal Youtube video after live stream end. [PRO]
+- Refactor - Social login for plain permalink selected case. [PRO]
+- Fix - Backend pages not working with AI engine plugin.
+- Fix - Stripe recipient email issue.
+- Fix - Compatibility with Divi builder plugin.
+- Fix - Correct answer handling when switching from multiple to single choice question type.
+- Fix - Watch full video issue when content drip is sequential.
+- Fix - Quiz title media displayed as plain text in learn page.
+- Fix - Password updated for same current and new passwords issue.
+- Fix - Lesson comment redirection for guest user after logged in.
+- Fix - Course exports key translation issue.
+- Fix - Completed course showing in account page dashboard in continue studying.
+- Fix - Ajax filter not working in course archive for layout 1 and 2. [PRO]
+- Fix - Courses sorting query logic in Courses page. [PRO]
+- Fix - Assignment retake issue when it is reviewed. [PRO]
+- Fix - Enrollment limit issue.
+- Fix - Course list badge UI.
+- Fix - Single course permalink URL changed based on permalink structure of WordPress.
+- Fix - Invoice download fails after PayPal payment.
+- Fix - .mov and .flv video support in Doc Uploader.
+- Fix - Issue on UI on layout 1 and 2 while filtering courses in courses page.
+- Fix - Delete the registered users data associated with the Masteriyo while uninstalling delete all data.
+- Fix - Stripe transaction id not generating issue.
 
 = 1.15.2 - 28-01-2025 =
 - Enhancement - Unmute autoplay option added in Masteriyo player settings.

@@ -1,6 +1,4 @@
 import {
-	Alert,
-	AlertIcon,
 	Box,
 	Button,
 	Tooltip,
@@ -15,6 +13,7 @@ import { IoIosArrowBack } from 'react-icons/io';
 import { IoAddOutline } from 'react-icons/io5';
 import EmptyGroup from '../../../../../../assets/js/account/common/EmptyGroup';
 import PageTitle from '../../../../../../assets/js/account/common/PageTitle';
+import CustomAlert from '../../../../../../assets/js/back-end/components/common/CustomAlert';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
@@ -151,10 +150,9 @@ const Groups: React.FC = () => {
 			{groupQuery.isLoading || !groupQuery.isFetched ? (
 				<GroupSkeleton />
 			) : groupQuery.isError ? (
-				<Alert status="error">
-					<AlertIcon />
+				<CustomAlert status="error">
 					{__('Error fetching groups.', 'learning-management-system')}
-				</Alert>
+				</CustomAlert>
 			) : groupQuery.isSuccess && isEmpty(groupQuery?.data?.data) && !isOpen ? (
 				<EmptyGroup
 					text={__("You don't have any groups yet")}

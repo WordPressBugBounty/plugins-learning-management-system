@@ -3692,6 +3692,19 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 						'layout'          => 'default',
 					),
 				),
+				'filters_and_sorting'   => array(
+					'enable_filters'                 => false,
+					'enable_category_filter'         => true,
+					'enable_difficulty_level_filter' => true,
+					'enable_price_type_filter'       => true,
+					'enable_price_filter'            => true,
+					'enable_rating_filter'           => true,
+					'enable_sorting'                 => false,
+					'enable_date_sorting'            => true,
+					'enable_price_sorting'           => true,
+					'enable_rating_sorting'          => true,
+					'enable_course_title_sorting'    => true,
+				),
 				'components_visibility' => array(
 					'thumbnail'          => true,
 					'difficulty_badge'   => true,
@@ -3776,10 +3789,19 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 				),
 				'offline'         => array(
 					// Offline payment
-					'enable'       => false,
-					'title'        => 'Offline payment',
-					'description'  => 'Pay with offline payment.',
-					'instructions' => 'Pay with offline payment',
+					'enable'        => false,
+					'title'         => 'Offline payment',
+					'description'   => 'Pay with offline payment.',
+					'instructions'  => 'Pay with offline payment',
+					'wire_transfer' => array(
+						'enable'              => false,
+						'title'               => 'Wire transfer instructions',
+						'bank_name'           => '',
+						'account_holder_name' => '',
+						'account_number'      => '',
+						'swift_code'          => '',
+						'description'         => 'If you prefer wire transfer please transfer the total amount to the bank account provided below. Include your order number as the payment reference.',
+					),
 				),
 				'paypal'          => array(
 					// Standard Paypal
@@ -3940,6 +3962,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 				),
 				'openai'     => array(
 					'api_key' => '',
+					'enable'  => false,
 				),
 				'editor'     => array(
 					'default_editor' => 'classic_editor',
@@ -5502,7 +5525,111 @@ if ( ! function_exists( 'masteriyo_is_course_carousel_enabled' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_get_current_request_url' ) ) {
 	/**
+	 * Returns current URL after adding or excluding query params.
+	 *
+	 * @since 2.5.18
+	 *
+	 * @param string|array $new_params Name value pairs.
+	 * @param array $exclude Keys to exclude.
+	 *
+	 * @return string
+	 */
+	function masteriyo_get_current_request_url( $new_params = array(), $exclude = array() ) {
+		global $wp;
+
+		$args = array_merge( $_GET, $new_params ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! empty( $exclude ) ) {
+			$args = array_filter(
+				$args,
+				function( $value, $key ) use ( $exclude ) {
+					return ! in_array( $key, $exclude, true );
+				},
+				ARRAY_FILTER_USE_BOTH
+			);
+		}
+
+		return add_query_arg( $args, home_url( $wp->request ) );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_query_string_form_fields' ) ) {
+	/**
+	 * Returns hidden form inputs for each query string variable.
+	 *
+	 * @since 2.5.18
+	 *
+	 * @param string|array $values Name value pairs, or a URL to parse.
+	 * @param array $exclude Keys to exclude.
+	 * @param string $current_key Current key we are outputting.
+	 *
+	 * @return string
+	 */
+	function masteriyo_get_query_string_form_fields( $values = null, $exclude = array(), $current_key = '' ) {
+		if ( is_null( $values ) ) {
+			$values = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		} elseif ( is_string( $values ) ) {
+			$url_parts = wp_parse_url( $values );
+			$values    = array();
+
+			if ( ! empty( $url_parts['query'] ) ) {
+				// This is to preserve full-stops, pluses and spaces in the query string when ran through parse_str.
+				$replace_chars = array(
+					'.' => '{dot}',
+					'+' => '{plus}',
+				);
+
+				$query_string = str_replace( array_keys( $replace_chars ), array_values( $replace_chars ), $url_parts['query'] );
+
+				// Parse the string.
+				parse_str( $query_string, $parsed_query_string );
+
+				// Convert the full-stops, pluses and spaces back and add to values array.
+				foreach ( $parsed_query_string as $key => $value ) {
+					$new_key            = str_replace( array_values( $replace_chars ), array_keys( $replace_chars ), $key );
+					$new_value          = str_replace( array_values( $replace_chars ), array_keys( $replace_chars ), $value );
+					$values[ $new_key ] = $new_value;
+				}
+			}
+		}
+		$html = '';
+
+		foreach ( $values as $key => $value ) {
+			if ( in_array( $key, $exclude, true ) ) {
+				continue;
+			}
+			if ( $current_key ) {
+				$key = $current_key . '[' . $key . ']';
+			}
+			if ( is_array( $value ) ) {
+				$html .= masteriyo_get_query_string_form_fields( $value, $exclude, $key );
+			} else {
+				$html .= '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( wp_unslash( $value ) ) . '" />';
+			}
+		}
+
+		return $html;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_render_query_string_form_fields' ) ) {
+	/**
+	 * Outputs hidden form inputs for each query string variable.
+	 *
+	 * @since 2.5.18
+	 *
+	 * @param string|array $values Name value pairs, or a URL to parse.
+	 * @param array $exclude Keys to exclude.
+	 * @param string $current_key Current key we are outputting.
+	 */
+	function masteriyo_render_query_string_form_fields( $values = null, $exclude = array(), $current_key = '' ) {
+		echo masteriyo_get_query_string_form_fields( $values, $exclude, $current_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+/**
  * Get currencies list.
  *
  * @since 1.15.0

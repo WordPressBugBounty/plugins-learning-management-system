@@ -104,7 +104,7 @@ const LeftHeader: React.FC = (props) => {
 		},
 	});
 
-	const counts = groupQuery.data?.meta.groups_count;
+	const counts = groupQuery.data?.meta?.groups_count;
 	const isCounting = groupQuery.isLoading;
 
 	const groupNavStyles = {

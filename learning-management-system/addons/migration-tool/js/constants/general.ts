@@ -1,6 +1,7 @@
 export const ALL_MIGRATION_STEPS: string[] = ['Courses', 'Orders', 'Reviews'];
 
 export const MIGRATION_STEPS_RELATIVE_TO_LMS: { [key: string]: string[] } = {
+	lifterlms: ['Courses', 'Orders'],
 	'sfwd-lms': ['Courses', 'Orders'],
 	tutor: [...ALL_MIGRATION_STEPS, 'Announcement', 'Questions and Answers'],
 };

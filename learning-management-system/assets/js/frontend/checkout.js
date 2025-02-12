@@ -173,6 +173,13 @@ jQuery(function ($) {
 				$('div.payment-box').show();
 			}
 
+			var checked_payment_method = $(this).attr('id');
+			if (checked_payment_method === 'payment-method-offline') {
+				$('.masteriyo-checkout-wire-transfer').show();
+			} else {
+				$('.masteriyo-checkout-wire-transfer').hide();
+			}
+
 			if ($(this).data('order_button_text')) {
 				$('#masteriyo-place-order').text($(this).data('order_button_text'));
 			} else {

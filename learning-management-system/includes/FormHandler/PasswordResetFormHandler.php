@@ -55,6 +55,11 @@ class PasswordResetFormHandler {
 			$user = $this->validate_reset_key();
 			$data = $this->get_form_data();
 
+			$user_data = get_user_by( 'login', $user->data->user_login );
+			if ( isset( $data['password'] ) && wp_check_password( $data['password'], $user_data->user_pass, $user_data->ID ) ) {
+				throw new \Exception( __( 'New password cannot be the same as the old password.', 'learning-management-system' ) );
+			}
+
 			/**
 			 * Fires before the user’s password is reset.
 			 *

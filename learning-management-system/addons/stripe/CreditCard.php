@@ -158,13 +158,16 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 			}
 
 			$payment_intent_id = $session->get( 'stripe_payment_intent_id' );
+			$order->set_transaction_id( $payment_intent_id );
+			$order->save();
 
 			// Update payment intent with order id.
 			PaymentIntent::update(
 				$payment_intent_id,
 				array(
-					'metadata' => array( 'order_id' => $order->get_id() ),
-					'amount'   => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
+					'receipt_email' => $order->get_billing_email(),
+					'metadata'      => array( 'order_id' => $order->get_id() ),
+					'amount'        => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
 				)
 			);
 

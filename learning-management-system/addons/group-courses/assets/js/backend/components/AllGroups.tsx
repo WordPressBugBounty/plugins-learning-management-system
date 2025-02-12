@@ -29,6 +29,7 @@ import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepMerge,
 	isEmpty,
+	removeOperationInCache,
 } from '../../../../../../assets/js/back-end/utils/utils';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -90,7 +91,12 @@ const AllGroups = () => {
 	const deleteGroup = useMutation({
 		mutationFn: (id: number) => groupAPI.delete(id, { force: true }),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					['groupsList', { order: 'desc', orderby: 'date' }],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				onClose();
 			},
@@ -114,7 +120,12 @@ const AllGroups = () => {
 	const trashGroup = useMutation({
 		mutationFn: (id: number) => groupAPI.delete(id),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					['groupsList', { order: 'desc', orderby: 'date' }],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				toast({
 					title: __('Group Trashed', 'learning-management-system'),

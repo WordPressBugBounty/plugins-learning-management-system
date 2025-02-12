@@ -678,6 +678,9 @@
 								}
 								currentPage += 1;
 								$('.masteriyo-course-reviews-list').append(res.data.html);
+								$('.masteriyo-single-body__main--review-lists').append(
+									res.data.html,
+								);
 								$('.course-reviews .masteriyo-danger-msg').remove();
 							}
 						},

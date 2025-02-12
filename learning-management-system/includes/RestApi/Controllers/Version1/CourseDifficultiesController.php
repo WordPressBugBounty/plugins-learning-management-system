@@ -269,7 +269,7 @@ class CourseDifficultiesController extends RestTermsController {
 	protected function get_course_difficulty_data( CourseDifficulty $course_difficulty, $context = 'view' ) {
 		$data = array(
 			'id'          => $course_difficulty->get_id(),
-			'name'        => $course_difficulty->get_name( $context ),
+			'name'        => wp_specialchars_decode( $course_difficulty->get_name( $context ) ),
 			'slug'        => $course_difficulty->get_slug( $context ),
 			'link'        => $course_difficulty->get_permalink( $context ),
 			'taxonomy'    => $course_difficulty->get_taxonomy( $context ),

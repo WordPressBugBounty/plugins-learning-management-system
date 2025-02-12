@@ -1,15 +1,15 @@
 import {
+	Box,
 	Button,
 	Collapse,
 	FormLabel,
 	HStack,
-	Icon,
 	List,
 	ListIcon,
 	ListItem,
 	Select,
 	Stack,
-	Text,
+	UnorderedList,
 	VStack,
 	useSteps,
 	useToast,
@@ -20,7 +20,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { BiRightArrowAlt } from 'react-icons/bi';
 import { IoIosMove } from 'react-icons/io';
-import { IoAlertCircleOutline } from 'react-icons/io5';
+import CustomAlert from '../../../../assets/js/back-end/components/common/CustomAlert';
 import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -416,30 +416,12 @@ const Migration: React.FC = () => {
 						<Collapse in={currentlyActiveLms}>
 							<VStack gap={3} my={5} alignItems={'flex-start'}>
 								{/* Migration Alert */}
-								<Stack
-									alignItems={'center'}
-									borderColor={'yellow.500'}
-									borderWidth={1}
-									borderRadius={'md'}
-									padding={3}
-									mb={4}
-									direction={{ base: 'column', md: 'row' }}
-									spacing={2}
-								>
-									<HStack flex={1}>
-										<Icon
-											as={IoAlertCircleOutline}
-											fontSize={'x-large'}
-											color={'yellow.500'}
-										/>
-										<Text fontWeight={'semibold'} fontSize={14}>
-											{__(
-												'Before proceeding with the migration, please test the process on a staging site. The following data will be migrated, and once the migration is complete, the data cannot be restored to the previous LMS system.',
-												'learning-management-system',
-											)}
-										</Text>
-									</HStack>
-								</Stack>
+								<CustomAlert status="warning" mb="6">
+									{__(
+										'Before proceeding with the migration, please test the process on a staging site. The following data will be migrated, and once the migration is complete, the data cannot be restored to the previous LMS system.',
+										'learning-management-system',
+									)}
+								</CustomAlert>
 
 								{/* List of data that will be migrated */}
 
@@ -462,37 +444,28 @@ const Migration: React.FC = () => {
 													fontSize={'sm'}
 												/>
 												{step}
+												{step === 'Courses' && (
+													<Box ml={8} mt={2}>
+														<UnorderedList spacing={1}>
+															<ListItem fontSize="small" color="gray.600">
+																{__(
+																	'All Enrolled Users',
+																	'learning-management-system',
+																)}
+															</ListItem>
+
+															<ListItem fontSize="small" color="gray.600">
+																{__(
+																	'Instructors who created the course',
+																	'learning-management-system',
+																)}
+															</ListItem>
+														</UnorderedList>
+													</Box>
+												)}
 											</ListItem>
 										);
 									})}
-
-									<ListItem
-										fontSize={'small'}
-										color={'gray.600'}
-										fontWeight={'semibold'}
-									>
-										<ListIcon
-											as={BiRightArrowAlt}
-											color="green.500"
-											fontSize={'sm'}
-										/>
-										{__('All Enrolled Users', 'learning-management-system')}
-									</ListItem>
-									<ListItem
-										fontSize={'small'}
-										color={'gray.600'}
-										fontWeight={'semibold'}
-									>
-										<ListIcon
-											as={BiRightArrowAlt}
-											color="green.500"
-											fontSize={'sm'}
-										/>
-										{__(
-											'Instructors who created the course',
-											'learning-management-system',
-										)}
-									</ListItem>
 								</List>
 							</VStack>
 						</Collapse>

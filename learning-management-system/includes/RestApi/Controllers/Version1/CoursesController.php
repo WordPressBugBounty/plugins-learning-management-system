@@ -665,6 +665,10 @@ class CoursesController extends PostsController {
 			);
 		}
 
+		if ( masteriyo_is_current_user_admin() ) {
+			unset( $args['author'] );
+		}
+
 		return $args;
 	}
 

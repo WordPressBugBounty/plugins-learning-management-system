@@ -35,7 +35,10 @@ import {
 } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import API from '../../../../../../assets/js/back-end/utils/api';
-import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
+import {
+	deepClean,
+	editOperationInCache,
+} from '../../../../../../assets/js/back-end/utils/utils';
 import Name from '../../common/components/Name';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -81,7 +84,12 @@ const EditGroup: React.FC = () => {
 	const updateGroup = useMutation<GroupSchema>({
 		mutationFn: (data) => groupAPI.update(groupId, data),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				editOperationInCache(
+					queryClient,
+					['groupsList', { order: 'desc', orderby: 'date' }],
+					data,
+				);
 				queryClient.invalidateQueries({ queryKey: [`group${groupId}`] });
 				queryClient.invalidateQueries({ queryKey: [`groupsList`] });
 				toast({

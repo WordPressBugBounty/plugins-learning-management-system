@@ -89,7 +89,34 @@ const DocPreview: React.FC<Props> = (props) => {
 		saveAs(file?.url, getFileNameFromURL(file?.url));
 	};
 
-	const videoMimeType = ['video/mp4', 'video/mpeg', 'video/webm', 'video/ogg'];
+	const videoMimeType = [
+		'video/mp4',
+		'video/mpeg',
+		'video/webm',
+		'video/ogg',
+		'video/mkv',
+		'video/avi',
+		'video/webm',
+		'video/x-flv',
+		'video/quicktime',
+		'video/x-ms-wmv',
+		'video/flv',
+	];
+
+	const audioMimeType = [
+		'audio/mp3',
+		'audio/m4a',
+		'audio/oga',
+		'audio/ogg',
+		'audio/wav',
+		'audio/opus',
+		'audio/flac',
+		'audio/x-m4a',
+		'audio/x-ms-wma',
+		'audio/mpeg',
+		'audio/wma',
+	];
+
 	const imageMimeType = [
 		'image/jpeg',
 		'image/png',
@@ -189,8 +216,7 @@ const DocPreview: React.FC<Props> = (props) => {
 					<ModalHeader>{currentFile?.title}</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
-						{'audio/mpeg' === currentFile?.mime_type ||
-						'audio/wav' === currentFile?.mime_type ? (
+						{audioMimeType.includes(currentFile?.mime_type as string) ? (
 							<audio
 								controls
 								controlsList="nodownload"

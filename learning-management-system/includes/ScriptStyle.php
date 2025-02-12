@@ -81,7 +81,13 @@ class ScriptStyle {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_styles_from_learn_page' ), PHP_INT_MAX );
 		// Remove third party styles from account page.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_styles_from_account_page' ), PHP_INT_MAX );
+
+		// Remove third party scripts from admin page.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'remove_scripts_from_admin_page' ), 9999 );
 	}
+
+
+
 
 	/**
 	 * load editor styles for blocks
@@ -1031,6 +1037,7 @@ class ScriptStyle {
 							'account'  => $account_slug,
 							'checkout' => $checkout_slug,
 						),
+						'permalinkStructure'        => get_option( 'permalink_structure' ),
 						'currency'                  => array(
 							'code'               => masteriyo_get_currency(),
 							'symbol'             => html_entity_decode( masteriyo_get_currency_symbol( masteriyo_get_currency() ) ),
@@ -1049,6 +1056,7 @@ class ScriptStyle {
 						'current_user'              => $user ? masteriyo_array_except( $user->get_data(), array( 'password' ) ) : null,
 						'canDeleteCourseCategories' => masteriyo_bool_to_string( current_user_can( 'delete_course_categories' ) ),
 						'isOpenAIKeyFound'          => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.openai.api_key' ) ? true : false ),
+						'isOpenAIEnabled'           => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.openai.enable' ) ? true : false ),
 						'singleCourseTemplates'     => array(),
 						'courseArchiveTemplates'    => array(),
 						'onBoardingPageUrl'         => admin_url( 'index.php?page=masteriyo-onboard' ),
@@ -1077,7 +1085,7 @@ class ScriptStyle {
 							'themes'  => array(
 								'elearning'        => strpos( $current_theme, 'elearning' ) !== false ? 'active' : (
 								in_array( 'elearning', $installed_theme_slugs, true ) ? 'inactive' : 'not-installed'
-								  ),
+									),
 								'online-education' => strpos( $current_theme, 'online-education' ) !== false ? 'active' : (
 								in_array( 'online-education', $installed_theme_slugs, true ) ? 'inactive' : 'not-installed'
 								),
@@ -1405,6 +1413,48 @@ class ScriptStyle {
 	}
 
 	/**
+	 * Remove scripts on the masteriyo admin page.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return void
+	*/
+	public static function remove_scripts_from_admin_page() {
+
+		// Bail early if the user is not logged in or not on the admin page.
+		if ( ! is_user_logged_in() || ! masteriyo_is_admin_page() ) {
+			return;
+		}
+
+		// Deregister and dequeue blacklisted scripts.
+		$blacklist_scripts = self::get_blacklist_scripts_in_masteriyo_admin_page();
+		foreach ( $blacklist_scripts as $handle ) {
+			wp_deregister_script( $handle );
+			wp_dequeue_script( $handle );
+		}
+	}
+
+
+	/**
+	 * Get the list of blacklist scripts in masteriyo admin page.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return array
+	 */
+	public static function get_blacklist_scripts_in_masteriyo_admin_page() {
+		return array_unique(
+			apply_filters(
+				'get_blacklist_scripts_in_admin_page',
+				array(
+					'mwai',
+				)
+			)
+		);
+	}
+
+
+	/**
 	 * Get the list of whitelist styles in learn page.
 	 *
 	 * @since 1.0.0
@@ -1494,4 +1544,3 @@ class ScriptStyle {
 		);
 	}
 }
-

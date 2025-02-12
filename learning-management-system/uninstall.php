@@ -17,7 +17,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 defined( 'MASTERIYO_SLUG' ) || define( 'MASTERIYO_SLUG', 'learning-management-system' );
-defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.15.2' );
+defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.16.0' );
 defined( 'MASTERIYO_PLUGIN_FILE' ) || define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
 defined( 'MASTERIYO_PLUGIN_BASENAME' ) || define( 'MASTERIYO_PLUGIN_BASENAME', plugin_basename( MASTERIYO_PLUGIN_FILE ) );
 defined( 'MASTERIYO_PLUGIN_DIR' ) || define( 'MASTERIYO_PLUGIN_DIR', dirname( MASTERIYO_PLUGIN_FILE ) );
@@ -102,6 +102,18 @@ if ( masteriyo_string_to_bool( masteriyo_get_setting( 'advance.uninstall.remove_
 	// Delete orphan term meta.
 	if ( ! empty( $wpdb->termmeta ) ) {
 		$wpdb->query( "DELETE tm FROM {$wpdb->termmeta} tm LEFT JOIN {$wpdb->term_taxonomy} tt ON tm.term_id = tt.term_id WHERE tt.term_id IS NULL;" );
+	}
+
+	// Delete users associated with the masteriyo roles.
+	$roles        = array( 'masteriyo_student', 'masteriyo_instructor' );
+	$placeholders = implode( ' OR ', array_fill( 0, count( $roles ), 'meta_value LIKE %s' ) );
+	$query        = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = 'wp_capabilities' AND ($placeholders)";
+	$like_roles   = array_map( fn( $role) => '%' . $role . '%', $roles );
+	$user_ids     = $wpdb->get_col( $wpdb->prepare( $query, ...$like_roles ) ); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	if ( ! empty( $user_ids ) ) {
+		foreach ( $user_ids as $user_id ) {
+			wp_delete_user( $user_id );
+		}
 	}
 
 	// Clear any cached data that has been removed.

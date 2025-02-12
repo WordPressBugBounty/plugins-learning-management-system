@@ -434,7 +434,13 @@ class UserCoursesController extends CrudController {
 		$args['paged'] = $args['page'];
 
 		if ( masteriyo_is_request_from_account_dashboard( $request ) ) {
-			$args['course__in'] = masteriyo_get_user_course_ids_by_course_status( current( $args['user__in'] ) );
+			$course_ids = masteriyo_get_user_course_ids_by_course_status( current( $args['user__in'] ) );
+			// requires for course listing(inprogress) in dashboard page so by default it would not list every course there is.
+			if ( empty( $course_ids ) ) {
+				$args['course__in'] = array( 0 );
+			} else {
+				$args['course__in'] = $course_ids;
+			}
 		}
 
 		/**

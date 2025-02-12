@@ -21,6 +21,7 @@ return array(
     'Mpdf\\PsrLogAwareTrait\\' => array($vendorDir . '/mpdf/psr-log-aware-trait/src'),
     'Mpdf\\PsrHttpMessageShim\\' => array($vendorDir . '/mpdf/psr-http-message-shim/src'),
     'Mpdf\\' => array($vendorDir . '/mpdf/mpdf/src'),
+    'Mollie\\Api\\' => array($vendorDir . '/mollie/mollie-api-php/src'),
     'MaxMind\\Db\\' => array($vendorDir . '/maxmind-db/reader/src/MaxMind/Db'),
     'Masteriyo\\Pro\\' => array($baseDir . '/pro'),
     'Masteriyo\\Addons\\WishList\\' => array($baseDir . '/addons/wishlist'),
@@ -32,6 +33,7 @@ return array(
     'Masteriyo\\Addons\\RevenueSharing\\' => array($baseDir . '/addons/revenue-sharing'),
     'Masteriyo\\Addons\\OxygenIntegration\\' => array($baseDir . '/addons/oxygen-integration'),
     'Masteriyo\\Addons\\MultipleCurrency\\' => array($baseDir . '/addons/multiple-currency'),
+    'Masteriyo\\Addons\\Mollie\\' => array($baseDir . '/addons/mollie'),
     'Masteriyo\\Addons\\MigrationTool\\' => array($baseDir . '/addons/migration-tool'),
     'Masteriyo\\Addons\\LemonSqueezyIntegration\\' => array($baseDir . '/addons/lemon-squeezy-integration'),
     'Masteriyo\\Addons\\GroupCourses\\' => array($baseDir . '/addons/group-courses'),
@@ -58,4 +60,5 @@ return array(
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
+    'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
 );

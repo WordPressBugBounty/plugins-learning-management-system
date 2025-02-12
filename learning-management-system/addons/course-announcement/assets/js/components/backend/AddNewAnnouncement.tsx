@@ -26,7 +26,10 @@ import {
 import { navActiveStyles } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import API from '../../../../../../assets/js/back-end/utils/api';
-import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
+import {
+	addOperationInCache,
+	deepClean,
+} from '../../../../../../assets/js/back-end/utils/utils';
 import AnnouncementActionBtn from './components/AnnouncementActionBtn';
 import CourseSelect from './components/CourseSelect';
 import Description from './components/Description';
@@ -61,6 +64,17 @@ const AddNewAnnouncement: React.FC = () => {
 	const onSubmit = (data: any) => {
 		addAnnouncement.mutate(deepClean(data), {
 			onSuccess: (data) => {
+				addOperationInCache(
+					queryClient,
+					[
+						'announcementList',
+						{
+							order: 'desc',
+							orderby: 'date',
+						},
+					],
+					data,
+				);
 				toast({
 					title:
 						data.title + __(' has been added.', 'learning-management-system'),

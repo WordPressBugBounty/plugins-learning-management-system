@@ -13,6 +13,8 @@ use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Enums\SectionChildrenPostType;
+use Masteriyo\Query\CourseCategoryQuery;
+use Masteriyo\Taxonomy\Taxonomy;
 
 if ( ! ( function_exists( 'add_action' ) && function_exists( 'add_filter' ) ) ) {
 	return;
@@ -501,6 +503,9 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 			if ( post_password_required( get_post( $course->get_id() ) ) ) {
 				$class[] = 'masteriyo-password-protected';
 			}
+			if ( 0 !== $course->get_enrollment_limit() && 0 === $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
+				$class[] = 'masteriyo-btn-disabled';
+			}
 		} else {
 			$class[] = 'masteriyo-course--btn';
 		}
@@ -630,7 +635,7 @@ if ( ! function_exists( 'masteriyo_account_courses_endpoint' ) ) {
 		$user_courses = $query->get_user_courses();
 		$all_courses  = array_filter(
 			array_map(
-				function( $user_course ) {
+				function ( $user_course ) {
 					$course = masteriyo_get_course( $user_course->get_course_id() );
 
 					if ( is_null( $course ) ) {
@@ -2196,7 +2201,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 
 		$section_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( PostType::SECTION === $post->post_type ) {
 					++$count;
 				}
@@ -2208,7 +2213,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 
 		$lesson_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( PostType::LESSON === $post->post_type ) {
 					++$count;
 				}
@@ -2220,7 +2225,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 
 		$quiz_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( PostType::QUIZ === $post->post_type ) {
 					++$count;
 				}
@@ -2328,7 +2333,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 
 		$lesson_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( SectionChildrenPostType::LESSON === $post->post_type ) {
 					++$count;
 				}
@@ -2340,7 +2345,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 
 		$quiz_count = array_reduce(
 			$posts,
-			function( $count, $post ) {
+			function ( $count, $post ) {
 				if ( SectionChildrenPostType::QUIZ === $post->post_type ) {
 					++$count;
 				}
@@ -2512,6 +2517,325 @@ function masteriyo_add_current_theme_slug_to_body_tag( $classes, $class ) {
 	$classes[]     = 'theme-' . $current_theme->get_template();
 
 	return $classes;
+}
+
+
+if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
+	/**
+	 * Display courses sorting input.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_courses_sorting_input() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_sorting' ) ) ) {
+			return;
+		}
+
+		$options = array();
+
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_date_sorting' ) ) ) {
+			$options[] = array(
+				'value' => 'date',
+				'label' => __( 'Latest First', 'learning-management-system' ),
+				'order' => 'DESC',
+			);
+			$options[] = array(
+				'value' => 'date',
+				'label' => __( 'Oldest First', 'learning-management-system' ),
+				'order' => 'ASC',
+			);
+		}
+
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_price_sorting' ) ) ) {
+			$options[] = array(
+				'value' => 'price',
+				'label' => __( 'Price: Low to High', 'learning-management-system' ),
+				'order' => 'ASC',
+			);
+			$options[] = array(
+				'value' => 'price',
+				'label' => __( 'Price: High to Low', 'learning-management-system' ),
+				'order' => 'DESC',
+			);
+		}
+
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_rating_sorting' ) ) ) {
+			$options[] = array(
+				'value' => 'rating',
+				'label' => __( 'Highest rated first', 'learning-management-system' ),
+				'order' => 'DESC',
+			);
+			$options[] = array(
+				'value' => 'rating',
+				'label' => __( 'Lowest rated first', 'learning-management-system' ),
+				'order' => 'ASC',
+			);
+		}
+
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_course_title_sorting' ) ) ) {
+			$options[] = array(
+				'value' => 'title',
+				'label' => __( 'Sort by Course Title (A-Z)', 'learning-management-system' ),
+				'order' => 'ASC',
+			);
+			$options[] = array(
+				'value' => 'title',
+				'label' => __( 'Sort by Course Title (Z-A)', 'learning-management-system' ),
+				'order' => 'DESC',
+			);
+		}
+
+		/**
+		 * Filters courses sorting options.
+		 *
+		 * @since 2.5.18
+		 *
+		 * @param array $options
+		 */
+		$options = apply_filters( 'masteriyo_courses_sorting_options', $options );
+
+		$sort_by       = masteriyo_array_get( $_GET, 'orderby', 'date' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sort_by       = empty( $sort_by ) ? 'date' : $sort_by;
+		$sorting_order = masteriyo_array_get( $_GET, 'order', 'DESC' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sorting_order = strtoupper( empty( $sorting_order ) ? 'DESC' : $sorting_order );
+
+		masteriyo_get_template(
+			'course-sorting.php',
+			array(
+				'options'       => $options,
+				'sort_by'       => $sort_by,
+				'sorting_order' => $sorting_order,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_render_course_filter_and_sorting_nonce_field' ) ) {
+	/**
+	 * Renders course filter and sorting nonce field.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_render_course_filter_and_sorting_nonce_field() {
+		wp_nonce_field( 'masteriyo_course_filter_and_sorting_nonce', 'masteriyo_course_filter_and_sorting_nonce' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_filters' ) ) {
+	/**
+	 * Display course filters section.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_filters() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_filters' ) ) ) {
+			return;
+		}
+
+		$exclude_query_string_render = array( 'categories', 'difficulties', 'price-type', 'price-from', 'price-to' );
+
+		/**
+		 * Filters list of query variables to exclude while rendering form fields to include URL query params in course filter form.
+		 *
+		 * @since 1.16.0
+		 *
+		 * @param string[] $exclude
+		 */
+		$exclude_query_string_render = apply_filters( 'masteriyo_exclude_query_string_render_for_course_filter', $exclude_query_string_render );
+
+		masteriyo_get_template(
+			'course-filters.php',
+			array(
+				'exclude_query_string_render' => $exclude_query_string_render,
+				'form_action_url'             => masteriyo_get_page_permalink( 'courses' ),
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_categories_filter' ) ) {
+	/**
+	 * Display categories filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_categories_filter() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_category_filter' ) ) ) {
+			return;
+		}
+
+		$categories_query = new CourseCategoryQuery(
+			array(
+				'order'   => 'ASC',
+				'orderby' => 'name',
+				'number'  => '',
+			)
+		);
+		$categories       = $categories_query->get_categories();
+		$selected         = array_map( 'absint', (array) masteriyo_array_get( $_GET, 'categories', array() ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		/**
+		 * Filters limit for showing categories in course category filter.
+		 *
+		 * @since 1.16.0
+		 *
+		 * @param integer $limit
+		 */
+		$initially_visible_categories_limit = apply_filters( 'masteriyo_initially_visible_course_categories_filter_limit', 7 );
+
+		masteriyo_get_template(
+			'course-filters/categories-filter.php',
+			array(
+				'categories'                         => $categories,
+				'selected_categories'                => $selected,
+				'initially_visible_categories_limit' => absint( $initially_visible_categories_limit ),
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_difficulties_filter' ) ) {
+	/**
+	 * Display difficulties filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_difficulties_filter() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_difficulty_level_filter' ) ) ) {
+			return;
+		}
+
+		$term_query   = new \WP_Term_Query();
+		$difficulties = $term_query->query(
+			array(
+				'taxonomy'   => Taxonomy::COURSE_DIFFICULTY,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+				'hide_empty' => false,
+				'number'     => '',
+			)
+		);
+		$difficulties = array_filter( array_map( 'masteriyo_get_course_difficulty', $difficulties ) );
+		$selected     = array_map( 'absint', (array) masteriyo_array_get( $_GET, 'difficulties', array() ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		masteriyo_get_template(
+			'course-filters/difficulties-filter.php',
+			array(
+				'difficulties'          => $difficulties,
+				'selected_difficulties' => $selected,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_price_type_filter' ) ) {
+	/**
+	 * Display price type filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_price_type_filter() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_price_type_filter' ) ) ) {
+			return;
+		}
+
+		$selected = masteriyo_array_get( $_GET, 'price-type', null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		masteriyo_get_template(
+			'course-filters/price-type-filter.php',
+			array(
+				'selected' => $selected,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_price_filter' ) ) {
+	/**
+	 * Display price filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_price_filter() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_price_filter' ) ) ) {
+			return;
+		}
+
+		$price_from = masteriyo_array_get( $_GET, 'price-from', '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$price_to   = masteriyo_array_get( $_GET, 'price-to', '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		masteriyo_get_template(
+			'course-filters/price-filter.php',
+			array(
+				'price_from' => $price_from,
+				'price_to'   => $price_to,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_rating_filter' ) ) {
+	/**
+	 * Display rating filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_rating_filter() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_rating_filter' ) ) ) {
+			return;
+		}
+
+		$filter_urls = array_reduce(
+			array( 0, 1, 2, 3, 4, 5 ),
+			function ( $arr, $rating ) {
+				if ( 0 === $rating ) {
+					$arr[ $rating ] = masteriyo_get_current_request_url( array(), array( 'rating' ) );
+				} else {
+					$arr[ $rating ] = masteriyo_get_current_request_url( array( 'rating' => $rating ) );
+				}
+				return $arr;
+			},
+			array()
+		);
+
+		masteriyo_get_template(
+			'course-filters/rating-filter.php',
+			array(
+				'filter_urls' => $filter_urls,
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_clear_course_filter' ) ) {
+	/**
+	 * Display button to clear course filter.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_clear_course_filter() {
+		masteriyo_get_template(
+			'course-filters/clear-filter.php',
+			array(
+				'clear_url' => masteriyo_get_page_permalink( 'courses' ),
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_template_course_filter_sidebar_toggle' ) ) {
+	/**
+	 * Display course filter trigger button.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_course_filter_sidebar_toggle() {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_filters' ) ) ) {
+			return;
+		}
+
+		masteriyo_get_template( 'course-filters/course-filter-sidebar-toggle.php' );
+	}
 }
 
 if ( ! function_exists( 'masteriyo_template_checkout_first_and_last_name' ) ) {
@@ -3240,6 +3564,30 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_highlights' ) ) {
 			'single-course/layout-1/highlights.php',
 			array(
 				'course' => $course,
+			)
+		);
+	}
+}
+
+
+if ( ! function_exists( 'masteriyo_template_payment_wire_transfer' ) ) {
+	/**
+	 * Display checkout form payment.
+	 *
+	 * @since 1.16.0
+	 */
+	function masteriyo_template_payment_wire_transfer() {
+		$wire_transfer_enabled  = masteriyo_get_setting( 'payments.offline.wire_transfer.enable' );
+		$offline_payment_enable = masteriyo_get_setting( 'payments.offline.enable' );
+
+		if ( ! $wire_transfer_enabled || ! $offline_payment_enable ) {
+			return;
+		}
+
+		masteriyo_get_template(
+			'checkout/wire-transfer-details.php',
+			array(
+				'wire_transfer' => masteriyo_get_setting( 'payments.offline.wire_transfer' ),
 			)
 		);
 	}

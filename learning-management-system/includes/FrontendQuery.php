@@ -9,6 +9,7 @@
 namespace Masteriyo;
 
 use Masteriyo\Notice;
+use Masteriyo\Taxonomy\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -388,7 +389,11 @@ class FrontendQuery {
 	 */
 	public function course_query( $q ) {
 		if ( ! is_feed() ) {
-			$ordering = $this->get_catalog_ordering_args( masteriyo_get_setting( 'course_archive.display.order_by' ), masteriyo_get_setting( 'course_archive.display.order' ) );
+			$order   = isset( $q->query['order'] ) ? $q->query['order'] : masteriyo_get_setting( 'course_archive.display.order' );
+			$orderby = isset( $q->query['orderby'] ) ? $q->query['orderby'] : masteriyo_get_setting( 'course_archive.display.order_by' );
+
+			$ordering = $this->get_catalog_ordering_args( $orderby, $order );
+
 			$q->set( 'orderby', $ordering['orderby'] );
 			$q->set( 'order', $ordering['order'] );
 
@@ -503,12 +508,14 @@ class FrontendQuery {
 	public function get_catalog_ordering_args( $orderby = '', $order = '' ) {
 		// Get ordering from query string unless defined.
 		if ( ! $orderby ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$orderby_value = isset( $_GET['orderby'] ) ? masteriyo_clean( (string) wp_unslash( $_GET['orderby'] ) ) : masteriyo_clean( get_query_var( 'orderby' ) );
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			$orderby = isset( $_GET['orderby'] ) ? masteriyo_clean( (string) wp_unslash( $_GET['orderby'] ) ) : masteriyo_clean( get_query_var( 'orderby' ) );
+			$order   = isset( $_GET['order'] ) ? masteriyo_clean( (string) wp_unslash( $_GET['order'] ) ) : masteriyo_clean( get_query_var( 'order' ) );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-			if ( ! $orderby_value ) {
+			if ( ! $orderby ) {
 				if ( is_search() ) {
-					$orderby_value = 'relevance';
+					$orderby = 'relevance';
 				} else {
 					/**
 					 * Filters the order by value.
@@ -517,14 +524,9 @@ class FrontendQuery {
 					 *
 					 * @param string $order_by Property to order by.
 					 */
-					$orderby_value = apply_filters( 'masteriyo_default_catalog_orderby', get_option( 'masteriyo_default_catalog_orderby', 'date' ) );
+					$orderby = apply_filters( 'masteriyo_default_catalog_orderby', get_option( 'masteriyo_default_catalog_orderby', 'date' ) );
 				}
 			}
-
-			// Get order + orderby args from string.
-			$orderby_value = is_array( $orderby_value ) ? $orderby_value : explode( '-', $orderby_value );
-			$orderby       = esc_attr( $orderby_value[0] );
-			$order         = ! empty( $orderby_value[1] ) ? $orderby_value[1] : $order;
 		}
 
 		// Convert to correct format.
@@ -559,14 +561,14 @@ class FrontendQuery {
 				$args['order']   = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
 				break;
 			case 'price':
-				$callback = 'DESC' === $order ? 'order_by_price_desc_post_clauses' : 'order_by_price_asc_post_clauses';
-				add_filter( 'posts_clauses', array( $this, $callback ) );
-				break;
-			case 'popularity':
-				add_filter( 'posts_clauses', array( $this, 'order_by_popularity_post_clauses' ) );
+				$args['orderby']  = 'meta_value_num';
+				$args['meta_key'] = '_price';
+				$args['order']    = ( 'DESC' === $order ) ? 'DESC' : 'ASC';
 				break;
 			case 'rating':
-				add_filter( 'posts_clauses', array( $this, 'order_by_rating_post_clauses' ) );
+				$args['orderby']  = 'meta_value_num';
+				$args['meta_key'] = '_average_rating';
+				$args['order']    = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
 				break;
 		}
 
@@ -593,8 +595,49 @@ class FrontendQuery {
 	 */
 	public function get_meta_query( $meta_query = array(), $main_query = false ) {
 		if ( ! is_array( $meta_query ) ) {
-			$meta_query = array();
+			$meta_query = array( 'relation' => 'AND' );
 		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$price_from = isset( $_GET['price-from'] ) ? $_GET['price-from'] : null;
+		$price_to   = isset( $_GET['price-to'] ) ? $_GET['price-to'] : null;
+
+		// Sort min/max prices, 'price_from' should be smaller and 'price_to' should be larger.
+		if ( is_numeric( $price_from ) && is_numeric( $price_to ) && $price_from > $price_to ) {
+			$temp       = $price_to;
+			$price_to   = $price_from;
+			$price_from = $temp;
+		}
+
+		// Add price_from filter.
+		if ( is_numeric( $price_from ) ) {
+			$meta_query[] = array(
+				'key'     => '_price',
+				'value'   => floatval( $price_from ),
+				'compare' => '>=',
+				'type'    => 'NUMERIC',
+			);
+		}
+
+		// Add price_to filter.
+		if ( is_numeric( $price_to ) ) {
+			$meta_query[] = array(
+				'key'     => '_price',
+				'value'   => floatval( $price_to ),
+				'compare' => '<=',
+				'type'    => 'NUMERIC',
+			);
+		}
+
+		if ( ! empty( $_GET['rating'] ) && is_numeric( $_GET['rating'] ) ) {
+			$meta_query[] = array(
+				'key'     => '_average_rating',
+				'value'   => abs( $_GET['rating'] ),
+				'compare' => '>=',
+				'type'    => 'NUMERIC',
+			);
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		/**
 		 * Filters the meta query args for course query.
@@ -631,31 +674,36 @@ class FrontendQuery {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		// Filter by rating.
-		if ( isset( $_GET['rating_filter'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$rating_filter = array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['rating_filter'] ) ) ) );
-			$rating_terms  = array();
-			for ( $i = 1; $i <= 5; $i ++ ) {
-				if ( in_array( $i, $rating_filter, true ) && isset( $course_visibility_terms[ 'rated-' . $i ] ) ) {
-					$rating_terms[] = $course_visibility_terms[ 'rated-' . $i ];
-				}
-			}
-			if ( ! empty( $rating_terms ) ) {
-				$tax_query[] = array(
-					'taxonomy'      => 'course_visibility',
-					'field'         => 'term_taxonomy_id',
-					'terms'         => $rating_terms,
-					'operator'      => 'IN',
-					'rating_filter' => true,
-				);
-			}
+		if ( ! empty( $_GET['categories'] ) ) {
+			$category_ids = array_filter( array_map( 'absint', (array) $_GET['categories'] ) );
+			$tax_query[]  = array(
+				'taxonomy' => Taxonomy::COURSE_CATEGORY,
+				'terms'    => $category_ids,
+			);
+		}
+
+		if ( ! empty( $_GET['difficulties'] ) ) {
+			$difficulty_ids = array_filter( array_map( 'absint', (array) $_GET['difficulties'] ) );
+			$tax_query[]    = array(
+				'taxonomy' => Taxonomy::COURSE_DIFFICULTY,
+				'terms'    => $difficulty_ids,
+			);
+		}
+
+		$price_type = isset( $_GET['price-type'] ) ? $_GET['price-type'] : null;
+
+		if ( in_array( $price_type, array( 'free', 'paid' ), true ) ) {
+			$tax_query[] = array(
+				'taxonomy' => Taxonomy::COURSE_VISIBILITY,
+				'field'    => 'name',
+				'terms'    => $price_type,
+			);
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( ! empty( $course_visibility_not_in ) ) {
 			$tax_query[] = array(
-				'taxonomy' => 'course_visibility',
+				'taxonomy' => Taxonomy::COURSE_VISIBILITY,
 				'field'    => 'term_taxonomy_id',
 				'terms'    => $course_visibility_not_in,
 				'operator' => 'NOT IN',

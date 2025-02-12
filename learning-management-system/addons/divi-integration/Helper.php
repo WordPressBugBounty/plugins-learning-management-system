@@ -27,7 +27,7 @@ class Helper {
 	 */
 	public static function is_divi_active() {
 		$theme = wp_get_theme();
-		return 'Divi' === $theme->name || 'Divi' === $theme->parent_theme;
+		return 'Divi' === $theme->name || 'Divi' === $theme->parent_theme || in_array( 'divi-builder/divi-builder.php', get_option( 'active_plugins', array() ), true );
 	}
 
 	/**

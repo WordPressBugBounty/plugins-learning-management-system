@@ -39,8 +39,10 @@ import {
 } from '../../../../../assets/js/back-end/config/styles';
 import API from '../../../../../assets/js/back-end/utils/api';
 import {
+	addOperationInCache,
 	deepClean,
 	deepMerge,
+	editOperationInCache,
 } from '../../../../../assets/js/back-end/utils/utils';
 import BlockEditor from '../components/BlockEditor';
 import CertificateSkeleton from '../components/CertificateSkeleton';
@@ -82,6 +84,46 @@ const EditCertificate: React.FC = () => {
 			certificateAPI.update(certificateId, data),
 		...{
 			onSuccess(data: CertificateDataMap) {
+				const certificatesList = queryClient?.getQueryData([
+					'certificatesList',
+					{
+						order: 'desc',
+						orderby: 'date',
+						status: 'any',
+					},
+				]);
+
+				const doesCertificateAlreadyExists = (
+					certificatesList as any
+				)?.data?.some((certificate: any) => certificate?.id === data?.id);
+
+				if (doesCertificateAlreadyExists) {
+					editOperationInCache(
+						queryClient,
+						[
+							'certificatesList',
+							{
+								order: 'desc',
+								orderby: 'date',
+								status: 'any',
+							},
+						],
+						data,
+					);
+				} else {
+					addOperationInCache(
+						queryClient,
+						[
+							'certificatesList',
+							{
+								order: 'desc',
+								orderby: 'date',
+								status: 'any',
+							},
+						],
+						data,
+					);
+				}
 				toast({
 					title: __(
 						'Certificate updated successfully.',
@@ -115,6 +157,18 @@ const EditCertificate: React.FC = () => {
 		mutationFn: (data: any) => certificateAPI.update(certificateId, data),
 		...{
 			onSuccess(data: CertificateDataMap) {
+				editOperationInCache(
+					queryClient,
+					[
+						'certificatesList',
+						{
+							order: 'desc',
+							orderby: 'date',
+							status: 'any',
+						},
+					],
+					data,
+				);
 				toast({
 					title: sprintf(
 						/* translators: %s: Certificate name */

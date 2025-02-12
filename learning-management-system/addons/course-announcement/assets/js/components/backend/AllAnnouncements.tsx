@@ -39,6 +39,7 @@ import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepMerge,
 	isEmpty,
+	removeOperationInCache,
 } from '../../../../../../assets/js/back-end/utils/utils';
 import { urls } from '../../../../../course-announcement/assets/js/components/backend/constants/urls';
 import AnnouncementList from './AnnouncementList';
@@ -106,7 +107,18 @@ const AllAnnouncements = () => {
 		mutationFn: (id: number) =>
 			announcementAPI.delete(id, { force: true, children: true }),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					[
+						'announcementList',
+						{
+							order: 'desc',
+							orderby: 'date',
+						},
+					],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 				onClose();
 			},
@@ -130,7 +142,18 @@ const AllAnnouncements = () => {
 	const trashAnnouncement = useMutation({
 		mutationFn: (id: number) => announcementAPI.delete(id),
 		...{
-			onSuccess: () => {
+			onSuccess: (data: any) => {
+				removeOperationInCache(
+					queryClient,
+					[
+						'announcementList',
+						{
+							order: 'desc',
+							orderby: 'date',
+						},
+					],
+					data?.id,
+				);
 				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 				toast({
 					title: __('Announcement Trashed', 'learning-management-system'),

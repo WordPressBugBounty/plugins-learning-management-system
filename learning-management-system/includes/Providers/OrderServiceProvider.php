@@ -178,23 +178,14 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 			if ( ! is_user_logged_in() ) {
 				wp_die( esc_html__( 'You must be logged in to download orders.', 'learning-management-system' ) );
 			}
-			if ( ! isset( $_GET['nonce'] ) ) {
-				wp_die( esc_html__( 'Nonce is required.', 'learning-management-system' ) );
-			}
-			if ( ! wp_verify_nonce( $_GET['nonce'], 'masteriyo_download_order' ) ) {
-				wp_die( esc_html__( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
-			}
+
 			if ( empty( $_GET['order_id'] ) ) {
 				wp_die( esc_html__( 'Invalid order ID.', 'learning-management-system' ) );
 			}
 
 			$order = masteriyo_get_order( absint( $_GET['order_id'] ) );
 
-			if ( is_null( $order ) ) {
-				wp_die( esc_html__( 'Invalid order ID.', 'learning-management-system' ) );
-			}
-
-			if ( is_null( $order ) ) {
+			if ( is_null( $order ) || is_wp_error( $order ) ) {
 				wp_die( esc_html__( 'Invalid order ID. The order may not exist.', 'learning-management-system' ) );
 			}
 

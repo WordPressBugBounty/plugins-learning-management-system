@@ -133,18 +133,23 @@ class FileHandler {
 	 * @since 1.14.0
 	 *
 	 * @param string $path Path relative to base_dir.
+	 * @param string $file_or_folder_name  File or folder name.
 	 * @param bool $recursive Whether to delete recursively (for directories).
 	 * @param bool $type Whether to delete a file or folder.
 	 * @return bool|WP_Error
 	 */
-	public function delete( $path, $recursive = false, $type = false ) {
+	public function delete( $path, $file_or_folder_name, $recursive = false, $type = false ) {
 		$filesystem = $this->get_filesystem();
 
 		if ( is_wp_error( $filesystem ) ) {
 			return $filesystem;
 		}
 
-		$full_path = $this->base_dir . ltrim( $path, DIRECTORY_SEPARATOR );
+		if ( empty( $path ) ) {
+			$full_path = $this->base_dir . ltrim( $file_or_folder_name, DIRECTORY_SEPARATOR );
+		} else {
+			$full_path = $this->base_dir . trim( $path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file_or_folder_name, DIRECTORY_SEPARATOR );
+		}
 
 		if ( ! $filesystem->exists( $full_path ) ) {
 			return new WP_Error( 'file_not_found', __( 'File or directory not found', 'learning-management-system' ) );
@@ -170,7 +175,11 @@ class FileHandler {
 			return $filesystem;
 		}
 
-		$path = trailingslashit( $this->base_dir . ltrim( $folder, DIRECTORY_SEPARATOR ) );
+		if ( empty( $folder ) ) {
+			$path = trailingslashit( $this->base_dir );
+		} else {
+			$path = trailingslashit( $this->base_dir . ltrim( $folder, DIRECTORY_SEPARATOR ) );
+		}
 
 		if ( ! is_dir( $path ) ) {
 			return new WP_Error( 'directory_not_found', __( 'Directory not found', 'learning-management-system' ) );
