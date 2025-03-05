@@ -390,10 +390,11 @@ class QuestionsController extends PostsController {
 		 * @param string $description Question description.
 		 */
 		$description = 'view' === $context ? apply_filters( 'masteriyo_description', $question->get_description() ) : $question->get_description();
+		$name        = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
 
 		$data = array(
 			'id'                     => $question->get_id(),
-			'name'                   => wp_specialchars_decode( wpautop( do_shortcode( $question->get_name( $context ) ) ) ),
+			'name'                   => $name,
 			'permalink'              => $question->get_permalink(),
 			'status'                 => $question->get_status( $context ),
 			'description'            => $description,

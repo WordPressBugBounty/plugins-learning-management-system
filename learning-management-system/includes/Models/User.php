@@ -116,6 +116,12 @@ class User extends Model {
 	 * @return string
 	 */
 	public function get_avatar_url( $args = null ) {
+
+		 // Check if avatars are disabled in WordPress settings.
+		if ( ! get_option( 'show_avatars' ) ) {
+			return '';
+		}
+
 		return get_avatar_url( $this->get_id(), $args );
 	}
 

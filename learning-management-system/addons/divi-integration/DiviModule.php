@@ -378,7 +378,7 @@ abstract class DiviModule extends \ET_Builder_Module {
 		$this->add_style_template(
 			array(
 				'selector'    => self::WRAPPER_SELECTOR . ' ' . $selector,
-				'declaration' => 'border-style: solid;',
+				// 	'declaration' => 'border-style: solid;', // Commented out to prevent overriding the default value.
 			)
 		);
 	}

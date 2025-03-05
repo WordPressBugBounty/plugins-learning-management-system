@@ -7,6 +7,7 @@
  */
 
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Masteriyo;
 use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -178,12 +179,10 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 
 		if ( is_string( $progress ) ) {
 			$progress_status = $progress;
-		} else {
-			if ( $progress < 100 ) {
+		} elseif ( $progress < 100 ) {
 				$progress_status = CourseProgressStatus::STARTED;
-			} else {
-				$progress_status = CourseProgressStatus::COMPLETED;
-			}
+		} else {
+			$progress_status = CourseProgressStatus::COMPLETED;
 		}
 
 		$progress_args = array( 'activity_status' => $progress_status );
@@ -206,25 +205,23 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 		}
 
 		if ( ! $activity ) {
-			$activity_data = array(
-				'user_id'       => $user_id,
-				'item_id'       => $course_id,
-				'activity_type' => 'course_progress',
-				'created_at'    => current_time( 'mysql' ),
-			);
 
-			$activity_data = array_merge( $activity_data, $progress_args );
+			$course_progress = masteriyo( 'course-progress' );
+			/** @var Masteriyo\Models\CourseProgress $course_progress */
+			$course_progress->set_user_id( $user_id );
+			$course_progress->set_course_id( $course_id );
+			$course_progress->set_started_at( current_time( 'mysql' ) );
+			$course_progress->set_status( $progress_status );
 
-			$result = $wpdb->insert(
-				$table,
-				$activity_data
-			);
-
-			if ( ! $result ) {
-				return new WP_Error( 'unable_create_course_progress', __( 'Sorry!, an error occurred while creating an course progress.', 'learning-management-system' ) );
+			if ( CourseProgressStatus::COMPLETED === $progress_status ) {
+					$course_progress->set_completed_at( current_time( 'mysql' ) );
 			}
 
-			$course_progress_id = $wpdb->insert_id;
+			$course_progress->save();
+
+			$course_progress_id = $course_progress->get_id();
+
+			do_action( 'masteriyo_course_progress_status_' . $progress_status, $course_progress_id, $course_progress );
 		} else {
 			$update_result = $wpdb->update(
 				$table,
@@ -325,12 +322,10 @@ if ( ! function_exists( 'masteriyo_scorm_directory_delete' ) ) {
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
-			} else {
-				if ( ! unlink( $file ) ) {
+			} elseif ( ! unlink( $file ) ) {
 					/* translators: %s file */
 					$error_message = sprintf( __( 'Failed to delete file: %s', 'learning-management-system' ), $file );
 					return new WP_Error( 'file_delete_failed', $error_message );
-				}
 			}
 		}
 

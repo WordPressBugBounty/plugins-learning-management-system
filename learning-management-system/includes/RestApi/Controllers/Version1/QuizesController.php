@@ -895,14 +895,8 @@ class QuizesController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $quiz, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
+		$description = 'view' === $context ? apply_filters( 'the_content', $quiz->get_description() ) : $quiz->get_description( $context );
 
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $quiz->get_description() ) ) : $quiz->get_description( $context );
-		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $quiz->get_description() ) : $quiz->get_description( $context );
-		}
 		return $description;
 	}
 

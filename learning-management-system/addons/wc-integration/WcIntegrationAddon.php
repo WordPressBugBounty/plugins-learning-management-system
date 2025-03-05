@@ -355,15 +355,16 @@ class WcIntegrationAddon {
 			$( ".options_group.pricing" ).addClass( "show_if_mto_course" );
 			$( ".options_group.pricing, ._subscription_sign_up_fee_field, ._subscription_trial_length_field" ).addClass( "hide_if_mto_course_recurring" );
 			$( ".options_group.subscription_pricing" ).addClass( "show_if_mto_course_recurring" );
+			$( ".options_group.show_if_simple.show_if_external.show_if_variable" ).addClass( "show_if_mto_course show_if_mto_course_recurring show_if_mto_course_bundle show_if_mto_course_bundle_recurring" ); 
 			if ( $( \'#product-type\' ).val() === \'mto_course_recurring\' ) {
-				$(\'option[value="mto_course_recurring"]\').show();
-				$(\'option[value="mto_course"]\').hide();
+					$(\'option[value="mto_course_recurring"]\').show();
+					$(\'option[value="mto_course"]\').hide();
 			} else {
-				$(\'option[value="mto_course_recurring"]\').hide();
-				$(\'option[value="mto_course"]\').show();
-			}
-		})(jQuery);
-		';
+					$(\'option[value="mto_course_recurring"]\').hide();
+					$(\'option[value="mto_course"]\').show();
+				}
+			})(jQuery);
+			';
 
 		wp_print_inline_script_tag( $scripts );
 	}

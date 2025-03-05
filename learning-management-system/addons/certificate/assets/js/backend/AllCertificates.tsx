@@ -11,7 +11,6 @@ import {
 	DrawerHeader,
 	DrawerOverlay,
 	IconButton,
-	Portal,
 	Stack,
 	Text,
 	Tooltip,
@@ -489,42 +488,40 @@ const AllCertificates: React.FC = () => {
 					},
 				}}
 			/>
-			<Portal>
-				<Drawer onClose={onSettingClose} isOpen={isSettingOpen} size="sm">
-					<DrawerOverlay />
-					<FormProvider {...methods}>
-						<form onSubmit={methods.handleSubmit(onSettingSubmit)}>
-							<DrawerContent>
-								<DrawerCloseButton mt="8" />
-								<DrawerHeader borderBottomWidth="1px" mt="6">
-									{__('Certificate Settings', 'learning-management-system')}
-								</DrawerHeader>
-								<DrawerBody mt="6">
-									{certificatesSettingQuery.isSuccess ? (
-										<CertificateSetting
-											certificateSetting={certificatesSettingQuery?.data}
-										/>
-									) : (
-										<FullScreenLoader />
-									)}
-								</DrawerBody>
-								<DrawerFooter borderTopWidth="1px">
-									<Button variant="outline" mr={3} onClick={onClose}>
-										{__('Cancel', 'learning-management-system')}
-									</Button>
-									<Button
-										type="submit"
-										colorScheme="blue"
-										isLoading={updateCertificateSettingsMutation?.isPending}
-									>
-										{__('Save Setting', 'learning-management-system')}
-									</Button>
-								</DrawerFooter>
-							</DrawerContent>
-						</form>
-					</FormProvider>
-				</Drawer>
-			</Portal>
+			<Drawer onClose={onSettingClose} isOpen={isSettingOpen} size="sm">
+				<DrawerOverlay />
+				<FormProvider {...methods}>
+					<form onSubmit={methods.handleSubmit(onSettingSubmit)}>
+						<DrawerContent>
+							<DrawerCloseButton mt="8" />
+							<DrawerHeader borderBottomWidth="1px" mt="6">
+								{__('Certificate Settings', 'learning-management-system')}
+							</DrawerHeader>
+							<DrawerBody mt="6">
+								{certificatesSettingQuery.isSuccess ? (
+									<CertificateSetting
+										certificateSetting={certificatesSettingQuery?.data}
+									/>
+								) : (
+									<FullScreenLoader />
+								)}
+							</DrawerBody>
+							<DrawerFooter borderTopWidth="1px">
+								<Button variant="outline" mr={3} onClick={onClose}>
+									{__('Cancel', 'learning-management-system')}
+								</Button>
+								<Button
+									type="submit"
+									colorScheme="blue"
+									isLoading={updateCertificateSettingsMutation?.isPending}
+								>
+									{__('Save Setting', 'learning-management-system')}
+								</Button>
+							</DrawerFooter>
+						</DrawerContent>
+					</form>
+				</FormProvider>
+			</Drawer>
 		</Stack>
 	);
 };

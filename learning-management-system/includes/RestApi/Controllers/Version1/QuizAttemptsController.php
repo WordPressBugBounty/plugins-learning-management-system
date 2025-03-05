@@ -599,7 +599,7 @@ class QuizAttemptsController extends CrudController {
 	 * @param mixed $attempt_answers
 	 * @return array
 	 */
-	protected function get_answers_data( $attempt_answers ) {
+	protected function get_answers_data( $attempt_answers, $context = 'view' ) {
 		if ( empty( $attempt_answers ) || ! is_array( $attempt_answers ) ) {
 			return null;
 		}
@@ -618,10 +618,11 @@ class QuizAttemptsController extends CrudController {
 			 * New format: "answers" : [ '$question_id' => [ 'answered' => '$given_answered', 'correct' => 'boolean' ]  ]
 			 */
 			$given_answers = isset( $attempt_answer['answered'] ) ? $attempt_answer['answered'] : $attempt_answer;
+			$name                                = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
 
 			$new_attempt_answers[ $question_id ]['answered']       = $given_answers;
 			$new_attempt_answers[ $question_id ]['correct']        = $question->check_answer( $given_answers );
-			$new_attempt_answers[ $question_id ]['question']       = $question->get_name();
+			$new_attempt_answers[ $question_id ]['question']       = $name;
 			$new_attempt_answers[ $question_id ]['points']         = $question->get_points();
 			$new_attempt_answers[ $question_id ]['type']           = $question->get_type();
 			$new_attempt_answers[ $question_id ]['correct_answer'] = $question->get_correct_answers();

@@ -142,6 +142,7 @@ class Masteriyo {
 		add_action( 'template_redirect', array( $this, 'masteriyo_email_verification_handler' ) );
 		add_action( 'template_redirect', array( $this, 'resend_email_verification_email_handler' ) );
 		add_action( 'template_redirect', array( $this, 'qr_login_handler' ) );
+		add_action( 'template_redirect', array( $this, 'handle_change_email_confirmation' ) );
 
 		add_action( 'switch_blog', array( $this, 'define_tables' ), 0 );
 		add_action( 'admin_init', array( $this, 'admin_redirects' ) );
@@ -616,7 +617,6 @@ class Masteriyo {
 		EmailHooks::schedule_email_verification_email( $uid, $user );
 
 		masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
-
 	}
 
 	/**
@@ -660,6 +660,55 @@ class Masteriyo {
 	}
 
 	/**
+	 * Handle email change confirmation.
+	 *
+	 * @since 1.16.1
+	 *
+	 * This function checks if a valid token is present in the URL or if the current page is the account page.
+	 * If a valid token is found, it retrieves the user ID associated with the token and updates the user's email
+	 * address to the new email stored in user meta. After updating the email, it deletes the token and pending
+	 * new email from user meta and redirects the user to the account dashboard page.
+	 *
+	 * @return void
+	 */
+	public function handle_change_email_confirmation() {
+		if ( isset( $_GET['token'] ) && masteriyo_is_account_page() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$token     = sanitize_text_field( $_GET['token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$user_id   = $this->get_user_id_by_token( $token );
+			$user      = masteriyo_get_user( $user_id );
+			$new_email = get_user_meta( $user_id, '_pending_new_email', true );
+			if ( $user_id && hash_equals( get_user_meta( $user_id, '_email_change_token', true ), $token ) ) {
+				wp_update_user(
+					array(
+						'ID'         => $user_id,
+						'user_email' => $new_email,
+					)
+				);
+				delete_user_meta( $user_id, '_email_change_token' );
+				delete_user_meta( $user_id, '_pending_new_email' );
+				$account_page_permalink = masteriyo_get_page_permalink( 'account' ) . '/#/dashboard';
+				wp_safe_redirect( $account_page_permalink );
+				exit;
+			}
+		}
+	}
+
+	/**
+	 * Retrieve user ID by email change token.
+	 *
+	 * @since 1.16.1
+	 *
+	 * This function queries the database to
+	 *
+	 *
+	 * */
+	public function get_user_id_by_token( $token ) {
+		global $wpdb;
+		$query = $wpdb->prepare( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = '_email_change_token' AND meta_value = %s", $token );
+		return $wpdb->get_var( $query ); //phpcs:ignore
+	}
+
+	/**
 	 * Redirecting user to onboard or other page.
 	 *
 	 * @since 1.0.0
@@ -681,7 +730,6 @@ class Masteriyo {
 			wp_safe_redirect( admin_url( 'index.php?page=masteriyo-onboard' ) );
 			exit;
 		}
-
 	}
 
 	/**
@@ -1094,7 +1142,6 @@ class Masteriyo {
 		}
 
 		return $url;
-
 	}
 
 	/**

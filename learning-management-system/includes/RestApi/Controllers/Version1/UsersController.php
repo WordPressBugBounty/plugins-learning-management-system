@@ -109,7 +109,7 @@ class UsersController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_logged_in_user' ),
-					'permission_callback' => function( $request ) {
+					'permission_callback' => function ( $request ) {
 						return is_user_logged_in();
 					},
 					'args'                => array(
@@ -123,7 +123,7 @@ class UsersController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_logged_in_user' ),
-					'permission_callback' => function( $request ) {
+					'permission_callback' => function ( $request ) {
 						return is_user_logged_in();
 					},
 					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
@@ -353,7 +353,6 @@ class UsersController extends CrudController {
 				'success' => true,
 			)
 		);
-
 	}
 
 	/**
@@ -479,7 +478,6 @@ class UsersController extends CrudController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function update_profile_image( $request ) {
-
 		$image_data = $request->get_file_params()['image_data'];
 		$image_size = $image_data['size'];
 		$image_type = $image_data['type'];
@@ -489,27 +487,77 @@ class UsersController extends CrudController {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
 			}
 
-			$upload_overrides = array(
-				/*
-				* Tells WordPress to not look for the POST form fields that would
-				* normally be present, default is true, we downloaded the file from
-				* a remote server, so there will be no form fields.
-				*/
-				'test_form' => false,
-			);
+			$upload_overrides = array( 'test_form' => false );
 			$uploaded_file    = wp_handle_sideload( $image_data, $upload_overrides );
 
 			if ( isset( $uploaded_file['error'] ) ) {
 				return new \WP_Error(
-					'masteriyo_rest_cannot upload',
+					'masteriyo_rest_cannot_upload',
 					$uploaded_file['error'],
 					array( 'status' => 400 )
 				);
 			}
 
-			$file_name = $uploaded_file['file']; // Full path to the file.
-			$local_url = $uploaded_file['url']; // URL to the file in the uploads dir.
+			$file_name = $uploaded_file['file'];
+			$local_url = $uploaded_file['url'];
+			$mime_type = mime_content_type( $file_name );
+			$is_image  = strpos( $mime_type, 'image/' ) === 0;
 
+			if ( $is_image ) {
+				// Strip EXIF metadata using Imagick
+				if ( extension_loaded( 'imagick' ) ) {
+					try {
+						$imagick = new \Imagick( $file_name );
+						$imagick->stripImage();
+						$imagick->writeImage( $file_name );
+						$imagick->clear();
+					} catch ( Exception $e ) {
+						return new \WP_Error(
+							'masteriyo_rest_cannot_strip_exif',
+							'EXIF stripping failed with Imagick: ' . $e->getMessage(),
+							array( 'status' => 400 )
+						);
+					}
+				} else {
+					if ( 'image/jpeg' === $mime_type && function_exists( 'imagecreatefromjpeg' ) ) {
+						$image = imagecreatefromjpeg( $file_name );
+						if ( false !== $image ) {
+							$width     = imagesx( $image );
+							$height    = imagesy( $image );
+							$new_image = imagecreatetruecolor( $width, $height );
+
+							imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
+							imagejpeg( $new_image, $file_name, 90 );
+
+							imagedestroy( $image );
+							imagedestroy( $new_image );
+						}
+					}
+
+					// Strip EXIF for PNG
+					if ( 'image/png' === $mime_type && function_exists( 'imagecreatefrompng' ) ) {
+						$image = imagecreatefrompng( $file_name );
+						if ( false !== $image ) {
+							$width     = imagesx( $image );
+							$height    = imagesy( $image );
+							$new_image = imagecreatetruecolor( $width, $height );
+
+							// Preserve alpha channel
+							imagesavealpha( $new_image, true );
+							$transparent = imagecolorallocatealpha( $new_image, 0, 0, 0, 127 );
+							imagefill( $new_image, 0, 0, $transparent );
+
+							imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
+							imagepng( $new_image, $file_name, 9 );
+
+							imagedestroy( $image );
+							imagedestroy( $new_image );
+						}
+					}
+				}
+			}
+
+			// Continue with media attachment creation
 			$media_id = wp_insert_attachment(
 				array(
 					'guid'           => $file_name,
@@ -527,17 +575,11 @@ class UsersController extends CrudController {
 				return $media_id;
 			}
 
-			// wp_generate_attachment_metadata() won't work if you do not include this file
 			require_once ABSPATH . 'wp-admin/includes/image.php';
-
-			// Generate and save the attachment metas into the database
 			wp_update_attachment_metadata( $media_id, wp_generate_attachment_metadata( $media_id, $file_name ) );
 
 			$user = masteriyo_get_current_user();
-
-			// If exist old profile image, delete it.
 			wp_delete_attachment( $user->get_profile_image_id(), true );
-
 			$user->set_profile_image_id( $media_id );
 			$user->save();
 
@@ -547,10 +589,9 @@ class UsersController extends CrudController {
 					'url' => $user->profile_image_url(),
 				)
 			);
-
 		}
-
 	}
+
 
 	/**
 	 * Delete User's profile image.
@@ -574,7 +615,6 @@ class UsersController extends CrudController {
 				'url' => $user->profile_image_url(),
 			)
 		);
-
 	}
 
 	/**
@@ -587,7 +627,12 @@ class UsersController extends CrudController {
 	 * @return WP_REST_Response|\WP_Error The REST response on success, or WP_Error object on failure.
 	 */
 	public function update_instructor_update_status( $request ) {
-		$user_id = absint( $request->get_param( 'user_id' ) );
+		$current_user_id = get_current_user_id();
+		$user_id         = absint( $request->get_param( 'user_id' ) );
+
+		if ( $user_id !== $current_user_id ) {
+			return new \WP_Error( 'forbidden', 'You can only apply for an instructor account for yourself.', array( 'status' => 403 ) );
+		}
 
 		// Validate the user ID parameter.
 		if ( empty( $user_id ) ) {
@@ -1554,7 +1599,7 @@ class UsersController extends CrudController {
 
 		$ids = array_filter(
 			$request['ids'],
-			function( $id ) {
+			function ( $id ) {
 				return get_current_user_id() !== absint( $id );
 			}
 		);
@@ -1703,6 +1748,52 @@ class UsersController extends CrudController {
 	 */
 	public function update_logged_in_user( $request ) {
 		$user = wp_get_current_user();
+
+		if ( isset( $user->user_email, $request['email'] ) && $user->user_email !== $request['email'] ) {
+			$token = wp_hash( $user->ID . $request['email'] . time() );
+			update_user_meta( $user->ID, '_email_change_token', $token );
+			update_user_meta( $user->ID, '_pending_new_email', $request['email'] );
+			$account_page_permalink = masteriyo_get_page_permalink( 'account' ) . '/#/dashboard';
+			$confirmation_link      = add_query_arg(
+				array(
+					'token' => $token,
+				),
+				$account_page_permalink
+			);
+
+			$subject = apply_filters( 'masteriyo_email_change_subject', __( 'Confirm Your Email Change', 'learning-management-system' ), $user, $request['email'] );
+
+			$message = sprintf(
+				/* translators: %s: user email */
+				__( 'You requested to change your email to <strong>%s</strong>. Please confirm this change by clicking the link below:', 'learning-management-system' ),
+				$request['email']
+			);
+			$message  = apply_filters( 'masteriyo_email_change_message', $message, $user, $request['email'], $confirmation_link );
+			$message .= "<br><br><a href='{$confirmation_link}'>Confirm Email Change</a>";
+			$headers  = apply_filters( 'masteriyo_email_change_headers', array( 'Content-Type: text/html; charset=UTF-8' ), $user, $request['email'] );
+			$mail     = wp_mail( $user->user_email, $subject, $message, $headers );
+			if ( $mail ) {
+				return new WP_Error(
+					'masteriyo_rest_user_email_exists',
+					sprintf(
+							/* translators: %s: user email */
+						esc_html__( 'Your email address has not been updated yet. Please check your inbox at %s for a confirmation email.', 'learning-management-system' ),
+						$user->user_email
+					),
+					array(
+						'status' => 400,
+					)
+				);
+			} else {
+				return new WP_Error(
+					'masteriyo_rest_user_email_exists',
+					__( 'There was an error sending the confirmation email. Please try again.', 'learning-management-system' ),
+					array(
+						'status' => 400,
+					)
+				);
+			}
+		}
 
 		if ( isset( $request['old_password'], $request['password'] ) && wp_check_password( $request['password'], $user->user_pass, $user->ID ) ) {
 			return new WP_Error(

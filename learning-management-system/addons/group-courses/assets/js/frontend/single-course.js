@@ -46,6 +46,14 @@
 				'#masteriyoGroupCoursesEnrollModal .masteriyo-group-course__lists--list-checkbox',
 				this.toggleAddToCartButton,
 			);
+
+			$('#masteriyoGroupCoursesEnrollModal').on(
+				'change click',
+				'.masteriyo-group-course__lists--list-checkbox, .masteriyo-group-course__buy-now-button, .masteriyo-group-course__lists--sync-button, .masteriyo-group-course__exit-popup',
+				function () {
+					$('.masteriyo-error-message').remove();
+				},
+			);
 		},
 
 		/**
@@ -102,6 +110,37 @@
 			}
 
 			var addToCartUrl = masteriyoData.add_to_cart_url;
+			var totalStudentCount = $(
+				'#masteriyoGroupCoursesEnrollModal .masteriyo-group-course__lists--list-checkbox:checked',
+			)
+				.closest('li')
+				.map(function () {
+					return parseInt($(this).data('emails-length'), 10) || 0;
+				})
+				.get()
+				.reduce(function (sum, value) {
+					return sum + value;
+				}, 0);
+
+			if (
+				masteriyoData.remaining_enrollment_counts &&
+				masteriyoData.remaining_enrollment_counts - totalStudentCount < 0
+			) {
+				var errorMessage = wp.i18n.sprintf(
+					wp.i18n.__(
+						'Only %1$d spots are available out of %2$d. Please reduce your selection.',
+						'learning-management-system',
+					),
+					masteriyoData.remaining_enrollment_counts,
+					masteriyoData.enrollment_limits,
+				);
+				$('.masteriyo-error-message').remove();
+
+				$('.masteriyo-group-course__lists--list')
+					.first()
+					.after(`<div class="masteriyo-error-message">${errorMessage}</div>`);
+				return;
+			}
 
 			if (addToCartUrl) {
 				var url = new URL(addToCartUrl, window.location.origin);
@@ -195,7 +234,7 @@
 									isGroupDisabled
 										? 'masteriyo-group-course__lists--list-item_disabled'
 										: ''
-								}">
+								}" data-emails-length="${group.emails.length}">
 									<input type="checkbox" class="masteriyo-group-course__lists--list-checkbox" name="group_ids[]" value="${
 										group.id
 									}" id="masteriyo-group-course-option-${group.id}" ${

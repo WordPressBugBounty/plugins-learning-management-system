@@ -542,19 +542,30 @@ function masteriyo_count_posts( $type, $user_id ) {
 }
 
 
-/**
- * Get the courses view mode selected by the user.
- *
- * This function checks if the user has set a preferred view mode for courses by
- * checking the 'MasteriyoCoursesViewMode' cookie. If the cookie is set, it returns
- * the user's preferred view mode. Otherwise, it returns the default view mode 'grid'.
- *
- * @since 1.6.11
- *
- * @return string The view mode for courses ('grid' or the user's preference).
- */
-function masteriyo_get_courses_view_mode() {
-	return isset( $_COOKIE['MasteriyoCoursesViewMode'] ) && in_array( $_COOKIE['MasteriyoCoursesViewMode'], array( 'grid-view', 'list-view' ), true ) ? sanitize_text_field( $_COOKIE['MasteriyoCoursesViewMode'] ) : masteriyo_get_setting( 'course_archive.display.view_mode' );
+if ( ! function_exists( 'masteriyo_get_courses_view_mode' ) ) {
+	/**
+	 * Get the courses view mode selected by the user.
+	 *
+	 * This function checks if the user has set a preferred view mode for courses by
+	 * checking the 'MasteriyoCoursesViewMode' cookie. If the cookie is set, it returns
+	 * the user's preferred view mode. Otherwise, it returns the default view mode 'grid'.
+	 *
+	 * @since 1.6.11
+	 *
+	 * @return string The view mode for courses ('grid' or the user's preference).
+	 */
+	function masteriyo_get_courses_view_mode() {
+		global $course_archive_view;
+		if ( isset( $course_archive_view ) && in_array( $course_archive_view, array( 'grid-view', 'list-view' ), true ) ) {
+			return sanitize_text_field( $course_archive_view );
+		}
+
+		if ( isset( $_COOKIE['MasteriyoCoursesViewMode'] ) && in_array( $_COOKIE['MasteriyoCoursesViewMode'], array( 'grid-view', 'list-view' ), true ) ) {
+			return sanitize_text_field( $_COOKIE['MasteriyoCoursesViewMode'] );
+		}
+
+		return masteriyo_get_setting( 'course_archive.display.view_mode' );
+	}
 }
 
 if ( ! function_exists( 'masteriyo_check_course_content_access_for_current_user' ) ) {

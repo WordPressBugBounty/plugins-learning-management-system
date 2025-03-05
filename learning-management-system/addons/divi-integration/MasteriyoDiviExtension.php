@@ -64,6 +64,7 @@ class MasteriyoDiviExtension extends \DiviExtension {
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts_styles' ), 11 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts_styles' ), 99 );
 		add_filter( 'body_class', array( $this, 'add_body_class' ), 10, 2 );
+		add_filter( 'et_use_dynamic_css', '__return_false' );
 	}
 
 	/**
@@ -116,6 +117,29 @@ class MasteriyoDiviExtension extends \DiviExtension {
 	public function dequeue_scripts_styles() {
 		wp_dequeue_script( "{$this->name}-frontend-bundle" );
 		wp_dequeue_style( "{$this->name}-styles" );
+		$remove_styles = $this->remove_styles_of_divi();
+		foreach ( $remove_styles as $handle ) {
+			wp_dequeue_style( $handle );
+			wp_deregister_style( $handle );
+		}
+	}
+
+	/**
+	 * Remove the styles that are conflict with masteriyo.
+	 *
+	 * @since 1.16.1
+	 *
+	 * @return array
+	 */
+	public function remove_styles_of_divi() {
+		return array_unique(
+			apply_filters(
+				'remove_styles_of_masteriyo',
+				array(
+					'divi-builder-style',
+				)
+			)
+		);
 	}
 
 	/**

@@ -42,6 +42,7 @@ class CoursesShortcode extends Shortcode {
 		'order'           => 'DESC',
 		'orderby'         => 'date',
 		'show_pagination' => 'off',
+		'view'            => 'grid',
 	);
 
 	/**
@@ -66,7 +67,7 @@ class CoursesShortcode extends Shortcode {
 			'category'       => $this->parse_values_attribute( $attr['category'], ',', 'trim' ),
 			'include'        => $this->parse_values_attribute( $attr['ids'], ',', 'absint' ),
 			'exclude'        => $this->parse_values_attribute( $attr['exclude_ids'], ',', 'absint' ),
-			'posts_per_page' => $is_paginate ? absint( $attr['per_page'] ) : -1,
+			'posts_per_page' => $is_paginate ? absint( $attr['per_page'] ) : absint( $attr['count'] ),
 			'paginate'       => true,
 			'page'           => absint( $current_page ), // Add the current page number to the query args.
 			'offset'         => ( absint( $current_page ) - 1 ) * absint( $attr['per_page'] ), // Calculate the offset based on the current page.
@@ -83,6 +84,10 @@ class CoursesShortcode extends Shortcode {
 		 */
 		$courses = apply_filters( 'masteriyo_shortcode_courses_result', $result->courses );
 		masteriyo_set_loop_prop( 'columns', absint( $attr['columns'] ) );
+
+		if ( isset( $attr['view'] ) && $attr['view'] ) {
+			$GLOBALS['course_archive_view'] = 'list' === $attr['view'] ? 'list-view' : 'grid-view';
+		}
 
 		\ob_start();
 

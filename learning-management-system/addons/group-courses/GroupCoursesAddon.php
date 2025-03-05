@@ -801,13 +801,17 @@ class GroupCoursesAddon {
 				'masteriyo-group-courses-single-course' => array(
 					'name' => 'MASTERIYO_GROUP_COURSES_DATA',
 					'data' => array(
-						'wp_rest_nonce'      => wp_create_nonce( 'wp_rest' ),
-						'restUrl'            => rest_url( 'masteriyo/v1/groups' ),
-						'course_id'          => $course_id,
-						'add_to_cart_url'    => $add_to_cart_url,
-						'members_text'       => __( 'Members', 'learning-management-system' ),
-						'max_group_size'     => $max_group_size,
-						'max_group_size_msg' => '',
+						'wp_rest_nonce'               => wp_create_nonce( 'wp_rest' ),
+						'restUrl'                     => rest_url( 'masteriyo/v1/groups' ),
+						'course_id'                   => $course_id,
+						'add_to_cart_url'             => $add_to_cart_url,
+						'members_text'                => __( 'Members', 'learning-management-system' ),
+						'max_group_size'              => $max_group_size,
+						'max_group_size_msg'          => '',
+						'remaining_enrollment_counts' => $course->get_enrollment_limit() > 0
+						? $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() )
+						: false,
+						'enrollment_limits'           => $course->get_enrollment_limit(),
 					),
 				),
 			);

@@ -1,4 +1,20 @@
 == Changelog ==
+= 1.16.1 - 05-03-2025 =
+- Enhancement - Gamipress support for SCORM's course completion.
+- Enhancement - Added `view` attribute in courses shortcode for list and grid view.
+- Enhancement - Option to show course attachments to login user or enrolled users. [PRO]
+- Fix - Resolved security vulnerabilities.
+- Fix - Global setting's single course page icon.
+- Fix - Group courses enrolment limit notice.
+- Fix - Light/dark mode text not translatable.
+- Fix - Supported WooCommerce Shipping & Tax in course related product page.
+- Fix - Design issue in Divi Builder.
+- Fix - URL, Image support for quiz's questions.
+- Fix - React Warning for Data targetId.
+- Fix - Zoom in PDF lesson Viewer. [PRO]
+- Fix - Get Gravatar img url if only enable.
+- Fix - Whitelisted CSS for plugin like Elementor, Rank Math, MonsterInsight in learn page.
+
 = 1.16.0 - 12-02-2025 =
 - Feature - Mollie Payment Gateway.
 - Feature - MasterStudy and Lifter LMS migration.

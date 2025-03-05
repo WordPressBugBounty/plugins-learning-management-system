@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.16.0\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.16.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-12T07:55:34+00:00\n"
+"POT-Creation-Date: 2025-03-05T07:24:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -314,7 +314,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:151
 #: includes/AdminMenu.php:152
-#: includes/Masteriyo.php:328
+#: includes/Masteriyo.php:329
 #: includes/PostType/Course.php:36
 #: includes/PostType/Course.php:64
 #: templates/checkout/order-summary.php:20
@@ -371,7 +371,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:197
 #: includes/AdminMenu.php:198
-#: includes/Masteriyo.php:392
+#: includes/Masteriyo.php:393
 #: assets/js/build/blocks.js:2
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Settings"
@@ -447,7 +447,7 @@ msgstr ""
 #: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:125
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:215
 #: includes/RestApi/Controllers/Version1/PostsController.php:63
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:955
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:956
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:457
 msgid "Invalid course ID."
 msgstr ""
@@ -1090,7 +1090,7 @@ msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:132
 #: includes/FormHandler/RegistrationFormHandler.php:125
-#: includes/Masteriyo.php:618
+#: includes/Masteriyo.php:619
 msgid "An email has been sent to your inbox. Please confirm your email before logging in."
 msgstr ""
 
@@ -1145,7 +1145,7 @@ msgid "Your password has been reset successfully."
 msgstr ""
 
 #: includes/FormHandler/PasswordResetFormHandler.php:60
-#: includes/RestApi/Controllers/Version1/UsersController.php:1710
+#: includes/RestApi/Controllers/Version1/UsersController.php:1801
 msgid "New password cannot be the same as the old password."
 msgstr ""
 
@@ -2248,7 +2248,7 @@ msgstr ""
 msgid "Placeholder"
 msgstr ""
 
-#: includes/Helper/course.php:678
+#: includes/Helper/course.php:689
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
@@ -2616,44 +2616,44 @@ msgstr ""
 msgid "This method should not be called before plugins_loaded."
 msgstr ""
 
-#: includes/Masteriyo.php:352
+#: includes/Masteriyo.php:353
 msgid "Docs"
 msgstr ""
 
-#: includes/Masteriyo.php:353
+#: includes/Masteriyo.php:354
 msgid "View Masteriyo documentation"
 msgstr ""
 
-#: includes/Masteriyo.php:357
+#: includes/Masteriyo.php:358
 msgid "Community Support"
 msgstr ""
 
-#: includes/Masteriyo.php:358
+#: includes/Masteriyo.php:359
 msgid "Visit community forums"
 msgstr ""
 
-#: includes/Masteriyo.php:362
+#: includes/Masteriyo.php:363
 msgid "Rate the plugin ★★★★★"
 msgstr ""
 
-#: includes/Masteriyo.php:363
+#: includes/Masteriyo.php:364
 msgid "Rate the plugin."
 msgstr ""
 
-#: includes/Masteriyo.php:393
+#: includes/Masteriyo.php:394
 msgid "View Masteriyo settings"
 msgstr ""
 
-#: includes/Masteriyo.php:485
+#: includes/Masteriyo.php:486
 msgid "This password reset key is for a different user account. Please log out and try again."
 msgstr ""
 
-#: includes/Masteriyo.php:713
+#: includes/Masteriyo.php:761
 msgid "Minimum WordPress version required for Masteriyo to work is v5.0."
 msgstr ""
 
 #. translators: 1: error message 2: file name and path 3: line number
-#: includes/Masteriyo.php:1201
+#: includes/Masteriyo.php:1248
 msgid "%1$s in %2$s on line %3$s"
 msgstr ""
 
@@ -2740,7 +2740,7 @@ msgstr ""
 #: includes/Models/Order/OrderItemCourse.php:186
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1003
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:906
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:907
 #: includes/RestApi/Controllers/Version1/QuizesController.php:264
 #: includes/RestApi/Controllers/Version1/SectionsController.php:534
 msgid "Invalid course ID"
@@ -2750,8 +2750,8 @@ msgstr ""
 msgid "Invalid course"
 msgstr ""
 
-#: includes/Models/User.php:926
-#: includes/Models/User.php:933
+#: includes/Models/User.php:932
+#: includes/Models/User.php:939
 msgid "Invalid roles"
 msgstr ""
 
@@ -3666,7 +3666,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:161
 #: includes/RestApi/Controllers/Version1/OrdersController.php:515
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:130
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:554
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:555
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:100
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:254
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:98
@@ -3674,7 +3674,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizesController.php:167
 #: includes/RestApi/Controllers/Version1/QuizesController.php:186
 #: includes/RestApi/Controllers/Version1/QuizesController.php:211
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1057
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1051
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:105
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:154
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:478
@@ -3684,7 +3684,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:125
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:476
 #: includes/RestApi/Controllers/Version1/UsersController.php:143
-#: includes/RestApi/Controllers/Version1/UsersController.php:876
+#: includes/RestApi/Controllers/Version1/UsersController.php:921
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:106
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:150
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:384
@@ -3925,11 +3925,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:707
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:778
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:670
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1178
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:671
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1172
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:563
 #: includes/RestApi/Controllers/Version1/SectionsController.php:381
-#: includes/RestApi/Controllers/Version1/UsersController.php:1098
+#: includes/RestApi/Controllers/Version1/UsersController.php:1143
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:468
 msgid "Meta data"
 msgstr ""
@@ -3942,11 +3942,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:714
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:785
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:677
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1185
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:678
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1179
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:570
 #: includes/RestApi/Controllers/Version1/SectionsController.php:388
-#: includes/RestApi/Controllers/Version1/UsersController.php:1105
+#: includes/RestApi/Controllers/Version1/UsersController.php:1150
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:475
 msgid "Meta ID"
 msgstr ""
@@ -3959,11 +3959,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:720
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:791
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:683
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1191
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:684
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1185
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:576
 #: includes/RestApi/Controllers/Version1/SectionsController.php:394
-#: includes/RestApi/Controllers/Version1/UsersController.php:1111
+#: includes/RestApi/Controllers/Version1/UsersController.php:1156
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:481
 msgid "Meta key"
 msgstr ""
@@ -3976,11 +3976,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:725
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:796
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:688
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1196
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:689
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1190
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:581
 #: includes/RestApi/Controllers/Version1/SectionsController.php:399
-#: includes/RestApi/Controllers/Version1/UsersController.php:1116
+#: includes/RestApi/Controllers/Version1/UsersController.php:1161
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:486
 msgid "Meta value"
 msgstr ""
@@ -4098,11 +4098,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:272
 #: includes/RestApi/Controllers/Version1/PostsController.php:659
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:207
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:882
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:928
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:974
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1018
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1059
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:883
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:929
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:975
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1019
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1060
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:137
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:442
 #: includes/RestApi/Controllers/Version1/QuizesController.php:236
@@ -4125,12 +4125,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:667
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:696
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:727
-#: includes/RestApi/Controllers/Version1/UsersController.php:1339
-#: includes/RestApi/Controllers/Version1/UsersController.php:1382
-#: includes/RestApi/Controllers/Version1/UsersController.php:1422
-#: includes/RestApi/Controllers/Version1/UsersController.php:1462
-#: includes/RestApi/Controllers/Version1/UsersController.php:1512
-#: includes/RestApi/Controllers/Version1/UsersController.php:1626
+#: includes/RestApi/Controllers/Version1/UsersController.php:1384
+#: includes/RestApi/Controllers/Version1/UsersController.php:1427
+#: includes/RestApi/Controllers/Version1/UsersController.php:1467
+#: includes/RestApi/Controllers/Version1/UsersController.php:1507
+#: includes/RestApi/Controllers/Version1/UsersController.php:1557
+#: includes/RestApi/Controllers/Version1/UsersController.php:1671
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:179
 #: includes/RestApi/Controllers/Version1/UtilitiesController.php:88
 msgid "Sorry, the permission object for this resource is null."
@@ -4213,7 +4213,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:210
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:200
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:230
-#: includes/RestApi/Controllers/Version1/UsersController.php:370
+#: includes/RestApi/Controllers/Version1/UsersController.php:369
 msgid "Sort collection by object attribute."
 msgstr ""
 
@@ -4252,8 +4252,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:98
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:214
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:767
-#: includes/RestApi/Controllers/Version1/UsersController.php:1346
-#: includes/RestApi/Controllers/Version1/UsersController.php:1359
+#: includes/RestApi/Controllers/Version1/UsersController.php:1391
+#: includes/RestApi/Controllers/Version1/UsersController.php:1404
 msgid "Sorry, you are not allowed to read resources."
 msgstr ""
 
@@ -4267,14 +4267,14 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:817
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:577
 #: includes/RestApi/Controllers/Version1/PostsController.php:127
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1047
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1048
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:144
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:738
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:645
-#: includes/RestApi/Controllers/Version1/UsersController.php:1389
-#: includes/RestApi/Controllers/Version1/UsersController.php:1399
+#: includes/RestApi/Controllers/Version1/UsersController.php:1434
+#: includes/RestApi/Controllers/Version1/UsersController.php:1444
 msgid "Sorry, you cannot list resources."
 msgstr ""
 
@@ -4286,13 +4286,13 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:626
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1096
 #: includes/RestApi/Controllers/Version1/PostsController.php:167
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:893
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:894
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:449
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:674
-#: includes/RestApi/Controllers/Version1/UsersController.php:1429
-#: includes/RestApi/Controllers/Version1/UsersController.php:1439
+#: includes/RestApi/Controllers/Version1/UsersController.php:1474
+#: includes/RestApi/Controllers/Version1/UsersController.php:1484
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:186
 msgid "Sorry, you are not allowed to create resources."
 msgstr ""
@@ -4306,13 +4306,13 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:678
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1129
 #: includes/RestApi/Controllers/Version1/PostsController.php:209
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:952
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:860
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:953
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:861
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:736
-#: includes/RestApi/Controllers/Version1/UsersController.php:1490
-#: includes/RestApi/Controllers/Version1/UsersController.php:1529
+#: includes/RestApi/Controllers/Version1/UsersController.php:1535
+#: includes/RestApi/Controllers/Version1/UsersController.php:1574
 msgid "Sorry, you are not allowed to delete resources."
 msgstr ""
 
@@ -4325,12 +4325,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:740
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1175
 #: includes/RestApi/Controllers/Version1/PostsController.php:292
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:998
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:999
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:705
-#: includes/RestApi/Controllers/Version1/UsersController.php:1633
-#: includes/RestApi/Controllers/Version1/UsersController.php:1645
+#: includes/RestApi/Controllers/Version1/UsersController.php:1678
+#: includes/RestApi/Controllers/Version1/UsersController.php:1690
 msgid "Sorry, you are not allowed to update resources."
 msgstr ""
 
@@ -4359,15 +4359,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:620
 #: includes/RestApi/Controllers/Version1/PostsController.php:668
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:237
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:942
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:988
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:839
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:849
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:886
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:943
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:989
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:840
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:850
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:887
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:193
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:472
 #: includes/RestApi/Controllers/Version1/QuizesController.php:708
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1366
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1360
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:886
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:937
 #: includes/RestApi/Controllers/Version1/SectionsController.php:570
@@ -4384,17 +4384,17 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:784
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:914
 #: includes/RestApi/Controllers/Version1/PostsController.php:823
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1108
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1109
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:341
-#: includes/RestApi/Controllers/Version1/UsersController.php:1594
+#: includes/RestApi/Controllers/Version1/UsersController.php:1639
 msgid "The %s cannot be bulk deleted."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CommentsController.php:822
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1576
 #: includes/RestApi/Controllers/Version1/PostsController.php:249
-#: includes/RestApi/Controllers/Version1/UsersController.php:1478
-#: includes/RestApi/Controllers/Version1/UsersController.php:1519
+#: includes/RestApi/Controllers/Version1/UsersController.php:1523
+#: includes/RestApi/Controllers/Version1/UsersController.php:1564
 msgid "Sorry, you are not allowed to delete resources"
 msgstr ""
 
@@ -4556,9 +4556,9 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:438
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:482
 #: includes/RestApi/Controllers/Version1/LessonsController.php:563
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:612
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:613
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1079
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1073
 #: includes/RestApi/Controllers/Version1/SectionsController.php:364
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:487
 #: templates/order/invoice.php:227
@@ -4894,7 +4894,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1032
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1223
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:908
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:909
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:963
 msgid "Sorry, you are not allowed to update this resource."
 msgstr ""
@@ -4953,7 +4953,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CoursesController.php:695
 #: includes/RestApi/Controllers/Version1/LessonsController.php:569
 #: includes/RestApi/Controllers/Version1/OrdersController.php:748
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1085
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1079
 #: includes/RestApi/Controllers/Version1/SectionsController.php:370
 msgid "Course name"
 msgstr ""
@@ -5021,7 +5021,7 @@ msgid "Amount of reviews that the course have."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:811
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:606
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:607
 msgid "Course parent ID."
 msgstr ""
 
@@ -5152,8 +5152,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:197
 #: includes/RestApi/Controllers/Version1/PostsController.php:239
 #: includes/RestApi/Controllers/Version1/PostsController.php:280
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:826
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1067
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:827
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1068
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:220
 msgid "Sorry, you are not approved by the manager."
 msgstr ""
@@ -5522,7 +5522,7 @@ msgid "The %s cannot be bulk updated."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:192
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1006
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1007
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:261
 msgid "Invalid quiz ID."
 msgstr ""
@@ -5853,75 +5853,75 @@ msgstr ""
 msgid "Limit result set to questions assigned a specific type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:560
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:561
 msgid "Question name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:565
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:566
 msgid "Question slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:570
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:571
 msgid "Question URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:577
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:578
 msgid "The date the question was created, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:582
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:583
 msgid "The date the question was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:587
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:588
 msgid "The date the question was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:593
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:594
 msgid "The date the question was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:599
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:600
 msgid "Question status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:618
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:619
 msgid "Menu order, used to custom sort questions."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:623
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:624
 msgid "Question description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:628
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:629
 msgid "Question short description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:633
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:634
 msgid "Question type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:639
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:640
 msgid "Whether the question is required or not."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:644
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:645
 msgid "Given answer list for the question."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:649
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:650
 msgid "Return if the answers are decoded successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:655
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:656
 msgid "Points for the correct answer."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:660
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:661
 msgid "Whether to the answers."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:665
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:666
 msgid "Whether to enable question description."
 msgstr ""
 
@@ -5985,24 +5985,24 @@ msgstr ""
 msgid "Quiz attempt ended time."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:898
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:971
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:899
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:972
 msgid "Sorry, your account has not been approved."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:933
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:934
 msgid "Quiz does not exist."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:945
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:946
 msgid "Course does not exist."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:981
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:982
 msgid "Sorry, you are not allowed to create resource for others."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1037
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1038
 msgid "Last quiz attempt not found."
 msgstr ""
 
@@ -6078,76 +6078,76 @@ msgstr ""
 msgid "You are not allowed to read other's quiz attempts"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1063
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1057
 msgid "Quiz name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1068
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1062
 msgid "Quiz slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1073
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1067
 msgid "Quiz parent ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1091
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1085
 msgid "Menu order, used to custom sort quizzes."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1096
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1090
 msgid "Quiz URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1103
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1097
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:510
 msgid "The date the quiz was created, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1108
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1102
 msgid "The date the quiz was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1113
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1107
 msgid "The date the quiz was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1119
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1113
 msgid "The date the quiz was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1125
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1119
 msgid "Quiz status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1132
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1126
 msgid "Quiz description"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1137
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1131
 msgid "Quiz short description"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1142
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1136
 msgid "Quiz pass points"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1148
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1142
 msgid "Quiz total points"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1154
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1148
 msgid "Quiz duration (seconds)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1160
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1154
 msgid "Quiz attempts allowed."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1166
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1160
 msgid "Reveal mode."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1172
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1166
 #: includes/RestApi/Controllers/Version1/SettingsController.php:577
 msgid "Quiz questions per page."
 msgstr ""
@@ -7144,182 +7144,200 @@ msgstr ""
 msgid "Token for users session that is used to delete the user information."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:387
+#: includes/RestApi/Controllers/Version1/UsersController.php:386
 msgid "Limit result set to users matching at least one specific role provided. Accepts CSV list or single role."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:398
+#: includes/RestApi/Controllers/Version1/UsersController.php:397
 msgid "Whether the student has applied or not for the instructor."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:882
+#: includes/RestApi/Controllers/Version1/UsersController.php:927
 msgid "User login username."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:888
+#: includes/RestApi/Controllers/Version1/UsersController.php:933
 msgid "User login old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:893
+#: includes/RestApi/Controllers/Version1/UsersController.php:938
 msgid "User login password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:898
-#: includes/RestApi/Controllers/Version1/UsersController.php:936
+#: includes/RestApi/Controllers/Version1/UsersController.php:943
+#: includes/RestApi/Controllers/Version1/UsersController.php:981
 msgid "User nickname"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:903
+#: includes/RestApi/Controllers/Version1/UsersController.php:948
 msgid "User email"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:908
+#: includes/RestApi/Controllers/Version1/UsersController.php:953
 msgid "Site url of the user."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:913
+#: includes/RestApi/Controllers/Version1/UsersController.php:958
 msgid "User date created"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:919
+#: includes/RestApi/Controllers/Version1/UsersController.php:964
 msgid "User activation key."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:925
+#: includes/RestApi/Controllers/Version1/UsersController.php:970
 msgid "User status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:931
+#: includes/RestApi/Controllers/Version1/UsersController.php:976
 msgid "Display name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:941
+#: includes/RestApi/Controllers/Version1/UsersController.php:986
 msgid "User first name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:946
+#: includes/RestApi/Controllers/Version1/UsersController.php:991
 msgid "User last name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:951
+#: includes/RestApi/Controllers/Version1/UsersController.php:996
 msgid "User description"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:956
+#: includes/RestApi/Controllers/Version1/UsersController.php:1001
 msgid "Enable rich editing."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:962
+#: includes/RestApi/Controllers/Version1/UsersController.php:1007
 msgid "Enable syntax highlighting."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:968
+#: includes/RestApi/Controllers/Version1/UsersController.php:1013
 msgid "Enable comment shortcuts."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:974
+#: includes/RestApi/Controllers/Version1/UsersController.php:1019
 msgid "Mark the user as spam. Multi site only."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:980
+#: includes/RestApi/Controllers/Version1/UsersController.php:1025
 msgid "Use SSL."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:986
+#: includes/RestApi/Controllers/Version1/UsersController.php:1031
 msgid "Whether to show the admin bar on the frontend."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:992
+#: includes/RestApi/Controllers/Version1/UsersController.php:1037
 msgid "User specific locale"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:997
+#: includes/RestApi/Controllers/Version1/UsersController.php:1042
 msgid "User role"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1002
+#: includes/RestApi/Controllers/Version1/UsersController.php:1047
 msgid "User profile image"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1007
+#: includes/RestApi/Controllers/Version1/UsersController.php:1052
 msgid "Instructor Apply Status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1013
+#: includes/RestApi/Controllers/Version1/UsersController.php:1058
 msgid "User billing details."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1019
+#: includes/RestApi/Controllers/Version1/UsersController.php:1064
 msgid "User billing first name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1024
+#: includes/RestApi/Controllers/Version1/UsersController.php:1069
 msgid "User billing last name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1029
+#: includes/RestApi/Controllers/Version1/UsersController.php:1074
 msgid "User billing company name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1034
+#: includes/RestApi/Controllers/Version1/UsersController.php:1079
 msgid "User billing company id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1039
-#: includes/RestApi/Controllers/Version1/UsersController.php:1044
+#: includes/RestApi/Controllers/Version1/UsersController.php:1084
+#: includes/RestApi/Controllers/Version1/UsersController.php:1089
 msgid "User billing address 1."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1049
+#: includes/RestApi/Controllers/Version1/UsersController.php:1094
 msgid "User billing address 2."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1054
+#: includes/RestApi/Controllers/Version1/UsersController.php:1099
 msgid "User billing city."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1059
+#: includes/RestApi/Controllers/Version1/UsersController.php:1104
 msgid "User billing post code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1064
+#: includes/RestApi/Controllers/Version1/UsersController.php:1109
 msgid "User billing country code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1069
+#: includes/RestApi/Controllers/Version1/UsersController.php:1114
 msgid "User billing state code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1074
+#: includes/RestApi/Controllers/Version1/UsersController.php:1119
 msgid "Formatted User billing country."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1080
+#: includes/RestApi/Controllers/Version1/UsersController.php:1125
 msgid "Formatted User billing state."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1086
+#: includes/RestApi/Controllers/Version1/UsersController.php:1131
 msgid "User billing email address."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1091
+#: includes/RestApi/Controllers/Version1/UsersController.php:1136
 msgid "User billing phone number."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1471
+#: includes/RestApi/Controllers/Version1/UsersController.php:1516
 msgid "Sorry, you cannot delete yourself."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1655
+#: includes/RestApi/Controllers/Version1/UsersController.php:1700
 msgid "Sorry, invalid old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1720
-#: includes/RestApi/Controllers/Version1/UsersController.php:1730
+#: includes/RestApi/Controllers/Version1/UsersController.php:1764
+msgid "Confirm Your Email Change"
+msgstr ""
+
+#. translators: %s: user email
+#: includes/RestApi/Controllers/Version1/UsersController.php:1768
+msgid "You requested to change your email to <strong>%s</strong>. Please confirm this change by clicking the link below:"
+msgstr ""
+
+#. translators: %s: user email
+#: includes/RestApi/Controllers/Version1/UsersController.php:1780
+msgid "Your email address has not been updated yet. Please check your inbox at %s for a confirmation email."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:1790
+msgid "There was an error sending the confirmation email. Please try again."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:1811
+#: includes/RestApi/Controllers/Version1/UsersController.php:1821
 msgid "Old password does not match. Please verify your current password and try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1763
+#: includes/RestApi/Controllers/Version1/UsersController.php:1854
 msgid "No QR code available. Please generate one first."
 msgstr ""
 
@@ -10062,6 +10080,10 @@ msgid "Profile Updated"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:1
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
 msgid "Profile Image Updated"
 msgstr ""
 
@@ -10142,10 +10164,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-account.js:1
 msgid "Password Successfully Changed"
-msgstr ""
-
-#: assets/js/build/masteriyo-account.js:1
-msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:1
@@ -17466,6 +17484,14 @@ msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Your Rewards"
+msgstr ""
+
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Enable Light Mode"
+msgstr ""
+
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Enable Dark Mode"
 msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1

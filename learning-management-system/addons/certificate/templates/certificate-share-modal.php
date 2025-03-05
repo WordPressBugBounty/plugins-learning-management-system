@@ -49,7 +49,7 @@ use Masteriyo\Constants;
 					<!-- facebook -->
 					<a
 						target="_blank"
-						href="https://www.facebook.com/sharer/sharer.php?u=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ) ); ?>"
+						href="https://www.facebook.com/sharer/sharer.php?u=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
 						align="center"
 						title="
 				<?php
@@ -72,7 +72,7 @@ use Masteriyo\Constants;
 
 					<a
 						target="_blank"
-						href="https://twitter.com/intent/tweet?url=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ) ); ?>"
+						href="https://twitter.com/intent/tweet?url=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
 						align="center"
 						title="
 				<?php
@@ -98,7 +98,7 @@ use Masteriyo\Constants;
 					<a
 						style="margin-top: 100px;"
 						target="_blank"
-						href="https://www.linkedin.com/sharing/share-offsite/?text=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ) ); ?>"
+						href="https://www.linkedin.com/sharing/share-offsite/?text=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
 						align="center"
 						title="
 				<?php

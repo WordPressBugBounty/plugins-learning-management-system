@@ -1539,6 +1539,21 @@ class ScriptStyle {
 					'user-registration-general',
 					'contact-form-7',
 					'query-monitor',
+
+					// Rank Math SEO plugin.
+					'rank-math',
+					// Elementor plugin.
+					'e-popup',
+					'elementor-common',
+					'elementor-frontend',
+					//Font Awesome 5.
+					'font-awesome-5-all',
+					// Royal Addons for Elementor.
+					'wpr-addons-css',
+					'wpr-text-animations-css',
+					// MonsterInsights.
+					'monsterinsights-style-frontend.css',
+					'monsterinsights-style-vendor.css',
 				)
 			)
 		);
