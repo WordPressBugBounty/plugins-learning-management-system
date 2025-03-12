@@ -22,7 +22,9 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  * @since 1.11.0
  */
 do_action( 'masteriyo_before_archive_course_stats' );
-
+if ( ! masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) ) {
+	return;
+}
 ?>
 <div class="masteriyo-course--content__stats">
 	<div class="masteriyo-course-stats-duration">
@@ -32,7 +34,7 @@ do_action( 'masteriyo_before_archive_course_stats' );
 		<?php masteriyo_get_svg( 'group', true ); ?> <span><?php echo esc_html( masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count() ); ?></span>
 	</div>
 	<div class="masteriyo-course-stats-curriculum">
-		<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) ); ?></span>
+	<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count ); ?></span>
 	</div>
 	<!-- Available seats for students-->
 	<?php if ( $course->get_enrollment_limit() > 0 ) : ?>

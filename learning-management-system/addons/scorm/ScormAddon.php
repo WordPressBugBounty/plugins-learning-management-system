@@ -188,9 +188,13 @@ class ScormAddon {
 				)
 			);
 
-			$progress        = current( $query->get_course_progress() );
-			$certificate_url = masteriyo_generate_certificate_download_url( $course_id );
+			$progress                     = current( $query->get_course_progress() );
+			$certificate_url              = '';
+			$is_certificate_addon_enabled = ( new Addons() )->is_active( MASTERIYO_CERTIFICATE_ADDON_SLUG );
 
+			if ( $is_certificate_addon_enabled ) {
+				$certificate_url = masteriyo_generate_certificate_download_url( $course_id );
+			}
 			require Constants::get( 'MASTERIYO_SCORM_ADDON_TEMPLATES' ) . '/scorm-learn.php';
 
 			exit;

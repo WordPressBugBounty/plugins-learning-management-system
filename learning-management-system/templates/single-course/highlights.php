@@ -25,7 +25,7 @@ do_action( 'masteriyo_before_single_course_highlights' );
 
 ?>
 
-<?php if ( ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) : ?>
+<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) ) : ?>
 	<div class="masteriyo-course--content__description">
 		<h5 class="title"><?php esc_html_e( 'This course includes', 'learning-management-system' ); ?></h5>
 		<?php

@@ -432,6 +432,18 @@ class QuizzesImportExportController extends RestController {
 					return $quiz_id;
 			}
 
+			// Insert question bank data.
+			if ( isset( $quiz['bank_data'] ) && is_array( $quiz['bank_data'] ) ) {
+				foreach ( $quiz['bank_data'] as $bank_data ) {
+					$question_id = isset( $bank_data['question_id'] ) ? absint( $bank_data['question_id'] ) : 0;
+					$menu_order  = isset( $bank_data['menu_order'] ) ? absint( $bank_data['menu_order'] ) : 0;
+
+					if ( $question_id ) {
+						masteriyo_add_question_to_quiz( $quiz_id, $question_id, $menu_order );
+					}
+				}
+			}
+
 			if ( ! empty( $questions ) ) {
 					$this->import_quiz_questions( $questions, $quiz_id, $course_id );
 			}

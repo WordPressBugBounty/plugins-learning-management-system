@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.16.1\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.17.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-03-05T07:24:21+00:00\n"
+"POT-Creation-Date: 2025-03-12T07:08:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -99,7 +99,7 @@ msgid "Import"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:33
-#: includes/Helper/core.php:5400
+#: includes/Helper/core.php:5401
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Classroom"
@@ -168,7 +168,7 @@ msgid "Group Details"
 msgstr ""
 
 #: addons/group-courses/templates/group-courses.php:18
-#: includes/Helper/core.php:5412
+#: includes/Helper/core.php:5413
 #: assets/js/build/masteriyo-account.js:1
 msgid "Groups"
 msgstr ""
@@ -299,7 +299,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:140
 #: includes/AdminMenu.php:141
-#: includes/Helper/core.php:2123
+#: includes/Helper/core.php:2120
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Dashboard"
@@ -314,7 +314,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:151
 #: includes/AdminMenu.php:152
-#: includes/Masteriyo.php:329
+#: includes/Masteriyo.php:330
 #: includes/PostType/Course.php:36
 #: includes/PostType/Course.php:64
 #: templates/checkout/order-summary.php:20
@@ -371,7 +371,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:197
 #: includes/AdminMenu.php:198
-#: includes/Masteriyo.php:393
+#: includes/Masteriyo.php:394
 #: assets/js/build/blocks.js:2
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Settings"
@@ -403,7 +403,7 @@ msgstr ""
 #: includes/AjaxHandlers/ClearMasteriyoUserSessionAjaxHandler.php:54
 #: includes/AjaxHandlers/CoursePasswordProtectionHandler.php:97
 #: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:52
-#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:113
+#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:114
 #: includes/AjaxHandlers/DeactivationFeedbackAjaxHandler.php:66
 #: includes/AjaxHandlers/LoginAjaxHandler.php:54
 #: includes/AjaxHandlers/ReviewNoticeAjaxHandler.php:55
@@ -412,7 +412,7 @@ msgid "Invalid nonce. Maybe you should reload the page."
 msgstr ""
 
 #: includes/AjaxHandlers/CoursePasswordProtectionHandler.php:68
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1366
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1367
 msgid "Invalid Course ID."
 msgstr ""
 
@@ -432,7 +432,7 @@ msgid "Password is required."
 msgstr ""
 
 #: includes/AjaxHandlers/CoursePasswordProtectionHandler.php:114
-#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:119
+#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:120
 msgid "Course ID is required."
 msgstr ""
 
@@ -440,15 +440,15 @@ msgstr ""
 msgid "Password is correct."
 msgstr ""
 
-#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:116
+#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:117
 msgid "Page number is required."
 msgstr ""
 
-#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:125
+#: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:126
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:215
 #: includes/RestApi/Controllers/Version1/PostsController.php:63
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:956
-#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:457
+#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:469
 msgid "Invalid course ID."
 msgstr ""
 
@@ -490,7 +490,7 @@ msgid "No pages specified."
 msgstr ""
 
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:82
-#: includes/Helper/core.php:5828
+#: includes/Helper/core.php:5829
 msgid "Pages set up successfully."
 msgstr ""
 
@@ -584,7 +584,7 @@ msgstr ""
 #: includes/Checkout.php:492
 #: includes/FormHandler/RequestPasswordResetFormHandler.php:70
 #: includes/FormHandler/RequestPasswordResetFormHandler.php:92
-#: includes/Helper/core.php:2391
+#: includes/Helper/core.php:2388
 msgid "Invalid username or email"
 msgstr ""
 
@@ -1090,7 +1090,7 @@ msgstr ""
 
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:132
 #: includes/FormHandler/RegistrationFormHandler.php:125
-#: includes/Masteriyo.php:619
+#: includes/Masteriyo.php:620
 msgid "An email has been sent to your inbox. Please confirm your email before logging in."
 msgstr ""
 
@@ -1229,7 +1229,7 @@ msgstr ""
 
 #. translators: Cart total order
 #: includes/Gateways/Offline/Offline.php:69
-#: includes/Helper/Template.php:1458
+#: includes/Helper/Template.php:1464
 msgid "Confirm Payment"
 msgstr ""
 
@@ -1389,858 +1389,858 @@ msgstr ""
 msgid "Item"
 msgstr ""
 
-#: includes/Helper/core.php:936
+#: includes/Helper/core.php:934
 msgctxt "h for hours"
 msgid "h"
 msgstr ""
 
-#: includes/Helper/core.php:937
+#: includes/Helper/core.php:935
 msgctxt "m for minutes"
 msgid "m"
 msgstr ""
 
-#: includes/Helper/core.php:938
+#: includes/Helper/core.php:936
 msgctxt "m for minutes"
 msgid "0m"
 msgstr ""
 
-#: includes/Helper/core.php:1388
+#: includes/Helper/core.php:1386
 msgid "United Arab Emirates dirham"
 msgstr ""
 
-#: includes/Helper/core.php:1389
+#: includes/Helper/core.php:1387
 msgid "Afghan afghani"
 msgstr ""
 
-#: includes/Helper/core.php:1390
+#: includes/Helper/core.php:1388
 msgid "Albanian lek"
 msgstr ""
 
-#: includes/Helper/core.php:1391
+#: includes/Helper/core.php:1389
 msgid "Armenian dram"
 msgstr ""
 
-#: includes/Helper/core.php:1392
+#: includes/Helper/core.php:1390
 msgid "Netherlands Antillean guilder"
 msgstr ""
 
-#: includes/Helper/core.php:1393
+#: includes/Helper/core.php:1391
 msgid "Angolan kwanza"
 msgstr ""
 
-#: includes/Helper/core.php:1394
+#: includes/Helper/core.php:1392
 msgid "Argentine peso"
 msgstr ""
 
-#: includes/Helper/core.php:1395
+#: includes/Helper/core.php:1393
 msgid "Australian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1396
+#: includes/Helper/core.php:1394
 msgid "Aruban florin"
 msgstr ""
 
-#: includes/Helper/core.php:1397
+#: includes/Helper/core.php:1395
 msgid "Azerbaijani manat"
 msgstr ""
 
-#: includes/Helper/core.php:1398
+#: includes/Helper/core.php:1396
 msgid "Bosnia and Herzegovina convertible mark"
 msgstr ""
 
-#: includes/Helper/core.php:1399
+#: includes/Helper/core.php:1397
 msgid "Barbadian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1400
+#: includes/Helper/core.php:1398
 msgid "Bangladeshi taka"
 msgstr ""
 
-#: includes/Helper/core.php:1401
+#: includes/Helper/core.php:1399
 msgid "Bulgarian lev"
 msgstr ""
 
-#: includes/Helper/core.php:1402
+#: includes/Helper/core.php:1400
 msgid "Bahraini dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1403
+#: includes/Helper/core.php:1401
 msgid "Burundian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1404
+#: includes/Helper/core.php:1402
 msgid "Bermudian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1405
+#: includes/Helper/core.php:1403
 msgid "Brunei dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1406
+#: includes/Helper/core.php:1404
 msgid "Bolivian boliviano"
 msgstr ""
 
-#: includes/Helper/core.php:1407
+#: includes/Helper/core.php:1405
 msgid "Brazilian real"
 msgstr ""
 
-#: includes/Helper/core.php:1408
+#: includes/Helper/core.php:1406
 msgid "Bahamian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1409
+#: includes/Helper/core.php:1407
 msgid "Bitcoin"
 msgstr ""
 
-#: includes/Helper/core.php:1410
+#: includes/Helper/core.php:1408
 msgid "Bhutanese ngultrum"
 msgstr ""
 
-#: includes/Helper/core.php:1411
+#: includes/Helper/core.php:1409
 msgid "Botswana pula"
 msgstr ""
 
-#: includes/Helper/core.php:1412
+#: includes/Helper/core.php:1410
 msgid "Belarusian ruble (old)"
 msgstr ""
 
-#: includes/Helper/core.php:1413
+#: includes/Helper/core.php:1411
 msgid "Belarusian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1414
+#: includes/Helper/core.php:1412
 msgid "Belize dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1415
+#: includes/Helper/core.php:1413
 msgid "Canadian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1416
+#: includes/Helper/core.php:1414
 msgid "Congolese franc"
 msgstr ""
 
-#: includes/Helper/core.php:1417
+#: includes/Helper/core.php:1415
 msgid "Swiss franc"
 msgstr ""
 
-#: includes/Helper/core.php:1418
+#: includes/Helper/core.php:1416
 msgid "Chilean peso"
 msgstr ""
 
-#: includes/Helper/core.php:1419
+#: includes/Helper/core.php:1417
 msgid "Chinese yuan"
 msgstr ""
 
-#: includes/Helper/core.php:1420
+#: includes/Helper/core.php:1418
 msgid "Colombian peso"
 msgstr ""
 
-#: includes/Helper/core.php:1421
+#: includes/Helper/core.php:1419
 msgid "Costa Rican col&oacute;n"
 msgstr ""
 
-#: includes/Helper/core.php:1422
+#: includes/Helper/core.php:1420
 msgid "Cuban convertible peso"
 msgstr ""
 
-#: includes/Helper/core.php:1423
+#: includes/Helper/core.php:1421
 msgid "Cuban peso"
 msgstr ""
 
-#: includes/Helper/core.php:1424
+#: includes/Helper/core.php:1422
 msgid "Cape Verdean escudo"
 msgstr ""
 
-#: includes/Helper/core.php:1425
+#: includes/Helper/core.php:1423
 msgid "Czech koruna"
 msgstr ""
 
-#: includes/Helper/core.php:1426
+#: includes/Helper/core.php:1424
 msgid "Djiboutian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1427
+#: includes/Helper/core.php:1425
 msgid "Danish krone"
 msgstr ""
 
-#: includes/Helper/core.php:1428
+#: includes/Helper/core.php:1426
 msgid "Dominican peso"
 msgstr ""
 
-#: includes/Helper/core.php:1429
+#: includes/Helper/core.php:1427
 msgid "Algerian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1430
+#: includes/Helper/core.php:1428
 msgid "Egyptian pound"
 msgstr ""
 
-#: includes/Helper/core.php:1431
+#: includes/Helper/core.php:1429
 msgid "Eritrean nakfa"
 msgstr ""
 
-#: includes/Helper/core.php:1432
+#: includes/Helper/core.php:1430
 msgid "Ethiopian birr"
 msgstr ""
 
-#: includes/Helper/core.php:1433
+#: includes/Helper/core.php:1431
 msgid "Euro"
 msgstr ""
 
-#: includes/Helper/core.php:1434
+#: includes/Helper/core.php:1432
 msgid "Fijian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1435
+#: includes/Helper/core.php:1433
 msgid "Falkland Islands pound"
 msgstr ""
 
-#: includes/Helper/core.php:1436
+#: includes/Helper/core.php:1434
 msgid "Pound sterling"
 msgstr ""
 
-#: includes/Helper/core.php:1437
+#: includes/Helper/core.php:1435
 msgid "Georgian lari"
 msgstr ""
 
-#: includes/Helper/core.php:1438
+#: includes/Helper/core.php:1436
 msgid "Guernsey pound"
 msgstr ""
 
-#: includes/Helper/core.php:1439
+#: includes/Helper/core.php:1437
 msgid "Ghana cedi"
 msgstr ""
 
-#: includes/Helper/core.php:1440
+#: includes/Helper/core.php:1438
 msgid "Gibraltar pound"
 msgstr ""
 
-#: includes/Helper/core.php:1441
+#: includes/Helper/core.php:1439
 msgid "Gambian dalasi"
 msgstr ""
 
-#: includes/Helper/core.php:1442
+#: includes/Helper/core.php:1440
 msgid "Guinean franc"
 msgstr ""
 
-#: includes/Helper/core.php:1443
+#: includes/Helper/core.php:1441
 msgid "Guatemalan quetzal"
 msgstr ""
 
-#: includes/Helper/core.php:1444
+#: includes/Helper/core.php:1442
 msgid "Guyanese dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1445
+#: includes/Helper/core.php:1443
 msgid "Hong Kong dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1446
+#: includes/Helper/core.php:1444
 msgid "Honduran lempira"
 msgstr ""
 
-#: includes/Helper/core.php:1447
+#: includes/Helper/core.php:1445
 msgid "Croatian kuna"
 msgstr ""
 
-#: includes/Helper/core.php:1448
+#: includes/Helper/core.php:1446
 msgid "Haitian gourde"
 msgstr ""
 
-#: includes/Helper/core.php:1449
+#: includes/Helper/core.php:1447
 msgid "Hungarian forint"
 msgstr ""
 
-#: includes/Helper/core.php:1450
+#: includes/Helper/core.php:1448
 msgid "Indonesian rupiah"
 msgstr ""
 
-#: includes/Helper/core.php:1451
+#: includes/Helper/core.php:1449
 msgid "Israeli new shekel"
 msgstr ""
 
-#: includes/Helper/core.php:1452
+#: includes/Helper/core.php:1450
 msgid "Manx pound"
 msgstr ""
 
-#: includes/Helper/core.php:1453
+#: includes/Helper/core.php:1451
 msgid "Indian rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1454
+#: includes/Helper/core.php:1452
 msgid "Iraqi dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1455
+#: includes/Helper/core.php:1453
 msgid "Iranian rial"
 msgstr ""
 
-#: includes/Helper/core.php:1456
+#: includes/Helper/core.php:1454
 msgid "Iranian toman"
 msgstr ""
 
-#: includes/Helper/core.php:1457
+#: includes/Helper/core.php:1455
 msgid "Icelandic kr&oacute;na"
 msgstr ""
 
-#: includes/Helper/core.php:1458
+#: includes/Helper/core.php:1456
 msgid "Jersey pound"
 msgstr ""
 
-#: includes/Helper/core.php:1459
+#: includes/Helper/core.php:1457
 msgid "Jamaican dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1460
+#: includes/Helper/core.php:1458
 msgid "Jordanian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1461
+#: includes/Helper/core.php:1459
 msgid "Japanese yen"
 msgstr ""
 
-#: includes/Helper/core.php:1462
+#: includes/Helper/core.php:1460
 msgid "Kenyan shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1463
+#: includes/Helper/core.php:1461
 msgid "Kyrgyzstani som"
 msgstr ""
 
-#: includes/Helper/core.php:1464
+#: includes/Helper/core.php:1462
 msgid "Cambodian riel"
 msgstr ""
 
-#: includes/Helper/core.php:1465
+#: includes/Helper/core.php:1463
 msgid "Comorian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1466
+#: includes/Helper/core.php:1464
 msgid "North Korean won"
 msgstr ""
 
-#: includes/Helper/core.php:1467
+#: includes/Helper/core.php:1465
 msgid "South Korean won"
 msgstr ""
 
-#: includes/Helper/core.php:1468
+#: includes/Helper/core.php:1466
 msgid "Kuwaiti dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1469
+#: includes/Helper/core.php:1467
 msgid "Cayman Islands dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1470
+#: includes/Helper/core.php:1468
 msgid "Kazakhstani tenge"
 msgstr ""
 
-#: includes/Helper/core.php:1471
+#: includes/Helper/core.php:1469
 msgid "Lao kip"
 msgstr ""
 
-#: includes/Helper/core.php:1472
+#: includes/Helper/core.php:1470
 msgid "Lebanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1473
+#: includes/Helper/core.php:1471
 msgid "Sri Lankan rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1474
+#: includes/Helper/core.php:1472
 msgid "Liberian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1475
+#: includes/Helper/core.php:1473
 msgid "Lesotho loti"
 msgstr ""
 
-#: includes/Helper/core.php:1476
+#: includes/Helper/core.php:1474
 msgid "Libyan dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1477
+#: includes/Helper/core.php:1475
 msgid "Moroccan dirham"
 msgstr ""
 
-#: includes/Helper/core.php:1478
+#: includes/Helper/core.php:1476
 msgid "Moldovan leu"
 msgstr ""
 
-#: includes/Helper/core.php:1479
+#: includes/Helper/core.php:1477
 msgid "Malagasy ariary"
 msgstr ""
 
-#: includes/Helper/core.php:1480
+#: includes/Helper/core.php:1478
 msgid "Macedonian denar"
 msgstr ""
 
-#: includes/Helper/core.php:1481
+#: includes/Helper/core.php:1479
 msgid "Burmese kyat"
 msgstr ""
 
-#: includes/Helper/core.php:1482
+#: includes/Helper/core.php:1480
 msgid "Mongolian t&ouml;gr&ouml;g"
 msgstr ""
 
-#: includes/Helper/core.php:1483
+#: includes/Helper/core.php:1481
 msgid "Macanese pataca"
 msgstr ""
 
-#: includes/Helper/core.php:1484
+#: includes/Helper/core.php:1482
 msgid "Mauritanian ouguiya"
 msgstr ""
 
-#: includes/Helper/core.php:1485
+#: includes/Helper/core.php:1483
 msgid "Mauritian rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1486
+#: includes/Helper/core.php:1484
 msgid "Maldivian rufiyaa"
 msgstr ""
 
-#: includes/Helper/core.php:1487
+#: includes/Helper/core.php:1485
 msgid "Malawian kwacha"
 msgstr ""
 
-#: includes/Helper/core.php:1488
+#: includes/Helper/core.php:1486
 msgid "Mexican peso"
 msgstr ""
 
-#: includes/Helper/core.php:1489
+#: includes/Helper/core.php:1487
 msgid "Malaysian ringgit"
 msgstr ""
 
-#: includes/Helper/core.php:1490
+#: includes/Helper/core.php:1488
 msgid "Mozambican metical"
 msgstr ""
 
-#: includes/Helper/core.php:1491
+#: includes/Helper/core.php:1489
 msgid "Namibian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1492
+#: includes/Helper/core.php:1490
 msgid "Nigerian naira"
 msgstr ""
 
-#: includes/Helper/core.php:1493
+#: includes/Helper/core.php:1491
 msgid "Nicaraguan c&oacute;rdoba"
 msgstr ""
 
-#: includes/Helper/core.php:1494
+#: includes/Helper/core.php:1492
 msgid "Norwegian krone"
 msgstr ""
 
-#: includes/Helper/core.php:1495
+#: includes/Helper/core.php:1493
 msgid "Nepalese rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1496
+#: includes/Helper/core.php:1494
 msgid "New Zealand dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1497
+#: includes/Helper/core.php:1495
 msgid "Omani rial"
 msgstr ""
 
-#: includes/Helper/core.php:1498
+#: includes/Helper/core.php:1496
 msgid "Panamanian balboa"
 msgstr ""
 
-#: includes/Helper/core.php:1499
+#: includes/Helper/core.php:1497
 msgid "Sol"
 msgstr ""
 
-#: includes/Helper/core.php:1500
+#: includes/Helper/core.php:1498
 msgid "Papua New Guinean kina"
 msgstr ""
 
-#: includes/Helper/core.php:1501
+#: includes/Helper/core.php:1499
 msgid "Philippine peso"
 msgstr ""
 
-#: includes/Helper/core.php:1502
+#: includes/Helper/core.php:1500
 msgid "Pakistani rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1503
+#: includes/Helper/core.php:1501
 msgid "Polish z&#x142;oty"
 msgstr ""
 
-#: includes/Helper/core.php:1504
+#: includes/Helper/core.php:1502
 msgid "Transnistrian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1505
+#: includes/Helper/core.php:1503
 msgid "Paraguayan guaran&iacute;"
 msgstr ""
 
-#: includes/Helper/core.php:1506
+#: includes/Helper/core.php:1504
 msgid "Qatari riyal"
 msgstr ""
 
-#: includes/Helper/core.php:1507
+#: includes/Helper/core.php:1505
 msgid "Romanian leu"
 msgstr ""
 
-#: includes/Helper/core.php:1508
+#: includes/Helper/core.php:1506
 msgid "Serbian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1509
+#: includes/Helper/core.php:1507
 msgid "Russian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1510
+#: includes/Helper/core.php:1508
 msgid "Rwandan franc"
 msgstr ""
 
-#: includes/Helper/core.php:1511
+#: includes/Helper/core.php:1509
 msgid "Saudi riyal"
 msgstr ""
 
-#: includes/Helper/core.php:1512
+#: includes/Helper/core.php:1510
 msgid "Solomon Islands dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1513
+#: includes/Helper/core.php:1511
 msgid "Seychellois rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1514
+#: includes/Helper/core.php:1512
 msgid "Sudanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1515
+#: includes/Helper/core.php:1513
 msgid "Swedish krona"
 msgstr ""
 
-#: includes/Helper/core.php:1516
+#: includes/Helper/core.php:1514
 msgid "Singapore dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1517
+#: includes/Helper/core.php:1515
 msgid "Saint Helena pound"
 msgstr ""
 
-#: includes/Helper/core.php:1518
+#: includes/Helper/core.php:1516
 msgid "Sierra Leonean leone"
 msgstr ""
 
-#: includes/Helper/core.php:1519
+#: includes/Helper/core.php:1517
 msgid "Somali shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1520
+#: includes/Helper/core.php:1518
 msgid "Surinamese dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1521
+#: includes/Helper/core.php:1519
 msgid "South Sudanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1522
+#: includes/Helper/core.php:1520
 msgid "S&atilde;o Tom&eacute; and Pr&iacute;ncipe dobra"
 msgstr ""
 
-#: includes/Helper/core.php:1523
+#: includes/Helper/core.php:1521
 msgid "Syrian pound"
 msgstr ""
 
-#: includes/Helper/core.php:1524
+#: includes/Helper/core.php:1522
 msgid "Swazi lilangeni"
 msgstr ""
 
-#: includes/Helper/core.php:1525
+#: includes/Helper/core.php:1523
 msgid "Thai baht"
 msgstr ""
 
-#: includes/Helper/core.php:1526
+#: includes/Helper/core.php:1524
 msgid "Tajikistani somoni"
 msgstr ""
 
-#: includes/Helper/core.php:1527
+#: includes/Helper/core.php:1525
 msgid "Turkmenistan manat"
 msgstr ""
 
-#: includes/Helper/core.php:1528
+#: includes/Helper/core.php:1526
 msgid "Tunisian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1529
+#: includes/Helper/core.php:1527
 msgid "Tongan pa&#x2bb;anga"
 msgstr ""
 
-#: includes/Helper/core.php:1530
+#: includes/Helper/core.php:1528
 msgid "Turkish lira"
 msgstr ""
 
-#: includes/Helper/core.php:1531
+#: includes/Helper/core.php:1529
 msgid "Trinidad and Tobago dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1532
+#: includes/Helper/core.php:1530
 msgid "New Taiwan dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1533
+#: includes/Helper/core.php:1531
 msgid "Tanzanian shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1534
+#: includes/Helper/core.php:1532
 msgid "Ukrainian hryvnia"
 msgstr ""
 
-#: includes/Helper/core.php:1535
+#: includes/Helper/core.php:1533
 msgid "Ugandan shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1536
+#: includes/Helper/core.php:1534
 msgid "United States (US) dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1537
+#: includes/Helper/core.php:1535
 msgid "Uruguayan peso"
 msgstr ""
 
-#: includes/Helper/core.php:1538
+#: includes/Helper/core.php:1536
 msgid "Uzbekistani som"
 msgstr ""
 
-#: includes/Helper/core.php:1539
+#: includes/Helper/core.php:1537
 msgid "Venezuelan bol&iacute;var"
 msgstr ""
 
-#: includes/Helper/core.php:1540
+#: includes/Helper/core.php:1538
 msgid "Bol&iacute;var soberano"
 msgstr ""
 
-#: includes/Helper/core.php:1541
+#: includes/Helper/core.php:1539
 msgid "Vietnamese &#x111;&#x1ed3;ng"
 msgstr ""
 
-#: includes/Helper/core.php:1542
+#: includes/Helper/core.php:1540
 msgid "Vanuatu vatu"
 msgstr ""
 
-#: includes/Helper/core.php:1543
+#: includes/Helper/core.php:1541
 msgid "Samoan t&#x101;l&#x101;"
 msgstr ""
 
-#: includes/Helper/core.php:1544
+#: includes/Helper/core.php:1542
 msgid "Central African CFA franc"
 msgstr ""
 
-#: includes/Helper/core.php:1545
+#: includes/Helper/core.php:1543
 msgid "East Caribbean dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1546
+#: includes/Helper/core.php:1544
 msgid "West African CFA franc"
 msgstr ""
 
-#: includes/Helper/core.php:1547
+#: includes/Helper/core.php:1545
 msgid "CFP franc"
 msgstr ""
 
-#: includes/Helper/core.php:1548
+#: includes/Helper/core.php:1546
 msgid "Yemeni rial"
 msgstr ""
 
-#: includes/Helper/core.php:1549
+#: includes/Helper/core.php:1547
 msgid "South African rand"
 msgstr ""
 
-#: includes/Helper/core.php:1550
+#: includes/Helper/core.php:1548
 msgid "Zambian kwacha"
 msgstr ""
 
-#: includes/Helper/core.php:1579
+#: includes/Helper/core.php:1577
 msgctxt "slug"
 msgid "course"
 msgstr ""
 
-#: includes/Helper/core.php:1580
+#: includes/Helper/core.php:1578
 msgctxt "slug"
 msgid "course-category"
 msgstr ""
 
-#: includes/Helper/core.php:1581
+#: includes/Helper/core.php:1579
 msgctxt "slug"
 msgid "course-tag"
 msgstr ""
 
-#: includes/Helper/core.php:1582
+#: includes/Helper/core.php:1580
 msgctxt "slug"
 msgid "course-difficulty"
 msgstr ""
 
-#: includes/Helper/core.php:1583
+#: includes/Helper/core.php:1581
 msgctxt "slug"
 msgid "lesson"
 msgstr ""
 
-#: includes/Helper/core.php:1584
+#: includes/Helper/core.php:1582
 msgctxt "slug"
 msgid "quiz"
 msgstr ""
 
-#: includes/Helper/core.php:1585
+#: includes/Helper/core.php:1583
 msgctxt "slug"
 msgid "section"
 msgstr ""
 
-#: includes/Helper/core.php:1679
+#: includes/Helper/core.php:1677
 msgctxt "slug"
 msgid "uncategorized"
 msgstr ""
 
-#: includes/Helper/core.php:2127
+#: includes/Helper/core.php:2124
 #: assets/js/build/masteriyo-account.js:1
 msgid "My Courses"
 msgstr ""
 
-#: includes/Helper/core.php:2131
+#: includes/Helper/core.php:2128
 msgid "Account Details"
 msgstr ""
 
-#: includes/Helper/core.php:2135
+#: includes/Helper/core.php:2132
 msgid "Edit Account"
 msgstr ""
 
-#: includes/Helper/core.php:2139
+#: includes/Helper/core.php:2136
 msgid "My Order History"
 msgstr ""
 
-#: includes/Helper/core.php:2143
+#: includes/Helper/core.php:2140
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Logout"
 msgstr ""
 
-#: includes/Helper/core.php:2294
+#: includes/Helper/core.php:2291
 #: includes/RestApi/Controllers/Version1/SettingsController.php:1577
 msgid "Please provide a valid email address."
 msgstr ""
 
-#: includes/Helper/core.php:2306
+#: includes/Helper/core.php:2303
 msgid "An account is already registered with your email address."
 msgstr ""
 
-#: includes/Helper/core.php:2317
+#: includes/Helper/core.php:2314
 msgid "Please enter a valid account username."
 msgstr ""
 
-#: includes/Helper/core.php:2321
+#: includes/Helper/core.php:2318
 msgid "An account is already registered with that username. Please choose another."
 msgstr ""
 
-#: includes/Helper/core.php:2332
+#: includes/Helper/core.php:2329
 msgid "Please enter an account password."
 msgstr ""
 
-#: includes/Helper/core.php:2385
+#: includes/Helper/core.php:2382
 msgid "Registration failed."
 msgstr ""
 
-#: includes/Helper/core.php:2720
+#: includes/Helper/core.php:2717
 msgid "Masteriyo Courses Page"
 msgstr ""
 
-#: includes/Helper/core.php:2724
+#: includes/Helper/core.php:2721
 msgid "Masteriyo Account Page"
 msgstr ""
 
-#: includes/Helper/core.php:2728
+#: includes/Helper/core.php:2725
 msgid "Masteriyo Checkout Page"
 msgstr ""
 
-#: includes/Helper/core.php:2732
+#: includes/Helper/core.php:2729
 msgid "Masteriyo Learn Page"
 msgstr ""
 
-#: includes/Helper/core.php:2736
+#: includes/Helper/core.php:2733
 msgid "Masteriyo Instructor Registration Page"
 msgstr ""
 
-#: includes/Helper/core.php:2740
+#: includes/Helper/core.php:2737
 msgid "Masteriyo Instructors List Page"
 msgstr ""
 
-#: includes/Helper/core.php:3181
+#: includes/Helper/core.php:3178
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Self Hosted"
 msgstr ""
 
-#: includes/Helper/core.php:3182
+#: includes/Helper/core.php:3179
 #: assets/js/build/masteriyo-backend.js:1
 msgid "YouTube"
 msgstr ""
 
-#: includes/Helper/core.php:3183
+#: includes/Helper/core.php:3180
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Vimeo"
 msgstr ""
 
-#: includes/Helper/core.php:3184
+#: includes/Helper/core.php:3181
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Embed Video"
 msgstr ""
 
-#: includes/Helper/core.php:3185
+#: includes/Helper/core.php:3182
 msgid "Live Stream"
 msgstr ""
 
 #. translators: %s: Class
-#: includes/Helper/core.php:5227
+#: includes/Helper/core.php:5228
 msgid "The class <code>%s</code> provided by masteriyo_logging_class filter must implement <code>Logger</code>."
 msgstr ""
 
-#: includes/Helper/core.php:5394
+#: includes/Helper/core.php:5395
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Announcements"
 msgstr ""
 
-#: includes/Helper/core.php:5406
+#: includes/Helper/core.php:5407
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Meet"
 msgstr ""
 
-#: includes/Helper/core.php:5418
+#: includes/Helper/core.php:5419
 msgid "Multiple Currency"
 msgstr ""
 
-#: includes/Helper/core.php:5424
+#: includes/Helper/core.php:5425
 msgid "Certificates"
 msgstr ""
 
-#: includes/Helper/core.php:5434
+#: includes/Helper/core.php:5435
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5787
+#: includes/Helper/core.php:5788
 msgid "Masteriyo:"
 msgstr ""
 
 #. translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages
-#: includes/Helper/core.php:5801
+#: includes/Helper/core.php:5802
 msgid "%1$s %2$d page is missing: %3$s. Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set it up automatically."
 msgid_plural "%1$s %2$d pages are missing: %3$s. Please configure them, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set them up automatically."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Helper/core.php:5810
+#: includes/Helper/core.php:5811
 #: assets/js/build/masteriyo-backend.js:1
 msgid "click here"
 msgstr ""
 
-#: includes/Helper/core.php:5826
+#: includes/Helper/core.php:5827
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5827
+#: includes/Helper/core.php:5828
 msgid "Failed to set up. Retry?"
 msgstr ""
 
@@ -2408,25 +2408,25 @@ msgstr ""
 msgid "You are not allowed to view this content."
 msgstr ""
 
-#: includes/Helper/Template.php:1663
+#: includes/Helper/Template.php:1669
 msgid "Select View:"
 msgstr ""
 
-#: includes/Helper/Template.php:1668
+#: includes/Helper/Template.php:1674
 msgid "View on list Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1677
+#: includes/Helper/Template.php:1683
 msgid "View on Grid Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1709
+#: includes/Helper/Template.php:1715
 #: assets/js/build/masteriyo-backend.js:1
 msgid "No courses found."
 msgstr ""
 
 #. translators: %d: Course sections count
-#: includes/Helper/Template.php:2247
+#: includes/Helper/Template.php:2253
 msgctxt "Sections Count"
 msgid "%s Section"
 msgid_plural "%s Sections"
@@ -2435,8 +2435,8 @@ msgstr[1] ""
 
 #. translators: %d: Course lessons count
 #. translators: %d: Section lessons count
-#: includes/Helper/Template.php:2260
-#: includes/Helper/Template.php:2367
+#: includes/Helper/Template.php:2266
+#: includes/Helper/Template.php:2373
 msgctxt "Lessons Count"
 msgid "%s Lesson"
 msgid_plural "%s Lessons"
@@ -2445,8 +2445,8 @@ msgstr[1] ""
 
 #. translators: %d: Course quiz count
 #. translators: %d: Section quizzes count
-#: includes/Helper/Template.php:2273
-#: includes/Helper/Template.php:2380
+#: includes/Helper/Template.php:2279
+#: includes/Helper/Template.php:2386
 msgctxt "Quizzes Count"
 msgid "%s Quiz"
 msgid_plural "%s Quizzes"
@@ -2454,39 +2454,39 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Lecture hours
-#: includes/Helper/Template.php:2285
+#: includes/Helper/Template.php:2291
 msgid "%s Duration"
 msgstr ""
 
-#: includes/Helper/Template.php:2539
+#: includes/Helper/Template.php:2545
 msgid "Latest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2544
+#: includes/Helper/Template.php:2550
 msgid "Oldest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2552
+#: includes/Helper/Template.php:2558
 msgid "Price: Low to High"
 msgstr ""
 
-#: includes/Helper/Template.php:2557
+#: includes/Helper/Template.php:2563
 msgid "Price: High to Low"
 msgstr ""
 
-#: includes/Helper/Template.php:2565
+#: includes/Helper/Template.php:2571
 msgid "Highest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2570
+#: includes/Helper/Template.php:2576
 msgid "Lowest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2578
+#: includes/Helper/Template.php:2584
 msgid "Sort by Course Title (A-Z)"
 msgstr ""
 
-#: includes/Helper/Template.php:2583
+#: includes/Helper/Template.php:2589
 msgid "Sort by Course Title (Z-A)"
 msgstr ""
 
@@ -2616,44 +2616,44 @@ msgstr ""
 msgid "This method should not be called before plugins_loaded."
 msgstr ""
 
-#: includes/Masteriyo.php:353
+#: includes/Masteriyo.php:354
 msgid "Docs"
 msgstr ""
 
-#: includes/Masteriyo.php:354
+#: includes/Masteriyo.php:355
 msgid "View Masteriyo documentation"
 msgstr ""
 
-#: includes/Masteriyo.php:358
+#: includes/Masteriyo.php:359
 msgid "Community Support"
 msgstr ""
 
-#: includes/Masteriyo.php:359
+#: includes/Masteriyo.php:360
 msgid "Visit community forums"
 msgstr ""
 
-#: includes/Masteriyo.php:363
+#: includes/Masteriyo.php:364
 msgid "Rate the plugin ★★★★★"
 msgstr ""
 
-#: includes/Masteriyo.php:364
+#: includes/Masteriyo.php:365
 msgid "Rate the plugin."
 msgstr ""
 
-#: includes/Masteriyo.php:394
+#: includes/Masteriyo.php:395
 msgid "View Masteriyo settings"
 msgstr ""
 
-#: includes/Masteriyo.php:486
+#: includes/Masteriyo.php:487
 msgid "This password reset key is for a different user account. Please log out and try again."
 msgstr ""
 
-#: includes/Masteriyo.php:761
+#: includes/Masteriyo.php:762
 msgid "Minimum WordPress version required for Masteriyo to work is v5.0."
 msgstr ""
 
 #. translators: 1: error message 2: file name and path 3: line number
-#: includes/Masteriyo.php:1248
+#: includes/Masteriyo.php:1249
 msgid "%1$s in %2$s on line %3$s"
 msgstr ""
 
@@ -2739,8 +2739,8 @@ msgstr ""
 
 #: includes/Models/Order/OrderItemCourse.php:186
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1003
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:907
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1004
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:958
 #: includes/RestApi/Controllers/Version1/QuizesController.php:264
 #: includes/RestApi/Controllers/Version1/SectionsController.php:534
 msgid "Invalid course ID"
@@ -3107,7 +3107,7 @@ msgid "Questions"
 msgstr ""
 
 #: includes/PostType/Question.php:30
-#: includes/Repository/QuestionRepository.php:80
+#: includes/Repository/QuestionRepository.php:81
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Question"
 msgstr ""
@@ -3138,6 +3138,7 @@ msgid "Edit Question"
 msgstr ""
 
 #: includes/PostType/Question.php:39
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Update Question"
 msgstr ""
 
@@ -3588,7 +3589,7 @@ msgstr ""
 msgid "Order - %s"
 msgstr ""
 
-#: includes/Repository/QuestionRepository.php:126
+#: includes/Repository/QuestionRepository.php:127
 msgid "Invalid question."
 msgstr ""
 
@@ -3649,14 +3650,14 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:476
 #: includes/RestApi/Controllers/Version1/CoursesController.php:111
 #: includes/RestApi/Controllers/Version1/CoursesController.php:160
-#: includes/RestApi/Controllers/Version1/CoursesController.php:689
+#: includes/RestApi/Controllers/Version1/CoursesController.php:690
 #: includes/RestApi/Controllers/Version1/CourseTagsController.php:77
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:117
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:169
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:686
 #: includes/RestApi/Controllers/Version1/LessonsController.php:106
 #: includes/RestApi/Controllers/Version1/LessonsController.php:151
-#: includes/RestApi/Controllers/Version1/LessonsController.php:470
+#: includes/RestApi/Controllers/Version1/LessonsController.php:471
 #: includes/RestApi/Controllers/Version1/LogsController.php:125
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:92
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:268
@@ -3666,7 +3667,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:161
 #: includes/RestApi/Controllers/Version1/OrdersController.php:515
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:130
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:555
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:612
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:100
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:254
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:98
@@ -3687,7 +3688,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UsersController.php:921
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:106
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:150
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:384
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:385
 msgid "Unique identifier for the resource."
 msgstr ""
 
@@ -3746,50 +3747,50 @@ msgid "Limit result set to lessons assigned a specific difficulty ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:375
-#: includes/RestApi/Controllers/Version1/LessonsController.php:476
+#: includes/RestApi/Controllers/Version1/LessonsController.php:477
 msgid "Lesson name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:380
 #: includes/RestApi/Controllers/Store/CheckoutController.php:378
-#: includes/RestApi/Controllers/Version1/LessonsController.php:481
+#: includes/RestApi/Controllers/Version1/LessonsController.php:482
 msgid "Lesson slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:385
 #: includes/RestApi/Controllers/Store/CheckoutController.php:383
-#: includes/RestApi/Controllers/Version1/LessonsController.php:486
+#: includes/RestApi/Controllers/Version1/LessonsController.php:487
 msgid "Lesson URL"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:392
 #: includes/RestApi/Controllers/Store/CheckoutController.php:390
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:718
-#: includes/RestApi/Controllers/Version1/LessonsController.php:493
+#: includes/RestApi/Controllers/Version1/LessonsController.php:494
 msgid "The date the lesson was created, in the site's timezone."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:397
 #: includes/RestApi/Controllers/Store/CheckoutController.php:395
-#: includes/RestApi/Controllers/Version1/LessonsController.php:498
+#: includes/RestApi/Controllers/Version1/LessonsController.php:499
 msgid "The date the lesson was created, as GMT."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:402
 #: includes/RestApi/Controllers/Store/CheckoutController.php:400
-#: includes/RestApi/Controllers/Version1/LessonsController.php:503
+#: includes/RestApi/Controllers/Version1/LessonsController.php:504
 msgid "The date the lesson was last modified, in the site's timezone."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:408
 #: includes/RestApi/Controllers/Store/CheckoutController.php:406
-#: includes/RestApi/Controllers/Version1/LessonsController.php:509
+#: includes/RestApi/Controllers/Version1/LessonsController.php:510
 msgid "The date the lesson was last modified, as GMT."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:414
 #: includes/RestApi/Controllers/Store/CheckoutController.php:412
-#: includes/RestApi/Controllers/Version1/LessonsController.php:515
+#: includes/RestApi/Controllers/Version1/LessonsController.php:516
 msgid "Lesson status (post status)."
 msgstr ""
 
@@ -3800,188 +3801,188 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:427
 #: includes/RestApi/Controllers/Store/CheckoutController.php:425
-#: includes/RestApi/Controllers/Version1/CoursesController.php:754
-#: includes/RestApi/Controllers/Version1/LessonsController.php:522
+#: includes/RestApi/Controllers/Version1/CoursesController.php:755
+#: includes/RestApi/Controllers/Version1/LessonsController.php:523
 msgid "Catalog visibility"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:434
 #: includes/RestApi/Controllers/Store/CheckoutController.php:432
-#: includes/RestApi/Controllers/Version1/LessonsController.php:529
+#: includes/RestApi/Controllers/Version1/LessonsController.php:530
 msgid "Lesson description"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:439
 #: includes/RestApi/Controllers/Store/CheckoutController.php:437
-#: includes/RestApi/Controllers/Version1/LessonsController.php:534
+#: includes/RestApi/Controllers/Version1/LessonsController.php:535
 msgid "Lesson short description"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:444
 #: includes/RestApi/Controllers/Store/CheckoutController.php:442
-#: includes/RestApi/Controllers/Version1/CoursesController.php:793
-#: includes/RestApi/Controllers/Version1/LessonsController.php:539
+#: includes/RestApi/Controllers/Version1/CoursesController.php:794
+#: includes/RestApi/Controllers/Version1/LessonsController.php:540
 msgid "Allow reviews."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:450
 #: includes/RestApi/Controllers/Store/CheckoutController.php:448
-#: includes/RestApi/Controllers/Version1/CoursesController.php:799
-#: includes/RestApi/Controllers/Version1/LessonsController.php:545
+#: includes/RestApi/Controllers/Version1/CoursesController.php:800
+#: includes/RestApi/Controllers/Version1/LessonsController.php:546
 msgid "Reviews average rating."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:456
 #: includes/RestApi/Controllers/Store/CheckoutController.php:454
-#: includes/RestApi/Controllers/Version1/LessonsController.php:551
+#: includes/RestApi/Controllers/Version1/LessonsController.php:552
 msgid "Amount of reviews that the lesson has."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:462
 #: includes/RestApi/Controllers/Store/CheckoutController.php:460
-#: includes/RestApi/Controllers/Version1/LessonsController.php:557
+#: includes/RestApi/Controllers/Version1/LessonsController.php:558
 msgid "Lesson parent ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:467
 #: includes/RestApi/Controllers/Store/CheckoutController.php:465
-#: includes/RestApi/Controllers/Version1/CoursesController.php:823
+#: includes/RestApi/Controllers/Version1/CoursesController.php:824
 msgid "List of categories."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:474
 #: includes/RestApi/Controllers/Store/CheckoutController.php:472
-#: includes/RestApi/Controllers/Version1/CoursesController.php:830
+#: includes/RestApi/Controllers/Version1/CoursesController.php:831
 msgid "Category ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:479
 #: includes/RestApi/Controllers/Store/CheckoutController.php:477
 #: includes/RestApi/Controllers/Version1/CourseCategoriesController.php:77
-#: includes/RestApi/Controllers/Version1/CoursesController.php:835
+#: includes/RestApi/Controllers/Version1/CoursesController.php:836
 msgid "Category name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:485
 #: includes/RestApi/Controllers/Store/CheckoutController.php:483
-#: includes/RestApi/Controllers/Version1/CoursesController.php:841
+#: includes/RestApi/Controllers/Version1/CoursesController.php:842
 msgid "Category slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:494
 #: includes/RestApi/Controllers/Store/CheckoutController.php:492
-#: includes/RestApi/Controllers/Version1/CoursesController.php:850
+#: includes/RestApi/Controllers/Version1/CoursesController.php:851
 msgid "List of tags"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:501
 #: includes/RestApi/Controllers/Store/CheckoutController.php:499
-#: includes/RestApi/Controllers/Version1/CoursesController.php:857
+#: includes/RestApi/Controllers/Version1/CoursesController.php:858
 msgid "Tag ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:506
 #: includes/RestApi/Controllers/Store/CheckoutController.php:504
-#: includes/RestApi/Controllers/Version1/CoursesController.php:862
+#: includes/RestApi/Controllers/Version1/CoursesController.php:863
 #: includes/RestApi/Controllers/Version1/CourseTagsController.php:83
 msgid "Tag name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:512
 #: includes/RestApi/Controllers/Store/CheckoutController.php:510
-#: includes/RestApi/Controllers/Version1/CoursesController.php:868
+#: includes/RestApi/Controllers/Version1/CoursesController.php:869
 msgid "Tag slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:521
 #: includes/RestApi/Controllers/Store/CheckoutController.php:519
-#: includes/RestApi/Controllers/Version1/LessonsController.php:575
+#: includes/RestApi/Controllers/Version1/LessonsController.php:576
 msgid "Menu order, used to custom sort lessons."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:526
 #: includes/RestApi/Controllers/Store/CheckoutController.php:524
-#: includes/RestApi/Controllers/Version1/LessonsController.php:585
+#: includes/RestApi/Controllers/Version1/LessonsController.php:586
 msgid "Video source"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:531
 #: includes/RestApi/Controllers/Store/CheckoutController.php:529
-#: includes/RestApi/Controllers/Version1/LessonsController.php:592
+#: includes/RestApi/Controllers/Version1/LessonsController.php:593
 msgid "Video source URL"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:536
 #: includes/RestApi/Controllers/Store/CheckoutController.php:534
-#: includes/RestApi/Controllers/Version1/LessonsController.php:597
+#: includes/RestApi/Controllers/Version1/LessonsController.php:598
 msgid "Video playback time"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:541
 #: includes/RestApi/Controllers/Store/CheckoutController.php:539
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:562
-#: includes/RestApi/Controllers/Version1/CoursesController.php:985
+#: includes/RestApi/Controllers/Version1/CoursesController.php:986
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:761
-#: includes/RestApi/Controllers/Version1/LessonsController.php:707
+#: includes/RestApi/Controllers/Version1/LessonsController.php:708
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:778
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:671
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:728
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1172
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:563
 #: includes/RestApi/Controllers/Version1/SectionsController.php:381
 #: includes/RestApi/Controllers/Version1/UsersController.php:1143
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:468
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:469
 msgid "Meta data"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:548
 #: includes/RestApi/Controllers/Store/CheckoutController.php:546
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:569
-#: includes/RestApi/Controllers/Version1/CoursesController.php:992
+#: includes/RestApi/Controllers/Version1/CoursesController.php:993
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:768
-#: includes/RestApi/Controllers/Version1/LessonsController.php:714
+#: includes/RestApi/Controllers/Version1/LessonsController.php:715
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:785
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:678
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:735
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1179
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:570
 #: includes/RestApi/Controllers/Version1/SectionsController.php:388
 #: includes/RestApi/Controllers/Version1/UsersController.php:1150
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:475
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:476
 msgid "Meta ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:554
 #: includes/RestApi/Controllers/Store/CheckoutController.php:552
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:575
-#: includes/RestApi/Controllers/Version1/CoursesController.php:998
+#: includes/RestApi/Controllers/Version1/CoursesController.php:999
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:774
-#: includes/RestApi/Controllers/Version1/LessonsController.php:720
+#: includes/RestApi/Controllers/Version1/LessonsController.php:721
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:791
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:684
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:741
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1185
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:576
 #: includes/RestApi/Controllers/Version1/SectionsController.php:394
 #: includes/RestApi/Controllers/Version1/UsersController.php:1156
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:481
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:482
 msgid "Meta key"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:559
 #: includes/RestApi/Controllers/Store/CheckoutController.php:557
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:580
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1003
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1004
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:779
-#: includes/RestApi/Controllers/Version1/LessonsController.php:725
+#: includes/RestApi/Controllers/Version1/LessonsController.php:726
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:796
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:689
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:746
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1190
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:581
 #: includes/RestApi/Controllers/Version1/SectionsController.php:399
 #: includes/RestApi/Controllers/Version1/UsersController.php:1161
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:486
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:487
 msgid "Meta value"
 msgstr ""
 
@@ -4060,7 +4061,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:809
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:936
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:995
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1357
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1358
 #: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:389
 #: includes/RestApi/Controllers/Version1/ErrorReportsController.php:92
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:943
@@ -4069,9 +4070,9 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1037
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1132
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1192
-#: includes/RestApi/Controllers/Version1/LessonsController.php:979
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1025
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1071
+#: includes/RestApi/Controllers/Version1/LessonsController.php:980
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1026
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1072
 #: includes/RestApi/Controllers/Version1/LogsController.php:164
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:652
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:685
@@ -4097,14 +4098,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:231
 #: includes/RestApi/Controllers/Version1/PostsController.php:272
 #: includes/RestApi/Controllers/Version1/PostsController.php:659
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:207
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:883
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:929
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:975
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1019
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:243
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:934
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:980
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1026
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1070
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1153
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1060
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:137
-#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:442
+#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:453
 #: includes/RestApi/Controllers/Version1/QuizesController.php:236
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:732
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:760
@@ -4242,15 +4244,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:842
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:676
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:787
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1376
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1390
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1377
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1391
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1015
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:537
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1002
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1035
 #: includes/RestApi/Controllers/Version1/PostsController.php:87
 #: includes/RestApi/Controllers/Version1/PostsController.php:98
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:214
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:250
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:767
 #: includes/RestApi/Controllers/Version1/UsersController.php:1391
 #: includes/RestApi/Controllers/Version1/UsersController.php:1404
@@ -4267,7 +4269,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:817
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:577
 #: includes/RestApi/Controllers/Version1/PostsController.php:127
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1048
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1099
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:144
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:738
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
@@ -4281,13 +4283,13 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:275
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:876
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:709
-#: includes/RestApi/Controllers/Version1/LessonsController.php:990
+#: includes/RestApi/Controllers/Version1/LessonsController.php:991
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:663
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:626
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1096
 #: includes/RestApi/Controllers/Version1/PostsController.php:167
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:894
-#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:449
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:945
+#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:460
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:674
@@ -4302,11 +4304,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:764
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1170
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1049
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1050
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:678
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1129
 #: includes/RestApi/Controllers/Version1/PostsController.php:209
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:953
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1004
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:861
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
@@ -4321,11 +4323,14 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:805
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1042
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1233
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1095
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1096
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:740
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1175
 #: includes/RestApi/Controllers/Version1/PostsController.php:292
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:999
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1050
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1188
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1200
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1224
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:705
@@ -4348,8 +4353,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CrudController.php:589
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1146
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1201
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1039
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1085
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1040
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1086
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:698
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:742
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:829
@@ -4358,14 +4363,16 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:990
 #: includes/RestApi/Controllers/Version1/PostsController.php:620
 #: includes/RestApi/Controllers/Version1/PostsController.php:668
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:237
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:943
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:989
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:273
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:994
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1040
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1214
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1295
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:840
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:850
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:887
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:193
-#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:472
+#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:483
 #: includes/RestApi/Controllers/Version1/QuizesController.php:708
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1360
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:886
@@ -4496,7 +4503,7 @@ msgid "Limit result set to resources assigned to a specific course."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseDifficultiesController.php:83
-#: includes/RestApi/Controllers/Version1/CoursesController.php:889
+#: includes/RestApi/Controllers/Version1/CoursesController.php:890
 msgid "Difficulty name."
 msgstr ""
 
@@ -4555,8 +4562,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:653
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:438
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:482
-#: includes/RestApi/Controllers/Version1/LessonsController.php:563
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:613
+#: includes/RestApi/Controllers/Version1/LessonsController.php:564
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:670
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1073
 #: includes/RestApi/Controllers/Version1/SectionsController.php:364
@@ -4718,7 +4725,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:464
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:508
-#: includes/RestApi/Controllers/Version1/CoursesController.php:719
+#: includes/RestApi/Controllers/Version1/CoursesController.php:720
 msgid "The date the course was created, in the site's timezone."
 msgstr ""
 
@@ -4760,11 +4767,11 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:845
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1092
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1324
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1325
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1268
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1459
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:1023
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:582
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:583
 msgid "Invalid ID."
 msgstr ""
 
@@ -4937,12 +4944,12 @@ msgid "List courses with specific price type (free or paid)."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:329
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:294
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:330
 msgid "Limit result set to courses assigned a specific category ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:336
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:300
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:336
 msgid "Limit result set to courses assigned a specific tag ID."
 msgstr ""
 
@@ -4950,152 +4957,152 @@ msgstr ""
 msgid "Limit result set to courses assigned a specific difficulty ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:695
-#: includes/RestApi/Controllers/Version1/LessonsController.php:569
+#: includes/RestApi/Controllers/Version1/CoursesController.php:696
+#: includes/RestApi/Controllers/Version1/LessonsController.php:570
 #: includes/RestApi/Controllers/Version1/OrdersController.php:748
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1079
 #: includes/RestApi/Controllers/Version1/SectionsController.php:370
 msgid "Course name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:700
+#: includes/RestApi/Controllers/Version1/CoursesController.php:701
 msgid "Course slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:705
+#: includes/RestApi/Controllers/Version1/CoursesController.php:706
 msgid "Course URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:712
+#: includes/RestApi/Controllers/Version1/CoursesController.php:713
 msgid "Course Preview URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:724
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:457
+#: includes/RestApi/Controllers/Version1/CoursesController.php:725
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:458
 msgid "The date the course was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:729
+#: includes/RestApi/Controllers/Version1/CoursesController.php:730
 msgid "The date the course was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:735
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:462
+#: includes/RestApi/Controllers/Version1/CoursesController.php:736
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:463
 msgid "The date the course was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:741
+#: includes/RestApi/Controllers/Version1/CoursesController.php:742
 msgid "Course status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:748
+#: includes/RestApi/Controllers/Version1/CoursesController.php:749
 msgid "Featured course."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:761
+#: includes/RestApi/Controllers/Version1/CoursesController.php:762
 msgid "Course description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:766
+#: includes/RestApi/Controllers/Version1/CoursesController.php:767
 msgid "Course short description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:771
+#: includes/RestApi/Controllers/Version1/CoursesController.php:772
 msgid "Current course price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:777
+#: includes/RestApi/Controllers/Version1/CoursesController.php:778
 msgid "Course regular price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:782
+#: includes/RestApi/Controllers/Version1/CoursesController.php:783
 msgid "Course sale price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:787
+#: includes/RestApi/Controllers/Version1/CoursesController.php:788
 msgid "Course price type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:805
+#: includes/RestApi/Controllers/Version1/CoursesController.php:806
 msgid "Amount of reviews that the course have."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:811
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:607
+#: includes/RestApi/Controllers/Version1/CoursesController.php:812
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:664
 msgid "Course parent ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:816
-#: includes/RestApi/Controllers/Version1/LessonsController.php:580
+#: includes/RestApi/Controllers/Version1/CoursesController.php:817
+#: includes/RestApi/Controllers/Version1/LessonsController.php:581
 msgid "Course featured image."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:877
+#: includes/RestApi/Controllers/Version1/CoursesController.php:878
 msgid "Course difficulty"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:884
+#: includes/RestApi/Controllers/Version1/CoursesController.php:885
 msgid "Difficulty ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:895
+#: includes/RestApi/Controllers/Version1/CoursesController.php:896
 msgid "Difficulty slug."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:904
+#: includes/RestApi/Controllers/Version1/CoursesController.php:905
 msgid "Menu order, used to custom sort courses."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:909
+#: includes/RestApi/Controllers/Version1/CoursesController.php:910
 msgid "Course enrollment limit. Default unlimited."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:915
+#: includes/RestApi/Controllers/Version1/CoursesController.php:916
 msgid "Course duration (minutes)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:921
+#: includes/RestApi/Controllers/Version1/CoursesController.php:922
 msgid "Course access mode"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:928
+#: includes/RestApi/Controllers/Version1/CoursesController.php:929
 msgid "Course billing cycle (1d, 2w, 3m, 4y)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:933
+#: includes/RestApi/Controllers/Version1/CoursesController.php:934
 msgid "Course show curriculum. ( True = Visible to all, False = Visible to only enrollees)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:940
+#: includes/RestApi/Controllers/Version1/CoursesController.php:941
 msgid "Course review after completion. ( True = Visible for user to review, False =Invisible for user to review)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:946
+#: includes/RestApi/Controllers/Version1/CoursesController.php:947
 msgid "Course highlights"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:951
+#: includes/RestApi/Controllers/Version1/CoursesController.php:952
 msgid "Course WordPress edit link."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:957
+#: includes/RestApi/Controllers/Version1/CoursesController.php:958
 msgid "Enrolled students count"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:963
+#: includes/RestApi/Controllers/Version1/CoursesController.php:964
 msgid "Course end date"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:968
+#: includes/RestApi/Controllers/Version1/CoursesController.php:969
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Course Badge"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:972
+#: includes/RestApi/Controllers/Version1/CoursesController.php:973
 msgid "Fake enrolled Count. Default zero."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:978
+#: includes/RestApi/Controllers/Version1/CoursesController.php:979
 msgid "Course flow"
 msgstr ""
 
@@ -5152,6 +5159,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:197
 #: includes/RestApi/Controllers/Version1/PostsController.php:239
 #: includes/RestApi/Controllers/Version1/PostsController.php:280
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1161
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:827
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1068
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:220
@@ -5342,67 +5350,67 @@ msgstr ""
 msgid "Limit lessons by course id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:602
+#: includes/RestApi/Controllers/Version1/LessonsController.php:603
 msgid "download_materials"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:609
+#: includes/RestApi/Controllers/Version1/LessonsController.php:610
 msgid "Download material ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:615
+#: includes/RestApi/Controllers/Version1/LessonsController.php:616
 msgid "Download material title"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:621
+#: includes/RestApi/Controllers/Version1/LessonsController.php:622
 msgid "Download material URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:628
+#: includes/RestApi/Controllers/Version1/LessonsController.php:629
 msgid "Download material mime type"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:634
+#: includes/RestApi/Controllers/Version1/LessonsController.php:635
 msgid "Download material file size"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:640
+#: includes/RestApi/Controllers/Version1/LessonsController.php:641
 msgid "Download material formatted file size"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:646
+#: includes/RestApi/Controllers/Version1/LessonsController.php:647
 msgid "Download material creation/upload date."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:656
+#: includes/RestApi/Controllers/Version1/LessonsController.php:657
 msgid "Video metadata"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:663
+#: includes/RestApi/Controllers/Version1/LessonsController.php:664
 msgid "Whether to share the video."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:669
+#: includes/RestApi/Controllers/Version1/LessonsController.php:670
 msgid "Whether user is allowed to right click on video."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:675
+#: includes/RestApi/Controllers/Version1/LessonsController.php:676
 msgid "Array of timestamps."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:679
+#: includes/RestApi/Controllers/Version1/LessonsController.php:680
 msgid "Start time in seconds."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:685
+#: includes/RestApi/Controllers/Version1/LessonsController.php:686
 msgid "End time in seconds."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:691
+#: includes/RestApi/Controllers/Version1/LessonsController.php:692
 msgid "Label for the timestamp."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:696
+#: includes/RestApi/Controllers/Version1/LessonsController.php:697
 msgid "Timestamp ID."
 msgstr ""
 
@@ -5824,112 +5832,140 @@ msgstr ""
 msgid "Sorry, you are not allowed to clone resources."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:178
-msgid "Question ID"
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:164
+msgid "Whether the question is from the question bank."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:185
-msgid "Chosen answer or answers."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:242
-msgid "The answer is correct."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:243
-msgid "The answer is incorrect."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:270
-#: includes/RestApi/Controllers/Version1/SectionsController.php:169
-msgid "Limit result by course id."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:278
-msgid "Limit result set to questions assigned a specific status."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:286
-msgid "Limit result set to questions assigned a specific type."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:561
-msgid "Question name"
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:566
-msgid "Question slug"
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:571
-msgid "Question URL"
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:578
-msgid "The date the question was created, in the site's timezone."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:583
-msgid "The date the question was created, as GMT."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:588
-msgid "The date the question was last modified, in the site's timezone."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:594
-msgid "The date the question was last modified, as GMT."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:600
-msgid "Question status (post status)."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:619
-msgid "Menu order, used to custom sort questions."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:624
-msgid "Question description."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:629
-msgid "Question short description."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:634
-msgid "Question type."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:640
-msgid "Whether the question is required or not."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:645
-msgid "Given answer list for the question."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:650
-msgid "Return if the answers are decoded successfully."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:656
-msgid "Points for the correct answer."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:661
-msgid "Whether to the answers."
-msgstr ""
-
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:666
-msgid "Whether to enable question description."
-msgstr ""
-
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:169
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:222
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:142
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:182
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:265
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:484
 msgid "Quiz ID"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:189
+msgid "Question ID"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:196
+msgid "Chosen answer or answers."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:214
+msgid "Question IDs"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:278
+msgid "The answer is correct."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:279
+msgid "The answer is incorrect."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:306
+#: includes/RestApi/Controllers/Version1/SectionsController.php:169
+msgid "Limit result by course id."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:314
+msgid "Limit result set to questions assigned a specific status."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:322
+msgid "Limit result set to questions assigned a specific type."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:618
+msgid "Question name"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:623
+msgid "Question slug"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:628
+msgid "Question URL"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:635
+msgid "The date the question was created, in the site's timezone."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:640
+msgid "The date the question was created, as GMT."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:645
+msgid "The date the question was last modified, in the site's timezone."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:651
+msgid "The date the question was last modified, as GMT."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:657
+msgid "Question status (post status)."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:676
+msgid "Menu order, used to custom sort questions."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:681
+msgid "Question description."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:686
+msgid "Question short description."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:691
+msgid "Question type."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:697
+msgid "Whether the question is required or not."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:702
+msgid "Given answer list for the question."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:707
+msgid "Return if the answers are decoded successfully."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:713
+msgid "Points for the correct answer."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:718
+msgid "Whether to the answers."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:723
+msgid "Whether to enable question description."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1143
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Invalid request"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1178
+#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:832
+msgid "Invalid quiz ID"
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1343
+msgid "Invalid question IDs or quiz ID."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1368
+msgid "No valid questions were updated."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:163
@@ -6208,10 +6244,6 @@ msgstr ""
 msgid "Sorry, you are not allowed to create quiz reviews for others."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:832
-msgid "Invalid quiz ID"
-msgstr ""
-
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:842
 msgid "Sorry, you cannot create review for your own quiz."
 msgstr ""
@@ -6240,19 +6272,19 @@ msgstr ""
 msgid "Invalid import file structure."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:465
+#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:477
 msgid "Invalid section ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:486
+#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:498
 msgid "No quiz found in the import file."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:494
+#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:506
 msgid "You can only import one quiz at a time."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:517
+#: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:529
 msgid "Invalid quiz data."
 msgstr ""
 
@@ -7361,47 +7393,47 @@ msgstr ""
 msgid "Limit result set to webhooks assigned a specific status."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:390
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:391
 msgid "Webhook name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:395
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:396
 msgid "Webhook status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:402
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:403
 msgid "Webhook events"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:410
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:411
 msgid "Webhook delivery URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:416
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:417
 msgid "Webhook description"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:421
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:422
 msgid "Webhook secret"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:426
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:427
 msgid "Webhook author ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:431
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:432
 msgid "Webhook author"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:437
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:438
 msgid "Author ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:443
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:444
 msgid "Display name of the author"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:449
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:450
 msgid "Avatar URL of the author"
 msgstr ""
 
@@ -7469,7 +7501,7 @@ msgstr ""
 
 #: includes/ScriptStyle.php:1211
 #: includes/ScriptStyle.php:1248
-#: templates/single-course/course-review-form.php:53
+#: templates/single-course/course-review-form.php:55
 #: templates/single-course/layout-1/review-form.php:58
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-interactive.js:1
@@ -8188,7 +8220,7 @@ msgstr ""
 msgid "Account Holder Name:"
 msgstr ""
 
-#: templates/content-course-1.php:70
+#: templates/content-course-1.php:73
 #: templates/content-related-posts-1.php:96
 msgid "Preview Course"
 msgstr ""
@@ -8267,7 +8299,7 @@ msgid "Paid"
 msgstr ""
 
 #: templates/course-filters/rating-filter.php:23
-#: templates/single-course/course-review-form.php:39
+#: templates/single-course/course-review-form.php:40
 #: templates/single-course/layout-1/review-form.php:43
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Rating"
@@ -8525,19 +8557,19 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: templates/single-course/course-review-form.php:48
+#: templates/single-course/course-review-form.php:50
 #: templates/single-course/layout-1/review-form.php:53
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Content"
 msgstr ""
 
 #. translators: %s: Achor tag html with text "logged in"
-#: templates/single-course/course-review-form.php:65
+#: templates/single-course/course-review-form.php:67
 #: templates/single-course/layout-1/review-form.php:69
 msgid "You must be %s to submit a review."
 msgstr ""
 
-#: templates/single-course/course-review-form.php:70
+#: templates/single-course/course-review-form.php:72
 #: templates/single-course/layout-1/review-form.php:74
 msgid "logged in"
 msgstr ""
@@ -8560,7 +8592,7 @@ msgid "Reply"
 msgstr ""
 
 #. translators: %d: Enrolled  students count
-#: templates/single-course/course-stats.php:49
+#: templates/single-course/course-stats.php:52
 msgctxt "Enrolled Students Count"
 msgid "%s Student"
 msgid_plural "%s Students"
@@ -8568,17 +8600,17 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Formatted Date
-#: templates/single-course/course-stats.php:79
+#: templates/single-course/course-stats.php:82
 msgid "Last Updated: %s"
 msgstr ""
 
 #. translators: %s: Formatted Date
-#: templates/single-course/course-stats.php:96
+#: templates/single-course/course-stats.php:99
 msgid "Started At: %s"
 msgstr ""
 
 #. translators: %d: Available Seats Count
-#: templates/single-course/course-stats.php:112
+#: templates/single-course/course-stats.php:115
 msgctxt "Available Seats Count"
 msgid "Available Seat: %s"
 msgid_plural "Available Seats: %s"
@@ -8595,7 +8627,7 @@ msgstr ""
 msgid "This course includes"
 msgstr ""
 
-#: templates/single-course/layout-1/course-stats.php:36
+#: templates/single-course/layout-1/course-stats.php:35
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Duration"
 msgstr ""
@@ -8613,11 +8645,11 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
-#: templates/single-course/layout-1/course-stats.php:90
+#: templates/single-course/layout-1/course-stats.php:91
 msgid "Started At"
 msgstr ""
 
-#: templates/single-course/layout-1/course-stats.php:107
+#: templates/single-course/layout-1/course-stats.php:108
 msgid "Available Seat"
 msgid_plural "Available Seats"
 msgstr[0] ""
@@ -10326,6 +10358,18 @@ msgid "Are you sure? You can't restore after deleting."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Category"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Drop documents or click here to upload"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Certificate fonts installed"
 msgstr ""
 
@@ -10364,6 +10408,10 @@ msgstr ""
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Install"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Install Custom Fonts"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -10893,6 +10941,14 @@ msgid "Please enter 1 or more characters."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Group deleted successfully!"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Something went wrong"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Group Restored"
 msgstr ""
 
@@ -11093,6 +11149,10 @@ msgid "Search pricing zones"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Pricing zone deleted successfully!"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Pricing Zone Restored"
 msgstr ""
 
@@ -11218,10 +11278,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Invalid payment method"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Invalid request"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -12212,22 +12268,6 @@ msgid "Parent Category"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "The image does not exist."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Failed to fetch image URL."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Remove Featured Image"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Add Featured Image"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Category Added"
 msgstr ""
 
@@ -12248,19 +12288,23 @@ msgid "Spaces are not allowed."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Category"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Drop documents or click here to upload"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Upgrade to Pro"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Course Description"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "The image does not exist."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Failed to fetch image URL."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Remove Featured Image"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Add Featured Image"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -12927,6 +12971,10 @@ msgid "View Category"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Categories deleted successfully!"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Failed to delete course category."
 msgstr ""
 
@@ -13110,6 +13158,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Export failed"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Courses deleted successfully!"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -13312,6 +13364,10 @@ msgid "OK"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Orders deleted successfully!"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Order Restored"
 msgstr ""
 
@@ -13500,6 +13556,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Spam"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Question deleted successfully!"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -13716,6 +13776,14 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "All Comments"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Course review deleted successfully!"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Lesson comment deleted successfully!"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -14452,6 +14520,10 @@ msgid "Show/Hide Components"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Reflect on Single Course Page "
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Thumbnail"
 msgstr ""
 
@@ -14468,6 +14540,14 @@ msgid "Author Name"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Course Highlight"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Course Progress"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Meta Data"
 msgstr ""
 
@@ -14481,6 +14561,14 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Available Seats Count"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Date Updated"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Date Started"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -15167,6 +15255,10 @@ msgid "Copy the generated API key and paste it into the \"Brevo API Key\" field.
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "I would like to receive the newsletters."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "Unable to connect API key. Please check your key and try again."
 msgstr ""
 
@@ -15284,6 +15376,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Streamline your customer engagement with HubSpot integration, allowing you to effortlessly manage leads, automate workflows, and enhance communication with your audience."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Streamline your customer engagement with Mailchimp integration, allowing you to effortlessly manage leads, automate workflows, and enhance communication with your audience."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -16963,7 +17059,83 @@ msgid "Failed to delete question."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Delete Question"
+msgid "Delete Question from All Quizzes"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Delete Question from This Quiz"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "This question is part of the question bank. Are you sure you want to proceed?"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Delete From Bank"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Delete from bank is enabled. This question will be removed from the question bank and all associated quizzes."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "This question will only be removed from this quiz. It will remain in the question bank."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Are you sure you want to delete this question? This is the original question, and deleting it will remove it from all quizzes where it's used."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "This question is part of the question bank. If you update it, it will also be updated in the question bank. Are you sure you want to proceed?"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Back to Questions"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Add to Quiz"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Delete from Question Bank"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "This question is part of the question bank. If you delete it, it will also be removed from all associated quizzes. Are you sure you want to proceed?"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Question Added Successfully."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Failed to add questions."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Failed to fetch questions."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Question Bank"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Search..."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "All Question Types"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Add Selected "
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Add New Question"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -16971,7 +17143,7 @@ msgid "Untitled Question"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Add New Question"
+msgid "Add from Question Bank"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -17156,6 +17328,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "All Announcements"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Announcement deleted successfully!"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1

@@ -13,7 +13,6 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\AdminFileDownloadHandler;
 use Masteriyo\Enums\PostStatus;
-use Masteriyo\FileHandler;
 use Masteriyo\PostType\PostType;
 
 /**
@@ -95,13 +94,46 @@ class QuizExporter {
 		$posts_with_meta = array();
 
 		foreach ( $posts as $post ) {
-			$post_array         = (array) $post;
-			$post_meta          = get_post_meta( $post->ID );
+			$post_array = (array) $post;
+			$post_meta  = get_post_meta( $post->ID );
+
+			if ( PostType::QUIZ === $post->post_type ) {
+				$post_array['bank_data'] = $this->get_bank_data( $post->ID );
+			}
+
 			$post_array['meta'] = $post_meta;
 			$posts_with_meta[]  = $post_array;
 		}
 
 		return $posts_with_meta;
+	}
+
+	/**
+	 * Gets the questions associated with a quiz.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param int $quiz_id The ID of the quiz.
+	 *
+	 * @return array An array of question data.
+	 */
+	private function get_bank_data( $quiz_id ) {
+		global $wpdb;
+
+		try {
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT question_id, menu_order
+				 FROM {$wpdb->prefix}masteriyo_quiz_question_rel
+				 WHERE quiz_id = %d",
+					$quiz_id
+				)
+			);
+		} catch ( \Exception $e ) {
+			return array();
+		}
+
+		return $results;
 	}
 
 	/**

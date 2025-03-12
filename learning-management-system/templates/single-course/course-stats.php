@@ -25,9 +25,11 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 do_action( 'masteriyo_before_single_course_stats' );
 
 ?>
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 <div class="masteriyo-single-course-stats">
 
 	<!-- Duration -->
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_duration' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 	<div class="duration">
 		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 			<?php masteriyo_get_svg( 'time', true ); ?>
@@ -37,8 +39,9 @@ do_action( 'masteriyo_before_single_course_stats' );
 			</span>
 		</div>
 	</div>
-
+	<?php endif; ?>
 	<!-- Student -->
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.students_count' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 	<div class="student">
 		<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 			<?php masteriyo_get_svg( 'group', true ); ?>
@@ -53,21 +56,21 @@ do_action( 'masteriyo_before_single_course_stats' );
 			</span>
 		</div>
 	</div>
-
+	<?php endif; ?>
 	<!-- Difficulty -->
-	<?php if ( $course->get_difficulty() ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' ) && $course->get_difficulty() ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $course->get_difficulty() ) ) : ?>
 		<div class="difficulty">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'level', true ); ?>
 				<span>
-					<?php echo esc_html( $course->get_difficulty()['name'] ); ?>
+					<?php echo esc_html( $course->get_difficulty()['name'] ?? '' ); ?>
 				</span>
 			</div>
 		</div>
 	<?php endif; ?>
 
 	<!-- Date Modified -->
-	<?php if ( $course->get_date_modified() ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.date_updated' ) && $course->get_date_modified() ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $course->get_date_modified() ) ) : ?>
 		<div class="last-updated">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'last-updated', true ); ?>
@@ -84,7 +87,7 @@ do_action( 'masteriyo_before_single_course_stats' );
 	<?php endif; ?>
 
 	<!-- Date Started -->
-	<?php if ( $progress ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.date_started' ) && $progress ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $progress ) ) : ?>
 		<div class="course-started-at">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'calender', true ); ?>
@@ -101,7 +104,7 @@ do_action( 'masteriyo_before_single_course_stats' );
 	<?php endif; ?>
 
 	<!-- Available seats for students-->
-	<?php if ( $course->get_enrollment_limit() > 0 ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.seats_for_students' ) && $course->get_enrollment_limit() > 0 ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $course->get_enrollment_limit() > 0 ) ) : ?>
 		<div class="masteriyo-available-seats-for-students">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'available-seats-for-students', true ); ?>
@@ -119,6 +122,7 @@ do_action( 'masteriyo_before_single_course_stats' );
 	<?php endif; ?>
 
 </div>
+<?php endif; ?>
 <?php
 
 /**

@@ -5,6 +5,7 @@
  * @since 1.0.0
  */
 
+use Masteriyo\Addons\GoogleMeet\Enums\GoogleMeetStatus;
 use Masteriyo\Constants;
 use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Models\Faq;
@@ -103,7 +104,6 @@ function masteriyo_get_lesson( $lesson ) {
 	 * @param int|\Masteriyo\Models\Lesson|WP_Post $lesson lesson id or lesson Model or Post.
 	 */
 	return apply_filters( 'masteriyo_get_lesson', $lesson_obj, $lesson );
-
 }
 
 /**
@@ -342,11 +342,10 @@ function masteriyo_should_show_curriculum( $course ) {
 	 * @since 1.14.0
 	 *
 	 * @param boolean $curriculum Indicates if curriculum should be shown.
-   * @param \Masteriyo\Models\Course $course course object.
+	* @param \Masteriyo\Models\Course $course course object.
 	 *
 	 */
 	return apply_filters( 'masteriyo_should_show_curriculum', $curriculum, $course );
-
 }
 
 /**
@@ -371,7 +370,6 @@ function masteriyo_is_standard_course_type( $course ) {
 	}
 
 	return true;
-
 }
 
 /**
@@ -2106,7 +2104,6 @@ function masteriyo_get_svg( $name, $echo = false ) {
 	} else {
 		return $file_contents;
 	}
-
 }
 
 /**
@@ -3706,24 +3703,29 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_course_title_sorting'    => true,
 				),
 				'components_visibility' => array(
-					'thumbnail'          => true,
-					'difficulty_badge'   => true,
-					'featured_ribbon'    => true,
-					'categories'         => true,
-					'course_title'       => true,
-					'author'             => true,
-					'author_avatar'      => true,
-					'author_name'        => true,
-					'rating'             => true,
-					'course_description' => true,
-					'metadata'           => true,
-					'course_duration'    => true,
-					'students_count'     => true,
-					'lessons_count'      => true,
-					'card_footer'        => true,
-					'price'              => true,
-					'enroll_button'      => true,
-					'seats_for_students' => true,
+					'single_course_visibility' => true,
+					'thumbnail'                => true,
+					'difficulty_badge'         => true,
+					'course_badge'             => true,
+					'featured_ribbon'          => true,
+					'categories'               => true,
+					'course_title'             => true,
+					'author'                   => true,
+					'author_avatar'            => true,
+					'author_name'              => true,
+					'rating'                   => true,
+					'course_description'       => true,
+					'metadata'                 => true,
+					'course_duration'          => true,
+					'students_count'           => true,
+					'lessons_count'            => true,
+					'card_footer'              => true,
+					'price'                    => true,
+					'enroll_button'            => true,
+					'seats_for_students'       => true,
+					'date_updated'             => true,
+					'date_started'             => true,
+					'course_progress'          => true,
 				),
 				'custom_template'       => array(
 					'enable'          => false,
@@ -4240,7 +4242,7 @@ function masteriyo_get_course_author_id( $course ) {
 function masteriyo_get_shortcode_tags( $prefix = 'masteriyo' ) {
 	return array_filter(
 		array_keys( $GLOBALS['shortcode_tags'] ),
-		function( $shortcode_tag ) use ( $prefix ) {
+		function ( $shortcode_tag ) use ( $prefix ) {
 			return masteriyo_starts_with( $shortcode_tag, $prefix );
 		}
 	);
@@ -4988,8 +4990,8 @@ if ( ! function_exists( 'get_course_section_children_count_by_course' ) ) {
 		foreach ( $section_ids as $section_id ) {
 			$lessons = get_posts(
 				array(
-					'post_type'      => 'quiz' === $type ? PostType::QUIZ : PostType::LESSON,
-					'post_status'    => PostStatus::PUBLISH,
+					'post_type'      => $type,
+					'post_status'    => PostStatus::PUBLISH || GoogleMeetStatus::UPCOMING || GoogleMeetStatus::ACTIVE,
 					'post_parent'    => $section_id,
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
@@ -5000,7 +5002,6 @@ if ( ! function_exists( 'get_course_section_children_count_by_course' ) ) {
 		}
 
 		return $children_count;
-
 	}
 }
 
@@ -5439,7 +5440,7 @@ if ( ! function_exists( 'masteriyo_addon_menu_slugs' ) ) {
 
 		uasort(
 			$addons_menus,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				if ( $a['position'] === $b['position'] ) {
 					return 0;
 				}
@@ -5544,7 +5545,7 @@ if ( ! function_exists( 'masteriyo_get_current_request_url' ) ) {
 		if ( ! empty( $exclude ) ) {
 			$args = array_filter(
 				$args,
-				function( $value, $key ) use ( $exclude ) {
+				function ( $value, $key ) use ( $exclude ) {
 					return ! in_array( $key, $exclude, true );
 				},
 				ARRAY_FILTER_USE_BOTH
@@ -5789,7 +5790,7 @@ if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
 					$missing_pages_count = count( $missing_pages );
 
 					$missing_pages = array_map(
-						function( $missing_page ) {
+						function ( $missing_page ) {
 							return "<strong>{$missing_page}</strong>";
 						},
 						$missing_pages

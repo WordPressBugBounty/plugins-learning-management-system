@@ -43,8 +43,9 @@ $categories = $course->get_categories( 'name' );
 	do_action( 'masteriyo_before_layout_1_course_thumbnail', $course );
 	?>
 		<!-- Course Image -->
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) ) : ?>
 		<img class="masteriyo-course-thumbnail" src="<?php echo esc_attr( $course->get_featured_image_url( 'masteriyo_medium' ) ); ?>" alt="<?php echo esc_attr( $course->get_title() ); ?>">
-
+		<?php endif; ?>
 		<?php
 		/**
 		 * Fires an action after the layout 1 course thumbnail is displayed.
@@ -57,7 +58,9 @@ $categories = $course->get_categories( 'name' );
 		?>
 
 		<!-- Author Image -->
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.author' ) && masteriyo_get_setting( 'course_archive.components_visibility.author_avatar' ) ) : ?>
 		<img class="masteriyo-author-image" src="<?php echo esc_attr( $author->profile_image_url() ); ?>" alt="<?php echo esc_html( $author->get_display_name() ); ?>">
+		<?php endif; ?>
 
 		<!-- Preview Course Button -->
 		<a href="<?php echo esc_attr( $course->get_permalink() ); ?>" class="masteriyo-archive-card__image-preview-button">
@@ -75,8 +78,8 @@ $categories = $course->get_categories( 'name' );
 
 	<div class="masteriyo-archive-card__content">
 		<!-- Course category -->
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.categories' ) && ! empty( $categories ) ) : ?>
 		<div class="masteriyo-archive-card__content--category">
-			<?php if ( ! empty( $categories ) ) : ?>
 				<div class="masteriyo-course--content__category">
 					<?php foreach ( $categories as $category ) : ?>
 						<a href="<?php echo esc_attr( $category->get_permalink() ); ?>" alt="<?php echo esc_attr( $category->get_name() ); ?>" class="masteriyo-category">
@@ -84,8 +87,8 @@ $categories = $course->get_categories( 'name' );
 						</a>
 					<?php endforeach; ?>
 				</div>
-			<?php endif; ?>
 		</div>
+		<?php endif; ?>
 		<?php
 		/**
 		 * Fires an action before the layout 1 course title wrapper is displayed.
@@ -108,10 +111,11 @@ $categories = $course->get_categories( 'name' );
 		 */
 		do_action( 'masteriyo_before_layout_1_course_title', $course );
 		?>
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_title' ) ) : ?>
 		<a href="<?php echo esc_url( $course->get_permalink() ); ?>" class="masteriyo-archive-card__content--course-title">
 			<h3 class="masteriyo-course-title"><?php echo esc_html( $course->get_title() ); ?></h3>
 		</a>
-
+		<?php endif; ?>
 		<?php
 		/**
 		 * Fires an action after the layout 1 course title is displayed.
@@ -135,16 +139,21 @@ $categories = $course->get_categories( 'name' );
 		?>
 
 		<div class="masteriyo-archive-card__content--rating-amount">
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.rating' ) ) : ?>
 			<div class="masteriyo-archive-card__content--rating">
 			<?php masteriyo_get_svg( 'full_star', true ); ?> <?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?> <?php echo '(' . esc_html( $course->get_review_count() . ')' ); ?>
 			</div>
-
+			<?php endif; ?>
+			<?php
+			if ( masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) && masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) :
+				?>
 			<div class="masteriyo-archive-card__content--amount">
-			<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+				<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 					<div class="masteriyo-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price() ) ); ?></div>
 				<?php endif; ?>
 				<span class="masteriyo-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price() ) ); ?></span>
 			</div>
+			<?php endif; ?>
 		</div>
 
 		<?php

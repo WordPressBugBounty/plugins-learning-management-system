@@ -490,7 +490,16 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 		);
 
 		foreach ( $questions as $question ) {
+			if ( ! $question instanceof \Masteriyo\Models\Question\Question ) {
+				continue;
+			}
+
+			if ( masteriyo_is_question_linked_to_quiz( $quiz->get_id(), $question->get_id() ) ) {
+				masteriyo_remove_question_from_quiz( $quiz->get_id(), $question->get_id() );
+			}
+
 			wp_delete_post( $question->ID, true );
 		}
 	}
+
 }

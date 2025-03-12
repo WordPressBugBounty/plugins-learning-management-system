@@ -491,6 +491,9 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 			'masteriyo-enroll-btn',
 		);
 
+		if ( 0 !== $course->get_enrollment_limit() && 0 >= $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
+			$class[] = 'masteriyo-btn-disabled';
+		}
 		if ( masteriyo_can_start_course( $course ) ) {
 			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
 				$class[] = 'masteriyo-btn-complete';
@@ -502,9 +505,6 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 
 			if ( post_password_required( get_post( $course->get_id() ) ) ) {
 				$class[] = 'masteriyo-password-protected';
-			}
-			if ( 0 !== $course->get_enrollment_limit() && 0 === $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
-				$class[] = 'masteriyo-btn-disabled';
 			}
 		} else {
 			$class[] = 'masteriyo-course--btn';
@@ -923,7 +923,9 @@ if ( ! function_exists( 'masteriyo_course_archive_layout_1_stats' ) ) {
 		masteriyo_get_template(
 			'course-meta-data-1.php',
 			array(
-				'course' => $course,
+				'course'            => $course,
+				'quiz_count'        => get_course_section_children_count_by_course( $course->get_id(), PostType::QUIZ ),
+				'google_meet_count' => get_course_section_children_count_by_course( $course->get_id(), PostType::GOOGLEMEET ),
 			)
 		);
 	}
@@ -963,7 +965,9 @@ if ( ! function_exists( 'masteriyo_course_archive_layout_2_stats' ) ) {
 		masteriyo_get_template(
 			'course-meta-data-2.php',
 			array(
-				'course' => $course,
+				'course'            => $course,
+				'quiz_count'        => get_course_section_children_count_by_course( $course->get_id(), PostType::QUIZ ),
+				'google_meet_count' => get_course_section_children_count_by_course( $course->get_id(), PostType::GOOGLEMEET ),
 			)
 		);
 	}
@@ -1237,6 +1241,8 @@ if ( ! function_exists( 'masteriyo_archive_course_stats' ) ) {
 				'comments_count'            => $comments_count,
 				'enrolled_users_count'      => masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count(),
 				'remaining_available_seats' => $course->get_enrollment_limit() > 0 ? $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) : 0,
+				'quiz_count'                => get_course_section_children_count_by_course( $course->get_id(), PostType::QUIZ ),
+				'google_meet_count'         => get_course_section_children_count_by_course( $course->get_id(), PostType::GOOGLEMEET ),
 			)
 		);
 	}

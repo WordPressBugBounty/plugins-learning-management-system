@@ -241,6 +241,7 @@ class WebhooksController extends PostsController {
 	 */
 	protected function description_data( $webhook, $context ) {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
+		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $webhook->get_description() ) ) : $webhook->get_description( $context );
 		}

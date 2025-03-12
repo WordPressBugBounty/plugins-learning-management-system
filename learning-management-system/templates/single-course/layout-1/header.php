@@ -34,7 +34,7 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 ?>
 <div class="masteriyo-single-header">
 	<div class="masteriyo-single-header__content">
-		<?php if ( ! empty( $course->get_categories() ) ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.categories' ) && ! empty( $course->get_categories() ) ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && ! empty( $course->get_categories() ) ) ) : ?>
 			<div class="masteriyo-single-header__content--category">
 				<?php foreach ( $course->get_categories() as $category ) : ?>
 					<a href="<?php echo esc_attr( $category->get_permalink() ); ?>"
@@ -57,9 +57,9 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 			 */
 			do_action( 'masteriyo_before_layout_1_single_course_title', $course );
 			?>
-
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_title' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 			<h2 class="masteriyo-single-header__content--title"><?php echo esc_html( $course->get_name() ); ?></h2>
-
+<?php endif; ?>
 			<?php
 			/**
 			 * Fires after rendering course title section in single course page.
@@ -83,23 +83,32 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 		do_action( 'masteriyo_before_layout_1_single_course_author_and_rating', $course );
 		?>
 		<div class="masteriyo-single-header__content--author-rating">
+		<?php
+		if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.author' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) :
+			?>
 			<div class="masteriyo-single--author">
+			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.author_avatar' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 				<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
 					<img
 						class="masteriyo-single--author-img"
 						src="<?php echo esc_attr( $author->profile_image_url() ); ?>"
 						alt="<?php echo esc_attr( $author->get_display_name() ); ?>"
 						title="<?php echo esc_attr( $author->get_display_name() ); ?>">
+						<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.author_name' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 					<span class="masteriyo-single--author-name"><?php echo esc_html( $author->get_display_name() ); ?></span>
+					<?php endif; ?>
 				</a>
+				<?php endif; ?>
 			</div>
-
+			<?php endif; ?>
+			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.rating' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 			<div class="masteriyo-single-header__content--rating">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 					<path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"></path>
 				</svg>
 				<?php echo wp_kses_post( masteriyo_get_svg( 'full_star' ) ); ?> <?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?> <?php echo '(' . esc_html( $course->get_review_count() . ')' ); ?>
 			</div>
+			<?php endif; ?>
 		</div>
 		<?php
 		/**
@@ -159,9 +168,12 @@ do_action( 'masteriyo_before_layout_1_single_course_header' );
 	 */
 	do_action( 'masteriyo_before_layout_1_single_course_featured_image', $course );
 	?>
+
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 	<div class="masteriyo-single-header__image">
 		<img src="<?php echo esc_attr( $course->get_featured_image_url( 'masteriyo_single' ) ); ?>" alt="<?php echo esc_attr( $course->get_title() ); ?>">
 	</div>
+	<?php endif; ?>
 	<?php
 	/**
 	 * Fires after rendering course info items section in single course page layout 1.

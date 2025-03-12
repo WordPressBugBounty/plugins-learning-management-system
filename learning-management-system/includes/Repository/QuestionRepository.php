@@ -38,6 +38,7 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 		'feedback'           => '_feedback',
 		'course_id'          => '_course_id',
 		'enable_description' => '_enable_description',
+		'is_from_bank'       => '_is_from_bank',
 	);
 
 	/**
@@ -174,6 +175,8 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 			'date_created',
 			'date_modified',
 			'menu_order',
+			'is_from_bank',
+			'parent_id',
 		);
 
 		// Only update the post when the post data changes.

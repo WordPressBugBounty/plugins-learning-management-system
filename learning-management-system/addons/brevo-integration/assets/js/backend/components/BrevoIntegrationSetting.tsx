@@ -39,6 +39,11 @@ type BrevoList = {
 	name: string;
 };
 
+const defaultConsentMessage = __(
+	'I would like to receive the newsletters.',
+	'learning-management-system',
+);
+
 const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 	const [showApiKey, setShowApiKey] = useState(false);
 	const { register, control, setValue } = useFormContext();
@@ -109,6 +114,16 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 					status: 'success',
 					isClosable: true,
 				});
+
+				setValue(
+					'integrations.brevo_integration.enable_forced_email_subscription',
+					false,
+				);
+				setValue('integrations.brevo_integration.list', '');
+				setValue(
+					'integrations.brevo_integration.subscriber_consent_message',
+					defaultConsentMessage,
+				);
 			},
 			onError: (err: any) => {
 				toast({
@@ -188,13 +203,18 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 									)}
 								></ToolTip>
 							</FormLabel>
-							<Switch
-								{...register(
-									'integrations.brevo_integration.enable_forced_email_subscription',
-								)}
-								defaultChecked={
-									brevoIntegration?.enable_forced_email_subscription
+							<Controller
+								name="integrations.brevo_integration.enable_forced_email_subscription"
+								control={control}
+								defaultValue={
+									brevoIntegration?.enable_forced_email_subscription || false
 								}
+								render={({ field: { onChange, value } }) => (
+									<Switch
+										isChecked={value}
+										onChange={(e) => onChange(e.target.checked)}
+									/>
+								)}
 							/>
 						</FormControlTwoCol>
 

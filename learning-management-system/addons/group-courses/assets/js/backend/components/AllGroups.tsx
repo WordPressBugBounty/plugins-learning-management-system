@@ -99,6 +99,23 @@ const AllGroups = () => {
 				);
 				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				onClose();
+				toast({
+					title: __(
+						'Group deleted successfully!',
+						'learning-management-system',
+					),
+					isClosable: true,
+					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		},
 	});
@@ -113,6 +130,15 @@ const AllGroups = () => {
 					status: 'success',
 				});
 				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		},
 	});
@@ -131,6 +157,15 @@ const AllGroups = () => {
 					title: __('Group Trashed', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

@@ -121,6 +121,23 @@ const AllAnnouncements = () => {
 				);
 				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
 				onClose();
+				toast({
+					title: __(
+						'Announcement deleted successfully!',
+						'learning-management-system',
+					),
+					isClosable: true,
+					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		},
 	});
@@ -135,6 +152,15 @@ const AllAnnouncements = () => {
 					status: 'success',
 				});
 				queryClient.invalidateQueries({ queryKey: ['announcementList'] });
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		},
 	});
@@ -159,6 +185,15 @@ const AllAnnouncements = () => {
 					title: __('Announcement Trashed', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

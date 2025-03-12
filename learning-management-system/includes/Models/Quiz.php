@@ -204,7 +204,7 @@ class Quiz extends Model {
 	 * @return int|WP_Error
 	 */
 	public function get_questions_count() {
-		return masteriyo_get_questions_count_by_quiz( $this->get_id() );
+		return masteriyo_get_all_questions_count_by_quiz( $this->get_id() );
 	}
 
 	/**

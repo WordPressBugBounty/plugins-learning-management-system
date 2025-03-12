@@ -35,6 +35,7 @@ do_action( 'masteriyo_before_single_course_review_form' );
 				<label class="masteriyo-label"><?php esc_html_e( 'Title', 'learning-management-system' ); ?></label>
 				<input type="text" name="title" class="masteriyo-input" />
 			</div>
+			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.rating' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 			<div class="masteriyo-rating">
 				<label class="masteriyo-label"><?php esc_html_e( 'Rating', 'learning-management-system' ); ?></label>
 				<input type="hidden" name="rating" value="0" />
@@ -44,6 +45,7 @@ do_action( 'masteriyo_before_single_course_review_form' );
 					</span>
 				</div>
 			</div>
+			<?php endif; ?>
 			<div class="masteriyo-message">
 				<label class="masteriyo-label"><?php esc_html_e( 'Content', 'learning-management-system' ); ?></label>
 				<textarea type="text" name="content" class="masteriyo-input" required column="10" ></textarea>

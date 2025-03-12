@@ -171,6 +171,18 @@ class QuizImporter {
 				}
 			}
 
+			// Insert question bank data.
+			if ( isset( $post['bank_data'] ) && is_array( $post['bank_data'] ) ) {
+				foreach ( $post['bank_data'] as $bank_data ) {
+					$question_id = isset( $bank_data['question_id'] ) ? absint( $bank_data['question_id'] ) : 0;
+					$menu_order  = isset( $bank_data['menu_order'] ) ? absint( $bank_data['menu_order'] ) : 0;
+
+					if ( $question_id ) {
+						masteriyo_add_question_to_quiz( $post_id, $question_id, $menu_order );
+					}
+				}
+			}
+
 			// Record the newly created post ID.
 			$this->history['posts'][ $post['ID'] ] = $post_id;
 		}

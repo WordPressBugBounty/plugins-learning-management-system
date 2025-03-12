@@ -28,6 +28,7 @@ if ( empty( $course->get_categories() ) ) {
 do_action( 'masteriyo_before_single_course_categories' );
 
 ?>
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.categories' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 <div class="masteriyo-course--content__category">
 	<?php foreach ( $course->get_categories() as $category ) : ?>
 		<a href="<?php echo esc_attr( $category->get_permalink() ); ?>"
@@ -37,6 +38,7 @@ do_action( 'masteriyo_before_single_course_categories' );
 		</a>
 	<?php endforeach; ?>
 </div>
+<?php endif; ?>
 <?php
 
 /**

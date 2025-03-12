@@ -45,6 +45,7 @@ const defaultAcceptedFileTypes = {
 	'video/webm': ['.webm'],
 	'video/x-ms-wmv': ['.wmv'],
 	'application/zip': ['.zip'],
+	'application/x-zip-compressed': ['.zip'],
 	'application/msword': ['.msword'],
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
 		'.docx',
@@ -63,6 +64,7 @@ const defaultAcceptedFileTypes = {
 const defaultAcceptedFileTypesWPMedia = [
 	'application/pdf',
 	'application/zip',
+	'application/x-zip-compressed',
 	'application/msword',
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 	'application/vnd.ms-powerpoint',

@@ -120,4 +120,13 @@ abstract class IntegrationSettings {
 	public static function save() {
 		update_option( static::get_option_name(), static::$data );
 	}
+
+	/**
+	 * Save the settings to the database.
+	 *
+	 * @since 1.17.0 [Free]
+	 */
+	public static function settings_remove() {
+		delete_option( static::get_option_name() );
+	}
 }

@@ -93,6 +93,23 @@ const AllPriceZones = () => {
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 				onClose();
+				toast({
+					title: __(
+						'Pricing zone deleted successfully!',
+						'learning-management-system',
+					),
+					isClosable: true,
+					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		},
 	});
@@ -108,6 +125,15 @@ const AllPriceZones = () => {
 				});
 				queryClient.invalidateQueries({ queryKey: ['pricingZonesList'] });
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 
@@ -120,6 +146,15 @@ const AllPriceZones = () => {
 					title: __('Pricing Zone Trashed', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

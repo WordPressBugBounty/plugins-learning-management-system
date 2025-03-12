@@ -27,7 +27,7 @@ do_action( 'masteriyo_before_single_course_progress' );
 
 
 <!-- Course Progress -->
-<?php if ( $summary ) : ?>
+<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.course_progress' ) && $summary ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $summary ) ) : ?>
 		<div class="course-progress-bar">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<div class="masteriyo-progress-info">

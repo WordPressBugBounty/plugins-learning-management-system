@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.16.1
+Stable tag: 1.17.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -225,6 +225,24 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.17.0 - 12-03-2025 =
+- Feature - Question bank.
+- Feature - Custom fonts upload option for certificate. [PRO]
+- Refactor - Show/hide components of courses page.
+- Refactor - Used Mailchimp REST API instead of SDK.
+- Enhancement - Featured video support on related course and course bundle. [PRO]
+- Enhancement - Added option to reflect show/hide component in single course page.
+- Enhancement - Added a scroll bar to the single course curriculum UI when the section's exceeds 17 contents.
+- Enhancement - Add functionality to mark course or content complete from student report. [PRO]
+- Fix - Hide courses per row option in list view mode and other layouts.
+- Fix - Disable enroll button on enrollment limit reached.
+- Fix - Curriculum count showing only lessons count issue.
+- Fix - Fatal error for SCORM course when certificate is disabled.
+- Fix - Permission notice for non previewable content in learn page for non enrolled users. [PRO]
+- Fix - WooCommerce product delete issue if course is linked. [PRO]
+- Fix - Start URL issue for Google Meet.
+- Fix - Start URL issue for Zoom. [PRO]
 
 = 1.16.1 - 05-03-2025 =
 - Enhancement - Gamipress support for SCORM's course completion.

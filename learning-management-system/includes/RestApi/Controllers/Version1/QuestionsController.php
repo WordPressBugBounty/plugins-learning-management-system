@@ -10,8 +10,8 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\QuestionType;
-use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
+use WP_Error;
 
 class QuestionsController extends PostsController {
 	/**
@@ -154,10 +154,21 @@ class QuestionsController extends PostsController {
 					'callback'            => array( $this, 'delete_item' ),
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
-						'force' => array(
+						'force'            => array(
 							'default'     => false,
 							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
 							'type'        => 'boolean',
+						),
+						'delete_from_bank' => array(
+							'default'     => false,
+							'description' => __( 'Whether the question is from the question bank.', 'learning-management-system' ),
+							'type'        => 'boolean',
+							'required'    => false,
+						),
+						'quiz_id'          => array(
+							'description' => __( 'Quiz ID', 'learning-management-system' ),
+							'type'        => 'integer',
+							'required'    => false,
 						),
 					),
 				),
@@ -186,6 +197,31 @@ class QuestionsController extends PostsController {
 							'type'        => 'any',
 							'required'    => true,
 						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/create-from-bank',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_bank_questions' ),
+				'permission_callback' => array( $this, 'update_bank_questions_permissions_check' ),
+				'args'                => array(
+					'ids'     => array(
+						'description' => __( 'Question IDs', 'learning-management-system' ),
+						'type'        => 'array',
+						'items'       => array(
+							'type' => 'integer',
+						),
+						'required'    => true,
+					),
+					'quiz_id' => array(
+						'description' => __( 'Quiz ID', 'learning-management-system' ),
+						'type'        => 'integer',
+						'required'    => true,
 					),
 				),
 			)
@@ -488,6 +524,15 @@ class QuestionsController extends PostsController {
 			);
 		}
 
+		if ( isset( $request['selected_quiz_id'] ) ) {
+			$exclude_questions    = masteriyo_get_all_question_ids_by_quiz( absint( $request['selected_quiz_id'] ) );
+			$args['post__not_in'] = $exclude_questions;
+
+			if ( masteriyo_is_current_user_instructor() && ! masteriyo_is_current_user_admin() ) {
+				$args['author__in'] = array( get_current_user_id() );
+			}
+		}
+
 		$args['meta_query'][] = array(
 			'key'     => '_type',
 			'value'   => QuestionType::all(),
@@ -532,6 +577,18 @@ class QuestionsController extends PostsController {
 				'field'    => 'name',
 				'terms'    => 'featured',
 				'operator' => true === $request['featured'] ? 'IN' : 'NOT IN',
+			);
+		}
+
+		// Filter by question type.
+		if ( ! empty( $request['question_types'] ) ) {
+			$question_types = isset( $request['question_types'] ) ? explode( ',', $request['question_types'] ) : array();
+
+			$args['meta_query']   = isset( $query_args['meta_query'] ) ? $query_args['meta_query'] : array();
+			$args['meta_query'][] = array(
+				'key'     => '_type',
+				'value'   => $question_types,
+				'compare' => 'IN',
 			);
 		}
 
@@ -752,16 +809,10 @@ class QuestionsController extends PostsController {
 
 		// Automatically set the menu order if it's not set and the operation is POST.
 		if ( ! isset( $request['menu_order'] ) && $creating ) {
-			$query = new \WP_Query(
-				array(
-					'post_type'      => array( 'mto-question' ),
-					'post_status'    => PostStatus::all(),
-					'posts_per_page' => 1,
-					'post_parent'    => $request['parent_id'],
-				)
-			);
+			$quiz_id     = absint( $request['parent_id'] );
+			$found_posts = masteriyo_get_all_questions_count_by_quiz( $quiz_id );
 
-			$question->set_menu_order( $query->found_posts );
+			$question->set_menu_order( $found_posts + 1 );
 		}
 
 		// Post type.
@@ -1023,7 +1074,7 @@ class QuestionsController extends PostsController {
 		$quizzes          = get_posts( array( 'include' => $request['parent'] ) );
 		$courses          = array_filter(
 			array_map(
-				function( $quiz ) {
+				function ( $quiz ) {
 					$course_id = get_post_meta( $quiz->ID, '_course_id', true );
 					return masteriyo_get_course( $course_id );
 				},
@@ -1032,7 +1083,7 @@ class QuestionsController extends PostsController {
 		);
 		$all_open_courses = array_reduce(
 			$courses,
-			function( $result, $course ) {
+			function ( $result, $course ) {
 				return $result && CourseAccessMode::OPEN === $course->get_access_mode();
 			},
 			true
@@ -1078,6 +1129,134 @@ class QuestionsController extends PostsController {
 	}
 
 	/**
+	 * Check if a given request has access to create questions from bank.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function update_bank_questions_permissions_check( $request ) {
+		if ( ! isset( $request['ids'], $request['quiz_id'] ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_request',
+				__( 'Invalid request', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		if ( is_null( $this->permission ) ) {
+			return new \WP_Error(
+				'masteriyo_null_permission',
+				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+			);
+		}
+
+		$instructor = masteriyo_get_current_instructor();
+		if ( $instructor && ! $instructor->is_active() ) {
+			return new \WP_Error(
+				'masteriyo_rest_user_not_approved',
+				__( 'Sorry, you are not approved by the manager.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		$quiz_id = absint( $request['quiz_id'] );
+		$quiz    = masteriyo_get_quiz( $quiz_id );
+
+		if ( is_null( $quiz ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_{$this->post_type}_invalid_id',
+				__( 'Invalid quiz ID', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		if ( ! $this->permission->rest_check_post_permissions( $quiz->get_post_type(), 'update', $quiz_id ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		$question_ids = array_map( 'absint', $request['ids'] );
+
+		if ( empty( $question_ids ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		foreach ( $question_ids as $question_id ) {
+
+			$question = masteriyo_get_question( $question_id );
+
+			if ( is_null( $question ) ) {
+				return new \WP_Error(
+					"masteriyo_rest_{$this->post_type}_invalid_id",
+					__( 'Invalid ID', 'learning-management-system' ),
+					array(
+						'status' => 404,
+					)
+				);
+			}
+
+			if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'update', $question_id ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_cannot_update',
+					__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * Get objects.
+	 *
+	 * @since  1.17.0
+	 *
+	 * @param  array $query_args Query args.
+	 *
+	 * @return array
+	 */
+	protected function get_objects( $query_args ) {
+		$request = masteriyo_current_http_request();
+
+		if ( isset( $request['is_from_learn'], $request['parent'] ) ) {
+			$quiz_id = is_array( $request['parent'] ) ? absint( current( $request['parent'] ) ) : absint( $request['parent'] );
+
+			$query_args['post_parent'] = $quiz_id;
+
+			$results = masteriyo_get_questions_by_quiz_with_pagination( $query_args );
+		} else {
+			$results = parent::get_objects( $query_args );
+		}
+
+		return $results;
+	}
+
+	/**
 	 * Process objects collection.
 	 *
 	 * @since 1.5.15
@@ -1098,5 +1277,97 @@ class QuestionsController extends PostsController {
 				'per_page'     => $query_args['posts_per_page'],
 			),
 		);
+	}
+
+	/**
+	 * Delete a single item.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function delete_item( $request ) {
+		$object = $this->get_object( (int) $request['id'] );
+
+		if ( ! $object || 0 === $object->get_id() ) {
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		/** Case 1: Delete the question from the bank and remove the original question. */
+		if ( isset( $request['delete_from_bank'] ) && masteriyo_string_to_bool( $request['delete_from_bank'] ) ) {
+			$object->set_is_from_bank( false );
+			$object->save();
+
+			masteriyo_remove_questions_from_bank( $object->get_id() );
+		}
+
+		$is_from_bank = $object->get_is_from_bank();
+		$quiz_id      = isset( $request['quiz_id'] ) ? absint( $request['quiz_id'] ) : 0;
+
+		/** Case 2: Remove the question only from the quiz; the original question remains intact. */
+		if ( $is_from_bank && $quiz_id ) {
+			$result = masteriyo_remove_question_from_quiz( $quiz_id, $object->get_id() );
+
+			// Fallback case if the question is not removed from the quiz bank it means it directly linked to the quiz.
+			if ( ! $result ) {
+				$linked_quiz_id = $object->get_parent_id();
+				if ( absint( $linked_quiz_id ) === absint( $quiz_id ) ) {
+					$object->set_parent_id( 0 );
+					$object->set_menu_order( 0 );
+					$object->save();
+				}
+			}
+
+			return $this->prepare_object_for_response( $object, $request );
+		}
+
+		/** Case 3: Delete the question entirely, regardless of whether it's from the bank or not. */
+		return parent::delete_item( $request );
+	}
+
+	/**
+	 * Update bank questions by associating them with a quiz.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param WP_REST_Request $request Request object containing 'ids' of questions and 'quiz_id' as quiz ID.
+	 * @return WP_REST_Response|WP_Error REST response containing the updated question data or error object.
+	 */
+	public function update_bank_questions( \WP_REST_Request $request ) {
+		$question_ids = array_map( 'absint', $request['ids'] );
+		$quiz_id      = absint( $request['quiz_id'] );
+
+		if ( empty( $question_ids ) || ! $quiz_id ) {
+			return new \WP_Error( 'invalid_params', __( 'Invalid question IDs or quiz ID.', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+
+		$responses  = array();
+		$menu_order = masteriyo_get_all_questions_count_by_quiz( $quiz_id ) + 1;
+
+		foreach ( $question_ids as $question_id ) {
+			$question = masteriyo_get_question( $question_id );
+
+			if ( ! $question ) {
+				continue;
+			}
+
+			if ( ! $question->get_is_from_bank() ) {
+				$question->set_is_from_bank( true );
+			}
+
+			masteriyo_add_question_to_quiz( $quiz_id, $question_id, $menu_order );
+
+			$question->save();
+
+			$responses[] = $this->prepare_object_for_response( $question, $request );
+		}
+
+		if ( empty( $responses ) ) {
+			return new \WP_Error( 'no_updates', __( 'No valid questions were updated.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response( $responses );
 	}
 }

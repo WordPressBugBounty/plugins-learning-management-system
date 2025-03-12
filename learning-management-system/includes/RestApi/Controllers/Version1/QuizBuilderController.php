@@ -224,21 +224,26 @@ class QuizBuilderController extends PostsController {
 	 * @return Masteriyo\Models\Question\Question[]
 	 */
 	protected function get_quiz_contents( $request ) {
+		$post_id  = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
 		$page     = isset( $request['paged'] ) ? absint( $request['paged'] ) : 1;
 		$per_page = isset( $request['per_page'] ) ? absint( $request['per_page'] ) : 10;
+
+		if ( ! $post_id ) {
+			return array();
+		}
 
 		$order_by = 'menu_order';
 		$order    = 'ASC';
 
-		$results = $this->get_objects(
-			array(
-				'post_parent'    => $request['id'],
-				'post_type'      => PostType::QUESTION,
-				'orderby'        => $order_by,
-				'order'          => $order,
-				'posts_per_page' => $per_page,
-			)
+		$query_args = array(
+			'post_parent'    => $post_id,
+			'orderby'        => $order_by,
+			'order'          => $order,
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
 		);
+
+		$results = masteriyo_get_questions_by_quiz_with_pagination( $query_args );
 
 		/**
 		 * Filters quiz contents objects (i.e. questions).
@@ -267,14 +272,15 @@ class QuizBuilderController extends PostsController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  WP_Post $post Post object.
+	 * @param  WP_Post|int $post Post object or ID.
 	 * @return object Model object or WP_Error object.
 	 */
 	protected function get_object( $post ) {
 		try {
-			$type     = get_post_meta( $post->ID, '_type', true );
+			$post_id  = is_int( $post ) ? $post : $post;
+			$type     = get_post_meta( $post_id, '_type', true );
 			$question = masteriyo( "question.$type" );
-			$question->set_id( $post->ID );
+			$question->set_id( $post_id );
 			$question_repo = masteriyo( 'question.store' );
 			$question_repo->read( $question );
 		} catch ( \Exception $e ) {
@@ -296,7 +302,7 @@ class QuizBuilderController extends PostsController {
 	 */
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
-		$data    = $this->get_question_data( $object, $context );
+		$data    = $this->get_question_data( $object, $context, absint( $request['id'] ) );
 
 		$data     = $this->add_additional_fields_to_object( $data, $request );
 		$data     = $this->filter_response_by_context( $data, $context );
@@ -350,10 +356,11 @@ class QuizBuilderController extends PostsController {
 	 * @param \Masteriyo\Models\Question $question Question object.
 	 * @param string     $context Request context.
 	 *                            Options: 'view' and 'edit'.
+	 * @param int        $parent_id Quiz ID.
 	 *
 	 * @return array
 	 */
-	protected function get_question_data( $question, $context = 'view' ) {
+	protected function get_question_data( $question, $context = 'view', $parent_id = null ) {
 		/**
 		 * Filters question description.
 		 *
@@ -362,17 +369,20 @@ class QuizBuilderController extends PostsController {
 		 * @param string $description Question description.
 		 */
 		$description = 'view' === $context ? apply_filters( 'masteriyo_description', $question->get_description() ) : $question->get_description();
+		$name        = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
 
 		$data = array(
 			'id'                     => $question->get_id(),
-			'name'                   => wp_specialchars_decode( $question->get_name( $context ) ),
+			'name'                   => $name,
+			// raw_name is required coz in view context mode we are also using text editor.
+			'raw_name'               => wp_specialchars_decode( $question->get_name() ),
 			'permalink'              => $question->get_permalink(),
 			'status'                 => $question->get_status( $context ),
 			'description'            => $description,
 			'type'                   => $question->get_type( $context ),
-			'parent_id'              => $question->get_parent_id( $context ),
+			'parent_id'              => $question->get_parent_id( $context, $parent_id ),
 			'course_id'              => $question->get_course_id( $context ),
-			'menu_order'             => $question->get_menu_order( $context ),
+			'menu_order'             => $question->get_menu_order( $context, $parent_id ),
 			'answer_required'        => $question->get_answer_required( $context ),
 			'randomize'              => $question->get_randomize( $context ),
 			'points'                 => $question->get_points( $context ),
@@ -382,6 +392,7 @@ class QuizBuilderController extends PostsController {
 			'answers'                => $question->get_answers( $context ),
 			'answers_decode_success' => $question->is_answers_decoded(),
 			'enable_description'     => $question->get_enable_description( $context ),
+			'is_from_bank'           => $question->get_is_from_bank( $context ),
 		);
 
 		/**
@@ -529,6 +540,7 @@ class QuizBuilderController extends PostsController {
 		}
 
 		if ( $post->menu_order !== $menu_order || $post->post_parent !== $parent_id ) {
+			masteriyo_add_question_to_quiz( $parent_id, $post->ID, $menu_order );
 			wp_update_post(
 				array(
 					'ID'          => $post->ID,

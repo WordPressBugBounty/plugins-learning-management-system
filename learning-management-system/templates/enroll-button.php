@@ -68,7 +68,7 @@ foreach ( $additional_attributes as $key => $value ) {
 	</a>
 <?php endif; ?>
 <?php
-if ( 0 !== $course->get_enrollment_limit() && 0 === $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
+if ( 0 !== $course->get_enrollment_limit() && 0 >= $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
 	masteriyo_display_notice(
 		esc_html__( 'Sorry, students limit reached. Course closed for enrollment.', 'learning-management-system' ),
 		Notice::WARNING

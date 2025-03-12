@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 	<div>
 		<?php
 		if ( is_user_logged_in() ) :
-			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) :
+			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() && $is_certificate_addon_enabled ) :
 				$enabled        = get_post_meta( $course->get_id(), '_certificate_enabled', true );
 				$certificate_id = get_post_meta( $course->get_id(), '_certificate_id', true );
 				if ( $enabled && $certificate_id ) :

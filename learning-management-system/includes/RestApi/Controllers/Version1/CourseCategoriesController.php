@@ -258,7 +258,7 @@ class CourseCategoriesController extends RestTermsController {
 	 */
 	protected function description_data( $course_cat, $context ) {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-
+		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? do_shortcode( $course_cat->get_description() ) : $course_cat->get_description( $context );
 		}

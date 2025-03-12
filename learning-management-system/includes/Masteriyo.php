@@ -93,11 +93,12 @@ class Masteriyo {
 		RestApi::init();
 		AdminMenu::init();
 		ScriptStyle::init();
-		( new RestAPIAuth() )->init();
-		( new ShowHideArchiveCourseComponents() )->init();
+		// Commented out the below classes as they are not used.
+		// ( new ShowHideArchiveCourseComponents() )->init();
 		( new ShowHideCategoryCourseComponents() )->init();
-		( new ShowHideInstructorCourseComponents() )->init();
-		( new ShowHideSingleCourseComponents() )->init();
+		// ( new ShowHideInstructorCourseComponents() )->init();
+		// ( new ShowHideSingleCourseComponents() )->init();
+		( new RestAPIAuth() )->init();
 		( new CourseRetake() )->init();
 		( new ArchiveCourseComponentStyles() )->init();
 		( new CategoryCourseComponentStyles() )->init();

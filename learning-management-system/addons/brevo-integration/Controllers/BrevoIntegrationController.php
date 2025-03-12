@@ -256,6 +256,7 @@ class BrevoIntegrationController extends CrudController {
 	public function disconnect( $request ) {
 		BrevoIntegrationSettings::set( 'api_key', '' );
 		BrevoIntegrationSettings::set( 'is_connected', false );
+		BrevoIntegrationSettings::settings_remove();
 
 		return rest_ensure_response(
 			array(

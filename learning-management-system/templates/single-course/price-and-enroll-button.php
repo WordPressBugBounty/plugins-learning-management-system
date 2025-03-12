@@ -24,14 +24,16 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 do_action( 'masteriyo_before_single_course_price_and_enroll_button' );
 
 ?>
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 <div class="masteriyo-time-btn">
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 	<div class="masteriyo-course-price">
 		<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 			<del class="old-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></del>
 		<?php endif; ?>
 		<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 	</div>
-
+	<?php endif; ?>
 	<?php
 	/**
 	 * Action hook for rendering retake button template.
@@ -53,11 +55,14 @@ do_action( 'masteriyo_before_single_course_price_and_enroll_button' );
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 */
 
-	do_action( 'masteriyo_template_enroll_button', $course );
+	if ( masteriyo_get_setting( 'course_archive.components_visibility.enroll_button' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) {
+		do_action( 'masteriyo_template_enroll_button', $course );
+	}
 	?>
 
 	<?php masteriyo_display_all_notices(); ?>
 </div>
+<?php endif; ?>
 <?php
 
 /**

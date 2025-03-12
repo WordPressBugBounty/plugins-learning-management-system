@@ -17,9 +17,9 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_title' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 <h1 class="masteriyo-single-course--title">
-<?php
+	<?php
 	/**
 	 * Fires right before rendering the course title in single course page.
 	 *
@@ -39,5 +39,7 @@ defined( 'ABSPATH' ) || exit;
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 */
 	do_action( 'masteriyo_after_single_course_title_text', $course );
-?>
-</h1> 
+	?>
+</h1>
+<?php endif; ?>
+<?php

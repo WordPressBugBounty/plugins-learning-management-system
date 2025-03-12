@@ -289,6 +289,7 @@ class LessonsController extends PostsController {
 	 */
 	protected function description_data( $lesson, $context ) {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
+		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
 			$description = 'view' === $context ? wpautop( do_shortcode( $lesson->get_description() ) ) : $lesson->get_description( $context );
 		}

@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 do_action( 'masteriyo_before_single_course_highlights', $course );
 ?>
 
-<?php if ( ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) : ?>
+<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) ) : ?>
 	<div class="masteriyo-single-body__aside--course-includes">
 		<h3 class="masteriyo-single-body__aside--heading title"><?php esc_html_e( 'Course Includes', 'learning-management-system' ); ?></h3>
 		<?php

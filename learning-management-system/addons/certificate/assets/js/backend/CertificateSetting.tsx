@@ -13,6 +13,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { BiImport } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
+import { ProShowCaseInlineButton } from '../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../../assets/js/back-end/utils/api';
 import http from '../../../../../assets/js/back-end/utils/http';
@@ -76,9 +77,9 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		},
 	});
 	return (
-		<Stack spacing="4">
+		<Stack spacing="6">
 			<FormControlTwoCol>
-				<FormLabel>
+				<FormLabel display="flex" alignItems="center">
 					{__('Use Image Absolute Path', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -96,7 +97,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel>
+				<FormLabel display="flex" alignItems="center">
 					{__('Use SSL Verify Host', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -114,7 +115,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel>
+				<FormLabel display="flex" alignItems="center">
 					{__('Install Certificate Fonts', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -138,6 +139,13 @@ const CertificateSetting: React.FC<Props> = (props) => {
 					</Button>
 				</Box>
 			</FormControlTwoCol>
+
+			<ProShowCaseInlineButton
+				mt={2}
+				label={__('Install Custom Fonts', 'learning-management-system')}
+				buttonText={__('Upload', 'learning-management-system')}
+				leftIcon={<Icon as={BiImport} fontSize="md" />}
+			/>
 		</Stack>
 	);
 };

@@ -16,9 +16,9 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-
+<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 <div class="masteriyo-course--img-wrap">
-	<?php if ( $difficulty ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' ) && $difficulty ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $difficulty ) ) : ?>
 		<div class="difficulty-badge <?php echo esc_attr( $difficulty['slug'] ); ?>" data-id="<?php echo esc_attr( $difficulty['id'] ); ?>">
 			<?php if ( $difficulty['color'] ) : ?>
 				<span class="masteriyo-badge" style="background-color: <?php echo esc_attr( $difficulty['color'] ); ?>">
@@ -36,5 +36,5 @@ defined( 'ABSPATH' ) || exit;
 		<?php echo wp_kses( $course->get_image( 'masteriyo_single' ), 'masteriyo_image' ); ?>
 	</div>
 </div>
-
+<?php endif; ?>
 <?php

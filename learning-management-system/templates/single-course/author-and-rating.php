@@ -25,16 +25,20 @@ do_action( 'masteriyo_before_single_course_author_and_rating' );
 
 ?>
 <div class="masteriyo-course--content__rt">
-	<?php if ( $author ) : ?>
+<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.author' ) && $author ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $author ) ) : ?>
 	<div class="masteriyo-course-author">
 		<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
+		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.author_avatar' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 			<img src="<?php echo esc_attr( $author->profile_image_url() ); ?>"
 				alt="<?php echo esc_attr( $author->get_display_name() ); ?>"
 				title="<?php echo esc_attr( $author->get_display_name() ); ?>"
 			>
+			<?php endif; ?>
 			<?php /* translators: %s: Username */ ?>
 			<!-- Do not multiline below code, as it will create space around the display name. -->
+			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.author_name' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 			<span class="masteriyo-course-author--name"><?php echo esc_html( $author->get_display_name() ); ?></span>
+			<?php endif; ?>
 		</a>
 	</div>
 	<?php endif; ?>
@@ -50,7 +54,7 @@ do_action( 'masteriyo_before_single_course_author_and_rating' );
 		do_action( 'masteriyo_after_course_author', $course );
 		?>
 
-<?php if ( $course->is_review_allowed() ) : ?>
+<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.rating' ) && $course->is_review_allowed() ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $course->is_review_allowed() ) ) : ?>
 	<span class="masteriyo-icon-svg masteriyo-rating">
 		<?php masteriyo_format_rating( $course->get_average_rating(), true ); ?> <?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?> (<?php echo esc_html( $course->get_review_count() ); ?>)
 	</span>

@@ -2283,7 +2283,7 @@ class Course extends Model {
 
 		$posts = get_posts(
 			array(
-				'post_status'    => PostStatus::PUBLISH,
+				'post_status'    => PostStatus::PUBLISH || 'active' || 'upcoming',
 				'post_type'      => CourseChildrenPostType::all(),
 				'posts_per_page' => -1,
 				'meta_key'       => '_course_id',

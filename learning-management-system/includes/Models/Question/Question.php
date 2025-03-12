@@ -82,6 +82,7 @@ class Question extends Model {
 		'course_id'          => 0,
 		'author_id'          => 0,
 		'enable_description' => false,
+		'is_from_bank'       => false,
 	);
 
 	/**
@@ -211,18 +212,30 @@ class Question extends Model {
 	}
 
 	/**
-	 * Returns question parent id (quiz id ).
+	 * Returns the parent ID (quiz ID) of the question.
 	 *
 	 * @since  1.0.0
+	 * @since 1.17.0 Added the $parent_id parameter.
 	 *
-	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
+	 * @param  int    $parent_id Parent ID (quiz ID). Optional. Default is null.
 	 *
-	 * @return string price
+	 * @return string Parent ID (quiz ID).
 	 */
-	public function get_parent_id( $context = 'view' ) {
-		return $this->get_prop( 'parent_id', $context );
-	}
+	public function get_parent_id( $context = 'view', $parent_id = null ) {
+		$id           = $this->get_id();
+		$db_parent_id = $this->get_prop( 'parent_id', $context );
 
+		if ( empty( $id ) || is_null( $parent_id ) ) {
+			return $db_parent_id;
+		}
+
+		if ( masteriyo_is_question_linked_to_quiz( $parent_id, $id ) ) {
+			return absint( $parent_id );
+		}
+
+		return $db_parent_id;
+	}
 
 	/**
 	 * Get question created date.
@@ -387,16 +400,27 @@ class Question extends Model {
 	}
 
 	/**
-	 * Returns question menu order.
+	 * Returns the menu order of the question for a specific quiz.
 	 *
 	 * @since  1.0.0
+	 * @since 1.17.0 Added $parent_id parameter.
 	 *
-	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
+	 * @param  int    $parent_id Quiz ID. Optional. Default is null.
 	 *
-	 * @return string price
+	 * @return string Menu order.
 	 */
-	public function get_menu_order( $context = 'view' ) {
-		return $this->get_prop( 'menu_order', $context );
+	public function get_menu_order( $context = 'view', $parent_id = null ) {
+		$id            = absint( $this->get_id() );
+		$db_menu_order = $this->get_prop( 'menu_order', $context );
+
+		if ( empty( $id ) || is_null( $parent_id ) ) {
+			return $db_menu_order;
+		}
+
+		$menu_order = masteriyo_get_question_menu_order( $parent_id, $id );
+
+		return $menu_order ? $menu_order : $db_menu_order;
 	}
 
 	/**
@@ -410,6 +434,19 @@ class Question extends Model {
 	 */
 	public function get_enable_description( $context = 'view' ) {
 		return $this->get_prop( 'enable_description', $context );
+	}
+
+	/**
+	 * Returns true if the question is from question bank.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return bool
+	 */
+	public function get_is_from_bank( $context = 'view' ) {
+		return $this->get_prop( 'is_from_bank', $context );
 	}
 
 	/*
@@ -614,6 +651,17 @@ class Question extends Model {
 	 */
 	public function set_enable_description( $hint ) {
 		$this->set_prop( 'enable_description', masteriyo_string_to_bool( $hint ) );
+	}
+
+	/**
+	 * Set the question is from bank.
+	 *
+	 * @since 1.17.0
+	 *
+	 * @param bool $is_from_bank Is question from bank.
+	 */
+	public function set_is_from_bank( $is_from_bank ) {
+		$this->set_prop( 'is_from_bank', $is_from_bank );
 	}
 
 	/**
