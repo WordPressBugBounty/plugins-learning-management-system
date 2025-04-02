@@ -17,13 +17,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-echo wp_kses(
-	paginate_links(
-		array(
-			'type'      => 'list',
-			'prev_text' => masteriyo_get_svg( 'left-arrow' ),
-			'next_text' => masteriyo_get_svg( 'right-arrow' ),
-		)
-	),
-	'masteriyo_pagination'
+$links = paginate_links(
+	array(
+		'type'      => 'list',
+		'prev_text' => masteriyo_get_svg( 'left-arrow' ),
+		'next_text' => masteriyo_get_svg( 'right-arrow' ),
+	)
 );
+
+if ( ! empty( $links ) ) {
+	echo wp_kses( $links, 'masteriyo_pagination' );
+}

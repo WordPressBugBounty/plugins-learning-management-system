@@ -1400,7 +1400,12 @@ if ( ! function_exists( 'masteriyo_checkout_order_summary' ) ) {
 					continue;
 				}
 
-				$course = masteriyo_get_course( $cart_content['course_id'] );
+				if ( isset( $cart_content['data'] ) ) {
+					$course = $cart_content['data'];
+				} else {
+					$course = masteriyo_get_course( $cart_content['course_id'] );
+				}
+
 				if ( is_null( $course ) ) {
 					continue;
 				}

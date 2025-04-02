@@ -145,8 +145,12 @@ class API extends APIClient {
 	public function is_contact_exists( string $email ) {
 		$response = $this->get_contact( $email );
 
-		if ( isset( $response['code'] ) && 'document_not_found' === $response['code'] ) {
-			return false;
+		if ( is_wp_error( $response ) ) {
+			$error_data = $response->get_error_data();
+
+			if ( isset( $error_data['code'] ) && 'document_not_found' === $error_data['code'] ) {
+				return false;
+			}
 		}
 
 		return true;

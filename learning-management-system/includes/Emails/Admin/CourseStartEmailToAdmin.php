@@ -132,7 +132,7 @@ class CourseStartEmailToAdmin extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.course_start.additional_content' ) );
-
+		$additional_content = masteriyo_string_translation( 'emails.admin.course_start.additional_content', 'masteriyo-email-message', $additional_content );
 		return $this->format_string( $additional_content );
 	}
 
@@ -144,8 +144,7 @@ class CourseStartEmailToAdmin extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['admin']['course_start']['content'];
-
+		$content = masteriyo_string_translation( 'emails.admin.course_start.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['course_start']['content'] );
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', $content );

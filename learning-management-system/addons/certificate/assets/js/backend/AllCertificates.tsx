@@ -207,6 +207,15 @@ const AllCertificates: React.FC = () => {
 				onClose();
 				setBulkIds([]);
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 
@@ -233,6 +242,15 @@ const AllCertificates: React.FC = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		trash: useMutation({
@@ -249,6 +267,15 @@ const AllCertificates: React.FC = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		restore: useMutation({
@@ -263,6 +290,15 @@ const AllCertificates: React.FC = () => {
 						title: __('Certificates Restored', 'learning-management-system'),
 						isClosable: true,
 						status: 'success',
+					});
+				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
 					});
 				},
 			},

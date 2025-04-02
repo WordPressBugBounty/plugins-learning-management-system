@@ -146,6 +146,7 @@ class StudentRegistrationEmailToAdmin extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.admin.student_registration.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.admin.student_registration.additional_content', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
 	}
@@ -158,7 +159,7 @@ class StudentRegistrationEmailToAdmin extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['admin']['student_registration']['content'];
+		$content = masteriyo_string_translation( 'emails.admin.student_registration.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['student_registration']['content'] );
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
 		return parent::get_content();

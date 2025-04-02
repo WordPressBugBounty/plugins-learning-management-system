@@ -116,8 +116,7 @@ class WithdrawRequestRejectedEmailToInstructor extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['instructor']['withdraw_request_rejected']['content'];
-
+		$content = masteriyo_string_translation( 'emails.instructor.withdraw_request_rejected.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['instructor']['withdraw_request_rejected']['content'] );
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
 		return parent::get_content();
@@ -176,7 +175,7 @@ class WithdrawRequestRejectedEmailToInstructor extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.instructor.withdraw_request_rejected.additional_content' ) );
-
+		$additional_content = masteriyo_string_translation( 'emails.instructor.withdraw_request_rejected.additional_content', 'masteriyo-email-message', $additional_content );
 		return $this->format_string( $additional_content );
 	}
 }

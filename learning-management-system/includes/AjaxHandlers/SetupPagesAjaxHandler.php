@@ -9,6 +9,7 @@
 namespace Masteriyo\AjaxHandlers;
 
 use Masteriyo\Abstracts\AjaxHandler;
+use Masteriyo\Activation;
 
 /**
  * Setup Pages Ajax Handler.
@@ -27,7 +28,7 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 
 
 	/**
-	 * Register the ajax action for the Setup Pages.
+	 * Register the AJAX action for setting up pages.
 	 *
 	 * @since 1.15.0
 	 */
@@ -36,7 +37,7 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 	}
 
 	/**
-	 * Sets up the Learn page.
+	 * Sets up the specified pages via an AJAX request.
 	 *
 	 * @since 1.15.0
 	 *
@@ -51,33 +52,27 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 			wp_send_json_error( __( 'You are not authorized to perform this action.', 'learning-management-system' ) );
 		}
 
+		// Get the list of page slugs from the AJAX request.
 		$page_slugs = isset( $_POST['pages'] ) ? array_map( 'sanitize_text_field', (array) $_POST['pages'] ) : array();
 
+		// Ensure at least one page slug is provided in the request.
 		if ( empty( $page_slugs ) ) {
 			wp_send_json_error( __( 'No pages specified.', 'learning-management-system' ) );
 		}
 
-		foreach ( $page_slugs as $page_slug ) {
-			$post_page = get_page_by_path( $page_slug, OBJECT, 'page' );
+		// Add a filter to limit page creation to only the slugs specified in the request.
+		add_filter(
+			'masteriyo_create_pages',
+			function( $pages ) use ( $page_slugs ) {
+				// Intersect the default pages array with the requested slugs to filter out unwanted pages.
+				$pages = array_intersect_key( $pages, array_flip( $page_slugs ) );
 
-			if ( $post_page instanceof \WP_Post ) {
-				masteriyo_set_setting( "general.pages.{$page_slug}_page_id", $post_page->ID );
-			} else {
-				$content = '';
-
-				if ( 'account' === $page_slug ) {
-					$content = '<!-- wp:shortcode -->[masteriyo_account]<!-- /wp:shortcode -->';
-				} elseif ( 'checkout' === $page_slug ) {
-					$content = '<!-- wp:shortcode -->[masteriyo_checkout]<!-- /wp:shortcode -->';
-				}
-
-				$page_id = masteriyo_create_page( $page_slug, "{$page_slug}_page_id", ucfirst( $page_slug ), $content );
-
-				if ( $page_id ) {
-					masteriyo_set_setting( "general.pages.{$page_slug}_page_id", $page_id );
-				}
+				return $pages;
 			}
-		}
+		);
+
+		// Trigger the page creation process using the Activation class.
+		Activation::create_pages();
 
 		wp_send_json_success( __( 'Pages set up successfully.', 'learning-management-system' ) );
 	}

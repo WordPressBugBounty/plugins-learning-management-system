@@ -258,6 +258,15 @@ const AllAnnouncements = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		trash: useMutation({
@@ -274,6 +283,15 @@ const AllAnnouncements = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		restore: useMutation({
@@ -288,6 +306,15 @@ const AllAnnouncements = () => {
 						title: __('Announcements Restored', 'learning-management-system'),
 						isClosable: true,
 						status: 'success',
+					});
+				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
 					});
 				},
 			},

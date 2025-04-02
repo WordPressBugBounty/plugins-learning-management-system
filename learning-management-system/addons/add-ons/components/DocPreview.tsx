@@ -233,7 +233,7 @@ const DocPreview: React.FC<Props> = (props) => {
 							</audio>
 						) : videoMimeType.includes(currentFile?.mime_type as string) ? (
 							<MasteriyoPlayer
-								videoURL={currentFile?.url || ''}
+								sourceUrl={currentFile?.url || ''}
 								enableSeeking
 							/>
 						) : imageMimeType.includes(currentFile?.mime_type as string) ? (

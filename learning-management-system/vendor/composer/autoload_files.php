@@ -15,6 +15,7 @@ return array(
     'db356362850385d08a5381de2638b5fd' => $vendorDir . '/mpdf/mpdf/src/functions.php',
     '9be579fcc9ba214f8e9df01e0653f265' => $baseDir . '/includes/Helper/depreciated.php',
     'ff7464d0280649f7648508e9f6dc0bf3' => $baseDir . '/includes/Helper/Arr.php',
+    '08cae51649fe7c31feabc4fe7cafc0d4' => $baseDir . '/includes/Helper/Cart.php',
     '61b3857556274052150ea68dcf7f8446' => $baseDir . '/includes/Helper/core.php',
     '33493025a141e1e522083a405744db5c' => $baseDir . '/includes/Helper/Term.php',
     'adb005912f3e1d723742c508295970d5' => $baseDir . '/includes/Helper/Conditional.php',

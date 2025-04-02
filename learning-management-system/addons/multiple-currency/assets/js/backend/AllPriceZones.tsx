@@ -205,6 +205,15 @@ const AllPriceZones = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		trash: useMutation({
@@ -221,6 +230,15 @@ const AllPriceZones = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		restore: useMutation({
@@ -235,6 +253,15 @@ const AllPriceZones = () => {
 						title: __('Pricing zones Restored', 'learning-management-system'),
 						isClosable: true,
 						status: 'success',
+					});
+				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
 					});
 				},
 			},

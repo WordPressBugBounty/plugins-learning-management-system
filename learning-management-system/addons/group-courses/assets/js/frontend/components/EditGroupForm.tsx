@@ -93,7 +93,7 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 							/>
 						</FormControl>
 						<EmailsInput defaultValue={group?.emails || []} />
-						<ButtonGroup>
+						<ButtonGroup mb={4}>
 							<Button
 								type="submit"
 								size={buttonSize}

@@ -216,6 +216,15 @@ const AllGroups = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		trash: useMutation({
@@ -231,6 +240,15 @@ const AllGroups = () => {
 						status: 'success',
 					});
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		}),
 		restore: useMutation({
@@ -244,6 +262,15 @@ const AllGroups = () => {
 						title: __('Groups Restored', 'learning-management-system'),
 						isClosable: true,
 						status: 'success',
+					});
+				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
 					});
 				},
 			},

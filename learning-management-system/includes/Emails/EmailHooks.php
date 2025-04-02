@@ -72,7 +72,9 @@ class EmailHooks {
 		// Email Verification Email.
 		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_email_verification_email' ), 11, 2 );
 
-		add_action( 'masteriyo_after_order_object_save', array( __CLASS__, 'schedule_new_order_email_to_admin' ), 10, 3 );
+		add_action( 'masteriyo_after_order_object_save', array( __CLASS__, 'schedule_new_order_email_to_admin' ), 10, 3 ); // For the offline payment method.
+		add_action( 'masteriyo_order_status_completed', array( __CLASS__, 'schedule_new_order_email_to_admin_on_completion' ), 10, 2 ); // For the other than offline payment method.
+
 		add_action( 'masteriyo_apply_for_instructor', array( __CLASS__, 'schedule_instructor_apply_email_to_admin' ), 10, 1 );
 		add_action( 'masteriyo_new_withdraw', array( __CLASS__, 'schedule_new_withdraw_request_email_to_admin' ) );
 		add_action( 'masteriyo_course_progress_status_changed', array( __CLASS__, 'schedule_course_completion_email_to_admin' ), 10, 4 );
@@ -322,26 +324,64 @@ class EmailHooks {
 	 *
 	 * @param \Masteriyo\Models\Order $order Order object.
 	 * @param \Masteriyo\Repository\OrderRepository $repository THe data store persisting the data.
-	 * @param boolean $create True if the order is created.
+	 * @param bool $is_new Whether the order is newly created.
 	 *
 	 */
-	public static function schedule_new_order_email_to_admin( $order, $repository, $create ) {
+	public static function schedule_new_order_email_to_admin( $order, $repository, $is_new ) {
+		if ( ! $is_new || 'Offline payment' !== $order->get_payment_method_title() ) {
+			return;
+		}
+
 		$email = new NewOrderEmailToAdmin();
 
 		if ( ! $email->is_enabled() ) {
 			return;
 		}
 
-		if ( $create ) {
-			if ( self::is_email_schedule_enabled() ) {
-				as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $order->get_id() ), 'learning-management-system' );
-			} else {
-				$email->trigger( $order->get_id() );
-			}
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $order->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $order->get_id() );
 		}
 	}
 
-		/**
+	/**
+	 * Schedule new order email to admin.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param \Masteriyo\Models\Order $order Order object.
+	 * @param \Masteriyo\Repository\OrderRepository $repository THe data store persisting the data.
+	 */
+	public static function schedule_new_order_email_to_admin_on_completion( $order_id, $order ) {
+		// Check if the payment method is offline.
+		if ( 'Offline payment' === $order->get_payment_method_title() ) {
+			return;
+		}
+
+		// Check if the email has already been sent.
+		if ( 'yes' === get_post_meta( $order_id, '_completion_email_sent', true ) ) {
+			return;
+		}
+
+		$email = new NewOrderEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $order->get_id() ), 'learning-management-system' );
+
+		} else {
+			$email->trigger( $order->get_id() );
+		}
+
+		// Mark the email as sent.
+		update_post_meta( $order->get_id(), '_completion_email_sent', 'yes' );
+	}
+
+	/**
 	 * Schedule new order email.
 	 *
 	 * @since 1.6.13

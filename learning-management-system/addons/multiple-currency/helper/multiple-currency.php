@@ -357,7 +357,6 @@ if ( ! function_exists( 'masteriyo_get_used_currency_list_for_pricing_zone' ) ) 
 					}
 
 					return $pricing_zone->get_currency();
-
 				},
 				$pricing_zones
 			)
@@ -388,7 +387,6 @@ if ( ! function_exists( 'masteriyo_get_used_country_list_for_pricing_zone' ) ) {
 					}
 
 					return $pricing_zone->get_countries();
-
 				},
 				$pricing_zones
 			)
@@ -459,5 +457,141 @@ if ( ! function_exists( 'masteriyo_get_user_current_country_using_maxmind' ) ) {
 		}
 
 		return $current_country;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_price_zone_by_currency' ) ) {
+	/**
+	 * Get price zone by currency.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param string $currency Country code.
+	 *
+	 * @return \Masteriyo\Addons\MultipleCurrency\Models\PriceZone|null Price zone object, or null if not found.
+	 */
+	function masteriyo_get_price_zone_by_currency( $currency ) {
+		if ( ! $currency ) {
+			return null;
+		}
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => PostType::PRICE_ZONE,
+				'post_status'    => PriceZoneStatus::ACTIVE,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					array(
+						'key'     => '_currency',
+						'value'   => strtoupper( $currency ),
+						'compare' => '=',
+					),
+				),
+			)
+		);
+
+		$pricing_zone_id = 0;
+
+		if ( ! empty( $query->posts ) ) {
+			foreach ( $query->posts as $post_id ) {
+				$pricing_zone_id = $post_id;
+				break;
+			}
+		}
+
+		return masteriyo_get_price_zone( $pricing_zone_id );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_country_based_group_course_price' ) ) {
+	/**
+	 * Calculate the country-based group course price.
+	 *
+	 * This function calculates the group course price based on the pricing zone and exchange rate.
+	 * It first checks if the pricing zone is specified, and if not, retrieves the pricing zone based
+	 * on the user's current country. It then verifies if the pricing zone is valid and enabled for
+	 * the course. Depending on the pricing method, it either retrieves a manually set group price or
+	 * calculates it using the exchange rate. The final price is formatted and returned.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param int $course_id The ID of the course.
+	 * @param float $group_price The base group price of the course.
+	 * @param mixed $pricing_zone The pricing zone object or ID.
+	 *
+	 * @return float|null The calculated group course price or null if not applicable.
+	 */
+	function masteriyo_get_country_based_group_course_price( $course_id, $group_price, $pricing_zone ) {
+		if ( is_null( $pricing_zone ) ) {
+			$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+		}
+
+		$pricing_zone = masteriyo_get_price_zone( $pricing_zone );
+
+		if ( ! $pricing_zone instanceof Masteriyo\Addons\MultipleCurrency\Models\PriceZone ) {
+			return null;
+		}
+
+		if ( masteriyo_get_currency() === strtoupper( $pricing_zone->get_currency() ) ) { // Base currency and pricing zone currency should not be same.
+			return null;
+		}
+
+		$is_enabled = masteriyo_string_to_bool( get_post_meta( $course_id, "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) );
+
+		if ( ! $is_enabled ) {
+			return null;
+		}
+
+		$price_key      = "_multiple_currency_{$pricing_zone->get_id()}_group_price";
+		$pricing_method = get_post_meta( $course_id, "_multiple_currency_{$pricing_zone->get_id()}_pricing_method", true );
+
+		$price = $group_price;
+		if ( 'manual' === $pricing_method ) {
+			$price = get_post_meta( $course_id, $price_key, true );
+		} else {
+			$exchange_rate = floatval( $pricing_zone->get_exchange_rate() );
+			$price         = $exchange_rate * $group_price;
+		}
+
+		return masteriyo_format_decimal( $price );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_currency_based_on_course' ) ) {
+	/**
+	 * Retrieves the currency and pricing zone based on the course.
+	 *
+	 * This function is used to retrieve the currency and pricing zone for a given course.
+	 * It takes the course ID as the argument and returns an array with the currency and pricing zone.
+	 * If the multiple currency feature is not enabled for the course or the selected currency is same as the base currency,
+	 * it returns an empty array.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param int $course_id The course ID.
+	 *
+	 * @return array An array with the currency and pricing zone.
+	 */
+	function masteriyo_get_currency_and_pricing_zone_based_on_course( $course_id ) {
+		$data = array( '', null );
+
+		if ( ! masteriyo_string_to_bool( get_post_meta( $course_id, '_multiple_currency_enabled', true ) ) ) {
+			return $data;
+		}
+
+		$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+
+		if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course_id, "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
+			return $data;
+		}
+
+		$currency = $pricing_zone->get_currency();
+
+		if ( empty( $currency ) || masteriyo_get_currency() === $currency ) {
+			return $data;
+		}
+
+		return array( $currency, $pricing_zone );
 	}
 }

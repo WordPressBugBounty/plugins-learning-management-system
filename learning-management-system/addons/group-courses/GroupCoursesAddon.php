@@ -101,12 +101,11 @@ class GroupCoursesAddon {
 		add_action( 'masteriyo_after_restore_group', array( $this, 'update_enrollments_status_for_groups_restoration' ), 10, 2 );
 		add_action( 'masteriyo_update_group', array( $this, 'update_enrollments_status_for_groups_update' ), 10, 2 );
 
-		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'adjust_course_for_group_pricing' ), 10, 3 );
+		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'adjust_course_for_group_pricing' ), 11, 3 );
 
 		add_filter( 'elementor_course_widgets', array( $this, 'append_custom_course_widgets' ), 10 );
 
 		add_action( 'masteriyo_template_group_btn', array( $this, 'get_group_btn_template' ), 20, 1 );
-
 	}
 
 	/**
@@ -136,6 +135,17 @@ class GroupCoursesAddon {
 	public function adjust_course_for_group_pricing( $course, $cart_content, $cart ) {
 		if ( isset( $cart_content['group_ids'] ) && is_array( $cart_content['group_ids'] ) && count( $cart_content['group_ids'] ) ) {
 			$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
+
+			if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
+				list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
+
+				if ( ! empty( $currency ) ) {
+					$modified_group_price = masteriyo_get_country_based_group_course_price( $course->get_id(), $group_price, $pricing_zone );
+
+					$group_price = $modified_group_price ? $modified_group_price : $group_price;
+				}
+			}
+
 			$course->set_price( $group_price );
 
 			$group_badge    = ' <span class="masteriyo-badge" style="background-color: green;">' . __( 'Group Course', 'learning-management-system' ) . '</span>';
@@ -213,7 +223,6 @@ class GroupCoursesAddon {
 		$enrollment_status = OrderStatus::PUBLISH === $group->get_status() ? 'active' : 'inactive';
 
 		masteriyo_update_user_enrollments_status( $id, $user_emails, $enrollment_status );
-
 	}
 
 	/**
@@ -328,7 +337,6 @@ class GroupCoursesAddon {
 					$data['enrolled_status'] = $enrollment_status;
 
 					return $data;
-
 				},
 				$course_data
 			);
@@ -715,7 +723,6 @@ class GroupCoursesAddon {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -914,16 +921,34 @@ class GroupCoursesAddon {
 			return;
 		}
 
-		$group_price = masteriyo_get_group_price( $course->get_id() );
+		$group_price = floatval( get_post_meta( $course->get_id(), '_group_courses_group_price', true ) );
 
 		if ( ! $group_price ) {
 			return;
 		}
 
+		/**
+		 * Filter the price for the group buy button.
+		 *
+		 * @since 1.17.1
+		 *
+		 * @param int    $group_price The group price for the course.
+		 * @param int    $course_id   The course ID.
+		 *
+		 * @return int The filtered group price.
+		 */
+		$group_price = apply_filters( 'masteriyo_group_buy_btn_price', $group_price, $course->get_id() );
+
+		$currency = '';
+
+		if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
+			list( $currency,  ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
+		}
+
 		masteriyo_get_template(
 			'group-courses/group-buy-btn.php',
 			array(
-				'group_price' => $group_price,
+				'group_price' => masteriyo_price( $group_price, array( 'currency' => $currency ) ),
 				'course_id'   => $course->get_id(),
 				'course'      => $course,
 			)
@@ -1207,7 +1232,6 @@ class GroupCoursesAddon {
 		&& ! is_null( $group )
 		&& ! is_wp_error( $group )
 		&& PostStatus::PUBLISH === $group->get_status();
-
 	}
 
 	/**

@@ -138,6 +138,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.admin.new_quiz_attempt.additional_content', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
 	}
@@ -150,7 +151,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['admin']['new_quiz_attempt']['content'];
+		$content = masteriyo_string_translation( 'emails.admin.new_quiz_attempt.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['new_quiz_attempt']['content'] );
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
 		return parent::get_content();

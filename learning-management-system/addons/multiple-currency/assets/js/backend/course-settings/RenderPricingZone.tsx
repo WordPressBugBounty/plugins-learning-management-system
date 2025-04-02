@@ -19,6 +19,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { decodeEntity } from '../../../../../../assets/js/back-end/utils/utils';
+import { isAddonActive } from '../../../../../add-ons/api/addons';
 import { ActivePricingZone } from '../../types/multiCurrency';
 
 interface Props {
@@ -40,6 +41,27 @@ const RenderPricingZone: React.FC<Props> = ({ zone, zoneId }) => {
 		defaultValue: zone.pricing_method || 'exchange_rate',
 		control,
 	});
+
+	const groupPriceSection = () => {
+		return (
+			<>
+				<FormLabel>{__('Group Price', 'learning-management-system')}</FormLabel>
+				<Controller
+					name={`multiple_currency.${zoneId}_key.group_price`}
+					defaultValue={zone?.group_price || ''}
+					render={({ field }) => (
+						<NumberInput {...field} w="full" min={0}>
+							<NumberInputField borderRadius="sm" shadow="input" />
+							<NumberInputStepper>
+								<NumberIncrementStepper />
+								<NumberDecrementStepper />
+							</NumberInputStepper>
+						</NumberInput>
+					)}
+				/>
+			</>
+		);
+	};
 
 	return (
 		<>
@@ -140,6 +162,10 @@ const RenderPricingZone: React.FC<Props> = ({ zone, zoneId }) => {
 											)}
 										/>
 									</FormControlTwoCol>
+
+									{isAddonActive('group-courses') && (
+										<FormControlTwoCol>{groupPriceSection()}</FormControlTwoCol>
+									)}
 								</Stack>
 							)}
 						</Stack>

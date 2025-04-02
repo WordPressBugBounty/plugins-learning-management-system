@@ -641,7 +641,9 @@ function masteriyo_get_page_id( $page ) {
 	 * @param integer $page_id Page id - used for pages like courses, account etc. Value should be -1 if no page is found.
 	 */
 	$page_id = apply_filters( 'masteriyo_get_' . $page . '_page_id', $page_id );
-
+	if ( has_filter( 'wpml_object_id' ) ) {
+		$page_id = apply_filters( 'wpml_object_id', $page_id, 'page', true );
+	}
 	return $page_id ? absint( $page_id ) : -1;
 }
 
@@ -1843,6 +1845,15 @@ function masteriyo_get_courses_url() {
  * @return string Url to checkout page
  */
 function masteriyo_get_account_url() {
+	global $wp_rewrite;
+	$account_url = '';
+
+	if ( is_object( $wp_rewrite ) && ! empty( $wp_rewrite->rules ) ) {
+			$account_url = masteriyo_get_page_permalink( 'account' );
+	} else {
+			$account_url = get_home_url();
+	}
+
 	/**
 	 * Filters Account page URL.
 	 *
@@ -1850,7 +1861,7 @@ function masteriyo_get_account_url() {
 	 *
 	 * @param string $url Account page URL.
 	 */
-	return apply_filters( 'masteriyo_get_account_url', masteriyo_get_page_permalink( 'account' ) );
+	return apply_filters( 'masteriyo_get_account_url', $account_url );
 }
 
 /**
@@ -3663,12 +3674,11 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_guest_checkout'          => true,
 				),
 				'player'        => array(
-					'enable_watch_full_video'            => false,
-					'enable_watch_full_video_every_time' => false,
-					'use_masteriyo_player_for_youtube'   => true,
-					'use_masteriyo_player_for_vimeo'     => true,
-					'seek_time'                          => 5,
-					'unmuted_autoplay'                   => false,
+					'enable_watch_full_video'          => false,
+					'use_masteriyo_player_for_youtube' => true,
+					'use_masteriyo_player_for_vimeo'   => true,
+					'seek_time'                        => 5,
+					'unmuted_autoplay'                 => false,
 				),
 			),
 			'course_archive' => array(
@@ -5761,108 +5771,130 @@ if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
 	 * @return void
 	 */
 	function masteriyo_notify_pages_missing() {
-		$page_slugs = array(
-			'learn',
-			'account',
-			'checkout',
+		// Define required pages with their setting keys and display names
+		$required_pages = array(
+			'learn'    => array(
+				'setting_key' => 'general.pages.learn_page_id',
+				'name'        => 'Learn',
+			),
+			'account'  => array(
+				'setting_key' => 'general.pages.account_page_id',
+				'name'        => 'Account',
+			),
+			'checkout' => array(
+				'setting_key' => 'general.pages.checkout_page_id',
+				'name'        => 'Checkout',
+			),
 		);
 
 		$missing_pages = array();
 
-		foreach ( $page_slugs as $page_slug ) {
-			$page_id = masteriyo_get_page_id( $page_slug );
-			$page    = get_post( $page_id );
+		// Check each required page.
+		foreach ( $required_pages as $slug => $details ) {
+			// Get page ID from settings.
+			$page_id = absint( masteriyo_get_setting( $details['setting_key'] ) );
 
-			if ( ! $page || 'page' !== $page->post_type || 'publish' !== $page->post_status ) {
-				$missing_pages[] = ucfirst( $page_slug );
+			// Check if page ID is empty or page does not exist or is not published.
+			if ( empty( $page_id ) || 'publish' !== get_post_status( $page_id ) ) {
+				$missing_pages[ $slug ] = $details['name'];
 			}
 		}
 
-		$page_id = absint( masteriyo_get_setting( 'general.pages.learn_page_id' ) );
-		$page    = get_post( $page_id );
-
+		// If there are missing pages, display a notice.
 		if ( ! empty( $missing_pages ) ) {
-			add_action(
-				'masteriyo_admin_notices',
-				function () use ( $missing_pages, $page_slugs ) {
-					$notice_title = '<strong>' . __( 'Masteriyo:', 'learning-management-system' ) . '</strong>';
+				add_action(
+					'masteriyo_admin_notices',
+					function() use ( $missing_pages ) {
+						$notice_title        = '<strong>' . __( 'Masteriyo:', 'learning-management-system' ) . '</strong>';
+						$missing_pages_count = count( $missing_pages );
+						$missing_pages_list  = implode(
+							', ',
+							array_map(
+								function( $name ) {
+									return "<strong>{$name}</strong>";
+								},
+								array_values( $missing_pages )
+							)
+						);
 
-					$missing_pages_count = count( $missing_pages );
-
-					$missing_pages = array_map(
-						function ( $missing_page ) {
-							return "<strong>{$missing_page}</strong>";
-						},
-						$missing_pages
-					);
-
-					$missing_pages_list = implode( ', ', $missing_pages );
-					$notice_message     = sprintf(
-						/* translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages */
-						_n(
-							'%1$s %2$d page is missing: %3$s. Please configure it, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set it up automatically.',
-							'%1$s %2$d pages are missing: %3$s. Please configure them, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set them up automatically.',
+						$notice_message = sprintf(
+							/* translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages, 4: Link text */
+							_n(
+								'%1$s %2$d page is missing: %3$s. Please configure it, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set it up automatically.',
+								'%1$s %2$d pages are missing: %3$s. Please configure them, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set them up automatically.',
+								$missing_pages_count,
+								'learning-management-system'
+							),
+							$notice_title,
 							$missing_pages_count,
-							'learning-management-system'
-						),
-						$notice_title,
-						$missing_pages_count,
-						wp_kses_post( $missing_pages_list ),
-						esc_html__( 'click here', 'learning-management-system' )
-					);
+							wp_kses_post( $missing_pages_list ),
+							esc_html__( 'click here', 'learning-management-system' )
+						);
 
-					printf(
-						'<div class="notice notice-warning is-dismissible masteriyo-pages-missing-notice"><p>%s</p></div>',
-						wp_kses_post( $notice_message )
-					);
+						printf(
+							'<div class="notice notice-warning is-dismissible masteriyo-pages-missing-notice"><p>%s</p></div>',
+							wp_kses_post( $notice_message )
+						);
 
-					wp_enqueue_script( 'masteriyo-admin-notice', plugin_dir_url( __FILE__ ) . 'assets/js/admin-notice.js', array( 'jquery' ), MASTERIYO_VERSION, true );
+						// Enqueue JavaScript for AJAX setup.
+						wp_enqueue_script(
+							'masteriyo-admin-notice',
+							plugin_dir_url( __FILE__ ) . 'assets/js/admin-notice.js',
+							array( 'jquery' ),
+							MASTERIYO_VERSION,
+							true
+						);
 
-					wp_localize_script(
-						'masteriyo-admin-notice',
-						'masteriyoData',
-						array(
-							'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-							'nonce'         => wp_create_nonce( 'masteriyo-setup-pages' ),
-							'settingUpText' => __( 'Setting up...', 'learning-management-system' ),
-							'setupFailed'   => __( 'Failed to set up. Retry?', 'learning-management-system' ),
-							'setupSuccess'  => __( 'Pages set up successfully.', 'learning-management-system' ),
-							'pages'         => $page_slugs,
-						)
-					);
+						wp_localize_script(
+							'masteriyo-admin-notice',
+							'masteriyoData',
+							array(
+								'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+								'nonce'         => wp_create_nonce( 'masteriyo-setup-pages' ),
+								'settingUpText' => __( 'Setting up...', 'learning-management-system' ),
+								'setupFailed'   => __( 'Failed to set up. Retry?', 'learning-management-system' ),
+								'setupSuccess'  => __( 'Pages set up successfully.', 'learning-management-system' ),
+								'pages'         => array_keys( $missing_pages ),
+							)
+						);
 
-					wp_add_inline_script(
-						'masteriyo-admin-notice',
-						"
-						jQuery(document).ready(function ($) {
-							$(document).on('click', '#masteriyo-setup-pages', function (e) {
-								e.preventDefault();
-								var link = $(this);
-								var notice = $(this).closest('.masteriyo-pages-missing-notice');
-								link.text(masteriyoData.settingUpText);
-								$.post(
-									masteriyoData.ajaxUrl,
-									{
-										action: 'masteriyo_setup_pages',
-										nonce: masteriyoData.nonce,
-										pages: masteriyoData.pages
-									},
-									function (response) {
-										if (response.success) {
-											notice.slideUp(300, function () {
-												$(this).remove();
-											});
-										} else {
-											link.text(masteriyoData.setupFailed);
-										}
-									},
-								);
-							});
-						});
-					"
-					);
-				}
-			);
+						// Inline script to handle the AJAX call.
+						wp_add_inline_script(
+							'masteriyo-admin-notice',
+							"jQuery(document).ready(function($) {
+										$(document).on('click', '#masteriyo-setup-pages', function(e) {
+												e.preventDefault();
+												var link = $(this);
+												var notice = $(this).closest('.masteriyo-pages-missing-notice');
+
+												link.text(masteriyoData.settingUpText);
+
+												$.ajax({
+														url: masteriyoData.ajaxUrl,
+														type: 'POST',
+														data: {
+																action: 'masteriyo_setup_pages',
+																nonce: masteriyoData.nonce,
+																pages: masteriyoData.pages
+														},
+														success: function(response) {
+																if (response.success) {
+																		notice.slideUp(300, function() {
+																				$(this).remove();
+																		});
+																} else {
+																	link.text(masteriyoData.setupFailed);
+																}
+														},
+														error: function() {
+															link.text(masteriyoData.setupFailed);
+														}
+												});
+										});
+								});"
+						);
+					}
+				);
 		}
 	}
 }
@@ -5889,5 +5921,35 @@ if ( ! function_exists( 'masteriyo_get_total_user_count_by_roles_and_statuses' )
 		$total_users = $user_query->total_users;
 
 		return absint( $total_users );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_string_translation' ) ) {
+	/**
+	 * Registers and retrieves a translated string for WPML.
+	 *
+	 * This function checks if the WPML functions `icl_register_string` and `icl_t` are available.
+	 * It registers the string for translation and then retrieves its translated value based on the current language.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param string $context The context or domain for the string, used for grouping translations.
+	 * @param string $name The name of the string to be translated.
+	 * @param string $value The default value of the string, if no translation is available.
+	 *
+	 * @return string The translated string if available, otherwise the original value.
+	 */
+	function masteriyo_string_translation( $context, $name, $value ) {
+		$context = 'masteriyo_' . preg_replace( '/\./', '_', $context );
+
+		if ( function_exists( 'icl_register_string' ) ) {
+			icl_register_string( $context, $name, $value );
+		}
+
+		if ( function_exists( 'icl_t' ) ) {
+			$value = icl_t( $context, $name, $value );
+		}
+
+		return $value;
 	}
 }

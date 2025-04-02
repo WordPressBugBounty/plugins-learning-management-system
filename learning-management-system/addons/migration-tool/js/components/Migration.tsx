@@ -64,8 +64,19 @@ function useLMSsQuery() {
 
 function useMigrateMutation() {
 	const migrationAPI = new API(urls.migrations);
+	const toast = useToast();
+
 	return useMutation({
 		mutationFn: (data: MigrationData) => migrationAPI.store(data),
+		onError: (err: any) => {
+			toast({
+				title:
+					err?.message ||
+					__('Something went wrong', 'learning-management-system'),
+				status: 'error',
+				isClosable: true,
+			});
+		},
 	});
 }
 

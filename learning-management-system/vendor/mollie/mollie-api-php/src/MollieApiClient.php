@@ -5,6 +5,7 @@ namespace Mollie\Api;
 use Mollie\Api\Endpoints\BalanceEndpoint;
 use Mollie\Api\Endpoints\BalanceReportEndpoint;
 use Mollie\Api\Endpoints\BalanceTransactionEndpoint;
+use Mollie\Api\Endpoints\CapabilityEndpoint;
 use Mollie\Api\Endpoints\ChargebackEndpoint;
 use Mollie\Api\Endpoints\ClientEndpoint;
 use Mollie\Api\Endpoints\ClientLinkEndpoint;
@@ -32,6 +33,7 @@ use Mollie\Api\Endpoints\PermissionEndpoint;
 use Mollie\Api\Endpoints\ProfileEndpoint;
 use Mollie\Api\Endpoints\ProfileMethodEndpoint;
 use Mollie\Api\Endpoints\RefundEndpoint;
+use Mollie\Api\Endpoints\SalesInvoiceEndpoint;
 use Mollie\Api\Endpoints\SessionEndpoint;
 use Mollie\Api\Endpoints\SettlementCaptureEndpoint;
 use Mollie\Api\Endpoints\SettlementChargebackEndpoint;
@@ -54,7 +56,7 @@ class MollieApiClient
     /**
      * Version of our client.
      */
-    public const CLIENT_VERSION = "2.75.0";
+    public const CLIENT_VERSION = "2.79.0";
 
     /**
      * Endpoint of the remote API.
@@ -109,6 +111,11 @@ class MollieApiClient
     public $methodIssuers;
 
     /**
+     * @var \Mollie\Api\Endpoints\CapabilityEndpoint
+     */
+    public $capabilities;
+
+    /**
      * RESTful Customers resource.
      *
      * @var CustomerEndpoint
@@ -121,6 +128,13 @@ class MollieApiClient
      * @var CustomerPaymentsEndpoint
      */
     public $customerPayments;
+
+    /**
+     * RESTful Sales Invoice resource.
+     *
+     * @var SalesInvoiceEndpoint
+     */
+    public $salesInvoices;
 
     /**
      * RESTful Settlement resource.
@@ -417,6 +431,7 @@ class MollieApiClient
         $this->balanceReports = new BalanceReportEndpoint($this);
         $this->balanceTransactions = new BalanceTransactionEndpoint($this);
         $this->balances = new BalanceEndpoint($this);
+        $this->capabilities = new CapabilityEndpoint($this);
         $this->chargebacks = new ChargebackEndpoint($this);
         $this->clientLinks = new ClientLinkEndpoint($this);
         $this->clients = new ClientEndpoint($this);
@@ -444,6 +459,7 @@ class MollieApiClient
         $this->profileMethods = new ProfileMethodEndpoint($this);
         $this->profiles = new ProfileEndpoint($this);
         $this->refunds = new RefundEndpoint($this);
+        $this->salesInvoices = new SalesInvoiceEndpoint($this);
         $this->settlementCaptures = new SettlementCaptureEndpoint($this);
         $this->settlementChargebacks = new SettlementChargebackEndpoint($this);
         $this->settlementPayments = new SettlementPaymentEndpoint($this);

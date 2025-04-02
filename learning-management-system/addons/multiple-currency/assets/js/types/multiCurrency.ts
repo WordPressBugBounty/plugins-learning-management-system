@@ -42,4 +42,5 @@ export type ActivePricingZone = {
 	sale_price: number;
 	currency_code: string;
 	currency_symbol: string;
+	group_price?: number;
 };

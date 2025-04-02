@@ -384,7 +384,13 @@ class QuestionsController extends PostsController {
 	 */
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
-		$data    = $this->get_question_data( $object, $context, $request['show_correct_answer'] );
+
+		// Show correct answer if current user is admin or post author while request from question bank for builder.
+		if ( isset( $request['selected_quiz_id'] ) && masteriyo_is_current_user_admin() || masteriyo_is_current_user_post_author( $object->get_course_id() ) ) {
+			$request['show_correct_answer'] = true;
+		}
+
+		$data = $this->get_question_data( $object, $context, $request['show_correct_answer'] );
 
 		$data     = $this->add_additional_fields_to_object( $data, $request );
 		$data     = $this->filter_response_by_context( $data, $context );

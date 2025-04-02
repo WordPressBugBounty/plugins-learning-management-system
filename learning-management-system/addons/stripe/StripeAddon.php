@@ -236,6 +236,16 @@ class StripeAddon {
 			$cart_total    = $cart->get_total();
 			$currency_code = masteriyo_get_setting( 'payments.currency.currency' );
 
+			// For the local currency usage.
+			$item = masteriyo_get_item_from_cart( $cart );
+			if ( $item && is_a( $item, 'Masteriyo\Models\Course' ) ) {
+				$item_currency = $item->get_currency();
+
+				if ( ! empty( $item_currency ) ) {
+					$currency_code = $item_currency;
+				}
+			}
+
 			$payment_methods = array(
 				'card',
 			);

@@ -1042,14 +1042,20 @@ if ( ! function_exists( 'masteriyo_is_course_previewable' ) ) {
  * @return boolean
  */
 function masteriyo_is_account_page( $page_id = null ) {
-	 global $post;
+	global $post;
 
 	$account_page_id = masteriyo_get_page_id( 'account' );
 
-	if ( ! is_null( $page_id ) && ! empty( $account_page_id ) ) {
-		return $page_id === $account_page_id;
-	} elseif ( $post instanceof \WP_Post ) {
-		return $post->ID === $account_page_id;
+	if ( ! is_null( $page_id ) && $page_id === $account_page_id ) {
+			return true;
+	}
+
+	if ( isset( $post->ID ) && $post->ID === $account_page_id ) {
+			return true;
+	}
+
+	if ( isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_account' ) ) {
+			return true;
 	}
 
 	return false;

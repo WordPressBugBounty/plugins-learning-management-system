@@ -100,6 +100,15 @@ const CertificateRow: React.FC<Props> = (props) => {
 					status: 'success',
 				});
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 
@@ -112,6 +121,15 @@ const CertificateRow: React.FC<Props> = (props) => {
 					title: __('Certificate Restored', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},
@@ -138,6 +156,15 @@ const CertificateRow: React.FC<Props> = (props) => {
 					title: __('Certificate Trashed', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

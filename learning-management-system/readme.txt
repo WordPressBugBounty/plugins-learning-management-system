@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.17.0
+Stable tag: 1.17.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -226,6 +226,29 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
+= 1.17.1 - 02-04-2025 =
+- Enhancement - Email Translations support using WPML.
+- Enhancement - Added group pricing multiple currencies option.
+- Enhancement - Instructor auto approval when added by admin.
+- Enhancement - Added duplicate question option in Question Bank.
+- Enhancement - Order purchase email send only after payment is successful in case of payment gateway excluding offline payment.
+- Refactor - REST API Success/Error Handling.
+- Refactor - Masteriyo player.
+- Fix - Certificate font compatibility issue for different OS.
+- Fix - Public profile pagination issue. [PRO]
+- Fix - Improve contact existence check and update/create logic in Brevo integration.
+- Fix - Deprecated issue for course pagination in PHP 8.1 or above.
+- Fix - Global setting svg alignItem console warning.
+- Fix - Timer not updating when switching between contents in learn page.
+- Fix - Questions not showing in quiz builder if exceeds 100.
+- Fix - Invoice download issue from account page. [PRO]
+- Fix - Runtime error in Gamipress setting. [PRO]
+- Fix - Pass user ID instead of user object to allow_password_reset filter.
+- Fix - Check if Masteriyo account shortcode is exists or not in the account page.
+- Fix - Mollie payment issue for course bundle. [PRO]
+- Fix - Fatal error call to a member function get_page_permastruct().
+- Fix - Resolve conflict between Masteriyo checkout and WooCommerce checkout.
+
 = 1.17.0 - 12-03-2025 =
 - Feature - Question bank.
 - Feature - Custom fonts upload option for certificate. [PRO]
@@ -338,126 +361,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - UI issue in public profile.
 - Fix - Editor image alignment not working.
 - Fix - Learn page missing scrollbar for longer contents.
-
-= 1.14.3 - 19-12-2024 =
-- Enhancement - Added report issue button on error page.
-- Enhancement - Added logic to clear duplicate lesson progress from `Clear Cache` button.
-- Update - Added states for Venezuela.
-- Fix - Video Lesson `Mark as complete` issue.
-- Fix - Setting `Advance` title updated to `Advanced`.
-- Fix - Download material preview issue.
-- Fix - Student redirection to course page issue after registration.
-
-= 1.14.2 - 03-12-2024 =
-- Enhancement - Added course completion button in SCORM course.
-- Enhancement - Added option to update course review reply status.
-- Tweak - Default course content access to true.
-- Fix - Do not add student role for admin & instructor while starting course.
-- Fix - Valid phone number showing as invalid in checkout.
-- Fix - Course ID not found issue for password protected course with WooCommerce Integration.
-- Fix - Bracket displaying in course list of Bricks builder.
-- Fix - Certificates not listing in account page.
-- Fix - Translation properly not working issue.
-- Fix - Incorrect user course progress data in account dashboard tab.
-- Fix - Large quiz attempt data not updating issue.
-
-= 1.14.1 - 20-11-2024 =
-- Fix - Sample courses file not found issue after first sample course install.
-- Fix - Instructor approval issue in add new instructor page.
-- Fix - Course progress bar division by zero error.
-- Fix - WooCommerce add to cart issue if product is not publish and start course issue.
-- Fix - Account page UI issue in twenty twenty five theme.
-- Fix - Stripe JS not loading on checkout.
-
-= 1.14.0 - 19-11-2024 =
-- Feature - Fluent CRM Integration.
-- Feature - Stripe payment gateway.
-- Feature - Lesson Comments.
-- Feature - Added support for Math equations in lesson, quiz and assignment.
-- Feature - Individual or multiple courses exportable from course listing page.
-- Compatibility - Compatible with WordPress v6.7.
-- Enhancement - Import/Export overall optimization in backend processing.
-- Enhancement - Lessons now have individual type (Text, Video and Live Stream lesson.)
-- Enhancement - Add new content in course builder now appear in modal instead of popover.
-- Enhancement - Added option for post checkout landing page in page setting.
-- Enhancement - Added shortcode `[masteriyo_student_registration]` for student registration form.
-- Enhancement - Added progress bar and started at info in single course page.
-- Enhancement - Added SCORM in advance global setting to add additional extension file type.
-- Refactor - Lesson builder UI revamp.
-- Refactor - Backend pages minor UI revamp (Button outline, colors, font sizes and styles, icons).
-- Refactor - Google classroom backend revamp.
-- Update - JS packages upgraded.
-- Fix - Global settings UI.
-- Fix - Single course page UI issues.
-- Fix - Prevent error when retrieving capabilities for non-existent roles.
-- Fix - Account page access to other user roles.
-- Fix - Error in account page when SCORM addon is active.
-- Fix - Hide Lemon Squeezy Settings from course page if it's disabled on global setting.
-- Fix - Accordance Issue in Setting Page.
-- Fix - Permission check for certificate share preview.
-- Fix - Forward ref issue in async select.
-- Fix - See More Issue in Review Filter in Single Course Page.
-- Fix - Revenue sharing withdraw section box UI.
-- Fix - Tooltip now consistent with global settings.
-- Fix - Body color removed from single course block.
-- Fix - Console warning related to react defaultProps.
-- Fix - Hide curriculum tab for SCORM and Google classroom courses.
-- Fix - Dynamic primary colour not reflecting for course archive layout 1 and 2.
-
-= 1.13.5 - 15-11-2024 =
-- Fix – JavaScript 'Selectors' error in WP 6.7 version.
-
-= 1.13.4 - 22-10-2024 =
-- Fix - Resolved security vulnerabilities.
-- Fix - SCORM course type user progress issue.
-
-= 1.13.3 - 03-10-2024 =
-- Feature - Brevo Integration.
-- Enhancement - Auto Sync in WooCommerce product if course is updated.
-- Enhancement - Added option to show or hide header/footer in the account page.
-- Enhancement - Countdown timer UI revamp in learn page.
-- Enhancement - Added certificate share option.
-- Enhancement - Certificate for SCORM course.
-- Enhancement - Content width adjustable in learn page.
-- Fix - Redirect to incorrect checkout page issue when WooCommerce product is in draft and Masteriyo course is in publish.
-- Fix - Other quiz attempts access by student if user id param is given.
-- Fix - Permission related issues.
-- Fix - Video mute on start issue in other platform except YouTube.
-- Fix - Video sharing option and right click option changed to false by default.
-
-
-= 1.13.2 - 24-09-2024 =
-- Enhancement - Added support and debug docs link in error page.
-- Enhancement - Global setting minor UI update.
-- Fix - cssRules issue and used chakra animation for loader.
-- Fix - Course continue URL issue in SureCart integration.
-- Fix - Google classroom permission issue on addon deactivation.
-- Fix - Set default value of lesson video share and right click option to false.
-
-= 1.13.1 - 16-09-2024 =
-- Fix - Global setting issue due to the translations.
-
-= 1.13.0 - 12-09-2024 =
-- Feature - Certificate builder.
-- Feature - Tutor LMS migration.
-- Refactor - Global Settings UI revamp and performance optimization.
-- Refactor - Learn page performance optimization.
-- Enhancement - Learn page responsiveness.
-- Enhancement - Now only content will be loaded instead of full screen loader in learn page.
-- Enhancement - Added option to download invoice from order history in the account page.
-- Enhancement - Added option to enable/disable profile tab, apply for instructor and edit profile in the account page.
-- Enhancement - Added Course and Course categories carousel Elementor Widgets.
-- Enhancement - Addon page UI update and addon submenu instantly reflect on activation/deactivation.
-- Enhancement - Added option for quiz auto abandon or submission after quiz time expires.
-- Enhancement - Optimize PHP queries data by caching.
-- Enhancement - Lock icon added in curriculum if user is not enrolled in a course.
-- Update - Package woocommerce/action-scheduler upgraded to v3.8.1.
-- Fix - Primary color not reflecting on some icons and missing text translation.
-- Fix - YouTube video not playing after refresh.
-- Fix - Google meet instructor permission issue.
-- Fix - Courses block not working issue.
-- Fix - PHP8 deprecation warning.
-- Fix - Account page items can be seen from url even if disable in global setting.
-- Fix - User role not getting updated to Masteriyo Student after SureCart checkout.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

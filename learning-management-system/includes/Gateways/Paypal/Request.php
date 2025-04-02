@@ -135,7 +135,7 @@ class Request {
 				'cmd'           => '_cart',
 				'business'      => $this->gateway->get_option( 'email' ),
 				'no_note'       => 1,
-				'currency_code' => masteriyo_get_currency(),
+				'currency_code' => $order->get_currency(),
 				'charset'       => 'utf-8',
 				'rm'            => is_ssl() ? 2 : 1,
 				'upload'        => 1,

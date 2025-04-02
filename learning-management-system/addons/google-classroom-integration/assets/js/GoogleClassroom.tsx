@@ -190,6 +190,15 @@ function GoogleClassroom() {
 					});
 				}
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		});
 	};
 
@@ -218,6 +227,15 @@ function GoogleClassroom() {
 						status: 'success',
 					});
 				}
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
 			},
 		});
 	};

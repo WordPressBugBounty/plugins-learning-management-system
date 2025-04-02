@@ -5,7 +5,7 @@
  * Description: A Complete WordPress LMS plugin to create and sell online courses in no time.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 1.17.0
+ * Version: 1.17.1
  * Requires at least: 6.5
  * Requires PHP: 7.2
  * Text Domain: learning-management-system
@@ -44,7 +44,7 @@ if ( ! defined( 'MASTERIYO_SLUG' ) ) {
 }
 
 if ( ! defined( 'MASTERIYO_VERSION' ) ) {
-	define( 'MASTERIYO_VERSION', '1.17.0' );
+	define( 'MASTERIYO_VERSION', '1.17.1' );
 }
 
 if ( ! defined( 'MASTERIYO_PLUGIN_FILE' ) ) {
@@ -56,23 +56,23 @@ if ( ! defined( 'MASTERIYO_PLUGIN_BASENAME' ) ) {
 }
 
 if ( ! defined( 'MASTERIYO_PLUGIN_DIR' ) ) {
-	define( 'MASTERIYO_PLUGIN_DIR', dirname( __FILE__ ) );
+	define( 'MASTERIYO_PLUGIN_DIR', __DIR__ );
 }
 
 if ( ! defined( 'MASTERIYO_ASSETS' ) ) {
-	define( 'MASTERIYO_ASSETS', dirname( __FILE__ ) . '/assets' );
+	define( 'MASTERIYO_ASSETS', __DIR__ . '/assets' );
 }
 
 if ( ! defined( 'MASTERIYO_TEMPLATES' ) ) {
-	define( 'MASTERIYO_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+	define( 'MASTERIYO_TEMPLATES', __DIR__ . '/templates' );
 }
 
 if ( ! defined( 'MASTERIYO_LANGUAGES' ) ) {
-	define( 'MASTERIYO_LANGUAGES', dirname( __FILE__ ) . '/i18n/languages' );
+	define( 'MASTERIYO_LANGUAGES', __DIR__ . '/i18n/languages' );
 }
 
 if ( ! defined( 'MASTERIYO_PRO_ADDONS_DIR' ) ) {
-	define( 'MASTERIYO_PRO_ADDONS_DIR', dirname( __FILE__ ) . '/addons' );
+	define( 'MASTERIYO_PRO_ADDONS_DIR', __DIR__ . '/addons' );
 }
 
 if ( ! defined( 'MASTERIYO_LOG_DIR' ) ) {
@@ -92,17 +92,17 @@ if ( ! defined( 'MASTERIYO_UPLOAD_DIR' ) ) {
 /**
  * Include the autoloader.
  */
-require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
  * Include action scheduler.
  *
  * @since 1.5.35
  */
-require_once dirname( __FILE__ ) . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 
 // Check whether assets are built or not.
-if ( masteriyo_is_production() && ! file_exists( dirname( __FILE__ ) . '/assets/js/build/masteriyo-backend.js' ) ) {
+if ( masteriyo_is_production() && ! file_exists( __DIR__ . '/assets/js/build/masteriyo-backend.js' ) ) {
 	add_action(
 		'admin_notices',
 		function() {
@@ -133,7 +133,7 @@ if ( masteriyo_is_production() && ! file_exists( dirname( __FILE__ ) . '/assets/
 
 
 // Check for the existence of autoloader file.
-if ( ! file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
+if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	add_action(
 		'admin_notices',
 		function() {
@@ -169,7 +169,7 @@ if ( ! function_exists( 'masteriyo' ) ) {
 	/**
 	 * Bootstrap the application.
 	 */
-	$GLOBALS['masteriyo'] = require_once dirname( __FILE__ ) . '/bootstrap/app.php';
+	$GLOBALS['masteriyo'] = require_once __DIR__ . '/bootstrap/app.php';
 
 	/**
 	 * Return the service container.
@@ -192,5 +192,3 @@ if ( ! function_exists( 'masteriyo' ) ) {
 	$GLOBALS['masteriyo']->get( 'app' );
 
 }
-
-

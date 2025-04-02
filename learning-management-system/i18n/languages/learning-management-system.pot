@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo - LMS for WordPress 1.17.0\n"
+"Project-Id-Version: Masteriyo - LMS for WordPress 1.17.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-03-12T07:08:50+00:00\n"
+"POT-Creation-Date: 2025-04-01T11:07:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -99,7 +99,7 @@ msgid "Import"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:33
-#: includes/Helper/core.php:5401
+#: includes/Helper/core.php:5411
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Classroom"
@@ -168,7 +168,7 @@ msgid "Group Details"
 msgstr ""
 
 #: addons/group-courses/templates/group-courses.php:18
-#: includes/Helper/core.php:5413
+#: includes/Helper/core.php:5423
 #: assets/js/build/masteriyo-account.js:1
 msgid "Groups"
 msgstr ""
@@ -299,7 +299,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:140
 #: includes/AdminMenu.php:141
-#: includes/Helper/core.php:2120
+#: includes/Helper/core.php:2131
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Dashboard"
@@ -477,20 +477,20 @@ msgstr ""
 msgid "Password cannot be empty."
 msgstr ""
 
-#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:47
+#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:48
 msgid "Invalid nonce."
 msgstr ""
 
-#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:51
+#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:52
 msgid "You are not authorized to perform this action."
 msgstr ""
 
-#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:57
+#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:60
 msgid "No pages specified."
 msgstr ""
 
-#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:82
-#: includes/Helper/core.php:5829
+#: includes/AjaxHandlers/SetupPagesAjaxHandler.php:77
+#: includes/Helper/core.php:5856
 msgid "Pages set up successfully."
 msgstr ""
 
@@ -584,7 +584,7 @@ msgstr ""
 #: includes/Checkout.php:492
 #: includes/FormHandler/RequestPasswordResetFormHandler.php:70
 #: includes/FormHandler/RequestPasswordResetFormHandler.php:92
-#: includes/Helper/core.php:2388
+#: includes/Helper/core.php:2399
 msgid "Invalid username or email"
 msgstr ""
 
@@ -1229,7 +1229,7 @@ msgstr ""
 
 #. translators: Cart total order
 #: includes/Gateways/Offline/Offline.php:69
-#: includes/Helper/Template.php:1464
+#: includes/Helper/Template.php:1469
 msgid "Confirm Payment"
 msgstr ""
 
@@ -1389,858 +1389,858 @@ msgstr ""
 msgid "Item"
 msgstr ""
 
-#: includes/Helper/core.php:934
+#: includes/Helper/core.php:936
 msgctxt "h for hours"
 msgid "h"
 msgstr ""
 
-#: includes/Helper/core.php:935
+#: includes/Helper/core.php:937
 msgctxt "m for minutes"
 msgid "m"
 msgstr ""
 
-#: includes/Helper/core.php:936
+#: includes/Helper/core.php:938
 msgctxt "m for minutes"
 msgid "0m"
 msgstr ""
 
-#: includes/Helper/core.php:1386
+#: includes/Helper/core.php:1388
 msgid "United Arab Emirates dirham"
 msgstr ""
 
-#: includes/Helper/core.php:1387
+#: includes/Helper/core.php:1389
 msgid "Afghan afghani"
 msgstr ""
 
-#: includes/Helper/core.php:1388
+#: includes/Helper/core.php:1390
 msgid "Albanian lek"
 msgstr ""
 
-#: includes/Helper/core.php:1389
+#: includes/Helper/core.php:1391
 msgid "Armenian dram"
 msgstr ""
 
-#: includes/Helper/core.php:1390
+#: includes/Helper/core.php:1392
 msgid "Netherlands Antillean guilder"
 msgstr ""
 
-#: includes/Helper/core.php:1391
+#: includes/Helper/core.php:1393
 msgid "Angolan kwanza"
 msgstr ""
 
-#: includes/Helper/core.php:1392
+#: includes/Helper/core.php:1394
 msgid "Argentine peso"
 msgstr ""
 
-#: includes/Helper/core.php:1393
+#: includes/Helper/core.php:1395
 msgid "Australian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1394
+#: includes/Helper/core.php:1396
 msgid "Aruban florin"
 msgstr ""
 
-#: includes/Helper/core.php:1395
+#: includes/Helper/core.php:1397
 msgid "Azerbaijani manat"
 msgstr ""
 
-#: includes/Helper/core.php:1396
+#: includes/Helper/core.php:1398
 msgid "Bosnia and Herzegovina convertible mark"
 msgstr ""
 
-#: includes/Helper/core.php:1397
+#: includes/Helper/core.php:1399
 msgid "Barbadian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1398
+#: includes/Helper/core.php:1400
 msgid "Bangladeshi taka"
 msgstr ""
 
-#: includes/Helper/core.php:1399
+#: includes/Helper/core.php:1401
 msgid "Bulgarian lev"
 msgstr ""
 
-#: includes/Helper/core.php:1400
+#: includes/Helper/core.php:1402
 msgid "Bahraini dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1401
+#: includes/Helper/core.php:1403
 msgid "Burundian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1402
+#: includes/Helper/core.php:1404
 msgid "Bermudian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1403
+#: includes/Helper/core.php:1405
 msgid "Brunei dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1404
+#: includes/Helper/core.php:1406
 msgid "Bolivian boliviano"
 msgstr ""
 
-#: includes/Helper/core.php:1405
+#: includes/Helper/core.php:1407
 msgid "Brazilian real"
 msgstr ""
 
-#: includes/Helper/core.php:1406
+#: includes/Helper/core.php:1408
 msgid "Bahamian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1407
+#: includes/Helper/core.php:1409
 msgid "Bitcoin"
 msgstr ""
 
-#: includes/Helper/core.php:1408
+#: includes/Helper/core.php:1410
 msgid "Bhutanese ngultrum"
 msgstr ""
 
-#: includes/Helper/core.php:1409
+#: includes/Helper/core.php:1411
 msgid "Botswana pula"
 msgstr ""
 
-#: includes/Helper/core.php:1410
+#: includes/Helper/core.php:1412
 msgid "Belarusian ruble (old)"
 msgstr ""
 
-#: includes/Helper/core.php:1411
+#: includes/Helper/core.php:1413
 msgid "Belarusian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1412
+#: includes/Helper/core.php:1414
 msgid "Belize dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1413
+#: includes/Helper/core.php:1415
 msgid "Canadian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1414
+#: includes/Helper/core.php:1416
 msgid "Congolese franc"
 msgstr ""
 
-#: includes/Helper/core.php:1415
+#: includes/Helper/core.php:1417
 msgid "Swiss franc"
 msgstr ""
 
-#: includes/Helper/core.php:1416
+#: includes/Helper/core.php:1418
 msgid "Chilean peso"
 msgstr ""
 
-#: includes/Helper/core.php:1417
+#: includes/Helper/core.php:1419
 msgid "Chinese yuan"
 msgstr ""
 
-#: includes/Helper/core.php:1418
+#: includes/Helper/core.php:1420
 msgid "Colombian peso"
 msgstr ""
 
-#: includes/Helper/core.php:1419
+#: includes/Helper/core.php:1421
 msgid "Costa Rican col&oacute;n"
 msgstr ""
 
-#: includes/Helper/core.php:1420
+#: includes/Helper/core.php:1422
 msgid "Cuban convertible peso"
 msgstr ""
 
-#: includes/Helper/core.php:1421
+#: includes/Helper/core.php:1423
 msgid "Cuban peso"
 msgstr ""
 
-#: includes/Helper/core.php:1422
+#: includes/Helper/core.php:1424
 msgid "Cape Verdean escudo"
 msgstr ""
 
-#: includes/Helper/core.php:1423
+#: includes/Helper/core.php:1425
 msgid "Czech koruna"
 msgstr ""
 
-#: includes/Helper/core.php:1424
+#: includes/Helper/core.php:1426
 msgid "Djiboutian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1425
+#: includes/Helper/core.php:1427
 msgid "Danish krone"
 msgstr ""
 
-#: includes/Helper/core.php:1426
+#: includes/Helper/core.php:1428
 msgid "Dominican peso"
 msgstr ""
 
-#: includes/Helper/core.php:1427
+#: includes/Helper/core.php:1429
 msgid "Algerian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1428
+#: includes/Helper/core.php:1430
 msgid "Egyptian pound"
 msgstr ""
 
-#: includes/Helper/core.php:1429
+#: includes/Helper/core.php:1431
 msgid "Eritrean nakfa"
 msgstr ""
 
-#: includes/Helper/core.php:1430
+#: includes/Helper/core.php:1432
 msgid "Ethiopian birr"
 msgstr ""
 
-#: includes/Helper/core.php:1431
+#: includes/Helper/core.php:1433
 msgid "Euro"
 msgstr ""
 
-#: includes/Helper/core.php:1432
+#: includes/Helper/core.php:1434
 msgid "Fijian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1433
+#: includes/Helper/core.php:1435
 msgid "Falkland Islands pound"
 msgstr ""
 
-#: includes/Helper/core.php:1434
+#: includes/Helper/core.php:1436
 msgid "Pound sterling"
 msgstr ""
 
-#: includes/Helper/core.php:1435
+#: includes/Helper/core.php:1437
 msgid "Georgian lari"
 msgstr ""
 
-#: includes/Helper/core.php:1436
+#: includes/Helper/core.php:1438
 msgid "Guernsey pound"
 msgstr ""
 
-#: includes/Helper/core.php:1437
+#: includes/Helper/core.php:1439
 msgid "Ghana cedi"
 msgstr ""
 
-#: includes/Helper/core.php:1438
+#: includes/Helper/core.php:1440
 msgid "Gibraltar pound"
 msgstr ""
 
-#: includes/Helper/core.php:1439
+#: includes/Helper/core.php:1441
 msgid "Gambian dalasi"
 msgstr ""
 
-#: includes/Helper/core.php:1440
+#: includes/Helper/core.php:1442
 msgid "Guinean franc"
 msgstr ""
 
-#: includes/Helper/core.php:1441
+#: includes/Helper/core.php:1443
 msgid "Guatemalan quetzal"
 msgstr ""
 
-#: includes/Helper/core.php:1442
+#: includes/Helper/core.php:1444
 msgid "Guyanese dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1443
+#: includes/Helper/core.php:1445
 msgid "Hong Kong dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1444
+#: includes/Helper/core.php:1446
 msgid "Honduran lempira"
 msgstr ""
 
-#: includes/Helper/core.php:1445
+#: includes/Helper/core.php:1447
 msgid "Croatian kuna"
 msgstr ""
 
-#: includes/Helper/core.php:1446
+#: includes/Helper/core.php:1448
 msgid "Haitian gourde"
 msgstr ""
 
-#: includes/Helper/core.php:1447
+#: includes/Helper/core.php:1449
 msgid "Hungarian forint"
 msgstr ""
 
-#: includes/Helper/core.php:1448
+#: includes/Helper/core.php:1450
 msgid "Indonesian rupiah"
 msgstr ""
 
-#: includes/Helper/core.php:1449
+#: includes/Helper/core.php:1451
 msgid "Israeli new shekel"
 msgstr ""
 
-#: includes/Helper/core.php:1450
+#: includes/Helper/core.php:1452
 msgid "Manx pound"
 msgstr ""
 
-#: includes/Helper/core.php:1451
+#: includes/Helper/core.php:1453
 msgid "Indian rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1452
+#: includes/Helper/core.php:1454
 msgid "Iraqi dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1453
+#: includes/Helper/core.php:1455
 msgid "Iranian rial"
 msgstr ""
 
-#: includes/Helper/core.php:1454
+#: includes/Helper/core.php:1456
 msgid "Iranian toman"
 msgstr ""
 
-#: includes/Helper/core.php:1455
+#: includes/Helper/core.php:1457
 msgid "Icelandic kr&oacute;na"
 msgstr ""
 
-#: includes/Helper/core.php:1456
+#: includes/Helper/core.php:1458
 msgid "Jersey pound"
 msgstr ""
 
-#: includes/Helper/core.php:1457
+#: includes/Helper/core.php:1459
 msgid "Jamaican dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1458
+#: includes/Helper/core.php:1460
 msgid "Jordanian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1459
+#: includes/Helper/core.php:1461
 msgid "Japanese yen"
 msgstr ""
 
-#: includes/Helper/core.php:1460
+#: includes/Helper/core.php:1462
 msgid "Kenyan shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1461
+#: includes/Helper/core.php:1463
 msgid "Kyrgyzstani som"
 msgstr ""
 
-#: includes/Helper/core.php:1462
+#: includes/Helper/core.php:1464
 msgid "Cambodian riel"
 msgstr ""
 
-#: includes/Helper/core.php:1463
+#: includes/Helper/core.php:1465
 msgid "Comorian franc"
 msgstr ""
 
-#: includes/Helper/core.php:1464
+#: includes/Helper/core.php:1466
 msgid "North Korean won"
 msgstr ""
 
-#: includes/Helper/core.php:1465
+#: includes/Helper/core.php:1467
 msgid "South Korean won"
 msgstr ""
 
-#: includes/Helper/core.php:1466
+#: includes/Helper/core.php:1468
 msgid "Kuwaiti dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1467
+#: includes/Helper/core.php:1469
 msgid "Cayman Islands dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1468
+#: includes/Helper/core.php:1470
 msgid "Kazakhstani tenge"
 msgstr ""
 
-#: includes/Helper/core.php:1469
+#: includes/Helper/core.php:1471
 msgid "Lao kip"
 msgstr ""
 
-#: includes/Helper/core.php:1470
+#: includes/Helper/core.php:1472
 msgid "Lebanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1471
+#: includes/Helper/core.php:1473
 msgid "Sri Lankan rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1472
+#: includes/Helper/core.php:1474
 msgid "Liberian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1473
+#: includes/Helper/core.php:1475
 msgid "Lesotho loti"
 msgstr ""
 
-#: includes/Helper/core.php:1474
+#: includes/Helper/core.php:1476
 msgid "Libyan dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1475
+#: includes/Helper/core.php:1477
 msgid "Moroccan dirham"
 msgstr ""
 
-#: includes/Helper/core.php:1476
+#: includes/Helper/core.php:1478
 msgid "Moldovan leu"
 msgstr ""
 
-#: includes/Helper/core.php:1477
+#: includes/Helper/core.php:1479
 msgid "Malagasy ariary"
 msgstr ""
 
-#: includes/Helper/core.php:1478
+#: includes/Helper/core.php:1480
 msgid "Macedonian denar"
 msgstr ""
 
-#: includes/Helper/core.php:1479
+#: includes/Helper/core.php:1481
 msgid "Burmese kyat"
 msgstr ""
 
-#: includes/Helper/core.php:1480
+#: includes/Helper/core.php:1482
 msgid "Mongolian t&ouml;gr&ouml;g"
 msgstr ""
 
-#: includes/Helper/core.php:1481
+#: includes/Helper/core.php:1483
 msgid "Macanese pataca"
 msgstr ""
 
-#: includes/Helper/core.php:1482
+#: includes/Helper/core.php:1484
 msgid "Mauritanian ouguiya"
 msgstr ""
 
-#: includes/Helper/core.php:1483
+#: includes/Helper/core.php:1485
 msgid "Mauritian rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1484
+#: includes/Helper/core.php:1486
 msgid "Maldivian rufiyaa"
 msgstr ""
 
-#: includes/Helper/core.php:1485
+#: includes/Helper/core.php:1487
 msgid "Malawian kwacha"
 msgstr ""
 
-#: includes/Helper/core.php:1486
+#: includes/Helper/core.php:1488
 msgid "Mexican peso"
 msgstr ""
 
-#: includes/Helper/core.php:1487
+#: includes/Helper/core.php:1489
 msgid "Malaysian ringgit"
 msgstr ""
 
-#: includes/Helper/core.php:1488
+#: includes/Helper/core.php:1490
 msgid "Mozambican metical"
 msgstr ""
 
-#: includes/Helper/core.php:1489
+#: includes/Helper/core.php:1491
 msgid "Namibian dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1490
+#: includes/Helper/core.php:1492
 msgid "Nigerian naira"
 msgstr ""
 
-#: includes/Helper/core.php:1491
+#: includes/Helper/core.php:1493
 msgid "Nicaraguan c&oacute;rdoba"
 msgstr ""
 
-#: includes/Helper/core.php:1492
+#: includes/Helper/core.php:1494
 msgid "Norwegian krone"
 msgstr ""
 
-#: includes/Helper/core.php:1493
+#: includes/Helper/core.php:1495
 msgid "Nepalese rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1494
+#: includes/Helper/core.php:1496
 msgid "New Zealand dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1495
+#: includes/Helper/core.php:1497
 msgid "Omani rial"
 msgstr ""
 
-#: includes/Helper/core.php:1496
+#: includes/Helper/core.php:1498
 msgid "Panamanian balboa"
 msgstr ""
 
-#: includes/Helper/core.php:1497
+#: includes/Helper/core.php:1499
 msgid "Sol"
 msgstr ""
 
-#: includes/Helper/core.php:1498
+#: includes/Helper/core.php:1500
 msgid "Papua New Guinean kina"
 msgstr ""
 
-#: includes/Helper/core.php:1499
+#: includes/Helper/core.php:1501
 msgid "Philippine peso"
 msgstr ""
 
-#: includes/Helper/core.php:1500
+#: includes/Helper/core.php:1502
 msgid "Pakistani rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1501
+#: includes/Helper/core.php:1503
 msgid "Polish z&#x142;oty"
 msgstr ""
 
-#: includes/Helper/core.php:1502
+#: includes/Helper/core.php:1504
 msgid "Transnistrian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1503
+#: includes/Helper/core.php:1505
 msgid "Paraguayan guaran&iacute;"
 msgstr ""
 
-#: includes/Helper/core.php:1504
+#: includes/Helper/core.php:1506
 msgid "Qatari riyal"
 msgstr ""
 
-#: includes/Helper/core.php:1505
+#: includes/Helper/core.php:1507
 msgid "Romanian leu"
 msgstr ""
 
-#: includes/Helper/core.php:1506
+#: includes/Helper/core.php:1508
 msgid "Serbian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1507
+#: includes/Helper/core.php:1509
 msgid "Russian ruble"
 msgstr ""
 
-#: includes/Helper/core.php:1508
+#: includes/Helper/core.php:1510
 msgid "Rwandan franc"
 msgstr ""
 
-#: includes/Helper/core.php:1509
+#: includes/Helper/core.php:1511
 msgid "Saudi riyal"
 msgstr ""
 
-#: includes/Helper/core.php:1510
+#: includes/Helper/core.php:1512
 msgid "Solomon Islands dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1511
+#: includes/Helper/core.php:1513
 msgid "Seychellois rupee"
 msgstr ""
 
-#: includes/Helper/core.php:1512
+#: includes/Helper/core.php:1514
 msgid "Sudanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1513
+#: includes/Helper/core.php:1515
 msgid "Swedish krona"
 msgstr ""
 
-#: includes/Helper/core.php:1514
+#: includes/Helper/core.php:1516
 msgid "Singapore dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1515
+#: includes/Helper/core.php:1517
 msgid "Saint Helena pound"
 msgstr ""
 
-#: includes/Helper/core.php:1516
+#: includes/Helper/core.php:1518
 msgid "Sierra Leonean leone"
 msgstr ""
 
-#: includes/Helper/core.php:1517
+#: includes/Helper/core.php:1519
 msgid "Somali shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1518
+#: includes/Helper/core.php:1520
 msgid "Surinamese dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1519
+#: includes/Helper/core.php:1521
 msgid "South Sudanese pound"
 msgstr ""
 
-#: includes/Helper/core.php:1520
+#: includes/Helper/core.php:1522
 msgid "S&atilde;o Tom&eacute; and Pr&iacute;ncipe dobra"
 msgstr ""
 
-#: includes/Helper/core.php:1521
+#: includes/Helper/core.php:1523
 msgid "Syrian pound"
 msgstr ""
 
-#: includes/Helper/core.php:1522
+#: includes/Helper/core.php:1524
 msgid "Swazi lilangeni"
 msgstr ""
 
-#: includes/Helper/core.php:1523
+#: includes/Helper/core.php:1525
 msgid "Thai baht"
 msgstr ""
 
-#: includes/Helper/core.php:1524
+#: includes/Helper/core.php:1526
 msgid "Tajikistani somoni"
 msgstr ""
 
-#: includes/Helper/core.php:1525
+#: includes/Helper/core.php:1527
 msgid "Turkmenistan manat"
 msgstr ""
 
-#: includes/Helper/core.php:1526
+#: includes/Helper/core.php:1528
 msgid "Tunisian dinar"
 msgstr ""
 
-#: includes/Helper/core.php:1527
+#: includes/Helper/core.php:1529
 msgid "Tongan pa&#x2bb;anga"
 msgstr ""
 
-#: includes/Helper/core.php:1528
+#: includes/Helper/core.php:1530
 msgid "Turkish lira"
 msgstr ""
 
-#: includes/Helper/core.php:1529
+#: includes/Helper/core.php:1531
 msgid "Trinidad and Tobago dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1530
+#: includes/Helper/core.php:1532
 msgid "New Taiwan dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1531
+#: includes/Helper/core.php:1533
 msgid "Tanzanian shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1532
+#: includes/Helper/core.php:1534
 msgid "Ukrainian hryvnia"
 msgstr ""
 
-#: includes/Helper/core.php:1533
+#: includes/Helper/core.php:1535
 msgid "Ugandan shilling"
 msgstr ""
 
-#: includes/Helper/core.php:1534
+#: includes/Helper/core.php:1536
 msgid "United States (US) dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1535
+#: includes/Helper/core.php:1537
 msgid "Uruguayan peso"
 msgstr ""
 
-#: includes/Helper/core.php:1536
+#: includes/Helper/core.php:1538
 msgid "Uzbekistani som"
 msgstr ""
 
-#: includes/Helper/core.php:1537
+#: includes/Helper/core.php:1539
 msgid "Venezuelan bol&iacute;var"
 msgstr ""
 
-#: includes/Helper/core.php:1538
+#: includes/Helper/core.php:1540
 msgid "Bol&iacute;var soberano"
 msgstr ""
 
-#: includes/Helper/core.php:1539
+#: includes/Helper/core.php:1541
 msgid "Vietnamese &#x111;&#x1ed3;ng"
 msgstr ""
 
-#: includes/Helper/core.php:1540
+#: includes/Helper/core.php:1542
 msgid "Vanuatu vatu"
 msgstr ""
 
-#: includes/Helper/core.php:1541
+#: includes/Helper/core.php:1543
 msgid "Samoan t&#x101;l&#x101;"
 msgstr ""
 
-#: includes/Helper/core.php:1542
+#: includes/Helper/core.php:1544
 msgid "Central African CFA franc"
 msgstr ""
 
-#: includes/Helper/core.php:1543
+#: includes/Helper/core.php:1545
 msgid "East Caribbean dollar"
 msgstr ""
 
-#: includes/Helper/core.php:1544
+#: includes/Helper/core.php:1546
 msgid "West African CFA franc"
 msgstr ""
 
-#: includes/Helper/core.php:1545
+#: includes/Helper/core.php:1547
 msgid "CFP franc"
 msgstr ""
 
-#: includes/Helper/core.php:1546
+#: includes/Helper/core.php:1548
 msgid "Yemeni rial"
 msgstr ""
 
-#: includes/Helper/core.php:1547
+#: includes/Helper/core.php:1549
 msgid "South African rand"
 msgstr ""
 
-#: includes/Helper/core.php:1548
+#: includes/Helper/core.php:1550
 msgid "Zambian kwacha"
-msgstr ""
-
-#: includes/Helper/core.php:1577
-msgctxt "slug"
-msgid "course"
-msgstr ""
-
-#: includes/Helper/core.php:1578
-msgctxt "slug"
-msgid "course-category"
 msgstr ""
 
 #: includes/Helper/core.php:1579
 msgctxt "slug"
-msgid "course-tag"
+msgid "course"
 msgstr ""
 
 #: includes/Helper/core.php:1580
 msgctxt "slug"
-msgid "course-difficulty"
+msgid "course-category"
 msgstr ""
 
 #: includes/Helper/core.php:1581
 msgctxt "slug"
-msgid "lesson"
+msgid "course-tag"
 msgstr ""
 
 #: includes/Helper/core.php:1582
 msgctxt "slug"
-msgid "quiz"
+msgid "course-difficulty"
 msgstr ""
 
 #: includes/Helper/core.php:1583
 msgctxt "slug"
+msgid "lesson"
+msgstr ""
+
+#: includes/Helper/core.php:1584
+msgctxt "slug"
+msgid "quiz"
+msgstr ""
+
+#: includes/Helper/core.php:1585
+msgctxt "slug"
 msgid "section"
 msgstr ""
 
-#: includes/Helper/core.php:1677
+#: includes/Helper/core.php:1679
 msgctxt "slug"
 msgid "uncategorized"
 msgstr ""
 
-#: includes/Helper/core.php:2124
+#: includes/Helper/core.php:2135
 #: assets/js/build/masteriyo-account.js:1
 msgid "My Courses"
 msgstr ""
 
-#: includes/Helper/core.php:2128
+#: includes/Helper/core.php:2139
 msgid "Account Details"
 msgstr ""
 
-#: includes/Helper/core.php:2132
+#: includes/Helper/core.php:2143
 msgid "Edit Account"
 msgstr ""
 
-#: includes/Helper/core.php:2136
+#: includes/Helper/core.php:2147
 msgid "My Order History"
 msgstr ""
 
-#: includes/Helper/core.php:2140
+#: includes/Helper/core.php:2151
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Logout"
 msgstr ""
 
-#: includes/Helper/core.php:2291
+#: includes/Helper/core.php:2302
 #: includes/RestApi/Controllers/Version1/SettingsController.php:1577
 msgid "Please provide a valid email address."
 msgstr ""
 
-#: includes/Helper/core.php:2303
+#: includes/Helper/core.php:2314
 msgid "An account is already registered with your email address."
 msgstr ""
 
-#: includes/Helper/core.php:2314
+#: includes/Helper/core.php:2325
 msgid "Please enter a valid account username."
 msgstr ""
 
-#: includes/Helper/core.php:2318
+#: includes/Helper/core.php:2329
 msgid "An account is already registered with that username. Please choose another."
 msgstr ""
 
-#: includes/Helper/core.php:2329
+#: includes/Helper/core.php:2340
 msgid "Please enter an account password."
 msgstr ""
 
-#: includes/Helper/core.php:2382
+#: includes/Helper/core.php:2393
 msgid "Registration failed."
 msgstr ""
 
-#: includes/Helper/core.php:2717
+#: includes/Helper/core.php:2728
 msgid "Masteriyo Courses Page"
 msgstr ""
 
-#: includes/Helper/core.php:2721
+#: includes/Helper/core.php:2732
 msgid "Masteriyo Account Page"
 msgstr ""
 
-#: includes/Helper/core.php:2725
+#: includes/Helper/core.php:2736
 msgid "Masteriyo Checkout Page"
 msgstr ""
 
-#: includes/Helper/core.php:2729
+#: includes/Helper/core.php:2740
 msgid "Masteriyo Learn Page"
 msgstr ""
 
-#: includes/Helper/core.php:2733
+#: includes/Helper/core.php:2744
 msgid "Masteriyo Instructor Registration Page"
 msgstr ""
 
-#: includes/Helper/core.php:2737
+#: includes/Helper/core.php:2748
 msgid "Masteriyo Instructors List Page"
 msgstr ""
 
-#: includes/Helper/core.php:3178
+#: includes/Helper/core.php:3189
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Self Hosted"
 msgstr ""
 
-#: includes/Helper/core.php:3179
+#: includes/Helper/core.php:3190
 #: assets/js/build/masteriyo-backend.js:1
 msgid "YouTube"
 msgstr ""
 
-#: includes/Helper/core.php:3180
+#: includes/Helper/core.php:3191
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Vimeo"
 msgstr ""
 
-#: includes/Helper/core.php:3181
+#: includes/Helper/core.php:3192
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Embed Video"
 msgstr ""
 
-#: includes/Helper/core.php:3182
+#: includes/Helper/core.php:3193
 msgid "Live Stream"
 msgstr ""
 
 #. translators: %s: Class
-#: includes/Helper/core.php:5228
+#: includes/Helper/core.php:5238
 msgid "The class <code>%s</code> provided by masteriyo_logging_class filter must implement <code>Logger</code>."
 msgstr ""
 
-#: includes/Helper/core.php:5395
+#: includes/Helper/core.php:5405
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Announcements"
 msgstr ""
 
-#: includes/Helper/core.php:5407
+#: includes/Helper/core.php:5417
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Google Meet"
 msgstr ""
 
-#: includes/Helper/core.php:5419
+#: includes/Helper/core.php:5429
 msgid "Multiple Currency"
 msgstr ""
 
-#: includes/Helper/core.php:5425
+#: includes/Helper/core.php:5435
 msgid "Certificates"
 msgstr ""
 
-#: includes/Helper/core.php:5435
+#: includes/Helper/core.php:5445
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5788
+#: includes/Helper/core.php:5808
 msgid "Masteriyo:"
 msgstr ""
 
-#. translators: 1: notice title, 2: number of missing pages, 3: list of missing pages, 4: link to setup pages
-#: includes/Helper/core.php:5802
+#. translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages, 4: Link text
+#: includes/Helper/core.php:5822
 msgid "%1$s %2$d page is missing: %3$s. Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set it up automatically."
 msgid_plural "%1$s %2$d pages are missing: %3$s. Please configure them, or <a href=\"#\" id=\"masteriyo-setup-pages\">%4$s</a> to set them up automatically."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Helper/core.php:5811
+#: includes/Helper/core.php:5831
 #: assets/js/build/masteriyo-backend.js:1
 msgid "click here"
 msgstr ""
 
-#: includes/Helper/core.php:5827
+#: includes/Helper/core.php:5854
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5828
+#: includes/Helper/core.php:5855
 msgid "Failed to set up. Retry?"
 msgstr ""
 
@@ -2408,25 +2408,25 @@ msgstr ""
 msgid "You are not allowed to view this content."
 msgstr ""
 
-#: includes/Helper/Template.php:1669
+#: includes/Helper/Template.php:1674
 msgid "Select View:"
 msgstr ""
 
-#: includes/Helper/Template.php:1674
+#: includes/Helper/Template.php:1679
 msgid "View on list Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1683
+#: includes/Helper/Template.php:1688
 msgid "View on Grid Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1715
+#: includes/Helper/Template.php:1720
 #: assets/js/build/masteriyo-backend.js:1
 msgid "No courses found."
 msgstr ""
 
 #. translators: %d: Course sections count
-#: includes/Helper/Template.php:2253
+#: includes/Helper/Template.php:2258
 msgctxt "Sections Count"
 msgid "%s Section"
 msgid_plural "%s Sections"
@@ -2435,8 +2435,8 @@ msgstr[1] ""
 
 #. translators: %d: Course lessons count
 #. translators: %d: Section lessons count
-#: includes/Helper/Template.php:2266
-#: includes/Helper/Template.php:2373
+#: includes/Helper/Template.php:2271
+#: includes/Helper/Template.php:2378
 msgctxt "Lessons Count"
 msgid "%s Lesson"
 msgid_plural "%s Lessons"
@@ -2445,8 +2445,8 @@ msgstr[1] ""
 
 #. translators: %d: Course quiz count
 #. translators: %d: Section quizzes count
-#: includes/Helper/Template.php:2279
-#: includes/Helper/Template.php:2386
+#: includes/Helper/Template.php:2284
+#: includes/Helper/Template.php:2391
 msgctxt "Quizzes Count"
 msgid "%s Quiz"
 msgid_plural "%s Quizzes"
@@ -2454,39 +2454,39 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Lecture hours
-#: includes/Helper/Template.php:2291
+#: includes/Helper/Template.php:2296
 msgid "%s Duration"
 msgstr ""
 
-#: includes/Helper/Template.php:2545
+#: includes/Helper/Template.php:2550
 msgid "Latest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2550
+#: includes/Helper/Template.php:2555
 msgid "Oldest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2558
+#: includes/Helper/Template.php:2563
 msgid "Price: Low to High"
 msgstr ""
 
-#: includes/Helper/Template.php:2563
+#: includes/Helper/Template.php:2568
 msgid "Price: High to Low"
 msgstr ""
 
-#: includes/Helper/Template.php:2571
+#: includes/Helper/Template.php:2576
 msgid "Highest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2576
+#: includes/Helper/Template.php:2581
 msgid "Lowest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2584
+#: includes/Helper/Template.php:2589
 msgid "Sort by Course Title (A-Z)"
 msgstr ""
 
-#: includes/Helper/Template.php:2589
+#: includes/Helper/Template.php:2594
 msgid "Sort by Course Title (Z-A)"
 msgstr ""
 
@@ -2740,7 +2740,7 @@ msgstr ""
 #: includes/Models/Order/OrderItemCourse.php:186
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1004
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:958
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:964
 #: includes/RestApi/Controllers/Version1/QuizesController.php:264
 #: includes/RestApi/Controllers/Version1/SectionsController.php:534
 msgid "Invalid course ID"
@@ -3667,7 +3667,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:161
 #: includes/RestApi/Controllers/Version1/OrdersController.php:515
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:130
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:612
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:618
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:100
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:254
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:98
@@ -3926,7 +3926,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:708
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:778
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:728
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:734
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1172
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:563
 #: includes/RestApi/Controllers/Version1/SectionsController.php:381
@@ -3943,7 +3943,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:715
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:785
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:735
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:741
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1179
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:570
 #: includes/RestApi/Controllers/Version1/SectionsController.php:388
@@ -3960,7 +3960,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:721
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:791
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:741
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:747
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1185
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:576
 #: includes/RestApi/Controllers/Version1/SectionsController.php:394
@@ -3977,7 +3977,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:726
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:796
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:746
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:752
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1190
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:581
 #: includes/RestApi/Controllers/Version1/SectionsController.php:399
@@ -4099,11 +4099,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:272
 #: includes/RestApi/Controllers/Version1/PostsController.php:659
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:243
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:934
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:980
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1026
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1070
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1153
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:940
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:986
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1032
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1076
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1159
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1060
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:137
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:453
@@ -4269,7 +4269,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:817
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:577
 #: includes/RestApi/Controllers/Version1/PostsController.php:127
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1099
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1105
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:144
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:738
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
@@ -4288,7 +4288,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:626
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1096
 #: includes/RestApi/Controllers/Version1/PostsController.php:167
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:945
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:951
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:460
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
@@ -4308,7 +4308,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:678
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1129
 #: includes/RestApi/Controllers/Version1/PostsController.php:209
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1004
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1010
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:861
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
@@ -4327,10 +4327,10 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:740
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1175
 #: includes/RestApi/Controllers/Version1/PostsController.php:292
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1050
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1188
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1200
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1224
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1056
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1194
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1206
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1230
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:705
@@ -4364,10 +4364,10 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:620
 #: includes/RestApi/Controllers/Version1/PostsController.php:668
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:273
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:994
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1040
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1214
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1295
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1000
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1046
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1220
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1301
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:840
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:850
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:887
@@ -4563,7 +4563,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:438
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:482
 #: includes/RestApi/Controllers/Version1/LessonsController.php:564
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:670
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:676
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1073
 #: includes/RestApi/Controllers/Version1/SectionsController.php:364
@@ -5028,7 +5028,7 @@ msgid "Amount of reviews that the course have."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:812
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:664
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:670
 msgid "Course parent ID."
 msgstr ""
 
@@ -5159,7 +5159,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:197
 #: includes/RestApi/Controllers/Version1/PostsController.php:239
 #: includes/RestApi/Controllers/Version1/PostsController.php:280
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1161
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1167
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:827
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1068
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:220
@@ -5878,93 +5878,93 @@ msgstr ""
 msgid "Limit result set to questions assigned a specific type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:618
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:624
 msgid "Question name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:623
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:629
 msgid "Question slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:628
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:634
 msgid "Question URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:635
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:641
 msgid "The date the question was created, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:640
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:646
 msgid "The date the question was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:645
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:651
 msgid "The date the question was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:651
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:657
 msgid "The date the question was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:657
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:663
 msgid "Question status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:676
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:682
 msgid "Menu order, used to custom sort questions."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:681
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:687
 msgid "Question description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:686
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:692
 msgid "Question short description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:691
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:697
 msgid "Question type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:697
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:703
 msgid "Whether the question is required or not."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:702
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:708
 msgid "Given answer list for the question."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:707
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:713
 msgid "Return if the answers are decoded successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:713
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:719
 msgid "Points for the correct answer."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:718
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:724
 msgid "Whether to the answers."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:723
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:729
 msgid "Whether to enable question description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1143
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1149
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Invalid request"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1178
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1184
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:832
 msgid "Invalid quiz ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1343
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1349
 msgid "Invalid question IDs or quiz ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1368
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1374
 msgid "No valid questions were updated."
 msgstr ""
 
@@ -8020,7 +8020,7 @@ msgstr ""
 msgid "Don't have an account?"
 msgstr ""
 
-#: templates/account/form-login.php:130
+#: templates/account/form-login.php:138
 msgid "Register as Student"
 msgstr ""
 
@@ -9322,6 +9322,27 @@ msgstr ""
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
 #: assets/js/build/masteriyo-interactive.js:1
+msgid "Try the following steps to resolve the issue:"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Clear your browser cache."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Refresh the page."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-gettingStarted.js:1
+#: assets/js/build/masteriyo-interactive.js:1
 msgid "Don't worry, our team is here to help."
 msgstr ""
 
@@ -9748,6 +9769,12 @@ msgstr ""
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "%s UTC"
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:1
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Something went wrong"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:1
@@ -10945,10 +10972,6 @@ msgid "Group deleted successfully!"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Something went wrong"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Group Restored"
 msgstr ""
 
@@ -11381,12 +11404,42 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
-msgid "Add Note Title"
+msgid "useMasteriyoPlayer must be used within a MasteriyoPlayerProvider"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
-msgid "Add Note Description"
+msgid "All gestures are disabled"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Video link copied successfully"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Seek backward %s seconds"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Seek forward %s seconds"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Share This Video"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Copy Video Link"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Show Live chats"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -11927,116 +11980,6 @@ msgstr ""
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "HubSpot Integration"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "At timestamp"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "No notes added."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Edit this note"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Delete this note"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Please pause the video before redirecting to notes"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Fields can't be empty"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "All gestures are disabled"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Video link copied successfully"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Seek backward %s seconds"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Seek forward %s seconds"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Share This Video"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Copy Video Link"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Show Live chats"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Timestamped Notes"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "All Notes"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Make sure to save your changes"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Please pause the video to add notes and view notes"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Search notes for timestamp %s"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Clear search"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "No notes for %s"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Add new note for timestamp %s"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Save Changes"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -15136,14 +15079,6 @@ msgid "Student have to watch full video to complete the lesson. Not applicable f
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Watch Full Video Every Time"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Student have to watch full video to every time even after completing the lesson. Not applicable for live-streams, embedded and external videos."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Unmuted Autoplay"
 msgstr ""
 
@@ -16334,6 +16269,10 @@ msgid "Back to Instructors"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Instructor role is missing."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "You cannot change username later."
 msgstr ""
 
@@ -16359,10 +16298,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Website URL"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Approve or unapprove the user as instructor."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -16458,11 +16393,19 @@ msgid "Username cannot be changed."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
+msgid "Approve or unapprove the user as instructor."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
 msgid "New student added successfully."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Back to Students"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Student role is missing."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -17096,6 +17039,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Add to Quiz"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Duplicate and Add to Quiz"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
@@ -17799,10 +17746,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Load more comments"
-msgstr ""
-
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Notes Updated"
 msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:1

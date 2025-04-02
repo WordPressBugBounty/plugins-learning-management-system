@@ -192,7 +192,11 @@ class BrevoIntegrationAddon {
 			'updateEnabled' => false,
 		);
 
-		$response = $api->create_contact( $data );
+		if ( $api->is_contact_exists( $email ) ) {
+			$response = $api->update_contact( $data );
+		} else {
+			$response = $api->create_contact( $data );
+		}
 
 		if ( is_wp_error( $response ) ) {
 			masteriyo_get_logger()->error( $response->get_error_message() . " For email: {$email}", array( 'source' => 'brevo-integration' ) );

@@ -111,7 +111,7 @@ class RequestPasswordResetFormHandler {
 			 * @param boolean $bool 'false' if the given user should not be allowed to reset password, otherwise 'true'.
 			 * @param \Masteriyo\Models\User $user User object.
 			 */
-			if ( ! apply_filters( 'allow_password_reset', true, $user ) ) {
+			if ( ! apply_filters( 'allow_password_reset', true, $user->get_id() ) ) {
 				throw new \Exception( __( 'Password reset is not allowed for this user.', 'learning-management-system' ) );
 			}
 

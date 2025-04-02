@@ -71,6 +71,15 @@ function Buttons(props: {
 					queryKey: [`googleClassroomCourseList`],
 				});
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 	const updateNPublishCourse = (data: googleClassroomCourses) => {
@@ -97,6 +106,15 @@ function Buttons(props: {
 					title: __('Course Deleted', 'learning-management-system'),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

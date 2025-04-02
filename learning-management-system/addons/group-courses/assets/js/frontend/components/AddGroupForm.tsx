@@ -50,7 +50,7 @@ const AddGroupForm: React.FC<AddGroupFormProps> = ({
 							/>
 						</FormControl>
 						<EmailsInput />
-						<ButtonGroup>
+						<ButtonGroup mb={4}>
 							<Button
 								type="submit"
 								size={buttonSize}

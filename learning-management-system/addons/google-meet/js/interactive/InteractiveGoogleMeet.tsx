@@ -134,6 +134,15 @@ const InteractiveGoogleMeet = () => {
 						?.navigation as navigationProps;
 					RedirectNavigation(navigation, courseId, navigate);
 				},
+				onError: (err: any) => {
+					toast({
+						title:
+							err?.message ||
+							__('Something went wrong', 'learning-management-system'),
+						status: 'error',
+						isClosable: true,
+					});
+				},
 			},
 		);
 	};

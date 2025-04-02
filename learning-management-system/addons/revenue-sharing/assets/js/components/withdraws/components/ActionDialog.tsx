@@ -90,6 +90,15 @@ const ActionDialog: React.FC<Props> = (props) => {
 					status: 'success',
 				});
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 
@@ -117,6 +126,15 @@ const ActionDialog: React.FC<Props> = (props) => {
 					),
 					isClosable: true,
 					status: 'success',
+				});
+			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
 				});
 			},
 		},

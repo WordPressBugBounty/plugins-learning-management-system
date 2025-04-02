@@ -1,4 +1,27 @@
 == Changelog ==
+= 1.17.1 - 02-04-2025 =
+- Enhancement - Email Translations support using WPML.
+- Enhancement - Added group pricing multiple currencies option.
+- Enhancement - Instructor auto approval when added by admin.
+- Enhancement - Added duplicate question option in Question Bank.
+- Enhancement - Order purchase email send only after payment is successful in case of payment gateway excluding offline payment.
+- Refactor - REST API Success/Error Handling.
+- Refactor - Masteriyo player.
+- Fix - Certificate font compatibility issue for different OS.
+- Fix - Public profile pagination issue. [PRO]
+- Fix - Improve contact existence check and update/create logic in Brevo integration.
+- Fix - Deprecated issue for course pagination in PHP 8.1 or above.
+- Fix - Global setting svg alignItem console warning.
+- Fix - Timer not updating when switching between contents in learn page.
+- Fix - Questions not showing in quiz builder if exceeds 100.
+- Fix - Invoice download issue from account page. [PRO]
+- Fix - Runtime error in Gamipress setting. [PRO]
+- Fix - Pass user ID instead of user object to allow_password_reset filter.
+- Fix - Check if Masteriyo account shortcode is exists or not in the account page.
+- Fix - Mollie payment issue for course bundle. [PRO]
+- Fix - Fatal error call to a member function get_page_permastruct().
+- Fix - Resolve conflict between Masteriyo checkout and WooCommerce checkout.
+
 = 1.17.0 - 12-03-2025 =
 - Feature - Question bank.
 - Feature - Custom fonts upload option for certificate. [PRO]

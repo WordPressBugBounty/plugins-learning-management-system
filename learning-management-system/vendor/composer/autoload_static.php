@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
+class ComposerStaticInit75c12314915eeecbbf87b017d9135f57
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -16,6 +16,7 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'db356362850385d08a5381de2638b5fd' => __DIR__ . '/..' . '/mpdf/mpdf/src/functions.php',
         '9be579fcc9ba214f8e9df01e0653f265' => __DIR__ . '/../..' . '/includes/Helper/depreciated.php',
         'ff7464d0280649f7648508e9f6dc0bf3' => __DIR__ . '/../..' . '/includes/Helper/Arr.php',
+        '08cae51649fe7c31feabc4fe7cafc0d4' => __DIR__ . '/../..' . '/includes/Helper/Cart.php',
         '61b3857556274052150ea68dcf7f8446' => __DIR__ . '/../..' . '/includes/Helper/core.php',
         '33493025a141e1e522083a405744db5c' => __DIR__ . '/../..' . '/includes/Helper/Term.php',
         'adb005912f3e1d723742c508295970d5' => __DIR__ . '/../..' . '/includes/Helper/Conditional.php',
@@ -1215,6 +1216,7 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Endpoints\\BalanceEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/BalanceEndpoint.php',
         'Mollie\\Api\\Endpoints\\BalanceReportEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/BalanceReportEndpoint.php',
         'Mollie\\Api\\Endpoints\\BalanceTransactionEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/BalanceTransactionEndpoint.php',
+        'Mollie\\Api\\Endpoints\\CapabilityEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/CapabilityEndpoint.php',
         'Mollie\\Api\\Endpoints\\ChargebackEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/ChargebackEndpoint.php',
         'Mollie\\Api\\Endpoints\\ClientEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/ClientEndpoint.php',
         'Mollie\\Api\\Endpoints\\ClientLinkEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/ClientLinkEndpoint.php',
@@ -1244,6 +1246,7 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Endpoints\\ProfileEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/ProfileEndpoint.php',
         'Mollie\\Api\\Endpoints\\ProfileMethodEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/ProfileMethodEndpoint.php',
         'Mollie\\Api\\Endpoints\\RefundEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/RefundEndpoint.php',
+        'Mollie\\Api\\Endpoints\\SalesInvoiceEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/SalesInvoiceEndpoint.php',
         'Mollie\\Api\\Endpoints\\SessionEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/SessionEndpoint.php',
         'Mollie\\Api\\Endpoints\\SettlementCaptureEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/SettlementCaptureEndpoint.php',
         'Mollie\\Api\\Endpoints\\SettlementChargebackEndpoint' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Endpoints/SettlementChargebackEndpoint.php',
@@ -1277,6 +1280,8 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Resources\\BalanceTransactionCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/BalanceTransactionCollection.php',
         'Mollie\\Api\\Resources\\BaseCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/BaseCollection.php',
         'Mollie\\Api\\Resources\\BaseResource' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/BaseResource.php',
+        'Mollie\\Api\\Resources\\Capability' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Capability.php',
+        'Mollie\\Api\\Resources\\CapabilityCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/CapabilityCollection.php',
         'Mollie\\Api\\Resources\\Capture' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Capture.php',
         'Mollie\\Api\\Resources\\CaptureCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/CaptureCollection.php',
         'Mollie\\Api\\Resources\\Chargeback' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Chargeback.php',
@@ -1321,6 +1326,8 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Resources\\ResourceFactory' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/ResourceFactory.php',
         'Mollie\\Api\\Resources\\Route' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Route.php',
         'Mollie\\Api\\Resources\\RouteCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/RouteCollection.php',
+        'Mollie\\Api\\Resources\\SalesInvoice' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/SalesInvoice.php',
+        'Mollie\\Api\\Resources\\SalesInvoiceCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/SalesInvoiceCollection.php',
         'Mollie\\Api\\Resources\\Session' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Session.php',
         'Mollie\\Api\\Resources\\SessionCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/SessionCollection.php',
         'Mollie\\Api\\Resources\\Settlement' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/Settlement.php',
@@ -1333,6 +1340,7 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Resources\\TerminalCollection' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Resources/TerminalCollection.php',
         'Mollie\\Api\\Types\\ApprovalPrompt' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/ApprovalPrompt.php',
         'Mollie\\Api\\Types\\BalanceTransferFrequency' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/BalanceTransferFrequency.php',
+        'Mollie\\Api\\Types\\CapabilityStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/CapabilityStatus.php',
         'Mollie\\Api\\Types\\InvoiceStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/InvoiceStatus.php',
         'Mollie\\Api\\Types\\MandateMethod' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/MandateMethod.php',
         'Mollie\\Api\\Types\\MandateStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/MandateStatus.php',
@@ -1344,8 +1352,10 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
         'Mollie\\Api\\Types\\PaymentMethod' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/PaymentMethod.php',
         'Mollie\\Api\\Types\\PaymentMethodStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/PaymentMethodStatus.php',
         'Mollie\\Api\\Types\\PaymentStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/PaymentStatus.php',
+        'Mollie\\Api\\Types\\PaymentTerm' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/PaymentTerm.php',
         'Mollie\\Api\\Types\\ProfileStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/ProfileStatus.php',
         'Mollie\\Api\\Types\\RefundStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/RefundStatus.php',
+        'Mollie\\Api\\Types\\SalesInvoiceStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/SalesInvoiceStatus.php',
         'Mollie\\Api\\Types\\SequenceType' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/SequenceType.php',
         'Mollie\\Api\\Types\\SessionStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/SessionStatus.php',
         'Mollie\\Api\\Types\\SettlementStatus' => __DIR__ . '/..' . '/mollie/mollie-api-php/src/Types/SettlementStatus.php',
@@ -2010,9 +2020,9 @@ class ComposerStaticInit3144489cc74bf2108f5d3ae16c085201
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit3144489cc74bf2108f5d3ae16c085201::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit75c12314915eeecbbf87b017d9135f57::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit75c12314915eeecbbf87b017d9135f57::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit75c12314915eeecbbf87b017d9135f57::$classMap;
 
         }, null, ClassLoader::class);
     }

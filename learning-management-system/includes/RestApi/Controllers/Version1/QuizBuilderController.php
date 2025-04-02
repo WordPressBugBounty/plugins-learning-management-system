@@ -226,7 +226,7 @@ class QuizBuilderController extends PostsController {
 	protected function get_quiz_contents( $request ) {
 		$post_id  = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
 		$page     = isset( $request['paged'] ) ? absint( $request['paged'] ) : 1;
-		$per_page = isset( $request['per_page'] ) ? absint( $request['per_page'] ) : 10;
+		$per_page = apply_filters( 'masteriyo_per_page_questions', isset( $request['per_page'] ) ? absint( $request['per_page'] ) : 10 );
 
 		if ( ! $post_id ) {
 			return array();

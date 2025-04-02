@@ -116,7 +116,7 @@ class NewOrderEmailToAdmin extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['admin']['new_order']['content'];
+		$content = masteriyo_string_translation( 'emails.admin.new_order.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['new_order']['content'] );
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', $content );
@@ -230,6 +230,7 @@ class NewOrderEmailToAdmin extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_order.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.admin.new_order.additional_content', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
 	}

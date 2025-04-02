@@ -112,10 +112,56 @@ class Activation {
 			$post         = get_post( $post_id );
 
 			if ( $post && 'page' === $post->post_type ) {
-				continue;
+				// If page is already published, use it and skip creation.
+				if ( 'publish' === $post->post_status ) {
+					continue;
+				} else {
+					// Try to publish the existing page.
+					$result = wp_update_post(
+						array(
+							'ID'          => $post->ID,
+							'post_status' => 'publish',
+						)
+					);
+
+					if ( ! is_wp_error( $result ) ) {
+						// Successfully published, use this page.
+						continue;
+					}
+				}
 			}
 
-			$page_id = masteriyo_create_page( esc_sql( $page['name'] ), $setting_name, $page['title'], $page['content'], ! empty( $page['parent'] ) ? masteriyo_get_page_id( $page['parent'] ) : '' );
+			$page_id       = 0;
+			$slug          = esc_sql( $page['name'] );
+			$original_slug = $slug;
+			$count         = 1;
+
+			// Ensure the slug is unique.
+			$existing_page = get_page_by_path( $slug );
+
+			while ( $existing_page ) {
+				// Check if the existing page has no content OR it was created by Masteriyo.
+				$page_content = trim( $existing_page->post_content );
+
+				if ( empty( $page_content ) || false !== strpos( $page_content, $page['content'] ) ) {
+					// If the page is empty or has the expected shortcode, reuse it.
+					$page_id = $existing_page->ID;
+					break;
+				}
+
+				// Otherwise, increment the slug and check again.
+				$slug = $original_slug . '-' . $count;
+				++$count;
+
+				// Fetch the next potential existing page.
+				$existing_page = get_page_by_path( $slug );
+			}
+
+			// Only create a new page if an existing one wasn't found.
+			if ( ! $page_id ) {
+				$page_id = masteriyo_create_page( $slug, $setting_name, $page['title'], $page['content'], ! empty( $page['parent'] ) ? masteriyo_get_page_id( $page['parent'] ) : '' );
+			}
+
 			masteriyo_set_setting( "general.pages.{$setting_name}", $page_id );
 		}
 	}

@@ -127,7 +127,16 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 				href="<?php echo esc_url( add_query_arg( $args, masteriyo_get_account_endpoint_url( 'signup' ) ) ); ?>"
 				class="masteriyo-btn masteriyo-btn-primary"
 			>
-				<?php esc_html_e( 'Register as Student', 'learning-management-system' ); ?>
+				<?php
+				/**
+				 * Filters student register text.
+				 *
+				 * @since 1.17.1
+				 *
+				 * @param string $message Register text.
+				 */
+				echo esc_html( apply_filters( 'masteriyo_student_register_text', __( 'Register as Student', 'learning-management-system' ) ) );
+				?>
 			</a>
 		</section>
 	<?php endif; ?>

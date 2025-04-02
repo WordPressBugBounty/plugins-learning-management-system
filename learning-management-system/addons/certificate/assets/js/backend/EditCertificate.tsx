@@ -180,6 +180,15 @@ const EditCertificate: React.FC = () => {
 				});
 				queryClient.invalidateQueries({ queryKey: [`certificate${data.id}`] });
 			},
+			onError: (err: any) => {
+				toast({
+					title:
+						err?.message ||
+						__('Something went wrong', 'learning-management-system'),
+					status: 'error',
+					isClosable: true,
+				});
+			},
 		},
 	});
 

@@ -100,7 +100,7 @@ const Groups: React.FC = () => {
 		<>
 			<PageTitle
 				title={__(
-					groupToBeEdited ? 'Edit Group' : isOpen ? 'Create Group' : 'Groups',
+					groupToBeEdited ? 'EdiAt Group' : isOpen ? 'Create Group' : 'Groups',
 					'learning-management-system',
 				)}
 				beforeTitle={

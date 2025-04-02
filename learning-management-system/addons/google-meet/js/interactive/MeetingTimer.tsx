@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import { isValidMotionProp, motion } from 'framer-motion';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../assets/js/interactive/constants/general';
 import { useCourseContext } from '../../../../assets/js/interactive/context/CourseContext';
@@ -25,12 +25,12 @@ const MeetingTimer: React.FC<Props> = (props) => {
 	const { colorMode } = useColorMode();
 	const { isHeaderOpen } = useCourseContext();
 
-	const expiryTimeInMs = useMemo(() => {
-		return new Date(startAt).getTime();
+	const expiryTimestamp = useMemo(() => {
+		return new Date(startAt);
 	}, [startAt]);
 
-	const { hours, seconds, minutes, days } = useTimer({
-		expiryTimestamp: new Date(expiryTimeInMs),
+	const { hours, seconds, minutes, days, restart } = useTimer({
+		expiryTimestamp,
 		onExpire: onTimeout,
 	});
 
@@ -49,6 +49,10 @@ const MeetingTimer: React.FC<Props> = (props) => {
 		textAlign: 'center' as 'center',
 		width: '1.5rem',
 	};
+
+	useEffect(() => {
+		restart(expiryTimestamp);
+	}, [expiryTimestamp, restart]);
 
 	return (
 		<LinearBox

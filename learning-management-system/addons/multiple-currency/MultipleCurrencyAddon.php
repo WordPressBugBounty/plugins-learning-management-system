@@ -11,7 +11,6 @@ use Masteriyo\Addons\MultipleCurrency\Controllers\MultipleCurrencySettingsContro
 use Masteriyo\Addons\MultipleCurrency\Controllers\PriceZonesController;
 use Masteriyo\Addons\MultipleCurrency\MaxMind\DatabaseService;
 use Masteriyo\Addons\MultipleCurrency\PostType\PriceZone;
-use Masteriyo\PostType\PostType;
 
 /**
  * Multiple Currency Addon main class for Masteriyo.
@@ -52,8 +51,9 @@ class MultipleCurrencyAddon {
 		add_filter( 'masteriyo_setup_course_data', array( $this, 'modify_price_on_frontend_page' ) ); // For single course page.
 		add_filter( 'masteriyo_course_archive_course', array( $this, 'modify_price_on_frontend_page' ) ); // For course archive page.
 		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'modify_price_on_frontend_page' ) ); // For order summary page.
+		add_filter( 'masteriyo_group_buy_btn_price', array( $this, 'modify_group_course_price' ), 10, 2 ); // For modification of course price for the group in single course page.
 
-		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_multiple_currency_course_content_to_cart_contents' ), 10, 1 );
+		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_multiple_currency_course_content_to_cart_contents' ), 11, 1 );
 
 		add_filter( 'masteriyo_rest_prepare_countries_list', array( $this, 'modify_countries_list' ), 10, 2 );
 
@@ -205,8 +205,23 @@ class MultipleCurrencyAddon {
 					return $cart_item;
 				}
 
-				$regular_price = masteriyo_get_country_based_price( $course, $pricing_zone );
-				$sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone );
+				// Check if the cart item is a group course.
+				if ( isset( $cart_item['group_ids'] ) && isset( $cart_item['group_price'] ) ) {
+					$group_price = $cart_item['group_price'];
+					if ( ! empty( $cart_item['group_ids'] ) && ! empty( $group_price ) ) {
+
+						$modified_group_price = masteriyo_get_country_based_group_course_price( $course->get_id(), $group_price, $pricing_zone );
+
+						if ( $modified_group_price ) {
+							$regular_price = $modified_group_price;
+						}
+
+						$sale_price = null;
+					}
+				} else {
+					$regular_price = masteriyo_get_country_based_price( $course, $pricing_zone );
+					$sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone );
+				}
 
 				if ( ! is_null( $regular_price ) ) {
 					$regular_price = $regular_price ? $regular_price : 0;
@@ -236,6 +251,36 @@ class MultipleCurrencyAddon {
 		);
 
 		return $cart_contents;
+	}
+
+		/**
+	 * Modify group course price based on multiple currency settings.
+	 *
+	 * @since 1.17.1
+	 *
+	 * @param float $group_price Group course price.
+	 * @param int   $course_id   Course ID.
+	 *
+	 * @return float
+	 */
+	public function modify_group_course_price( $group_price, $course_id ) {
+		if ( ! masteriyo_string_to_bool( get_post_meta( $course_id, '_multiple_currency_enabled', true ) ) ) {
+			return $group_price;
+		}
+
+		if ( ! masteriyo_is_single_course_page() ) {
+			return $group_price;
+		}
+
+		list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course_id );
+
+		if ( empty( $currency ) ) {
+			return $group_price;
+		}
+
+		$modified_group_price = masteriyo_get_country_based_group_course_price( $course_id, $group_price, $pricing_zone );
+
+		return $modified_group_price ? $modified_group_price : $group_price;
 	}
 
 	/**
@@ -320,6 +365,8 @@ class MultipleCurrencyAddon {
 					$regular_price  = masteriyo_format_decimal( get_post_meta( $course->get_id(), "_multiple_currency_{$active_zone['id']}_regular_price", true ) );
 					$sale_price     = masteriyo_format_decimal( get_post_meta( $course->get_id(), "_multiple_currency_{$active_zone['id']}_sale_price", true ) );
 
+					$group_price = masteriyo_format_decimal( get_post_meta( $course->get_id(), "_multiple_currency_{$active_zone['id']}_group_price", true ) );
+
 					$enabled_key = "_multiple_currency__{$active_zone['id']}_enabled";
 					$enabled     = metadata_exists( 'post', $course->get_id(), $enabled_key ) ? get_post_meta( $course->get_id(), $enabled_key, true ) : true;
 
@@ -327,6 +374,7 @@ class MultipleCurrencyAddon {
 					$active_zone['pricing_method'] = $pricing_method ? $pricing_method : 'exchange_rate';
 					$active_zone['regular_price']  = $regular_price;
 					$active_zone['sale_price']     = $sale_price;
+					$active_zone['group_price']    = $group_price;
 
 					return $active_zone;
 				},
@@ -381,6 +429,11 @@ class MultipleCurrencyAddon {
 
 						if ( isset( $request['multiple_currency'][ $active_zone['id'] . '_key' ]['sale_price'] ) ) {
 							$sale_price = masteriyo_format_decimal( $request['multiple_currency'][ $active_zone['id'] . '_key' ]['sale_price'] );
+						}
+
+						if ( isset( $request['multiple_currency'][ $active_zone['id'] . '_key' ]['group_price'] ) ) {
+							$group_price = masteriyo_format_decimal( $request['multiple_currency'][ $active_zone['id'] . '_key' ]['group_price'] );
+							update_post_meta( $id, "_multiple_currency_{$active_zone['id']}_group_price", $group_price );
 						}
 
 						if ( isset( $request['multiple_currency'][ $active_zone['id'] . '_key' ]['enabled'] ) ) {

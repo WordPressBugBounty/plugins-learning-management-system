@@ -134,10 +134,8 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['content'];
-
+		$content = masteriyo_string_translation( 'emails.instructor.instructor_apply_approved.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['content'] );
 		$content = $this->format_string( $content );
-
 		$this->set( 'content', trim( $content ) );
 
 		return parent::get_content();
@@ -215,6 +213,7 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.instructor.instructor_apply_approved.heading', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
 	}

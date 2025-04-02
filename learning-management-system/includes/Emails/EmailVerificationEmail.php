@@ -167,6 +167,7 @@ class EmailVerificationEmail extends Email {
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.everyone.email_verification.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.everyone.email_verification.additional_content', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
 	}
@@ -179,7 +180,7 @@ class EmailVerificationEmail extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['everyone']['email_verification']['content'];
+		$content = masteriyo_string_translation( 'emails.everyone.email_verification.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['everyone']['email_verification']['content'] );
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', trim( $content ) );
