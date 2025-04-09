@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\MigrationTool;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\QuestionType;
 use Masteriyo\PostType\PostType;

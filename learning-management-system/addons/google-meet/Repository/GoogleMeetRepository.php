@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\GoogleMeet\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Database\Model;
 use Masteriyo\DateTime;
 use Masteriyo\Enums\PostStatus;

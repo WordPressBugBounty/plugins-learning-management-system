@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\MigrationTool;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Enums\CommentType;
 use Masteriyo\Enums\CourseAccessMode;

@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\WishList\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\PostType\PostType;
 
 class WishListItem extends PostType {

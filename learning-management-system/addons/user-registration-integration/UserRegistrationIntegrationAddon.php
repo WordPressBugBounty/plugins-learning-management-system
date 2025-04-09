@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\UserRegistrationIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Roles;
 

@@ -370,8 +370,11 @@ class WithdrawRepository extends AbstractRepository {
 	 */
 	protected function get_withdraw_title() {
 		// phpcs:enable
-		/* translators: %s: Withdraw date */
-		return sprintf( __( 'Withdraw &ndash; %s', 'learning-management-system' ), strftime( _x( '%1$b %2$d, %Y @ %I:%M %p', 'Withdraw date parsed by strftime', 'learning-management-system' ) ) );
+		return sprintf(
+				/* translators: %s: Withdraw date */
+			__( 'Withdraw &ndash; %s', 'learning-management-system' ),
+			date_i18n( _x( 'M d, Y @ h:i A', 'Withdraw date parsed by date_i18n', 'learning-management-system' ) )
+		);
 		// phpcs:disable
 	}
 }

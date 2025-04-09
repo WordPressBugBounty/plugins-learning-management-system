@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Taxonomy\Taxonomy;
@@ -42,7 +45,7 @@ class ListCoursesAjaxHandler extends AjaxHandler {
 	 * @since 1.8.1
 	 */
 	public function list_courses() {
-		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], $this->action ) ) {
+		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key(wp_unslash($_GET['nonce'] ) ), $this->action ) ) {
 			wp_send_json(
 				array(
 					'results' => array(),

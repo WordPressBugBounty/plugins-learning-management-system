@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class CourseProduct extends \WC_Product_Simple {
 
 	/**

@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
 

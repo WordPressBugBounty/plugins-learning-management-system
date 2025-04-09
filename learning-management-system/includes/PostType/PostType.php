@@ -5,6 +5,9 @@
 
 namespace Masteriyo\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class PostType {
 	/**
 	 * Course post type.

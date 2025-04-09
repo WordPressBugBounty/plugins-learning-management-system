@@ -8,6 +8,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 
 /**

@@ -531,7 +531,7 @@ class Masteriyo {
 			return;
 		}
 
-		if ( time() > $expiration || $confirm_token !== $stored_key || ! wp_verify_nonce( $nonce, 'masteriyo_email_verification_nonce' ) ) {
+		if ( time() > $expiration || $confirm_token !== $stored_key || ! wp_verify_nonce( sanitize_key(wp_unslash($nonce)), 'masteriyo_email_verification_nonce' ) ) {
 			return;
 		}
 		$user = masteriyo_get_user( $uid );

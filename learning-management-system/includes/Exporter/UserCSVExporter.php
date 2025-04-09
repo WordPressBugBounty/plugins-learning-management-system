@@ -12,6 +12,9 @@
 
 namespace Masteriyo\Exporter;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\CSVExporter;
 
 class UserCSVExporter extends CSVExporter {

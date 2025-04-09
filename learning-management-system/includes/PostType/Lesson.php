@@ -5,6 +5,9 @@
 
 namespace Masteriyo\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Lesson extends PostType {
 	/**
 	 * Post slug.

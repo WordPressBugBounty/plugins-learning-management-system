@@ -7,6 +7,9 @@
 
 namespace Masteriyo\FileRestrictions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\FileRestriction;
 use Masteriyo\Enums\CourseAccessMode;
 

@@ -10,6 +10,9 @@
 
 namespace Masteriyo\Addons\BuddyPress\Classes;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\BuddyPress\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\BricksIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Query\CourseCategoryQuery;

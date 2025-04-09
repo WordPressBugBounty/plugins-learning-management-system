@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\LemonSqueezyIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use WP_Error;
 
 class Request {

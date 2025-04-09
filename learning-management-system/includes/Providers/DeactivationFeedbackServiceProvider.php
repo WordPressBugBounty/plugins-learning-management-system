@@ -69,13 +69,13 @@ class DeactivationFeedbackServiceProvider extends AbstractServiceProvider implem
 		$deactivate_reasons = array(
 			'feature_unavailable'     => array(
 				/* translators: %s: link to feature requests page */
-				'title'             => sprintf( esc_html__( 'Couldn\'t find the feature I needed. Request it %s', 'learning-management-system' ), '<a href="' . esc_url_raw( 'https://masteriyo.feedbear.com/boards/feature-requests' ) . '" target="_blank">' . esc_html__( 'here', 'learning-management-system' ) . '</a>' ),
+				'title'             => sprintf( esc_html__( 'Couldn\'t find the feature I needed. Request it %s', 'learning-management-system' ), '<a href="' . esc_url( 'https://masteriyo.feedbear.com/boards/feature-requests' ) . '" target="_blank">' . esc_html__( 'here', 'learning-management-system' ) . '</a>' ),
 				'is_input'          => true,
 				'input_placeholder' => '',
 			),
 			'complex_to_use'          => array(
 				/* translators: %1$s: link to documentation page %2$s: link to support team page */
-				'title'             => sprintf( esc_html__( 'The plugin is too complex. See the %1$s or contact our %2$s', 'learning-management-system' ), '<a href="' . esc_url_raw( 'https://docs.masteriyo.com/getting-started' ) . '" target="_blank">' . esc_html__( 'documentation', 'learning-management-system' ) . '</a>', '<a href="' . esc_url_raw( 'https://masteriyo.com/support/' ) . '" target="_blank">' . esc_html__( 'support team', 'learning-management-system' ) . '</a>' ),
+				'title'             => sprintf( esc_html__( 'The plugin is too complex. See the %1$s or contact our %2$s', 'learning-management-system' ), '<a href="' . esc_url( 'https://docs.masteriyo.com/getting-started' ) . '" target="_blank">' . esc_html__( 'documentation', 'learning-management-system' ) . '</a>', '<a href="' . esc_url_raw( 'https://masteriyo.com/support/' ) . '" target="_blank">' . esc_html__( 'support team', 'learning-management-system' ) . '</a>' ),
 				'is_input'          => true,
 				'input_placeholder' => esc_html__( 'Please provide more details if possible', 'learning-management-system' ),
 			),

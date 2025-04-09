@@ -1,5 +1,9 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
+
+
 if ( ! function_exists( 'masteriyo_get_item_from_cart' ) ) {
 	/**
 	 * Get the first item from the cart. The item is expected to be either a course or a course bundle.

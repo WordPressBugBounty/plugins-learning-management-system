@@ -167,7 +167,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 				/* translators: %s: order id */
 				'description' => sprintf( __( 'Order #%s', 'learning-management-system' ), $order_id ),
 				'redirectUrl' => $this->get_return_url( $order ),
-				'webhookUrl'  => home_url( 'wp-admin/admin-ajax.php?action=masteriyo_mollie_webhook' ),
+				'webhookUrl'  => admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' ),
 				'metadata'    => array(
 					'order_id'     => $order_id,
 					'payment_type' => $payment_type,

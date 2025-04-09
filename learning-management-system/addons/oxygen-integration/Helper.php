@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\OxygenIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Oxygen Integration helper functions.
  *

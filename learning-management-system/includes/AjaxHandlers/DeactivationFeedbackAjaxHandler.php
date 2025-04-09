@@ -9,6 +9,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use Masteriyo\Exceptions\RestException;
 
@@ -62,7 +65,7 @@ class DeactivationFeedbackAjaxHandler extends AjaxHandler {
 		}
 
 		try {
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'masteriyo_deactivation_feedback_nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash($_POST['_wpnonce'])), 'masteriyo_deactivation_feedback_nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 

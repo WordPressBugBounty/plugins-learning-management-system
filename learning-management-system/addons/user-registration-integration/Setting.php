@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\UserRegistrationIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Setting {
 
 	/**

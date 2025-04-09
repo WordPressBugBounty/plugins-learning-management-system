@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\BeaverIntegration\CoursesLists;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class CoursesListsModule extends \FLBuilderModule {
 
 	public function __construct() {

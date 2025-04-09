@@ -363,9 +363,10 @@ class CertificateAddon {
 			if ( ! isset( $_GET['nonce'] ) ) {
 				wp_die( esc_html__( 'Nonce is required.', 'learning-management-system' ) );
 			}
-			if ( ! wp_verify_nonce( $_GET['nonce'], 'masteriyo_download_certificate' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_download_certificate' ) ) {
 				wp_die( esc_html__( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
 			}
+
 			if ( empty( $_GET['course_id'] ) ) {
 				wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
 			}

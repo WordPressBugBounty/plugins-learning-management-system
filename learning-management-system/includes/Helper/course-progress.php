@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\ModelException;
 use Masteriyo\Query\UserCourseQuery;

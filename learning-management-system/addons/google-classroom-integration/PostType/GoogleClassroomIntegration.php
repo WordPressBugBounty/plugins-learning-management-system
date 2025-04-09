@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\GoogleClassroomIntegration\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\PostType\PostType;
 
 /**

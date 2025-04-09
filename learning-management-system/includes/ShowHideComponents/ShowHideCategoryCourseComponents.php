@@ -9,6 +9,9 @@
 
 namespace Masteriyo\ShowHideComponents;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\ShowHideCourseComponents;
 
 class ShowHideCategoryCourseComponents extends ShowHideCourseComponents {

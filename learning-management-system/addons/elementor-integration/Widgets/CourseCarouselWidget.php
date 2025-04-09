@@ -338,7 +338,7 @@ class CourseCarouselWidget extends CourseListWidget {
 		$this->start_controls_section(
 			'course_carousel_section',
 			array(
-				'label' => __( 'Carousel Settings' ),
+				'label' => __( 'Carousel Settings', 'learning-management-system' ),
 				'type'  => Controls_Manager::TAB_CONTENT,
 			)
 		);

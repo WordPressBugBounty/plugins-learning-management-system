@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Compatibility\Seo;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class YoastSeo {
 	/**
 	 * Initialize.

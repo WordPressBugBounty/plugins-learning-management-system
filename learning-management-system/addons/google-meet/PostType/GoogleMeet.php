@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\GoogleMeet\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\PostType\PostType;
 
 /**

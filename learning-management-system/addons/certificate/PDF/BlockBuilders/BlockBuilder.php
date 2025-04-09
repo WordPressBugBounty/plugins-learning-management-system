@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use simplehtmldom\HtmlDocument;
 
 abstract class BlockBuilder {

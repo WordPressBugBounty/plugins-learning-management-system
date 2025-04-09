@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Addon Name: Stripe Payment Gateway
  * Addon URI: https://masteriyo.com/wordpress-lms/

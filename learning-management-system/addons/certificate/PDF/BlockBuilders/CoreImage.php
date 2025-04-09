@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use simplehtmldom\HtmlDocument;
 use Masteriyo\Addons\Certificate\Models\Setting;
 

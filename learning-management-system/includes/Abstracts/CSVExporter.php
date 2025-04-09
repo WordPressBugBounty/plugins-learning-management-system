@@ -11,6 +11,9 @@
 
 namespace Masteriyo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 abstract class CSVExporter {
 
 	/**

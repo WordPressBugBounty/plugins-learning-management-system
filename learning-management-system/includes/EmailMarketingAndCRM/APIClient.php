@@ -10,6 +10,9 @@
 
 namespace Masteriyo\EmailMarketingAndCRM;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Abstract class for API clients.
  *

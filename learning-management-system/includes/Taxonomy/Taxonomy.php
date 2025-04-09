@@ -5,6 +5,9 @@
 
 namespace Masteriyo\Taxonomy;
 
+defined( 'ABSPATH' ) || exit;
+
+
 abstract class Taxonomy {
 
 	/**

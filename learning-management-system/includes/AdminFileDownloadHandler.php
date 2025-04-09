@@ -9,6 +9,9 @@
 
 namespace Masteriyo;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Exception;
 use Throwable;
 
@@ -251,7 +254,7 @@ class AdminFileDownloadHandler {
 		$file_name    = filter_input( INPUT_GET, 'file_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$nonce        = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( ! wp_verify_nonce( $nonce, self::FILE_DOWNLOAD_ACTION . $file_path_id . $file_name ) ) {
+		if ( ! wp_verify_nonce( sanitize_key(wp_unslash($nonce)), self::FILE_DOWNLOAD_ACTION . $file_path_id . $file_name ) ) {
 			self::send_error( __( 'URL expired. Please refresh the page and try again.', 'learning-management-system' ) );
 		}
 

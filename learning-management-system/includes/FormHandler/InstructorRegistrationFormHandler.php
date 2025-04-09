@@ -52,7 +52,7 @@ class InstructorRegistrationFormHandler {
 
 			$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-			if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-instructor-registration' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-instructor-registration' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
@@ -255,10 +255,10 @@ class InstructorRegistrationFormHandler {
 	protected function get_form_data() {
 		$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-		if ( empty( $nonce_value ) ) {
+		if ( empty( sanitize_key( wp_unslash($nonce_value)) ) ) {
 			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 		}
-		if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-instructor-registration' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-instructor-registration' ) ) {
 			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 		}
 

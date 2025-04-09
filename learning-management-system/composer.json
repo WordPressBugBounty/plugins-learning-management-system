@@ -1,0 +1,158 @@
+{
+  "name": "masteriyo/masteriyo",
+  "description": "An WordPress LMS plugin",
+  "version": "1.17.3",
+  "homepage": "https://example.com",
+  "license": "GPL-2.0-or-later",
+  "type": "wordpress-plugin",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "authors": [
+    {
+      "name": "wpeverest",
+      "email": "support@wpeverest.com"
+    }
+  ],
+  "config": {
+    "process-timeout": 0,
+    "sort-packages": true,
+    "preferred-install": "dist",
+    "allow-plugins": {
+      "composer/installers": true,
+      "roots/wordpress-core-installer": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "autoload": {
+    "files": [
+      "includes/Helper/depreciated.php",
+      "includes/Helper/Arr.php",
+      "includes/Helper/Cart.php",
+      "includes/Helper/core.php",
+      "includes/Helper/Term.php",
+      "includes/Helper/Conditional.php",
+      "includes/Helper/Format.php",
+      "includes/Helper/Template.php",
+      "includes/Helper/TemplateHooks.php",
+      "includes/Helper/Page.php",
+      "includes/Helper/Notice.php",
+      "includes/Helper/Order.php",
+      "includes/Helper/course.php",
+      "includes/Helper/user-course.php",
+      "includes/Helper/question.php",
+      "includes/Helper/course-progress.php",
+      "includes/Helper/quiz.php",
+      "includes/Helper/course-qa.php",
+      "includes/Helper/notification.php",
+      "includes/Helper/comments.php",
+      "includes/Helper/http.php",
+      "includes/Helper/course-reviews.php",
+      "includes/Helper/tracking.php",
+      "includes/Helper/wp.php",
+      "includes/Helper/webhook.php",
+      "includes/Helper/OpenAI.php",
+      "includes/Helper/email.php",
+      "includes/Helper/export-import.php",
+      "includes/Helper/LoginSessionManagement.php"
+    ],
+    "psr-4": {
+      "Masteriyo\\": "includes/",
+      "Masteriyo\\Pro\\": "pro/",
+      "Masteriyo\\Addons\\DownloadMaterials\\": "addons/download-materials",
+      "Masteriyo\\Addons\\RevenueSharing\\": "addons/revenue-sharing",
+      "Masteriyo\\Addons\\CourseAnnouncement\\": "addons/course-announcement",
+      "Masteriyo\\Addons\\ElementorIntegration\\": "addons/elementor-integration/",
+      "Masteriyo\\Addons\\DiviIntegration\\": "addons/divi-integration/",
+      "Masteriyo\\Addons\\GamiPressIntegration\\": "addons/gamipress-integration/",
+      "Masteriyo\\Addons\\OxygenIntegration\\": "addons/oxygen-integration/",
+      "Masteriyo\\Addons\\UserRegistrationIntegration\\": "addons/user-registration-integration/",
+      "Masteriyo\\Addons\\MigrationTool\\": "addons/migration-tool/",
+      "Masteriyo\\Addons\\WcIntegration\\": "addons/wc-integration",
+      "Masteriyo\\Addons\\Scorm\\": "addons/scorm/",
+      "Masteriyo\\Addons\\GoogleClassroomIntegration\\": "addons/google-classroom-integration/",
+      "Masteriyo\\Addons\\GroupCourses\\": "addons/group-courses/",
+      "Masteriyo\\Addons\\BricksIntegration\\": "addons/bricks-integration/",
+      "Masteriyo\\Addons\\LemonSqueezyIntegration\\": "addons/lemon-squeezy-integration/",
+      "Masteriyo\\Addons\\BeaverIntegration\\": "addons/beaver-integration",
+      "Masteriyo\\Addons\\MultipleCurrency\\": "addons/multiple-currency/",
+      "Masteriyo\\Addons\\BunnyNet\\": "addons/bunny-net",
+      "Masteriyo\\Addons\\GoogleMeet\\": "addons/google-meet/",
+      "Masteriyo\\Addons\\CourseComingSoon\\": "addons/course-coming-soon/",
+      "Masteriyo\\Addons\\SureCartIntegration\\": "addons/sure-cart-integration/",
+      "Masteriyo\\Addons\\WishList\\": "addons/wishlist/",
+      "Masteriyo\\Addons\\Certificate\\": "addons/certificate",
+      "Masteriyo\\Addons\\BrevoIntegration\\": "addons/brevo-integration/",
+      "Masteriyo\\Addons\\FluentCRM\\": "addons/fluent-crm/",
+      "Masteriyo\\Addons\\Stripe\\": "addons/stripe",
+      "Masteriyo\\Addons\\BuddyPress\\": "addons/buddy-press/",
+      "Masteriyo\\Addons\\Mollie\\": "addons/mollie/"
+    }
+  },
+  "require": {
+    "php": ">=7.0.0",
+    "chillerlan/php-qrcode": "3.4.1",
+    "halaxa/json-machine": "^1.1",
+    "league/container": "3.4.1",
+    "league/oauth2-google": "^4.0",
+    "maxmind-db/reader": "^1.11",
+    "mollie/mollie-api-php": "^2.75",
+    "mpdf/mpdf": "^8.2",
+    "pelago/emogrifier": "3.1.0",
+    "psr/container": "1.0.0",
+    "simplehtmldom/simplehtmldom": "^2.0@RC",
+    "stripe/stripe-php": "^7.116",
+    "themegrill/openai": "@dev",
+    "woocommerce/action-scheduler": "^3.8.1"
+  },
+  "require-dev": {
+    "composer/installers": "^2.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+    "phpcompatibility/phpcompatibility-wp": "2.1.0",
+    "vlucas/phpdotenv": "^5.4",
+    "wp-cli/db-command": "^2.0",
+    "wp-cli/i18n-command": "^v2.2.13",
+    "wp-cli/wp-cli": "^2.4",
+    "wp-coding-standards/wpcs": "^3.0"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "./packages/openai",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
+  "scripts": {
+    "phpcs": [
+      "phpcs"
+    ],
+    "phpcbf": [
+      "phpcbf"
+    ],
+    "makepot-audit": [
+      "wp i18n make-pot . --slug=learning-management-system"
+    ],
+    "makepot": [
+      "\"vendor/bin/wp\" i18n make-pot . ./i18n/languages/learning-management-system.pot --include=\"assets/js/build,includes,templates\""
+    ],
+    "post-update-cmd": [
+      "@php -r \"! file_exists( '.env' ) && copy( '.env.example', '.env' );\"",
+      "rm -rf wp-content"
+    ]
+  },
+  "extra": {
+    "wordpress-install-dir": "tests/wordpress",
+    "installer-paths": {
+      "vendor/{$vendor}/{$name}": [
+        "woocommerce/action-scheduler"
+      ]
+    },
+    "scripts-description": {
+      "phpcs": "Analyze code against the WordPress coding standard with PHP_CodeSniffer",
+      "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier",
+      "makepot-audit": "Generate i18n/languages/masteriyo.pot file and run audit",
+      "makepot": "Generate i18n/languages/masteriyo.pot file"
+    }
+  }
+}

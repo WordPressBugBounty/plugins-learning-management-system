@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\GamiPressIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\GamiPressIntegration\Enums\AccountPageLocation;
 use Masteriyo\Addons\GamiPressIntegration\Enums\LearnPageLocation;
 use Masteriyo\Addons\GamiPressIntegration\Enums\PlacementPage;

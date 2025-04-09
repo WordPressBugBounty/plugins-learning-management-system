@@ -209,7 +209,7 @@ class Cart {
 		// Populate cart from order.
 		if ( isset( $_GET['order_again'], $_GET['_wpnonce'] )
 			&& is_user_logged_in()
-			&& wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), 'masteriyo-order_again' ) ) { // WPCS: input var ok, sanitization ok.
+			&& wp_verify_nonce( sanitize_key ( wp_unslash( $_GET['_wpnonce'] ) ), 'masteriyo-order_again' ) ) { // WPCS: input var ok, sanitization ok.
 			$cart        = $this->populate_cart_from_order( absint( $_GET['order_again'] ), $cart ); // WPCS: input var ok.
 			$order_again = true;
 		}

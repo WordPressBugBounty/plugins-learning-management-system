@@ -8,6 +8,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 
 class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
@@ -48,7 +51,7 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 		}
 
 		try {
-			if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'] ) ), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 
@@ -110,7 +113,7 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 	 * @since 1.5.9
 	 */
 	protected function validate_request() {
-		if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($_REQUEST['nonce'])), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
 			throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 		}
 		if ( ! isset( $_REQUEST['page'] ) ) {

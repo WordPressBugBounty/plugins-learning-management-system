@@ -12,6 +12,9 @@
 
 namespace Masteriyo\Importer;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class UserCSVImporter {
 
 	/**

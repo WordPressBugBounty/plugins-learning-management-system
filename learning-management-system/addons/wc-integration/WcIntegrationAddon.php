@@ -105,7 +105,7 @@ class WcIntegrationAddon {
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_public_scripts' ) );
 		add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_masteriyo_tab' ) );
 		add_action( 'woocommerce_product_data_panels', array( $this, 'display_masteriyo_tab_content' ) );
-		add_action( 'admin_head', array( $this, 'add_masteriyo_tab_icon' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_masteriyo_tab_icon' ) );
 		add_action( 'woocommerce_process_product_meta', array( $this, 'save_masteriyo_data' ), 10, 2 );
 		add_filter( 'masteriyo_ajax_handlers', array( $this, 'register_ajax_handlers' ) );
 		add_filter( 'masteriyo_course_add_to_cart_url', array( $this, 'change_add_to_cart_url' ), 10, 2 );
@@ -355,7 +355,7 @@ class WcIntegrationAddon {
 			$( ".options_group.pricing" ).addClass( "show_if_mto_course" );
 			$( ".options_group.pricing, ._subscription_sign_up_fee_field, ._subscription_trial_length_field" ).addClass( "hide_if_mto_course_recurring" );
 			$( ".options_group.subscription_pricing" ).addClass( "show_if_mto_course_recurring" );
-			$( ".options_group.show_if_simple.show_if_external.show_if_variable" ).addClass( "show_if_mto_course show_if_mto_course_recurring show_if_mto_course_bundle show_if_mto_course_bundle_recurring" ); 
+			$( ".options_group.show_if_simple.show_if_external.show_if_variable" ).addClass( "show_if_mto_course show_if_mto_course_recurring show_if_mto_course_bundle show_if_mto_course_bundle_recurring" );
 			if ( $( \'#product-type\' ).val() === \'mto_course_recurring\' ) {
 					$(\'option[value="mto_course_recurring"]\').show();
 					$(\'option[value="mto_course"]\').hide();
@@ -595,11 +595,15 @@ class WcIntegrationAddon {
 	 * @since 1.8.1
 	 */
 	public function add_masteriyo_tab_icon() {
-		echo '<style>
-			#woocommerce-product-data ul.wc-tabs li.masteriyo_options.masteriyo_tab a:before {
+		wp_register_style( 'add_masteriyo_tab_icon', false );
+		wp_enqueue_style( 'add_masteriyo_tab_icon' );
+
+		$inline_css = '
+		#woocommerce-product-data ul.wc-tabs li.masteriyo_options.masteriyo_tab a:before {
 				content: "\1F4D6";
 			}
-		</style>';
+	';
+		wp_add_inline_style( 'add_masteriyo_tab_icon', $inline_css );
 	}
 
 	/**

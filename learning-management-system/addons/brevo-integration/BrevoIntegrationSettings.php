@@ -10,6 +10,9 @@
 
 namespace Masteriyo\Addons\BrevoIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\EmailMarketingAndCRM\IntegrationSettings;
 
 /**

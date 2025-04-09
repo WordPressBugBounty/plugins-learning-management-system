@@ -7,6 +7,9 @@
 
 namespace Masteriyo\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Webhook post type class.
  *

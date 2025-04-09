@@ -10,6 +10,9 @@
 //phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\FluentCRM\Helper;
 
 class AutomationConditions {

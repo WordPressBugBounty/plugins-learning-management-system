@@ -11,6 +11,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
@@ -93,7 +96,7 @@ class CoursePasswordProtectionHandler extends AjaxHandler {
 	 * @return bool Returns true if nonce is valid, otherwise false.
 	 */
 	private function validate_nonce( $nonce ) {
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'masteriyo_course_password_protected_nonce' ) ) {
+		if ( ! $nonce || ! wp_verify_nonce( sanitize_key(wp_unslash($nonce)), 'masteriyo_course_password_protected_nonce' ) ) {
 			$this->send_error_response( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			return false;
 		}

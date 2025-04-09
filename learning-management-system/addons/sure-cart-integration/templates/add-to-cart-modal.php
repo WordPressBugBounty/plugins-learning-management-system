@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  *
  * Dialog modals for surecart courses for courses page.

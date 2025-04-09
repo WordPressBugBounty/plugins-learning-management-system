@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\Mollie;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Setting {
 
 	/**

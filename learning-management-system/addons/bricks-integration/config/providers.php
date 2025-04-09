@@ -1,4 +1,8 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Masteriyo bricks integration service providers.
  *

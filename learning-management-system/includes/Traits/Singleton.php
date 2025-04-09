@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Traits;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Singleton trait.
  */

@@ -1,4 +1,10 @@
 == Changelog ==
+= 1.17.3 - 08-04-2025 =
+- Update - Removed unwanted files from repo.
+
+= 1.17.2 - 08-04-2025 =
+- Fix - Security related issues.
+
 = 1.17.1 - 02-04-2025 =
 - Enhancement - Email Translations support using WPML.
 - Enhancement - Added group pricing multiple currencies option.

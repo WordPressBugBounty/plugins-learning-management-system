@@ -2,6 +2,9 @@
 
 namespace Masteriyo\Contracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\LogLevels;
 
 if ( ! defined( 'ABSPATH' ) ) {

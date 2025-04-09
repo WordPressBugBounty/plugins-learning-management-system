@@ -40,7 +40,7 @@ class CourseRetake {
 			return;
 		}
 
-		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'masteriyo_course_retake' ) ) {
+		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key(wp_unslash($_GET['nonce'])), 'masteriyo_course_retake' ) ) {
 			wp_die( esc_html__( 'Invalid or missing nonce!', 'learning-management-system' ), esc_html__( 'Retake Course', 'learning-management-system' ) );
 		}
 

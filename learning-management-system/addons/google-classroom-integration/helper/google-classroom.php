@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use League\OAuth2\Client\Provider\Google;
 use Masteriyo\Addons\GoogleClassroomIntegration\Models\GoogleClassroomSetting;
 

@@ -112,7 +112,7 @@ class Checkout {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$nonce_value = masteriyo_get_var( $_REQUEST['masteriyo-process-checkout-nonce'], masteriyo_get_var( $_REQUEST['_wpnonce'], '' ) );
 
-			if ( empty( $nonce_value ) || ! wp_verify_nonce( $nonce_value, 'masteriyo-process_checkout' ) ) {
+			if ( empty( $nonce_value ) || ! wp_verify_nonce( sanitize_key(wp_unslash($nonce_value)), 'masteriyo-process_checkout' ) ) {
 				$this->session->put( 'refresh_totals', true );
 				throw new \Exception( __( 'We were unable to process your order, please try again.', 'learning-management-system' ) );
 			}

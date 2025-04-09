@@ -2,6 +2,9 @@
 
 namespace Masteriyo\Database;
 
+defined( 'ABSPATH' ) || exit;
+
+
 abstract class Migration {
 
 	/**

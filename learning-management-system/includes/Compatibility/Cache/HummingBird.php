@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Compatibility\Cache;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\CachePluginCompatibility;
 
 class HummingBird extends CachePluginCompatibility {

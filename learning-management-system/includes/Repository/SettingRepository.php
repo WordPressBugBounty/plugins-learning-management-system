@@ -5,6 +5,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Constants;
 use Masteriyo\Database\Model;
 use Masteriyo\Models\Setting;

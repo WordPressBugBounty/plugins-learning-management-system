@@ -2,6 +2,9 @@
 
 namespace Masteriyo\LogHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\LogHandler;
 
 if ( ! defined( 'ABSPATH' ) ) {

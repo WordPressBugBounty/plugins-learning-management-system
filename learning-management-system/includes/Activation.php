@@ -7,6 +7,9 @@
 
 namespace Masteriyo;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Activation {
 
 	/**

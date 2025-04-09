@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Addon Name: Fluent CRM Integration
  * Addon URI: https://masteriyo.com/wordpress-lms/

@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\MigrationTool;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\WcIntegration\CourseProduct;
 use Masteriyo\Addons\WcIntegration\Helper as HelperWoocommerce;
 use Masteriyo\Enums\CourseAccessMode;

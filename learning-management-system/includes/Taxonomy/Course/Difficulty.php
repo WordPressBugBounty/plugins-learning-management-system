@@ -5,6 +5,9 @@
 
 namespace Masteriyo\Taxonomy\Course;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Taxonomy\Taxonomy;
 
 class Difficulty extends Taxonomy {

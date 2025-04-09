@@ -9,6 +9,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use WP_Session_Tokens;
 
@@ -50,7 +53,7 @@ class ClearMasteriyoUserSessionAjaxHandler extends AjaxHandler {
 		}
 		try {
 			$token = get_user_meta( $user_info['user_id'], 'mas_session_token' );
-			if ( ! wp_verify_nonce( $user_info['_wpnonce'], 'masteriyo_clear_sessions' ) && $token !== $user_info['mas_session_token'] ) {
+			if ( ! wp_verify_nonce( sanitize_key(wp_unslash($user_info['_wpnonce'])), 'masteriyo_clear_sessions' ) && $token !== $user_info['mas_session_token'] ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 

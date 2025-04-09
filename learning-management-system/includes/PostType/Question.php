@@ -7,6 +7,9 @@
 
 namespace Masteriyo\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Question extends PostType {
 	/**
 	 * Post slug.

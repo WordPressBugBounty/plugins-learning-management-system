@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\ElementorIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Constants;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;

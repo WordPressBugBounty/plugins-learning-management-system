@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Query\CourseProgressQuery;

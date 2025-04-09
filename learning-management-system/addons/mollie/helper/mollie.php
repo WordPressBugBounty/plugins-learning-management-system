@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use Masteriyo\Addons\Mollie\Setting;
 
 if ( ! function_exists( 'masteriyo_mollie_get_api_key' ) ) {

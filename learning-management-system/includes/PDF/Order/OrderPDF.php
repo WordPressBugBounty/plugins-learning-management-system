@@ -7,6 +7,9 @@
 
 namespace Masteriyo\PDF\Order;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use Mpdf\Output\Destination;

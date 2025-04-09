@@ -8,6 +8,9 @@
  */
 namespace Masteriyo\Addons\BrevoIntegration\API;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\EmailMarketingAndCRM\APIClient;
 
 /**

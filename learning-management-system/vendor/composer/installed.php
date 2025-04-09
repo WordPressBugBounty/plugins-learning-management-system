@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'masteriyo/masteriyo',
-        'pretty_version' => '1.17.1',
-        'version' => '1.17.1.0',
+        'pretty_version' => '1.17.3',
+        'version' => '1.17.3.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -101,8 +101,8 @@
             'dev_requirement' => false,
         ),
         'masteriyo/masteriyo' => array(
-            'pretty_version' => '1.17.1',
-            'version' => '1.17.1.0',
+            'pretty_version' => '1.17.3',
+            'version' => '1.17.3.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
@@ -320,8 +320,8 @@
             'dev_requirement' => false,
         ),
         'themegrill/openai' => array(
-            'pretty_version' => 'dev-update/wpcsv3',
-            'version' => 'dev-update/wpcsv3',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
             'reference' => '2b1c12888783ae2c811adaae5e5c74bcf69bebbc',
             'type' => 'library',
             'install_path' => __DIR__ . '/../themegrill/openai',

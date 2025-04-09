@@ -8,6 +8,9 @@
 //phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Query\UserCourseQuery;

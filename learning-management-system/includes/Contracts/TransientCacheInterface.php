@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Contracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 interface TransientCacheInterface {
 
 	/**

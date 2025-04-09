@@ -9,6 +9,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use WP_Session_Tokens;
 
@@ -50,7 +53,7 @@ class LoginAjaxHandler extends AjaxHandler {
 		}
 
 		try {
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'masteriyo_login_nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'])), 'masteriyo_login_nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 

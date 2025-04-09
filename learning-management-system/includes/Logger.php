@@ -8,6 +8,9 @@
 
 namespace Masteriyo;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\LogLevels;
 use Masteriyo\Contracts\LoggerInterface;
 use Masteriyo\LogHandlers\LogHandlerFile;

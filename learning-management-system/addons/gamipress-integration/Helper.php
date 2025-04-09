@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\GamiPressIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Taxonomy\Taxonomy;
 
 /**

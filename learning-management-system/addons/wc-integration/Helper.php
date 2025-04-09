@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\PostStatus;
 
 class Helper {

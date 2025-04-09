@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Abstract ajax handler class.
  */

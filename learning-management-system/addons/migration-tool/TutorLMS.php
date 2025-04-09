@@ -6,6 +6,9 @@
  */
 namespace Masteriyo\Addons\MigrationTool;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Countable;
 use Masteriyo\DateTime;
 use Masteriyo\Enums\CommentType;

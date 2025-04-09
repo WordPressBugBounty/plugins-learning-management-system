@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Database\Model;
 use Masteriyo\Models\Section;
 use Masteriyo\Enums\PostStatus;

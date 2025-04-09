@@ -7,6 +7,9 @@
 
 namespace Masteriyo;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Taxonomy\Taxonomy;
 
 class Install {

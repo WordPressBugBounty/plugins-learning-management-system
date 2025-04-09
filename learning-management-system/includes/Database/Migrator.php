@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Database;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Migrator {
 	/**
 	 * The name of the database connection to use.

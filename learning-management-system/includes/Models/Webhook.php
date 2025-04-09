@@ -163,7 +163,7 @@ class Webhook extends Model {
 		$message = array(
 			'Webhook Delivery' => array(
 				'Delivery ID' => $delivery_id,
-				'Date'        => date_i18n( __( 'M j, Y @ G:i', 'woocommerce' ), strtotime( 'now' ), true ),
+				'Date'        => date_i18n( __( 'M j, Y @ G:i', 'learning-management-system' ), strtotime( 'now' ), true ),
 				'URL'         => $this->get_delivery_url(),
 				'Request'     => array(
 					'Method'  => $request['method'],

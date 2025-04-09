@@ -2137,8 +2137,8 @@
         },
         {
             "name": "themegrill/openai",
-            "version": "dev-update/wpcsv3",
-            "version_normalized": "dev-update/wpcsv3",
+            "version": "dev-develop",
+            "version_normalized": "dev-develop",
             "dist": {
                 "type": "path",
                 "url": "./packages/openai",

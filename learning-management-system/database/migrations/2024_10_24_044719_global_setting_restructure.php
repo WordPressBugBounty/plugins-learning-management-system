@@ -1,4 +1,8 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Migration class template used by the wp cli to create migration classes.
  *

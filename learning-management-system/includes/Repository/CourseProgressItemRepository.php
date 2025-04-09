@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\MetaData;
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\CourseProgressStatus;

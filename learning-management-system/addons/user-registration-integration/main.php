@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Addon Name: User Registration Integration
  * Addon URI: https://masteriyo.com/wordpress-lms/

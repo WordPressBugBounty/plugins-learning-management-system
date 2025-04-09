@@ -1,5 +1,6 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\QuestionType;
 

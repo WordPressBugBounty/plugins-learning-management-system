@@ -10,6 +10,9 @@
 
 namespace Masteriyo\Addons\BeaverIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Query\CourseCategoryQuery;
 use Masteriyo\Roles;
 

@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 	background: #F8F6FF;
 }
 .email-template .email-header{
-	background-image: url("<?php echo esc_url_raw( masteriyo_get_email_template_header_background_img() ); ?>");
+	background-image: url("<?php echo esc_url( masteriyo_get_email_template_header_background_img() ); ?>");
 	background-color: #EEEFFD;
 	background-size: cover;
 	object-fit: cover;

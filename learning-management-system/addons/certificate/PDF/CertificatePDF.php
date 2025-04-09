@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\PDF;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
 use Mpdf\Output\Destination;

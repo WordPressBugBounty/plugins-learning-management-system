@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\GamiPressIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\GamiPressIntegration\Listeners\CourseCompletedListener;
 use Masteriyo\Addons\GamiPressIntegration\Listeners\LessonCompletedListener;
 use Masteriyo\Addons\GamiPressIntegration\Listeners\NewEnrollmentListener;

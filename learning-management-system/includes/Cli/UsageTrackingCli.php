@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Cli;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Jobs\SendTrackingInfoJob;
 
 class UsageTrackingCli {

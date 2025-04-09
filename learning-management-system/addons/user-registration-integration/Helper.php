@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\UserRegistrationIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * User Registration Integration helper class.
  *

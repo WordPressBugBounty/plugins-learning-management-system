@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Helper;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Constants;
 class Utils {
 

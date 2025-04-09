@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\BricksIntegration\Helper;
 
 /**

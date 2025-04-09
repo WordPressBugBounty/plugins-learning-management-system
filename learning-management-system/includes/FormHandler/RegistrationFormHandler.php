@@ -48,7 +48,7 @@ class RegistrationFormHandler {
 				throw new \WP_Error( 'nonce_missing', __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-register' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-register' ) ) {
 				throw new \WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 

@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\OxygenIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Taxonomy\Taxonomy;
 
 /**

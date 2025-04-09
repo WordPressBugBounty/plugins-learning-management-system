@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use Masteriyo\Addons\GroupCourses\Models\Setting;
 use Masteriyo\Enums\PostStatus;
 

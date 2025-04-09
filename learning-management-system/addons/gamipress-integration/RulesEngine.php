@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\GamiPressIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * GamiPress rules engine for Masteriyo.
  *

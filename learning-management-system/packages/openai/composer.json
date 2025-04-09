@@ -1,0 +1,11 @@
+{
+  "name": "themegrill/openai",
+  "description": "WordPress sdk for OpenAI.",
+  "autoload": {
+    "psr-4": {
+      "ThemeGrill\\OpenAI\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": false
+}

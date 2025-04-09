@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 use Masteriyo\Addons\MultipleCurrency\Enums\PriceZoneStatus;
 use Masteriyo\Addons\MultipleCurrency\Models\Setting;
 use Masteriyo\Geolocation;

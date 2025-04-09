@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\BuddyPress;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
 

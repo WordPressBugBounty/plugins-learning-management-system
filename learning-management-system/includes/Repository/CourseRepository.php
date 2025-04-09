@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Helper\Number;
 use Masteriyo\Models\Course;
 use Masteriyo\Database\Model;

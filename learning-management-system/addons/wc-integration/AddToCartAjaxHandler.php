@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 
 /**
@@ -49,7 +52,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 				throw new \Exception( __( 'Nonce is required.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'masteriyo_wc_integration_add_to_cart' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'masteriyo_wc_integration_add_to_cart' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 

@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class CoreSpacer extends BlockBuilder {
 
 	/**

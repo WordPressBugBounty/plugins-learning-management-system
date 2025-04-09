@@ -9,6 +9,9 @@
 
 namespace ThemeGrill\OpenAI;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * OpenAI base class.
  *

@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Cli;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Cli {
 	/**
 	 * Register CLI commands.

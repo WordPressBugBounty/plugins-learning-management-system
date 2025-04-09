@@ -9,6 +9,9 @@
 
 namespace ThemeGrill\OpenAI;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use WP_Error;
 
 /**

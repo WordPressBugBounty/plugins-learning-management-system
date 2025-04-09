@@ -5,6 +5,9 @@
 
 namespace Masteriyo\Contracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 interface Session {
 	/**
 	 * Generate a unique ID for guests, or return user ID if logged in.

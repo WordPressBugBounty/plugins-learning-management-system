@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Jobs;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Tracking\SendAddonsTrackingInfo;
 
 /**

@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\LemonSqueezyIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Helper {
 	/**
 	 * Return webhook endpoint url.

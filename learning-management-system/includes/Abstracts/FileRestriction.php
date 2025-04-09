@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Constants;
 use Masteriyo\Traits\Singleton;
 

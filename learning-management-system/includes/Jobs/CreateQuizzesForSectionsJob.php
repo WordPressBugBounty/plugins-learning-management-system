@@ -2,6 +2,9 @@
 
 namespace Masteriyo\Jobs;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use ThemeGrill\OpenAI\ChatGPT;

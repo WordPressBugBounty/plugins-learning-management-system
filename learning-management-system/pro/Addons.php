@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Pro;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Constants;
 
 /**

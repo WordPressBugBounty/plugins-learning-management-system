@@ -10,6 +10,9 @@
 
 namespace Masteriyo\Addons\Certificate\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\PostType\PostType;
 
 class Certificate extends PostType {

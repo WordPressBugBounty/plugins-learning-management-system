@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\MultipleCurrency\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\MultipleCurrency\Enums\PriceZoneStatus;
 use Masteriyo\PostType\PostType;
 

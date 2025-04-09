@@ -8,6 +8,9 @@
 // phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM\actions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\FluentCRM\Helper;
 use FluentCrm\App\Services\Funnel\BaseAction;
 use FluentCrm\App\Services\Funnel\FunnelHelper;

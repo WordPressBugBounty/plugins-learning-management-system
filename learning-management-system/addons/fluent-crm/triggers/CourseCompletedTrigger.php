@@ -10,6 +10,9 @@
 // phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM\triggers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Addons\FluentCRM\Helper;
 use FluentCrm\App\Services\Funnel\BaseTrigger;
 use FluentCrm\App\Services\Funnel\FunnelHelper;

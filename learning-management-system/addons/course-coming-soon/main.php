@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Addon Name: Courses Coming Soon
  * Addon URI: https://masteriyo.com/wordpress-lms/

@@ -9,6 +9,9 @@
 
 namespace Masteriyo\CourseComponentStyles;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\CourseComponentStyles;
 
 class CategoryCourseComponentStyles extends CourseComponentStyles {

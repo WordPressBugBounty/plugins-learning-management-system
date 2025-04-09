@@ -10,6 +10,9 @@
 
 namespace Masteriyo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Abstract cache plugin compatibility.
  */

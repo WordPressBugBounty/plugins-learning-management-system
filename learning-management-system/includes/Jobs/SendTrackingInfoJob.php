@@ -11,6 +11,9 @@
 
 namespace Masteriyo\Jobs;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Tracking\MasteriyoTrackingInfo;
 use Masteriyo\Tracking\WPTrackingInfo;
 use Masteriyo\Tracking\ServerTrackingInfo;

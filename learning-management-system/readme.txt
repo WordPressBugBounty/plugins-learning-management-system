@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 1.17.1
+Stable tag: 1.17.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -170,6 +170,23 @@ If you're a fan of Masteriyo, you'll definitely love our other WordPress themes 
 * [Zakra](https://wordpress.org/themes/zakra/) - Best WordPress Multipurpose Theme Powering 60K+ Websites.
 * [ThemeGrill](https://themegrill.com/) - Beautiful Responsive WordPress Themes & Templates
 
+### Use of 3rd Party Services
+
+To improve the user experience, Masteriyo may use the following 3rd party services if the required feature is enabled:
+
+* Diagnostic & Usage Data – We collect non-sensitive diagnostic and usage data only with user consent to help improve Masteriyo. Masteriyo [TOS](https://masteriyo.com/terms-conditions/) and [Privacy Policy](https://masteriyo.com/terms-conditions/).
+
+* Fonts for Certificates – The Fonts Package is provided solely for use with the Masteriyo. The font package is hosted by Masteriyo via CloudFront and does not collect any personal data directly. CloudFront [AWS Privacy Notice](https://aws.amazon.com/privacy/)
+
+* Google APIs – Used for Classroom integration and authentication processes. Google [TOS](https://policies.google.com/terms) and [Privacy Policy](https://policies.google.com/privacy)
+
+* Payment Gateways API – Stripe, PayPal, and Mollie APIs are used to process payments securely. Stripe [TOS](https://stripe.com/legal/ssa) and [Privacy Policy](https://stripe.com/privacy), PayPal [TOS](https://www.paypal.com/us/legalhub/paypal/useragreement-full) and [Privacy Policy](https://www.paypal.com/us/legalhub/paypal/privacy-full) and Mollie [TOS](https://www.mollie.com/gb/user-agreement) and [Privacy Policy](https://www.mollie.com/gb/privacy)
+
+* OpenAI API – Used for certain features that require API key authentication and user-generated responses. OpenAI [Terms of Use](https://openai.com/policies/row-terms-of-use/) and [Policies](https://openai.com/policies/)
+
+These services are only activated when the corresponding feature is enabled and do not track personal data unless explicitly stated. Your approval and opt-in are always required.
+
+
 == Frequently Asked Questions ==
 
 = Do I need to have coding skills to use the Masteriyo LMS Plugin? =
@@ -225,6 +242,12 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.17.3 - 08-04-2025 =
+- Update - Removed unwanted files from repo.
+
+= 1.17.2 - 08-04-2025 =
+- Fix - Security related issues.
 
 = 1.17.1 - 02-04-2025 =
 - Enhancement - Email Translations support using WPML.
@@ -318,48 +341,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Issue on UI on layout 1 and 2 while filtering courses in courses page.
 - Fix - Delete the registered users data associated with the Masteriyo while uninstalling delete all data.
 - Fix - Stripe transaction id not generating issue.
-
-= 1.15.2 - 28-01-2025 =
-- Enhancement - Unmute autoplay option added in Masteriyo player settings.
-- Fix - Semicolon appear in single course page setting.
-- Fix - Backend pages not working with latest Gutenberg update.
-
-= 1.15.1 - 10-01-2025 =
-- Fix - Multiple pages creation on activation issue.
-- Fix - Elementor single course page template issue.
-- Fix - Multiple carousels to function on the same page.
-- Fix - Set iframe height to full for YouTube videos on Masteriyo Player.
-- Fix - Correct rounding logic for total amount calculation in Stripe addon.
-- Fix - Review and comment filter text and count issue.
-- Fix - Approve review and comment notice visible on update.
-- Fix - User Registration add-on does not automatically enable the Integrations tab in the settings.
-- Fix - Question name default value issue.
-- Fix - Not found child error on dashboard.
-
-= 1.15.0 - 02-01-2025 =
-- Feature - BuddyPress Integration.
-- Feature - Content drip (Sequential and Free Flow).
-- Tweak - `Reviews` submenu name updated with `Reviews & Comments`.
-- Tweak - Replace `Question Name` input field with WP basic editor.
-- Update - Emails content improvised.
-- Update - JS packages upgraded and fix console deprecation warning of several packages.
-- Refactor - Rearrangement global settings options and optimize API calls.
-- Refactor - Backend pages UI responsive fixes and minor revamp.
-- Refactor - Admin notices for Masteriyo Page.
-- Enhancement - Added quiz reveal mode.
-- Enhancement - Added multiple emails for admin, instructors and students.
-- Enhancement - Lesson comments can be accessible through `Reviews & Comments` page for editing and reviewing lesson comments.
-- Enhancement - Account section consistency with RTL languages.
-- Enhancement - Multiple cache plugin compatibility, auto set recommended settings and display warning for affected cache setting.
-- Enhancement - Notification count in backend submenus for Orders, Users and Reviews.
-- Enhancement - Added notice if Masteriyo pages not setup correctly and option for auto setup missing pages.
-- Enhancement - Quiz builder overall performance optimized.
-- Fix - Timestamp title crash issue with non ASCII characters.
-- Fix - Google meet course id null on update.
-- Fix - Show lemon squeezy checkout option for course link with lemon squeezy.
-- Fix - Quiz points minimum value set to 1.
-- Fix - UI issue in public profile.
-- Fix - Editor image alignment not working.
-- Fix - Learn page missing scrollbar for longer contents.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

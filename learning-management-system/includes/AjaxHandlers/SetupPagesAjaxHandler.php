@@ -8,6 +8,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use Masteriyo\Activation;
 
@@ -44,7 +47,7 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 	 * @return void
 	 */
 	public function masteriyo_setup_pages() {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'masteriyo-setup-pages' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash($_POST['nonce'])), 'masteriyo-setup-pages' ) ) {
 			wp_send_json_error( __( 'Invalid nonce.', 'learning-management-system' ) );
 		}
 

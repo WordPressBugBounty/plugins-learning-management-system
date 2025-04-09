@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Addons\Certificate\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Repository\AbstractRepository;

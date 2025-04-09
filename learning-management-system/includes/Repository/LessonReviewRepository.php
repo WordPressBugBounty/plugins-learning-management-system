@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\LessonReviews;
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\CommentStatus;

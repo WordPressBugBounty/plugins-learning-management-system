@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\DiviIntegration;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Divi Integration helper functions.
  *

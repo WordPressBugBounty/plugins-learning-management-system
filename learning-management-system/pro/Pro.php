@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Pro;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Enums\CourseFlow;
 use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Query\CourseProgressItemQuery;

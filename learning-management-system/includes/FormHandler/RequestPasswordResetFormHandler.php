@@ -43,7 +43,7 @@ class RequestPasswordResetFormHandler {
 			if ( empty( $nonce_value ) ) {
 				throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
-			if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-password-reset-request' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-password-reset-request' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
@@ -190,7 +190,7 @@ class RequestPasswordResetFormHandler {
 		if ( empty( $nonce_value ) ) {
 			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 		}
-		if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-password-reset-request' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-password-reset-request' ) ) {
 			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 		}
 

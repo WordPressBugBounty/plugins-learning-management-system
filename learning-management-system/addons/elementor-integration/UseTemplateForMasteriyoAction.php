@@ -47,7 +47,7 @@ class UseTemplateForMasteriyoAction {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_GET['nonce'], 'masteriyo-use-elementor-template-for-masteriyo' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo-use-elementor-template-for-masteriyo' ) ) {
 			wp_die( esc_html__( 'Invalid nonce!', 'learning-management-system' ) );
 			return;
 		}

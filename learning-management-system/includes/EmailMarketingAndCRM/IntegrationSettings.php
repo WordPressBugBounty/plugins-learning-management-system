@@ -8,6 +8,9 @@
  */
 namespace Masteriyo\EmailMarketingAndCRM;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * IntegrationSettings class.
  *

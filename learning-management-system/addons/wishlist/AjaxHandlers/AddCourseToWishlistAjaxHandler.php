@@ -9,6 +9,9 @@
 
 namespace Masteriyo\Addons\WishList\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 
 class AddCourseToWishlistAjaxHandler extends AjaxHandler {
@@ -42,7 +45,7 @@ class AddCourseToWishlistAjaxHandler extends AjaxHandler {
 				throw new \Exception( __( 'Nonce is required.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'masteriyo-wishlist-toggle-nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key(wp_unslash( $_POST['_wpnonce'] ) ), 'masteriyo-wishlist-toggle-nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 

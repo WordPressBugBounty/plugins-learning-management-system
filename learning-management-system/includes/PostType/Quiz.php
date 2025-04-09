@@ -9,6 +9,9 @@
 
 namespace Masteriyo\PostType;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Quizes post type.
  *

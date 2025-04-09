@@ -7,6 +7,9 @@
 
 namespace Masteriyo\FileRestrictions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class FileRestrictions {
 	/**
 	 * Initialize file restriction handlers.

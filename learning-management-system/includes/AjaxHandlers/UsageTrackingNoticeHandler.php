@@ -8,6 +8,9 @@
 
 namespace Masteriyo\AjaxHandlers;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Abstracts\AjaxHandler;
 use Masteriyo\Exceptions\RestException;
 
@@ -50,7 +53,7 @@ class UsageTrackingNoticeHandler extends AjaxHandler {
 		}
 
 		// Verify nonce for security.
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'masteriyo_allow_usage_notice_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'])), 'masteriyo_allow_usage_notice_nonce' ) ) {
 			wp_send_json_error(
 				__( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ),
 				400

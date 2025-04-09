@@ -5,6 +5,9 @@
 
 namespace Masteriyo\Repository;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Models\Lesson;

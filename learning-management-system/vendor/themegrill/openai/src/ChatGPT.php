@@ -9,6 +9,9 @@
 
 namespace ThemeGrill\OpenAI;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * ChatGPT service class.
  *

@@ -8,6 +8,9 @@
 
 namespace Masteriyo\Addons\Stripe;
 
+defined( 'ABSPATH' ) || exit;
+
+
 class Helper {
 	/**
 	 * Return webhook endpoint url.

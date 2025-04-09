@@ -7,6 +7,9 @@
 
 namespace Masteriyo\Abstracts;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Masteriyo\Contracts\LogHandlerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
