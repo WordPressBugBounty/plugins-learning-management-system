@@ -222,57 +222,74 @@
 			});
 		},
 		init_rating_widget: function () {
-			function addClickListener($starsParent) {
+			const $form = masteriyo.$create_review_form;
+			let isDoneReset = false;
+			let lastSetRating = null;
+
+			// Initial binding of click events to rating stars
+			function bindStarClickEvents($starsParent) {
 				$starsParent
 					.find('.masteriyo-rating-input-icon')
-					.on('click', function () {
-						var rating = $(this).index() + 1;
-
-						masteriyo.$create_review_form
-							.find('input[name="rating"]')
-							.val(rating);
+					.each(function (index) {
 						$(this)
-							.closest('.masteriyo-rstar')
-							.html(masteriyo_helper.get_rating_markup(rating));
+							.off('click')
+							.on('click', function (e) {
+								e.stopPropagation(); // Prevent form click listener from firing
+
+								const rating = index + 1;
+								lastSetRating = rating;
+								isDoneReset = false;
+
+								$form.find('input[name="rating"]').val(rating);
+
+								//update classes or render again safely
+								renderStars(rating);
+							});
 					});
 			}
 
-			var isDoneReset = false;
-			var lastHoveredRating = null;
+			function renderStars(rating) {
+				const $starsParent = $form.find('.masteriyo-rstar');
 
-			masteriyo.$create_review_form.on('mouseover', function (e) {
-				var $star = $(e.target).closest('.masteriyo-rating-input-icon');
-
-				if ($star.length === 0) {
-					if (isDoneReset) {
-						return;
-					}
-					var rating = masteriyo.$create_review_form
-						.find('input[name="rating"]')
-						.val();
-
-					masteriyo.$create_review_form
-						.find('.masteriyo-rstar')
-						.html(masteriyo_helper.get_rating_markup(rating));
-
-					isDoneReset = true;
-					lastHoveredRating = null;
-
-					return;
+				// Preserve the input
+				let $ratingInput = $form.find('input[name="rating"]');
+				if ($ratingInput.length === 0) {
+					// If it was removed, re-insert
+					$ratingInput = $('<input>', {
+						type: 'hidden',
+						name: 'rating',
+						value: rating,
+					});
+					$form.append($ratingInput);
+				} else {
+					$ratingInput.val(rating);
 				}
-				var rating = $star.index() + 1;
-				var $starsParent = $star.closest('.masteriyo-rstar');
-
-				isDoneReset = false;
-
-				if (lastHoveredRating === rating) {
-					return;
-				}
-				lastHoveredRating = rating;
 
 				$starsParent.html(masteriyo_helper.get_rating_markup(rating));
-				addClickListener($starsParent);
+				bindStarClickEvents($starsParent); // Rebind after rendering
+			}
+
+			// Handle clicks outside the stars — avoid resetting when unnecessary
+			$form.on('click', function (e) {
+				const $clickedStar = $(e.target).closest(
+					'.masteriyo-rating-input-icon',
+				);
+				const $withinStars = $(e.target).closest('.masteriyo-rstar');
+
+				// If clicked outside the rating UI
+				if ($clickedStar.length === 0 && $withinStars.length === 0) {
+					if (isDoneReset) return;
+
+					const currentRating = $form.find('input[name="rating"]').val() || 0;
+					renderStars(currentRating);
+
+					isDoneReset = true;
+					lastSetRating = null;
+				}
 			});
+
+			// Initial bind
+			bindStarClickEvents($form.find('.masteriyo-rstar'));
 		},
 		init_create_reviews_handler: function () {
 			var isCreating = false;

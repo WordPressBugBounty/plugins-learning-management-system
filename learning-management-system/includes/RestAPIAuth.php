@@ -103,13 +103,13 @@ class RestAPIAuth {
 			return $record['user_id'];
 		}
 
-		$this->set_error( new WP_Error( 'woocommerce_rest_authentication_error', __( 'Consumer secret is invalid.', 'learning-management-system' ), array( 'status' => 401 ) ) );
+		$this->set_error( new WP_Error( 'masteriyo_rest_authentication_error', __( 'Consumer secret is invalid.', 'learning-management-system' ), array( 'status' => 401 ) ) );
 
 		return $user_id;
 	}
 
 	/**
-	 * Is request is tutor rest api.
+	 * Is request is masteriyo rest api.
 	 *
 	 * @since 1.16.0
 	 *
@@ -119,14 +119,22 @@ class RestAPIAuth {
 		$rest_prefix = trailingslashit( rest_get_url_prefix() );
 		$request_uri = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 
-		$is_tutor_api = ( false !== strpos( $request_uri, $rest_prefix . 'masteriyo/' ) );
+		$is_masteriyo_api = ( false !== strpos( $request_uri, $rest_prefix . 'masteriyo/' ) );
 
-		return $is_tutor_api;
+		return $is_masteriyo_api;
 	}
 
+	/**
+	 * Sends unauthorized headers for basic authentication.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @param WP_REST_Response $response The response object.
+	 * @return WP_REST_Response The modified response object with authentication headers.
+	 */
 	public function send_unauthorized_headers( $response ) {
 		if ( is_wp_error( $this->get_error() ) && 'basic_auth' === $this->auth_method ) {
-			$auth_message = __( 'WooCommerce API. Use a consumer key in the username field and a consumer secret in the password field.', 'learning-management-system' );
+			$auth_message = __( 'Masteriyo API. Use a API key in the username field and a API secret in the password field.', 'learning-management-system' );
 			$response->header( 'WWW-Authenticate', 'Basic realm="' . $auth_message . '"', true );
 		}
 

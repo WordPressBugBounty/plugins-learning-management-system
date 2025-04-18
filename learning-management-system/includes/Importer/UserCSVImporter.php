@@ -169,6 +169,7 @@ class UserCSVImporter {
 			'nickname',
 			'first_name',
 			'last_name',
+			'password',
 			'description',
 			'locale',
 			'roles',

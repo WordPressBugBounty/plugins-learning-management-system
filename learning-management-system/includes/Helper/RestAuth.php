@@ -10,7 +10,10 @@ namespace Masteriyo\Helper;
 
 use WP_Error;
 
-defined( 'ABSPATH' ) || exit;
+//As this files autoload from composer.
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 /**
  * REST Auth helper class

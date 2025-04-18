@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo",
   "description": "An WordPress LMS plugin",
-  "version": "1.17.3",
+  "version": "1.17.4",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -125,10 +125,10 @@
   ],
   "scripts": {
     "phpcs": [
-      "phpcs"
+      "\"vendor/bin/phpcs\" -n -s -p"
     ],
     "phpcbf": [
-      "phpcbf"
+      "\"vendor/bin/phpcbf\""
     ],
     "makepot-audit": [
       "wp i18n make-pot . --slug=learning-management-system"

@@ -1,6 +1,9 @@
 <?php
 
-defined( 'ABSPATH' ) || exit;
+//As this files autoload from composer.
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 /**
  * Add a notice.

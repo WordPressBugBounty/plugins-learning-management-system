@@ -1,6 +1,9 @@
 <?php
 
-defined( 'ABSPATH' ) || exit;
+//As this files autoload from composer.
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 /**
  * Core functions.
@@ -2334,7 +2337,7 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 
 		// Handle password creation.
 		$password_generated = false;
-		if ( masteriyo_registration_is_generate_password() ) {
+		if ( empty( $password ) && masteriyo_registration_is_generate_password() ) {
 			$password           = wp_generate_password();
 			$password_generated = true;
 		}

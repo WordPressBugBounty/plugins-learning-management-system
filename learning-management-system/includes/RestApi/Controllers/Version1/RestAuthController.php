@@ -159,7 +159,7 @@ class RestAuthController extends WP_REST_Controller {
 		if ( ! masteriyo_is_current_user_admin() ) {
 			return new \WP_Error(
 				'masteriyo_permission_denied',
-				__( 'Sorry, you are not allowed to delete this.', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to perform this action.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

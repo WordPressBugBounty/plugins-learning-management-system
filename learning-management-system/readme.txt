@@ -1,10 +1,10 @@
- === Masteriyo LMS – eLearning and Online Course Builder for WordPress ===
+ === Masteriyo LMS – Online Course Builder for eLearning, LMS & Education ===
 Contributors: Masteriyo, sanjiv-saha
 Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.17.3
+Stable tag: 1.17.4
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -242,6 +242,12 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.17.4 - 18-04-2025 =
+- Fix - Import users password does not match while login.
+- Fix - Update authentication error messages and API references in RestAPIAuth and RestAuthController.
+- Fix - Three elements with same id warning in course settings.
+- Fix - Review star reset issue on IOS devices.
 
 = 1.17.3 - 08-04-2025 =
 - Update - Removed unwanted files from repo.

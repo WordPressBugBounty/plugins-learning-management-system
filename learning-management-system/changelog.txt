@@ -1,4 +1,10 @@
 == Changelog ==
+= 1.17.4 - 18-04-2025 =
+- Fix - Import users password does not match while login.
+- Fix - Update authentication error messages and API references in RestAPIAuth and RestAuthController.
+- Fix - Three elements with same id warning in course settings.
+- Fix - Review star reset issue on IOS devices.
+
 = 1.17.3 - 08-04-2025 =
 - Update - Removed unwanted files from repo.
 

@@ -20,7 +20,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 defined( 'MASTERIYO_SLUG' ) || define( 'MASTERIYO_SLUG', 'learning-management-system' );
-defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.17.3' );
+defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.17.4' );
 defined( 'MASTERIYO_PLUGIN_FILE' ) || define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
 defined( 'MASTERIYO_PLUGIN_BASENAME' ) || define( 'MASTERIYO_PLUGIN_BASENAME', plugin_basename( MASTERIYO_PLUGIN_FILE ) );
 defined( 'MASTERIYO_PLUGIN_DIR' ) || define( 'MASTERIYO_PLUGIN_DIR', dirname( MASTERIYO_PLUGIN_FILE ) );
@@ -30,11 +30,11 @@ defined( 'MASTERIYO_LANGUAGES' ) || define( 'MASTERIYO_LANGUAGES', dirname( MAST
 
 // Fix: Plugin deletion due to function re-declaration when PRO plugin is activated.
 if ( ! in_array( 'learning-management-system-pro/lms.php', get_option( 'active_plugins', array() ), true ) ) {
-	require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+	require_once __DIR__ . '/vendor/autoload.php';
 }
 
 if ( ! function_exists( 'masteriyo' ) ) {
-	$GLOBALS['masteriyo'] = require_once dirname( __FILE__ ) . '/bootstrap/app.php';
+	$GLOBALS['masteriyo'] = require_once __DIR__ . '/bootstrap/app.php';
 
 	/**
 	 * Return the service container.
@@ -111,7 +111,7 @@ if ( masteriyo_string_to_bool( masteriyo_get_setting( 'advance.uninstall.remove_
 	$roles        = array( 'masteriyo_student', 'masteriyo_instructor' );
 	$placeholders = implode( ' OR ', array_fill( 0, count( $roles ), 'meta_value LIKE %s' ) );
 	$query        = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = 'wp_capabilities' AND ($placeholders)";
-	$like_roles   = array_map( fn( $role) => '%' . $role . '%', $roles );
+	$like_roles   = array_map( fn( $role ) => '%' . $role . '%', $roles );
 	$user_ids     = $wpdb->get_col( $wpdb->prepare( $query, ...$like_roles ) ); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	if ( ! empty( $user_ids ) ) {
 		foreach ( $user_ids as $user_id ) {
