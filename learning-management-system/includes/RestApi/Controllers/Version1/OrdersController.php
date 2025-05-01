@@ -74,7 +74,7 @@ class OrdersController extends PostsController {
 	 *
 	 * @param Permission $permission Permission object.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 
 		add_action( 'masteriyo_after_trash_order', array( $this, 'update_enrollments_status_for_orders_deletion' ), 10, 2 );

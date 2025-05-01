@@ -57,7 +57,7 @@ class AddonsController extends RestController {
 	 *
 	 * @param Masteriyo\Addons $addons
 	 */
-	public function __construct( Addons $addons = null ) {
+	public function __construct( ?Addons $addons = null ) {
 		$this->addons = $addons;
 	}
 

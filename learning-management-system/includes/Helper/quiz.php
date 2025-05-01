@@ -412,3 +412,34 @@ if ( ! function_exists( 'masteriyo_get_instructor_quiz_ids' ) ) {
 		return $quiz_ids;
 	}
 }
+
+if ( ! function_exists( 'masteriyo_get_questions_bank_data_by_quiz_id' ) ) {
+	/**
+	 * Gets the questions associated with a quiz.
+	 *
+	 * @since 1.17.5
+	 *
+	 * @param int $quiz_id The ID of the quiz.
+	 *
+	 * @return array An array of question data.
+	 */
+	function masteriyo_get_questions_bank_data_by_quiz_id( $quiz_id ) {
+		global $wpdb;
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT question_id, menu_order
+				FROM {$wpdb->prefix}masteriyo_quiz_question_rel
+				WHERE quiz_id = %d",
+				absint( $quiz_id )
+			),
+			ARRAY_A
+		);
+
+		if ( empty( $results ) || ! is_array( $results ) ) {
+			return array();
+		}
+
+		return $results;
+	}
+}

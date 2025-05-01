@@ -70,7 +70,6 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 		'instructor_apply_status' => '_instructor_apply_status',
 
 		'auto_create_user'        => '_auto_create_user',
-
 	);
 
 	/**
@@ -125,11 +124,23 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 		}
 
 		if ( $id && ! is_wp_error( $id ) ) {
+			$wp_user = get_user_by( 'id', $id );
+
 			// Append roles if there are more than one roles.
-			if ( count( $user->get_roles( 'edit' ) ) > 1 ) {
-				$wp_user = get_user_by( 'id', $id );
+			if ( $wp_user && count( $user->get_roles( 'edit' ) ) > 1 ) {
 				foreach ( $user->get_roles( 'edit' ) as $role ) {
 					$wp_user->add_role( $role );
+				}
+			}
+
+			$args = array();
+
+			if ( masteriyo_string_to_bool( $user->get_auto_create_user( 'edit' ) ) ) {
+				$args['password'] = $user->get_password( 'edit' );
+
+				if ( $wp_user ) {
+					$key               = get_password_reset_key( $wp_user );
+					$args['reset_key'] = $key;
 				}
 			}
 
@@ -156,11 +167,13 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 			 * Fire after a new user is created.
 			 *
 			 * @since 1.0.0
+			 * @since 1.17.5 Added the `$args` parameter.
 			 *
 			 * @param int $id User ID.
 			 * @param \Masteriyo\Models\User $user User object.
+			 * @param array $args Array of args to pass.
 			 */
-			do_action( 'masteriyo_new_user', $id, $user );
+			do_action( 'masteriyo_new_user', $id, $user, $args );
 		}
 	}
 

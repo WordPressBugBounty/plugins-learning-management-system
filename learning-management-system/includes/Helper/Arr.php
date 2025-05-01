@@ -264,7 +264,7 @@ function masteriyo_array_except( $array, $keys ) {
  * @param  mixed  $default
  * @return mixed
  */
-function masteriyo_array_first( $array, callable $callback = null, $default = null ) {
+function masteriyo_array_first( $array, ?callable $callback = null, $default = null ) {
 	if ( is_null( $callback ) ) {
 		if ( empty( $array ) ) {
 			return masteriyo_value( $default );
@@ -294,7 +294,7 @@ function masteriyo_array_first( $array, callable $callback = null, $default = nu
  * @param  mixed  $default
  * @return mixed
  */
-function masteriyo_array_last( $array, callable $callback = null, $default = null ) {
+function masteriyo_array_last( $array, ?callable $callback = null, $default = null ) {
 	if ( is_null( $callback ) ) {
 		return empty( $array ) ? masteriyo_value( $default ) : end( $array );
 	}
@@ -626,7 +626,7 @@ function masteriyo_array_prepend( $array, $value, $key = null ) {
 	return $array;
 }
 
- /**
+/**
  * Get a value from the array, and remove it.
  *
  * @since 1.3.6

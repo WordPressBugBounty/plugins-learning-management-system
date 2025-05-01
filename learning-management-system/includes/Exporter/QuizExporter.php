@@ -98,7 +98,7 @@ class QuizExporter {
 			$post_meta  = get_post_meta( $post->ID );
 
 			if ( PostType::QUIZ === $post->post_type ) {
-				$post_array['bank_data'] = $this->get_bank_data( $post->ID );
+				$post_array['bank_data'] = masteriyo_get_questions_bank_data_by_quiz_id( $post->ID );
 			}
 
 			$post_array['meta'] = $post_meta;
@@ -106,34 +106,6 @@ class QuizExporter {
 		}
 
 		return $posts_with_meta;
-	}
-
-	/**
-	 * Gets the questions associated with a quiz.
-	 *
-	 * @since 1.17.0
-	 *
-	 * @param int $quiz_id The ID of the quiz.
-	 *
-	 * @return array An array of question data.
-	 */
-	private function get_bank_data( $quiz_id ) {
-		global $wpdb;
-
-		try {
-			$results = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT question_id, menu_order
-				 FROM {$wpdb->prefix}masteriyo_quiz_question_rel
-				 WHERE quiz_id = %d",
-					$quiz_id
-				)
-			);
-		} catch ( \Exception $e ) {
-			return array();
-		}
-
-		return $results;
 	}
 
 	/**

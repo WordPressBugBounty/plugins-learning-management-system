@@ -71,7 +71,7 @@ class UsersController extends CrudController {
 	 *
 	 * @param Permission $permission Permission instance.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 
@@ -1139,6 +1139,11 @@ class UsersController extends CrudController {
 						),
 					),
 				),
+				'created_via'             => array(
+					'description' => __( 'How the user was created.', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
 				'meta_data'               => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
@@ -1345,6 +1350,10 @@ class UsersController extends CrudController {
 
 		if ( isset( $request['billing']['phone'] ) ) {
 			$user->set_billing_phone( $request['billing']['phone'] );
+		}
+
+		if ( isset( $request['created_via'] ) && 'admin' === $request['created_via'] ) {
+			$user->set_auto_create_user( true );
 		}
 
 		// Allow set meta_data.

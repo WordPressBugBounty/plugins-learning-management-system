@@ -78,7 +78,7 @@ class QuizBuilderController extends PostsController {
 	 *
 	 * @param Permission $permission
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 
@@ -517,11 +517,34 @@ class QuizBuilderController extends PostsController {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	protected function save_question_order( $request ) {
+		$parent_id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+
+		if ( ! $parent_id ) {
+			return;
+		}
+
 		$questions = isset( $request['questions'] ) ? $request['questions'] : array();
 		$questions = array_filter( $questions, array( $this, 'filter_questions' ) );
 
+		// Retrieve the list of question IDs already linked to the quiz.
+		$bank_data       = masteriyo_get_questions_bank_data_by_quiz_id( $parent_id );
+		$linked_question = array_filter(
+			array_map(
+				function( $item ) {
+					return isset( $item['question_id'] ) ? absint( $item['question_id'] ) : null;
+				},
+				$bank_data
+			)
+		);
+
 		foreach ( $questions as $menu_order => $question ) {
-			$this->update_post( $question, $menu_order, $request['id'] );
+			// If the question is already linked to the quiz, update its order.
+			if ( in_array( $question, $linked_question, true ) ) {
+				masteriyo_add_question_to_quiz( $parent_id, $question, $menu_order );
+			} else {
+				// Otherwise, update the question post order directly.
+				$this->update_post( $question, $menu_order, $parent_id );
+			}
 		}
 	}
 
@@ -540,7 +563,6 @@ class QuizBuilderController extends PostsController {
 		}
 
 		if ( $post->menu_order !== $menu_order || $post->post_parent !== $parent_id ) {
-			masteriyo_add_question_to_quiz( $parent_id, $post->ID, $menu_order );
 			wp_update_post(
 				array(
 					'ID'          => $post->ID,

@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.17.4
+Stable tag: 1.17.5
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -242,6 +242,23 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.17.5 - 01-05-2025 =
+- Feature - Coupons can now be applied to specific courses, bundles, and course categories. [PRO]
+- Feature - Added support for automatic and stackable coupons. [PRO]
+- Compatibility - PHP 8.4 compatible.
+- Enhancement - Send login info to the user when created via admin.
+- Enhancement - Custom font support in certificate blocks. [PRO]
+- Refactor - Implement transient cache in user course repository.
+- Fix - Extra questions appearing after importing quiz.
+- Fix - User role undefined issue in account page.
+- Fix - useMasteriyoPlayer scope issue.
+- Fix - Cannot declare class WpOrg\Requests\Requests. [PRO]
+- Fix - PDF lesson flickering issue. [PRO]
+- Fix - Correct password handling in CSV user enrolment. [PRO]
+- Fix - Reduce unnecessary activity log requests by skipping tracking for non-logged-in users. [PRO]
+- Fix - Fill in the blanks answers prefill issue. [PRO]
+- Fix - Order invoice fatal error when certificate addon is disable.
 
 = 1.17.4 - 18-04-2025 =
 - Fix - Import users password does not match while login.

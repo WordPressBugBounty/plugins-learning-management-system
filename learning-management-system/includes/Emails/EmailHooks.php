@@ -56,7 +56,7 @@ class EmailHooks {
 	 */
 	public static function init() {
 		add_action( 'masteriyo_after_password_reset_email', array( __CLASS__, 'schedule_password_reset_request_email' ), 10, 3 );
-		add_action( 'masteriyo_created_customer', array( __CLASS__, 'schedule_automatic_registration_email_to_student' ), 10, 3 );
+		add_action( 'masteriyo_new_user', array( __CLASS__, 'schedule_automatic_registration_email_to_student' ), 10, 3 );
 
 		// Apply for instructor from student profile.
 		add_action( 'masteriyo_update_user', array( __CLASS__, 'schedule_instructor_apply_rejected_email_to_student' ), 10, 2 );
@@ -131,11 +131,11 @@ class EmailHooks {
 	 *
 	 * @since 1.15.0
 	 *
+	 * @param int $user_id User ID.
 	 * @param \Masteriyo\Models\User $user User object.
-	 * @param string $is_password_generated The generated password.
 	 * @param array $args The list of additional arguments.
 	 */
-	public static function schedule_automatic_registration_email_to_student( $user, $is_password_generated, $args ) {
+	public static function schedule_automatic_registration_email_to_student( $user_id, $user, $args ) {
 		if ( ! $user->has_roles( 'masteriyo_student' ) || ! masteriyo_string_to_bool( $user->get_auto_create_user() ) ) {
 			return;
 		}
@@ -150,11 +150,7 @@ class EmailHooks {
 			return;
 		}
 
-		if ( self::is_email_schedule_enabled() ) {
-			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $user->get_id() ), 'learning-management-system' );
-		} else {
-			$email->trigger( $user, isset( $args['password'] ) ? $args['password'] : '', isset( $args['reset_key'] ) ? $args['reset_key'] : '' );
-		}
+		$email->trigger( $user, isset( $args['password'] ) ? $args['password'] : '', isset( $args['reset_key'] ) ? $args['reset_key'] : '' );
 	}
 
 	/**

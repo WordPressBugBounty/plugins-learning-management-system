@@ -64,7 +64,7 @@ class BlocksController extends CrudController {
 	 *
 	 * @param Permission $permission
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

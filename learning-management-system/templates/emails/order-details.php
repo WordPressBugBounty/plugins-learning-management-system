@@ -72,7 +72,7 @@ do_action( 'masteriyo_email_before_order_table', $order, $email ); ?>
 			if ( $order->get_customer_note() ) {
 				?>
 				<tr>
-					<th scope="row" colspan="2" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Note:', 'learning-management-system' ); ?></th>
+					<th scope="row" colspan="1" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Note:', 'learning-management-system' ); ?></th>
 					<td style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php echo wp_kses_post( nl2br( wptexturize( $order->get_customer_note() ) ) ); ?></td>
 				</tr>
 				<?php

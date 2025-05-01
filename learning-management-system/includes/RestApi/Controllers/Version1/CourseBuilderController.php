@@ -81,7 +81,7 @@ class CourseBuilderController extends PostsController {
 	 *
 	 * @param Permission $permission
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

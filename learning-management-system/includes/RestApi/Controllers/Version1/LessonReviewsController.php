@@ -64,7 +64,7 @@ class LessonReviewsController extends CourseReviewsController {
 	 *
 	 * @param Permission $permission Permission instance.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

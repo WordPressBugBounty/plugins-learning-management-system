@@ -61,7 +61,7 @@ class CourseProgressItemsController extends CrudController {
 	 *
 	 * @param Permission $permission Permission object.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

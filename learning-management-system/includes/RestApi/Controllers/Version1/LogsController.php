@@ -74,7 +74,7 @@ class LogsController extends CrudController {
 	 * @since 1.12.2
 	 * @param Permission|null $permission The permission handler instance.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

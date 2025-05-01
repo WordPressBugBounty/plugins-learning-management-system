@@ -2405,10 +2405,7 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 			throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) );
 		}
 
-		$key = get_password_reset_key( $wp_user );
-
-		$args['reset_key'] = $key;
-		$args['password']  = $password;
+		$args['password'] = $password;
 
 		/**
 		 * Fires after creating a new user.

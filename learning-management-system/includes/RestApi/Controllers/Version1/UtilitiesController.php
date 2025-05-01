@@ -55,7 +55,7 @@ class UtilitiesController extends WP_REST_Controller {
 	 * @since 1.9.0
 	 * @param Permission|null $permission The permission handler instance.
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 	}
 

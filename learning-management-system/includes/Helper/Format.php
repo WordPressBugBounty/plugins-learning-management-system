@@ -109,12 +109,14 @@ function masteriyo_string_to_timestamp( $time_string, $from_timestamp = null ) {
 	// phpcs:disable
 	date_default_timezone_set( 'UTC' );
 
+	$time_string = $time_string ?? '';
+
 	if ( null === $from_timestamp ) {
 		$next_timestamp = strtotime( $time_string );
 	} else {
 		$next_timestamp = strtotime( $time_string, $from_timestamp );
 	}
-
+	
 	date_default_timezone_set( $original_timezone );
 	// phpcs:enable
 

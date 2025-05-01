@@ -73,7 +73,7 @@ class BrevoIntegrationController extends CrudController {
 	 *
 	 * @param \Masteriyo\Helper\Permission $permission
 	 */
-	public function __construct( Permission $permission = null ) {
+	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
 		$this->api_client = new API( BrevoIntegrationSettings::get_api_key() );
 	}

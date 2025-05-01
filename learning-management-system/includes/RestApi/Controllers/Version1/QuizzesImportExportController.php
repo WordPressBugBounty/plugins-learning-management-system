@@ -429,8 +429,10 @@ class QuizzesImportExportController extends RestController {
 			$quiz_id = $this->import_quiz( $quiz, $section_id, $course_id );
 
 			if ( is_wp_error( $quiz_id ) ) {
-					return $quiz_id;
+				return $quiz_id;
 			}
+
+			$processed_questions = array();
 
 			// Insert question bank data.
 			if ( isset( $quiz['bank_data'] ) && is_array( $quiz['bank_data'] ) ) {
@@ -440,12 +442,14 @@ class QuizzesImportExportController extends RestController {
 
 					if ( $question_id ) {
 						masteriyo_add_question_to_quiz( $quiz_id, $question_id, $menu_order );
+
+						$processed_questions[] = $question_id;
 					}
 				}
 			}
 
 			if ( ! empty( $questions ) ) {
-					$this->import_quiz_questions( $questions, $quiz_id, $course_id );
+					$this->import_quiz_questions( $questions, $quiz_id, $course_id, $processed_questions );
 			}
 		}
 
@@ -577,13 +581,18 @@ class QuizzesImportExportController extends RestController {
 	 * @param array $questions The list of questions.
 	 * @param int $quiz_id The new quiz ID.
 	 * @param int $course_id The course ID.
+	 * @param array $processed_questions The list of processed questions.
 	 *
 	 * @return void
 	 */
-	private function import_quiz_questions( $questions, $quiz_id, $course_id ) {
+	private function import_quiz_questions( $questions, $quiz_id, $course_id, $processed_questions = array() ) {
 		foreach ( $questions as $question ) {
 			if ( ! is_array( $question ) || PostType::QUESTION !== $question['post_type'] ) {
-					continue;
+				continue;
+			}
+
+			if ( in_array( $question['ID'], $processed_questions, true ) ) {
+				continue;
 			}
 
 			$question['post_parent']        = $quiz_id;
