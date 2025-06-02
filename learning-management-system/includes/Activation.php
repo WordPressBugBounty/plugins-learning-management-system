@@ -30,7 +30,6 @@ class Activation {
 	 */
 	public static function on_activate() {
 		self::create_roles();
-		self::create_pages();
 		self::assign_core_capabilities_to_admin();
 		self::attach_placeholder_image();
 		self::create_log_files();

@@ -358,6 +358,8 @@ class LessonsController extends PostsController {
 			'starts_at'                 => masteriyo_rest_prepare_date_response( $lesson->get_starts_at( $context ) ),
 			'live_chat_enabled'         => $lesson->get_live_chat_enabled( $context ),
 			'enable_lesson_comment'     => masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ),
+			'custom_fields'             => $lesson->get_custom_fields( $context ),
+
 		);
 
 		$video_type       = $lesson->get_video_source( $context );
@@ -730,6 +732,12 @@ class LessonsController extends PostsController {
 						),
 					),
 				),
+				'custom_fields'       => array(
+					'description' => __( 'Custom fields', 'learning-management-system' ),
+					'type'        => 'object',
+					'default'     => '',
+					'context'     => array( 'view', 'edit' ),
+				),
 			),
 		);
 
@@ -872,6 +880,11 @@ class LessonsController extends PostsController {
 		if ( isset( $request['video_meta'] ) ) {
 			$lesson->set_video_meta( $request['video_meta'] );
 
+		}
+
+		// Custom Fields.
+		if ( isset( $request['custom_fields'] ) ) {
+			$lesson->set_custom_fields( $request['custom_fields'] );
 		}
 			/**
 			 * Filters an object before it is inserted via the REST API.
@@ -1179,5 +1192,4 @@ class LessonsController extends PostsController {
 
 		return $user_ids;
 	}
-
 }

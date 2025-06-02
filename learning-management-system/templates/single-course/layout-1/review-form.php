@@ -62,18 +62,22 @@ do_action( 'masteriyo_before_single_course_review_form' );
 </div>
 <?php else : ?>
 	<div class="masteriyo-login-msg masteriyo-submit-container">
-		<p>
+	<p>
 			<?php
+			$review_for_enrolled_user_only = masteriyo_get_setting( 'single_course.display.enable_review_enrolled_users_only' );
+			$enrollment_text               = $review_for_enrolled_user_only ? __( 'and enrolled', 'learning-management-system' ) : '';
+
 			printf(
-				/* translators: %s: Achor tag html with text "logged in" */
-				esc_html__( 'You must be %s to submit a review.', 'learning-management-system' ),
+					/* translators: %s: Anchor tag html with text "logged in", %s: additional enrollment text when review is restricted to enrolled users. */
+				esc_html__( 'You must be %1$s %2$s to submit a review .', 'learning-management-system' ),
 				wp_kses_post(
 					sprintf(
 						'<a href="%s" class="masteriyo-link-primary">%s</a>',
 						masteriyo_get_page_permalink( 'account' ),
 						__( 'logged in', 'learning-management-system' )
 					)
-				)
+				),
+				esc_html( $enrollment_text )
 			);
 			?>
 		</p>

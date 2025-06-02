@@ -144,6 +144,13 @@ class EmailHooks {
 			return;
 		}
 
+		if ( masteriyo_is_email_verification_enabled() ) {
+			$email_verification = new EmailVerificationEmail();
+			if ( $email_verification->is_enabled() ) {
+				$email_verification->trigger( $user );
+			}
+		}
+
 		$email = new AutomaticRegistrationEmailToStudent();
 
 		if ( ! $email->is_enabled() ) {

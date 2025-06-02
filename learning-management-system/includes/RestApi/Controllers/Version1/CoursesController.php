@@ -545,6 +545,8 @@ class CoursesController extends PostsController {
 			'welcome_message_to_first_time_user' => $course->get_welcome_message_to_first_time_user( $context ),
 			'course_badge'                       => $course->get_course_badge( $context ),
 			'flow'                               => $course->get_flow( $context ),
+			'custom_fields'                      => $course->get_custom_fields( $context ),
+
 		);
 
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' ) || user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
@@ -982,6 +984,12 @@ class CoursesController extends PostsController {
 					'default'     => CourseFlow::FREE_FLOW,
 					'enum'        => CourseFlow::all(),
 				),
+				'custom_fields'                  => array(
+					'description' => __( 'Custom fields', 'learning-management-system' ),
+					'type'        => 'object',
+					'default'     => '',
+					'context'     => array( 'view', 'edit' ),
+				),
 				'meta_data'                      => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
@@ -1210,6 +1218,11 @@ class CoursesController extends PostsController {
 		// Course flow.
 		if ( isset( $request['flow'] ) ) {
 			$course->set_flow( $request['flow'] );
+		}
+
+		// Custom field values.
+		if ( isset( $request['custom_fields'] ) ) {
+			$course->set_custom_fields( $request['custom_fields'] );
 		}
 
 		/**

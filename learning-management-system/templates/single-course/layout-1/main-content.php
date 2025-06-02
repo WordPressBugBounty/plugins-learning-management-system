@@ -49,9 +49,9 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 					<li class="masteriyo-single-body__main--tabbar-item" onClick="masteriyoSelectSingleCoursePageTabById(event);" data-tab-id="masteriyoSingleCourseCurriculumTab"><?php esc_html_e( 'Curriculum', 'learning-management-system' ); ?></< /li>
 					<?php endif; ?>
 				<?php endif; ?>
-
-					<li class="masteriyo-single-body__main--tabbar-item" onClick="masteriyoSelectSingleCoursePageTabById(event);" data-tab-id="masteriyoSingleCourseReviewsTab"><?php esc_html_e( 'Reviews', 'learning-management-system' ); ?></li>
-
+				<?php if ( $course->is_review_allowed() ) : ?>
+				<li class="masteriyo-single-body__main--tabbar-item" onClick="masteriyoSelectSingleCoursePageTabById(event);" data-tab-id="masteriyoSingleCourseReviewsTab"><?php esc_html_e( 'Reviews', 'learning-management-system' ); ?></li>
+				<?php endif; ?>
 					<?php
 					/**
 					 * Fires after the tab bar in the main content area for the single course layout 1.
@@ -273,6 +273,9 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 
 				<!-- Review form -->
 				<?php
+				$course_id = $course->get_id();
+
+				$reviews_and_replies = masteriyo_get_course_reviews_and_replies( $course_id, 1 );
 				/**
 				 * Fires to render review content on single course page layout 1.
 				 *
@@ -280,7 +283,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 				 *
 				 * @param \Masteriyo\Models\Course $course The course object.
 				 */
-				do_action( 'masteriyo_layout_1_single_course_review_content', $course );
+				do_action( 'masteriyo_layout_1_single_course_review_content', $course, $reviews_and_replies );
 				?>
 			</div>
 

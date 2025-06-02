@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
@@ -24,6 +23,7 @@ import {
 	HeaderTop,
 } from '../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../assets/js/back-end/components/common/MasteriyoPagination';
+import { AddCourseIcon } from '../../../../../assets/js/back-end/constants/images';
 import Sorting from '../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../assets/js/back-end/utils/api';
 import {
@@ -276,7 +276,15 @@ const AllPriceZones = () => {
 					<HeaderRightSection>
 						<HeaderPrimaryButton
 							onClick={() => navigate(multipleCurrencyBackendRoutes.add)}
-							leftIcon={min360px ? <Add /> : undefined}
+							leftIcon={
+								min360px ? (
+									<AddCourseIcon
+										fill="currentColor"
+										width="16px"
+										height="16px"
+									/>
+								) : undefined
+							}
 						>
 							{__('Add New Pricing Zone', 'learning-management-system')}
 						</HeaderPrimaryButton>

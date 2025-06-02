@@ -2104,6 +2104,7 @@ function masteriyo_get_svg( $name, $echo = false ) {
 			'width'           => true,
 			'height'          => true,
 			'viewbox'         => true, // <= Must be lower case!
+			'viewBox'         => true,
 			'fill'            => true,
 		),
 		'g'     => array( 'fill' => true ),
@@ -3990,6 +3991,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_profile_page'     => true,
 					'enable_instructor_apply' => true,
 					'enable_edit_profile'     => true,
+					'enable_google_meet'      => false,
 					'enable_certificate_page' => true,
 					'layout'                  => array(
 						'enable_header_footer' => true,
@@ -4443,6 +4445,46 @@ function masteriyo_is_instructor_active() {
 	}
 
 	return $instructor->is_active();
+}
+
+if ( ! function_exists( 'masteriyo_paginate_links' ) ) {
+	/**
+	 * Retrieves paginated links for archive post pages. Uses the given WP_Query object if given.
+	 *
+	 * NOTE: This is a wrapper function for 'paginate_links' to add support for custom WP_Query object.
+	 *
+	 * @since 2.5.18
+	 *
+	 * @uses paginate_links WP core pagination function.
+	 * @see https://developer.wordpress.org/reference/functions/paginate_links/
+	 *
+	 * @param string|array $args Array or string of arguments for generating paginated links for archives.
+	 * @param \WP_Query|null $query Query object to use. If it's not provided, the global wp_query object will be used.
+	 *
+	 * @return string|array|void String of page links or array of page links, depending on 'type' argument.
+	 *                           Void if total number of pages is less than 2.
+	 */
+	function masteriyo_paginate_links( $args = '', $query = null ) {
+		$result = '';
+
+		if ( $query instanceof \WP_Query ) {
+			// Backup original query object.
+			$old_query = $GLOBALS['wp_query'];
+
+			// Switch to the given query object.
+			$GLOBALS['wp_query'] = $query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+			// Generate pagination links with the new query object.
+			$result = paginate_links( $args );
+
+			// Restore the origin query object.
+			$GLOBALS['wp_query'] = $old_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		} else {
+			$result = paginate_links( $args );
+		}
+
+		return $result;
+	}
 }
 
 
@@ -5820,19 +5862,39 @@ if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
 							)
 						);
 
+						$onboarding_data    = get_option( 'masteriyo_onboarding_data', array() );
+						$onboarding_started = $onboarding_data['started'] ?? false;
+
 						$notice_message = sprintf(
-							/* translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages, 4: Link text */
+						/* translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages */
 							_n(
-								'%1$s %2$d page is missing: %3$s. Please configure it, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set it up automatically.',
-								'%1$s %2$d pages are missing: %3$s. Please configure them, or <a href="#" id="masteriyo-setup-pages">%4$s</a> to set them up automatically.',
+								'%1$s %2$d page is missing: %3$s.',
+								'%1$s %2$d pages are missing: %3$s.',
 								$missing_pages_count,
 								'learning-management-system'
 							),
 							$notice_title,
 							$missing_pages_count,
-							wp_kses_post( $missing_pages_list ),
-							esc_html__( 'click here', 'learning-management-system' )
+							wp_kses_post( $missing_pages_list )
 						);
+
+						if ( $onboarding_started ) {
+							$notice_message .= ' ' . sprintf(
+							/* translators: %s: "click here" link text */
+								__( 'Please configure it, or <a href="#" id="masteriyo-setup-pages">%s</a> to set it up automatically.', 'learning-management-system' ),
+								esc_html__( 'click here', 'learning-management-system' )
+							);
+						} else {
+							$notice_message .= ' ' . sprintf(
+							/* translators: 1: Onboarding URL, 2: "click here" link text */
+								__(
+									'Missing required setup. <a class="masteriyo-onboarding-notice-link" href="%1$s">Complete the onboarding process</a> (recommended) or <a class="masteriyo-onboarding-notice-link" href="#" id="masteriyo-setup-pages">%2$s</a> to automatically create the missing pages.',
+									'learning-management-system'
+								),
+								esc_url( admin_url( 'admin.php?page=masteriyo-onboard' ) ),
+								esc_html__( 'click here', 'learning-management-system' )
+							);
+						}
 
 						printf(
 							'<div class="notice notice-warning is-dismissible masteriyo-pages-missing-notice"><p>%s</p></div>',
@@ -5954,5 +6016,80 @@ if ( ! function_exists( 'masteriyo_string_translation' ) ) {
 		}
 
 		return $value;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_show_onboarding_completion_notice' ) ) {
+	/**
+	 * Shows an admin notice to remind about completing the onboarding process.
+	 *
+	 * @since 1.18.0
+	 *
+	 * @return void
+	 */
+	function masteriyo_show_onboarding_completion_notice() {
+		add_action(
+			'masteriyo_admin_notices',
+			function () {
+				// New onboarding feature release date (YYYY-MM-DD).
+				$onboarding_release_date = '2025-05-20';
+				$install_date            = get_option( 'masteriyo_install_date' );
+
+				// Don't show notice if installed before onboarding existed.
+				if ( $install_date && strtotime( $install_date ) < strtotime( $onboarding_release_date ) ) {
+					return;
+				}
+
+				$onboarding_data = get_option( 'masteriyo_onboarding_data', array() );
+				if ( ! $onboarding_data || ! isset( $onboarding_data['started'] ) || ! $onboarding_data['started'] ) {
+					return;
+				}
+
+				$valid_steps  = array( 'business_type', 'marketplace', 'course', 'payment' );
+				$current_step = null;
+
+				foreach ( $valid_steps as $step ) {
+					$step_data = $onboarding_data['steps'][ $step ] ?? array();
+
+					$skipped   = $step_data['skipped'] ?? false;
+					$completed = $step_data['completed'] ?? false;
+
+					// Show notice if the step is either skipped or not completed.
+					if ( $skipped || ! $completed ) {
+
+						// Special case: show 'marketplace' step only if business_type is 'marketplace'.
+						if ( 'marketplace' === $step ) {
+							$business_type = $onboarding_data['steps']['business_type']['options']['business_type'] ?? 'individual';
+
+							if ( 'marketplace' !== $business_type ) {
+								continue;
+							}
+						}
+
+						$current_step = $step;
+						break;
+					}
+				}
+
+				if ( $current_step ) {
+					$url  = esc_url( admin_url( 'admin.php?page=masteriyo-onboard&step=' . $current_step ) );
+					$text = esc_html( ucfirst( str_replace( '_', ' ', $current_step ) ) );
+
+					$message = sprintf(
+						/* translators: %1$s: URL, %2$s: onboarding step name. */
+						__( 'Please complete the Masteriyo onboarding process. <a href="%1$s">Continue with %2$s step</a>', 'learning-management-system' ),
+						$url,
+						$text
+					);
+
+					echo wp_kses_post(
+						sprintf(
+							'<div class="notice notice-warning"><p>%s</p></div>',
+							$message
+						)
+					);
+				}
+			}
+		);
 	}
 }

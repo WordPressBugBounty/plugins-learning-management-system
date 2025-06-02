@@ -50,6 +50,7 @@ class Masteriyo {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
+		add_filter( 'doing_it_wrong_trigger_error', array( $this, 'masteriyo_filter_doing_it_wrong_trigger_error' ), 10, 4 );
 		$this->init();
 	}
 
@@ -254,6 +255,7 @@ class Masteriyo {
 		$this->handle_paypal_ipn();
 
 		masteriyo_notify_pages_missing();
+		masteriyo_show_onboarding_completion_notice();
 
 		// Download the fonts.
 		masteriyo_download_certificate_fonts();
@@ -531,7 +533,7 @@ class Masteriyo {
 			return;
 		}
 
-		if ( time() > $expiration || $confirm_token !== $stored_key || ! wp_verify_nonce( sanitize_key(wp_unslash($nonce)), 'masteriyo_email_verification_nonce' ) ) {
+		if ( time() > $expiration || $confirm_token !== $stored_key || ! wp_verify_nonce( sanitize_key( wp_unslash( $nonce ) ), 'masteriyo_email_verification_nonce' ) ) {
 			return;
 		}
 		$user = masteriyo_get_user( $uid );
@@ -1295,5 +1297,27 @@ class Masteriyo {
 		}
 
 		echo '<span class="dashicons dashicons-lock" style="margin-left:auto;"></span>';
+	}
+
+	/**
+	 * Filter for _doing_it_wrong() calls.
+	 *
+	 * @since 1.18.1
+	 *
+	 * @param bool|mixed $trigger       Whether to trigger the error for _doing_it_wrong() calls. Default true.
+	 * @param string     $function_name The function that was called.
+	 * @param string     $message       A message explaining what has been done incorrectly.
+	 * @param string     $version       The version of WordPress where the message was added.
+	 *
+	 * @return bool
+	 */
+	public function masteriyo_filter_doing_it_wrong_trigger_error( $trigger, $function_name, $message, $version ) {
+
+		$trigger       = (bool) $trigger;
+		$function_name = (string) $function_name;
+		$message       = (string) $message;
+
+		$is_trigger_for_masteriyo = '_load_textdomain_just_in_time' === $function_name && strpos( $message, '<code>learning-management-system' ) !== false;
+		return $is_trigger_for_masteriyo ? false : $trigger;
 	}
 }

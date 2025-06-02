@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit085e57850329f494640de6dad4b4a896
+class ComposerStaticInit26a27282c0e232ef5795a2db2cbfad2f
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -43,6 +43,7 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'ba074860d28eb948aad71fd704d2ccc9' => __DIR__ . '/../..' . '/includes/Helper/email.php',
         'b3849b76cb854896467afa018bf4179f' => __DIR__ . '/../..' . '/includes/Helper/export-import.php',
         'a4be7676601bf1e39ad1e3bf706e42b8' => __DIR__ . '/../..' . '/includes/Helper/LoginSessionManagement.php',
+        'ef7038785cc8bae2ff392e21d8e59a46' => __DIR__ . '/..' . '/codeinwp/themeisle-sdk/load.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -88,6 +89,8 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
             'Masteriyo\\Addons\\Stripe\\' => 24,
             'Masteriyo\\Addons\\Scorm\\' => 23,
             'Masteriyo\\Addons\\RevenueSharing\\' => 32,
+            'Masteriyo\\Addons\\Recaptcha\\' => 27,
+            'Masteriyo\\Addons\\PasswordStrength\\' => 34,
             'Masteriyo\\Addons\\OxygenIntegration\\' => 35,
             'Masteriyo\\Addons\\MultipleCurrency\\' => 34,
             'Masteriyo\\Addons\\Mollie\\' => 24,
@@ -237,6 +240,14 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\Addons\\RevenueSharing\\' => 
         array (
             0 => __DIR__ . '/../..' . '/addons/revenue-sharing',
+        ),
+        'Masteriyo\\Addons\\Recaptcha\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/addons/recaptcha',
+        ),
+        'Masteriyo\\Addons\\PasswordStrength\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/addons/password-strength',
         ),
         'Masteriyo\\Addons\\OxygenIntegration\\' => 
         array (
@@ -766,6 +777,19 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\Addons\\OxygenIntegration\\OxygenElement' => __DIR__ . '/../..' . '/addons/oxygen-integration/OxygenElement.php',
         'Masteriyo\\Addons\\OxygenIntegration\\OxygenIntegrationAddon' => __DIR__ . '/../..' . '/addons/oxygen-integration/OxygenIntegrationAddon.php',
         'Masteriyo\\Addons\\OxygenIntegration\\Providers\\OxygenIntegrationServiceProvider' => __DIR__ . '/../..' . '/addons/oxygen-integration/Providers/OxygenIntegrationServiceProvider.php',
+        'Masteriyo\\Addons\\PasswordStrength\\Enums\\PasswordStrength' => __DIR__ . '/../..' . '/addons/password-strength/Enums/PasswordStrength.php',
+        'Masteriyo\\Addons\\PasswordStrength\\GlobalSetting' => __DIR__ . '/../..' . '/addons/password-strength/GlobalSetting.php',
+        'Masteriyo\\Addons\\PasswordStrength\\PasswordStrengthAddon' => __DIR__ . '/../..' . '/addons/password-strength/PasswordStrengthAddon.php',
+        'Masteriyo\\Addons\\PasswordStrength\\Providers\\PasswordStrengthServiceProvider' => __DIR__ . '/../..' . '/addons/password-strength/Providers/PasswordStrengthServiceProvider.php',
+        'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaDomain' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaDomain.php',
+        'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaPage' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaPage.php',
+        'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaSize' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaSize.php',
+        'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaTheme' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaTheme.php',
+        'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaVersion' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaVersion.php',
+        'Masteriyo\\Addons\\Recaptcha\\GlobalSetting' => __DIR__ . '/../..' . '/addons/recaptcha/GlobalSetting.php',
+        'Masteriyo\\Addons\\Recaptcha\\Providers\\RecaptchaServiceProvider' => __DIR__ . '/../..' . '/addons/recaptcha/Providers/RecaptchaServiceProvider.php',
+        'Masteriyo\\Addons\\Recaptcha\\RecaptchaAddon' => __DIR__ . '/../..' . '/addons/recaptcha/RecaptchaAddon.php',
+        'Masteriyo\\Addons\\Recaptcha\\Request' => __DIR__ . '/../..' . '/addons/recaptcha/Request.php',
         'Masteriyo\\Addons\\RevenueSharing\\Controllers\\WithdrawsController' => __DIR__ . '/../..' . '/addons/revenue-sharing/Controllers/WithdrawsController.php',
         'Masteriyo\\Addons\\RevenueSharing\\Enums\\WithdrawStatus' => __DIR__ . '/../..' . '/addons/revenue-sharing/Enums/WithdrawStatus.php',
         'Masteriyo\\Addons\\RevenueSharing\\Models\\Earning' => __DIR__ . '/../..' . '/addons/revenue-sharing/Models/Earning.php',
@@ -816,6 +840,7 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\AdminMenu' => __DIR__ . '/../..' . '/includes/AdminMenu.php',
         'Masteriyo\\AjaxHandlers\\CheckoutAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/CheckoutAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\ClearMasteriyoUserSessionAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/ClearMasteriyoUserSessionAjaxHandler.php',
+        'Masteriyo\\AjaxHandlers\\CourseFilterAndSortingAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/CourseFilterAndSortingAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\CoursePasswordProtectionHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/CoursePasswordProtectionHandler.php',
         'Masteriyo\\AjaxHandlers\\CourseReviewsInfiniteLoadingAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php',
         'Masteriyo\\AjaxHandlers\\DeactivationFeedbackAjaxHandler' => __DIR__ . '/../..' . '/includes/AjaxHandlers/DeactivationFeedbackAjaxHandler.php',
@@ -955,8 +980,6 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\Jobs\\CreateCourseContentJob' => __DIR__ . '/../..' . '/includes/Jobs/CreateCourseContentJob.php',
         'Masteriyo\\Jobs\\CreateLessonsContentJob' => __DIR__ . '/../..' . '/includes/Jobs/CreateLessonsContentJob.php',
         'Masteriyo\\Jobs\\CreateQuizzesForSectionsJob' => __DIR__ . '/../..' . '/includes/Jobs/CreateQuizzesForSectionsJob.php',
-        'Masteriyo\\Jobs\\SendAddonsTrackingInfoJob' => __DIR__ . '/../..' . '/includes/Jobs/SendAddonsTrackingInfoJob.php',
-        'Masteriyo\\Jobs\\SendTrackingInfoJob' => __DIR__ . '/../..' . '/includes/Jobs/SendTrackingInfoJob.php',
         'Masteriyo\\Jobs\\WebhookDeliveryJob' => __DIR__ . '/../..' . '/includes/Jobs/WebhookDeliveryJob.php',
         'Masteriyo\\Listeners\\Webhook\\CourseCompletedListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/CourseCompletedListener.php',
         'Masteriyo\\Listeners\\Webhook\\CoursePublishedListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/CoursePublishedListener.php',
@@ -1036,7 +1059,6 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\Providers\\CourseReviewServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/CourseReviewServiceProvider.php',
         'Masteriyo\\Providers\\CourseServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/CourseServiceProvider.php',
         'Masteriyo\\Providers\\CourseTagServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/CourseTagServiceProvider.php',
-        'Masteriyo\\Providers\\DeactivationFeedbackServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/DeactivationFeedbackServiceProvider.php',
         'Masteriyo\\Providers\\EmailsServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/EmailsServiceProvider.php',
         'Masteriyo\\Providers\\FormsServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/FormsServiceProvider.php',
         'Masteriyo\\Providers\\FrontendQueryServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/FrontendQueryServiceProvider.php',
@@ -1064,6 +1086,7 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\Providers\\ShortcodesServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/ShortcodesServiceProvider.php',
         'Masteriyo\\Providers\\TaxonomyServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TaxonomyServiceProvider.php',
         'Masteriyo\\Providers\\TemplateServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TemplateServiceProvider.php',
+        'Masteriyo\\Providers\\TrackingServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TrackingServiceProvider.php',
         'Masteriyo\\Providers\\TransientCacheServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TransientCacheServiceProvider.php',
         'Masteriyo\\Providers\\UserCourseServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/UserCourseServiceProvider.php',
         'Masteriyo\\Providers\\UserCoursesServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/UserCoursesServiceProvider.php',
@@ -1153,6 +1176,7 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
         'Masteriyo\\RestApi\\Controllers\\Version1\\LessonsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LessonsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\LogsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LogsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\NotificationsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/NotificationsController.php',
+        'Masteriyo\\RestApi\\Controllers\\Version1\\OnboardingController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OnboardingController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\OpenAIController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OpenAIController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\OrderItemsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OrderItemsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\OrdersController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OrdersController.php',
@@ -2020,9 +2044,9 @@ class ComposerStaticInit085e57850329f494640de6dad4b4a896
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit085e57850329f494640de6dad4b4a896::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit085e57850329f494640de6dad4b4a896::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit085e57850329f494640de6dad4b4a896::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit26a27282c0e232ef5795a2db2cbfad2f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit26a27282c0e232ef5795a2db2cbfad2f::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit26a27282c0e232ef5795a2db2cbfad2f::$classMap;
 
         }, null, ClassLoader::class);
     }

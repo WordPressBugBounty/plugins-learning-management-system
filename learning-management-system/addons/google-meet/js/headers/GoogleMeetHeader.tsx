@@ -11,9 +11,10 @@ import {
 import { UseQueryResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
+import { BiBook, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { MdCancelPresentation } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
+import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import {
 	Header,
 	HeaderLeftSection,
@@ -29,6 +30,10 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
+import {
+	AllCoursesIcon,
+	Gear,
+} from '../../../../assets/js/back-end/constants/images';
 import googleMeetRoutes from '../../constants/routes';
 interface Props {
 	googleMeetingQuery?: UseQueryResult<any, unknown>;
@@ -57,7 +62,8 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 							_hover={{ textDecoration: 'none' }}
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.list}
-							leftIcon={<BiBook />}
+							leftIcon={<AllCoursesIcon />}
+							fill="currentColor"
 							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
 						>
 							{__('Meetings', 'learning-management-system')}
@@ -88,7 +94,7 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.setAPI}
-							leftIcon={<BiCog />}
+							leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
 						>
 							{__('Set API', 'learning-management-system')}
 						</NavMenuLink>

@@ -189,8 +189,24 @@
 				masteriyo.init_course_complete_handler();
 				masteriyo.init_course_code_copy();
 				masteriyo.init_layout_1_curriculum_accordions_handler();
+				masteriyo.init_single_course_review_item_visibility();
 			});
 		},
+
+		init_single_course_review_item_visibility: function () {
+			if ('yes' !== mto_data.review_form_enabled) {
+				$('.masteriyo-reply-course-review').hide();
+				$('.masteriyo-submit-container').hide();
+				$('.masteriyo-single-body__main--review-form').hide();
+				$('.masteriyo-single-body__main--review-list-content-reply-btn').hide();
+			}
+			if ('yes' !== mto_data.current_user_logged_in) {
+				$('.masteriyo-login-msg').show();
+			} else {
+				$('.masteriyo-login-msg').hide();
+			}
+		},
+
 		init_course_reviews_menu: function () {
 			/**
 			 * Menu toggle handler.
@@ -536,6 +552,12 @@
 										$review.after(mto_data.review_deleted_notice);
 									}
 									$review.remove();
+									mto_data.course_reviews_count--;
+									if (0 >= mto_data.course_reviews_count) {
+										$('.masteriyo-stab--treviews').hide();
+										$('.masteriyo-stab--turating').hide();
+										$('.masteriyo-course-reviews-filters').hide();
+									}
 								},
 								onError: function (xhr, status, error) {
 									var message = error;
@@ -1048,6 +1070,15 @@ function masteriyo_select_single_course_page_tab(e, tabContentSelector) {
 	jQuery(
 		'.masteriyo-single-course--main__content ' + tabContentSelector,
 	).removeClass('masteriyo-hidden');
+
+	if (tabContentSelector === '#overview') {
+		setTimeout(() => {
+			if (!document.querySelector('#masteriyo-custom-fields').initialized) {
+				initCustomFieldsRenderer();
+				document.querySelector('#masteriyo-custom-fields').initialized = true;
+			}
+		}, 50);
+	}
 }
 
 /**
@@ -1076,3 +1107,223 @@ function masteriyoSelectSingleCoursePageTabById(e) {
 		.addClass('masteriyo-hidden');
 	$tabContent.removeClass('masteriyo-hidden');
 }
+
+/**
+ * Initializes the custom fields renderer for the single course page.
+ *
+ * This function dynamically renders custom fields for a course based on the
+ * field definitions provided by the `customFieldRegistry`. It ensures that
+ * fields are displayed in the correct order, handles different field types
+ * (e.g., text, password, boolean), and provides functionality for toggling
+ * password visibility.
+ *
+ * @since 1.10.0 [Free]
+ */
+
+function initCustomFieldsRenderer() {
+	let customFieldsInitialized = false;
+
+	if (customFieldsInitialized) return;
+
+	const container = document.querySelector('.custom-fields-container');
+	const courseValues = JSON.parse(
+		document.getElementById('masteriyo-course-values').textContent,
+	);
+
+	function nl2br(str) {
+		return typeof str === 'string' ? str.replace(/\n/g, '<br>') : str;
+	}
+
+	function isEmptyValue(displayValue) {
+		return (
+			displayValue === undefined ||
+			displayValue === null ||
+			(!displayValue && displayValue !== false && displayValue !== 0)
+		);
+	}
+
+	function checkRegistry() {
+		if (window.customFieldRegistry) {
+			const fields = window.customFieldRegistry.getFields('Basic', 'all');
+			renderFields(fields);
+			customFieldsInitialized = true;
+			return true;
+		}
+		return false;
+	}
+	function renderFields(fields) {
+		const sortedFields = fields.sort(
+			(a, b) => (a.priority || 0) - (b.priority || 0),
+		);
+
+		sortedFields.forEach((field) => {
+			const value = courseValues[field.name] ?? '';
+			container.insertAdjacentHTML('beforeend', createFieldHTML(field, value));
+		});
+
+		initPasswordToggles();
+		initSeeMoreButtons();
+	}
+
+	function createFieldHTML(field, value) {
+		let displayValue = '';
+		let isPassword = false;
+		let isBoolean = false;
+
+		switch (field.type) {
+			case 'select':
+				const selectOption = field.options.find(
+					(opt) => opt.value === value?.value,
+				);
+				displayValue = selectOption?.label || '';
+				break;
+			case 'radio':
+				const radioOption = field.options.find((opt) => opt.value === value);
+				displayValue = radioOption?.label || '';
+				break;
+
+			case 'checkbox':
+			case 'switch':
+				displayValue = value ? 'Yes' : 'No';
+				isBoolean = true;
+				break;
+
+			case 'password':
+				displayValue = '•'.repeat(value?.length || 0);
+				isPassword = true;
+				break;
+
+			case 'textarea':
+				displayValue = value;
+				break;
+
+			default:
+				displayValue = value;
+		}
+
+		if (isEmptyValue(displayValue)) {
+			return '';
+		}
+
+		const maxTextLength = 80;
+		const isTextareaOverflow =
+			field.type === 'textarea' &&
+			typeof displayValue === 'string' &&
+			displayValue.length > maxTextLength;
+
+		return `
+		<div class="masteriyo-field" data-type="${field.type}">
+			<div class="field-header">
+				<span class="field-label">${field.label} </span>
+				<div class="field-value">
+					${
+						isBoolean
+							? `
+						<span class="boolean-indicator ${value ? 'yes' : 'no'}">
+							${value ? '✓' : '✕'}
+						</span>
+						<span class="boolean-text">${displayValue}</span>
+					`
+							: ''
+					}
+					${
+						isPassword
+							? `
+						<span class="password-display">${displayValue}</span>
+						<button class="toggle-password" data-value="${value}">
+							Show
+						</button>
+					`
+							: ''
+					}
+					${
+						['select', 'radio'].includes(field.type)
+							? `
+						<span class="option-badge">${displayValue}</span>
+					`
+							: ''
+					}
+					${
+						!isBoolean &&
+						!isPassword &&
+						!['select', 'radio'].includes(field.type)
+							? isTextareaOverflow
+								? `
+									<span class="text-value">
+										<span class="truncated-text">${nl2br(displayValue.substring(0, maxTextLength) + '...')}</span>
+										<span class="full-text" style="display: none;">${nl2br(displayValue)}</span>
+										<p class="see-more-less">See more</p>
+									</span>
+								`
+								: `
+									<span class="text-value">${nl2br(displayValue)}</span>
+								`
+							: ''
+					}
+				</div>
+			</div>
+		</div>
+	`;
+	}
+
+	function initPasswordToggles() {
+		document.querySelectorAll('.toggle-password').forEach((button) => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				const display = button.previousElementSibling;
+				const realValue = button.dataset.value;
+
+				if (display.textContent === realValue) {
+					display.textContent = '•'.repeat(realValue.length);
+					button.textContent = 'Show';
+				} else {
+					display.textContent = realValue;
+					button.textContent = 'Hide';
+				}
+			});
+		});
+	}
+
+	function initSeeMoreButtons() {
+		document.querySelectorAll('.see-more-less').forEach((button) => {
+			button.addEventListener('click', function (e) {
+				e.preventDefault();
+				const textValue = this.closest('.text-value');
+				const truncated = textValue.querySelector('.truncated-text');
+				const full = textValue.querySelector('.full-text');
+				const isExpanded = truncated.style.display === 'none';
+
+				if (isExpanded) {
+					truncated.style.display = '';
+					full.style.display = 'none';
+					this.textContent = 'See more';
+				} else {
+					truncated.style.display = 'none';
+					full.style.display = '';
+					this.textContent = 'See less';
+				}
+			});
+		});
+	}
+
+	if (!checkRegistry()) {
+		const interval = setInterval(() => {
+			if (checkRegistry()) {
+				clearInterval(interval);
+			}
+		}, 100);
+	}
+}
+
+/**
+ * Initializes the custom fields renderer when the DOM content \is fully loaded.
+ *
+ * This ensures that the custom fields for the single course page are rendered
+ * dynamically after the page has been fully loaded and the DOM is ready.
+ *
+ * @since 1.10.0 [Free]
+ */
+
+document.addEventListener('DOMContentLoaded', function () {
+	initCustomFieldsRenderer();
+});

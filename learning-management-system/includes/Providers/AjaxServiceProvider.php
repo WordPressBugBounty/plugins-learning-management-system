@@ -21,6 +21,7 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Masteriyo\Addons\GoogleClassroomIntegration\AjaxHandlers\CourseCompletionAjaxHandler;
 use Masteriyo\AjaxHandlers\ClearMasteriyoUserSessionAjaxHandler;
 use Masteriyo\AjaxHandlers\SetupPagesAjaxHandler;
+use Masteriyo\AjaxHandlers\CourseFilterAndSortingAjaxHandler;
 
 /**
  * Ajax service provider.
@@ -88,6 +89,7 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 					CourseCompletionAjaxHandler::class,
 					ClearMasteriyoUserSessionAjaxHandler::class,
 					SetupPagesAjaxHandler::class,
+					CourseFilterAndSortingAjaxHandler::class,
 				)
 			)
 		);

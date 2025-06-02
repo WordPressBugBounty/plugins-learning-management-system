@@ -18,7 +18,10 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<a href="<?php echo esc_url( $clear_url ); ?>" class="masteriyo-clear-filters">
-	<?php esc_html_e( 'Clear Filters', 'learning-management-system' ); ?>
-</a>
+
+<div class="masteriyo-filter-section--buttons">
+	<a href="<?php echo esc_url( $clear_url ); ?>" class="masteriyo-clear-filters">
+		<?php esc_html_e( 'Reset Filters', 'learning-management-system' ); ?>
+	</a>
+</div>
 <?php

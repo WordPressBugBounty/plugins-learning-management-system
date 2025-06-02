@@ -138,7 +138,7 @@ abstract class AbstractRepository {
 	 */
 	public function read_meta( &$model ) {
 		// TODO Abstract global $wpdb;
-		global $wpdb;
+		 global $wpdb;
 
 		$meta_table_info = $this->get_meta_table_info();
 

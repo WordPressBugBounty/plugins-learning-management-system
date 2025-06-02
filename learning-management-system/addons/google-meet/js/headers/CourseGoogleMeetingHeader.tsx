@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import { BiBook, BiCog, BiDotsHorizontalRounded, BiEdit } from 'react-icons/bi';
+import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink, useParams } from 'react-router-dom';
 import {
 	Header,
@@ -24,6 +24,11 @@ import {
 	headerResponsive,
 	navActiveStyles,
 } from '../../../../assets/js/back-end/config/styles';
+import {
+	AllCoursesIcon,
+	Builder,
+	Gear,
+} from '../../../../assets/js/back-end/constants/images';
 import routes from '../../../../assets/js/back-end/constants/routes';
 
 interface Props {}
@@ -36,21 +41,21 @@ const CourseGoogleMeetingHeader: React.FC<Props> = ({}) => {
 			{
 				routes: routes.courses.edit.replace(':courseId', courseId.toString()),
 				name: __('Course', 'learning-management-system'),
-				icon: <BiBook />,
+				icon: <AllCoursesIcon width={20} height={20} fill="currentColor" />,
 			},
 			{
 				routes:
 					routes.courses.edit.replace(':courseId', courseId.toString()) +
 					'?page=builder',
 				name: __('Builder', 'learning-management-system'),
-				icon: <BiEdit />,
+				icon: <Builder width={20} height={20} fill="currentColor" />,
 			},
 			{
 				routes:
 					routes.courses.edit.replace(':courseId', courseId.toString()) +
 					'?page=settings',
 				name: __('Settings', 'learning-management-system'),
-				icon: <BiCog />,
+				icon: <Gear width={20} height={20} fill="currentColor" />,
 			},
 		];
 	}, []);

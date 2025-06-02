@@ -23,13 +23,7 @@ import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import {
-	BiBook,
-	BiBookBookmark,
-	BiBookOpen,
-	BiCog,
-	BiTrash,
-} from 'react-icons/bi';
+import { BiCog } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -46,7 +40,13 @@ import {
 } from '../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import FullScreenLoader from '../../../../../assets/js/back-end/components/layout/FullScreenLoader';
-import { Certificate } from '../../../../../assets/js/back-end/constants/images';
+import {
+	AllCoursesIcon,
+	Certificate,
+	DraftIcon,
+	Published,
+	Trash,
+} from '../../../../../assets/js/back-end/constants/images';
 import Sorting from '../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../assets/js/back-end/utils/api';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
@@ -83,22 +83,22 @@ const tabButtons: FilterTabs = [
 	{
 		status: 'any',
 		name: __('All Certificates', 'learning-management-system'),
-		icon: <BiBook />,
+		icon: <AllCoursesIcon fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'publish',
 		name: __('Published', 'learning-management-system'),
-		icon: <BiBookOpen />,
+		icon: <Published fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'draft',
 		name: __('Draft', 'learning-management-system'),
-		icon: <BiBookBookmark />,
+		icon: <DraftIcon fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
-		icon: <BiTrash />,
+		icon: <Trash width="12px" height="12px" fill="currentColor" />,
 	},
 ];
 

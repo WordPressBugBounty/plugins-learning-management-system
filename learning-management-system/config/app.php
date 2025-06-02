@@ -12,12 +12,12 @@ use Masteriyo\Pro\Providers\AddonsServiceProvider;
 use Masteriyo\Pro\Providers\ProServiceProvider;
 use Masteriyo\Providers\SettingsServiceProvider;
 use Masteriyo\Providers\CacheCompatibilityServiceProvider;
-use Masteriyo\Providers\DeactivationFeedbackServiceProvider;
 use Masteriyo\Providers\JobServiceProvider;
 use Masteriyo\Providers\SeoCompatibilityServiceProvider;
 use Masteriyo\Providers\WebhookServiceProvider;
 use Masteriyo\Providers\OpenAIServiceProvider;
 use Masteriyo\Providers\NotificationServiceProvider;
+use Masteriyo\Providers\TrackingServiceProvider;
 
 return array_unique(
 	/**
@@ -77,10 +77,10 @@ return array_unique(
 			'Masteriyo\Providers\FormsServiceProvider',
 			CacheCompatibilityServiceProvider::class,
 			JobServiceProvider::class,
-			DeactivationFeedbackServiceProvider::class,
 			WebhookServiceProvider::class,
 			OpenAIServiceProvider::class,
 			SeoCompatibilityServiceProvider::class,
+			TrackingServiceProvider::class,
 
 			// Pro Service Providers.
 			ProServiceProvider::class,

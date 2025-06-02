@@ -61,7 +61,6 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 	 * @since 1.6.0
 	 */
 	public function boot() {
-		$this->register_usage_tracking_job();
 		$this->register_webhook_delivery_job();
 
 		// Course creation using AI.
@@ -72,39 +71,11 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 		// Check the course end date job.
 		$this->register_check_course_end_date_job();
 
-		// Addons tracking info.
-		$this->register_addons_info_tracking_job();
-
 		// Register courses export/import job.
 		$this->register_courses_export_job();
 		$this->register_courses_import_job();
 	}
 
-	/**
-	 * Registers the recurring usage tracking event.
-	 *
-	 * This method is responsible for scheduling a recurring action that will execute the
-	 * 'masteriyo/schedule/tracking' hook at a 15-day interval. Before scheduling the action,
-	 * it checks if the action has already been scheduled and if the 'advance.tracking.allow_usage' option enabled.
-	 *
-	 * @since 1.6.0
-	 */
-	public function register_usage_tracking_job() {
-		add_action(
-			'masteriyo_new_setting',
-			function( Setting $setting ) {
-				$interval = masteriyo_get_usage_tracking_job_interval();
-
-				if ( $setting->get( 'advance.tracking.allow_usage' ) ) {
-					as_schedule_recurring_action( time(), $interval, SendTrackingInfoJob::NAME, array(), 'masteriyo', true );
-				} else {
-					as_unschedule_action( SendTrackingInfoJob::NAME, array(), 'learning-management-system' );
-				}
-			}
-		);
-
-		( new SendTrackingInfoJob() )->register();
-	}
 
 	/**
 	 * Register webhook delivery job.
@@ -149,31 +120,6 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 	 */
 	public function register_check_course_end_date_job() {
 		( new CheckCourseEndDateJob() )->register();
-	}
-
-	/**
-	 * Register SendAddonsTrackingInfoJob to run every 7 days.
-	 *
-	 * @since 1.13.0
-	 */
-	public function register_addons_info_tracking_job() {
-		add_action(
-			'init',
-			function() {
-
-				$next = as_next_scheduled_action( SendAddonsTrackingInfoJob::NAME, array(), 'masteriyo-addons-tracking-info' );
-
-				if ( false === $next ) {
-					if ( masteriyo_get_setting( 'advance.tracking.allow_usage' ) ) {
-						as_schedule_recurring_action( time(), 7 * DAY_IN_SECONDS, SendAddonsTrackingInfoJob::NAME, array(), 'masteriyo-addons-tracking-info' );
-					} else {
-						as_unschedule_action( SendAddonsTrackingInfoJob::NAME, array(), 'masteriyo-addons-tracking-info' );
-					}
-				}
-			}
-		);
-
-		( new SendAddonsTrackingInfoJob() )->register();
 	}
 
 	/**

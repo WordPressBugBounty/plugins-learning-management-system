@@ -22,10 +22,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import humanizeDuration from 'humanize-duration';
 import React from 'react';
-import { BiCalendar, BiEdit, BiTrash } from 'react-icons/bi';
-import { RiCalendar2Line, RiLiveLine } from 'react-icons/ri';
+import { BiCalendar } from 'react-icons/bi';
+import { RiCalendar2Line } from 'react-icons/ri';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
+import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
+import {
+	EditIcon,
+	GoogleMeet,
+	Trash,
+} from '../../../../assets/js/back-end/constants/images';
 import { AuthorMap } from '../../../../assets/js/back-end/types/course';
 import API from '../../../../assets/js/back-end/utils/api';
 import googleMeetRoutes from '../../constants/routes';
@@ -288,7 +294,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 								gap="2"
 								fontWeight="semibold"
 							>
-								<RiLiveLine />
+								<CustomIcon icon={GoogleMeet} boxSize="12px" />
 								{__('Start Meeting', 'learning-management-system')}
 							</Button>
 						</Link>
@@ -301,7 +307,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 						variant="outline"
 						onClick={onEditPress}
 					>
-						<BiEdit />
+						<CustomIcon icon={EditIcon} boxSize="12px" />
 						{__('Edit', 'learning-management-system')}
 					</Button>
 
@@ -312,7 +318,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 						fontSize="sm"
 						_hover={{ color: 'red.500' }}
 						onClick={() => onDeletePress(id)}
-						icon={<BiTrash />}
+						icon={<CustomIcon icon={Trash} boxSize="12px" />}
 						aria-label={__('Delete', 'learning-management-system')}
 					/>
 				</ButtonGroup>

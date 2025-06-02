@@ -10,14 +10,8 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { Add } from 'iconsax-react';
 import React, { useState } from 'react';
-import {
-	BiBookOpen,
-	BiBookmarks,
-	BiSolidMegaphone,
-	BiTrash,
-} from 'react-icons/bi';
+import { BiSolidMegaphone } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -33,6 +27,12 @@ import {
 	HeaderTop,
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
+import {
+	AddCourseIcon,
+	DraftIcon,
+	Published,
+	Trash,
+} from '../../../../../../assets/js/back-end/constants/images';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import Sorting from '../../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../../assets/js/back-end/utils/api';
@@ -55,17 +55,17 @@ const tabButtons: FilterTabs = [
 	{
 		status: 'publish',
 		name: __('Published', 'learning-management-system'),
-		icon: <BiBookOpen />,
+		icon: <Published fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'draft',
 		name: __('Draft', 'learning-management-system'),
-		icon: <BiBookmarks />,
+		icon: <DraftIcon fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
-		icon: <BiTrash />,
+		icon: <Trash fill="currentColor" width="16" height="16" />,
 	},
 ];
 
@@ -342,7 +342,15 @@ const AllAnnouncements = () => {
 					<HeaderRightSection my={{ base: 2, lg: 0 }}>
 						<HeaderPrimaryButton
 							onClick={() => navigate(routes.courseAnnouncement.add)}
-							leftIcon={min360px ? <Add /> : undefined}
+							leftIcon={
+								min360px ? (
+									<AddCourseIcon
+										fill="currentColor"
+										width="16px"
+										height="16px"
+									/>
+								) : undefined
+							}
 						>
 							{__('Add New Announcement', 'learning-management-system')}
 						</HeaderPrimaryButton>

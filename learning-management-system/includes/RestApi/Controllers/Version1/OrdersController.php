@@ -17,6 +17,7 @@ use Masteriyo\Helper\Permission;
 use Masteriyo\Exceptions\RestException;
 use Masteriyo\ModelException;
 use Masteriyo\Models\Order\Order;
+use Masteriyo\Roles;
 
 /**
  * OrdersController class.
@@ -217,6 +218,21 @@ class OrdersController extends PostsController {
 						),
 					),
 				),
+			)
+		);
+
+		/**
+		 * Register REST API route for CSV bulk enrollments.
+		 *
+		 * @since 1.18.1
+		 * */
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/csv-bulk-enrollments',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import_items' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 			)
 		);
 	}
@@ -462,7 +478,7 @@ class OrdersController extends PostsController {
 						'compare' => '=',
 					),
 				);
-			};
+			}
 		} else {
 			$args['meta_query'] = array(
 				'relation' => 'AND',
@@ -486,7 +502,7 @@ class OrdersController extends PostsController {
 				'value'   => sanitize_text_field( $request['created_via'] ),
 				'compare' => '=',
 			);
-		};
+		}
 
 		return $args;
 	}
@@ -1582,6 +1598,255 @@ class OrdersController extends PostsController {
 
 		return true;
 	}
+
+
+	/**
+	 * Import items from a CSV file.
+	 *
+	 * @since 1.18.1
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function import_items( \WP_REST_Request $request ) {
+		$file = $this->get_import_file( $request->get_file_params() );
+
+		if ( is_wp_error( $file ) ) {
+			return $file;
+		}
+
+		return $this->import( $file, $request );
+	}
+
+	/**
+	 * Parse Import file.
+	 *
+	 * @since 1.18.1
+	 * @param array $files $_FILES array for a given file.
+	 *
+	 * @return string|\WP_Error File path on success and WP_Error on failure.
+	 */
+	protected function get_import_file( $files ) {
+		if ( ! isset( $files['file']['tmp_name'] ) ) {
+			return new \WP_Error(
+				'rest_upload_no_data',
+				__( 'No data supplied.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if (
+			! isset( $files['file']['name'] ) ||
+			'csv' !== pathinfo( $files['file']['name'], PATHINFO_EXTENSION )
+		) {
+			return new \WP_Error(
+				'invalid_file_ext',
+				__( 'Invalid file type for import.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $files['file']['tmp_name'];
+	}
+
+	/**
+	 * Import the CSV data with batch processing.
+	 *
+	 * @since 1.18.1
+	 *
+	 * @param string $file_path The path to the CSV file.
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function import( $file_path, $request ) {
+		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			return new \WP_Error( 'invalid_file', 'Invalid or unreadable CSV file.' );
+		}
+
+		$rows = $this->parse_csv_file( $file_path );
+
+		if ( is_wp_error( $rows ) ) {
+			return $rows;
+		}
+
+		if ( empty( $rows ) ) {
+			return new \WP_Error( 'invalid_csv_format', 'Invalid CSV format. Unable to process data.' );
+		}
+
+		$batch_size = 100;
+		$total_rows = count( $rows );
+
+		for ( $i = 0; $i < $total_rows; $i += $batch_size ) {
+			$batch_rows = array_slice( $rows, $i, $batch_size );
+
+			foreach ( $batch_rows as $row ) {
+				try {
+					$result = $this->enroll_user_to_course_from_csv_row( $row, $request );
+
+					if ( is_wp_error( $result ) ) {
+						continue;
+					}
+				} catch ( \Exception $e ) {
+					continue;
+				}
+			}
+		}
+
+		return new \WP_REST_Response(
+			array(
+				'message' => __( 'Bulk enrollment completed successfully!.', 'learning-management-system' ),
+			)
+		);
+	}
+	/**
+	 * Enroll a user to a course based on a CSV row.
+	 *
+	 * This method takes a row from a CSV file and attempts to enroll a user to a course.
+	 * It validates and sanitizes the data, checks for existing users, and then enrolls the user.
+	 *
+	 * @since 1.18.1
+	 *
+	 * @param array $row The CSV row containing user and course information.
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_Error|Masteriyo/Models/Order Returns WP_Error on failure, or a Masteriyo/Models/Order object on success.
+	 */
+	protected function enroll_user_to_course_from_csv_row( $row, $request ) {
+		// Validate required fields.
+		if ( empty( $row['email'] ) || empty( $row['course_id'] ) ) {
+			return new \WP_Error( 'missing_required_fields', 'Email or Course ID are missing.' );
+		}
+
+		// Validate email.
+		if ( ! is_email( $row['email'] ) ) {
+			return new \WP_Error( 'invalid_email', 'Invalid email provided.' );
+		}
+
+		// Validate and sanitize course ID.
+		$course_id = absint( $row['course_id'] );
+		$course    = masteriyo_get_course( $course_id );
+
+		if ( is_null( $course ) || is_wp_error( $course ) ) {
+			return new \WP_Error( 'invalid_course', 'Invalid Course ID.' );
+		}
+
+		// Sanitize user data.
+		$email      = sanitize_email( $row['email'] );
+		$username   = sanitize_user( isset( $row['username'] ) ? $row['username'] : '' );
+		$role       = Roles::STUDENT;
+		$first_name = sanitize_text_field( isset( $row['first_name'] ) ? $row['first_name'] : '' );
+		$last_name  = sanitize_text_field( isset( $row['last_name'] ) ? $row['last_name'] : '' );
+		$password   = sanitize_text_field( isset( $row['password'] ) ? $row['password'] : '' );
+
+		// Check for existing email and get user ID.
+		$user        = get_user_by( 'email', $email );
+		$customer_id = $user ? $user->ID : null;
+
+		// If the email doesn't exist, create a new user.
+		if ( ! $customer_id ) {
+			// Check for existing username.
+			if ( ! empty( $username ) && username_exists( $username ) ) {
+					return new \WP_Error( 'username_exists', 'The username already exists.' );
+			}
+
+			// if username is empty.
+			if ( empty( $username ) ) {
+				add_filter( 'masteriyo_registration_is_generate_username', '__return_true' );
+			}
+
+			// If the password is empty.
+			if ( empty( $password ) ) {
+				add_filter( 'masteriyo_registration_is_generate_password', '__return_true' );
+				$password = '';
+			}
+
+			// create a new user.
+			$user = masteriyo_create_new_user(
+				$email,
+				$username,
+				$password,
+				$role,
+				array(
+					'first_name' => $first_name,
+					'last_name'  => $last_name,
+				)
+			);
+
+			if ( is_wp_error( $user ) ) {
+				return $user;
+			}
+
+			$customer_id = $user->get_id();
+		}
+
+		// Add additional data to the WP_REST_Request object.
+		$request->set_param( 'course_lines', array( array( 'course_id' => $course_id ) ) );
+		$request->set_param( 'status', 'completed' );
+		$request->set_param( 'created_via', 'manual-enrollment' );
+		$request->set_param( 'customer_id', $customer_id );
+
+		return $this->save_object( $request );
+	}
+
+	/**
+	 * Parse the CSV file and return its data as an array of associative arrays.
+	 *
+	 * @since 1.18.1
+	 *
+	 * @return array|\WP_Error
+	 */
+	protected function parse_csv_file( $file_path = null ) {
+		$header   = null;
+		$csv_data = array();
+
+		$wp_filesystem = masteriyo_get_filesystem();
+
+		if ( ! $wp_filesystem || ! $wp_filesystem->exists( $file_path ) ) {
+			return array(); // Return an empty array if the file doesn't exist.
+		}
+
+		$file_content = $wp_filesystem->get_contents( $file_path );
+
+		// Remove the BOM (UTF-8 BOM is \xEF\xBB\xBF) globally.
+		$file_content = preg_replace( '/\xEF\xBB\xBF/', '', $file_content );
+
+		// Split the content into lines.
+		$lines = explode( "\n", $file_content );
+
+		if ( $lines ) {
+			// Get the header row and sanitize it.
+			$header = str_getcsv( sanitize_text_field( array_shift( $lines ) ) );
+
+			$header = array_map(
+				function ( $item ) {
+					return strtolower( str_replace( ' ', '_', $item ) );
+				},
+				$header
+			);
+
+			// Check if required columns are present.
+			if ( ! in_array( 'email', $header, true ) || ! in_array( 'course_id', $header, true ) ) {
+				return new \WP_Error( 'missing_required_columns', 'The CSV file is missing required columns: Email, Course ID.' );
+			}
+
+			foreach ( $lines as $line ) {
+				if ( empty( trim( $line ) ) ) {
+					continue; // Skip empty lines.
+				}
+				$data = str_getcsv( $line );
+				if ( count( $header ) === count( $data ) ) {
+					$csv_data[] = array_combine( $header, $data );
+				}
+			}
+		}
+
+		return $csv_data;
+	}
+
+
+
 
 	/**
 	 * Update enrollments status.

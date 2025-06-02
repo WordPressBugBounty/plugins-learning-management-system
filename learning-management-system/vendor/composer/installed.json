@@ -147,18 +147,62 @@
             "install-path": "../chillerlan/php-settings-container"
         },
         {
-            "name": "composer/ca-bundle",
-            "version": "1.5.6",
-            "version_normalized": "1.5.6.0",
+            "name": "codeinwp/themeisle-sdk",
+            "version": "3.3.46",
+            "version_normalized": "3.3.46.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175"
+                "url": "https://github.com/Codeinwp/themeisle-sdk.git",
+                "reference": "af2e7360bbe3af6a1bd2c3779fc33b7765104461"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/f65c239c970e7f072f067ab78646e9f0b2935175",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175",
+                "url": "https://api.github.com/repos/Codeinwp/themeisle-sdk/zipball/af2e7360bbe3af6a1bd2c3779fc33b7765104461",
+                "reference": "af2e7360bbe3af6a1bd2c3779fc33b7765104461",
+                "shasum": ""
+            },
+            "require-dev": {
+                "codeinwp/phpcs-ruleset": "dev-main",
+                "yoast/phpunit-polyfills": "^2.0"
+            },
+            "time": "2025-05-16T15:38:02+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "ThemeIsle team",
+                    "email": "friends@themeisle.com",
+                    "homepage": "https://themeisle.com"
+                }
+            ],
+            "description": "ThemeIsle SDK",
+            "homepage": "https://github.com/Codeinwp/themeisle-sdk",
+            "keywords": [
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/Codeinwp/themeisle-sdk/issues",
+                "source": "https://github.com/Codeinwp/themeisle-sdk/tree/v3.3.46"
+            },
+            "install-path": "../codeinwp/themeisle-sdk"
+        },
+        {
+            "name": "composer/ca-bundle",
+            "version": "1.5.7",
+            "version_normalized": "1.5.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/ca-bundle.git",
+                "reference": "d665d22c417056996c59019579f1967dfe5c1e82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/d665d22c417056996c59019579f1967dfe5c1e82",
+                "reference": "d665d22c417056996c59019579f1967dfe5c1e82",
                 "shasum": ""
             },
             "require": {
@@ -172,7 +216,7 @@
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
-            "time": "2025-03-06T14:30:56+00:00",
+            "time": "2025-05-26T15:08:54+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -207,7 +251,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.6"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.7"
             },
             "funding": [
                 {
@@ -561,17 +605,17 @@
         },
         {
             "name": "halaxa/json-machine",
-            "version": "1.2.0",
-            "version_normalized": "1.2.0.0",
+            "version": "1.2.2",
+            "version_normalized": "1.2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/halaxa/json-machine.git",
-                "reference": "c889fdff2d5a51affae0033464ff24b0ae936b72"
+                "reference": "5a5cde093181198bd68d94a3d35f80e76720766b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/c889fdff2d5a51affae0033464ff24b0ae936b72",
-                "reference": "c889fdff2d5a51affae0033464ff24b0ae936b72",
+                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/5a5cde093181198bd68d94a3d35f80e76720766b",
+                "reference": "5a5cde093181198bd68d94a3d35f80e76720766b",
                 "shasum": ""
             },
             "require": {
@@ -587,7 +631,7 @@
                 "ext-json": "To run JSON Machine out of the box without custom decoders.",
                 "guzzlehttp/guzzle": "To run example with GuzzleHttp"
             },
-            "time": "2024-11-24T12:48:58+00:00",
+            "time": "2025-04-30T19:58:47+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -614,7 +658,7 @@
             "description": "Efficient, easy-to-use and fast JSON pull parser",
             "support": {
                 "issues": "https://github.com/halaxa/json-machine/issues",
-                "source": "https://github.com/halaxa/json-machine/tree/1.2.0"
+                "source": "https://github.com/halaxa/json-machine/tree/1.2.2"
             },
             "funding": [
                 {
@@ -834,17 +878,17 @@
         },
         {
             "name": "maxmind-db/reader",
-            "version": "v1.12.0",
-            "version_normalized": "1.12.0.0",
+            "version": "v1.12.1",
+            "version_normalized": "1.12.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maxmind/MaxMind-DB-Reader-php.git",
-                "reference": "5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90"
+                "reference": "815939e006b7e68062b540ec9e86aaa8be2b6ce4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maxmind/MaxMind-DB-Reader-php/zipball/5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90",
-                "reference": "5b2d7a721dedfaef9dc20822c5fe7d26f9f8eb90",
+                "url": "https://api.github.com/repos/maxmind/MaxMind-DB-Reader-php/zipball/815939e006b7e68062b540ec9e86aaa8be2b6ce4",
+                "reference": "815939e006b7e68062b540ec9e86aaa8be2b6ce4",
                 "shasum": ""
             },
             "require": {
@@ -864,7 +908,7 @@
                 "ext-gmp": "bcmath or gmp is required for decoding larger integers with the pure PHP decoder",
                 "ext-maxminddb": "A C-based database decoder that provides significantly faster lookups"
             },
-            "time": "2024-11-14T22:43:47+00:00",
+            "time": "2025-05-05T20:56:32+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -894,23 +938,23 @@
             ],
             "support": {
                 "issues": "https://github.com/maxmind/MaxMind-DB-Reader-php/issues",
-                "source": "https://github.com/maxmind/MaxMind-DB-Reader-php/tree/v1.12.0"
+                "source": "https://github.com/maxmind/MaxMind-DB-Reader-php/tree/v1.12.1"
             },
             "install-path": "../maxmind-db/reader"
         },
         {
             "name": "mollie/mollie-api-php",
-            "version": "v2.79.0",
-            "version_normalized": "2.79.0.0",
+            "version": "v2.79.1",
+            "version_normalized": "2.79.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mollie/mollie-api-php.git",
-                "reference": "ad078c1b07da16c6571b16401a286143a5da188c"
+                "reference": "4c1cf5f603178dd15bdf60b5e3999f91bb59f5b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/ad078c1b07da16c6571b16401a286143a5da188c",
-                "reference": "ad078c1b07da16c6571b16401a286143a5da188c",
+                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/4c1cf5f603178dd15bdf60b5e3999f91bb59f5b0",
+                "reference": "4c1cf5f603178dd15bdf60b5e3999f91bb59f5b0",
                 "shasum": ""
             },
             "require": {
@@ -930,7 +974,7 @@
             "suggest": {
                 "mollie/oauth2-mollie-php": "Use OAuth to authenticate with the Mollie API. This is needed for some endpoints. Visit https://docs.mollie.com/ for more information."
             },
-            "time": "2025-03-11T09:51:00+00:00",
+            "time": "2025-05-06T10:55:09+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -989,7 +1033,7 @@
             ],
             "support": {
                 "issues": "https://github.com/mollie/mollie-api-php/issues",
-                "source": "https://github.com/mollie/mollie-api-php/tree/v2.79.0"
+                "source": "https://github.com/mollie/mollie-api-php/tree/v2.79.1"
             },
             "install-path": "../mollie/mollie-api-php"
         },
@@ -1177,17 +1221,17 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.13.0",
-            "version_normalized": "1.13.0.0",
+            "version": "1.13.1",
+            "version_normalized": "1.13.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414"
+                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/024473a478be9df5fdaca2c793f2232fe788e414",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/1720ddd719e16cf0db4eb1c6eca108031636d46c",
+                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c",
                 "shasum": ""
             },
             "require": {
@@ -1203,7 +1247,7 @@
                 "phpspec/prophecy": "^1.10",
                 "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
             },
-            "time": "2025-02-12T12:17:51+00:00",
+            "time": "2025-04-29T12:36:36+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1228,7 +1272,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.0"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.1"
             },
             "funding": [
                 {
@@ -2054,23 +2098,23 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8"
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
-            "time": "2024-09-09T11:45:10+00:00",
+            "time": "2025-01-02T08:10:11+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -2117,7 +2161,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -2137,8 +2181,8 @@
         },
         {
             "name": "themegrill/openai",
-            "version": "dev-develop",
-            "version_normalized": "dev-develop",
+            "version": "dev-release/1.18.1",
+            "version_normalized": "dev-release/1.18.1",
             "dist": {
                 "type": "path",
                 "url": "./packages/openai",

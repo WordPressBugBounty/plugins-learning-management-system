@@ -36,6 +36,8 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 		'starts_at'           => '_starts_at',
 		'ends_at'             => '_ends_at',
 		'live_chat_enabled'   => '_live_chat_enabled',
+		'custom_fields'       => '_custom_fields',
+
 	);
 
 	/**

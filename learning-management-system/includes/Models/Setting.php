@@ -334,6 +334,7 @@ class Setting extends Model {
 				'enable_profile_page'     => 'masteriyo_string_to_bool',
 				'enable_instructor_apply' => 'masteriyo_string_to_bool',
 				'enable_edit_profile'     => 'masteriyo_string_to_bool',
+				'enable_google_meet'      => 'masteriyo_string_to_bool',
 				'enable_certificate_page' => 'masteriyo_string_to_bool',
 				'layout'                  => array(
 					'enable_header_footer' => 'masteriyo_string_to_bool',

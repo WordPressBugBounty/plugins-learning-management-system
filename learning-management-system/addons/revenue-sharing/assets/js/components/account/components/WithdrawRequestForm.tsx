@@ -23,8 +23,8 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
 import API from '../../../../../../../assets/js/back-end/utils/api';
@@ -43,15 +43,31 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 		handleSubmit,
 		formState: { errors },
 		reset,
+		setValue,
+		control,
+		getFieldState,
 	} = useForm();
 	const toast = useToast();
 	const queryClient = useQueryClient();
 
 	const withdrawAPI = new API(urls.withdraws);
 
-	const minWithdrawAmount = data?.revenue_sharing?.minimum_withdraw_amount ?? 0;
 	const availableBalance = data?.revenue_sharing?.withdrawable_amount ?? 0;
+	const watchMinWithdrawAmount = useWatch({
+		name: 'withdraw_amount',
+		defaultValue: data?.revenue_sharing?.minimum_withdraw_amount ?? 0,
+		control,
+	});
+	const disableDecrement =
+		watchMinWithdrawAmount <=
+		(data?.revenue_sharing?.minimum_withdraw_amount ?? 0);
 
+	useEffect(() => {
+		setValue(
+			'withdraw_amount',
+			Number(data?.revenue_sharing?.minimum_withdraw_amount ?? 0),
+		);
+	}, [data?.revenue_sharing?.minimum_withdraw_amount, setValue]);
 	const onSubmit = (d: any) => {
 		withdrawRequestMutation.mutate({
 			...d,
@@ -62,8 +78,12 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 	const withdrawRequestMutation = useMutation({
 		mutationFn: (data: any) => withdrawAPI.store(data),
 		...{
-			onSuccess() {
+			onSuccess(data: UserSchema) {
 				reset();
+				setValue(
+					'withdraw_amount',
+					data?.revenue_sharing?.minimum_withdraw_amount ?? 0,
+				);
 				queryClient.invalidateQueries({ queryKey: ['withdrawsList'] });
 				onClose();
 				toast({
@@ -103,7 +123,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				placement="top"
 				isDisabled={
 					Number(availableBalance) &&
-					Number(availableBalance) >= Number(minWithdrawAmount)
+					Number(availableBalance) >= Number(watchMinWithdrawAmount)
 						? true
 						: false
 				}
@@ -111,7 +131,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				<Button
 					isDisabled={
 						!Number(availableBalance) ||
-						Number(availableBalance) < Number(minWithdrawAmount)
+						Number(availableBalance) < Number(watchMinWithdrawAmount)
 							? true
 							: false
 					}
@@ -143,46 +163,60 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 								</FormLabel>
 								<InputGroup>
 									<InputLeftAddon>{localized.currency.symbol}</InputLeftAddon>
-									<NumberInput flex="1">
-										<NumberInputField
-											{...register('withdraw_amount', {
-												valueAsNumber: true,
-												required: __(
-													'Amount is required',
-													'learning-management-system',
-												),
-												validate(value) {
-													if (minWithdrawAmount && value < minWithdrawAmount) {
-														return sprintf(
-															__(
-																'Amount must be at least %s',
-																'learning-management-system',
-															),
-															data?.revenue_sharing
-																?.minimum_withdraw_amount_formatted,
-														);
-													}
-													if (value > availableBalance) {
-														return sprintf(
-															__(
-																'Amount must be at most %s',
-																'learning-management-system',
-															),
-															data?.revenue_sharing
-																?.withdrawable_amount_formatted,
-														);
-													}
-													return true;
-												},
-											})}
-											defaultValue={undefined}
-											borderRadius="0"
-										/>
-										<NumberInputStepper>
-											<NumberIncrementStepper />
-											<NumberDecrementStepper />
-										</NumberInputStepper>
-									</NumberInput>
+									<Controller
+										name="withdraw_amount"
+										control={control}
+										rules={{
+											required: __(
+												'Amount is required',
+												'learning-management-system',
+											),
+											validate: (value) => {
+												const minWithdrawAmount =
+													data?.revenue_sharing?.minimum_withdraw_amount ?? 0;
+												if (value < minWithdrawAmount) {
+													return sprintf(
+														__(
+															'Amount must be at least %s',
+															'learning-management-system',
+														),
+														data?.revenue_sharing
+															?.minimum_withdraw_amount_formatted,
+													);
+												}
+												if (value > availableBalance) {
+													return sprintf(
+														__(
+															'Amount must be at most %s',
+															'learning-management-system',
+														),
+														data?.revenue_sharing
+															?.withdrawable_amount_formatted,
+													);
+												}
+												return true;
+											},
+										}}
+										render={({ field: { onChange, value, ref, ...rest } }) => (
+											<NumberInput
+												{...rest}
+												value={value}
+												onChange={(valueString) =>
+													onChange(Number(valueString))
+												}
+												flex="1"
+											>
+												<NumberInputField borderRadius="0" ref={ref} />
+												<NumberInputStepper>
+													<NumberIncrementStepper />
+													<NumberDecrementStepper
+														pointerEvents={disableDecrement ? 'none' : 'auto'}
+														opacity={disableDecrement ? 0.4 : 1}
+													/>
+												</NumberInputStepper>
+											</NumberInput>
+										)}
+									/>
 								</InputGroup>
 								{errors?.withdraw_amount && (
 									<FormErrorMessage>

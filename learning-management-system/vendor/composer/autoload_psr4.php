@@ -31,6 +31,8 @@ return array(
     'Masteriyo\\Addons\\Stripe\\' => array($baseDir . '/addons/stripe'),
     'Masteriyo\\Addons\\Scorm\\' => array($baseDir . '/addons/scorm'),
     'Masteriyo\\Addons\\RevenueSharing\\' => array($baseDir . '/addons/revenue-sharing'),
+    'Masteriyo\\Addons\\Recaptcha\\' => array($baseDir . '/addons/recaptcha'),
+    'Masteriyo\\Addons\\PasswordStrength\\' => array($baseDir . '/addons/password-strength'),
     'Masteriyo\\Addons\\OxygenIntegration\\' => array($baseDir . '/addons/oxygen-integration'),
     'Masteriyo\\Addons\\MultipleCurrency\\' => array($baseDir . '/addons/multiple-currency'),
     'Masteriyo\\Addons\\Mollie\\' => array($baseDir . '/addons/mollie'),

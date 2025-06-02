@@ -21,10 +21,11 @@ import {
 	BiDotsVerticalRounded,
 	BiEdit,
 	BiShow,
-	BiTrash,
 } from 'react-icons/bi';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
+import { CustomIcon } from '../../../../../../assets/js/back-end/components/common/CustomIcon';
+import { Trash } from '../../../../../../assets/js/back-end/constants/images';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import { getWordpressLocalTime } from '../../../../../../assets/js/back-end/utils/utils';
 import { AnnouncementSchema } from './types/announcement';
@@ -129,7 +130,7 @@ const AnnouncementList: React.FC<Props> = (props) => {
 							</MenuItem>
 							<MenuItem
 								onClick={() => onDeletePress(data?.id)}
-								icon={<BiTrash />}
+								icon={<CustomIcon icon={Trash} boxSize="12px" />}
 								_hover={{ color: 'red.500' }}
 							>
 								{__('Delete Permanently', 'learning-management-system')}
@@ -165,7 +166,7 @@ const AnnouncementList: React.FC<Props> = (props) => {
 							<MenuList>
 								<MenuItem
 									onClick={() => onTrashPress(data?.id)}
-									icon={<BiTrash />}
+									icon={<CustomIcon icon={Trash} boxSize="12px" />}
 									_hover={{ color: 'red.500' }}
 								>
 									{__('Trash', 'learning-management-system')}

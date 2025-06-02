@@ -134,6 +134,7 @@ class Course extends Model {
 		'exchange_rate'                      => '',
 		'pricing_method'                     => '',
 		'flow'                               => CourseFlow::FREE_FLOW,
+		'custom_fields'                      => null,
 
 	);
 
@@ -1117,6 +1118,19 @@ class Course extends Model {
 		return $this->get_prop( 'flow' );
 	}
 
+	/**
+	 * Get custom fields values.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
+	 *
+	 * @return string Custom fields values.
+	 */
+	public function get_custom_fields( $context = 'view' ) {
+		return $this->get_prop( 'custom_fields', $context );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Setters
@@ -1649,6 +1663,17 @@ class Course extends Model {
 	 */
 	public function set_flow( $flow ) {
 		$this->set_prop( 'flow', $flow );
+	}
+
+	/**
+	 * Set the custom fields value for the course.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param string $custom_fields_value The custom field values.
+	 */
+	public function set_custom_fields( $custom_fields_value ) {
+		$this->set_prop( 'custom_fields', $custom_fields_value );
 	}
 
 	/*

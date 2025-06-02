@@ -526,6 +526,13 @@ class CourseProgressController extends CrudController {
 
 		$started_date_time = masteriyo_rest_prepare_date_response( $course_progress->get_started_at( $context ) );
 
+		$review_allowed_in_setting = masteriyo_get_setting( 'single_course.display.enable_review' );
+		if ( $review_allowed_in_setting && $course ) {
+			$review_after_course_completion = $course->get_review_after_course_completion( $context );
+		} else {
+			$review_after_course_completion = false;
+		}
+
 		$data = array(
 			'id'                                 => $course_progress->get_id( $context ),
 			'user_id'                            => $course_progress->get_user_id( $context ),
@@ -543,7 +550,7 @@ class CourseProgressController extends CrudController {
 			'is_password_required'               => post_password_required( get_post( $course_progress->get_course_id() ) ),
 			'disable_course_content'             => $course ? $course->get_disable_course_content( $context ) : '',
 			'welcome_message_to_first_time_user' => masteriyo_get_learn_page_welcome_message_status( $course_progress->get_course_id( $context ), get_current_user_id(), $course_progress->get_status( $context ) ),
-			'review_after_course_completion'     => $course ? $course->get_review_after_course_completion( $context ) : '',
+			'review_after_course_completion'     => $review_after_course_completion,
 		);
 
 		if ( 'completed' === $course_progress->get_status( 'edit' ) && $course ) {

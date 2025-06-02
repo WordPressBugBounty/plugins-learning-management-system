@@ -22,12 +22,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class SendAddonsTrackingInfo {
 
-	/**
-	 * The URL to which tracking information is sent.
-	 *
-	 * @since 1.8.3
-	 */
-	const REMOTE_URL = 'https://stats.wpeverest.com/wp-json/tgreporting/v1/process-free/';
 
 	/**
 	 * Get the base product plugin slug.
@@ -105,60 +99,5 @@ class SendAddonsTrackingInfo {
 		}
 
 		return $addons_data;
-	}
-
-	/**
-	 * Call API.
-	 *
-	 * @since 1.8.3
-	 */
-	public function call_api() {
-		$data                 = array();
-		$data['product_data'] = $this->get_addon_list();
-		$data['admin_email']  = get_bloginfo( 'admin_email' );
-		$data['website_url']  = get_bloginfo( 'url' );
-		$data['wp_version']   = get_bloginfo( 'version' );
-		$data['base_product'] = self::get_name();
-
-		$this->send_request( self::REMOTE_URL, apply_filters( 'masteriyo_addons_stats_data', $data ) );
-	}
-
-	/**
-	 * Return headers.
-	 *
-	 * @since 1.8.3
-	 *
-	 * @return array
-	 */
-	public function get_headers() {
-		return array(
-			'user-agent' => 'Masteriyo/' . masteriyo_get_version() . '; ' . get_bloginfo( 'url' ),
-		);
-	}
-
-	/**
-	 * Send Request to API.
-	 *
-	 * @since 1.8.3
-	 *
-	 * @param string $url URL.
-	 *
-	 * @param array  $data Data.
-	 */
-	public function send_request( $url, $data ) {
-		$response = wp_remote_post(
-			$url,
-			array(
-				'method'      => 'POST',
-				'timeout'     => 10,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking'    => true,
-				'headers'     => $this->get_headers(),
-				'body'        => array( 'free_data' => $data ),
-			)
-		);
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 }

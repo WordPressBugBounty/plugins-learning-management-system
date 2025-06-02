@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
-	do_action( 'masteriyo_layout_1_single_course_user_review_content', $course );
+	do_action( 'masteriyo_layout_1_single_course_user_review_content', $course, $reviews_and_replies );
 	?>
 </div>
 <?php

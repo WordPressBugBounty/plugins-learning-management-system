@@ -274,7 +274,7 @@ class Quiz extends Model {
 	 * @return string
 	 */
 	public function get_icon( $context = 'single-course.curriculum.section.content' ) {
-		$icon = masteriyo_get_svg( 'timer' );
+		$icon = masteriyo_get_svg( 'quiz' );
 
 		/**
 		 * Filters quiz icon.
@@ -776,5 +776,4 @@ class Quiz extends Model {
 	public function set_questions_display_per_page( $questions_display_per_page ) {
 		$this->set_prop( 'questions_display_per_page', absint( $questions_display_per_page ) );
 	}
-
 }

@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink } from 'react-router-dom';
 import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
+import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import DisplayModal from '../../../../assets/js/back-end/components/common/DisplayModal';
 import {
 	Header,
@@ -34,6 +35,10 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
+import {
+	AllCoursesIcon,
+	Gear,
+} from '../../../../assets/js/back-end/constants/images';
 import routes from '../../../../assets/js/back-end/constants/routes';
 import API from '../../../../assets/js/back-end/utils/api';
 import localized from '../../../../assets/js/back-end/utils/global';
@@ -177,7 +182,9 @@ const GoogleClassroomSetting = () => {
 										_hover={{ textDecoration: 'none' }}
 										_activeLink={navActiveStyles}
 										to={routes.googleClassroom.list}
-										leftIcon={<BiBook />}
+										leftIcon={
+											<CustomIcon icon={AllCoursesIcon} boxSize="20px" />
+										}
 									>
 										{__('Google Courses', 'learning-management-system')}
 									</NavMenuLink>
@@ -189,7 +196,7 @@ const GoogleClassroomSetting = () => {
 									_hover={{ textDecoration: 'none' }}
 									_activeLink={navActiveStyles}
 									to={routes.googleClassroom.setting}
-									leftIcon={<BiCog />}
+									leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
 								>
 									{__('Settings', 'learning-management-system')}
 								</NavMenuLink>

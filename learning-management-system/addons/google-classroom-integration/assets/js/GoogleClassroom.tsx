@@ -17,6 +17,7 @@ import { IoRefreshOutline } from 'react-icons/io5';
 import { NavLink } from 'react-router-dom';
 
 import { Container } from '../../../../assets/js/back-end/components/common/Container';
+import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import {
 	Header,
 	HeaderLeftSection,
@@ -34,6 +35,10 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
+import {
+	AllCoursesIcon,
+	Gear,
+} from '../../../../assets/js/back-end/constants/images';
 import routes from '../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -260,7 +265,7 @@ function GoogleClassroom() {
 									_hover={{ textDecoration: 'none' }}
 									_activeLink={navActiveStyles}
 									to={routes.googleClassroom.list}
-									leftIcon={<BiBook />}
+									leftIcon={<CustomIcon icon={AllCoursesIcon} boxSize="20px" />}
 								>
 									{__('Google Courses', 'learning-management-system')}
 								</NavMenuLink>
@@ -272,7 +277,7 @@ function GoogleClassroom() {
 								_hover={{ textDecoration: 'none' }}
 								_activeLink={navActiveStyles}
 								to={routes.googleClassroom.setting}
-								leftIcon={<BiCog />}
+								leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
 							>
 								{__('Settings', 'learning-management-system')}
 							</NavMenuLink>

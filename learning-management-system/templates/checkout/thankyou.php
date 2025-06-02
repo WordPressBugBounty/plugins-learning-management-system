@@ -103,12 +103,10 @@ if ( ! $order ) {
 				<strong><?php echo esc_html( masteriyo_format_datetime( $order->get_date_created() ) ); ?></strong>
 			</li>
 
-			<?php if ( is_user_logged_in() && $order->get_user_id() === get_current_user_id() && $order->get_billing_email() ) : ?>
-				<li class="masteriyo-order-overview__email email">
-					<?php esc_html_e( 'Email:', 'learning-management-system' ); ?>
-					<strong><?php echo esc_html( $order->get_billing_email() ); ?></strong>
-				</li>
-			<?php endif; ?>
+			<li class="masteriyo-order-overview__email email">
+				<?php esc_html_e( 'Email:', 'learning-management-system' ); ?>
+				<strong><?php echo esc_html( $order->get_billing_email() ); ?></strong>
+			</li>
 
 			<li class="masteriyo-order-overview__total total">
 				<?php esc_html_e( 'Total:', 'learning-management-system' ); ?>
@@ -126,8 +124,9 @@ if ( ! $order ) {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-				'Go to %saccount%s page.',
-				wp_kses_post( '<a href="' . esc_url( masteriyo_get_page_permalink( 'account' ) . '#/courses' ) . '">' ),
+				/* translators: %1$s: opening anchor tag, %2$s: closing anchor tag */
+				__( 'Go to %1$s account %2$s page.', 'learning-management-system' ),
+				wp_kses_post( '<a href="' . esc_url( masteriyo_get_page_permalink( 'account' ) . '#/order-history' ) . '">' ),
 				wp_kses_post( '</a>' )
 			)
 		);

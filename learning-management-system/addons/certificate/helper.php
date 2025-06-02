@@ -310,6 +310,11 @@ if ( ! function_exists( 'masteriyo_get_certificate_templates' ) ) {
 	 * @return array|\WP_Error
 	 */
 	function masteriyo_get_certificate_templates() {
+
+		if ( isset( $_GET['refresh'] ) ) {
+			delete_transient( 'masteriyo_pro_certificate_samples' );
+		}
+
 		$samples_json_url = 'https://d1sb0nhp4t2db4.cloudfront.net/resources/masteriyo/certificate/certificates.json';
 		$samples          = get_transient( 'masteriyo_pro_certificate_samples' );
 
@@ -720,27 +725,27 @@ if ( ! function_exists( 'masteriyo_get_certificate_addon_view_url' ) ) {
 
 // TODO - This function will be used later
 // if ( ! function_exists( 'masteriyo_get_certificate_share_url' ) ) {
-// 	/**
-// 	 * Retrieve the public profile URL for a masteriyo student/instructor.
-// 	 *
-// 	 * @since 1.13.3
-// 	 *
-// 	 * @param string $username Username of the user.
-// 	 * @return string The URL to the user's public profile.
-// 	 */
-// 	function masteriyo_get_certificate_share_url( $username ) {
+//  /**
+//   * Retrieve the public profile URL for a masteriyo student/instructor.
+//   *
+//   * @since 1.13.3
+//   *
+//   * @param string $username Username of the user.
+//   * @return string The URL to the user's public profile.
+//   */
+//  function masteriyo_get_certificate_share_url( $username ) {
 
 
-// 		$structure = get_option( 'permalink_structure' );
+//      $structure = get_option( 'permalink_structure' );
 
-// 		if ( 'plain' === $structure || '' === $structure ) {
-// 			$slug = '?username=' . $username;
-// 		} else {
-// 			$slug = $username;
-// 		}
+//      if ( 'plain' === $structure || '' === $structure ) {
+//          $slug = '?username=' . $username;
+//      } else {
+//          $slug = $username;
+//      }
 
-// 		return home_url( $slug );
-// 	}
+//      return home_url( $slug );
+//  }
 // }
 
 if ( ! function_exists( 'masteriyo_get_user_by_username_certificate' ) ) {

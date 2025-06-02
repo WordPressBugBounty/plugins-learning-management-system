@@ -138,6 +138,19 @@ class GoogleMeetController extends PostsController {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/mine',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_user_google_meetings' ),
+					'permission_callback' => 'is_user_logged_in',
+					'args'                => $this->get_collection_params(),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/delete',
 			array(
 				array(
@@ -203,6 +216,23 @@ class GoogleMeetController extends PostsController {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+	}
+
+	/**
+	 * Get a collection of user's google meet meetings.
+	 *
+	 * @since 1.18.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @param string  $context Request context. Default is 'view'.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function get_user_google_meetings( $request, $context = 'view' ) {
+		$course_ids = masteriyo_get_all_user_course_ids( get_current_user_id() );
+		$request->set_param( 'course', $course_ids );
+
+		return $this->get_items( $request );
 	}
 
 	/**
@@ -539,7 +569,6 @@ class GoogleMeetController extends PostsController {
 		$data = array(
 			'id'          => $course_item->get_id(),
 			'name'        => wp_specialchars_decode( $course_item->get_name( $context ) ),
-			'name'        => $course_item->get_name( $context ),
 			'description' => $course_item->get_description( $context ),
 			'type'        => $course_item->get_object_type(),
 			'menu_order'  => $course_item->get_menu_order( $context ),
@@ -1044,12 +1073,12 @@ class GoogleMeetController extends PostsController {
 	 * @param  int|Model|WP_Post $object Object ID or Model or WP_Post object.
 	 * @return object Model object or WP_Error object.
 	 */
-	protected function get_object( $object ) {
+	protected function get_object( $object_item ) {
 		try {
-			if ( is_int( $object ) ) {
-				$id = $object;
+			if ( is_int( $object_item ) ) {
+				$id = $object_item;
 			} else {
-				$id = is_a( $object, '\WP_Post' ) ? $object->ID : $object->get_id();
+				$id = is_a( $object_item, '\WP_Post' ) ? $object_item->ID : $object_item->get_id();
 			}
 			$google_meet = masteriyo( 'google-meet' );
 			$google_meet->set_id( $id );
@@ -1199,7 +1228,6 @@ class GoogleMeetController extends PostsController {
 	protected function get_google_meet_counts() {
 		$post_count = $this->get_google_meet_count();
 		return masteriyo_array_only( $post_count, array_merge( array( 'any' ), GoogleMeetStatus::all() ) );
-
 	}
 
 	/**
@@ -1285,8 +1313,19 @@ class GoogleMeetController extends PostsController {
 			$args['author__in'] = array( get_current_user_id() );
 		}
 
-		$args['posts_per_page'] = isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : 10;
-		$args['paged']          = isset( $request['paged'] ) ? $request['paged'] : 1;
+		if ( ! empty( $request['course'] ) ) {
+			$args['meta_query'] = array(
+				'relation' => 'AND',
+				array(
+					'key'     => '_course_id',
+					'value'   => $request['course'],
+					'compare' => 'IN',
+				),
+			);
+		}
+
+		$args['posts_per_page'] = isset( $request['per_page'] ) ? $request['per_page'] : 10;
+		$args['paged']          = isset( $request['page'] ) ? $request['page'] : 1;
 
 		return $args;
 	}

@@ -23,9 +23,25 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_overview' );
 
+if ( ! isset( $course ) || ! is_object( $course ) ) {
+	return;
+}
+
+$course_values = $course->get_custom_fields();
+$course_values = is_array( $course_values ) ? $course_values : array();
+
 ?>
 <div class="tab-content course-overview">
-	<?php echo do_shortcode( wp_kses_post( ( $course->get_description() ) ) ); ?>
+	<?php echo do_shortcode( wp_kses_post( $course->get_description() ) ); ?>
+
+	<?php if ( ! empty( $course_values ) ) : ?>
+		<div id="masteriyo-custom-fields">
+			<script type="application/json" id="masteriyo-course-values">
+				<?php echo wp_json_encode( $course_values, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?>
+			</script>
+			<div class="custom-fields-container"></div>
+		</div>
+	<?php endif; ?>
 </div>
 <?php
 

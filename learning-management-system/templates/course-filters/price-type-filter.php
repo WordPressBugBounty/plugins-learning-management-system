@@ -19,21 +19,37 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <div class="masteriyo-filter-section masteriyo-price-type-filter-section">
-	<h5><?php esc_html_e( 'Price Type', 'learning-management-system' ); ?></h5>
-	<div>
-		<select name="price-type">
-			<option value="" <?php echo esc_html( empty( $selected ) ? 'selected' : '' ); ?>>
-				<?php esc_html_e( 'All', 'learning-management-system' ); ?>
-			</option>
+	<div class="masteriyo-filter-section--heading">
+		<h5><?php esc_html_e( 'Price Type', 'learning-management-system' ); ?></h5>
 
-			<option value="free" <?php echo esc_html( 'free' === $selected ? 'selected' : '' ); ?>>
-				<?php esc_html_e( 'Free', 'learning-management-system' ); ?>
-			</option>
+		<svg class="toggle-arrow"  xmlns="http://www.w3.org/2000/svg" fill="#1E293B" viewBox="0 0 24 24">
+			<path fill-rule="evenodd" d="M21.582 6.403a1.468 1.468 0 0 0-2.02 0L12 13.68 4.439 6.403a1.468 1.468 0 0 0-2.02 0 1.339 1.339 0 0 0 0 1.944l8.57 8.25A1.46 1.46 0 0 0 12 17c.379 0 .742-.145 1.01-.403l8.572-8.25a1.339 1.339 0 0 0 0-1.944Z" clip-rule="evenodd"/>
+		</svg>
+	</div>
+	<div class="masteriyo-filter-wrapper">
+	<ul class="masteriyo-filter-section--price-type">
+		<li class="masteriyo-filter-section--price-type__list">
+			<input type="radio" id="all" name="price-type" checked="checked" value="all">
+			<label for="all">
+				<?php echo esc_html__( 'All', 'learning-management-system' ); ?>
+			</label>
+		</li>
 
-			<option value="paid" <?php echo esc_html( 'paid' === $selected ? 'selected' : '' ); ?>>
-				<?php esc_html_e( 'Paid', 'learning-management-system' ); ?>
-			</option>
-		</select>
+		<li class="masteriyo-filter-section--price-type__list">
+			<input type="radio" id="free" name="price-type" value="free">
+			<label for="free">
+			<?php echo esc_html__( 'Free', 'learning-management-system' ); ?>
+			</label>
+		</li>
+
+		<li class="masteriyo-filter-section--price-type__list">
+			<input type="radio" id="paid" name="price-type" value="paid">
+			<label for="paid">
+			<?php echo esc_html__( 'Paid', 'learning-management-system' ); ?>
+			</label>
+		</li>
+
+	</ul>
 	</div>
 </div>
 <?php

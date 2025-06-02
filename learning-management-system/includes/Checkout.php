@@ -112,7 +112,7 @@ class Checkout {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$nonce_value = masteriyo_get_var( $_REQUEST['masteriyo-process-checkout-nonce'], masteriyo_get_var( $_REQUEST['_wpnonce'], '' ) );
 
-			if ( empty( $nonce_value ) || ! wp_verify_nonce( sanitize_key(wp_unslash($nonce_value)), 'masteriyo-process_checkout' ) ) {
+			if ( empty( $nonce_value ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $nonce_value ) ), 'masteriyo-process_checkout' ) ) {
 				$this->session->put( 'refresh_totals', true );
 				throw new \Exception( __( 'We were unable to process your order, please try again.', 'learning-management-system' ) );
 			}
@@ -442,7 +442,9 @@ class Checkout {
 		);
 
 		array_walk( $address_fields, array( $this, 'set_user_address_fields' ), $data );
-		masteriyo_get_current_user()->save();
+		if ( masteriyo_get_current_user() ) {
+			masteriyo_get_current_user()->save();
+		}
 
 		$this->session->put( 'chosen_payment_method', $data['payment_method'] );
 
@@ -456,7 +458,7 @@ class Checkout {
 	 * @since 1.6.12
 	 * @param array $data Posted data.
 	 */
-	protected function create_user( $data ) {
+	protected function create_user( &$data ) {
 		if ( ! is_user_logged_in() ) {
 
 			add_filter( 'masteriyo_registration_is_generate_password', '__return_true' );
@@ -483,16 +485,29 @@ class Checkout {
 				throw new \Exception( $user->get_error_message() );
 			}
 
-			$user->set_status( UserStatus::ACTIVE );
-			$user->save();
-
 			$wp_user = get_user_by( 'email', $user->get_email() );
 
 			if ( ! $wp_user ) {
 				throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) );
 			}
 
-			masteriyo_set_customer_auth_cookie( $user->get_id() );
+			if ( masteriyo_registration_is_generate_password() ) {
+				if ( masteriyo_is_email_verification_enabled() ) {
+					$user->set_status( UserStatus::SPAM );
+					masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
+				} else {
+					$user->set_status( UserStatus::ACTIVE );
+					masteriyo_set_customer_auth_cookie( $user->get_id() );
+					masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
+				}
+			} else {
+					$user->set_status( UserStatus::ACTIVE );
+					masteriyo_set_customer_auth_cookie( $user->get_id() );
+					masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
+			}
+			$data['customer_id'] = $user->get_id();
+
+			$user->save();
 		}
 	}
 
@@ -930,7 +945,7 @@ class Checkout {
 			 *
 			 * @param integer $user_id User ID.
 			 */
-			$customer_id = apply_filters( 'masteriyo_checkout_user_id', get_current_user_id() );
+			$customer_id = apply_filters( 'masteriyo_checkout_user_id', is_user_logged_in() ? get_current_user_id() : $data['customer_id'] ?? 0 );
 
 			$order->set_created_via( 'checkout' );
 			$order->set_cart_hash( $cart_hash );

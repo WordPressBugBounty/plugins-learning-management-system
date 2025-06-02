@@ -1,5 +1,7 @@
 import {
+	Box,
 	Collapse,
+	Flex,
 	FormLabel,
 	Input,
 	InputGroup,
@@ -11,12 +13,16 @@ import {
 	NumberInputStepper,
 	Radio,
 	RadioGroup,
+	Slider,
+	SliderThumb,
+	SliderTrack,
 	Stack,
 	Switch,
+	Text,
 	Textarea,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import Select from '../../../../../../assets/js/back-end/components/common/Select';
@@ -35,7 +41,12 @@ const PAYOUT_METHODS = [
 ];
 
 const RevenueSharingSettings: React.FC<Props> = (props) => {
-	const { register, getValues, control } = useFormContext();
+	const { register, getValues, setValue, control } = useFormContext();
+
+	const admin_rate = useWatch({
+		name: 'payments.revenue_sharing.admin_rate',
+		defaultValue: props.data?.admin_rate || 0,
+	});
 
 	const watchRevenueSharingEnable = useWatch({
 		name: 'payments.revenue_sharing.enable',
@@ -63,6 +74,12 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 
 	const currency = getValues()?.payments?.currency?.currency ?? 'USD';
 
+	useEffect(() => {
+		if (admin_rate) {
+			setValue('payments.revenue_sharing.instructor_rate', 100 - admin_rate);
+		}
+	}, [admin_rate, setValue]);
+
 	return (
 		<SingleComponentsWrapper
 			title={__('Revenue Sharing', 'learning-management-system')}
@@ -79,71 +96,79 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 					<Stack direction="column" spacing="6" width="full">
 						<FormControlTwoCol>
 							<FormLabel>
-								{__('Admin commission rate', 'learning-management-system')}
-								<ToolTip
-									label={__(
-										'Percentage retained by the admin/platform from course sales.',
-										'learning-management-system',
-									)}
-								/>
+								{__('Commission Rate', 'learning-management-system')}
 							</FormLabel>
+
 							<Controller
+								control={control}
 								name={'payments.revenue_sharing.admin_rate'}
 								defaultValue={props.data?.admin_rate}
-								render={({ field }) => (
-									<InputGroup>
-										<NumberInput
-											width="full"
-											min={0}
-											max={100}
-											defaultValue={field.value}
-											onChange={field.onChange}
-										>
-											<NumberInputField />
-											<NumberInputStepper>
-												<NumberIncrementStepper />
-												<NumberDecrementStepper />
-											</NumberInputStepper>
-										</NumberInput>
-										<InputRightAddon>{'%'}</InputRightAddon>
-									</InputGroup>
-								)}
+								render={({ field: { onChange, value } }) => {
+									const adminPercent = value;
+									const instructorPercent = 100 - value;
+
+									return (
+										<Box flex={1} position="relative">
+											<Slider
+												value={adminPercent}
+												min={0}
+												max={100}
+												step={1}
+												onChange={(val) => {
+													onChange(val);
+												}}
+												focusThumbOnChange={false}
+											>
+												<SliderTrack bg="primary.500" height={1}></SliderTrack>
+												<SliderThumb
+													boxSize={4}
+													bg="white"
+													borderWidth={5}
+													borderColor="primary.500"
+												/>
+											</Slider>
+
+											<Flex
+												justify="space-between"
+												position="absolute"
+												w="full"
+												top={5}
+											>
+												<Flex alignItems="center" gap={1}>
+													<Text
+														fontSize="onboard-xs"
+														fontWeight="onboard-medium"
+													>
+														{__('Admin', 'learning-management-system')}
+													</Text>
+													<Text
+														fontSize="onboard-xs"
+														fontWeight="onboard-regular"
+													>
+														({adminPercent}%)
+													</Text>
+												</Flex>
+												<Flex alignItems="center" gap={1}>
+													<Text
+														fontSize="onboard-xs"
+														fontWeight="onboard-medium"
+													>
+														{__('Instructor', 'learning-management-system')}
+													</Text>
+													<Text
+														fontSize="onboard-xs"
+														fontWeight="onboard-regular"
+													>
+														({instructorPercent}%)
+													</Text>
+												</Flex>
+											</Flex>
+										</Box>
+									);
+								}}
 							/>
 						</FormControlTwoCol>
-						<FormControlTwoCol>
-							<FormLabel>
-								{__('Instructor commission rate', 'learning-management-system')}
-								<ToolTip
-									label={__(
-										'Percentage paid to instructors from course sales',
-										'learning-management-system',
-									)}
-								/>
-							</FormLabel>
-							<Controller
-								name={'payments.revenue_sharing.instructor_rate'}
-								defaultValue={props.data?.instructor_rate}
-								render={({ field }) => (
-									<InputGroup>
-										<NumberInput
-											width="full"
-											min={0}
-											max={100}
-											defaultValue={field.value}
-											onChange={field.onChange}
-										>
-											<NumberInputField />
-											<NumberInputStepper>
-												<NumberIncrementStepper />
-												<NumberDecrementStepper />
-											</NumberInputStepper>
-										</NumberInput>
-										<InputRightAddon>{'%'}</InputRightAddon>
-									</InputGroup>
-								)}
-							/>
-						</FormControlTwoCol>
-						<FormControlTwoCol>
+						<FormControlTwoCol mt={2}>
 							<FormLabel>
 								{__('Enable Deductible Fee', 'learning-management-system')}
 								<ToolTip
@@ -245,8 +270,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 									<InputGroup>
 										<NumberInput
 											width="full"
-											min={0}
-											max={100}
+											min={1}
 											defaultValue={field.value}
 											onChange={field.onChange}
 										>

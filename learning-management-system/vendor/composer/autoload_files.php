@@ -42,4 +42,5 @@ return array(
     'ba074860d28eb948aad71fd704d2ccc9' => $baseDir . '/includes/Helper/email.php',
     'b3849b76cb854896467afa018bf4179f' => $baseDir . '/includes/Helper/export-import.php',
     'a4be7676601bf1e39ad1e3bf706e42b8' => $baseDir . '/includes/Helper/LoginSessionManagement.php',
+    'ef7038785cc8bae2ff392e21d8e59a46' => $vendorDir . '/codeinwp/themeisle-sdk/load.php',
 );

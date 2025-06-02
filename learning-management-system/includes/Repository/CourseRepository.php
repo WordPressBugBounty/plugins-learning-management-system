@@ -75,6 +75,8 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		'pricing_method'                     => '_pricing_method',
 
 		'flow'                               => '_flow',
+		// Custom Fields
+		'custom_fields'                      => '_custom_fields',
 	);
 
 	/**

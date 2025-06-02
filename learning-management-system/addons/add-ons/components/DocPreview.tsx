@@ -22,7 +22,7 @@ import { __ } from '@wordpress/i18n';
 import saveAs from 'file-saver';
 import React, { useState } from 'react';
 import { DocumentViewer } from 'react-documents';
-import { BiShow, BiTrash } from 'react-icons/bi';
+import { BiShow } from 'react-icons/bi';
 import {
 	BsFileArrowDown,
 	BsFileExcel,
@@ -31,7 +31,9 @@ import {
 	BsFileWord,
 	BsFileZip,
 } from 'react-icons/bs';
+import { CustomIcon } from '../../../assets/js/back-end/components/common/CustomIcon';
 import MasteriyoPlayer from '../../../assets/js/back-end/components/common/masteriyoPlayer/MasteriyoPlayer';
+import { Trash } from '../../../assets/js/back-end/constants/images';
 import {
 	getFileNameFromURL,
 	isArray,
@@ -193,7 +195,7 @@ const DocPreview: React.FC<Props> = (props) => {
 												'Delete download attachment file',
 												'learning-management-system',
 											)}
-											icon={<BiTrash />}
+											icon={<CustomIcon icon={Trash} boxSize="12px" />}
 											onClick={() => onRemove(file)}
 										/>
 									) : null}

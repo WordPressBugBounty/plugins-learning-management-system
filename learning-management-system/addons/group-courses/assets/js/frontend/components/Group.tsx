@@ -20,13 +20,17 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
-import { BiBook, BiEdit, BiGroup, BiTrash } from 'react-icons/bi';
+import { BiBook, BiGroup } from 'react-icons/bi';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../constants/urls';
 import { GroupStatus } from '../../enums/Enum';
 import { GroupSchema } from '../../types/group';
 // import { GroupStatus } from '../../enums/Enum';
 import { RxDividerVertical } from 'react-icons/rx';
+import {
+	EditIcon,
+	Trash,
+} from '../../../../../../assets/js/back-end/constants/images';
 
 interface GroupProps {
 	group: GroupSchema;
@@ -178,7 +182,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								onClick={() => onExpandedGroupsChange?.(group.id)}
 								variant="unstyled"
 								cursor={'pointer'}
-								icon={<Icon fontSize="lg" as={BiEdit} />}
+								icon={<Icon fontSize="lg" as={EditIcon} />}
 								aria-label={__('Edit', 'learning-management-system')}
 								mt={1}
 							/>
@@ -192,7 +196,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								isLoading={deleteGroup.isPending}
 								onClick={handleDeleteClick}
 								variant="unstyled"
-								icon={<Icon fontSize="lg" as={BiTrash} />}
+								icon={<Icon fontSize="lg" as={Trash} />}
 								aria-label={__('Delete', 'learning-management-system')}
 								mt={1}
 							/>

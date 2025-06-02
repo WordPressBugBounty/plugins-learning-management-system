@@ -94,6 +94,7 @@ class Lesson extends Model {
 		'starts_at'           => '',
 		'ends_at'             => '',
 		'live_chat_enabled'   => true,
+		'custom_fields'       => null,
 	);
 
 	/**
@@ -274,12 +275,12 @@ class Lesson extends Model {
 	public function get_icon( $context = 'single-course.curriculum.section.content' ) {
 		if ( ! empty( $this->get_video_source_url() ) ) {
 			if ( 'live-stream' === $this->get_video_source() ) {
-				$icon = masteriyo_get_svg( 'live-tv' );
+				$icon = masteriyo_get_svg( 'live-stream-lesson' );
 			} else {
-				$icon = masteriyo_get_svg( 'play' );
+				$icon = masteriyo_get_svg( 'video-lesson' );
 			}
 		} else {
-			$icon = masteriyo_get_svg( 'left-align' );
+			$icon = masteriyo_get_svg( 'text-lesson' );
 		}
 
 		/**
@@ -671,6 +672,19 @@ class Lesson extends Model {
 		return $this->get_prop( 'video_meta', $context );
 	}
 
+	/**
+	 * Get Custom fields values.
+	 *
+	 * @since 1.11.3 [Free]
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return object
+	 */
+	public function get_custom_fields( $context = 'view' ) {
+		return $this->get_prop( 'custom_fields', $context );
+	}
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -961,5 +975,16 @@ class Lesson extends Model {
 	 */
 	public function set_video_meta( $video_meta ) {
 		$this->set_prop( 'video_meta', $video_meta );
+	}
+
+	/**
+	 * Set Custom fields values.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @param object $custom_fields Custom fields values.
+	 */
+	public function set_custom_fields( $custom_fields ) {
+		$this->set_prop( 'custom_fields', ( $custom_fields ) );
 	}
 }

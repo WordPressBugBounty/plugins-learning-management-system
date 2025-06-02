@@ -29,12 +29,15 @@ import {
 	BiCalendar,
 	BiCopy,
 	BiDotsVerticalRounded,
-	BiEdit,
 	BiShow,
-	BiTrash,
 } from 'react-icons/bi';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
+import { CustomIcon } from '../../../../../assets/js/back-end/components/common/CustomIcon';
+import {
+	EditIcon,
+	Trash,
+} from '../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../assets/js/back-end/utils/api';
 import {
 	cloneOperationInCache,
@@ -302,7 +305,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 							</MenuItem>
 							<MenuItem
 								onClick={() => onDeletePress()}
-								icon={<BiTrash />}
+								icon={<CustomIcon icon={Trash} boxSize="12px" />}
 								_hover={{ color: 'red.500' }}
 							>
 								{__('Delete Permanently', 'learning-management-system')}
@@ -320,7 +323,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 							<Button
 								colorScheme="primary"
 								variant="outline"
-								leftIcon={<BiEdit />}
+								leftIcon={<CustomIcon icon={EditIcon} boxSize="12px" />}
 								size="xs"
 							>
 								{__('Edit', 'learning-management-system')}
@@ -346,7 +349,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 								</Link>
 								<MenuItem
 									onClick={() => onTrashPress()}
-									icon={<BiTrash />}
+									icon={<CustomIcon icon={Trash} boxSize="12px" />}
 									_hover={{ color: 'red.500' }}
 								>
 									{__('Trash', 'learning-management-system')}

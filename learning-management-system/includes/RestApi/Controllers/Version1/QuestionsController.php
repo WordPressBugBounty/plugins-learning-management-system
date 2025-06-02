@@ -338,6 +338,15 @@ class QuestionsController extends PostsController {
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
+		$params['per_page'] = array(
+			'description'       => __( 'Maximum number of items to be returned in result set.', 'learning-management-system' ),
+			'type'              => 'integer',
+			'default'           => 10,
+			'minimum'           => 1,
+			'maximum'           => 999,
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
 
 		return $params;
 	}
@@ -1254,6 +1263,8 @@ class QuestionsController extends PostsController {
 
 			$query_args['post_parent'] = $quiz_id;
 
+			$query_args['posts_per_page'] = apply_filters( 'masteriyo_rest_quiz_questions_per_page', $query_args['posts_per_page'] );
+
 			$results = masteriyo_get_questions_by_quiz_with_pagination( $query_args );
 		} else {
 			$results = parent::get_objects( $query_args );
@@ -1274,6 +1285,8 @@ class QuestionsController extends PostsController {
 	 * @return array
 	 */
 	protected function process_objects_collection( $objects, $query_args, $query_results ) {
+		$query_args['posts_per_page'] = apply_filters( 'masteriyo_rest_quiz_questions_per_page', $query_args['posts_per_page'] );
+
 		return array(
 			'data' => $objects,
 			'meta' => array(

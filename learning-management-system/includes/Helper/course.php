@@ -848,3 +848,36 @@ if ( ! function_exists( 'masteriyo_user_has_completed_course' ) ) {
 		return apply_filters( 'masteriyo_has_user_completed_course', $is_completed, $course_id, $user_id );
 	}
 }
+
+
+if ( ! function_exists( 'masteriyo_can_user_review_course' ) ) {
+	/**
+	 * Retrieves the enrolled users for a course.
+	 *
+	 * @since 1.18.0
+	 *
+	 * @param int $course_id The ID of the course.
+	 *
+	 * @return boolean true if the user is enrolled in the course, false otherwise.
+	 */
+	function masteriyo_can_user_review_course( $course ) {
+		if ( ! $course || ! is_user_logged_in() ) {
+			return false;
+		}
+
+		if ( ! masteriyo_get_setting( 'single_course.display.enable_review' ) ) {
+			return false;
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_get_current_user_id() === $course->get_author_id() ) {
+			return true;
+		}
+
+		if ( masteriyo_get_setting( 'single_course.display.enable_review_enrolled_users_only' ) ) {
+			$enrolled_users = masteriyo_is_user_enrolled_in_course( $course->get_id() );
+			return $enrolled_users;
+		}
+
+		return true;
+	}
+}

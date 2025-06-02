@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo",
   "description": "An WordPress LMS plugin",
-  "version": "1.17.5",
+  "version": "1.18.1",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -53,7 +53,8 @@
       "includes/Helper/OpenAI.php",
       "includes/Helper/email.php",
       "includes/Helper/export-import.php",
-      "includes/Helper/LoginSessionManagement.php"
+      "includes/Helper/LoginSessionManagement.php",
+      "vendor/codeinwp/themeisle-sdk/load.php"
     ],
     "psr-4": {
       "Masteriyo\\": "includes/",
@@ -61,6 +62,8 @@
       "Masteriyo\\Addons\\DownloadMaterials\\": "addons/download-materials",
       "Masteriyo\\Addons\\RevenueSharing\\": "addons/revenue-sharing",
       "Masteriyo\\Addons\\CourseAnnouncement\\": "addons/course-announcement",
+      "Masteriyo\\Addons\\Recaptcha\\": "addons/recaptcha",
+      "Masteriyo\\Addons\\PasswordStrength\\": "addons/password-strength",
       "Masteriyo\\Addons\\ElementorIntegration\\": "addons/elementor-integration/",
       "Masteriyo\\Addons\\DiviIntegration\\": "addons/divi-integration/",
       "Masteriyo\\Addons\\GamiPressIntegration\\": "addons/gamipress-integration/",
@@ -91,6 +94,7 @@
   "require": {
     "php": ">=7.0.0",
     "chillerlan/php-qrcode": "3.4.1",
+    "codeinwp/themeisle-sdk": "^3.3",
     "halaxa/json-machine": "^1.1",
     "league/container": "3.4.1",
     "league/oauth2-google": "^4.0",

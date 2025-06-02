@@ -11,6 +11,7 @@
 namespace Masteriyo;
 
 use Masteriyo\Constants;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Query\CourseCategoryQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -196,9 +197,9 @@ class ScriptStyle {
 		$ask_review_src            = self::get_asset_url( '/assets/js/build/ask-review' . $suffix . '.js' );
 		$jquery_block_ui_src       = self::get_asset_url( '/assets/js/build/jquery-block-ui' . $suffix . '.js' );
 		$ask_usage_tracking_src    = self::get_asset_url( '/assets/js/build/usage-tracking' . $suffix . '.js' );
-		$deactivation_feedback_src = self::get_asset_url( '/assets/js/build/deactivation-feedback' . $suffix . '.js' );
 		$swiper_src                = plugins_url( 'libs/swiper/swiper-bundle.min.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) );
 		$categories_slider_src     = self::get_asset_url( '/assets/js/build/categories-slider' . $suffix . '.js' );
+		$custom_field_src          = self::get_asset_url( '/assets/js/build/masteriyo-builder-custom-fields' . $suffix . '.js' );
 
 		if ( masteriyo_is_development() ) {
 			$account_src               = 'http://localhost:3000/dist/account.js';
@@ -212,8 +213,8 @@ class ScriptStyle {
 			$ask_review_src            = self::get_asset_url( '/assets/js/frontend/ask-review.js' );
 			$jquery_block_ui_src       = self::get_asset_url( '/assets/js/frontend/jquery-block-ui.js' );
 			$ask_usage_tracking_src    = self::get_asset_url( '/assets/js/frontend/usage-tracking.js' );
-			$deactivation_feedback_src = self::get_asset_url( '/assets/js/admin/deactivation-feedback.js' );
 			$categories_slider_src     = self::get_asset_url( '/assets/js/frontend/categories-slider.js' );
+			$custom_field_src          = self::get_asset_url( '/assets/js/admin/masteriyo-builder-custom-fields.js' );
 		}
 
 		/**
@@ -243,6 +244,14 @@ class ScriptStyle {
 					'deps'     => array( 'jquery' ),
 					'context'  => 'admin',
 					'callback' => 'masteriyo_is_admin_page',
+				),
+				'masteriyo-custom'        => array(
+					'src'     => $custom_field_src,
+					'deps'    => array( 'jquery' ),
+					'context' => array( 'admin', 'public' ),
+					'type'    => 'module',
+					function () {
+						return masteriyo_is_production() && ( masteriyo_is_admin_page() || masteriyo_is_learn_page() || ( is_user_logged_in() && masteriyo_is_account_page() ) );},
 				),
 				'backend'                 => array(
 					'src'      => $backend_src,
@@ -310,7 +319,9 @@ class ScriptStyle {
 					'src'      => $jquery_block_ui_src,
 					'version'  => self::get_version(),
 					'context'  => 'public',
-					'callback' => 'masteriyo_is_checkout_page',
+					'callback' => function () {
+						return masteriyo_is_checkout_page() || is_post_type_archive( PostType::COURSE );
+					},
 				),
 				'ask-usage-tracking'      => array(
 					'src'      => $ask_usage_tracking_src,
@@ -319,17 +330,6 @@ class ScriptStyle {
 					'context'  => 'admin',
 					'callback' => function () {
 						return masteriyo_show_usage_tracking_notice();
-					},
-				),
-				'deactivation-feedback'   => array(
-					'src'      => $deactivation_feedback_src,
-					'deps'     => array( 'jquery' ),
-					'version'  => self::get_version(),
-					'context'  => 'admin',
-					'callback' => function () {
-						$screen = get_current_screen();
-
-						return $screen && in_array( $screen->id, array( 'plugins', 'plugins-network' ), true );
 					},
 				),
 				'swiper'                  => array(
@@ -433,16 +433,6 @@ class ScriptStyle {
 						return masteriyo_show_usage_tracking_notice();
 					},
 				),
-				'deactivation-feedback' => array(
-					'src'      => self::get_asset_url( '/assets/css/deactivation-feedback.css' ),
-					'has_rtl'  => false,
-					'context'  => 'admin',
-					'callback' => function () {
-						$screen = get_current_screen();
-
-						return $screen && in_array( $screen->id, array( 'plugins', 'plugins-network' ), true );
-					},
-				),
 				'swiper'                => array(
 					'src'      => plugins_url( 'libs/swiper/swiper-bundle.min.css', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ),
 					'has_rtl'  => false,
@@ -538,6 +528,7 @@ class ScriptStyle {
 				'in_footer'     => true,
 				'register_only' => false,
 				'callback'      => '',
+				'type'          => '',
 			)
 		);
 	}
@@ -712,6 +703,20 @@ class ScriptStyle {
 				self::enqueue_style( $handle, $style['src'], $style['deps'], $style['version'], $style['media'], $style['has_rtl'] );
 			} elseif ( is_callable( $style['callback'] ) && call_user_func_array( $style['callback'], array() ) ) {
 				self::enqueue_style( $handle, $style['src'], $style['deps'], $style['version'], $style['media'], $style['has_rtl'] );
+			}
+
+			if ( isset( $style['type'] ) && 'module' === $style['type'] ) {
+				add_filter(
+					'script_loader_tag',
+					function ( $tag, $tag_handle ) use ( $handle ) {
+						if ( $tag_handle === $handle ) {
+							return str_replace( 'src', 'type="module" src', $tag );
+						}
+						return $tag;
+					},
+					10,
+					2
+				);
 			}
 		}
 
@@ -942,11 +947,14 @@ class ScriptStyle {
 			wp_tinymce_inline_scripts();
 
 			wp_add_inline_style( 'wp-edit-post', 'html.wp-toolbar { background-color: #F7FAFC; }' );
-			wp_add_inline_script(
-				'wp-blocks',
-				sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( $post ) ) ),
-				'after'
-			);
+
+			if ( isset( $post ) ) {
+				wp_add_inline_script(
+					'wp-blocks',
+					sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( $post ) ) ),
+					'after'
+				);
+			}
 		}
 
 		foreach ( $scripts as $handle => $script ) {
@@ -955,9 +963,7 @@ class ScriptStyle {
 				continue;
 			}
 
-			if ( empty( $script['callback'] ) ) {
-				self::enqueue_script( $handle, $script['src'], $script['deps'], $script['version'] );
-			} elseif ( is_callable( $script['callback'] ) && call_user_func_array( $script['callback'], array() ) ) {
+			if ( empty( $script['callback'] ) || ( is_callable( $script['callback'] ) && call_user_func( $script['callback'] ) ) ) {
 				self::enqueue_script( $handle, $script['src'], $script['deps'], $script['version'] );
 			}
 		}
@@ -968,9 +974,7 @@ class ScriptStyle {
 				continue;
 			}
 
-			if ( empty( $style['callback'] ) ) {
-				self::enqueue_style( $handle, $style['src'], $style['deps'], $style['version'], $style['media'], $style['has_rtl'] );
-			} elseif ( is_callable( $style['callback'] ) && call_user_func_array( $style['callback'], array() ) ) {
+			if ( empty( $style['callback'] ) || ( is_callable( $style['callback'] ) && call_user_func( $style['callback'] ) ) ) {
 				self::enqueue_style( $handle, $style['src'], $style['deps'], $style['version'], $style['media'], $style['has_rtl'] );
 			}
 		}
@@ -980,6 +984,7 @@ class ScriptStyle {
 			wp_set_script_translations( 'masteriyo-backend', 'learning-management-system', Constants::get( 'MASTERIYO_LANGUAGES' ) );
 		}
 	}
+
 
 	/**
 	 * Load admin localized scripts.
@@ -1110,15 +1115,6 @@ class ScriptStyle {
 						'nonce'    => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
 					),
 				),
-				'deactivation-feedback' => array(
-					'name' => '_MASTERIYO_DEACTIVATION_FEEDBACK_DATA_',
-					'data' => array(
-						'ajax_url'       => admin_url( 'admin-ajax.php' ),
-						'error_messages' => array(
-							'select_at_least_one' => 'Please select at least one option from the list.',
-						),
-					),
-				),
 			)
 		);
 
@@ -1216,7 +1212,7 @@ class ScriptStyle {
 							'reply_to'                 => __( 'Reply to', 'learning-management-system' ),
 							'edit_reply'               => __( 'Edit reply', 'learning-management-system' ),
 							'edit_review'              => __( 'Edit review', 'learning-management-system' ),
-							'submit_success'           => __( 'Submitted successfully.', 'learning-management-system' ),
+							'submit_success'           => masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ? __( 'Your review has been submitted successfully.', 'learning-management-system' ) : __( 'Your review has been submitted and is awaiting approval by the instructor.', 'learning-management-system' ),
 							'update_success'           => __( 'Updated successfully.', 'learning-management-system' ),
 							'delete_success'           => __( 'Deleted successfully.', 'learning-management-system' ),
 							'expand_all'               => __( 'Expand All', 'learning-management-system' ),
@@ -1229,6 +1225,9 @@ class ScriptStyle {
 						'ajaxURL'                  => admin_url( 'admin-ajax.php' ),
 						'course_id'                => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_id() : 0,
 						'course_review_pages'      => isset( $GLOBALS['course'] ) ? masteriyo_get_course_reviews_infinite_loading_pages_count( $GLOBALS['course'] ) : 0,
+						'review_form_enabled'      => isset( $GLOBALS['course'] ) ? masteriyo_bool_to_string( masteriyo_can_user_review_course( $GLOBALS['course'] ) ) : 0,
+						'current_user_logged_in'   => masteriyo_bool_to_string( is_user_logged_in() ),
+						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
 					),
 				),
 				'masteriyo-single-course' => array(
@@ -1253,7 +1252,7 @@ class ScriptStyle {
 							'reply_to'                 => __( 'Reply to', 'learning-management-system' ),
 							'edit_reply'               => __( 'Edit reply', 'learning-management-system' ),
 							'edit_review'              => __( 'Edit review', 'learning-management-system' ),
-							'submit_success'           => __( 'Submitted successfully.', 'learning-management-system' ),
+							'submit_success'           => masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ? __( 'Your review has been submitted successfully.', 'learning-management-system' ) : __( 'Your review has been submitted and is awaiting approval by the instructor.', 'learning-management-system' ),
 							'update_success'           => __( 'Updated successfully.', 'learning-management-system' ),
 							'delete_success'           => __( 'Deleted successfully.', 'learning-management-system' ),
 							'expand_all'               => __( 'Expand All', 'learning-management-system' ),
@@ -1266,6 +1265,9 @@ class ScriptStyle {
 						'ajaxURL'                  => admin_url( 'admin-ajax.php' ),
 						'course_id'                => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_id() : 0,
 						'course_review_pages'      => isset( $GLOBALS['course'] ) ? masteriyo_get_course_reviews_infinite_loading_pages_count( $GLOBALS['course'] ) : 0,
+						'review_form_enabled'      => isset( $GLOBALS['course'] ) ? masteriyo_bool_to_string( masteriyo_can_user_review_course( $GLOBALS['course'] ) ) : 0,
+						'current_user_logged_in'   => masteriyo_bool_to_string( is_user_logged_in() ),
+						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
 					),
 				),
 				'checkout'                => array(
@@ -1312,6 +1314,7 @@ class ScriptStyle {
 						'showHeader'                      => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_header' ) ),
 						'reviewOptionIsVisible'           => masteriyo_bool_to_string( masteriyo_is_reviews_enabled_in_learn_page() ),
 						'isCurrentUserAdmin'              => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
+						'isAutoApproveReviews'            => masteriyo_bool_to_string( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ),
 					),
 				),
 				'courses'                 => array(
@@ -1448,6 +1451,7 @@ class ScriptStyle {
 				'get_blacklist_scripts_in_admin_page',
 				array(
 					'mwai',
+					'editor-check', // Learnpress conflicting our backend pages.
 				)
 			)
 		);

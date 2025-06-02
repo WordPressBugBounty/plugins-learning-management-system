@@ -1,10 +1,10 @@
  === Masteriyo LMS – Online Course Builder for eLearning, LMS & Education ===
-Contributors: Masteriyo, sanjiv-saha
+Contributors: Masteriyo, themeisle
 Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.17.5
+Stable tag: 1.18.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -242,6 +242,42 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.18.1 - 02-06-2025 =
+- Feature - Google reCAPTCHA & Password strength addon now available in Free.
+- Enhancement - Integrated Themeisle SDK for rollback updates and deactivation feedback.
+- Update - Feature and addon availability now varies by plan. [PRO]
+- Refactor - Codebase updated to support plan-based feature access. [PRO]
+- Fix - Invalid invoice PDF download issue in Edit Order.
+- Fix - Hide quiz description in student quiz scoreboard.
+- Fix - VdoCipher embed issue caused by encrypted-media restriction on iframe.
+- Fix - Enforced email verification before account access after checkout.
+- Fix - Translation issue in thankyou page.
+- Fix - Password strength message issue.
+
+= 1.18.0 - 20-05-2025 =
+- Feature - Webhook actions. [PRO]
+- Feature - Custom fields in course builder.
+- Enhancement - Masteriyo onboarding UI/UX revamp.
+- Enhancement - Instructor list page UI revamp.
+- Enhancement - Google Meet tab option in the account page.
+- Enhancement - Dynamic Minimum Payout Amount for Instructors.
+- Enhancement - Added refresh template button to refetch certificate templates.
+- Enhancement - Added additional certificate templates. [PRO]
+- Refactor - Questions per page max limit is set to 999.
+- Refactor - Course archive filter UI revamp.
+- Refactor - Enqueue style and scripts for page speed.
+- Refactor - Overall new icons updated in backend and frontend side.
+- Fix - Other Users order invoice PDF downloadable. [PRO]
+- Fix - i.map is not a function.
+- Fix - Course review reply undefined get_avatar_url.
+- Fix - Show review for enrolled users only not working.
+- Fix - Revenue sharing minimum payout amount issue.
+- Fix - Account Page width in WP default theme.
+- Fix - Learnpress conflicting our backend pages.
+- Fix - Compatibility issue with YITH gift cards.
+- Fix - Course start email not sending issue to admin and instructor.
+- Fix - Course bundle and webhook issue in checkout. [PRO]
 
 = 1.17.5 - 01-05-2025 =
 - Feature - Coupons can now be applied to specific courses, bundles, and course categories. [PRO]

@@ -595,16 +595,19 @@ class WcIntegrationAddon {
 	 * @since 1.8.1
 	 */
 	public function add_masteriyo_tab_icon() {
-		wp_register_style( 'add_masteriyo_tab_icon', false );
-		wp_enqueue_style( 'add_masteriyo_tab_icon' );
+		$handle = 'add_masteriyo_tab_icon';
 
-		$inline_css = '
-		#woocommerce-product-data ul.wc-tabs li.masteriyo_options.masteriyo_tab a:before {
-				content: "\1F4D6";
-			}
-	';
-		wp_add_inline_style( 'add_masteriyo_tab_icon', $inline_css );
+		if ( ! wp_style_is( $handle, 'registered' ) ) {
+			wp_register_style( $handle, false );
+		}
+
+		wp_enqueue_style( $handle );
+
+		$inline_css = '#woocommerce-product-data ul.wc-tabs li.masteriyo_options.masteriyo_tab a:before{content:"\1F4D6";}';
+
+		wp_add_inline_style( $handle, $inline_css );
 	}
+
 
 	/**
 	 * Add masteriyo tab to product tabs.
@@ -626,6 +629,7 @@ class WcIntegrationAddon {
 		$tabs['general']['class'][] = 'show_if_simple';
 		$tabs['general']['class'][] = 'show_if_external';
 		$tabs['general']['class'][] = 'show_if_giftcard';
+		$tabs['general']['class'][] = 'show_if_gift-card';
 		$tabs['general']['class'][] = 'show_if_mto_course show_if_mto_course_recurring';
 
 		$tabs['inventory']['class'][] = 'show_if_mto_course show_if_mto_course_recurring';

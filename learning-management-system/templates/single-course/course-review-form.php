@@ -24,7 +24,6 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 do_action( 'masteriyo_before_single_course_review_form' );
 
 ?>
-<?php if ( is_user_logged_in() ) : ?>
 	<div class="masteriyo-submit-container">
 		<h3 class="masteriyo--title"><?php esc_html_e( 'Create a new review.', 'learning-management-system' ); ?></h3>
 		<form method="POST" class="masteriyo-submit-review-form">
@@ -58,25 +57,38 @@ do_action( 'masteriyo_before_single_course_review_form' );
 			<?php wp_nonce_field( 'masteriyo-submit-review' ); ?>
 		</form>
 	</div>
-<?php else : ?>
+	<?php if ( ! is_user_logged_in() ) : ?>
 	<div class="masteriyo-login-msg masteriyo-submit-container">
 		<p>
-			<?php
+		<?php
+			$review_for_enrolled_user_only = masteriyo_get_setting( 'single_course.display.enable_review_enrolled_users_only' );
+			$enrollment_text               = $review_for_enrolled_user_only ? __( 'and enrolled', 'learning-management-system' ) : '';
+
 			printf(
-				/* translators: %s: Achor tag html with text "logged in" */
-				esc_html__( 'You must be %s to submit a review.', 'learning-management-system' ),
+					/* translators: %s: Anchor tag html with text "logged in", %s: additional enrollment text when review is restricted to enrolled users. */
+				esc_html__( 'You must be %1$s %2$s to submit a review .', 'learning-management-system' ),
 				wp_kses_post(
 					sprintf(
 						'<a href="%s" class="masteriyo-link-primary">%s</a>',
 						masteriyo_get_page_permalink( 'account' ),
 						__( 'logged in', 'learning-management-system' )
 					)
-				)
+				),
+				esc_html( $enrollment_text )
 			);
-			?>
+		?>
 		</p>
 	</div>
 <?php endif; ?>
+
+<?php
+if ( is_user_logged_in() && ! masteriyo_can_user_review_course( $course ) ) :
+	?>
+	<div class="masteriyo-enroll-msg">
+		<p><?php esc_html_e( 'You must be enrolled to submit a review', 'learning-management-system' ); ?></p>
+	</div>
+<?php endif; ?>
+
 <?php
 
 /**

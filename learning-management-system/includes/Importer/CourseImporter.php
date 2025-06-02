@@ -88,8 +88,9 @@ class CourseImporter {
 	 * @throws \JsonMachine\Exception\InvalidArgumentException
 	 * @param string $file Import file.
 	 * @param string $import_type Import type. Default is null.
+	 * @param bool   $lesson_only Lesson only. Default is false.
 	 */
-	public function import( $file, $import_type = null ) {
+	public function import( $file, $import_type = null, $lesson_only = false ) {
 		wp_raise_memory_limit( 'admin' );
 
 		$items = Items::fromFile(
@@ -119,7 +120,7 @@ class CourseImporter {
 				continue;
 			}
 
-			$this->import_posts( $value );
+			$this->import_posts( $value, $lesson_only );
 		}
 
 		$this->map_post_parents();
@@ -158,16 +159,20 @@ class CourseImporter {
 	 * Import all types of posts.
 	 *
 	 * @since 1.6.0
-	 * @param array $posts Array of posts.
+	 *
+	 * @param bool  $lesson_only Lesson only. Default is false.
 	 *
 	 * @return void
 	 */
-	protected function import_posts( $posts ) {
+	protected function import_posts( $posts, $lesson_only = false ) {
 		foreach ( $posts as $post ) {
 			if (
 				! post_type_exists( $post['post_type'] ) ||
 				isset( $this->history['posts'][ $post['ID'] ] )
 			) {
+				continue;
+			}
+			if ( $lesson_only && ( in_array( $post['post_type'], array( PostType::QUIZ, PostType::QUESTION ), true ) ) ) {
 				continue;
 			}
 

@@ -29,10 +29,10 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 	<div class="rating" data-value="0"></div>
 	<div class="masteriyo-review masteriyo-flex masteriyo-replies masteriyo-border-none">
 		<div class="masteriyo-avatar">
-			<?php if ( ! $reply->get_author() ) : ?>
-				<img src="<?php echo esc_attr( $pp_placeholder ); ?>" />
-			<?php else : ?>
+			<?php if ( $reply->get_author() && method_exists( $reply->get_author(), 'get_avatar_url' ) ) : ?>
 				<img src="<?php echo esc_attr( $reply->get_author()->get_avatar_url() ); ?>" />
+			<?php else : ?>
+				<img src="<?php echo esc_attr( $pp_placeholder ); ?>" />
 			<?php endif; ?>
 		</div>
 		<div class="masteriyo-flex  justify-content-between masteriyo-reply-replies">

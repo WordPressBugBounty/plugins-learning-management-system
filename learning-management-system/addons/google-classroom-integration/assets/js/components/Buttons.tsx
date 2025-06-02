@@ -17,8 +17,10 @@ import {
 } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
-import { BiDotsVerticalRounded, BiShow, BiTrash } from 'react-icons/bi';
+import { BiDotsVerticalRounded, BiShow } from 'react-icons/bi';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
+import { CustomIcon } from '../../../../../assets/js/back-end/components/common/CustomIcon';
+import { Trash } from '../../../../../assets/js/back-end/constants/images';
 import urls from '../../../../../assets/js/back-end/constants/urls';
 import API from '../../../../../assets/js/back-end/utils/api';
 import googleClassroomUrls from '../../../constants/urls';
@@ -195,7 +197,7 @@ function Buttons(props: {
 											</Link>
 											<MenuItem
 												onClick={() => onDeletePress(courseId)}
-												icon={<BiTrash />}
+												icon={<CustomIcon icon={Trash} boxSize="12px" />}
 												_hover={{ color: 'red.500' }}
 											>
 												{__('Delete Permanently', 'learning-management-system')}

@@ -189,6 +189,10 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 				wp_die( esc_html__( 'Invalid order ID. The order may not exist.', 'learning-management-system' ) );
 			}
 
+			if ( ( get_current_user_id() !== $order->get_customer_id() && masteriyo_is_current_user_student() ) && ! masteriyo_is_current_user_manager() ) {
+				wp_die( esc_html__( 'You do not have permission to access this order.', 'learning-management-system' ) );
+			}
+
 			$invoice_data = $order->get_invoice_data( $order );
 
 			ob_start();

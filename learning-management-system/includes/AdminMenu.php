@@ -241,29 +241,29 @@ class AdminMenu {
 	 * @return void
 	 */
 	public static function admin_menu_css() {
-
-		wp_register_style( 'masteriyo-divider-css', false ); //phpcs:ignore
-		wp_enqueue_style( 'masteriyo-divider-css' );
-
-		$inline_css = '
-		#toplevel_page_masteriyo li {
-			clear: both;
+		$handle = 'masteriyo-divider-css';
+		if ( ! wp_style_is( $handle, 'registered' ) ) {
+			wp_register_style( $handle, false );
 		}
-		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/tools"]:after {
-			border-bottom: 1px solid hsla(0,0%,100%,.2);
-			display: block;
-			float: left;
-			margin: 13px -15px 8px;
-			content: "";
-			width: calc(100% + 26px);
-		}
-		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/add-ons"] {
-			color: #27e527 !important;
-		}
-	';
 
-		wp_add_inline_style( 'masteriyo-divider-css', $inline_css );
+		wp_enqueue_style( $handle );
+
+		$inline_css = '#toplevel_page_masteriyo li{clear:both;}
+		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/tools"]:after{
+			border-bottom:1px solid hsla(0,0%,100%,.2);
+			display:block;
+			float:left;
+			margin:13px -15px 8px;
+			content:"";
+			width:calc(100% + 26px);
+		}
+		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/add-ons"]{
+			color:#27e527!important;
+		}';
+
+		wp_add_inline_style( $handle, $inline_css );
 	}
+
 
 	/**
 	 * Initialize hooks.

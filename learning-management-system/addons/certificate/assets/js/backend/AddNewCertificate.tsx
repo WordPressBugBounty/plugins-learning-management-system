@@ -1,7 +1,9 @@
 import {
 	Box,
+	Button,
 	Center,
 	Container,
+	Flex,
 	Heading,
 	Image,
 	SimpleGrid,
@@ -18,6 +20,7 @@ import {
 	Header,
 	HeaderLeftSection,
 	HeaderLogo,
+	HeaderRightSection,
 	HeaderTop,
 } from '../../../../../assets/js/back-end/components/common/Header';
 import {
@@ -76,25 +79,44 @@ const AddNewCertificate: React.FC = () => {
 		});
 	};
 
+	// Handle refresh button click
+	const handleRefreshTemplates = () => {
+		const url = new URL(window.location.href);
+		url.searchParams.set('refresh', Date.now().toString());
+		window.location.href = url.toString();
+	};
+
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
 				<HeaderTop>
 					<HeaderLeftSection>
-						<HeaderLogo />
-						<NavMenu>
-							<NavMenuItem>
-								<NavMenuLink
-									sx={navLinkStyles}
-									to={certificateBackendRoutes.certificate.add}
-									_activeLink={navActiveStyles}
-									as={NavLink}
-								>
-									{__('Add New Certificate', 'learning-management-system')}
-								</NavMenuLink>
-							</NavMenuItem>
-						</NavMenu>
+						<Flex alignItems="center" gap="4">
+							<HeaderLogo />
+							<NavMenu>
+								<NavMenuItem>
+									<NavMenuLink
+										sx={navLinkStyles}
+										to={certificateBackendRoutes.certificate.add}
+										_activeLink={navActiveStyles}
+										as={NavLink}
+									>
+										{__('Add New Certificate', 'learning-management-system')}
+									</NavMenuLink>
+								</NavMenuItem>
+							</NavMenu>
+						</Flex>
 					</HeaderLeftSection>
+					<HeaderRightSection>
+						<Button
+							ml="auto"
+							colorScheme={'primary'}
+							variant="outline"
+							onClick={handleRefreshTemplates}
+						>
+							{__('Refresh Template', 'learning-management-system')}
+						</Button>
+					</HeaderRightSection>
 				</HeaderTop>
 			</Header>
 

@@ -24,8 +24,9 @@ import {
 	BsArrowsCollapseVertical,
 	BsArrowsExpandVertical,
 } from 'react-icons/bs';
-import { RiLiveLine } from 'react-icons/ri';
 import { useNavigate, useParams } from 'react-router-dom';
+import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
+import { GoogleMeet } from '../../../../assets/js/back-end/constants/images';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import { ContentQueryError } from '../../../../assets/js/back-end/schemas';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -397,7 +398,9 @@ const InteractiveGoogleMeet = () => {
 											<Button
 												colorScheme="blue"
 												size="xs"
-												leftIcon={<RiLiveLine />}
+												leftIcon={
+													<CustomIcon icon={GoogleMeet} boxSize="12px" />
+												}
 												fontWeight="semibold"
 											>
 												{__('Join Meeting', 'learning-management-system')}

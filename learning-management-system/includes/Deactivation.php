@@ -28,7 +28,7 @@ class Deactivation {
 	 */
 	public static function on_deactivate() {
 		self::remove_roles();
-		masteriyo( 'migrator' )->rollback();
+
 
 		/**
 		 * Fire after masteriyo is deactivated.

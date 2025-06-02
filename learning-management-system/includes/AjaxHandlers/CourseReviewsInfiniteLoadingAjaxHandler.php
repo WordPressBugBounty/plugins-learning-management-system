@@ -87,6 +87,10 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 			$total_pages           = ceil( $reviews_details['viewed_total'] / $per_page );
 			$view_load_more_button = false;
 
+			if ( $page === 1 && empty( $html ) ) {
+				$html =  '<div class="masteriyo-notify-message masteriyo-alert masteriyo-info-msg masteriyo-no-review-alert">' . esc_html__( 'No review yet.', 'learning-management-system' ) . '</div>'; 
+			}
+
 			if ( ! empty( $html ) ) {
 				$view_load_more_button = ( $page ) < $total_pages;
 			}

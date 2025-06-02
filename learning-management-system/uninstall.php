@@ -20,7 +20,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 defined( 'MASTERIYO_SLUG' ) || define( 'MASTERIYO_SLUG', 'learning-management-system' );
-defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.17.5' );
+defined( 'MASTERIYO_VERSION' ) || define( 'MASTERIYO_VERSION', '1.18.1' );
 defined( 'MASTERIYO_PLUGIN_FILE' ) || define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
 defined( 'MASTERIYO_PLUGIN_BASENAME' ) || define( 'MASTERIYO_PLUGIN_BASENAME', plugin_basename( MASTERIYO_PLUGIN_FILE ) );
 defined( 'MASTERIYO_PLUGIN_DIR' ) || define( 'MASTERIYO_PLUGIN_DIR', dirname( MASTERIYO_PLUGIN_FILE ) );

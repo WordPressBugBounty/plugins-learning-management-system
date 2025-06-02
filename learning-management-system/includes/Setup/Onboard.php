@@ -172,5 +172,4 @@ class Onboard {
 		</html>
 		<?php
 	}
-
 }

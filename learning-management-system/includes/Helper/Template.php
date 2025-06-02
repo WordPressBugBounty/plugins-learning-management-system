@@ -1377,10 +1377,12 @@ if ( ! function_exists( 'masteriyo_single_course_review_form' ) ) {
 	 * @since 1.0.0
 	 */
 	function masteriyo_single_course_review_form( $course ) {
+		$preview = $course ? masteriyo_can_user_review_course( $course ) : 0;
 		masteriyo_get_template(
 			'single-course/course-review-form.php',
 			array(
-				'course' => $course,
+				'course'  => $course,
+				'preview' => $preview,
 			)
 		);
 	}
@@ -2028,7 +2030,11 @@ if ( ! function_exists( 'masteriyo_template_course_reviews_stats' ) ) {
 	 * @since 1.0.5
 	 */
 	function masteriyo_template_course_reviews_stats( $course, $course_reviews, $replies ) {
-		masteriyo_get_template( 'single-course/reviews-stats.php', compact( 'course', 'course_reviews', 'replies' ) );
+		$is_review_enabled = masteriyo_get_setting( 'single_course.display.enable_review' );
+		$review_length     = count( $course_reviews );
+		if ( $is_review_enabled && $review_length ) {
+			masteriyo_get_template( 'single-course/reviews-stats.php', compact( 'course', 'course_reviews', 'replies' ) );
+		}
 	}
 }
 
@@ -2042,7 +2048,11 @@ if ( ! function_exists( 'masteriyo_template_course_reviews_filters' ) ) {
 	 * @return void
 	 */
 	function masteriyo_template_course_reviews_filters( $course, $course_reviews, $replies ) {
-		masteriyo_get_template( 'single-course/reviews-filters.php', compact( 'course', 'course_reviews', 'replies' ) );
+		$is_review_enabled = masteriyo_get_setting( 'single_course.display.enable_review' );
+		$review_length     = count( $course_reviews );
+		if ( $is_review_enabled && $review_length ) {
+			masteriyo_get_template( 'single-course/reviews-filters.php', compact( 'course', 'course_reviews', 'replies' ) );
+		}
 	}
 }
 
@@ -3355,53 +3365,63 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_review_count' ) ) {
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
-	function masteriyo_layout_1_single_course_review_count( $course ) {
-		masteriyo_get_template(
-			'single-course/layout-1/review-count.php',
-			array(
-				'course' => $course,
-			)
-		);
+	function masteriyo_layout_1_single_course_review_count( $course, $reviews_and_replies ) {
+		$is_review_enabled = masteriyo_get_setting( 'single_course.display.enable_review' );
+		$review_length     = count( $reviews_and_replies['reviews'] );
+		if ( $is_review_enabled && $review_length ) {
+			masteriyo_get_template(
+				'single-course/layout-1/review-count.php',
+				array(
+					'course'              => $course,
+					'reviews_and_replies' => $reviews_and_replies,
+				)
+			);
+		}
 	}
-}
 
-if ( ! function_exists( 'masteriyo_layout_1_single_course_user_review_content' ) ) {
-	/**
-	 * Show user review content in single course page layout 1.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param \Masteriyo\Models\Course $course The course object.
-	 */
-	function masteriyo_layout_1_single_course_user_review_content( $course ) {
-		masteriyo_get_template(
-			'single-course/layout-1/user-review-content.php',
-			array(
-				'course' => $course,
-			)
-		);
+	if ( ! function_exists( 'masteriyo_layout_1_single_course_user_review_content' ) ) {
+		/**
+		 * Show user review content in single course page layout 1.
+		 *
+		 * @since 1.10.0
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		function masteriyo_layout_1_single_course_user_review_content( $course, $reviews_and_replies ) {
+			$is_review_enabled = masteriyo_get_setting( 'single_course.display.enable_review' );
+			$review_length     = count( $reviews_and_replies['reviews'] );
+			if ( $is_review_enabled && $review_length ) {
+					masteriyo_get_template(
+						'single-course/layout-1/user-review-content.php',
+						array(
+							'course'              => $course,
+							'reviews_and_replies' => $reviews_and_replies,
+						)
+					);
+			}
+		}
 	}
-}
 
-if ( ! function_exists( 'masteriyo_layout_1_single_course_review_form' ) ) {
-	/**
-	 * Show course review form in single course page layout 1.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param \Masteriyo\Models\Course $course The course object.
-	 */
-	function masteriyo_layout_1_single_course_review_form( $course ) {
-		masteriyo_get_template(
-			'single-course/layout-1/review-form.php',
-			array(
-				'course' => $course,
-			)
-		);
+	if ( ! function_exists( 'masteriyo_layout_1_single_course_review_form' ) ) {
+		/**
+		 * Show course review form in single course page layout 1.
+		 *
+		 * @since 1.10.0
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		function masteriyo_layout_1_single_course_review_form( $course, $reviews_and_replies ) {
+			masteriyo_get_template(
+				'single-course/layout-1/review-form.php',
+				array(
+					'course'              => $course,
+					'reviews_and_replies' => $reviews_and_replies,
+				)
+			);
+		}
 	}
-}
 
-if ( ! function_exists( 'masteriyo_layout_1_single_course_review_filters' ) ) {
+	if ( ! function_exists( 'masteriyo_layout_1_single_course_review_filters' ) ) {
 		/**
 		 * Show course review filters in single course page layout 1.
 		 *
@@ -3409,13 +3429,15 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_review_filters' ) ) {
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 */
-	function masteriyo_layout_1_single_course_review_filters( $course ) {
-		masteriyo_get_template(
-			'single-course/layout-1/review-filters.php',
-			array(
-				'course' => $course,
-			)
-		);
+		function masteriyo_layout_1_single_course_review_filters( $course, $reviews_and_replies ) {
+			masteriyo_get_template(
+				'single-course/layout-1/review-filters.php',
+				array(
+					'course'              => $course,
+					'reviews_and_replies' => $reviews_and_replies,
+				)
+			);
+		}
 	}
 }
 
@@ -3427,11 +3449,12 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_review_lists' ) ) {
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
-	function masteriyo_layout_1_single_course_review_lists( $course ) {
+	function masteriyo_layout_1_single_course_review_lists( $course, $reviews_and_replies ) {
 		masteriyo_get_template(
 			'single-course/layout-1/reviews-list.php',
 			array(
-				'course' => $course,
+				'course'              => $course,
+				'reviews_and_replies' => $reviews_and_replies,
 			)
 		);
 	}

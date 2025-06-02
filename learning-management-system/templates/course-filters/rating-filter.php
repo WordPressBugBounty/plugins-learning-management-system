@@ -19,24 +19,34 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <div class="masteriyo-filter-section masteriyo-rating-filter-section">
-	<h5>
-		<?php esc_html_e( 'Rating', 'learning-management-system' ); ?>
-	</h5>
+	<div class="masteriyo-filter-section--heading">
+		<h5><?php esc_html_e( 'Rating', 'learning-management-system' ); ?></h5>
+
+		<svg class="toggle-arrow"  xmlns="http://www.w3.org/2000/svg" fill="#1E293B" viewBox="0 0 24 24">
+			<path fill-rule="evenodd" d="M21.582 6.403a1.468 1.468 0 0 0-2.02 0L12 13.68 4.439 6.403a1.468 1.468 0 0 0-2.02 0 1.339 1.339 0 0 0 0 1.944l8.57 8.25A1.46 1.46 0 0 0 12 17c.379 0 .742-.145 1.01-.403l8.572-8.25a1.339 1.339 0 0 0 0-1.944Z" clip-rule="evenodd"/>
+		</svg>
+	</div>
+
 
 	<?php
-	for ( $rating = 5; $rating >= 0; $rating-- ) :
+	for ( $i = 0; $i < 5; $i++ ) :
+		$rating     = 5 - $i;
 		$filter_url = isset( $filter_urls[ $rating ] ) ? $filter_urls[ $rating ] : '#';
 		?>
-
+	<div class="masteriyo-filter-wrapper">
 		<div class="masteriyo-rating-filter-item">
-			<a href="<?php echo esc_attr( $filter_url ); ?>" class="masteriyo-rating-filter-link" data-rating="<?php echo esc_attr( $rating ); ?>" >
+
+			<input type="checkbox" id="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>" name="rating[]"  value="<?php echo esc_attr( $rating ); ?>">
+			<label for="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>">
 				<div class="masteriyo-stab-rs border-none">
 					<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
 						<?php masteriyo_render_stars( $rating ); ?>
-					</span> <?php esc_html_e( '& Up', 'learning-management-system' ); ?>
+					</span>
+					<?php esc_html_e( '- ' . $rating . ' star', 'learning-management-system' ); ?>
 				</div>
-			</a>
+			</label>
 		</div>
+	</div>
 	<?php endfor; ?>
 </div>
 <?php

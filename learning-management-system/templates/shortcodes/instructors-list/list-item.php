@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The Template for displaying instructors list item.
  *
@@ -15,60 +14,51 @@
  * @version 1.7.0
  */
 
-defined( 'ABSPATH' ) || exit;
-
+defined('ABSPATH') || exit;
 ?>
+
 <div class="masteriyo-col">
-	<div class="masteriyo-instructor-card">
-		<a href="<?php echo esc_url( $instructor['url'] ); ?>" class="masteriyo-instructor-card__image-wrapper">
-			<div class="masteriyo-instructor-card__image">
-				<img src="<?php echo esc_url( $instructor['profile_image_url'] ); ?>" alt="<?php echo esc_attr( $instructor['full_name'] ); ?>" srcset="">
-			</div>
-		</a>
-		<div class="masteriyo-instructor-card__detail">
-			<h2 class="masteriyo-instructor-card__title">
-				<a href="<?php echo esc_url( $instructor['url'] ); ?>">
-					<?php
-					echo esc_html( $instructor['full_name'] );
-					?>
-				</a>
-			</h2>
-			<p class="masteriyo-instructor-card__info">
-				<span title="<?php esc_attr_e( 'Username', 'learning-management-system' ); ?>" class="username">
-					<?php
-					masteriyo_get_svg( 'user', true );
-					echo esc_html( $instructor['username'] );
-					?>
-				</span>
-				<span title="<?php esc_attr_e( 'Email', 'learning-management-system' ); ?>" class="email">
-					<?php
-					masteriyo_get_svg( 'email', true );
-					echo esc_html( $instructor['email'] );
-					?>
-				</span>
-				<span title="<?php esc_attr_e( 'Joined Date', 'learning-management-system' ); ?>" class="joined-date">
-					<?php
-					masteriyo_get_svg( 'joined_date', true );
-					echo esc_html( $instructor['date_created'] );
-					?>
-				</span>
-				<span title="<?php esc_attr_e( 'Courses Count', 'learning-management-system' ); ?>" class="courses-count">
-					<?php
-					masteriyo_get_svg( 'courses_count', true );
-					echo esc_html( $instructor['courses_count'] );
-					?>
-				</span>
-				<span title="<?php esc_attr_e( 'Students Count', 'learning-management-system' ); ?>" class="students-count">
-					<?php
-					masteriyo_get_svg( 'students_count', true );
-					echo esc_html( $instructor['students_count'] );
-					?>
-				</span>
-			</p>
-			<p class="masteriyo-instructor-card__description">
-				<?php echo esc_textarea( $instructor['description'] ); ?>
-			</p>
-		</div>
-	</div>
+    <div class="masteriyo-instructor-card">
+        <a href="<?php echo esc_url($instructor['url']); ?>" class="masteriyo-instructor-card__image-wrapper">
+            <div class="masteriyo-instructor-card__image">
+                <img src="<?php echo esc_url($instructor['profile_image_url']); ?>" 
+                     alt="<?php echo esc_attr($instructor['full_name']); ?>" />
+            </div>
+        </a>
+        <div class="masteriyo-instructor-card__detail">
+            <h2 class="masteriyo-instructor-card__title">
+                <?php echo esc_html($instructor['username']); ?>
+            </h2>
+            <div class="about">
+                <div class="numbers books">
+                    <?php masteriyo_get_svg('book-open', true); ?>
+                    <p class="counter">
+                        <?php echo esc_html($instructor['courses_count']); ?>
+                    </p>
+                </div>
+                <div class="numbers users">
+                    <?php masteriyo_get_svg('users', true); ?>
+                    <p class="counter">
+                        <?php echo esc_html($instructor['students_count']); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="info">
+            <!-- 
+            <div class="numbers rating">
+                <?php masteriyo_get_svg('star', true); ?>
+                <p>4.5 <?php esc_html_e('Instructor Rating', 'learning-management-system'); ?></p>
+            </div> 
+            -->
+            <div class="numbers mail">
+                <?php masteriyo_get_svg('mail', true); ?>
+                <p><?php echo esc_html($instructor['email']); ?></p>
+            </div>
+            <div class="numbers date">
+                <?php masteriyo_get_svg('calender', true); ?>
+                <p><?php echo esc_html($instructor['date_created']); ?></p>
+            </div>
+        </div>
+    </div>
 </div>
-<?php

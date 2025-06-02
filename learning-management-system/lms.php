@@ -5,13 +5,15 @@
  * Description: A Complete WordPress LMS plugin to create and sell online courses in no time.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 1.17.5
+ * Version: 1.18.1
  * Requires at least: 6.5
  * Requires PHP: 7.2
  * Text Domain: learning-management-system
  * Domain Path: /i18n/languages
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * WordPress Available:  yes
+ * Requires License:    no
  */
 
 use Masteriyo\Masteriyo;
@@ -44,7 +46,7 @@ if ( ! defined( 'MASTERIYO_SLUG' ) ) {
 }
 
 if ( ! defined( 'MASTERIYO_VERSION' ) ) {
-	define( 'MASTERIYO_VERSION', '1.17.5' );
+	define( 'MASTERIYO_VERSION', '1.18.1' );
 }
 
 if ( ! defined( 'MASTERIYO_PLUGIN_FILE' ) ) {
@@ -191,4 +193,23 @@ if ( ! function_exists( 'masteriyo' ) ) {
 	// Initialize the application.
 	$GLOBALS['masteriyo']->get( 'app' );
 
+	/**
+	 * ThemeIsle SDK customizations
+	 * Disable promotions and dashboard widgets
+	 */
+	add_filter( 'themeisle_sdk_ran_promos', '__return_true' );
+	add_filter( 'themeisle_sdk_hide_dashboard_widget', '__return_true' );
+
+	/**
+	 * Register Masteriyo LMS with ThemeIsle SDK
+	 */
+	add_filter(
+		'themeisle_sdk_products',
+		function ( $products ) {
+			$products[] = MASTERIYO_PLUGIN_FILE;
+			return $products;
+		},
+		10,
+		1
+	);
 }

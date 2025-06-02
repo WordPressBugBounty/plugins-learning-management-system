@@ -19,7 +19,6 @@ import {
 	BiCog,
 	BiDotsHorizontalRounded,
 	BiGroup,
-	BiTrash,
 } from 'react-icons/bi';
 import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
 import {
@@ -35,6 +34,7 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../../../assets/js/back-end/config/styles';
+import { Trash } from '../../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -66,7 +66,7 @@ const tabButtons: FilterTabs = [
 	{
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
-		icon: <BiTrash />,
+		icon: <Trash width="16" height="16" fill="currentColor" />,
 	},
 ];
 
