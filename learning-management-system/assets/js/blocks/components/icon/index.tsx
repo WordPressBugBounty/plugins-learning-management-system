@@ -3,6 +3,8 @@ import classnames from 'classnames';
 import React from 'react';
 import icons from './icons';
 
+export const blockIcons = icons.blockIcon; // ✅ Export blockIcons
+
 interface PropsType {
 	type: string;
 	name: string;
@@ -15,7 +17,6 @@ const Icon: React.FC<PropsType> = (props) => {
 	const { type, name, className, size = 24, ...otherProps } = props;
 	const iconsNames = [];
 
-	// TODO flat the object by using icon name with syntax [namespace.name]
 	for (const typeKey of Object.keys(icons)) {
 		for (const nameKey of Object.keys(icons[typeKey])) {
 			iconsNames.push(nameKey);
@@ -34,8 +35,6 @@ const Icon: React.FC<PropsType> = (props) => {
 			className={classnames('masteriyo-icon', className)}
 			icon={icons[type][name] || ''}
 			size={size}
-			type={type}
-			name={name}
 			{...otherProps}
 		/>
 	);

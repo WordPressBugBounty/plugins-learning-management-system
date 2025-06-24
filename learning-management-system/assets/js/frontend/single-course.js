@@ -649,7 +649,7 @@
 					collapseAllSections();
 				}
 			});
-			var isCollapsedAll = true;
+			var isCollapsedAll = false;
 			$(document.body).on(
 				'click',
 				'.masteriyo-expand-collapse-all',
@@ -1121,13 +1121,16 @@ function masteriyoSelectSingleCoursePageTabById(e) {
  */
 
 function initCustomFieldsRenderer() {
+	const singleCourseElementTextContent = document.getElementById('masteriyo-course-values')?.textContent;
+    if (!singleCourseElementTextContent) return;
+
 	let customFieldsInitialized = false;
 
 	if (customFieldsInitialized) return;
 
 	const container = document.querySelector('.custom-fields-container');
 	const courseValues = JSON.parse(
-		document.getElementById('masteriyo-course-values').textContent,
+		singleCourseElementTextContent,
 	);
 
 	function nl2br(str) {

@@ -414,6 +414,29 @@ class Course extends Model {
 		return apply_filters( 'masteriyo_course_formatted_price', $price, $this );
 	}
 
+		/**
+	 * Get rest formatted regular price.
+	 *
+	 * @since 1.18.2
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_rest_formatted_regular_price( $context = 'view' ) {
+		$price = masteriyo_price( $this->get_regular_price( $context ), array( 'html' => false ) );
+
+		/**
+		 * Filters the rest formatted regular course price.
+		 *
+		 * @since 1.18.2
+		 *
+		 * @param integer $price Formatted regular price.
+		 * @param Masteriyo\Models\Course $course The course object.
+		 */
+		return apply_filters( 'masteriyo_course_formatted_price', $price, $this );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Getters

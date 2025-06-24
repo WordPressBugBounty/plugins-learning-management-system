@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.18.1
+Stable tag: 1.18.2
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -242,6 +242,29 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.18.2 - 24-06-2025 =
+- Feature - Added support for Private Courses. [PRO]
+- Feature - Introduced Tax option. [PRO]
+- Feature - Export individual course as a PDF files. [PRO]
+- Refactor - Improved internal structure of Masteriyo blocks.
+- Update - Minor UI revamp of Global Settings for a more consistent experience.
+- Update - Dashboard menu updated to About and contents in about page updated.
+- Enhancement - Enhanced Course Builder UI/UX for improved usability.
+- Enhancement - Added support to reveal quiz answers across multiple attempts.
+- Enhancement - Enrolled users are now added to Google Meet calendar, with event sync to Google Calendar.
+- Enhancement - Google Meet event sync with event calendar. [PRO]
+- Enhancement - Added addon plan tags and filtering options for easier navigation.
+- Enhancement - Manual course enrollment now sends email notifications to students. [PRO]
+- Fix - Resolved issue where Multiple Instructor Addon didn’t work in draft courses. [PRO]
+- Fix - Issue causing automatic user course deletion after purchase when enrollment expiration was set.
+- Fix - Facebook login not working. [PRO]
+- Fix - Corrected 'Expand All' label display on initial curriculum load.
+- Fix - Added handler for accurate social login path detection. [PRO]
+- Fix - Resolved ArgumentCountError in masteriyo_maybe_define_constant() with W3 Total Cache compatibility.
+- Fix - General performance improvements.
+- Fix - Ensured all sections render properly on the student reports page. [PRO]
+- Fix - Builder section disable for Google Classroom course.
 
 = 1.18.1 - 02-06-2025 =
 - Feature - Google reCAPTCHA & Password strength addon now available in Free.

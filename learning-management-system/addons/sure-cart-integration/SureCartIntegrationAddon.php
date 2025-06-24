@@ -117,7 +117,7 @@ class SureCartIntegrationAddon {
 					'src'      => plugin_dir_url( Constants::get( 'MASTERIYO_SURECART_INTEGRATION_ADDON_FILE' ) ) . '/frontend/single-course.js',
 					'context'  => 'public',
 					'callback' => function() {
-						return true;
+						return masteriyo_is_courses_page();
 					},
 					'deps'     => array( 'jquery' ),
 				),

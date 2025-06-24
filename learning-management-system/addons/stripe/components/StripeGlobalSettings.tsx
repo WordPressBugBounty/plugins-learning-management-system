@@ -12,6 +12,7 @@ import {
 	Switch,
 	Textarea,
 	useClipboard,
+	VStack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
@@ -70,7 +71,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 		<SingleComponentsWrapper title={__('Stripe', 'learning-management-system')}>
 			<FormControlTwoCol>
 				<Stack direction="row">
-					<FormLabel minW="160px">
+					<FormLabel minW="160px" mb={0}>
 						{__('Enable', 'learning-management-system')}
 						<ToolTip
 							label={__(
@@ -92,10 +93,18 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 			</FormControlTwoCol>
 
 			<Collapse in={showStripeOptions} animateOpacity style={{ width: '100%' }}>
-				<Stack direction="column" spacing="6" width="full">
+				<VStack
+					alignItems="flex-start"
+					gap={5}
+					flexWrap={{ base: 'wrap', lg: 'nowrap' }}
+					borderWidth={1}
+					borderColor={'gray.200'}
+					p={4}
+					borderRadius={'md'}
+				>
 					<FormControlTwoCol>
 						<Stack direction="row" align="center">
-							<FormLabel minW="160px" htmlFor="enableStripeIDEAL">
+							<FormLabel m={0} minW="160px" htmlFor="enableStripeIDEAL">
 								{__('Enable iDEAL Payments', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -117,7 +126,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Title', 'learning-management-system')}
 						</FormLabel>
 						<Input
@@ -128,7 +137,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Description', 'learning-management-system')}
 						</FormLabel>
 						<Textarea
@@ -138,9 +147,9 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 						/>
 					</FormControlTwoCol>
 
-					<FormControlTwoCol>
+					<FormControlTwoCol mx={0} my={2}>
 						<Stack direction="row">
-							<FormLabel minW="160px">
+							<FormLabel m={0} minW="160px">
 								{__('Sandbox', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -160,10 +169,10 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 							/>
 						</Stack>
 					</FormControlTwoCol>
-					<Collapse in={showStripeSandBoxOptions}>
+					<Collapse in={showStripeSandBoxOptions} style={{ width: '100%' }}>
 						<Stack direction="column" spacing="6">
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Test Publishable Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -180,7 +189,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 							</FormControlTwoCol>
 
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Test Secret Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -223,10 +232,10 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 						</Stack>
 					</Collapse>
 
-					<Collapse in={!showStripeSandBoxOptions}>
+					<Collapse in={!showStripeSandBoxOptions} style={{ width: '100%' }}>
 						<Stack direction="column" spacing="6">
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Live Publishable Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -243,7 +252,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 							</FormControlTwoCol>
 
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Live Secret Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -287,7 +296,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					</Collapse>
 
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Webhook Secret Key', 'learning-management-system')}
 							<ToolTip
 								label={__(
@@ -329,7 +338,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Webhook Endpoint', 'learning-management-system')}
 							<ToolTip
 								label={__(
@@ -351,7 +360,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 							</Button>
 						</Flex>
 					</FormControlTwoCol>
-				</Stack>
+				</VStack>
 			</Collapse>
 		</SingleComponentsWrapper>
 	);

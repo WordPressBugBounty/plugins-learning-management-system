@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'masteriyo/masteriyo',
-        'pretty_version' => '1.18.1',
-        'version' => '1.18.1.0',
+        'pretty_version' => '1.18.2',
+        'version' => '1.18.2.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -74,9 +74,9 @@
             'dev_requirement' => false,
         ),
         'halaxa/json-machine' => array(
-            'pretty_version' => '1.2.2',
-            'version' => '1.2.2.0',
-            'reference' => '5a5cde093181198bd68d94a3d35f80e76720766b',
+            'pretty_version' => '1.2.3',
+            'version' => '1.2.3.0',
+            'reference' => '58fb6e97c53c3341bb1f3685b8bdbeedf3f9616c',
             'type' => 'library',
             'install_path' => __DIR__ . '/../halaxa/json-machine',
             'aliases' => array(),
@@ -110,8 +110,8 @@
             'dev_requirement' => false,
         ),
         'masteriyo/masteriyo' => array(
-            'pretty_version' => '1.18.1',
-            'version' => '1.18.1.0',
+            'pretty_version' => '1.18.2',
+            'version' => '1.18.2.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
@@ -329,8 +329,8 @@
             'dev_requirement' => false,
         ),
         'themegrill/openai' => array(
-            'pretty_version' => 'dev-release/1.18.1',
-            'version' => 'dev-release/1.18.1',
+            'pretty_version' => 'dev-MAS-2211-masteriyo-blocks-refactor',
+            'version' => 'dev-MAS-2211-masteriyo-blocks-refactor',
             'reference' => '2b1c12888783ae2c811adaae5e5c74bcf69bebbc',
             'type' => 'library',
             'install_path' => __DIR__ . '/../themegrill/openai',

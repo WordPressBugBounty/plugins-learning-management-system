@@ -136,12 +136,6 @@ class AdminMenu {
 	 */
 	public static function get_submenus() {
 		$submenus = array(
-			'dashboard'          => array(
-				'page_title' => __( 'Dashboard', 'learning-management-system' ),
-				'menu_title' => __( 'Dashboard', 'learning-management-system' ),
-				'position'   => 0,
-			),
-
 			'analytics'          => array(
 				'page_title' => __( 'Analytics', 'learning-management-system' ),
 				'menu_title' => __( 'Analytics', 'learning-management-system' ),
@@ -204,6 +198,11 @@ class AdminMenu {
 				'capability' => 'edit_courses',
 				'position'   => 60,
 			),
+			'about'              => array(
+				'page_title' => __( 'About', 'learning-management-system' ),
+				'menu_title' => __( 'About', 'learning-management-system' ),
+				'position'   => 61,
+			),
 		);
 
 		/**
@@ -249,7 +248,7 @@ class AdminMenu {
 		wp_enqueue_style( $handle );
 
 		$inline_css = '#toplevel_page_masteriyo li{clear:both;}
-		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/tools"]:after{
+		#toplevel_page_masteriyo li:not(:last-child) a[href^="admin.php?page=masteriyo#/about"]:after{
 			border-bottom:1px solid hsla(0,0%,100%,.2);
 			display:block;
 			float:left;

@@ -1,180 +1,216 @@
+import { isAddonActive } from '@addons/add-ons/api/addons';
+
 import {
+	Box,
 	Collapse,
 	Divider,
+	Flex,
 	FormControl,
 	FormLabel,
-	NumberDecrementStepper,
-	NumberIncrementStepper,
+	Icon,
+	IconButton,
 	NumberInput,
 	NumberInputField,
-	NumberInputStepper,
 	Radio,
 	RadioGroup,
+	SimpleGrid,
 	Stack,
 	Switch,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { BiChevronDown, BiChevronUp } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { decodeEntity } from '../../../../../../assets/js/back-end/utils/utils';
-import { isAddonActive } from '../../../../../add-ons/api/addons';
 import { ActivePricingZone } from '../../types/multiCurrency';
 
 interface Props {
 	zone: ActivePricingZone;
 	zoneId: string;
+	isCourseBundle?: boolean;
 }
 
-const RenderPricingZone: React.FC<Props> = ({ zone, zoneId }) => {
+const PricingZonesData: React.FC<Props> = ({
+	zone,
+	zoneId,
+	isCourseBundle,
+}) => {
 	const { register, control } = useFormContext();
+	const [expanded, setExpanded] = useState<boolean>(true);
 
-	const enabledWatch = useWatch({
+	const enabled = useWatch({
 		name: `multiple_currency.${zoneId}_key.enabled`,
 		defaultValue: zone.enabled,
 		control,
 	});
 
-	const priceTypeWatch = useWatch({
+	const pricingMethod = useWatch({
 		name: `multiple_currency.${zoneId}_key.pricing_method`,
 		defaultValue: zone.pricing_method || 'exchange_rate',
 		control,
 	});
 
-	const groupPriceSection = () => {
-		return (
-			<>
-				<FormLabel>{__('Group Price', 'learning-management-system')}</FormLabel>
-				<Controller
-					name={`multiple_currency.${zoneId}_key.group_price`}
-					defaultValue={zone?.group_price || ''}
-					render={({ field }) => (
-						<NumberInput {...field} w="full" min={0}>
-							<NumberInputField borderRadius="sm" shadow="input" />
-							<NumberInputStepper>
-								<NumberIncrementStepper />
-								<NumberDecrementStepper />
-							</NumberInputStepper>
-						</NumberInput>
-					)}
-				/>
-			</>
-		);
-	};
+	useEffect(() => {
+		setExpanded(enabled);
+	}, [enabled]);
 
 	return (
-		<>
-			<FormControlTwoCol key={zoneId} px="4">
-				<FormLabel>
-					{__('Enable ', 'learning-management-system')} {zone.title} (
-					{decodeEntity(zone?.currency_symbol)})
+		<Box
+			border="1px solid"
+			borderColor={expanded ? 'primary.500' : 'gray.200'}
+			borderRadius="base"
+			pt="3"
+			px="4"
+			pb={expanded ? '4' : '3'}
+		>
+			<Flex align="center" justify="space-between">
+				<FormLabel mb={0} fontSize="sm" fontWeight="medium">
+					{zone.title} ({decodeEntity(zone.currency_symbol)})
 					<ToolTip
 						label={__(
-							'Toggle to activate this pricing zone for the course. Once activated, you can set prices specifically for this course within this pricing zone.',
+							'Toggle to activate this pricing zone',
 							'learning-management-system',
 						)}
 					/>
 				</FormLabel>
-				<Stack direction={'column'} gap={6}>
-					<FormControl>
-						<Switch
-							{...register(`multiple_currency.${zoneId}_key.enabled`)}
-							defaultChecked={zone.enabled}
-						/>
-					</FormControl>
-					<Collapse in={enabledWatch} animateOpacity>
-						<Stack direction={'column'}>
-							<FormControl>
-								<FormLabel>
-									{__('Price Method', 'learning-management-system')}
-									<ToolTip
-										label={__(
-											'Choose how prices are managed. "Calculate prices by the exchange rate" automatically converts prices based on exchange rates. "Set prices manually" allows you to define prices for each currency.',
-											'learning-management-system',
-										)}
-									/>
-								</FormLabel>
-								<Controller
-									control={control}
-									name={`multiple_currency.${zoneId}_key.pricing_method`}
-									render={({ field }) => (
-										<RadioGroup {...field} defaultValue={priceTypeWatch}>
-											<Stack spacing="3">
-												<Radio value="exchange_rate">
-													{__(
-														'Calculate prices by the exchange rate.',
-														'learning-management-system',
-													)}
-												</Radio>
-												<Radio value="manual">
-													{__(
-														'Set prices manually.',
-														'learning-management-system',
-													)}
-												</Radio>
-											</Stack>
-										</RadioGroup>
-									)}
-								/>
-							</FormControl>
-							{priceTypeWatch === 'manual' && (
-								<Stack
-									spacing="3"
-									borderLeft="1px solid #ccc"
-									pl="3"
-									ml="3"
-									mt="2"
-								>
-									<FormControlTwoCol>
-										<FormLabel>
-											{__('Regular Price', 'learning-management-system')}
-										</FormLabel>
-										<Controller
-											name={`multiple_currency.${zoneId}_key.regular_price`}
-											defaultValue={zone.regular_price || ''}
-											render={({ field }) => (
-												<NumberInput {...field} w="full" min={0}>
-													<NumberInputField borderRadius="sm" shadow="input" />
-													<NumberInputStepper>
-														<NumberIncrementStepper />
-														<NumberDecrementStepper />
-													</NumberInputStepper>
-												</NumberInput>
-											)}
-										/>
-									</FormControlTwoCol>
-									<FormControlTwoCol>
-										<FormLabel>
-											{__('Sale Price', 'learning-management-system')}
-										</FormLabel>
-										<Controller
-											name={`multiple_currency.${zoneId}_key.sale_price`}
-											defaultValue={zone.sale_price || ''}
-											render={({ field }) => (
-												<NumberInput {...field} w="full" min={0}>
-													<NumberInputField borderRadius="sm" shadow="input" />
-													<NumberInputStepper>
-														<NumberIncrementStepper />
-														<NumberDecrementStepper />
-													</NumberInputStepper>
-												</NumberInput>
-											)}
-										/>
-									</FormControlTwoCol>
+				<Flex align="center">
+					<Switch
+						{...register(`multiple_currency.${zoneId}_key.enabled`)}
+						defaultChecked={zone.enabled}
+						mr={2}
+					/>
+					<IconButton
+						variant={expanded ? 'solid' : 'link'}
+						border="none"
+						aria-label="Toggle"
+						icon={
+							<Icon
+								as={expanded ? BiChevronUp : BiChevronDown}
+								fontSize="2xl"
+								fill={expanded ? 'primary.500' : 'black'}
+							/>
+						}
+						onClick={() => setExpanded(!expanded)}
+						size="sm"
+						boxShadow="none"
+						isDisabled={!enabled}
+						borderRadius="base"
+					/>
+				</Flex>
+			</Flex>
 
-									{isAddonActive('group-courses') && (
-										<FormControlTwoCol>{groupPriceSection()}</FormControlTwoCol>
-									)}
-								</Stack>
-							)}
-						</Stack>
-					</Collapse>
-				</Stack>
-			</FormControlTwoCol>
-			<Divider />
-		</>
+			<Collapse in={expanded} animateOpacity>
+				<Divider color="gray.200" my={3} />
+				<Box>
+					<FormControlTwoCol mb={4} alignItems="flex-start">
+						<FormLabel mb={0} fontSize="sm" fontWeight="medium">
+							{__('Pricing Method', 'learning-management-system')}
+							<ToolTip
+								label={__(
+									'Choose how prices are managed',
+									'learning-management-system',
+								)}
+							/>
+						</FormLabel>
+						<Box>
+							<Controller
+								control={control}
+								name={`multiple_currency.${zoneId}_key.pricing_method`}
+								render={({ field }) => (
+									<RadioGroup {...field} defaultValue={pricingMethod}>
+										<Stack spacing={3}>
+											<Radio
+												value="exchange_rate"
+												fontWeight="normal"
+												fontSize="sm"
+											>
+												{__(
+													'Calculate prices by the exchange rate.',
+													'learning-management-system',
+												)}
+											</Radio>
+											<Radio value="manual" fontWeight="normal" fontSize="sm">
+												{__(
+													'Set prices manually.',
+													'learning-management-system',
+												)}
+											</Radio>
+										</Stack>
+									</RadioGroup>
+								)}
+							/>
+							{pricingMethod === 'manual' &&
+								(() => {
+									const columnCount =
+										1 +
+										(isCourseBundle ? 0 : 1) +
+										(isAddonActive('group-courses') ? 1 : 0);
+
+									return (
+										<SimpleGrid
+											columns={{ base: 1, md: columnCount }}
+											spacing={4}
+											mt={4}
+										>
+											<FormControl>
+												<FormLabel>
+													{__('Regular Price', 'learning-management-system')}
+												</FormLabel>
+												<Controller
+													name={`multiple_currency.${zoneId}_key.regular_price`}
+													defaultValue={zone.regular_price || ''}
+													render={({ field }) => (
+														<NumberInput {...field} min={0}>
+															<NumberInputField />
+														</NumberInput>
+													)}
+												/>
+											</FormControl>
+
+											{!isCourseBundle && (
+												<FormControl>
+													<FormLabel>
+														{__('Sale Price', 'learning-management-system')}
+													</FormLabel>
+													<Controller
+														name={`multiple_currency.${zoneId}_key.sale_price`}
+														defaultValue={zone.sale_price || ''}
+														render={({ field }) => (
+															<NumberInput {...field} min={0}>
+																<NumberInputField />
+															</NumberInput>
+														)}
+													/>
+												</FormControl>
+											)}
+
+											{isAddonActive('group-courses') && (
+												<FormControl>
+													<FormLabel>
+														{__('Group Price', 'learning-management-system')}
+													</FormLabel>
+													<Controller
+														name={`multiple_currency.${zoneId}_key.group_price`}
+														defaultValue={zone.group_price || ''}
+														render={({ field }) => (
+															<NumberInput {...field} min={0}>
+																<NumberInputField />
+															</NumberInput>
+														)}
+													/>
+												</FormControl>
+											)}
+										</SimpleGrid>
+									);
+								})()}
+						</Box>
+					</FormControlTwoCol>
+				</Box>
+			</Collapse>
+		</Box>
 	);
 };
 
-export default RenderPricingZone;
+export default PricingZonesData;

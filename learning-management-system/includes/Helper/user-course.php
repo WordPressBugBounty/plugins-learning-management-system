@@ -586,3 +586,27 @@ if ( ! function_exists( 'masteriyo_get_user_enrolled_courses_count' ) ) {
 		return $courses_count ? absint( $courses_count ) : 0;
 	}
 }
+
+/**
+ * Get all user emails for enrolled users in a course.
+ *
+ * @since 1.18.2
+ *
+ * @param int $course_id The ID of the course.
+ * @return array List of user emails.
+ */
+function masteriyo_get_enrolled_user_emails( $course_id ) {
+	$user_ids    = masteriyo_get_enrolled_users( $course_id );
+	$user_emails = array();
+
+	if ( ! empty( $user_ids ) && is_array( $user_ids ) ) {
+		foreach ( $user_ids as $user_id ) {
+			$user = get_userdata( $user_id );
+			if ( $user && ! empty( $user->user_email ) ) {
+				$user_emails[] = $user->user_email;
+			}
+		}
+	}
+
+	return $user_emails;
+}

@@ -20,6 +20,7 @@ import {
 	Switch,
 	Text,
 	Textarea,
+	VStack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -86,16 +87,26 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 		>
 			<Stack direction="column" spacing="6" width="full">
 				<FormControlTwoCol>
-					<FormLabel>{__('Enable', 'learning-management-system')}</FormLabel>
+					<FormLabel mb={0}>
+						{__('Enable', 'learning-management-system')}
+					</FormLabel>
 					<Switch
 						defaultChecked={props.data?.enable}
 						{...register('payments.revenue_sharing.enable')}
 					/>
 				</FormControlTwoCol>
 				<Collapse in={watchRevenueSharingEnable} style={{ width: '100%' }}>
-					<Stack direction="column" spacing="6" width="full">
+					<VStack
+						alignItems="flex-start"
+						gap={5}
+						flexWrap={{ base: 'wrap', lg: 'nowrap' }}
+						borderWidth={1}
+						borderColor={'gray.200'}
+						p={4}
+						borderRadius={'md'}
+					>
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Commission Rate', 'learning-management-system')}
 							</FormLabel>
 
@@ -169,7 +180,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 							/>
 						</FormControlTwoCol>
 						<FormControlTwoCol mt={2}>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Enable Deductible Fee', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -183,10 +194,10 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 								{...register('payments.revenue_sharing.deductible_fee.enable')}
 							/>
 						</FormControlTwoCol>
-						<Collapse in={watchFeeEnable}>
+						<Collapse in={watchFeeEnable} style={{ width: '100%' }}>
 							<Stack direction="column" spacing="6">
 								<FormControlTwoCol>
-									<FormLabel>
+									<FormLabel mr={0}>
 										{__('Deductible Fee Name', 'learning-management-system')}
 									</FormLabel>
 									<Input
@@ -197,7 +208,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 									/>
 								</FormControlTwoCol>
 								<FormControlTwoCol>
-									<FormLabel>
+									<FormLabel mr={0}>
 										{__('Deductible Fee Type', 'learning-management-system')}
 									</FormLabel>
 									<Controller
@@ -217,7 +228,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 									/>
 								</FormControlTwoCol>
 								<FormControlTwoCol>
-									<FormLabel>
+									<FormLabel mr={0}>
 										{__('Deductible Fee Amount', 'learning-management-system')}
 									</FormLabel>
 									<Controller
@@ -254,7 +265,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 							</Stack>
 						</Collapse>
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Minimum Payout Amount', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -286,7 +297,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 							/>
 						</FormControlTwoCol>
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Maturity Period', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -320,7 +331,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 							/>
 						</FormControlTwoCol>
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Payout Methods', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -350,9 +361,12 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 								)}
 							/>
 						</FormControlTwoCol>
-						<Collapse in={watchPayoutMethods?.includes('bank_transfer')}>
+						<Collapse
+							in={watchPayoutMethods?.includes('bank_transfer')}
+							style={{ width: '100%' }}
+						>
 							<FormControlTwoCol>
-								<FormLabel>
+								<FormLabel mr={0}>
 									{__('Bank Instructions', 'learning-management-system')}
 								</FormLabel>
 								<Textarea
@@ -365,7 +379,7 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 								/>
 							</FormControlTwoCol>
 						</Collapse>
-					</Stack>
+					</VStack>
 				</Collapse>
 			</Stack>
 		</SingleComponentsWrapper>

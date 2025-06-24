@@ -84,6 +84,201 @@ class GoogleMeetAddon {
 		add_action( 'masteriyo_layout_1_single_course_curriculum_shortinfo_item', array( $this, 'shortinfo_item' ), 20, 1 );
 		add_action( 'masteriyo_layout_1_single_course_curriculum_accordion_header_info_item', array( $this, 'header_info_item' ), 20, 1 );
 		add_filter( 'masteriyo_post_type_default_labels', array( $this, 'append_post_type_default_label' ), 10 );
+		add_action( 'masteriyo_new_user_course', array( $this, 'masteriyo_add_user_to_google_calender' ), 10, 2 );
+	}
+
+	/**
+	 * Add current user to Google Calendar for upcoming and today's Google Meet lessons.
+	 *
+	 * @since 1.18.2
+	 */
+	public function masteriyo_add_user_to_google_calender( $user_course_id, $user_course ) {
+
+		if ( empty( $user_course ) ) {
+			masteriyo_get_logger()->info(
+				'Course is missing.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+
+		if ( ! is_user_logged_in() ) {
+			masteriyo_get_logger()->info(
+				'User is not logged in.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+		$current_user_id = get_current_user_id();
+
+		$today = gmdate( 'Y-m-d H:i:s' );
+
+		$google_meet_lessons = get_posts(
+			array(
+				'post_type'      => PostType::GOOGLEMEET,
+				'post_status'    => PostStatus::PUBLISH,
+				'meta_query'     => array(
+					'relation' => 'AND',
+					array(
+						'key'     => '_ends_at',
+						'value'   => $today,
+						'compare' => '>=',
+						'type'    => 'DATETIME',
+					),
+					array(
+						'key'     => '_course_id',
+						'value'   => $user_course->get_course_id(),
+						'compare' => '=',
+						'type'    => 'NUMERIC',
+					),
+				),
+				'posts_per_page' => -1,
+			)
+		);
+
+		if ( empty( $google_meet_lessons ) ) {
+			return;
+		}
+
+		foreach ( $google_meet_lessons as $google_meet ) {
+			$this->masteriyo_add_user_to_google_meet_event( $google_meet, $current_user_id );
+		}
+	}
+
+	/**
+	 * Add a user to a Google Meet event in Google Calendar.
+	 *
+	 * @since 1.18.2
+	 *
+	 * @param $google_meet Google Meet post object.
+	 * @param int $user_id User ID.
+	 */
+	public function masteriyo_add_user_to_google_meet_event( $google_meet, $user_id ) {
+		$author_id = $google_meet->post_author;
+
+		$google_setting_data = get_user_meta( $author_id, 'masteriyo_google_meet_settings', array() );
+		if ( empty( $google_setting_data[0] ) ) {
+			masteriyo_get_logger()->info(
+				'No google meet setting found.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+		$google_provider = create_google_meet_client( $google_setting_data[0] );
+		$refresh_token   = $google_setting_data[0]['refresh_token'] ?? '';
+		if ( '' === $refresh_token ) {
+			masteriyo_get_logger()->info(
+				'No refresh token found.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+
+		$grant = new \League\OAuth2\Client\Grant\RefreshToken();
+		$token = $google_provider->getAccessToken(
+			$grant,
+			array( 'refresh_token' => $refresh_token )
+		);
+
+		$event_id = get_post_meta( $google_meet->ID, '_meeting_id', true );
+		if ( empty( $event_id ) ) {
+			masteriyo_get_logger()->info(
+				'There is no event id for google meet.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+
+		$user = masteriyo_get_user( $user_id );
+		if ( ! $user ) {
+			masteriyo_get_logger()->info(
+				'You can not access the resources.',
+				array( 'source' => 'google-meet' )
+			);
+			return;
+		}
+		$new_attendee = array( 'email' => $user->get_email() );
+
+		$calendar_id = 'primary';
+		$endpoint    = sprintf(
+			'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s',
+			$calendar_id,
+			$event_id
+		);
+
+		$client = new \GuzzleHttp\Client();
+
+		try {
+			$getResponse = $client->request(
+				'GET',
+				$endpoint,
+				array(
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $token->getToken(),
+					),
+					'query'   => array(
+						'fields' => 'attendees',
+					),
+				)
+			);
+
+			$event_data = json_decode( $getResponse->getBody(), true );
+			$attendees  = $event_data['attendees'] ?? array();
+
+			foreach ( $attendees as $att ) {
+				if ( ! empty( $att['email'] ) && $att['email'] === $new_attendee['email'] ) {
+					masteriyo_get_logger()->info(
+						sprintf( 'User %d is already an attendee of event %s.', $user_id, $event_id ),
+						array( 'source' => 'google-meet' )
+					);
+					return;
+				}
+			}
+
+			$attendees[]   = $new_attendee;
+			$patchResponse = $client->request(
+				'PATCH',
+				$endpoint,
+				array(
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $token->getToken(),
+						'Content-Type'  => 'application/json',
+					),
+					'query'   => array(
+						'sendUpdates' => 'all',
+					),
+					'json'    => array(
+						'attendees'               => $attendees,
+						'guestsCanModify'         => true,
+						'guestsCanInviteOthers'   => true,
+						'guestsCanSeeOtherGuests' => true,
+					),
+				)
+			);
+
+			if ( $patchResponse->getStatusCode() === 200 ) {
+					masteriyo_get_logger()->info(
+						sprintf( 'User %d added to Google Meet event %s successfully.', $user_id, $event_id ),
+						array( 'source' => 'google-meet' )
+					);
+			} else {
+				masteriyo_get_logger()->error(
+					sprintf(
+						'Failed to add user %d to Google Meet event %s. Status: %s Body: %s',
+						$user_id,
+						$event_id,
+						$patchResponse->getStatusCode(),
+						(string) $patchResponse->getBody()
+					),
+					array( 'source' => 'google-meet' )
+				);
+			}
+		} catch ( \Exception $e ) {
+				masteriyo_get_logger()->error(
+					'Error adding user to Google Meet event: ' . $e->getMessage(),
+					array( 'source' => 'google-meet' )
+				);
+		}
 	}
 
 	/**

@@ -618,7 +618,7 @@ class QuizAttemptsController extends CrudController {
 			 * New format: "answers" : [ '$question_id' => [ 'answered' => '$given_answered', 'correct' => 'boolean' ]  ]
 			 */
 			$given_answers = isset( $attempt_answer['answered'] ) ? $attempt_answer['answered'] : $attempt_answer;
-			$name                                = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
+			$name          = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
 
 			$new_attempt_answers[ $question_id ]['answered']       = $given_answers;
 			$new_attempt_answers[ $question_id ]['correct']        = $question->check_answer( $given_answers );
@@ -683,12 +683,24 @@ class QuizAttemptsController extends CrudController {
 		}
 
 		if ( $quiz ) {
+
+			$quiz_attempts_allowed = $quiz->get_attempts_allowed();
+			$user_quiz_attempts    = 0;
+			$enabled_reveal_mode   = $quiz->get_reveal_mode();
+			$user_quiz_attempts    = $quiz_attempt->get_total_attempts( $context );
+
+			$view_last_attempts = false;
+			if ( $quiz_attempts_allowed > 0 && $user_quiz_attempts >= $quiz_attempts_allowed && $enabled_reveal_mode ) {
+				$view_last_attempts = true;
+			}
+
 			$data['quiz'] = array(
-				'id'          => $quiz->get_id(),
-				'name'        => $quiz->get_name(),
-				'pass_mark'   => $quiz->get_pass_mark(),
-				'duration'    => $quiz->get_duration(),
-				'reveal_mode' => $quiz->get_reveal_mode(),
+				'id'                 => $quiz->get_id(),
+				'name'               => $quiz->get_name(),
+				'pass_mark'          => $quiz->get_pass_mark(),
+				'duration'           => $quiz->get_duration(),
+				'reveal_mode'        => $quiz->get_reveal_mode(),
+				'view_last_attempts' => $view_last_attempts,
 			);
 		}
 

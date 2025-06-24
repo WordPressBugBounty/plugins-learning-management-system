@@ -718,6 +718,11 @@ class GoogleMeetController extends PostsController {
 	 * @since 1.11.0
 	 */
 	public function update_google_calendar_event( $token, $provider, $request ) {
+		$course = masteriyo_get_course( $request['course_id'] );
+
+		if ( empty( $course ) ) {
+			return false;
+		}
 
 		$start_date_time = new DateTime( $request['starts_at'] );
 		$end_date_time   = new DateTime( $request['ends_at'] );
@@ -727,17 +732,8 @@ class GoogleMeetController extends PostsController {
 
 		$participants = array();
 
-		if ( $request['add_all_students_as_attendee'] ) {
-			$students = $request['attendees'];
-			foreach ( $students as $student ) {
-				if ( masteriyo_is_user_enrolled_in_course( $request['course_id'], $student ) ) {
-					$user           = masteriyo_get_user( $student );
-					$participants[] = array( 'email' => $user->get_email() );
-				}
-			}
-		} else {
-			$participants[] = array();
-		}
+		$participants = masteriyo_get_enrolled_user_emails( $course->get_id() );
+		$participants = array_map( fn( $e )=>array( 'email' => $e ), $participants );
 
 		$event_data = array(
 			'summary'     => $request['summary'],
@@ -755,9 +751,9 @@ class GoogleMeetController extends PostsController {
 
 		$calendar_id = 'primary';
 		$endpoint    = sprintf(
-			'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s',
-			$calendar_id,
-			$request['id']
+			'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s?sendUpdates=all',
+			urlencode( $calendar_id ),
+			urlencode( $request['id'] )
 		);
 
 			$client = new Client();
@@ -780,7 +776,7 @@ class GoogleMeetController extends PostsController {
 				'id'                           => $request['meeting_id'],
 				'event_id'                     => $event['id'],
 				'summary'                      => $event['summary'],
-				'description'                  => $event['description'],
+				'description'                  => isset( $event['description'] ) ? $event['description'] : '',
 				'starts_at'                    => $event['start']['dateTime'],
 				'ends_at'                      => $event['end']['dateTime'],
 				'author'                       => $event['id'],
@@ -886,18 +882,8 @@ class GoogleMeetController extends PostsController {
 		}
 
 		$participants = array();
-
-		if ( $request['add_all_students_as_attendee'] ) {
-			$students = $request['attendees'];
-			foreach ( $students as $student ) {
-				if ( masteriyo_is_user_enrolled_in_course( $request['course_id'], $student ) ) {
-					$user           = masteriyo_get_user( $student );
-					$participants[] = array( 'email' => $user->get_email() );
-				}
-			}
-		} else {
-			$participants[] = array();
-		}
+		$participants = masteriyo_get_enrolled_user_emails( $course->get_id() );
+		$participants = array_map( fn( $e )=>array( 'email' => $e ), $participants );
 
 		$request_id = uniqid( '', true );
 
@@ -961,9 +947,9 @@ class GoogleMeetController extends PostsController {
 		if ( $response->getStatusCode() === 200 ) {
 			$event = json_decode( $response->getBody(), true );
 
-			$event_data = array(
+			$event_data          = array(
 				'event_id'                     => $event['id'],
-				'summary'                      => $event['summary'],
+				'summary'                      => isset( $event['summary'] ) ? $event['summary'] : '',
 				'description'                  => isset( $event['description'] ) ? $event['description'] : '',
 				'starts_at'                    => $event['start']['dateTime'],
 				'ends_at'                      => $event['end']['dateTime'],
@@ -975,12 +961,6 @@ class GoogleMeetController extends PostsController {
 				'course_id'                    => $course->get_id(),
 				'add_all_students_as_attendee' => $request['add_all_students_as_attendee'],
 			);
-
-			if ( ! empty( $event_data['id'] ) ) {
-				/* translators: %s: post type */
-				return new \WP_Error( "masteriyo_rest_{$this->object_type}_exists", sprintf( __( 'Cannot create existing %s.', 'learning-management-system' ), $this->object_type ), array( 'status' => 400 ) );
-			}
-
 			$now                 = $this->save_object( $event_data, true );
 			$event['parent_id']  = $request['section_id'];
 			$event['name']       = $request['summary'];

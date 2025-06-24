@@ -2,7 +2,7 @@
 /**
  * Recaptcha service provider.
  *
- * @since x.x.x
+ * @since 1.18.2
  */
 
 namespace Masteriyo\Addons\Recaptcha\Providers;
@@ -17,7 +17,7 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 /**
  * Recaptcha service provider.
  *
- * @since x.x.x
+ * @since 1.18.2
  */
 class RecaptchaServiceProvider extends AbstractServiceProvider {
 	/**
@@ -27,7 +27,7 @@ class RecaptchaServiceProvider extends AbstractServiceProvider {
 	 * this service provider must have an alias added
 	 * to this array or it will be ignored
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @var array
 	 */
@@ -46,7 +46,7 @@ class RecaptchaServiceProvider extends AbstractServiceProvider {
 	 * that you need to, but remember, every alias registered
 	 * within this method must be declared in the `$provides` array.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 */
 	public function register() {
 		$this->getContainer()->add( 'addons.recaptcha.global_setting', GlobalSetting::class, true );

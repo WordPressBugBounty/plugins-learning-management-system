@@ -7,11 +7,11 @@ import Select from './select';
 import Slider from './slider';
 import Tab from './tab';
 import TabPanel from './tab-panel';
+import Toggle from './toggle';
 
 export { default as AdvanceSelect } from './advance-select';
 export { default as Background } from './background';
 export { default as Color } from './color';
-export { default as Toggle } from './toggle';
 
 export {
 	DeviceSelector,
@@ -22,4 +22,5 @@ export {
 	Slider,
 	Tab,
 	TabPanel,
+	Toggle,
 };

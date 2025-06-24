@@ -15,14 +15,20 @@ const BrevoAlertMessage = () => {
 
 				<Text>
 					{__('1. ', 'learning-management-system')}
-					<Link href="https://login.brevo.com/" isExternal color="primary.600">
+					<Link
+						href="https://login.brevo.com/"
+						isExternal
+						textDecoration="underline"
+						textUnderlineOffset={2}
+					>
 						{__('Log in to your Brevo account.', 'learning-management-system')}
 					</Link>
 					{__(' If you don’t have an account, ', 'learning-management-system')}
 					<Link
 						href="https://onboarding.brevo.com/account/register"
 						isExternal
-						color="primary.600"
+						textDecoration="underline"
+						textUnderlineOffset={2}
 					>
 						{__('sign up here.', 'learning-management-system')}
 					</Link>
@@ -37,7 +43,8 @@ const BrevoAlertMessage = () => {
 					<Link
 						href="https://app.brevo.com/settings/keys/api"
 						isExternal
-						color="primary.600"
+						textDecoration="underline"
+						textUnderlineOffset={2}
 					>
 						{__(' Go to API Keys', 'learning-management-system')}
 					</Link>

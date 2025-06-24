@@ -1,8 +1,6 @@
 import {
 	Collapse,
-	Divider,
 	FormLabel,
-	Heading,
 	Icon,
 	Stack,
 	Switch,
@@ -47,11 +45,7 @@ const MultipleCurrencyCoursesSetting: React.FC<Props> = ({
 			<Collapse in={watchMultiCurrency} animateOpacity>
 				{!isEmpty(multiple_currency_data?.pricing_zones) ? (
 					<>
-						<Heading as="h3" size="xs" ml="2">
-							{__('Pricing Zone', 'learning-management-system')}
-						</Heading>
-						<Stack spacing="3" borderLeft="1px solid #efefef">
-							<Divider />
+						<Stack spacing="3">
 							{multiple_currency_data?.pricing_zones?.map((zone, index) => (
 								<RenderPricingZone
 									key={index}

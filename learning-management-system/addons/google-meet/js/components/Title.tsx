@@ -19,6 +19,7 @@ const Title: React.FC<Props> = (props) => {
 		<FormControl isInvalid={!!errors?.name}>
 			<FormLabel>{__('Title', 'learning-management-system')}</FormLabel>
 			<Input
+				autoFocus
 				defaultValue={defaultValue}
 				placeholder={__('Your Meeting Title', 'learning-management-system')}
 				{...register('summary', {

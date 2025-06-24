@@ -2,7 +2,7 @@
 /**
  * Google reCAPTCHA domain enums.
  *
- * @since x.x.x
+ * @since 1.18.2
  * @package Masteriyo\Addons\Recaptcha
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google reCAPTCHA domain enum class.
  *
- * @since x.x.x
+ * @since 1.18.2
  */
 class RecaptchaDomain {
 	/**
 	 * reCAPTCHA google.com.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 * @var string
 	 */
 	const GOOGLE_COM = 'google.com';
@@ -27,7 +27,7 @@ class RecaptchaDomain {
 	/**
 	 * reCAPTCHA recaptcha.net.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 * @var string
 	 */
 	const RECAPTCHA_NET = 'recaptcha.net';
@@ -36,7 +36,7 @@ class RecaptchaDomain {
 	/**
 	 * Return all the Google reCAPTCHA domains.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @return array
 	 */
@@ -45,7 +45,7 @@ class RecaptchaDomain {
 			/**
 			 * Filters Google reCAPTCHA domain list.
 			 *
-			 * @since x.x.x
+			 * @since 1.18.2
 			 *
 			 * @param string[] $statuses Google reCAPTCHA domain list.
 			 */

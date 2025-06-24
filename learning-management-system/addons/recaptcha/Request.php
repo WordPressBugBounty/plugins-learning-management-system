@@ -2,7 +2,7 @@
 /**
  * Recaptcha validation request.
  *
- * @since x.x.x
+ * @since 1.18.2
  * @package \Masteriyo\Addons\Recaptcha
  */
 
@@ -17,7 +17,7 @@ class Request {
 	/**
 	 * Verification URL.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 * @var string
 	 */
 	const URL = 'https://www.google.com/recaptcha/api/siteverify';
@@ -25,7 +25,7 @@ class Request {
 	/**
 	 * Make validation request.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param string $secret_key
 	 * @param string $token
@@ -72,7 +72,7 @@ class Request {
 	/**
 	 * Validate the recaptcha response.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param string $secret_key
 	 * @param string $token
@@ -112,7 +112,7 @@ class Request {
 	/**
 	 * Return error message from error code.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param string $error_code
 	 * @param string $default_message

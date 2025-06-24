@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schemas.wp.org/block-json/1.1",
+  "apiVersion": 3,
+  "name": "masteriyo/single-course",
+  "version": "1.0.0",
+  "title": "Single Course",
+  "category": "masteriyo",
+  "description": "The Single Course Block serves as the primary container...",
+  "keywords": [
+    "Single Course"
+  ],
+  "textdomain": "learning-management-system",
+  "providesContext": {
+    "masteriyo/course_id": "courseId"
+  },
+  "example": {
+    "attributes": {}
+  },
+  "supports": {
+    "className": false,
+    "customClassName": false,
+    "reusable": false
+  },
+  "attributes": {
+    "formId": {
+      "type": "string",
+      "default": ""
+    },
+    "userState": {
+      "type": "string"
+    },
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    },
+    "margin": {
+      "type": "string"
+    },
+    "padding": {
+      "type": "object"
+    }
+  },
+  "style": "masteriyo-blocks",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-blocks-editor"
+}

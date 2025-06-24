@@ -209,17 +209,19 @@ function masteriyo_is_single_course_page() {
  * @return boolean
  */
 function masteriyo_is_courses_page( $check_shortcode = false ) {
+	global $post;
 	if ( is_post_type_archive( PostType::COURSE ) || is_page( masteriyo_get_page_id( 'courses' ) ) ) {
 		return true;
 	}
 
 	if ( $check_shortcode ) {
-		global $post;
 
 		if ( ( $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_courses' ) ) ) {
 			return true;
-
 		}
+	}
+	if ( has_block( 'masteriyo/courses', $post ) ||  has_block( 'masteriyo/course-search-form', $post ) ) {
+		return true;
 	}
 
 	return false;

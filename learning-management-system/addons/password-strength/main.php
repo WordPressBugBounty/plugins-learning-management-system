@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
  * Addon Type: enhancement
- * Plan: Starter,Pro,Elite,Growth,Scale
+ * Plan: Free
  */
 
 use Masteriyo\Pro\Addons;

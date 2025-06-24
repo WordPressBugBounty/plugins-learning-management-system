@@ -2,7 +2,7 @@
 /**
  * Store global recaptcha options.
  *
- * @since x.x.x
+ * @since 1.18.2
  * @package \Masteriyo\Addons\Recaptcha
  */
 
@@ -22,14 +22,14 @@ class GlobalSetting {
 	/**
 	 * Global option name.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 */
 	const OPTION_NAME = 'masteriyo_recaptcha_settings';
 
 	/**
 	 * Data.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @var array
 	 */
@@ -52,7 +52,7 @@ class GlobalSetting {
 	/**
 	 * Initialize global setting.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 */
 	public function init() {
 		$this->set( 'error_message', __( 'Please solve the CAPTCHA to proceed', 'learning-management-system' ) );
@@ -63,7 +63,7 @@ class GlobalSetting {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
@@ -73,7 +73,7 @@ class GlobalSetting {
 	/**
 	 * Append setting to response.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param array $data Setting data.
 	 * @param Masteriyo\Models\Setting $setting Setting object.
@@ -91,7 +91,7 @@ class GlobalSetting {
 	/**
 	 * Save global recaptcha settings.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param \Masteriyo\Models\Setting $setting Setting object.
 	 */
@@ -116,7 +116,7 @@ class GlobalSetting {
 	/**
 	 * Sanitized global recaptcha settings.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @return array
 	 */
@@ -142,7 +142,7 @@ class GlobalSetting {
 	/**
 	 * Return global white field value.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param string $key
 	 * @return string|mixed
@@ -166,7 +166,7 @@ class GlobalSetting {
 	/**
 	 * Set global recaptcha field.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.

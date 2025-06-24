@@ -3,14 +3,15 @@ import {
 	Collapse,
 	Flex,
 	FormLabel,
-	IconButton,
+	Icon,
 	Input,
 	InputGroup,
-	InputRightElement,
+	InputRightAddon,
 	Stack,
 	Switch,
 	Textarea,
 	useClipboard,
+	VStack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
@@ -58,7 +59,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			<Stack direction="column" spacing="6" w="full">
 				<FormControlTwoCol>
 					<Stack direction="row">
-						<FormLabel minW="160px">
+						<FormLabel minW="160px" m={0}>
 							{__('Enable', 'learning-management-system')}
 							<ToolTip
 								label={__(
@@ -79,8 +80,19 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 					</Stack>
 				</FormControlTwoCol>
 
-				<Collapse in={showLemonSqueezyIntegrationOptions}>
-					<Stack direction="column" spacing="6">
+				<Collapse
+					in={showLemonSqueezyIntegrationOptions}
+					style={{ width: '100%' }}
+				>
+					<VStack
+						alignItems="flex-start"
+						gap={5}
+						flexWrap={{ base: 'wrap', lg: 'nowrap' }}
+						borderWidth={1}
+						borderColor={'gray.200'}
+						p={4}
+						borderRadius={'md'}
+					>
 						<FormControlTwoCol>
 							<FormLabel minW="160px">
 								{__('Title', 'learning-management-system')}
@@ -118,25 +130,21 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 									{...register('payments.lemon_squeezy_integration.api_key')}
 									defaultValue={lemon_squeezy_integration?.api_key}
 								/>
-								<InputRightElement>
-									{!show.apiKey ? (
-										<IconButton
-											onClick={() => setShow({ ...show, apiKey: true })}
+								<InputRightAddon bg={'gray.100'}>
+									{
+										<Icon
+											cursor="pointer"
+											as={!show.apiKey ? BiShow : BiHide}
+											onClick={() =>
+												setShow({ ...show, apiKey: Boolean(!show.apiKey) })
+											}
 											size="lg"
-											variant="unstyled"
-											aria-label="Show API key"
-											icon={<BiShow />}
+											aria-label={
+												!show.apiKey ? 'Show API key' : 'Hide API key'
+											}
 										/>
-									) : (
-										<IconButton
-											onClick={() => setShow({ ...show, apiKey: false })}
-											size="lg"
-											variant="unstyled"
-											aria-label="Hide API key"
-											icon={<BiHide />}
-										/>
-									)}
-								</InputRightElement>
+									}
+								</InputRightAddon>
 							</InputGroup>
 						</FormControlTwoCol>
 
@@ -158,7 +166,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 						</FormControlTwoCol>
 
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Unenrollment Status', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -215,7 +223,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 						</FormControlTwoCol>
 
 						<FormControlTwoCol>
-							<FormLabel>
+							<FormLabel mr={0}>
 								{__('Webhook Secret', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -232,7 +240,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 								)}
 							/>
 						</FormControlTwoCol>
-					</Stack>
+					</VStack>
 				</Collapse>
 			</Stack>
 		</SingleComponentsWrapper>

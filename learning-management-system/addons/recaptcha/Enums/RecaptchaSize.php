@@ -2,7 +2,7 @@
 /**
  * Google reCAPTCHA size enums.
  *
- * @since x.x.x
+ * @since 1.18.2
  * @package Masteriyo\Addons\Recaptcha
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google reCAPTCHA size enum class.
  *
- * @since x.x.x
+ * @since 1.18.2
  */
 class RecaptchaSize {
 	/**
 	 * reCAPTCHA google.com.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 * @var string
 	 */
 	const NORMAL = 'normal';
@@ -27,7 +27,7 @@ class RecaptchaSize {
 	/**
 	 * reCAPTCHA google.net.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 * @var string
 	 */
 	const COMPACT = 'compact';
@@ -35,7 +35,7 @@ class RecaptchaSize {
 	/**
 	 * Return all the Google reCAPTCHA sizes.
 	 *
-	 * @since x.x.x
+	 * @since 1.18.2
 	 *
 	 * @return array
 	 */
@@ -44,7 +44,7 @@ class RecaptchaSize {
 			/**
 			 * Filters Google reCAPTCHA size list.
 			 *
-			 * @since x.x.x
+			 * @since 1.18.2
 			 *
 			 * @param string[] $statuses Google reCAPTCHA size list.
 			 */

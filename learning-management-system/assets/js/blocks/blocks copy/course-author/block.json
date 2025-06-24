@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/course-author",
+  "version": "1.0.0",
+  "title": "Course Author",
+  "category": "masteriyo-single-course",
+  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
+  "keywords": [
+    "Courses Author Block"
+  ],
+  "textdomain": "masteriyo",
+  "attributes": {
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "array",
+      "default": []
+    },
+    "hideAuthorsAvatar": {
+      "type": "string",
+      "default": "no"
+    },
+    "hideAuthorsName": {
+      "type": "string",
+      "default": "no"
+    },
+    "height_n_width": {
+      "type": "object"
+    },
+    "margin": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    }
+  },
+  "usesContext": [
+    "masteriyo/course_id"
+  ],
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public",
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    }
+  }
+}

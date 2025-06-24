@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/courses",
+  "version": "1.0.0",
+  "title": "Courses",
+  "category": "masteriyo",
+  "description": "Display a collection of courses.",
+  "keywords": [
+    "Courses Block"
+  ],
+  "textdomain": "learning-management-system",
+  "attributes": {
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "count": {
+      "type": "number",
+      "default": 12
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "categoryIds": {
+      "type": "array",
+      "default": []
+    },
+    "sortBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "sortOrder": {
+      "type": "string",
+      "default": "desc"
+    },
+    "startCourseButtonBorder": {
+      "type": "object"
+    },
+    "viewType": {
+      "type": "string",
+      "default": "grid"
+    },
+    "enableCourseFilters": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    },
+    "customClassName": false,
+    "className": false,
+    "reusable": false
+  },
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public"
+}

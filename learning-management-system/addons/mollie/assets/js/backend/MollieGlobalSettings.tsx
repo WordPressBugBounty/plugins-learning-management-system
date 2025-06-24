@@ -14,6 +14,7 @@ import {
 	Switch,
 	Text,
 	Textarea,
+	VStack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
@@ -52,13 +53,13 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 		webhookKey: false,
 	});
 
-	const showRazorpayOptions = useWatch({
+	const showMollieOptions = useWatch({
 		name: 'payments.mollie.enable',
 		defaultValue: paymentsData?.mollie?.enable,
 		control,
 	});
 
-	const showRazorpaySandBoxOptions = useWatch({
+	const showMollieSandBoxOptions = useWatch({
 		name: 'payments.mollie.sandbox',
 		defaultValue: paymentsData?.mollie?.sandbox,
 		control,
@@ -68,7 +69,7 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 		<SingleComponentsWrapper title={__('Mollie', 'learning-management-system')}>
 			<FormControlTwoCol>
 				<Stack direction="row">
-					<FormLabel minW="160px">
+					<FormLabel minW="160px" mb={0}>
 						{__('Enable', 'learning-management-system')}
 						<ToolTip
 							label={__(
@@ -89,14 +90,18 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 				</Stack>
 			</FormControlTwoCol>
 
-			<Collapse
-				in={showRazorpayOptions}
-				animateOpacity
-				style={{ width: '100%' }}
-			>
-				<Stack direction="column" spacing="6">
+			<Collapse in={showMollieOptions} animateOpacity style={{ width: '100%' }}>
+				<VStack
+					alignItems="flex-start"
+					gap={5}
+					flexWrap={{ base: 'wrap', lg: 'nowrap' }}
+					borderWidth={1}
+					borderColor={'gray.200'}
+					p={4}
+					borderRadius={'md'}
+				>
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Title', 'learning-management-system')}
 						</FormLabel>
 						<Input
@@ -107,7 +112,7 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 
 					<FormControlTwoCol>
-						<FormLabel minW="160px">
+						<FormLabel m={0} minW="160px">
 							{__('Description', 'learning-management-system')}
 						</FormLabel>
 						<Textarea
@@ -119,7 +124,7 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 
 					<FormControlTwoCol>
 						<Stack direction="row">
-							<FormLabel minW="160px">
+							<FormLabel m={0} minW="160px">
 								{__('Sandbox', 'learning-management-system')}
 								<ToolTip
 									label={__(
@@ -139,10 +144,10 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 							/>
 						</Stack>
 					</FormControlTwoCol>
-					<Collapse in={showRazorpaySandBoxOptions}>
+					<Collapse in={showMollieSandBoxOptions} style={{ width: '100%' }}>
 						<Stack direction="column" spacing="6">
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Test Api Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -185,10 +190,10 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 						</Stack>
 					</Collapse>
 
-					<Collapse in={!showRazorpaySandBoxOptions}>
+					<Collapse in={!showMollieSandBoxOptions} style={{ width: '100%' }}>
 						<Stack direction="column" spacing="6">
 							<FormControlTwoCol>
-								<FormLabel minW="160px">
+								<FormLabel m={0} minW="160px">
 									{__('Live Api Key', 'learning-management-system')}
 									<ToolTip
 										label={__(
@@ -253,7 +258,7 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 							</AlertDescription>
 						</Alert>
 					)}
-				</Stack>
+				</VStack>
 			</Collapse>
 		</SingleComponentsWrapper>
 	);

@@ -50,7 +50,7 @@ $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
 			</div>
 
 			<?php if ( $sections ) : ?>
-				<span class="masteriyo-link-primary masteriyo-expand-collapse-all"><?php esc_html_e( 'Expand All', 'learning-management-system' ); ?></span>
+				<span class="masteriyo-link-primary masteriyo-expand-collapse-all"><?php esc_html_e( 'Collapse All', 'learning-management-system' ); ?></span>
 			<?php endif; ?>
 		</div>
 

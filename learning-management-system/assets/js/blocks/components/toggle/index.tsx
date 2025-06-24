@@ -1,6 +1,5 @@
 import { useInstanceId } from '@wordpress/compose';
 import classnames from 'classnames';
-import PropTypes from 'prop-types';
 import React from 'react';
 import './editor.scss';
 
@@ -8,10 +7,10 @@ interface PropTypes {
 	checked: boolean;
 	onChange: CallableFunction;
 	label?: string;
+	help?: string;
 }
 
-const Toggle: React.FC<PropTypes> = (props) => {
-	const { checked, onChange, label } = props;
+const Toggle: React.FC<PropTypes> = ({ checked, onChange, label, help }) => {
 	const id = useInstanceId(Toggle);
 
 	return (
@@ -19,11 +18,11 @@ const Toggle: React.FC<PropTypes> = (props) => {
 			className={classnames(
 				'masteriyo-control',
 				'masteriyo-toggle',
-				'masteriyo-inline',
+				'masteriyo-setting-row',
 				{ 'is-checked': checked },
 			)}
 		>
-			<div className="masteriyo-toggle-head">
+			<div className="masteriyo-setting-labels">
 				{label && (
 					<label
 						htmlFor={`masteriyo-toggle-${id}`}
@@ -32,6 +31,7 @@ const Toggle: React.FC<PropTypes> = (props) => {
 						{label}
 					</label>
 				)}
+				{help && <div className="masteriyo-toggle-description">{help}</div>}
 			</div>
 
 			<div className="masteriyo-control-body masteriyo-toggle-body">
@@ -39,6 +39,7 @@ const Toggle: React.FC<PropTypes> = (props) => {
 					id={`masteriyo-toggle-${id}`}
 					type="checkbox"
 					className="masteriyo-toggle-checkbox"
+					checked={checked}
 					onChange={(e) => onChange(e.target.checked)}
 				/>
 				<span className="masteriyo-toggle-track" />

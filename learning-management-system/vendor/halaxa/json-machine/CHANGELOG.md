@@ -12,9 +12,16 @@ Nothing yet
 
 <br>
 
+## 1.2.3 - 2025-05-30
+- Tokenizer completely rewritten to use regular expressions for partial tokenization.
+Got rid of per-byte processing in PHP code.
+Standard parsing speed boost (non-recursive, non-debug) about + 50 %. Further improvements on the way.
+
+<br>
+
 ## 1.2.2 - 2025-04-30
 ### Changed
-- Leaner release package (#124). Thanks [@bahco](https://github.com/robotomarvin)
+- Leaner release package (#124). Thanks [@robotomarvin](https://github.com/robotomarvin)
 
 <br>
 

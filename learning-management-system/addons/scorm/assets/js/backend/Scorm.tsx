@@ -82,11 +82,14 @@ const Scorm: React.FC<Props> = (props) => {
 	return (
 		<Center>
 			<Button
+				bg="brandBlueAlpha10"
+				borderRadius="base"
 				variant="outline"
 				colorScheme="primary"
-				width={['140px', '160px', '180px']}
 				onClick={() => onOpen()}
-				leftIcon={<BiImport size="18" />}
+				leftIcon={<BiImport size="14" />}
+				border="none"
+				_hover={{ borderWidth: 1, textDecoration: 'underline' }}
 			>
 				{__('Import SCORM', 'learning-management-system')}
 			</Button>

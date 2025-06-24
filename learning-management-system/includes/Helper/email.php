@@ -222,6 +222,12 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 	 * @return array The default email contents used in Masteriyo.
 	 */
 	function masteriyo_get_default_email_contents() {
+		static $data = null;
+
+		if ( ! is_null( $data ) ) {
+			return $data;
+		}
+
 		$data = array(
 			'admin'      => array(
 				'new_order'                 => array(

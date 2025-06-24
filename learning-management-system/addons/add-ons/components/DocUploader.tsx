@@ -223,11 +223,11 @@ const DocUploader: React.FC<Props> = (props) => {
 				direction="column"
 				justify="center"
 				align="center"
-				border="1px"
-				borderStyle="dashed"
-				borderColor="gray.400"
+				border="2px dashed"
+				borderColor="gray.300"
+				borderRadius="md"
 				px="4"
-				py="8"
+				py="12"
 				textAlign="center"
 				backgroundColor={isDragActive ? 'blue.100' : 'transparent'}
 				{...getRootProps()}

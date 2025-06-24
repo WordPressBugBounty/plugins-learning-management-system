@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/course-categories",
+  "version": "1.0.0",
+  "title": "Course Categories",
+  "category": "masteriyo",
+  "description": "Display a collection of course categories.",
+  "keywords": [
+    "Course Categories Block"
+  ],
+  "textdomain": "learning-management-system",
+  "attributes": {
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "count": {
+      "type": "number",
+      "default": 12
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "hide_courses_count": {
+      "type": "string",
+      "default": "no"
+    },
+    "include_sub_categories": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    }
+  },
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public"
+}

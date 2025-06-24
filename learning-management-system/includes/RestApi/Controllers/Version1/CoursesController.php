@@ -520,6 +520,7 @@ class CoursesController extends PostsController {
 			'featured'                           => $course->get_featured( $context ),
 			'price'                              => $course->get_price( $context ),
 			'formatted_price'                    => $course->get_rest_formatted_price( $context ),
+			'formatted_regular_price'            => $course->get_rest_formatted_regular_price( $context ),
 			'regular_price'                      => $course->get_regular_price( $context ),
 			'sale_price'                         => $course->get_sale_price( $context ),
 			'price_type'                         => $course->get_price_type( $context ),

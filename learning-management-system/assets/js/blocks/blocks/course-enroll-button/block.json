@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/course-enroll-button",
+  "version": "1.0.0",
+  "title": "Course Enrolled Button",
+  "category": "masteriyo-single-course",
+  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
+  "keywords": [
+    "Course button Block"
+  ],
+  "textdomain": "masteriyo",
+ "attributes": {
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    }
+  },
+  "usesContext": [
+    "masteriyo/course_id"
+  ],
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public",
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    },
+    "customClassName": false,
+    "className": false,
+    "reusable": false
+  }
+}

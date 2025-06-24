@@ -243,7 +243,7 @@ class CourseExporter {
 	 *
 	 * @return \Generator
 	 */
-	public static function get_posts_data( array $course_ids, string $post_type, bool $get_attachments = false ) : \Generator {
+	public static function get_posts_data( array $course_ids, string $post_type, bool $get_attachments = false ): \Generator {
 		if ( empty( $course_ids ) ) {
 			return;
 		}
@@ -282,7 +282,7 @@ class CourseExporter {
 				}
 			}
 
-			$paged++;
+			++$paged;
 			$has_more_posts = count( $post_ids ) === $posts_per_page;
 		}
 	}
@@ -324,7 +324,7 @@ class CourseExporter {
 	 *
 	 * @return array Query arguments.
 	 */
-	public static function prepare_query_args( array $course_ids, string $post_type, int $posts_per_page ) : array {
+	public static function prepare_query_args( array $course_ids, string $post_type, int $posts_per_page ): array {
 		$args = array(
 			'fields'         => 'ids',
 			'post_type'      => $post_type,
@@ -579,7 +579,13 @@ class CourseExporter {
 	 * @return string
 	 */
 	public static function get_file_creation_time() {
-		$file_time = filemtime( self::get_full_file_path() );
+		$file_path = self::get_full_file_path();
+
+		if ( ! is_string( $file_path ) || ! file_exists( $file_path ) ) {
+			return null;
+		}
+
+		$file_time = filemtime( $file_path );
 
 		return masteriyo_rest_prepare_date_response( $file_time );
 	}

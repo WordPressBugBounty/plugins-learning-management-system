@@ -1756,7 +1756,7 @@ function masteriyo_restore_locale() {
  * @param string $name  Constant name.
  * @param mixed  $value Value.
  */
-function masteriyo_maybe_define_constant( $name, $value ) {
+function masteriyo_maybe_define_constant( $name, $value = true ) {
 	if ( ! defined( $name ) ) {
 		define( $name, $value );
 	}
@@ -4742,7 +4742,7 @@ if ( ! function_exists( 'masteriyo_get_course_item_learn_page_url' ) ) {
 	 * @return string
 	 */
 	function masteriyo_get_course_item_learn_page_url( $course, $item = null ) {
-		if ( ! ( $course instanceof \Masteriyo\Models\Course ) || ! ( $item instanceof \Masteriyo\Models\Lesson || $item instanceof \Masteriyo\Models\Quiz ) ) {
+		if ( ! ( $course instanceof \Masteriyo\Models\Course ) || ! ( $item instanceof \Masteriyo\Models\Lesson || $item instanceof \Masteriyo\Models\Quiz ) || $item instanceof \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet  ) {
 			return '';
 		}
 
