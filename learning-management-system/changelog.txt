@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.18.3 - 16-07-2025 =
+- Fix - Builder price now persists correctly after updates.
+- Fix - Parent category is now properly selected when assigning categories.
+
 = 1.18.2 - 24-06-2025 =
 - Feature - Added support for Private Courses. [PRO]
 - Feature - Introduced Tax option. [PRO]
