@@ -109,7 +109,7 @@ class BlocksController extends CrudController {
 	 * @return WP_Error|boolean
 	 */
 	public function save_css_permissions_check( $request ) {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_save_css',
 				__( 'Sorry, you are not allowed to update blocks CSS.', 'learning-management-system' ),
@@ -131,7 +131,9 @@ class BlocksController extends CrudController {
 	 */
 	public function save_css( $request ) {
 		$post    = $request->get_params();
-		$css     = (string) $post['css'];
+		$css_raw = isset( $post['css'] ) ? $post['css'] : '';
+		$css     = wp_strip_all_tags( $css_raw );
+		$css     = sanitize_textarea_field( $css );
 		$post_id = absint( $post['postId'] );
 
 		if ( $post_id ) {

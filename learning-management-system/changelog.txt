@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.18.4 - 17-07-2025 =
+- Fix - Security related issues.
+
 = 1.18.3 - 16-07-2025 =
 - Fix - Builder price now persists correctly after updates.
 - Fix - Parent category is now properly selected when assigning categories.

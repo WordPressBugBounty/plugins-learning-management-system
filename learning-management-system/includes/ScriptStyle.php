@@ -320,7 +320,7 @@ class ScriptStyle {
 					'version'  => self::get_version(),
 					'context'  => 'public',
 					'callback' => function () {
-						return masteriyo_is_checkout_page() || is_post_type_archive( PostType::COURSE ) || masteriyo_is_courses_page() ;
+						return masteriyo_is_checkout_page() || is_post_type_archive( PostType::COURSE ) || masteriyo_is_courses_page();
 					},
 				),
 				'ask-usage-tracking'      => array(
@@ -835,6 +835,8 @@ class ScriptStyle {
 		if ( empty( $css ) ) {
 			return;
 		}
+		$css = wp_strip_all_tags( $css );
+		$css = sanitize_textarea_field( $css );
 		wp_add_inline_style( 'masteriyo-public', $css );
 	}
 

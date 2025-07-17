@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 1.18.3\n"
+"Project-Id-Version: Masteriyo LMS 1.18.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-16T12:40:52+05:45\n"
+"POT-Creation-Date: 2025-07-17T13:33:29+05:45\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: learning-management-system\n"
@@ -4197,7 +4197,7 @@ msgstr ""
 msgid "Sorry, you are not allowed to update blocks CSS."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/BlocksController.php:159
+#: includes/RestApi/Controllers/Version1/BlocksController.php:161
 msgid "Invalid post ID"
 msgstr ""
 
@@ -7568,42 +7568,42 @@ msgstr ""
 msgid "Masteriyo Student"
 msgstr ""
 
-#: includes/ScriptStyle.php:1149
+#: includes/ScriptStyle.php:1151
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-interactive.js:1
 msgid "Save"
 msgstr ""
 
-#: includes/ScriptStyle.php:1150
+#: includes/ScriptStyle.php:1152
 msgid "Saving..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1151
+#: includes/ScriptStyle.php:1153
 msgid "Your profile was updated successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1188
+#: includes/ScriptStyle.php:1190
 #: templates/account/form-login.php:32
 msgid "Sign In"
 msgstr ""
 
-#: includes/ScriptStyle.php:1189
+#: includes/ScriptStyle.php:1191
 msgid "Signing In..."
-msgstr ""
-
-#: includes/ScriptStyle.php:1205
-#: includes/ScriptStyle.php:1245
-msgid "Type CONFIRM to proceed."
-msgstr ""
-
-#: includes/ScriptStyle.php:1206
-#: includes/ScriptStyle.php:1246
-msgid "Try again"
 msgstr ""
 
 #: includes/ScriptStyle.php:1207
 #: includes/ScriptStyle.php:1247
+msgid "Type CONFIRM to proceed."
+msgstr ""
+
+#: includes/ScriptStyle.php:1208
+#: includes/ScriptStyle.php:1248
+msgid "Try again"
+msgstr ""
+
+#: includes/ScriptStyle.php:1209
+#: includes/ScriptStyle.php:1249
 #: templates/single-course/course-review-form.php:54
 #: templates/single-course/layout-1/review-form.php:58
 #: assets/js/build/masteriyo-account.js:1
@@ -7611,15 +7611,15 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: includes/ScriptStyle.php:1208
-#: includes/ScriptStyle.php:1248
+#: includes/ScriptStyle.php:1210
+#: includes/ScriptStyle.php:1250
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Update"
 msgstr ""
 
-#: includes/ScriptStyle.php:1209
-#: includes/ScriptStyle.php:1249
+#: includes/ScriptStyle.php:1211
+#: includes/ScriptStyle.php:1251
 #: templates/single-course/course-review-reply.php:58
 #: templates/single-course/course-review.php:53
 #: templates/single-course/layout-1/course-review-reply.php:55
@@ -7631,91 +7631,91 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: includes/ScriptStyle.php:1210
-#: includes/ScriptStyle.php:1250
-msgid "Submitting..."
-msgstr ""
-
-#: includes/ScriptStyle.php:1211
-#: includes/ScriptStyle.php:1251
-msgid "Deleting..."
-msgstr ""
-
 #: includes/ScriptStyle.php:1212
 #: includes/ScriptStyle.php:1252
-msgid "Reply to"
+msgid "Submitting..."
 msgstr ""
 
 #: includes/ScriptStyle.php:1213
 #: includes/ScriptStyle.php:1253
-msgid "Edit reply"
+msgid "Deleting..."
 msgstr ""
 
 #: includes/ScriptStyle.php:1214
 #: includes/ScriptStyle.php:1254
-msgid "Edit review"
+msgid "Reply to"
 msgstr ""
 
 #: includes/ScriptStyle.php:1215
 #: includes/ScriptStyle.php:1255
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Your review has been submitted successfully."
-msgstr ""
-
-#: includes/ScriptStyle.php:1215
-#: includes/ScriptStyle.php:1255
-#: assets/js/build/masteriyo-interactive.js:1
-msgid "Your review has been submitted and is awaiting approval by the instructor."
+msgid "Edit reply"
 msgstr ""
 
 #: includes/ScriptStyle.php:1216
 #: includes/ScriptStyle.php:1256
-msgid "Updated successfully."
+msgid "Edit review"
 msgstr ""
 
 #: includes/ScriptStyle.php:1217
 #: includes/ScriptStyle.php:1257
-msgid "Deleted successfully."
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Your review has been submitted successfully."
+msgstr ""
+
+#: includes/ScriptStyle.php:1217
+#: includes/ScriptStyle.php:1257
+#: assets/js/build/masteriyo-interactive.js:1
+msgid "Your review has been submitted and is awaiting approval by the instructor."
 msgstr ""
 
 #: includes/ScriptStyle.php:1218
 #: includes/ScriptStyle.php:1258
-#: templates/single-course/layout-1/main-content.php:157
-msgid "Expand All"
+msgid "Updated successfully."
 msgstr ""
 
 #: includes/ScriptStyle.php:1219
 #: includes/ScriptStyle.php:1259
+msgid "Deleted successfully."
+msgstr ""
+
+#: includes/ScriptStyle.php:1220
+#: includes/ScriptStyle.php:1260
+#: templates/single-course/layout-1/main-content.php:157
+msgid "Expand All"
+msgstr ""
+
+#: includes/ScriptStyle.php:1221
+#: includes/ScriptStyle.php:1261
 #: templates/single-course/curriculum.php:53
 #: templates/single-course/layout-1/main-content.php:157
 msgid "Collapse All"
 msgstr ""
 
-#: includes/ScriptStyle.php:1220
-#: includes/ScriptStyle.php:1260
+#: includes/ScriptStyle.php:1222
+#: includes/ScriptStyle.php:1262
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Loading..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1221
-#: includes/ScriptStyle.php:1261
+#: includes/ScriptStyle.php:1223
+#: includes/ScriptStyle.php:1263
 msgid "Failed to load more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1222
-#: includes/ScriptStyle.php:1262
+#: includes/ScriptStyle.php:1224
+#: includes/ScriptStyle.php:1264
 #: templates/single-course/see-more-reviews-button.php:21
 msgid "See more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1223
-#: includes/ScriptStyle.php:1263
-#: includes/ScriptStyle.php:1326
+#: includes/ScriptStyle.php:1225
+#: includes/ScriptStyle.php:1265
+#: includes/ScriptStyle.php:1328
 msgid "Please enter a password."
 msgstr ""
 
-#: includes/ScriptStyle.php:1278
+#: includes/ScriptStyle.php:1280
 msgid "Error processing checkout. Please try again."
 msgstr ""
 
