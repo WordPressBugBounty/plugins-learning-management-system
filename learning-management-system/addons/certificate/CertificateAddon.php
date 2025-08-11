@@ -753,7 +753,7 @@ class CertificateAddon {
 				'certificates' => array(
 					'page_title' => esc_html__( 'Certificates', 'learning-management-system' ),
 					'menu_title' => esc_html__( 'Certificates', 'learning-management-system' ),
-					'position'   => 75,
+					'position'   => 40,
 					'capability' => 'edit_certificates',
 				),
 			)

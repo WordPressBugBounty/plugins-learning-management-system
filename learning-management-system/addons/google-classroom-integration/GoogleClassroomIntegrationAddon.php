@@ -340,11 +340,10 @@ class GoogleClassroomIntegrationAddon {
 			'page_title' => __( 'Google Classroom', 'learning-management-system' ),
 			'menu_title' => __( 'Google Classroom', 'learning-management-system' ),
 			'capability' => 'edit_google_classrooms',
-			'position'   => 64,
+			'position'   => 75,
+			'divider'    => true,
 		);
 
 		return $submenus;
 	}
-
-
 }

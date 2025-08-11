@@ -1,14 +1,14 @@
 import { Box, Collapse, Container, Stack, useToast } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import IndividualSectionSettingsWrapper from '../../../../../../assets/js/back-end/components/IndividualSectionSettingsWrapper';
 import {
 	Header,
-	HeaderPrimaryButton,
-	HeaderRightSection,
 	HeaderTop,
 } from '../../../../../../assets/js/back-end/components/common/Header';
+import { useWarnUnsavedChanges } from '../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../constants/urls';
 import { MultipleCurrencySettingsSchema } from '../../types/multiCurrency';
@@ -31,6 +31,7 @@ const MultipleCurrencySettings = () => {
 			settingsAPI.store(data),
 		...{
 			onSuccess: () => {
+				methods.reset(methods.getValues());
 				toast({
 					title: __(
 						'Settings updated successfully.',
@@ -71,19 +72,21 @@ const MultipleCurrencySettings = () => {
 		updateSettingsMutation.mutate(data);
 	};
 
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
+	useEffect(() => {
+		if (settingQuery?.isSuccess) {
+			methods.reset(methods.getValues());
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [settingQuery?.isSuccess]);
+
 	return settingQuery.isSuccess ? (
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
 				<HeaderTop>
 					<LeftHeader />
-					<HeaderRightSection>
-						<HeaderPrimaryButton
-							onClick={methods.handleSubmit(onSubmit)}
-							isLoading={updateSettingsMutation.isPending}
-						>
-							{__('Save Setting', 'learning-management-system')}
-						</HeaderPrimaryButton>
-					</HeaderRightSection>
 				</HeaderTop>
 			</Header>
 
@@ -95,20 +98,26 @@ const MultipleCurrencySettings = () => {
 								direction={['column', 'column', 'column', 'row']}
 								spacing={8}
 							>
-								<Box bg="white" p="10" shadow="box" gap="6" width="full">
-									<Stack direction="column" spacing="6" pb="6">
-										<MaxMind maxmind={settingQuery?.data?.maxmind} />
-										<TestModeControl
-											setTestModeWatch={setTestModeWatch}
-											defaultValue={settingQuery?.data?.test_mode?.enabled}
-										/>
-										<Collapse in={testModeWatch} animateOpacity>
-											<Country
-												defaultValue={settingQuery?.data?.test_mode?.country}
-												testModeWatch={testModeWatch}
+								<Box bg="white" shadow="box" gap="6" width="full">
+									<IndividualSectionSettingsWrapper
+										isLoading={settingQuery.isLoading}
+										isSaveActionPending={updateSettingsMutation.isPending}
+										py={12}
+									>
+										<Stack direction="column" spacing="6">
+											<MaxMind maxmind={settingQuery?.data?.maxmind} />
+											<TestModeControl
+												setTestModeWatch={setTestModeWatch}
+												defaultValue={settingQuery?.data?.test_mode?.enabled}
 											/>
-										</Collapse>
-									</Stack>
+											<Collapse in={testModeWatch} animateOpacity>
+												<Country
+													defaultValue={settingQuery?.data?.test_mode?.country}
+													testModeWatch={testModeWatch}
+												/>
+											</Collapse>
+										</Stack>
+									</IndividualSectionSettingsWrapper>
 								</Box>
 							</Stack>
 						</form>

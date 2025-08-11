@@ -34,6 +34,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 		add_filter( 'masteriyo_single_course_start_text', array( $this, 'add_to_cart_btn_text' ), 10, 2 );
 
 		add_action( 'masteriyo_single_course_sidebar_content', array( $this, 'render_surecart_sidebar_content' ), 15 );
+		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_surecart_sidebar_content' ), 15 );
 		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_surecart_courses' ), 10, 5 );
 
 		add_action( 'masteriyo_layout_1_single_course_aside_items', array( $this, 'render_surecart_sidebar_content_layout_1' ), 15 );

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schemas.wp.org/block-json/1.1",
+  "apiVersion": 3,
+  "name": "masteriyo/course-category",
+  "version": "1.0.0",
+  "title": "Course Category",
+  "category": "masteriyo-single-course",
+  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
+  "keywords": [
+    "Title"
+  ],
+  "textdomain": "learning-management-system",
+  "example": {
+    "attributes": {}
+  },
+  "usesContext": [
+    "masteriyo/course_id"
+  ],
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    },
+    "customClassName": false,
+    "className": false,
+    "reusable": false
+  },
+  "attributes": {
+    "clientId": {
+      "type": "string"
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "alignment": {
+      "type": "string"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "12",
+        "unit": "px"
+      }
+    },
+    "padding": {
+      "type": "object",
+      "default": {
+        "border": 1,
+        "padding": {
+          "desktop": {
+            "top": 2,
+            "right": 8,
+            "bottom": 2,
+            "left": 8,
+            "unit": "px"
+          },
+          "tablet": {
+            "top": 2,
+            "right": 8,
+            "bottom": 2,
+            "left": 8,
+            "unit": "px"
+          },
+          "mobile": {
+            "top": 2,
+            "right": 8,
+            "bottom": 2,
+            "left": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "borderRadius": {
+      "type": "object",
+      "default": {
+        "value": "50",
+        "unit": "px"
+      }
+    },
+    "textColor": {
+      "type": "string"
+    },
+    "nameFormat": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    },
+    "startCategoryBorder": {
+      "type": "object",
+      "default": {
+        "radius": {}
+      }
+    }
+  },
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public"
+}

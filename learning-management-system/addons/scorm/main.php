@@ -10,16 +10,17 @@ defined( 'ABSPATH' ) || exit;
  * Author URI: https://masteriyo.com
  * Addon Type: feature
  * Plan: Free
+ * Category: Course Features
  */
 
 use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_SCORM_FILE', __FILE__ );
 define( 'MASTERIYO_SCORM_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_SCORM_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_SCORM_DIR', __DIR__ );
 define( 'MASTERIYO_SCORM_SLUG', 'scorm' );
 define( 'MASTERIYO_SCORM_URL', plugin_dir_url( MASTERIYO_SCORM_FILE ) );
-define( 'MASTERIYO_SCORM_ADDON_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_SCORM_ADDON_TEMPLATES', __DIR__ . '/templates' );
 
 
 // Bail early if the addon is not active.
@@ -32,7 +33,7 @@ require_once __DIR__ . '/helper/scorm.php';
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

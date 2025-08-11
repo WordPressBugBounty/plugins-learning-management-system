@@ -72,7 +72,9 @@ const Currency: React.FC<Props> = ({ defaultValue }) => {
 					render={({ field: { onChange, value } }) => (
 						<Select
 							onChange={(selectedOption: any) => {
-								setValue('currency', selectedOption?.value);
+								setValue('currency', selectedOption?.value, {
+									shouldDirty: true,
+								});
 								trigger('currency');
 							}}
 							options={currencyOptions}

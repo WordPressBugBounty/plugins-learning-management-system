@@ -8,6 +8,12 @@
 		return;
 	}
 
+	// If the URL hash is exactly "#/dashboard", immediately replace it with "#/analytics" to redirect the user.
+
+	if (window.location.hash === '#/dashboard') {
+		window.location.hash = '/analytics';
+	}
+
 	function makeCurrentSubmenuActive() {
 		var hash = window.location.hash;
 

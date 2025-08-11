@@ -1,6 +1,6 @@
 import {
-	Box,
 	Button,
+	Flex,
 	FormLabel,
 	Icon,
 	Stack,
@@ -79,7 +79,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 	return (
 		<Stack spacing="6">
 			<FormControlTwoCol>
-				<FormLabel display="flex" alignItems="center">
+				<FormLabel>
 					{__('Use Image Absolute Path', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -88,16 +88,14 @@ const CertificateSetting: React.FC<Props> = (props) => {
 						)}
 					/>
 				</FormLabel>
-				<Box display="flex" justifyContent="flex-end">
-					<Switch
-						{...register('use_absolute_img_path')}
-						defaultChecked={certificateSetting?.use_absolute_img_path}
-					/>
-				</Box>
+				<Switch
+					{...register('use_absolute_img_path')}
+					defaultChecked={certificateSetting?.use_absolute_img_path}
+				/>
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel display="flex" alignItems="center">
+				<FormLabel>
 					{__('Use SSL Verify Host', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -106,12 +104,10 @@ const CertificateSetting: React.FC<Props> = (props) => {
 						)}
 					/>
 				</FormLabel>
-				<Box display="flex" justifyContent="flex-end">
-					<Switch
-						{...register('use_ssl_verified')}
-						defaultChecked={certificateSetting?.use_ssl_verified}
-					/>
-				</Box>
+				<Switch
+					{...register('use_ssl_verified')}
+					defaultChecked={certificateSetting?.use_ssl_verified}
+				/>
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
@@ -124,7 +120,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 						)}
 					/>
 				</FormLabel>
-				<Box display="flex" justifyContent="flex-end">
+				<Flex>
 					<Button
 						colorScheme="primary"
 						isLoading={importAllCertificateFonts.isPending}
@@ -137,11 +133,13 @@ const CertificateSetting: React.FC<Props> = (props) => {
 							? __('Reinstall', 'learning-management-system')
 							: __('Install', 'learning-management-system')}
 					</Button>
-				</Box>
+				</Flex>
 			</FormControlTwoCol>
 
 			<ProShowCaseInlineButton
 				mt={2}
+				gap={14}
+				flex={'0 !important'}
 				label={__('Install Custom Fonts', 'learning-management-system')}
 				buttonText={__('Upload', 'learning-management-system')}
 				leftIcon={<Icon as={BiImport} fontSize="md" />}

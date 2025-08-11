@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying course progress bar in single course page
  *
@@ -10,58 +11,54 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.14.0
+ * @version 1.14.0 [free]
  */
 
-defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * Fires before rendering highlights section in single course page.
+ * Fires before rendering single course progress bar section in single course page.
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 do_action( 'masteriyo_before_single_course_progress' );
 
 ?>
+
 <div class="masteriyo-single-course-stats">
 
-
-<!-- Course Progress -->
 <?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.course_progress' ) && $summary ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $summary ) ) : ?>
-		<div class="course-progress-bar">
-			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
-				<div class="masteriyo-progress-info">
-					<span class="completed-text">
-						<?php
-						/* translators: 1: Number of completed items, 2: Total number of items */
-						echo esc_html( sprintf( __( '%1$d of %2$d Completed', 'learning-management-system' ), $summary['total']['completed'], $summary['total']['total'] ) );
-						?>
-					</span>
-					<span class="progress-percent">
-						<?php
-						$progress_percent = $summary['total']['completed'] / $summary['total']['total'] * 100;
-						/* translators: %s: Progress percentage */
-						echo esc_html( sprintf( __( 'Progress: %.0f%%', 'learning-management-system' ), $progress_percent ) );
-						?>
-					</span>
-				</div>
-			</div>
+	<?php
+		$completed        = isset( $summary['total']['completed'] ) ? $summary['total']['completed'] : 0;
+		$total            = isset( $summary['total']['total'] ) ? $summary['total']['total'] : 0;
+		$progress_percent = $total > 0 ? ( $completed / $total ) * 100 : 0;
+	?>
 
-			<!-- Progress Bar -->
-			<div class="masteriyo-progress-bar-container">
-				<div class="masteriyo-progress-bar" style="width: <?php echo esc_attr( $progress_percent ); ?>%;"></div>
-			</div>
-
+	<div class="course-progress-box modern-progress">
+		<div class="progress-header">
+			<h2 class="progress-label"><?php esc_html_e( 'Your Progress', 'learning-management-system' ); ?></h2>
+			<div class="progress-percent"><?php echo esc_html( sprintf( __( '%.0f%%', 'learning-management-system' ), $progress_percent ) ); ?></div>
 		</div>
-	<?php endif; ?>
+
+		<div class="masteriyo-progress-bar-container modern-style">
+			<div class="masteriyo-progress-bar" style="--value: <?php echo esc_attr( $progress_percent ); ?>%;">
+				<div class="masteriyo-progress-fill animate"></div>
+			</div>
+		</div>
+
+		<div class="completed-info">
+			<?php echo esc_html( sprintf( __( '%1$d of %2$d Completed', 'learning-management-system' ), $completed, $total ) ); ?>
+		</div>
+	</div>
+<?php endif; ?>
 
 </div>
 
 <?php
-
 /**
- * Fires after rendering course progress bar section in single course page.
+ * Fires after rendering single course progress bar section in single course page.
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
-do_action( 'masteriyo_after_single_course_progress', $course );
+do_action( 'masteriyo_after_single_course_progress' );
+?>

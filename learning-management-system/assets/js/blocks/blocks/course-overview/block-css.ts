@@ -9,7 +9,7 @@ export function useBlockCSS(props: any) {
 		textColor,
 	} = attributes;
 	const BLOCK_WRAPPER = `#block-${clientId}`;
-	const MASTERIYO_WRAPPER = `.masteriyo-course-overview--${persistedClientId}`;
+	const MASTERIYO_WRAPPER = `.masteriyo-course-overview-block--${persistedClientId}`;
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
 
 	const editorCSS = useMemo(() => {

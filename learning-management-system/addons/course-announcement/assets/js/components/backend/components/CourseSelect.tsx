@@ -65,7 +65,9 @@ const CourseSelect: React.FC<Props> = (props) => {
 								: null
 						}
 						onChange={(selectedOption: any) => {
-							setValue('course_id', selectedOption?.value);
+							setValue('course_id', selectedOption?.value, {
+								shouldDirty: true,
+							});
 						}}
 						defaultOptions={
 							courseQueries.isSuccess

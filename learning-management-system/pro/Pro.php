@@ -169,7 +169,7 @@ class Pro {
 		$submenus['add-ons'] = array(
 			'page_title' => esc_html__( 'Addons', 'learning-management-system' ),
 			'menu_title' => esc_html__( 'Addons', 'learning-management-system' ),
-			'position'   => 61,
+			'position'   => 95,
 		);
 
 		return $submenus;

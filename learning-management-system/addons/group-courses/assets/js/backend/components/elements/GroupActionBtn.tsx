@@ -1,4 +1,4 @@
-import { Button, useBreakpointValue } from '@chakra-ui/react';
+import { Button, Tooltip, useBreakpointValue } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -9,10 +9,14 @@ interface Props {
 	isLoading: boolean;
 	onSubmit: (arg1: any, arg2?: 'publish' | 'draft') => void;
 	groupStatus?: string;
+	orderInfo?: {
+		id: number;
+		status: string;
+	} | null;
 }
 
 const GroupActionBtn: React.FC<Props> = (props) => {
-	const { methods, isLoading, onSubmit, groupStatus } = props;
+	const { methods, isLoading, onSubmit, groupStatus, orderInfo } = props;
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
 	const isGroupPublished = () => {
@@ -31,41 +35,58 @@ const GroupActionBtn: React.FC<Props> = (props) => {
 		}
 	};
 
+	const isOrderIncomplete = () => {
+		return orderInfo && orderInfo.status !== 'completed';
+	};
+
+	const shouldDisablePublish = () => {
+		return isOrderIncomplete() && groupStatus === 'draft';
+	};
+
 	return (
 		<>
-			<Button
-				size={buttonSize}
-				colorScheme="primary"
-				isLoading={isLoading}
-				onClick={methods.handleSubmit((data: any) => {
-					onSubmit(
-						deepMerge(
-							{ status: 'publish' },
-							{
+			<Tooltip
+				label={
+					shouldDisablePublish()
+						? __(
+								'Complete the associated order to publish this group',
+								'learning-management-system',
+							)
+						: ''
+				}
+				isDisabled={!shouldDisablePublish()}
+			>
+				<Button
+					size={buttonSize}
+					colorScheme="primary"
+					isLoading={isLoading}
+					isDisabled={shouldDisablePublish() || false}
+					onClick={methods.handleSubmit((data: any) => {
+						onSubmit(
+							deepMerge({
 								...data,
 								emails: data.emails.map((email: any) => email?.label),
-							},
-						),
-					);
-				})}
-			>
-				{isGroupPublished()
-					? __('Update', 'learning-management-system')
-					: __('Publish', 'learning-management-system')}
-			</Button>
+								status: 'publish',
+							}),
+						);
+					})}
+				>
+					{isGroupPublished()
+						? __('Update', 'learning-management-system')
+						: __('Publish', 'learning-management-system')}
+				</Button>
+			</Tooltip>
 			<Button
 				variant="outline"
 				colorScheme="primary"
 				isLoading={isLoading}
 				onClick={methods.handleSubmit((data: any) => {
 					onSubmit(
-						deepMerge(
-							{ status: 'draft' },
-							{
-								...data,
-								emails: data.emails.map((email: any) => email?.label),
-							},
-						),
+						deepMerge({
+							...data,
+							emails: data.emails.map((email: any) => email?.label),
+							status: 'draft',
+						}),
 					);
 				})}
 			>

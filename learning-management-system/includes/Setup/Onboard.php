@@ -11,6 +11,8 @@ namespace Masteriyo\Setup;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Addons\Stripe\Setting as StripeSetting;
+
 class Onboard {
 
 	/**
@@ -55,6 +57,8 @@ class Onboard {
 	 */
 	public function onboard_setup_wizard() {
 
+		$this->handle_stripe_disconnect();
+
 		// if we are here, we assume we don't need to run the wizard again
 		// and the user doesn't need to be redirected here
 		update_option( 'masteriyo_first_time_activation_flag', true );
@@ -91,12 +95,13 @@ class Onboard {
 			array(
 				'rootApiUrl'              => esc_url_raw( untrailingslashit( rest_url() ) ),
 				'nonce'                   => wp_create_nonce( 'wp_rest' ),
+				'stripe_nonce'            => wp_create_nonce( 'masteriyo_stripe_connect' ),
 				'adminURL'                => esc_url( admin_url() ),
 				'siteURL'                 => esc_url( home_url( '/' ) ),
 				'pluginUrl'               => esc_url( plugin_dir_url( MASTERIYO_PLUGIN_FILE ) ),
 				'permalinkStructure'      => get_option( 'permalink_structure' ),
 				'permalinkOptionsPage'    => esc_url( admin_url( 'options-permalink.php' ) ),
-				'pageBuilderURL'          => esc_url( admin_url( '/admin.php?page=masteriyo#/courses/add-new-course' ) ),
+				'pageBuilderURL'          => esc_url( admin_url( '/admin.php?page=masteriyo#/courses/:courseId/edit' ) ),
 				'pagesID'                 => array(
 					'courses'  => masteriyo_get_page_id_by_slug( 'courses' ),
 					'account'  => masteriyo_get_page_id_by_slug( 'account' ),
@@ -124,6 +129,85 @@ class Onboard {
 	}
 
 	/**
+	 * Handle stripe disconnect.
+	 *
+	 * @return void
+	 */
+	private function handle_stripe_disconnect() {
+		if (
+			! isset( $_GET['page'] ) || $this->page_name !== $_GET['page'] ||
+			! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
+			! isset( $_GET['action'] ) || 'stripe-disconnect' !== sanitize_text_field( wp_unslash( $_GET['action'] ) )
+		) {
+			return;
+		}
+
+		$stripe_setting = new StripeSetting();
+
+		$stripe_setting->set_props(
+			[
+				'stripe_user_id'       => '',
+				'sandbox'              => true,
+				'test_secret_key'      => '',
+				'test_publishable_key' => '',
+				'live_secret_key'      => '',
+				'live_publishable_key' => '',
+				'enable'               => true,
+			]
+		);
+		$stripe_setting->save();
+		wp_safe_redirect( remove_query_arg( array( 'action', 'nonce' ) ) );
+		exit;
+	}
+
+	/**
+	 * Handle stripe data.
+	 *
+	 * @return void
+	 */
+	private function handle_stripe_data() {
+		if (
+			! isset( $_GET['page'] ) || $this->page_name !== $_GET['page'] ||
+			! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
+			empty( $_GET['state'] )
+		) {
+			return;
+		}
+
+		$decoded_state = base64_decode( sanitize_text_field( wp_unslash( $_GET['state'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		if ( ! $decoded_state ) {
+			return;
+		}
+		$state_data = json_decode( $decoded_state, true );
+		if ( ! $state_data || ! is_array( $state_data ) ) {
+			return;
+		}
+		if ( array_diff(
+			array(
+				'stripe_user_id',
+				'stripe_publishable_key',
+				'access_token',
+				'refresh_token',
+				'livemode',
+			),
+			array_keys( $state_data )
+		) ) {
+			return;
+		}
+		$is_live_mode = ! empty( $state_data['livemode'] );
+		$mode         = $is_live_mode ? 'live' : 'test';
+		$data         = array(
+			'stripe_user_id'          => $state_data['stripe_user_id'],
+			'sandbox'                 => ! $is_live_mode,
+			"{$mode}_publishable_key" => $state_data['stripe_publishable_key'],
+			"{$mode}_secret_key"      => $state_data['access_token'],
+		);
+		printf( '<script>var _MASTERIYO_ONBOARDING_STRIPE_DATA_ = %s;</script>', wp_json_encode( $data ) );
+		printf( '<script>window.history.replaceState("", {}, "%s")</script>', esc_url_raw( admin_url( 'admin.php?page=masteriyo-onboard&step=payment' ) ) );
+	}
+
+
+	/**
 	 * Setup wizard header content.
 	 *
 	 * @since 1.0.0
@@ -139,6 +223,7 @@ class Onboard {
 						<?php esc_html_e( 'Masteriyo LMS - Onboarding', 'learning-management-system' ); ?>
 					</title>
 					<?php wp_print_head_scripts(); ?>
+					<?php $this->handle_stripe_data(); ?>
 				</head>
 		<?php
 	}

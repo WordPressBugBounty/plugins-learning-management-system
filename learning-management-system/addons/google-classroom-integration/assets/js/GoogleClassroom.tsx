@@ -7,6 +7,7 @@ import {
 	MenuItem,
 	MenuList,
 	Stack,
+	Text,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +18,6 @@ import { IoRefreshOutline } from 'react-icons/io5';
 import { NavLink } from 'react-router-dom';
 
 import { Container } from '../../../../assets/js/back-end/components/common/Container';
-import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import {
 	Header,
 	HeaderLeftSection,
@@ -35,10 +35,7 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
-import {
-	AllCoursesIcon,
-	Gear,
-} from '../../../../assets/js/back-end/constants/images';
+import { Gear } from '../../../../assets/js/back-end/constants/images';
 import routes from '../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -233,15 +230,6 @@ function GoogleClassroom() {
 					});
 				}
 			},
-			onError: (err: any) => {
-				toast({
-					title:
-						err?.message ||
-						__('Something went wrong', 'learning-management-system'),
-					status: 'error',
-					isClosable: true,
-				});
-			},
 		});
 	};
 
@@ -253,21 +241,24 @@ function GoogleClassroom() {
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
 				<HeaderTop>
-					<HeaderLeftSection>
-						<Stack direction={['column', 'column', 'column', 'row']}>
-							<HeaderLogo />
-						</Stack>
+					<HeaderLeftSection gap={7}>
+						<HeaderLogo />
 
-						<NavMenu sx={headerResponsive.larger} color={'gray.600'}>
+						<NavMenu sx={headerResponsive.larger}>
 							<NavMenuItem key={routes.googleClassroom.list} display="flex">
 								<NavMenuLink
 									as={NavLink}
 									_hover={{ textDecoration: 'none' }}
 									_activeLink={navActiveStyles}
 									to={routes.googleClassroom.list}
-									leftIcon={<CustomIcon icon={AllCoursesIcon} boxSize="20px" />}
 								>
-									{__('Google Courses', 'learning-management-system')}
+									<Text
+										fontSize="sm"
+										fontWeight="semibold"
+										_groupHover={{ color: 'primary.500' }}
+									>
+										{__('Google Courses', 'learning-management-system')}
+									</Text>
 								</NavMenuLink>
 							</NavMenuItem>
 
@@ -277,9 +268,17 @@ function GoogleClassroom() {
 								_hover={{ textDecoration: 'none' }}
 								_activeLink={navActiveStyles}
 								to={routes.googleClassroom.setting}
-								leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
+								leftIcon={
+									<Gear height="20px" width="20px" fill="currentColor" />
+								}
 							>
-								{__('Settings', 'learning-management-system')}
+								<Text
+									fontSize="sm"
+									fontWeight="semibold"
+									_groupHover={{ color: 'primary.500' }}
+								>
+									{__('Settings', 'learning-management-system')}
+								</Text>
 							</NavMenuLink>
 						</NavMenu>
 
@@ -348,9 +347,9 @@ function GoogleClassroom() {
 						{googleClassroomQuery.isLoading ? (
 							<GoogleClassroomListSkeleton />
 						) : (
-							googleClassroomQuery?.isSuccess && (
+							googleClassroomQuery.isSuccess && (
 								<GoogleClassroomCoursesList
-									googleClassroomQueryData={googleClassroomQuery?.data}
+									googleClassroomQueryData={googleClassroomQuery.data}
 									onImportClick={onImportClick}
 									studentImportOnClick={studentImportOnClick}
 									addCourse={addCourse}

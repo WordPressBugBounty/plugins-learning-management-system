@@ -20,7 +20,8 @@ export function useBlockCSS(props: any) {
 		let css: string[] = [];
 
 		if (alignment) css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
-		if (fontSizeValue) css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
+		if (fontSizeValue)
+			css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		if (textColor) css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
 		if (gap) css.push(`${BLOCK_WRAPPER} { gap: ${gap}; }`);
 		if (padding) {
@@ -77,13 +78,23 @@ export function useBlockCSS(props: any) {
 		`);
 
 		return css.join('\n');
-	}, [BLOCK_WRAPPER, alignment, fontSizeValue, textColor, margin, padding, gap]);
+	}, [
+		BLOCK_WRAPPER,
+		alignment,
+		fontSizeValue,
+		textColor,
+		margin,
+		padding,
+		gap,
+	]);
 
 	const cssToSave = useMemo(() => {
 		let css: string[] = [];
 
-		if (alignment) css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
-		if (fontSizeValue) css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
+		if (alignment)
+			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
+		if (fontSizeValue)
+			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		if (textColor) css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
 		if (gap) css.push(`${MASTERIYO_WRAPPER} { gap: ${gap}; }`);
 		if (padding) {

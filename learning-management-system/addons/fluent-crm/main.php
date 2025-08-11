@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Version: 1.14.0
  * Requires: Fluent CRM
  * Plan: Free
+ * Category: Email Marketing
  */
 
 use Masteriyo\Pro\Addons;
@@ -21,7 +22,7 @@ use Masteriyo\Addons\FluentCRM\FluentCrmAddon;
 
 define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_DIR', __DIR__ );
 // define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ASSETS', dirname( __FILE__ ) . '/assets' );
 // define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
 define( 'MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_SLUG', 'fluent-crm' );

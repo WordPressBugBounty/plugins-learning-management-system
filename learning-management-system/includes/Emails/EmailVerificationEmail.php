@@ -103,7 +103,7 @@ class EmailVerificationEmail extends Email {
 			$placeholders['{first_name}']              = $user->get_first_name();
 			$placeholders['{last_name}']               = $user->get_last_name();
 			$placeholders['{email_verification_link}'] = wp_kses_post(
-				'<a href="' . esc_url( masteriyo_generate_email_verification_link( $user, wp_create_nonce( 'masteriyo_email_verification_nonce' ) ) ) . '" style="text-decoration: none;">Verify Your Email</a>'
+				'<a href="' . esc_url( masteriyo_generate_email_verification_link( $user, wp_create_nonce( 'masteriyo_email_verification_nonce' ) ) ) . '" style="text-decoration: none;">' . __( 'Verify Your Email', 'learning-management-system' ) . '</a>'
 			);
 		}
 

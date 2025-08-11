@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiBook, BiChevronLeft, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink, Link as RouterLink, useParams } from 'react-router-dom';
@@ -37,6 +37,7 @@ import {
 	headerResponsive,
 	navActiveStyles,
 } from '../../../../../assets/js/back-end/config/styles';
+import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../assets/js/back-end/utils/api';
 import {
 	addOperationInCache,
@@ -84,6 +85,7 @@ const EditCertificate: React.FC = () => {
 			certificateAPI.update(certificateId, data),
 		...{
 			onSuccess(data: CertificateDataMap) {
+				methods.reset(methods.getValues());
 				const certificatesList = queryClient?.getQueryData([
 					'certificatesList',
 					{
@@ -157,6 +159,7 @@ const EditCertificate: React.FC = () => {
 		mutationFn: (data: any) => certificateAPI.update(certificateId, data),
 		...{
 			onSuccess(data: CertificateDataMap) {
+				methods.reset(methods.getValues());
 				editOperationInCache(
 					queryClient,
 					[
@@ -234,6 +237,17 @@ const EditCertificate: React.FC = () => {
 			variant: 'primary',
 		},
 	];
+
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
+	useEffect(() => {
+		if (certificateQuery?.data && certificateQuery?.isSuccess) {
+			methods.reset(methods.getValues());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [certificateQuery?.data]);
+
+
 	return (
 		<Stack direction="column" spacing="8" align="center">
 			<Header isSticky={false} display={fullscreenMode ? 'none' : 'block'}>
@@ -249,7 +263,6 @@ const EditCertificate: React.FC = () => {
 									as={NavLink}
 									_activeLink={navActiveStyles}
 									to={certificateBackendRoutes.certificate.list}
-									leftIcon={<BiBook />}
 								>
 									{__('Certificate', 'learning-management-system')}
 								</NavMenuLink>

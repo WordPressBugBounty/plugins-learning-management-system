@@ -1587,7 +1587,7 @@ class Course extends Model {
 	 * @param string $end_date Course end date.
 	 */
 	public function set_end_date( $end_date ) {
-		$this->set_prop( 'end_date', $end_date );
+		$this->set_date_prop( 'end_date', $end_date );
 	}
 
 	/**

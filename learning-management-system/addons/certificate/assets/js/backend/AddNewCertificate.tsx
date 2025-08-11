@@ -101,7 +101,9 @@ const AddNewCertificate: React.FC = () => {
 										_activeLink={navActiveStyles}
 										as={NavLink}
 									>
-										{__('Add New Certificate', 'learning-management-system')}
+										<Text>
+											{__('Add New Certificate', 'learning-management-system')}
+										</Text>
 									</NavMenuLink>
 								</NavMenuItem>
 							</NavMenu>

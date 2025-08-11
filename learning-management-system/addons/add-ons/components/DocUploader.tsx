@@ -7,10 +7,9 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
-import { useMutation } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { uploadMedia } from '@wordpress/media-utils';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Accept, useDropzone } from 'react-dropzone';
 import { useFormContext } from 'react-hook-form';
 import { BiPlus } from 'react-icons/bi';
@@ -136,31 +135,15 @@ const DocUploader: React.FC<Props> = (props) => {
 	const toast = useToast();
 	const API = new MediaAPI();
 	const { setValue } = useFormContext();
+	const isMounted = useRef(false);
 
 	useEffect(() => {
-		setValue(keyIndex, files);
+		if (isMounted.current) {
+			setValue(keyIndex, files, { shouldDirty: true });
+		} else {
+			isMounted.current = true;
+		}
 	}, [files, setValue, keyIndex]);
-
-	const deleteFileMutation = useMutation({
-		mutationFn: (id: number) => API.delete(id),
-		...{
-			onSuccess: (data: { deleted: boolean; previous: any }) => {
-				toast({
-					title: `${data?.previous?.title?.raw} has been deleted`,
-					status: 'success',
-					isClosable: true,
-				});
-			},
-
-			onError: (data: any) => {
-				toast({
-					title: data?.message,
-					status: 'error',
-					isClosable: true,
-				});
-			},
-		},
-	});
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		accept: !isEmpty(acceptedFileTypes)
@@ -201,7 +184,7 @@ const DocUploader: React.FC<Props> = (props) => {
 		onDropRejected: () => {
 			toast({
 				title: __('Error while uploading', 'learning-management-system'),
-				description: __('make sure you are uploading appropriate file type'),
+				description: __('Make sure you are uploading an appropriate file type'),
 				status: 'error',
 				isClosable: true,
 			});
@@ -209,11 +192,7 @@ const DocUploader: React.FC<Props> = (props) => {
 	});
 
 	const onRemove = (attachment: DownloadMaterial) => {
-		deleteFileMutation.mutate(attachment.id, {
-			onSuccess: () => {
-				setFiles(files.filter((file) => file !== attachment));
-			},
-		});
+		setFiles(files.filter((file) => file !== attachment));
 	};
 
 	return (

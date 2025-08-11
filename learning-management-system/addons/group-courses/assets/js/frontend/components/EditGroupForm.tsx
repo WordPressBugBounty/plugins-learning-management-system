@@ -17,6 +17,7 @@ import Editor from '../../../../../../assets/js/back-end/components/common/Edito
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
 import EmailsInput from '../../common/components/EmailsInput';
+import LinkedCourses from '../../common/components/LinkedCourses';
 import Name from '../../common/components/Name';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -89,10 +90,16 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 								id="mto-group-description"
 								name="description"
 								defaultValue={group?.description || ''}
-								height={200}
+								height={80}
+								showBasicToolbar={true}
 							/>
 						</FormControl>
-						<EmailsInput defaultValue={group?.emails || []} />
+						<EmailsInput
+							defaultValue={group?.emails || []}
+							maxGroupSize={group?.max_group_size}
+							disabled={group?.status !== 'publish'}
+						/>
+						<LinkedCourses courses={group?.courses || []} />{' '}
 						<ButtonGroup mb={4}>
 							<Button
 								type="submit"

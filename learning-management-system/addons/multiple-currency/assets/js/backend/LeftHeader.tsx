@@ -1,44 +1,16 @@
-import {
-	Badge,
-	HStack,
-	IconButton,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
-	SkeletonCircle,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
-import {
-	BiCheckCircle,
-	BiCog,
-	BiDotsHorizontalRounded,
-	BiGrid,
-	BiPauseCircle,
-} from 'react-icons/bi';
-import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import FilterTabs from '../../../../../assets/js/back-end/components/common/FilterTabs';
 import {
 	HeaderLeftSection,
 	HeaderLogo,
 } from '../../../../../assets/js/back-end/components/common/Header';
-import {
-	NavMenu,
-	NavMenuLink,
-} from '../../../../../assets/js/back-end/components/common/Nav';
-import {
-	headerResponsive,
-	navActiveStyles,
-	navLinkStyles,
-} from '../../../../../assets/js/back-end/config/styles';
-import {
-	Gear,
-	Trash,
-} from '../../../../../assets/js/back-end/constants/images';
+import { navLinkStyles } from '../../../../../assets/js/back-end/config/styles';
+import { Gear } from '../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../assets/js/back-end/utils/api';
+import { deepMerge } from '../../../../../assets/js/back-end/utils/utils';
 import { urls } from '../constants/urls';
 import { multipleCurrencyBackendRoutes } from '../routes/routes';
 interface FilterParams {
@@ -54,27 +26,37 @@ const tabButtons: FilterTabs = [
 	{
 		status: 'any',
 		name: __('All Pricing Zones', 'learning-management-system'),
-		icon: <BiGrid />,
+		link: `${multipleCurrencyBackendRoutes.list}?status=any`,
 	},
 	{
 		status: 'active',
 		name: __('Active', 'learning-management-system'),
-		icon: <BiCheckCircle />,
+		link: `${multipleCurrencyBackendRoutes.list}?status=active`,
 	},
 	{
 		status: 'inactive',
 		name: __('Inactive', 'learning-management-system'),
-		icon: <BiPauseCircle />,
+		link: `${multipleCurrencyBackendRoutes.list}?status=inactive`,
 	},
 	{
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
-		icon: <Trash fill="currentColor" width="16" height="16" />,
+		link: `${multipleCurrencyBackendRoutes.list}?status=trash`,
+	},
+	{
+		status: 'settings',
+		name: __('Settings', 'learning-management-system'),
+		link: multipleCurrencyBackendRoutes.settings,
+		icon: <Gear height="20px" width="20px" fill="currentColor" />,
 	},
 ];
 
-const LeftHeader: React.FC = (props) => {
-	const location = useLocation();
+interface Props {
+	pricing_zones_count?: object;
+}
+
+const LeftHeader: React.FC<Props> = ({ pricing_zones_count }) => {
+	const [active, setActive] = useState('any');
 
 	const [filterParams, setFilterParams] = useState<FilterParams>({
 		order: 'desc',
@@ -85,7 +67,7 @@ const LeftHeader: React.FC = (props) => {
 	const { pathname } = useLocation();
 	const currentTab =
 		'/multiple-currency/settings' === pathname
-			? ''
+			? 'settings'
 			: (searchParams.get('status') ?? 'any');
 
 	const pricingZoneAPI = new API(urls.pricingZones);
@@ -101,139 +83,43 @@ const LeftHeader: React.FC = (props) => {
 
 	const pricingZoneQuery = useQuery({
 		queryKey: ['pricingZonesList', filterParams],
-		queryFn: () => pricingZoneAPI.list(filterParams),
+		queryFn: () =>
+			pricingZoneAPI.list({
+				...filterParams,
+				status: currentTab === 'settings' ? 'any' : filterParams?.status,
+			}),
 		...{
 			keepPreviousData: true,
 		},
 	});
 
-	const counts = pricingZoneQuery.data?.meta.pricing_zones_count;
-	const isCounting = pricingZoneQuery.isLoading;
+	const counts =
+		pricingZoneQuery.data?.meta.pricing_zones_count ?? pricing_zones_count;
 
 	const pricingZoneNavStyles = {
 		...navLinkStyles,
 		mr: '0px',
 		borderBottom: '2px solid white',
 	};
-
+	const onChangeCourseStatus = (status: string) => {
+		setActive(status);
+		setFilterParams(
+			deepMerge(filterParams, {
+				status: status,
+			}),
+		);
+	};
 	return (
 		<>
-			<HeaderLeftSection>
-				<Stack direction={['column', 'column', 'column', 'row']}>
-					<HeaderLogo />
-				</Stack>
-
-				<NavMenu sx={headerResponsive.larger} color={'gray.600'}>
-					{tabButtons.map((tab) => (
-						<NavMenuLink
-							key={tab.status}
-							as={NavLink}
-							to={`${multipleCurrencyBackendRoutes.list}?status=${tab.status}`}
-							sx={{
-								...pricingZoneNavStyles,
-								...(currentTab === tab.status
-									? {
-											...navActiveStyles,
-											_activeLink: {
-												color: 'primary.500',
-											},
-										}
-									: {}),
-								_hover: { textDecoration: 'none' },
-							}}
-						>
-							<HStack
-								color={currentTab === tab.status ? 'primary.500' : 'gray.600'}
-							>
-								{tab.icon}
-								<Text>{tab.name}</Text>
-								{counts && counts[tab.status] ? (
-									<Badge variant="count">{counts[tab.status]}</Badge>
-								) : null}
-								{isCounting && currentTab === tab.status ? (
-									<SkeletonCircle size="4" />
-								) : null}
-							</HStack>
-						</NavMenuLink>
-					))}
-					<NavMenuLink
-						as={NavLink}
-						to={multipleCurrencyBackendRoutes.settings}
-						sx={{
-							...pricingZoneNavStyles,
-							...(location.pathname === multipleCurrencyBackendRoutes.settings
-								? {
-										...navActiveStyles,
-										_activeLink: {
-											color: 'primary.500',
-										},
-									}
-								: {}),
-							_hover: { textDecoration: 'none' },
-						}}
-					>
-						<HStack
-							color={
-								location.pathname === multipleCurrencyBackendRoutes.settings
-									? 'primary.500'
-									: 'gray.600'
-							}
-						>
-							<Gear fill="currentColor" width="16" height="16" />
-							<Text>{__('Settings', 'learning-management-system')}</Text>
-						</HStack>
-					</NavMenuLink>
-				</NavMenu>
-
-				<NavMenu sx={headerResponsive.smaller} color={'gray.600'}>
-					<Menu>
-						<MenuButton
-							as={IconButton}
-							icon={<BiDotsHorizontalRounded style={{ fontSize: 25 }} />}
-							style={{
-								background: '#FFFFFF',
-								boxShadow: 'none',
-							}}
-							py={'35px'}
-							color={'primary.500'}
-						/>
-						<MenuList color={'gray.600'}>
-							{tabButtons.map((tab) => (
-								<MenuItem key={tab.status}>
-									<NavMenuLink
-										as={NavLink}
-										to={`${multipleCurrencyBackendRoutes.list}?status=${tab.status}`}
-										sx={{ color: 'black', height: '20px' }}
-										_activeLink={{ color: 'primary.500' }}
-									>
-										<HStack>
-											{tab.icon}
-											<Text>{tab.name}</Text>
-											{counts && counts[tab.status] ? (
-												<Badge color="inherit" ml="1" bg={'inherit'}>
-													{counts[tab.status]}
-												</Badge>
-											) : null}
-										</HStack>
-									</NavMenuLink>
-								</MenuItem>
-							))}
-							<MenuItem>
-								<NavMenuLink
-									as={NavLink}
-									to={multipleCurrencyBackendRoutes.settings}
-									sx={{ color: 'black', height: '20px' }}
-									_activeLink={{ color: 'primary.500' }}
-								>
-									<HStack>
-										<BiCog />
-										<Text>{__('Settings', 'learning-management-system')}</Text>
-									</HStack>
-								</NavMenuLink>
-							</MenuItem>
-						</MenuList>
-					</Menu>
-				</NavMenu>
+			<HeaderLeftSection gap={7}>
+				<HeaderLogo />
+				<FilterTabs
+					tabs={tabButtons}
+					defaultActive={active}
+					onTabChange={onChangeCourseStatus}
+					counts={counts}
+					isCounting={pricingZoneQuery.isLoading}
+				/>
 			</HeaderLeftSection>
 		</>
 	);

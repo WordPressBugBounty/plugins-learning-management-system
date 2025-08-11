@@ -513,7 +513,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Models\CourseProgress  $course_progress User activity instance.
+	 * @param \Masteriyo\Models\CourseProgress  $course_progress User activity instance.
 	 * @param string $context Request context.
 	 *                        Options: 'view' and 'edit'.
 	 *
@@ -526,11 +526,12 @@ class CourseProgressController extends CrudController {
 
 		$started_date_time = masteriyo_rest_prepare_date_response( $course_progress->get_started_at( $context ) );
 
-		$review_allowed_in_setting = masteriyo_get_setting( 'single_course.display.enable_review' );
-		if ( $review_allowed_in_setting && $course ) {
-			$review_after_course_completion = $course->get_review_after_course_completion( $context );
-		} else {
-			$review_after_course_completion = false;
+		$review_after_course_completion = false;
+
+		if ( masteriyo_get_setting( 'single_course.display.enable_review' ) && $course ) {
+			$course_review_allowed          = $course->get_review_after_course_completion( $context );
+			$has_already_reviewed           = masteriyo_has_user_already_reviewed_course( $course_progress->get_course_id( $context ), $course_progress->get_user_id( $context ) );
+			$review_after_course_completion = $course_review_allowed && ! $has_already_reviewed;
 		}
 
 		$data = array(
@@ -1324,7 +1325,7 @@ class CourseProgressController extends CrudController {
 	 * @since 1.0.0
 	 *
 	 * @param WP_Post[] $posts
-	  * @return array(
+	 * @return array(
 	 *              'item_id' => (integer)
 	 *              'item_title' => (string)
 	 *              'item_type' => (string)

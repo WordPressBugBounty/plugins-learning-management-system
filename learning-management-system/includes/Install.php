@@ -40,7 +40,7 @@ class Install {
 			 *
 			 * @param boolean $enable True to enable setup wizard.
 			 */
-			$enable_setup_wizard = apply_filters( 'masteriyo_enable_setup_wizard', true );
+			$enable_setup_wizard = apply_filters( 'masteriyo_free_enable_setup_wizard', true );
 
 			if ( empty( $masteriyo_version ) && $enable_setup_wizard ) {
 				set_transient( '_masteriyo_activation_redirect', 1, 30 );

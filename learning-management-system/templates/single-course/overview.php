@@ -23,15 +23,28 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_overview' );
 
+
 if ( ! isset( $course ) || ! is_object( $course ) ) {
 	return;
 }
 
+$query                    = new \Masteriyo\Query\CourseProgressQuery(
+	array(
+		'course_id' => $course->get_id(),
+		'user_id'   => get_current_user_id(),
+	)
+);
+$progress                 = current( $query->get_course_progress() );
+$summary                  = $progress ? $progress->get_summary( 'all' ) : '';
+$show_overview_active     =
+	$show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id() );
+
+$is_hidden     = ! $show_overview_active;
 $course_values = $course->get_custom_fields();
 $course_values = is_array( $course_values ) ? $course_values : array();
-
 ?>
-<div class="tab-content course-overview">
+
+<div class="tab-content course-overview <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
 	<?php echo do_shortcode( wp_kses_post( $course->get_description() ) ); ?>
 
 	<?php if ( ! empty( $course_values ) ) : ?>
@@ -43,6 +56,7 @@ $course_values = is_array( $course_values ) ? $course_values : array();
 		</div>
 	<?php endif; ?>
 </div>
+
 <?php
 
 /**

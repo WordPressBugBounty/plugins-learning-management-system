@@ -6,17 +6,36 @@ import { formatParams } from '../../../back-end/utils/utils';
 import AsyncSelect from './async-select';
 
 function CourseFilterForBlocks(props) {
-	const { course, setAttributes, setCourseId } = props;
-	const [defaultCourses, setDefaultCourses] = useState([]);
+	const { value: selectedCourseId, setAttributes, setCourseId } = props;
 
-	const handleChange = (selectedOption) => {
-		setCourseId(selectedOption.value);
-		setAttributes({ course: selectedOption });
-	};
+	const [defaultCourses, setDefaultCourses] = useState([]);
+	const [selectedCourse, setSelectedCourse] = useState(null);
 
 	useEffect(() => {
 		fetchCoursesFromAPI().then(setDefaultCourses);
 	}, []);
+
+	useEffect(() => {
+		if (selectedCourseId && !selectedCourse) {
+			fetchCoursesFromAPI().then((courses) => {
+				const match = courses.find((c) => c.value === selectedCourseId);
+				if (match) {
+					setSelectedCourse(match);
+				} else {
+					fetchSingleCourseById(selectedCourseId).then((course) => {
+						if (course) {
+							setSelectedCourse(course);
+						}
+					});
+				}
+			});
+		}
+	}, [selectedCourseId]);
+
+	const handleChange = (selectedOption) => {
+		setSelectedCourse(selectedOption);
+		setCourseId(selectedOption.value);
+	};
 
 	const loadOptions = (inputValue, callback) => {
 		fetchCoursesFromAPI(inputValue).then(callback);
@@ -26,10 +45,10 @@ function CourseFilterForBlocks(props) {
 		<div className="course-select-wrapper">
 			<AsyncSelect
 				onChange={handleChange}
-				placeholder={__('Filter by Course', 'masteriyo')}
+				value={selectedCourse}
+				placeholder={__('Search Courses', 'masteriyo')}
 				isClearable={false}
 				cacheOptions={true}
-				defaultValue={course}
 				styles={reactSelectStyles}
 				loadOptions={loadOptions}
 				defaultOptions={defaultCourses}
@@ -48,7 +67,7 @@ const fetchCoursesFromAPI = async (search = '') => {
 		search,
 	});
 
-	const response: any = await http({
+	const response = await http({
 		path: `/masteriyo/v1/courses?${params}`,
 		method: 'get',
 	});
@@ -59,4 +78,23 @@ const fetchCoursesFromAPI = async (search = '') => {
 			value: course.id,
 			label: `#${course.id} ${course.name}`,
 		}));
+};
+
+const fetchSingleCourseById = async (id) => {
+	try {
+		const response = await http({
+			path: `/masteriyo/v1/courses/${id}`,
+			method: 'get',
+		});
+
+		if (response?.id) {
+			return {
+				value: response.id,
+				label: `#${response.id} ${response.name}`,
+			};
+		}
+		return null;
+	} catch (error) {
+		return null;
+	}
 };

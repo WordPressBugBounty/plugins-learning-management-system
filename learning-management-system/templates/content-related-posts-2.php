@@ -103,13 +103,14 @@ do_action( 'masteriyo_before_related_posts_content' );
 							</svg>
 							<?php echo wp_kses_post( masteriyo_get_svg( 'full_star' ) ); ?> <?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?> <?php echo '(' . esc_html( $course->get_review_count() . ')' ); ?>
 						</div>
-
+						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 						<div class="masteriyo-course-card__content--amount">
 							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 								<div class="masteriyo-course-card__content--amount-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price() ) ); ?></div>
 							<?php endif; ?>
 							<span class="masteriyo-course-card__content--amount-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price() ) ); ?></span>
 						</div>
+						<?php endif; ?>
 					</div>
 
 					<div class="masteriyo-course-card__content--container d-none">

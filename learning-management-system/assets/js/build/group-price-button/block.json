@@ -1,0 +1,118 @@
+{
+  "$schema": "https://schemas.wp.org/block-json/1.1",
+  "apiVersion": 3,
+  "name": "masteriyo/group-price-button",
+  "version": "1.0.0",
+  "title": "Group Price Button",
+  "category": "masteriyo-single-course",
+  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
+  "keywords": [
+    "Group",
+    "Price",
+    "Button"
+  ],
+  "textdomain": "learning-management-system",
+  "example": {
+    "attributes": {}
+  },
+  "usesContext": [
+    "masteriyo/course_id"
+  ],
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    },
+    "customClassName": false,
+    "className": false,
+    "reusable": false
+  },
+  "attributes": {
+    "clientId": {
+      "type": "string"
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "alignment": {
+      "type": "string"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "16",
+        "unit": "px"
+      }
+    },
+    "buttonFontSize": {
+      "type": "object",
+      "default": {
+        "value": "14",
+        "unit": "px"
+      }
+    },
+    "padding": {
+      "type": "object",
+      "default": {
+        "border": 1,
+        "padding": {
+          "desktop": {
+            "top": 16,
+            "right": 20,
+            "bottom": 20,
+            "left": 20,
+            "unit": "px"
+          },
+          "tablet": {
+            "top": 16,
+            "right": 20,
+            "bottom": 20,
+            "left": 20,
+            "unit": "px"
+          },
+          "mobile": {
+            "top": 16,
+            "right": 20,
+            "bottom": 20,
+            "left": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "borderRadius": {
+      "type": "object",
+      "default": {
+        "value": "4",
+        "unit": "px"
+      }
+    },
+    "backgroundColor": {
+      "type": "string"
+    },
+    "buyButtonBackgroundColor": {
+      "type": "string"
+    },
+    "textGroupColor": {
+      "type": "string"
+    },
+    "buyButtonTextColor": {
+      "type": "string"
+    },
+    "nameFormat": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    }
+  },
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks",
+  "editorStyle": "masteriyo-public"
+}

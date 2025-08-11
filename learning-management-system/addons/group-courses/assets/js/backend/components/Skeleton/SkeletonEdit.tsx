@@ -32,6 +32,10 @@ const SkeletonEdit = () => {
 						<Skeleton height="10px" width="30%" />
 						<Skeleton height="40px" />
 					</Stack>
+					<Stack>
+						<Skeleton height="10px" width="30%" />
+						<Skeleton height="40px" />
+					</Stack>
 				</Stack>
 			</Box>
 		</Stack>

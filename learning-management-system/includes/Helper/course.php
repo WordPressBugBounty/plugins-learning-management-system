@@ -670,31 +670,54 @@ if ( ! function_exists( 'masteriyo_get_remaining_days_for_course_end' ) ) {
 	 * @throws Exception If the date format is invalid.
 	 */
 	function masteriyo_get_remaining_days_for_course_end( $course, $format = false ) {
-		$raw_end_date = $course->get_end_date();
 
+		$raw_end_date = $course->get_end_date();
 		if ( ! $raw_end_date ) {
 			return null;
 		}
 
+		if ( is_object( $raw_end_date ) && method_exists( $raw_end_date, 'format' ) ) {
+			$end_date_str = $raw_end_date->format( 'Y-m-d H:i:s' );
+		} else {
+			$end_date_str = (string) $raw_end_date;
+		}
+
 		try {
-			$end_date = new DateTime( $raw_end_date );
-			$today    = new DateTime( current_time( 'Y-m-d' ) );
+			$tz       = new DateTimeZone( 'UTC' );
+			$end_date = new DateTime( $end_date_str, $tz );
+			$today    = new DateTime( 'now', $tz );
 		} catch ( Exception $e ) {
 			return null;
 		}
-
-		$interval       = $today->diff( $end_date );
-		$remaining_days = $interval->days;
 
 		if ( $today > $end_date ) {
 			return null;
 		}
 
+		$interval   = $today->diff( $end_date );
+		$total_days = $interval->days;
+		$hours      = $interval->h;
+		$minutes    = $interval->i;
+		$seconds    = $interval->s;
+
 		if ( $format ) {
-			return $remaining_days . ' ' . _n( 'day', 'days', $remaining_days, 'learning-management-system' );
+			return sprintf(
+				'%d %s %d %s %d %s',
+				$total_days,
+				_n( 'day', 'days', $total_days, 'learning-management-system' ),
+				$hours,
+				_n( 'hour', 'hours', $hours, 'learning-management-system' ),
+				$minutes,
+				_n( 'minute', 'minutes', $minutes, 'learning-management-system' )
+			);
 		}
 
-		return $remaining_days;
+		return array(
+			'days'    => $total_days,
+			'hours'   => $hours,
+			'minutes' => $minutes,
+			'seconds' => $seconds,
+		);
 	}
 }
 

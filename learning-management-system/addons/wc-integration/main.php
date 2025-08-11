@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Version: 1.8.1
  * Requires: WooCommerce
  * Plan: Free
+ * Category: Commerce
  */
 
 use Masteriyo\Pro\Addons;
@@ -20,9 +21,9 @@ use Masteriyo\Addons\WcIntegration\WcIntegrationAddon;
 
 define( 'MASTERIYO_WC_INTEGRATION_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_WC_INTEGRATION_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_WC_INTEGRATION_ADDON_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_WC_INTEGRATION_ASSETS', dirname( __FILE__ ) . '/assets' );
-define( 'MASTERIYO_WC_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_WC_INTEGRATION_ADDON_DIR', __DIR__ );
+define( 'MASTERIYO_WC_INTEGRATION_ASSETS', __DIR__ . '/assets' );
+define( 'MASTERIYO_WC_INTEGRATION_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_WC_INTEGRATION_ADDON_SLUG', 'wc-integration' );
 
 

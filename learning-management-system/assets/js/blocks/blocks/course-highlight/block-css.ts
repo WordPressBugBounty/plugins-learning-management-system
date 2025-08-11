@@ -10,19 +10,32 @@ export function useBlockCSS(props: any) {
 	} = attributes;
 	const BLOCK_WRAPPER = `#block-${clientId}`;
 	const MASTERIYO_WRAPPER = `.masteriyo-course-highlights-block--${persistedClientId}`;
+	const MASTERIYO_DESCRIPTION_WRAPPER = `.masteriyo-course-highlights-block--${persistedClientId} .masteriyo-course--content__description`;
+	const MASTERIYO_DESCRIPTION_TITLE_WRAPPER = `.masteriyo-course-highlights-block--${persistedClientId} .masteriyo-course--content__description h5`;
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
 
 	const editorCSS = useMemo(() => {
 		let css: string[] = [];
 
 		if (alignment) {
-			css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
+			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
-			css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
+			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${MASTERIYO_DESCRIPTION_WRAPPER} { color: ${textColor}; }`);
+		}
+
+		if (fontSizeValue) {
+			css.push(
+				`${MASTERIYO_DESCRIPTION_TITLE_WRAPPER} { font-size: ${fontSizeValue}; }`,
+			);
+		}
+		if (textColor) {
+			css.push(
+				`${MASTERIYO_DESCRIPTION_TITLE_WRAPPER} { color: ${textColor}; }`,
+			);
 		}
 
 		return css.join('\n');
@@ -38,8 +51,20 @@ export function useBlockCSS(props: any) {
 			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${MASTERIYO_DESCRIPTION_WRAPPER} { color: ${textColor}; }`);
 		}
+
+		if (fontSizeValue) {
+			css.push(
+				`${MASTERIYO_DESCRIPTION_TITLE_WRAPPER} { font-size: ${fontSizeValue}; }`,
+			);
+		}
+		if (textColor) {
+			css.push(
+				`${MASTERIYO_DESCRIPTION_TITLE_WRAPPER} { color: ${textColor}; }`,
+			);
+		}
+
 		return css.join('\n');
 	}, [MASTERIYO_WRAPPER, alignment, fontSizeValue, textColor]);
 

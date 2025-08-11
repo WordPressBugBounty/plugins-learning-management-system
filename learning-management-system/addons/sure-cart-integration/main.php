@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
  * Version: 1.12.0
  * Requires: SureCart
  * Plan: Free
+ * Category: Commerce
+ * Category: User Management
  */
 
 use Masteriyo\Pro\Addons;
@@ -19,9 +21,9 @@ use Masteriyo\Addons\SureCartIntegration\SureCartIntegrationAddon;
 
 define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_SURECART_INTEGRATION_ASSETS', dirname( __FILE__ ) . '/assets' );
-define( 'MASTERIYO_SURECART_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_DIR', __DIR__ );
+define( 'MASTERIYO_SURECART_INTEGRATION_ASSETS', __DIR__ . '/assets' );
+define( 'MASTERIYO_SURECART_INTEGRATION_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_SLUG', 'sure-cart-integration' );
 
 require_once __DIR__ . '/helper/sure-cart.php';

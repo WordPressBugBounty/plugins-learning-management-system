@@ -489,10 +489,8 @@ class ElementorIntegrationAddon {
 	 * @return array
 	 */
 	public function add_backend_script_data( $script_data ) {
-		$script_data['backend']['data']['singleCourseTemplates']['elementor']       = Helper::get_elementor_templates( SingleCoursePageDocumentType::TYPE_SLUG );
-		$script_data['backend']['data']['courseArchiveTemplates']['elementor']      = Helper::get_elementor_templates( CourseArchivePageDocumentType::TYPE_SLUG );
-		$script_data['backend']['data']['add_new_course_archive_page_template_url'] = admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=' . CourseArchivePageDocumentType::TYPE_SLUG );
-		$script_data['backend']['data']['add_new_single_course_page_template_url']  = admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=' . SingleCoursePageDocumentType::TYPE_SLUG );
+		$script_data['backend']['data']['singleCourseTemplates']['elementor']  = Helper::get_elementor_templates( SingleCoursePageDocumentType::TYPE_SLUG );
+		$script_data['backend']['data']['courseArchiveTemplates']['elementor'] = Helper::get_elementor_templates( CourseArchivePageDocumentType::TYPE_SLUG );
 		return $script_data;
 	}
 

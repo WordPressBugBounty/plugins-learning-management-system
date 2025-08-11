@@ -54,8 +54,8 @@ class CourseContent extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		\ob_start();
 
 		/**
@@ -66,9 +66,16 @@ class CourseContent extends BlockHandler {
 		 * @param array $attr Block attributes.
 		 */
 		do_action( 'masteriyo_blocks_before_course_contents', $attr );
+			$is_block_page = $this->is_block_editor();
 		?>
 		<style>
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php if ( ! masteriyo_has_user_already_reviewed_course( $course_id ) && ! $is_block_page ) : ?>
+					.masteriyo-submit-container{
+						display: block !important;
+					}
+				<?php endif; ?>
+
 		</style>
 		<?php
 

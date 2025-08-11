@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: Beaver
  * Plan: Free
+ * Category: Page Builders
  */
 
 use Masteriyo\Addons\BeaverIntegration\BeaverIntegrationAddon;
@@ -20,7 +21,7 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_BEAVER_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_BEAVER_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_BEAVER_INTEGRATION_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_BEAVER_INTEGRATION_DIR', __DIR__ );
 define( 'MASTERIYO_BEAVER_INTEGRATION_SLUG', 'beaver-integration' );
 
 

@@ -54,10 +54,8 @@ class CourseFeatureImage extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
-		$height = isset( $attr['height_n_width']['height'] ) ? esc_attr( $attr['height_n_width']['height'] ) : '';
-		$width  = isset( $attr['height_n_width']['width'] ) ? esc_attr( $attr['height_n_width']['width'] ) : '';
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 
 		\ob_start();
 
@@ -72,16 +70,6 @@ class CourseFeatureImage extends BlockHandler {
 		?>
 		<style>
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			.masteriyo-feature-img {
-				<?php
-				if ( $height ) :
-					?>
-					height: <?php echo $height; ?>; <?php endif; ?>
-				<?php
-				if ( $width ) :
-					?>
-					width: <?php echo $width; ?>; <?php endif; ?>
-			}
 		</style>
 		<?php
 
@@ -94,7 +82,7 @@ class CourseFeatureImage extends BlockHandler {
 			'single-course/featured-image.php',
 			array(
 				'course'     => $course,
-				'difficulty' => $course->get_difficulty(),
+				'difficulty' => '',
 			)
 		);
 

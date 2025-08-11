@@ -62,7 +62,7 @@ const Description: React.FC<Props> = (props) => {
 				}),
 			]);
 			setEditorValue(data);
-			setValue('answer', data);
+			setValue('answer', data, { shouldDirty: true });
 			setBlockAiContent(newContent);
 		},
 		[setValue],
@@ -76,7 +76,9 @@ const Description: React.FC<Props> = (props) => {
 				justifyContent="space-between"
 				mb="4"
 			>
-				<FormLabel>{__('Description', 'learning-management-system')}</FormLabel>
+				<FormLabel m={0}>
+					{__('Description', 'learning-management-system')}
+				</FormLabel>
 				<ContentCreateWithAIModal
 					onContentCreated={handleContentCreation}
 					elementId="mto-assignment-description"

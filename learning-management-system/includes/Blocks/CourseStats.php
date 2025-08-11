@@ -43,6 +43,7 @@ class CourseStats extends BlockHandler {
 		$attr      = $this->attributes;
 		$block_css = $attr['blockCSS'] ?? '';
 		$course_id = $attr['courseId'] ?? 0;
+
 		$client_id = esc_attr( $attr['clientId'] ?? 0 );
 
 		if ( ! $course_id ) {
@@ -55,8 +56,8 @@ class CourseStats extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		\ob_start();
 
 		/**
@@ -96,6 +97,8 @@ class CourseStats extends BlockHandler {
 					: 0,
 				'progress'                  => $progress,
 				'summary'                   => $summary,
+				'attributes'                => $attr,
+
 			)
 		);
 

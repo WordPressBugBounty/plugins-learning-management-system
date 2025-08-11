@@ -1068,6 +1068,9 @@ type FilterTab = {
 	name: string;
 	status: string;
 	icon?: React.ReactElement;
+	link?: string;
+	display?: boolean;
+	label?: string;
 };
 
 type FilterTabs = FilterTab[];

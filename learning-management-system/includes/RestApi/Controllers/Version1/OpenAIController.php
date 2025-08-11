@@ -198,6 +198,22 @@ class OpenAIController extends RestController {
 				$response_text = wp_unslash( $response_text );
 
 				$response = is_string( $response_text ) ? json_decode( $response_text, true ) : $response_text;
+			
+				if ( is_wp_error( $response ) ) {
+					$error_code = $response->get_error_code();
+
+					if ( $error_code == 429 ) {
+						return new \WP_Error(
+							'openai_quota_exceeded',
+							__( 'You have exceeded your OpenAI quota. Please check your API usage and try again later.', 'learning-management-system' )
+						);
+					}
+
+					return new \WP_Error(
+						'openai_request_failed',
+						__( 'The request to OpenAI failed. Please try again later.', 'learning-management-system' )
+					);
+				}
 
 				if ( ! isset( $response['questions'] ) ) {
 					return new \WP_Error( 'openai_content_generation_failure', __( 'Failed to create question(s). Please try again.', 'learning-management-system' ) );
@@ -217,7 +233,7 @@ class OpenAIController extends RestController {
 
 				$j = 0;
 				foreach ( $questions as $question ) {
-					$j++;
+					++$j;
 					masteriyo_openai_create_question( $course, $quiz, $question, $j );
 				}
 
@@ -393,7 +409,7 @@ class OpenAIController extends RestController {
 		$i = 0;
 
 		foreach ( $course_outline['course']['sections'] as $sec ) {
-			$i++;
+			++$i;
 
 			$section_title = isset( $sec['title'] ) ? sanitize_text_field( $sec['title'] ) : '';
 			$section       = $this->create_entity( 'section', $section_title, $course, $course, $i );
@@ -405,7 +421,7 @@ class OpenAIController extends RestController {
 			$j = 0;
 
 			foreach ( $sec['lessons'] as $less ) {
-				$j++;
+				++$j;
 
 				$lesson_title = isset( $less['title'] ) ? sanitize_text_field( $less['title'] ) : '';
 				$this->create_entity( 'lesson', $lesson_title, $course, $section, $j );

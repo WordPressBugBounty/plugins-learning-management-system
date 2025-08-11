@@ -21,6 +21,7 @@ use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Query\CourseCategoryQuery;
 use Masteriyo\Taxonomy\Taxonomy;
+use Masteriyo\Models\CourseProgressItem;
 
 if ( ! ( function_exists( 'add_action' ) && function_exists( 'add_filter' ) ) ) {
 	return;
@@ -487,8 +488,8 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 		);
 
 		$progress = current( $query->get_course_progress() );
-
-		$class = array(
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+		$class    = array(
 			'masteriyo-btn',
 			'masteriyo-btn-primary',
 			'masteriyo-single-course--btn',
@@ -500,10 +501,13 @@ if ( ! function_exists( 'masteriyo_template_enroll_button' ) ) {
 		if ( 0 !== $course->get_enrollment_limit() && 0 >= $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) && empty( $progress ) ) {
 			$class[] = 'masteriyo-btn-disabled';
 		}
+
 		if ( masteriyo_can_start_course( $course ) ) {
 			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
 				$class[] = 'masteriyo-btn-complete';
 			} elseif ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
+				$class[] = 'masteriyo-btn-continue';
+			} elseif ( masteriyo_is_user_enrolled_in_course( $course->get_id() ) ) {
 				$class[] = 'masteriyo-btn-continue';
 			} else {
 				$class[] = 'masteriyo-btn-start-course';
@@ -1003,10 +1007,21 @@ if ( ! function_exists( 'masteriyo_single_course_price_and_enroll_button' ) ) {
 	 * @since 1.0.0
 	 */
 	function masteriyo_single_course_price_and_enroll_button( $course ) {
+			$query = new CourseProgressQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => get_current_user_id(),
+				)
+			);
+
+		$progress = current( $query->get_course_progress() );
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		masteriyo_get_template(
 			'single-course/price-and-enroll-button.php',
 			array(
-				'course' => $course,
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
 			)
 		);
 	}
@@ -1254,6 +1269,30 @@ if ( ! function_exists( 'masteriyo_archive_course_stats' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_archive_course_progress' ) ) {
+	function masteriyo_archive_course_progress( $course ) {
+
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+			$progress = current( $query->get_course_progress() );
+
+			$summary = $progress ? $progress->get_summary( 'all' ) : '';
+			masteriyo_get_template(
+				'single-course/course-progress.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
+	}
+}
+
 if ( ! function_exists( 'masteriyo_single_course_highlights' ) ) {
 	/**
 	 * Show course highlights in single course page.
@@ -1327,6 +1366,8 @@ if ( ! function_exists( 'masteriyo_single_course_curriculum' ) ) {
 	 * Show course curriculum in single course page.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
 	 */
 	function masteriyo_single_course_curriculum( $course ) {
 
@@ -1338,8 +1379,9 @@ if ( ! function_exists( 'masteriyo_single_course_curriculum' ) ) {
 				masteriyo_get_template(
 					'single-course/curriculum.php',
 					array(
-						'course'   => $course,
-						'sections' => $sections,
+						'course'    => $course,
+						'sections'  => $sections,
+						'is_hidden' => false,
 					)
 				);
 			}
@@ -2382,9 +2424,19 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 			0
 		);
 
+		/**
+		 * Filters single course curriculum section summaries.
+		 *
+		 * @since 1.5.15
+		 *
+		 * @param array $summaries Section summaries.
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 * @param \Masteriyo\Models\Section $section Section object.
+		 * @param \WP_Post[] $posts Children of section (lessons and quizzes).
+		 */
+
 		$summaries = array();
 
-		// Add only if lesson count is greater than 0.
 		if ( $lesson_count > 0 ) {
 			$summaries[] = array(
 				'wrapper_start' => '<span class="masteriyo-clessons">',
@@ -2397,7 +2449,6 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 			);
 		}
 
-		// Add only if quiz count is greater than 0.
 		if ( $quiz_count > 0 ) {
 			$summaries[] = array(
 				'wrapper_start' => '<span class="masteriyo-cquizzes">',
@@ -2410,23 +2461,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 			);
 		}
 
-		/**
-		 * Filters single course curriculum section summaries.
-		 *
-		 * @since 1.5.15
-		 *
-		 * @param array $summaries Section summaries.
-		 * @param \Masteriyo\Models\Course $course Course object.
-		 * @param \Masteriyo\Models\Section $section Section object.
-		 * @param \WP_Post[] $posts Children of section (lessons and quizzes).
-		 */
-		$summaries = apply_filters(
-			'masteriyo_single_course_curriculum_section_summaries',
-			$summaries,
-			$course,
-			$section,
-			$posts
-		);
+		$summaries = apply_filters( 'masteriyo_single_course_curriculum_section_summaries', $summaries, $course, $section, $posts );
 
 		$html = '';
 		foreach ( $summaries as $summary ) {
@@ -2440,16 +2475,21 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 
 		$html = $summary_wrapper['wrapper_start'] . $html . $summary_wrapper['wrapper_end'];
 
+		// Add the plus and minus icons.
 		$summary_plus_minus[] = array(
-			'wrapper_start' => '<span class="masteriyo-cplus masteriyo-icon-svg">',
-			'wrapper_end'   => '</span>',
-			'content'       => masteriyo_get_svg( 'plus' ),
+			'wrapper_start' => '<div class="masteriyo-cplus masteriyo-icon-svg">',
+			'wrapper_end'   => '</div>',
+			'content'       => '<svg xmlns="http://www.w3.org/2000/svg" fill="#4E4E4E" viewBox="0 0 24 24">
+								<path d="M12 17.501c-.3 0-.5-.1-.7-.3l-9-9c-.4-.4-.4-1 0-1.4.4-.4 1-.4 1.4 0l8.3 8.3 8.3-8.3c.4-.4 1-.4 1.4 0 .4.4.4 1 0 1.4l-9 9c-.2.2-.4.3-.7.3Z" />
+							    </svg>',
 		);
 
 		$summary_plus_minus[] = array(
-			'wrapper_start' => '<span class="masteriyo-cminus masteriyo-icon-svg">',
-			'wrapper_end'   => '</span>',
-			'content'       => masteriyo_get_svg( 'minus' ),
+			'wrapper_start' => '<div class="masteriyo-cminus masteriyo-icon-svg">',
+			'wrapper_end'   => '</div>',
+			'content'       => '<svg xmlns="http://www.w3.org/2000/svg" fill="#4E4E4E" viewBox="0 0 24 24">
+								<path d="M12 17.501c-.3 0-.5-.1-.7-.3l-9-9c-.4-.4-.4-1 0-1.4.4-.4 1-.4 1.4 0l8.3 8.3 8.3-8.3c.4-.4 1-.4 1.4 0 .4.4.4 1 0 1.4l-9 9c-.2.2-.4.3-.7.3Z" />
+							    </svg>',
 		);
 
 		foreach ( $summary_plus_minus as $summary ) {
@@ -2457,6 +2497,84 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 		}
 
 		echo $html; // phpcs:ignore
+	}
+}
+
+if ( ! function_exists( 'get_course_lesson_progress_map' ) ) {
+	/**
+	 * Get a map of lesson progress for a course and the current user.
+	 *
+	 * @param int $course_id
+	 * @since 1.20.0
+	 * @return array Format: [ lesson_id => 'completed' | 'in_progress' ]
+	 */
+	function get_course_lesson_progress_map( $course_id ) {
+		if ( ! $course_id || ! is_user_logged_in() ) {
+			return array();
+		}
+
+		$current_user_id     = get_current_user_id();
+		$lesson_progress_map = array();
+
+		$progress_query = new \Masteriyo\Query\CourseProgressQuery(
+			array(
+				'user_id'   => $current_user_id,
+				'course_id' => $course_id,
+			)
+		);
+
+		$progresses = $progress_query->get_course_progress();
+
+		if ( ! empty( $progresses ) ) {
+			$course_progress = reset( $progresses );
+
+			if ( method_exists( $course_progress, 'get_items' ) ) {
+				foreach ( $course_progress->get_items() as $item ) {
+					if ( method_exists( $item, 'get_data' ) ) {
+						$data = $item->get_data();
+
+						$lesson_id    = $data['item_id'] ?? 0;
+						$is_completed = ! empty( $data['completed'] );
+
+						if ( $lesson_id ) {
+							$lesson_progress_map[ $lesson_id ] = $is_completed ? 'completed' : 'in_progress';
+						}
+					}
+				}
+			}
+		}
+
+		return $lesson_progress_map;
+	}
+}
+
+if ( ! function_exists( 'get_lesson_status_class_and_icon' ) ) {
+	/**
+	 * Get the CSS class and optional icon based on lesson status.
+	 *
+	 * @param string $status
+	 * @since 1.20.0
+	 * @return array [ class, icon_svg ]
+	 */
+	function get_lesson_status_class_and_icon( $status ) {
+		switch ( $status ) {
+			case 'completed':
+				return array(
+					'completed',
+					'<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" focusable="false" class="chakra-icon css-en-1h8y4d7" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z"></path></svg>',
+				);
+			case 'in_progress':
+				return array(
+					'in-progress',
+					'<svg class="masteriyo-progress-ring" width="24" height="24">
+               								<circle class="masteriyo-progress-ring__circle"></circle>
+											<circle class="masteriyo-progress-ring__progress"></circle>
+										</svg>
+ ',
+				);
+			default:
+				return array( 'not-started', '' );
+		}
 	}
 }
 
@@ -2470,57 +2588,49 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_con
 	 * @param \Masteriyo\Models\Section $section Section object.
 	 */
 	function masteriyo_template_single_course_curriculum_section_content( $course, $section ) {
-		$posts = get_posts(
-			array(
-				'post_type'      => SectionChildrenPostType::all(),
-				'post_status'    => PostStatus::PUBLISH,
-				'post_parent'    => $section->get_id(),
-				'posts_per_page' => -1,
-				'orderby'        => 'menu_order',
-				'order'          => 'asc',
-			)
-		);
+		if ( ! $course instanceof \Masteriyo\Models\Course || ! $section instanceof \Masteriyo\Models\Section ) {
+			return;
+		}
 
-		$objects = array_filter(
-			array_map(
-				function ( $post ) {
-					try {
-						$object = masteriyo( $post->post_type );
-						$object->set_id( $post->ID );
-						$store = masteriyo( $post->post_type . '.store' );
-						$store->read( $object );
-					} catch ( \Exception $e ) {
-						$object = null;
-					}
+		$course_id           = $course->get_id();
+		$lesson_progress_map = get_course_lesson_progress_map( $course_id );
+		$items               = get_course_section_children_by_section( $section->get_id() );
 
-					return $object;
-				},
-				$posts
-			)
-		);
+		if ( empty( $items ) ) {
+			return;
+		}
 
-		foreach ( $objects as $object ) {
-			$html  = '<li>';
-			$html .= '<div class="masteriyo-lesson-list__content">';
-			$html .= '<span class="masteriyo-lesson-list__content-item">';
-			$html .= '<span class="masteriyo-lesson-icon">';
-			$html .= $object->get_icon();
-			$html .= '</span>';
-			$html .= $object->get_name();
-			$html .= '</span>';
-			$html .= '</div>';
-			$html .= '</li>';
+		foreach ( $items as $item ) {
+			$item_id                            = $item->get_id();
+			$status                             = $lesson_progress_map[ $item_id ] ?? 'not_started';
+			list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $status );
 
-			/**
-			 * Filters single course curriculum section content html.
-			 *
-			 * @since 1.5.15
-			 * @param string $html HTML content.
-			 * @param \Masteriyo\Database\Model $object Lesson or Quiz object.
-			 */
-			$html = apply_filters( 'masteriyo_single_course_curriculum_section_content_html', $html, $object );
-
-			echo $html; // phpcs:ignore
+			$permalink = home_url( "/learn/course/{$course->get_slug()}/#/course/{$course_id}/lesson/{$item_id}" );
+			?>
+			<li class="masteriyo-lesson-item masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">
+				<?php echo $item->get_icon(); ?>
+				<a href="<?php echo esc_url( $permalink ); ?>">
+					<?php echo esc_html( $item->get_name() ); ?>
+				</a>
+				<span class="masteriyo-lesson-<?php echo esc_attr( $status_class ); ?>">
+					<?php echo $status_icon; ?>
+				</span>
+					<?php
+					/**
+					 * Fires an action to render the curriculum accordion body item for a single course page default layout.
+					 *
+					 * This action hook is used by child themes and plugins to render the curriculum accordion body item
+					 * for a single course default layout.
+					 *
+					 * @since 1.10.0 [Free]
+					 *
+					 * @param \Masteriyo\Models $object The model object.
+					 * @param \Masteriyo\Models\Course $course The course object.
+					 */
+					do_action( 'masteriyo_single_course_curriculum_section_content_html', $item, $course );
+					?>
+			</li>
+			<?php
 		}
 	}
 }
@@ -3564,10 +3674,22 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_price_and_enroll_butto
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
 	function masteriyo_layout_1_single_course_price_and_enroll_button( $course ) {
+
+			$query = new CourseProgressQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => get_current_user_id(),
+				)
+			);
+
+		$progress = current( $query->get_course_progress() );
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		masteriyo_get_template(
 			'single-course/layout-1/price-and-enroll-button.php',
 			array(
-				'course' => $course,
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
 			)
 		);
 	}

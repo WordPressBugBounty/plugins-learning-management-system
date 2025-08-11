@@ -1,4 +1,4 @@
-import { FormControl, FormLabel } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel } from '@chakra-ui/react';
 import { createBlock, serialize } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
@@ -26,18 +26,27 @@ const Description: React.FC<Props> = (props) => {
 				}),
 			]);
 			setEditorValue(data);
-			setValue('description', data);
+			setValue('description', data, { shouldDirty: true });
 			setBlockAiContent(newContent);
 		},
 		[setValue],
 	);
 	return (
 		<FormControl>
-			<FormLabel>{__('Description', 'learning-management-system')}</FormLabel>
-			<ContentCreateWithAIModal
-				onContentCreated={handleContentCreation}
-				elementId="mto-announcement-description"
-			/>
+			<Flex
+				direction="row"
+				alignItems="center"
+				justifyContent="space-between"
+				mb={2}
+			>
+				<FormLabel m={0}>
+					{__('Description', 'learning-management-system')}
+				</FormLabel>
+				<ContentCreateWithAIModal
+					onContentCreated={handleContentCreation}
+					elementId="mto-announcement-description"
+				/>
+			</Flex>
 			{'classic_editor' === localized.defaultEditor ? (
 				<Editor
 					id="mto-announcement-description"

@@ -303,6 +303,9 @@ class Setting extends Model {
 				'group_joining'             => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
+				'group_published'           => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
 			),
 		),
 		'advance'        => array(

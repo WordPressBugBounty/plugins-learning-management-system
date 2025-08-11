@@ -122,6 +122,17 @@ if ( ! $order ) {
 		</ul>
 
 		<?php
+		/**
+		 * Fire after checkout order summary.
+		 *
+		 * @since 1.20.0
+		 *
+		 * @param \Masteriyo\Models\Order $order
+		 */
+		do_action( 'masteriyo_checkout_after_order_summary', $order );
+		?>
+
+		<?php
 		echo wp_kses_post(
 			sprintf(
 				/* translators: %1$s: opening anchor tag, %2$s: closing anchor tag */

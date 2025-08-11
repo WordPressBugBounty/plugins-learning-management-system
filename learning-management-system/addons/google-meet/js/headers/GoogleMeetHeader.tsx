@@ -1,20 +1,16 @@
 import {
-	Badge,
 	IconButton,
 	Menu,
 	MenuButton,
 	MenuItem,
 	MenuList,
-	SkeletonCircle,
-	Stack,
+	Text,
 } from '@chakra-ui/react';
 import { UseQueryResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { BiBook, BiDotsHorizontalRounded } from 'react-icons/bi';
-import { MdCancelPresentation } from 'react-icons/md';
+import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink } from 'react-router-dom';
-import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import {
 	Header,
 	HeaderLeftSection,
@@ -30,10 +26,6 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
-import {
-	AllCoursesIcon,
-	Gear,
-} from '../../../../assets/js/back-end/constants/images';
 import googleMeetRoutes from '../../constants/routes';
 interface Props {
 	googleMeetingQuery?: UseQueryResult<any, unknown>;
@@ -46,12 +38,10 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 	return (
 		<Header>
 			<HeaderTop>
-				<HeaderLeftSection>
-					<Stack direction={['column', 'column', 'column', 'row']}>
-						<HeaderLogo />
-					</Stack>
+				<HeaderLeftSection gap={7}>
+					<HeaderLogo />
 
-					<NavMenu sx={headerResponsive.larger} color={'gray.600'}>
+					<NavMenu sx={headerResponsive.larger}>
 						<NavMenuLink
 							as={NavLink}
 							sx={{
@@ -62,41 +52,36 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 							_hover={{ textDecoration: 'none' }}
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.list}
-							leftIcon={<AllCoursesIcon />}
-							fill="currentColor"
-							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
+							count={
+								googleMeetSetting &&
+								googleMeetingQuery?.data?.meta?.googleMeetCounts !==
+									undefined &&
+								googleMeetingQuery?.data?.meta?.googleMeetCounts.any
+							}
+							isCounting={googleMeetingQuery?.isLoading}
 						>
-							{__('Meetings', 'learning-management-system')}
-							{googleMeetSetting &&
-							googleMeetingQuery?.data?.meta?.googleMeetCounts !== undefined ? (
-								<Badge
-									color="inherit"
-									bg={'inherit'}
-									fontSize={'13px'}
-									marginLeft={'3px'}
-								>
-									{googleMeetingQuery?.data?.meta?.googleMeetCounts.any}
-								</Badge>
-							) : null}
-							{googleMeetingQuery?.isLoading ? (
-								<SkeletonCircle size="4" rounded="2xl" ml="10px" />
-							) : null}
+							<Text
+								fontSize="sm"
+								fontWeight="semibold"
+								_groupHover={{ color: 'primary.500' }}
+							>
+								{__('Meetings', 'learning-management-system')}
+							</Text>
 						</NavMenuLink>
 
 						<NavMenuLink
 							as={NavLink}
-							sx={{
-								...navLinkStyles,
-								borderBottom: '2px solid white',
-								marginRight: 0,
-							}}
 							_hover={{ textDecoration: 'none' }}
-							iconsx={{ fontSize: 'lg', marginTop: '2px' }}
 							_activeLink={navActiveStyles}
 							to={googleMeetRoutes.googleMeet.setAPI}
-							leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
 						>
-							{__('Set API', 'learning-management-system')}
+							<Text
+								fontSize="sm"
+								fontWeight="semibold"
+								_groupHover={{ color: 'primary.500' }}
+							>
+								{__('Set API', 'learning-management-system')}
+							</Text>
 						</NavMenuLink>
 					</NavMenu>
 
@@ -119,14 +104,10 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 										sx={{ color: 'black', height: '20px' }}
 										_activeLink={{ color: 'primary.500' }}
 										to={googleMeetRoutes.googleMeet.list}
-										leftIcon={<BiBook />}
+										count={googleMeetingQuery?.data?.meta?.googleMeetCounts.all}
+										isCounting={googleMeetingQuery?.isLoading}
 									>
 										{__('Meetings', 'learning-management-system')}
-										{googleMeetSetting && (
-											<Badge color="inherit" bg={'inherit'}>
-												{googleMeetingQuery?.data?.meta?.googleMeetCounts.all}
-											</Badge>
-										)}
 									</NavMenuLink>
 								</MenuItem>
 
@@ -136,7 +117,6 @@ const GoogleMeetHeader: React.FC<Props> = (props) => {
 										sx={{ color: 'black', height: '20px' }}
 										_activeLink={{ color: 'primary.500' }}
 										to={googleMeetRoutes.googleMeet.setAPI}
-										leftIcon={<MdCancelPresentation />}
 									>
 										{__('Set API', 'learning-management-system')}
 									</NavMenuLink>

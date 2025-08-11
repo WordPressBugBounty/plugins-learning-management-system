@@ -189,7 +189,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 			$placeholders['{student_email}']        = $student->get_email();
 			$placeholders['{generated_password}']   = $this->get( 'password_generated' );
 			$placeholders['{password_reset_link}']  = wp_kses_post(
-				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">Reset Your Password</a>'
+				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">' . __( 'Reset Your Password', 'learning-management-system' ) . '</a>'
 			);
 		}
 

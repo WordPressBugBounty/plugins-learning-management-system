@@ -1,42 +1,55 @@
-import { InspectorControls } from '@wordpress/block-editor';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { Panel, Slider } from './../../../components';
+import CourseFilterForBlocks from '../../../components/select-course/select-wrapper';
+import { Panel, Slider, Tab } from './../../../components';
 import AdvanceSelect from './../../../components/advance-select';
 import Color from './../../../components/color';
 
+const theme = extendTheme({});
+
 const BlockSettings: React.FC<any> = (props) => {
 	const {
-		attributes: { alignment, textColor, fontSize },
+		attributes: { alignment, textColor, fontSize, courseId },
 		setAttributes,
 	} = props;
 
 	return (
-		<InspectorControls>
-			<Panel title={__('Text', 'masteriyo')} initialOpen>
+		<Tab tabTitle={__('Settings', 'learning-management-system')}>
+			<Panel title={__('General', 'learning-management-system')} initialOpen>
+				<ChakraProvider theme={theme} resetCSS>
+					<CourseFilterForBlocks
+						value={courseId}
+						setAttributes={setAttributes}
+						setCourseId={props.setSingleCourseId}
+					/>
+				</ChakraProvider>
+			</Panel>
+
+			<Panel title={__('Styles', 'learning-management-system')} initialOpen>
 				<AdvanceSelect
 					value={alignment}
 					onChange={(val) => setAttributes({ alignment: val })}
 					responsive={false}
-					label={__('Alignment', 'masteriyo')}
+					label={__('Alignment', 'learning-management-system')}
 					options={[
 						{
-							label: __('Left', 'masteriyo'),
+							label: __('Left', 'learning-management-system'),
 							value: 'left',
 							icon: 'text-align-left',
 						},
 						{
-							label: __('Center', 'masteriyo'),
+							label: __('Center', 'learning-management-system'),
 							value: 'center',
 							icon: 'text-align-center',
 						},
 						{
-							label: __('Right', 'masteriyo'),
+							label: __('Right', 'learning-management-system'),
 							value: 'right',
 							icon: 'text-align-right',
 						},
 						{
-							label: __('Justify', 'masteriyo'),
+							label: __('Justify', 'learning-management-system'),
 							value: 'justify',
 							icon: 'text-align-justify',
 						},
@@ -44,7 +57,7 @@ const BlockSettings: React.FC<any> = (props) => {
 				/>
 				<Color
 					onChange={(val) => setAttributes({ textColor: val })}
-					label={__('Color', 'masteriyo')}
+					label={__('Color', 'learning-management-system')}
 					value={textColor || ''}
 				/>
 				<Slider
@@ -56,10 +69,10 @@ const BlockSettings: React.FC<any> = (props) => {
 					inline={true}
 					units={['px']}
 					defaultUnit="px"
-					label={__('Font Size', 'masteriyo')}
+					label={__('Font Size', 'learning-management-system')}
 				/>
 			</Panel>
-		</InspectorControls>
+		</Tab>
 	);
 };
 

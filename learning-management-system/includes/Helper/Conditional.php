@@ -166,7 +166,7 @@ function masteriyo_is_rest_api_request() {
  * @return bool
  */
 function masteriyo_is_debug_enabled() {
-	 return masteriyo_get_setting( 'advance.debug.debug' );
+	return masteriyo_get_setting( 'advance.debug.debug' );
 }
 
 /**
@@ -197,6 +197,7 @@ function masteriyo_is_single_course_page() {
 	return is_singular( PostType::COURSE );
 }
 
+
 /**
  * Check if the current page is a single course page.
  *
@@ -220,7 +221,7 @@ function masteriyo_is_courses_page( $check_shortcode = false ) {
 			return true;
 		}
 	}
-	if ( has_block( 'masteriyo/courses', $post ) ||  has_block( 'masteriyo/course-search-form', $post ) ) {
+	if ( has_block( 'masteriyo/courses', $post ) || has_block( 'masteriyo/course-search-form', $post ) ) {
 		return true;
 	}
 
@@ -638,6 +639,52 @@ if ( ! function_exists( 'masteriyo_is_user_enrolled_in_course' ) ) {
 	}
 }
 
+
+if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
+	function masteriyo_is_course_order( $course_id, $user_id = null ) {
+		if ( is_null( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		$course = masteriyo_get_course( $course_id );
+		$user   = masteriyo_get_user( $user_id );
+
+		if ( is_null( $course ) || is_wp_error( $user ) ) {
+			return false;
+		}
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => $user->get_id(),
+				'type'      => 'course',
+			)
+		);
+
+		$user_courses = $query->get_user_courses();
+
+		if ( empty( $user_courses ) ) {
+			return false;
+		}
+
+		$user_course = $user_courses[0];
+		$order_id    = $user_course->get_order_id();
+
+		if ( ! $order_id ) {
+			return true;
+		}
+
+		$order = masteriyo_get_order( $order_id );
+
+		if ( ! $order ) {
+			return false;
+		}
+
+		$status = $order->get_status();
+
+		return ( $status === 'completed' );
+	}
+}
 if ( ! function_exists( 'masteriyo_is_current_user_enrolled_in_course' ) ) {
 	/**
 	 * Check if the current logged in user is enrolled in a course.
@@ -1100,7 +1147,7 @@ function masteriyo_is_signup_page() {
  * @return boolean
  */
 function masteriyo_is_view_account_page() {
-	 return masteriyo_is_account_page() && isset( $GLOBALS['wp']->query_vars['view-account'] );
+	return masteriyo_is_account_page() && isset( $GLOBALS['wp']->query_vars['view-account'] );
 }
 
 /**
@@ -1111,7 +1158,7 @@ function masteriyo_is_view_account_page() {
  * @return boolean
  */
 function masteriyo_is_edit_account_page() {
-	 return masteriyo_is_account_page() && isset( $GLOBALS['wp']->query_vars['edit-account'] );
+	return masteriyo_is_account_page() && isset( $GLOBALS['wp']->query_vars['edit-account'] );
 }
 
 /**
@@ -1298,18 +1345,65 @@ if ( ! function_exists( 'masteriyo_is_single_page_contains_block' ) ) {
 	 */
 	function masteriyo_is_single_page_contains_block() {
 		global $post;
-		$blocks = masteriyo_get_blocks();
 
-		foreach ( $blocks as $block ) {
+		if ( isset( $post->post_content ) ) {
+			$blocks = parse_blocks( $post->post_content );
 
-			if ( $post && isset( $post->post_content ) && has_block( $block, $post->post_content ) ) {
-				$content = apply_filters( 'the_content', get_the_content() );
-
-				if ( strpos( $content, 'masteriyo-single-course-block' ) !== false ) {
+			foreach ( $blocks as $block ) {
+				if ( isset( $block['blockName'] ) && strpos( $block['blockName'], 'masteriyo/' ) === 0 ) {
 					return true;
 				}
-				return false;
 			}
 		}
+
+		return false;
 	}
+
+}
+
+
+/**
+ * Determines if the current page contains any Masteriyo blocks.
+ *
+ * This function checks the current post's content for blocks whose names start with 'masteriyo/'.
+ * It returns true if at least one such block is found, otherwise false.
+ *
+ * Requirements:
+ * - The functions 'parse_blocks' and 'get_post' must exist.
+ * - The current post must have non-empty content.
+ *
+ * @since 1.20.0
+ *
+ * @return bool True if a Masteriyo block is present, false otherwise.
+ */
+function is_masteriyo_block() {
+
+	if ( is_admin() ) {
+		return false;
+	}
+	/**
+	 * Check if the current page has any Masteriyo block (e.g., masteriyo/*).
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return bool
+	 */
+	if ( ! function_exists( 'parse_blocks' ) || ! function_exists( 'get_post' ) ) {
+		return false;
+	}
+
+	$post = get_post();
+	if ( ! $post || empty( $post->post_content ) ) {
+		return false;
+	}
+
+	$blocks = parse_blocks( $post->post_content );
+
+	foreach ( $blocks as $block ) {
+		if ( isset( $block['blockName'] ) && strpos( $block['blockName'], 'masteriyo/' ) === 0 ) {
+			return true;
+		}
+	}
+
+	return false;
 }

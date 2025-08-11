@@ -26,7 +26,23 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_curriculum', $course );
 
-$is_hidden = isset( $is_hidden ) ? $is_hidden : true;
+$query    = new \Masteriyo\Query\CourseProgressQuery(
+	array(
+		'course_id' => $course->get_id(),
+		'user_id'   => get_current_user_id(),
+	)
+);
+$progress = current( $query->get_course_progress() );
+$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+
+
+$show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id() );
+
+$is_hidden = $show_overview_active;
+
+if ( isset( $show_curriculum ) && $show_curriculum ) {
+	$is_hidden = false;
+}
 
 ?>
 
@@ -34,7 +50,6 @@ $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
 	<div class="masteriyo-stab--tcurriculum">
 		<div class="masteriyo-stab--shortinfo">
 			<div class="title-container">
-				<h3 class="title"><?php esc_html_e( 'Curriculum', 'learning-management-system' ); ?></h3>
 				<ul class="masteriyo-shortinfo-wrap">
 				<?php
 					/**

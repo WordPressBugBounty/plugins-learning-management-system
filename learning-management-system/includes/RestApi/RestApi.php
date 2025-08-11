@@ -41,6 +41,7 @@ use Masteriyo\RestApi\Controllers\Version1\UserCoursesController;
 use Masteriyo\RestApi\Controllers\Version1\UsersController;
 use Masteriyo\RestApi\Controllers\Version1\AnalyticsController;
 use Masteriyo\RestApi\Controllers\Version1\ChangelogController;
+use Masteriyo\RestApi\Controllers\Version1\DemosController;
 use Masteriyo\RestApi\Controllers\Version1\ErrorReportsController;
 use Masteriyo\RestApi\Controllers\Version1\LessonReviewsController;
 use Masteriyo\RestApi\Controllers\Version1\QuizzesImportExportController;
@@ -166,6 +167,7 @@ class RestApi {
 			'error_reports'         => ErrorReportsController::class,
 			'rest-api-auth'         => RestAuthController::class,
 			'onboarding'            => OnboardingController::class,
+			'demos'                 => DemosController::class,
 		);
 	}
 

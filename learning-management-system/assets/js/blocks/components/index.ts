@@ -2,6 +2,7 @@ import DeviceSelector from './device-selector';
 import Dimensions from './dimensions';
 import './editor.scss';
 import Icon from './icon';
+import ImageSizeControl from './image-control';
 import Panel from './panel';
 import Select from './select';
 import Slider from './slider';
@@ -17,6 +18,7 @@ export {
 	DeviceSelector,
 	Dimensions,
 	Icon,
+	ImageSizeControl,
 	Panel,
 	Select,
 	Slider,

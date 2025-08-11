@@ -15,7 +15,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiSolidMegaphone } from 'react-icons/bi';
+import { BiChevronLeft } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -25,6 +25,7 @@ import {
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import { navActiveStyles } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
+import { useWarnUnsavedChanges } from '../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepClean,
@@ -122,6 +123,15 @@ const EditAnnouncement: React.FC = () => {
 		updateAnnouncement.mutate(deepClean(data));
 	};
 
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
+	useEffect(() => {
+		if (announcementQuery?.isSuccess && announcementQuery?.data) {
+			methods.reset(methods.getValues());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [announcementQuery?.data]);
+
 	const FormButton = () => (
 		<ButtonGroup>
 			<AnnouncementActionBtn
@@ -164,7 +174,6 @@ const EditAnnouncement: React.FC = () => {
 									rounded="none"
 									isActive
 								>
-									<Icon as={BiSolidMegaphone} />
 									{__('Edit Announcement', 'learning-management-system')}
 								</Button>
 							</Link>

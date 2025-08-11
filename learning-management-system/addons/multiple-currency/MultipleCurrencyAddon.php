@@ -303,7 +303,7 @@ class MultipleCurrencyAddon {
 			return $course;
 		}
 
-		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page( true ) || masteriyo_is_checkout_page() ) {
+		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page( true ) || masteriyo_is_checkout_page() || $this->is_page_builder_context() ) {
 			$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
 
 			if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
@@ -550,11 +550,68 @@ class MultipleCurrencyAddon {
 	 */
 	public function register_multiple_currency_submenu( $submenus ) {
 		$submenus['multiple-currency/pricing-zones'] = array(
-			'page_title' => __( 'Multiple Currency', 'learning-management-system' ),
-			'menu_title' => __( 'Multiple Currency', 'learning-management-system' ),
-			'position'   => 63,
+			'page_title' => __( 'Currencies', 'learning-management-system' ),
+			'menu_title' => '↳ ' . __( 'Currencies', 'learning-management-system' ),
+			'position'   => 81,
+			'hide'       => true,
 		);
 
 		return $submenus;
+	}
+
+	/**
+	 * Check if we're in a page builder context.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return bool
+	 */
+	private function is_page_builder_context() {
+		// Check for Elementor.
+		if ( did_action( 'elementor/loaded' ) && ( \Elementor\Plugin::$instance->editor->is_edit_mode() || \Elementor\Plugin::$instance->preview->is_preview_mode() ) ) {
+			return true;
+		}
+
+		// Check for Bricks.
+		if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
+			return true;
+		}
+
+		// Check for Beaver Builder.
+		if ( class_exists( 'FLBuilderModel' ) && \FLBuilderModel::is_builder_active() ) {
+			return true;
+		}
+
+		// Check for Divi.
+		if ( function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) {
+			return true;
+		}
+
+		// Check for Divi Visual Builder.
+		if ( isset( $_GET['et_fb'] ) || isset( $_POST['et_fb'] ) ) { // phpcs:ignore
+			return true;
+		}
+
+		// Check for Divi AJAX requests.
+		if ( isset( $_POST['action'] ) && strpos( $_POST['action'], 'et_' ) === 0 ) { // phpcs:ignore
+			return true;
+		}
+
+		// Check for Oxygen.
+		if ( defined( 'CT_VERSION' ) && isset( $_GET['ct_builder'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// Generic check for frontend editing.
+		if ( is_admin() ) {
+			return false;
+		}
+
+		// Check if we're rendering shortcodes (common in page builders).
+		if ( ( doing_filter( 'the_content' ) || did_action( 'init' ) ) && ! is_admin() ) {
+			return true;
+		}
+
+		return false;
 	}
 }

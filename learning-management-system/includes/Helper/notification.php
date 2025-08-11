@@ -77,10 +77,36 @@ function masteriyo_set_notification( $id = null, $user_course = null, $result = 
 		$notification_obj->set_created_at( $today_string );
 		$notification_obj->set_type( $result['type'] );
 		$notification_obj->set_status( 'unread' );
-
 		$notification_obj->set_description( $result['content'] );
-		$notification_obj->set_topic_url( $course->get_preview_course_link() );
-		$notification_obj->set_post_id( $course->get_id() );
+		switch ( $result['type'] ) {
+			case 'created_order':
+			case 'completed_order':
+			case 'onhold_order':
+			case 'cancelled_order':
+				$order_id = $user_course->get_order_id();
+				if ( $order_id ) {
+					$notification_obj->set_topic_url( home_url( '/account/#/order-history/' . $order_id ) );
+				}
+				break;
+
+			case 'quiz_attempt':
+				if ( $id ) {
+					$notification_obj->set_topic_url( home_url( '/account/#/quiz-attempts/' . $id ) );
+				}
+				break;
+
+			case 'assignment_reply':
+				if ( $id ) {
+					$notification_obj->set_topic_url( home_url( '/account/#/assignments/' . $id ) );
+				}
+				break;
+			default:
+				$notification_obj->set_topic_url( get_permalink( $course->get_id() ) );
+				break;
+		}
+
+			$notification_obj->set_post_id( $course->get_id() );
+			$notification_obj->save();
 
 		$notification_obj->save();
 
@@ -90,6 +116,3 @@ function masteriyo_set_notification( $id = null, $user_course = null, $result = 
 
 	return $notification_obj;
 }
-
-
-

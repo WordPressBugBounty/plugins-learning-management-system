@@ -210,5 +210,4 @@ class GroupJoinedEmailToNewMember extends Email {
 
 		return parent::get_content();
 	}
-
 }

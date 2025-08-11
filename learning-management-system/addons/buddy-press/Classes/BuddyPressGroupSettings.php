@@ -73,7 +73,7 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 
 		if ( ! empty( $courses ) ) { ?>
 			<div class="bp-masteriyo-group-course">
-				<h4><?php echo esc_html( __( 'Group Course', 'learning-management-system' ) ); ?></h4>
+				<h4><?php echo esc_html( __( 'Groups', 'learning-management-system' ) ); ?></h4>
 				<select name="bp_group_course" id="bp-group-course">
 					<option value="-1"><?php echo esc_html( __( 'Select a course', 'learning-management-system' ) ); ?></option>
 					<?php

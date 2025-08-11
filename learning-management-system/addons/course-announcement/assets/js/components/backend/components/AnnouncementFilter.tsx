@@ -100,7 +100,9 @@ const AnnouncementFilter: React.FC<Props> = ({
 					<AsyncSelect
 						{...register('course_id')}
 						onChange={(selectedOption: any) => {
-							setValue('course_id', selectedOption?.value.toString());
+							setValue('course_id', selectedOption?.value.toString(), {
+								shouldDirty: true,
+							});
 							handleSubmit(onChange)();
 						}}
 						placeholder={__('Filter by Course', 'learning-management-system')}
@@ -150,7 +152,9 @@ const AnnouncementFilter: React.FC<Props> = ({
 					<AsyncSelect
 						{...register('author_id')}
 						onChange={(selectedOption: any) => {
-							setValue('author_id', selectedOption?.value.toString());
+							setValue('author_id', selectedOption?.value.toString(), {
+								shouldDirty: true,
+							});
 							handleSubmit(onChange)();
 						}}
 						placeholder={__('Filter by Author', 'learning-management-system')}

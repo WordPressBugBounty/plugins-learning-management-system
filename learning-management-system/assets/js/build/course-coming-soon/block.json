@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/course-coming-soon",
+  "version": "1.0.0",
+  "title": "Course Coming Soon",
+  "category": "masteriyo-single-course",
+  "description": "This block displays a 'Course Coming Soon' message for a selected course. It works independently and can be placed anywhere in your LMS layout.",
+  "keywords": [
+    "Course",
+    "Coming Soon",
+    "LMS",
+    "Masteriyo"
+  ],
+  "example": {
+    "attributes": {}
+  },
+  "usesContext": [
+    "masteriyo/course_id"
+  ],
+  "textdomain": "masteriyo",
+  "attributes": {
+    "clientId": {
+      "type": "string",
+      "default": ""
+    },
+    "blockCSS": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "number"
+    }
+  },
+  "style": "masteriyo-public",
+  "editorScript": "masteriyo-blocks-editor-js",
+  "editorStyle": "masteriyo-blocks-editor-css",
+  "supports": {
+    "align": false,
+    "html": false,
+    "color": {
+      "background": false,
+      "gradient": false,
+      "text": false
+    }
+  }
+}

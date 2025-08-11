@@ -25,6 +25,10 @@ do_action( 'masteriyo_before_single_course_reviews' );
 
 $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
 
+if ( isset( $show_review ) && $show_review ) {
+	$is_hidden = false;
+}
+
 ?>
 <div class="tab-content course-reviews <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
 	<?php

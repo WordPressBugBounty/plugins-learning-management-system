@@ -48,6 +48,7 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 		add_action( 'masteriyo_order_status_on-hold', array( $this, 'schedule_on_hold_order_notification_to_student' ), 10, 2 );
 		add_action( 'masteriyo_order_status_cancelled', array( $this, 'schedule_cancelled_order_notification_to_student' ), 10, 2 );
 		add_action( 'masteriyo_checkout_order_created', array( $this, 'schedule_order_created_notification_to_student' ), 10, 1 );
+		add_action( 'masteriyo_new_course_qa', array( $this, 'schedule_new_course_qa_notification_to_student' ), 10, 2 );
 	}
 
 
@@ -274,6 +275,59 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 			masteriyo_set_notification( null, current( $user_courses ), $result );
 		}
 
+	}
+
+		/**
+	 * Schedule course qa notification to student.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @param int $id Course QA id.
+	 * @param \Masteriyo\Models\CourseQA $object The user course object.
+	 * @param \Masteriyo\Models\CourseQA $course_qa
+	 */
+	public function schedule_new_course_qa_notification_to_student( $id, $course_qa ) {
+
+		$result = masteriyo_get_setting( 'notification.student.course_qa' );
+
+		if ( isset( $result['enable'] ) && ! $result['enable'] ) {
+			return;
+		}
+
+		if ( $course_qa->get_parent() === 0 ) {
+			return;
+		}
+
+		$course_qa_parent_data = masteriyo_get_course_qa( $course_qa->get_parent() );
+
+		if ( ! $course_qa_parent_data ) {
+			return;
+		}
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_qa_parent_data->get_course_id(),
+				'user_id'   => $course_qa_parent_data->get_user_id(),
+			)
+		);
+
+		$user_courses = $query->get_user_courses();
+
+		if ( empty( $user_courses ) ) {
+			return;
+		}
+
+		$user_course = current( $user_courses );
+
+		if ( ! is_object( $user_course ) ) {
+			return;
+		}
+
+		if ( $course_qa->get_user_id() === $user_course->get_user_id() ) {
+			return;
+		}
+
+		masteriyo_set_notification( $id, $user_course, $result );
 	}
 
 	/**

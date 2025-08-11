@@ -38,6 +38,38 @@
     },
     "blockCSS": {
       "type": "string"
+    },
+    "selectedCourseId": {
+      "type": "number"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "reviwesInputBorder": {
+      "type": "object",
+      "default": {
+        "radius": {}
+      }
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "16",
+        "unit": "px"
+      }
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
+    },
+    "formBackgroundColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "style": "masteriyo-public",

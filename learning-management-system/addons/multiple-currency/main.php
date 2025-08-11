@@ -10,14 +10,15 @@ defined( 'ABSPATH' ) || exit;
  * Author URI: https://masteriyo.com
  * Addon Type: Feature
  * Plan: Free
+ * Category: Commerce
  */
 
 use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_MULTIPLE_CURRENCY_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_DIR', __DIR__ );
+define( 'MASTERIYO_MULTIPLE_CURRENCY_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_SLUG', 'multiple-currency' );
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_ASSETS_URL', plugins_url( 'assets', MASTERIYO_MULTIPLE_CURRENCY_ADDON_FILE ) );
 
@@ -36,7 +37,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_MULTIPLE_CURRENCY_ADDON_SLUG ) ) {
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

@@ -46,6 +46,7 @@ type Addon = {
 	requirement_fulfilled: string;
 	plan: 'Starter' | 'Growth' | 'Scale';
 	locked: boolean;
+	category: string;
 };
 
 type Addons = Addon[];

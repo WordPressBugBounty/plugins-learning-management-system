@@ -36,7 +36,7 @@ const EnrollmentStatusControl: React.FC<Props> = (props) => {
 					/>
 				</FormLabel>
 				<Switch
-					defaultChecked={onMemberChange}
+					defaultChecked={onStatusChange}
 					{...register('deactivate_enrollment_on_status_change')}
 				/>
 				<FormErrorMessage>
@@ -61,7 +61,7 @@ const EnrollmentStatusControl: React.FC<Props> = (props) => {
 					/>
 				</FormLabel>
 				<Switch
-					defaultChecked={onStatusChange}
+					defaultChecked={onMemberChange}
 					{...register('deactivate_enrollment_on_member_change')}
 				/>
 				<FormErrorMessage>

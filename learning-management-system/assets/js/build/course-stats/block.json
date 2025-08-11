@@ -23,6 +23,44 @@
     },
     "minWidth": {
       "type": "object"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "16",
+        "unit": "px"
+      }
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
+    },
+    "enableCourseDuration": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableStudentCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableAvailableSeatsCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableDateUpdated": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableDateStarted": {
+      "type": "boolean",
+      "default": true
+    },
+    "layoutOption": {
+      "type": "string",
+      "default": "grid"
+    },
+    "selectedCourseId": {
+      "type": "number"
     }
   },
   "usesContext": [

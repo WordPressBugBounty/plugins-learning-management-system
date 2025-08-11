@@ -54,8 +54,8 @@ class CourseHighlight extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		\ob_start();
 
 		/**

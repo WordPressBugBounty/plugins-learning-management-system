@@ -918,6 +918,32 @@ class CourseReviewsController extends CommentsController {
 			);
 		}
 
+		// Check if the user has already reviewed this course (only for parent reviews, not replies).
+		$parent_id = isset( $request['parent'] ) ? absint( $request['parent'] ) : 0;
+		if ( 0 === $parent_id ) {
+			$user_id = isset( $request['author_id'] ) ? absint( $request['author_id'] ) : get_current_user_id();
+			if ( masteriyo_has_user_already_reviewed_course( $course->get_id(), $user_id ) ) {
+				// Check if the review is pending.
+				if ( masteriyo_user_has_pending_review_for_course( $course->get_id(), $user_id ) ) {
+					return new \WP_Error(
+						'masteriyo_rest_duplicate_review',
+						__( 'Your review is pending approval.', 'learning-management-system' ),
+						array(
+							'status' => 403,
+						)
+					);
+				} else {
+					return new \WP_Error(
+						'masteriyo_rest_duplicate_review',
+						__( 'You have already reviewed this course.', 'learning-management-system' ),
+						array(
+							'status' => 403,
+						)
+					);
+				}
+			}
+		}
+
 		return true;
 	}
 

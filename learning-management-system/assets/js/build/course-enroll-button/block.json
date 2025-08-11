@@ -10,7 +10,7 @@
     "Course button Block"
   ],
   "textdomain": "masteriyo",
- "attributes": {
+  "attributes": {
     "clientId": {
       "type": "string",
       "default": ""
@@ -18,6 +18,27 @@
     "alignment": {
       "type": "string",
       "default": "left"
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": ""
+    },
+    "startCourseButtonBorder": {
+      "type": "object",
+      "default": {
+        "radius": {}
+      }
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "16",
+        "unit": "px"
+      }
     },
     "blockCSS": {
       "type": "string"

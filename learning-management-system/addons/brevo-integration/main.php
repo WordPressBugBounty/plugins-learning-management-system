@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: integration
  * Author URI: https://masteriyo.com
  * Plan: Free
+ * Category: Email Marketing
  */
 
 use Masteriyo\Addons\BrevoIntegration\BrevoIntegrationAddon;
@@ -17,8 +18,8 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_BREVO_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_BREVO_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_BREVO_INTEGRATION_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_BREVO_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_BREVO_INTEGRATION_DIR', __DIR__ );
+define( 'MASTERIYO_BREVO_INTEGRATION_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_BREVO_INTEGRATION_SLUG', 'brevo-integration' );
 define( 'MASTERIYO_BREVO_INTEGRATION_BASE_URL', 'https://api.sendinblue.com/v3/' );
 

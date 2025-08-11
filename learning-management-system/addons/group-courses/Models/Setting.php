@@ -30,9 +30,10 @@ class Setting {
 	 * @var array
 	 */
 	protected static $data = array(
-		'max_members'                            => '',
 		'deactivate_enrollment_on_member_change' => true,
 		'deactivate_enrollment_on_status_change' => true,
+		'group_buy_button_text'                  => '',
+		'group_buy_helper_text'                  => '',
 	);
 
 	/**

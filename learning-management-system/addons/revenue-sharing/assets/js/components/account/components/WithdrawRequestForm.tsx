@@ -26,6 +26,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
+import { useWarnUnsavedChanges } from '../../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../../constants/urls';
@@ -39,13 +40,12 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 	const { isOpen, onClose, onOpen } = useDisclosure();
 
 	const {
-		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isDirty },
 		reset,
 		setValue,
 		control,
-		getFieldState,
+		getValues,
 	} = useForm();
 	const toast = useToast();
 	const queryClient = useQueryClient();
@@ -79,7 +79,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 		mutationFn: (data: any) => withdrawAPI.store(data),
 		...{
 			onSuccess(data: UserSchema) {
-				reset();
+				reset(getValues());
 				setValue(
 					'withdraw_amount',
 					data?.revenue_sharing?.minimum_withdraw_amount ?? 0,
@@ -116,6 +116,9 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 			},
 		},
 	});
+
+	useWarnUnsavedChanges(isDirty);
+
 	return (
 		<>
 			<Tooltip

@@ -1470,6 +1470,12 @@ class GoogleMeetController extends PostsController {
 			'avatar_url'   => $author->get_avatar_url(),
 		);
 
+		$is_meeting_update_allowed = false;
+
+		if ( is_user_logged_in() ) {
+			$is_meeting_update_allowed = (int) $author['id'] === (int) get_current_user_id();
+		}
+
 		$course = masteriyo_get_course( $google_meet->get_course_id( $context ) );
 		$data   = array(
 			'id'                           => $google_meet->get_id(),

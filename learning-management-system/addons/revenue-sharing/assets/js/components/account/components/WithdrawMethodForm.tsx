@@ -21,6 +21,7 @@ import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
+import { useWarnUnsavedChanges } from '../../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { WithdrawPreferenceDataMap } from '../../../types/withdraw';
 
@@ -41,8 +42,15 @@ type Props = {
 
 const WithdrawMethodForm: React.FC<Props> = (props) => {
 	const { data, onClose, isOpen } = props;
-	const { register, handleSubmit, watch, control } =
-		useForm<WithdrawPreferenceDataMap>();
+	const {
+		register,
+		handleSubmit,
+		watch,
+		control,
+		formState: { isDirty },
+		reset,
+		getValues,
+	} = useForm<WithdrawPreferenceDataMap>();
 	const queryClient = useQueryClient();
 	const withdrawMethod = watch('method', data?.method ?? '');
 
@@ -95,6 +103,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 		mutationFn: (data: WithdrawPreferenceDataMap) =>
 			userAPI.store({ withdraw_method_preference: data }),
 		onSuccess() {
+			reset(getValues());
 			queryClient.invalidateQueries({ queryKey: ['userProfile'] });
 			onClose();
 			toast({
@@ -125,6 +134,8 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 	const onSubmit = (data: WithdrawPreferenceDataMap) => {
 		updateWithdrawData.mutate(data);
 	};
+
+	useWarnUnsavedChanges(isDirty);
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>

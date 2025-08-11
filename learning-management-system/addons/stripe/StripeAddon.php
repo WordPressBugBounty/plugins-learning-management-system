@@ -16,6 +16,7 @@ use Stripe\PaymentIntent;
 use Masteriyo\Constants;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Addons\Stripe\Setting;
+use Stripe\Account;
 use Stripe\Exception\UnexpectedValueException;
 use Stripe\Exception\SignatureVerificationException;
 
@@ -103,6 +104,201 @@ class StripeAddon {
 		// Setting related hooks.
 		add_filter( 'masteriyo_new_setting', array( $this, 'save_setting' ), 10 );
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
+
+		add_action( 'wp_ajax_masteriyo_stripe_connect', array( $this, 'stripe_connect' ) );
+		add_action( 'admin_head', array( $this, 'save_stripe_account' ) );
+		add_filter( 'masteriyo_migrations_paths', array( $this, 'append_migrations' ) );
+	}
+
+	/**
+	 * Append migrations
+	 *
+	 * @since 1.20.0
+	 *
+	 * @param array $migrations
+	 * @return array
+	 */
+	public function append_migrations( $migrations ) {
+		$migrations[] = plugin_dir_path( MASTERIYO_STRIPE_ADDON_FILE ) . 'migrations';
+		return $migrations;
+	}
+
+	/**
+	 * Save stripe account details after redirect from Stripe.
+	 *
+	 * @since 1.20.0
+	 * @return void
+	 */
+	public function save_stripe_account() {
+		$current_screen = get_current_screen();
+		if (
+			! $current_screen ||
+			'toplevel_page_masteriyo' !== $current_screen->base ||
+			! isset( $_GET['state'] ) ||
+			! isset( $_GET['nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_nonce' )
+		) {
+			return;
+		}
+		$state = $_GET['state'] ?? '';
+
+		if ( ! $state ) {
+			return;
+		}
+
+		$decoded_state = base64_decode( $state );
+		if ( ! $decoded_state ) {
+			return;
+		}
+		$state_data = json_decode( $decoded_state, true );
+
+		if ( ! $state_data || ! is_array( $state_data ) ) {
+			return;
+		}
+
+		if ( array_diff(
+			array(
+				'stripe_user_id',
+				'stripe_publishable_key',
+				'access_token',
+				'refresh_token',
+				'livemode',
+			),
+			array_keys( $state_data )
+		) ) {
+			return;
+		}
+		$is_live_mode = ! empty( $state_data['livemode'] );
+		$mode         = $is_live_mode ? 'live' : 'test';
+		Setting::read();
+		Setting::set_props(
+			array(
+				'stripe_user_id'          => $state_data['stripe_user_id'],
+				'sandbox'                 => ! $is_live_mode,
+				"{$mode}_publishable_key" => $state_data['stripe_publishable_key'],
+				"{$mode}_secret_key"      => $state_data['access_token'],
+			)
+		);
+		Setting::save();
+		update_option( '_masteriyo_stripe_integration_method', 'connect' );
+		echo '<script>window.location.href = "' . esc_url_raw( html_entity_decode( $state_data['return_url'], ENT_QUOTES, 'UTF-8' ) ) . '";</script>';
+		exit;
+	}
+
+	/**
+	 * Handle Stripe connect request.
+	 *
+	 * @since 1.20.0
+	 * @return void
+	 */
+	public function stripe_connect() {
+		check_ajax_referer( 'masteriyo_stripe_nonce', 'nonce' );
+		$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? '' ) );
+		if ( 'disconnect' === $type ) {
+			$this->reset_stripe_connect();
+			wp_send_json_success(
+				array(
+					'type' => 'disconnect',
+				)
+			);
+			exit;
+		}
+
+		if ( isset( $_POST['state'] ) ) {
+			$data = json_decode( wp_unslash( $_POST['state'] ), true );
+			$this->update_settings_before_stripe_connect( $data );
+		}
+
+		$is_sandbox = masteriyo_bool_to_string( Setting::get( 'sandbox' ) );
+		$response   = wp_remote_post(
+			add_query_arg(
+				array(
+					'mode' => 'yes' === $is_sandbox ? 'test' : 'live',
+				),
+				'https://masteriyo.com/masteriyo-stripe-connect/account/link'
+			),
+			array(
+				'body' => array(
+					'return_url' => sanitize_url( wp_unslash( $_POST['current_page_uri'] ?? '' ) ),
+					'nonce'      => sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ),
+				),
+			)
+		);
+		if ( ! $response || is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Failed to connect to Stripe. Please try again.', 'learning-management-system' ),
+				)
+			);
+			exit;
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			wp_send_json_error(
+				array(
+					'message' => json_last_error_msg(),
+				)
+			);
+			exit;
+		}
+		wp_send_json_success(
+			array_merge(
+				$body,
+				array(
+					'type' => 'connect',
+				)
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Update settings before stripe connect.
+	 *
+	 * @param array $data
+	 * @return void
+	 */
+	private function update_settings_before_stripe_connect( $data ) {
+		$sanitize_callbacks = array(
+			'enable'         => 'masteriyo_string_to_bool',
+			'enable_ideal'   => 'masteriyo_string_to_bool',
+			'title'          => 'sanitize_text_field',
+			'sandbox'        => 'masteriyo_string_to_bool',
+			'description'    => 'sanitize_textarea_field',
+			'webhook_secret' => 'sanitize_textarea_field',
+		);
+		$next_props         = array();
+		foreach ( (array) $data as $key => $value ) {
+			if ( ! isset( $sanitize_callbacks[ $key ] ) ) {
+				continue;
+			}
+			$next_props[ $key ] = call_user_func( $sanitize_callbacks[ $key ], $value );
+		}
+		if ( empty( $next_props ) ) {
+			return;
+		}
+		Setting::read();
+		Setting::set_props( $next_props );
+		Setting::save();
+	}
+
+	/**
+	 * Reset stripe credentials set from stripe connect.
+	 *
+	 * @return void
+	 */
+	private function reset_stripe_connect() {
+		Setting::read();
+		Setting::set_props(
+			array(
+				'test_publishable_key' => '',
+				'test_secret_key'      => '',
+				'live_publishable_key' => '',
+				'live_secret_key'      => '',
+				'stripe_user_id'       => '',
+			)
+		);
+		Setting::save();
 	}
 
 	/**
@@ -191,7 +387,23 @@ class StripeAddon {
 	 */
 	public function append_setting_in_response( $data, $object, $request, $controller ) {
 		// Add webhook endpoint.
-		$data['payments']['stripe'] = wp_parse_args( Setting::all(), array( 'webhook_endpoint' => Helper::get_webhook_endpoint_url() ) );
+		$stripe_account = null;
+		$secret_key     = Setting::get_secret_key();
+		if ( $secret_key ) {
+			try {
+				$stripe_account = Account::retrieve( null, $secret_key );
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			}
+		}
+		$data['payments']['stripe'] = wp_parse_args(
+			Setting::all(),
+			array(
+				'webhook_endpoint' => Helper::get_webhook_endpoint_url(),
+				'account'          => $stripe_account,
+				'nonce'            => wp_create_nonce( 'masteriyo_stripe_nonce' ),
+				'method'           => get_option( '_masteriyo_stripe_integration_method', 'connect' ),
+			)
+		);
 
 		return $data;
 	}
@@ -213,8 +425,6 @@ class StripeAddon {
 	public function create_payment_intent() {
 		try {
 			masteriyo_get_logger()->info( 'Create payment intent.', array( 'source' => 'payment-stripe' ) );
-
-			\Stripe\Stripe::setApiKey( Setting::get_secret_key() );
 
 			// Throw error is cart is null.
 			if ( ! masteriyo( 'cart' ) ) {
@@ -254,14 +464,17 @@ class StripeAddon {
 				$payment_methods[] = 'ideal';
 			}
 
+			$payment_intent_params = array(
+				'amount'               => $this->convert_cart_total_to_stripe_amount( $cart_total, $currency_code ),
+				'currency'             => masteriyo_strtolower( $currency_code ),
+				'receipt_email'        => $email ? $email : get_bloginfo( 'admin_email' ),
+				'payment_method_types' => $payment_methods,
+			);
+
 			// Create a PaymentIntent with amount and currency
 			$payment_intent = \Stripe\PaymentIntent::create(
-				array(
-					'amount'               => $this->convert_cart_total_to_stripe_amount( $cart_total, $currency_code ),
-					'currency'             => masteriyo_strtolower( $currency_code ),
-					'receipt_email'        => $email ? $email : get_bloginfo( 'admin_email' ),
-					'payment_method_types' => $payment_methods,
-				)
+				$payment_intent_params,
+				Helper::get_stripe_options()
 			);
 
 			$session->put( 'stripe_payment_intent_id', $payment_intent->id );

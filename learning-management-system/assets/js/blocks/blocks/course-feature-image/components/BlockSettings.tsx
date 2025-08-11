@@ -1,28 +1,36 @@
-import { InspectorControls } from '@wordpress/block-editor';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { Panel, Tab } from '../../../components';
-
-const BlockSettings: React.FC<any> = (props) => {
+import { ImageSizeControl, Panel, Tab } from '../../../components';
+import CourseFilterForBlocks from '../../../components/select-course/select-wrapper';
+const theme = extendTheme({});
+const BlockSettings = (props: any) => {
 	const {
-		attributes: { clientId, margin, padding },
+		attributes: { height_n_width, clientId, courseId },
 		setAttributes,
 	} = props;
 
 	return (
-		<InspectorControls>
-			<Tab tabTitle={__('Settings', 'masteriyo')}>
-				<Panel title={__('Layout', 'masteriyo')}>
-					{/* <BorderDimensions
-						height={height_n_width ? height_n_width.height : 0}
-						width={height_n_width ? height_n_width.width : 0}
-						onChange={(val) => {
-							setAttributes({ height_n_width: val });
-						}}
-					/> */}
-				</Panel>
-			</Tab>
-		</InspectorControls>
+		<Tab Title={__('Settings', 'learning-management-system')}>
+			<Panel title={__('General', 'learning-management-system')} initialOpen>
+				<ChakraProvider theme={theme} resetCSS>
+					<CourseFilterForBlocks
+						value={courseId}
+						setAttributes={setAttributes}
+						setCourseId={props.setSingleCourseId}
+					/>
+				</ChakraProvider>
+			</Panel>
+			<Panel title={__('Styles', 'learning-management-system')}>
+				<ImageSizeControl
+					value={height_n_width}
+					onChange={(val) => setAttributes({ height_n_width: val })}
+					label={__('Image Size', 'learning-management-system')}
+					units={['px']}
+					responsive={true}
+				/>
+			</Panel>
+		</Tab>
 	);
 };
 

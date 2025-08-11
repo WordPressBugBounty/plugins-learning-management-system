@@ -11,9 +11,12 @@ namespace Masteriyo\Addons\MultipleCurrency\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Addons\MultipleCurrency\Enums\PriceZoneStatus;
 use Masteriyo\Addons\MultipleCurrency\MaxMind\DatabaseService;
 use Masteriyo\Addons\MultipleCurrency\Models\Setting;
+use Masteriyo\PostType\PostType;
 use Masteriyo\RestApi\Controllers\Version1\CrudController;
+use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use WP_Error;
 
 
@@ -25,7 +28,7 @@ use WP_Error;
  *
  * @since 1.11.0
  */
-class MultipleCurrencySettingsController extends CrudController {
+class MultipleCurrencySettingsController extends PostsController {
 
 	/**
 	 * Endpoint namespace.
@@ -44,6 +47,13 @@ class MultipleCurrencySettingsController extends CrudController {
 	 * @var string
 	 */
 	protected $rest_base = 'multiple-currency/settings';
+
+	/**
+	 * Post type.
+	 *
+	 * @var string
+	 */
+	protected $post_type = PostType::PRICE_ZONE;
 
 	/**
 	 * Object type.
@@ -130,6 +140,7 @@ class MultipleCurrencySettingsController extends CrudController {
 					'label' => masteriyo( 'countries' )->get_country_from_code( $code ),
 				);
 			}
+			$data['pricing_zones_count'] = $this->pricing_zones_count();
 		}
 
 		return rest_ensure_response( $data );
@@ -272,5 +283,18 @@ class MultipleCurrencySettingsController extends CrudController {
 		);
 
 		return $this->add_additional_fields_schema( $schema );
+	}
+
+	/**
+	 * Get price zones count by status.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return Array
+	 */
+	protected function pricing_zones_count() {
+		$post_count = parent::get_posts_count();
+
+		return masteriyo_array_only( $post_count, array_merge( array( 'any' ), PriceZoneStatus::all() ) );
 	}
 }

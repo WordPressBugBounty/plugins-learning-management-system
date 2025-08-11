@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: integration
  * Requires: User Registration
  * Plan: Free
+ * Category: User Management
  */
 
 use Masteriyo\Pro\Addons;
@@ -18,7 +19,7 @@ use Masteriyo\Addons\UserRegistrationIntegration\Helper;
 
 define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_DIR', __DIR__ );
 define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG', 'user-registration-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG ) && ! Helper::is_user_registration_active() ) {
@@ -71,7 +72,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

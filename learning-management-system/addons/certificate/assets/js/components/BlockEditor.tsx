@@ -90,7 +90,7 @@ const BlockEditor: React.FC<Props> = (props) => {
 						replaceParagraphCode: false,
 					}}
 					onSaveBlocks={(blocks: any) =>
-						setValue('html_content', serialize(blocks))
+						setValue('html_content', serialize(blocks), { shouldDirty: true })
 					}
 					onLoad={(parse: any) => parse(defaultValue)}
 					onError={() => {}}

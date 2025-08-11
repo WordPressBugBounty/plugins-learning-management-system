@@ -45,7 +45,7 @@ class GroupCourseMetaWidget extends WidgetBase {
 	 * @return string
 	 */
 	public function get_title() {
-		return __( 'Group Course', 'learning-management-system' );
+		return __( 'Groups', 'learning-management-system' );
 	}
 
 	/**

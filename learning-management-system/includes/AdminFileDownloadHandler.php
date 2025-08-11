@@ -263,7 +263,7 @@ class AdminFileDownloadHandler {
 		}
 
 		$is_admin_or_manager             = masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager();
-		$is_instructor_exporting_courses = ( 'export_courses' === $file_path_id && masteriyo_is_current_user_instructor() );
+		$is_instructor_exporting_courses = ( 'export_courses_json' === $file_path_id && masteriyo_is_current_user_instructor() );
 
 		if ( ! $is_admin_or_manager && ! $is_instructor_exporting_courses ) {
 			self::send_error( __( 'You do not have sufficient permissions to download this file.', 'learning-management-system' ) );

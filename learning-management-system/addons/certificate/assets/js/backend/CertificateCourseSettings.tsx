@@ -66,7 +66,7 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 					<Stack direction={'column'} gap={8}>
 						<FormControlTwoCol>
 							<FormLabel minW="160px" mb={0}>
-								{__('Certificate', 'learning-management-system')}
+								{__('Select Certificate', 'learning-management-system')}
 								<ToolTip
 									label={__(
 										'Select which certificate to use for this course.',
@@ -147,7 +147,10 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 						<FormControlTwoCol>
 							<Stack direction="row">
 								<FormLabel minW="160px">
-									{__('Share Certificate', 'learning-management-system')}
+									{__(
+										'Allow Certificate Sharing',
+										'learning-management-system',
+									)}
 									<ToolTip
 										label={__(
 											'Allow students to view/share certificate from single course page after course completion.',

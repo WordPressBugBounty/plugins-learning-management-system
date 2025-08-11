@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
  * Author URI: https://masteriyo.com
  * Addon Type: feature
  * Plan: Free
+ * Category: Course Features
  */
 
 use Masteriyo\Pro\Addons;
@@ -17,7 +18,7 @@ use Masteriyo\Pro\Addons;
 define( 'MASTERIYO_COURSE_COMING_SOON_FILE', __FILE__ );
 define( 'MASTERIYO_COURSE_COMING_SOON_BASENAME', plugin_basename( __FILE__ ) );
 define( 'MASTERIYO_COURSE_COMING_SOON_DIR', __DIR__ );
-define( 'MASTERIYO_COURSE_COMING_SOON_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_COURSE_COMING_SOON_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_COURSE_COMING_SOON_SLUG', 'course-coming-soon' );
 
 if ( ! ( new Addons() )->is_active( MASTERIYO_COURSE_COMING_SOON_SLUG ) ) {

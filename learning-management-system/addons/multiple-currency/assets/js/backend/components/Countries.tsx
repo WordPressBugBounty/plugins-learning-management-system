@@ -64,6 +64,7 @@ const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 			setValue(
 				'countries',
 				defaultValue?.map((country: any) => country?.value),
+				{ shouldDirty: true },
 			);
 		}
 	}, [defaultValue, setValue]);
@@ -102,7 +103,7 @@ const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 									const selectedValues = selectedOption?.map(
 										(country: any) => country.value,
 									);
-									setValue('countries', selectedValues);
+									setValue('countries', selectedValues, { shouldDirty: true });
 									trigger('countries');
 								}}
 								options={options}

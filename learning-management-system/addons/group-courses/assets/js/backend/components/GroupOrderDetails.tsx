@@ -52,7 +52,7 @@ const GroupOrderDetails: React.FC<Props> = ({ groups }) => {
 									<Text fontWeight="bold">{group.title}</Text>
 									<Badge ml={3} colorScheme="green">
 										{group.emails.length}{' '}
-										{__('Enrolled Members', 'learning-management-system')}
+										{__('Members', 'learning-management-system')}
 									</Badge>
 								</Flex>
 							</Box>
@@ -62,7 +62,7 @@ const GroupOrderDetails: React.FC<Props> = ({ groups }) => {
 							<Flex direction="column" gap={2}>
 								<Text>
 									<strong>
-										{__('Enrolled Members', 'learning-management-system')}:
+										{__('Members', 'learning-management-system')}:
 									</strong>{' '}
 									{group.emails.join(', ')}
 								</Text>

@@ -11,7 +11,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
-import { BiSolidMegaphone } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../../assets/js/back-end/components/common/ActionDialog';
@@ -27,12 +26,7 @@ import {
 	HeaderTop,
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
-import {
-	AddCourseIcon,
-	DraftIcon,
-	Published,
-	Trash,
-} from '../../../../../../assets/js/back-end/constants/images';
+import { AddCourseIcon } from '../../../../../../assets/js/back-end/constants/images';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
 import Sorting from '../../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../../assets/js/back-end/utils/api';
@@ -50,22 +44,18 @@ const tabButtons: FilterTabs = [
 	{
 		status: 'any',
 		name: __('All Announcements', 'learning-management-system'),
-		icon: <BiSolidMegaphone />,
 	},
 	{
 		status: 'publish',
 		name: __('Published', 'learning-management-system'),
-		icon: <Published fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'draft',
 		name: __('Draft', 'learning-management-system'),
-		icon: <DraftIcon fill="currentColor" width="16" height="16" />,
 	},
 	{
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
-		icon: <Trash fill="currentColor" width="16" height="16" />,
 	},
 ];
 
@@ -329,7 +319,7 @@ const AllAnnouncements = () => {
 					flexWrap={'wrap'}
 					justifyContent={{ base: 'center', lg: 'space-between' }}
 				>
-					<HeaderLeftSection>
+					<HeaderLeftSection gap={7}>
 						<HeaderLogo />
 						<FilterTabs
 							tabs={tabButtons}

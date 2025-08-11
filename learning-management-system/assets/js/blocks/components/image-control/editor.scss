@@ -1,0 +1,52 @@
+.masteriyo-image-size-control {
+	margin-bottom: 25px;
+
+	.masteriyo-control-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 10px;
+
+		label.masteriyo-image-size-label {
+			display: inline-block;
+			font-size: 14px;
+			font-weight: 400;
+			color: #64748b;
+			line-height: 17px;
+		}
+	}
+
+	.masteriyo-control-body {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+
+		.components-base-control {
+			flex: 1 1 45%;
+			min-width: 120px;
+
+			label {
+				font-size: 13px;
+				color: #64748b;
+				margin-bottom: 4px;
+				display: inline-block;
+			}
+
+			input {
+				width: 100%;
+				height: 36px;
+			}
+
+			select {
+				width: 100%;
+				height: 36px;
+			}
+		}
+		.components-input-control__label {
+			font-size: 13px;
+			color: #64748b;
+			margin-bottom: 4px;
+			display: inline-block;
+		}
+	}
+}

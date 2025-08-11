@@ -43,6 +43,7 @@ class Setting {
 		'live_publishable_key' => '',
 		'live_secret_key'      => '',
 		'webhook_secret'       => '',
+		'stripe_user_id'       => '',
 	);
 
 	/**

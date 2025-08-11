@@ -21,7 +21,7 @@ const BorderRadiusSetting: React.FC<{
 		<div className="masteriyo-control masteriyo-border">
 			<div className="masteriyo-control-body masteriyo-border-body">
 				<Dimensions
-					label={__('Radius', 'masteriyo')}
+					label={__('Radius', 'learning-management-system')}
 					value={radius || {}}
 					responsive
 					units={['px', 'em', '%']}
@@ -30,10 +30,10 @@ const BorderRadiusSetting: React.FC<{
 					max={100}
 					onChange={(val: any) => setSetting('radius', val)}
 					dimensionLabels={{
-						top: __('Top Left', 'masteriyo'),
-						right: __('Top Right', 'masteriyo'),
-						bottom: __('Bottom Right', 'masteriyo'),
-						left: __('Bottom Left', 'masteriyo'),
+						top: __('Top Left', 'learning-management-system'),
+						right: __('Top Right', 'learning-management-system'),
+						bottom: __('Bottom Right', 'learning-management-system'),
+						left: __('Bottom Left', 'learning-management-system'),
 					}}
 				/>
 			</div>

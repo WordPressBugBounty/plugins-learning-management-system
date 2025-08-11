@@ -1,4 +1,6 @@
 import {
+	Alert,
+	AlertIcon,
 	Box,
 	Button,
 	ButtonGroup,
@@ -6,8 +8,6 @@ import {
 	Flex,
 	Heading,
 	Icon,
-	List,
-	ListItem,
 	Stack,
 	useBreakpointValue,
 	useMediaQuery,
@@ -17,7 +17,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
+import { BiChevronLeft } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import {
@@ -34,11 +34,13 @@ import {
 	navLinkStyles,
 } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
+import { useWarnUnsavedChanges } from '../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	deepClean,
 	editOperationInCache,
 } from '../../../../../../assets/js/back-end/utils/utils';
+import LinkedCourses from '../../common/components/LinkedCourses';
 import Name from '../../common/components/Name';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
@@ -48,7 +50,6 @@ import Author from './elements/Author';
 import Description from './elements/Description';
 import Emails from './elements/Emails';
 import GroupActionBtn from './elements/GroupActionBtn';
-
 const headerTabStyles = {
 	mr: '10',
 	py: '6',
@@ -100,6 +101,7 @@ const EditGroup: React.FC = () => {
 					isClosable: true,
 					status: 'success',
 				});
+				navigate(groupsBackendRoutes.list);
 			},
 
 			onError: (error: any) => {
@@ -124,6 +126,24 @@ const EditGroup: React.FC = () => {
 		updateGroup.mutate(deepClean(data));
 	};
 
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
+	useEffect(() => {
+		if (groupQuery?.isSuccess && groupQuery?.data) {
+			// Convert emails array to the format expected by the select component
+			const formData = {
+				...groupQuery.data,
+				emails:
+					groupQuery.data.emails?.map((email: string) => ({
+						value: email,
+						label: email,
+					})) || [],
+			};
+			methods.reset(formData);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [groupQuery?.data]);
+
 	const FormButton = () => (
 		<ButtonGroup>
 			<GroupActionBtn
@@ -131,6 +151,7 @@ const EditGroup: React.FC = () => {
 				methods={methods}
 				onSubmit={onSubmit}
 				groupStatus={groupQuery?.data?.status}
+				orderInfo={groupQuery?.data?.order}
 			/>
 			<Button
 				size={buttonSize}
@@ -152,36 +173,15 @@ const EditGroup: React.FC = () => {
 			<Header>
 				<HeaderLeftSection>
 					<HeaderLogo />
-					<List
-						display={['none', 'flex', 'flex']}
-						flexDirection={['column', 'row', 'row', 'row']}
-					>
-						<ListItem mb="0">
-							<Link to={groupsBackendRoutes.add}>
-								<Button
-									color="gray.600"
-									variant="link"
-									sx={headerTabStyles}
-									_active={navActiveStyles}
-									rounded="none"
-									isActive
-								>
-									<Icon as={BiGroup} />
-									{__('Edit Group', 'learning-management-system')}
-								</Button>
-							</Link>
-						</ListItem>
-					</List>
 					<NavMenu color={'gray.600'}>
 						<NavMenuLink
 							as={NavLink}
 							sx={{ ...navLinkStyles, borderBottom: '2px solid white' }}
 							_hover={{ textDecoration: 'none' }}
 							_activeLink={navActiveStyles}
-							to={groupsBackendRoutes.settings}
-							leftIcon={<BiCog />}
+							isActive={true}
 						>
-							{__('Settings', 'learning-management-system')}
+							{__('Edit Group', 'learning-management-system')}
 						</NavMenuLink>
 					</NavMenu>
 				</HeaderLeftSection>
@@ -222,6 +222,44 @@ const EditGroup: React.FC = () => {
 												</Heading>
 											</Flex>
 
+											{/* Show edit order link if group is draft and order is incomplete */}
+											{groupQuery?.data?.status === 'draft' &&
+												groupQuery?.data?.order &&
+												groupQuery?.data?.order?.status !== 'completed' && (
+													<Alert status="warning" variant="left-accent">
+														<AlertIcon />
+														<Box>
+															{__(
+																'This group is in draft status because the associated order is not completed.',
+																'learning-management-system',
+															)}{' '}
+															<Link
+																to={routes.orders.edit.replace(
+																	':orderId',
+																	groupQuery.data.order.id.toString(),
+																)}
+																style={{
+																	color: '#3182ce',
+																	textDecoration: 'underline',
+																	fontWeight: 'medium',
+																}}
+															>
+																{__(
+																	'Edit Order #%d',
+																	'learning-management-system',
+																).replace(
+																	'%d',
+																	groupQuery.data.order.id.toString(),
+																)}
+															</Link>{' '}
+															{__(
+																'to complete the purchase and publish this group.',
+																'learning-management-system',
+															)}
+														</Box>
+													</Alert>
+												)}
+
 											<Stack direction="column" spacing="6">
 												<Name defaultValue={groupQuery?.data?.title} />
 												<Description
@@ -235,7 +273,13 @@ const EditGroup: React.FC = () => {
 									<Box w={{ lg: '400px' }} bg="white" p="10" shadow="box">
 										<Stack direction="column" spacing="6">
 											<Author authorData={groupQuery?.data?.author} />
-											<Emails defaultValue={groupQuery?.data?.emails || []} />
+											<Emails
+												defaultValue={groupQuery?.data?.emails || []}
+												maxGroupSize={groupQuery?.data?.max_group_size}
+											/>
+											<LinkedCourses
+												courses={groupQuery?.data?.courses || []}
+											/>{' '}
 											{!isLargerThan992 ? <FormButton /> : null}
 										</Stack>
 									</Box>

@@ -264,7 +264,7 @@ class ScriptStyle {
 					'deps'     => array( 'jquery' ),
 					'context'  => 'public',
 					'callback' => function () {
-						return masteriyo_is_single_course_page() || isset( $_GET['masteriyo-load-single-course-js'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						return masteriyo_is_single_course_page() || isset( $_GET['masteriyo-load-single-course-js'] ) || is_masteriyo_block(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					},
 				),
 				'courses'                 => array(
@@ -928,6 +928,14 @@ class ScriptStyle {
 		);
 
 		foreach ( self::$localized_scripts as $handle => $script ) {
+			if (
+			! is_array( $script )
+			|| empty( $script['name'] )
+			|| ! isset( $script['data'] )
+			|| ! is_array( $script['data'] )
+			) {
+				continue;
+			}
 			\wp_localize_script( "masteriyo-{$handle}", $script['name'], $script['data'] );
 		}
 	}
@@ -1101,6 +1109,8 @@ class ScriptStyle {
 						),
 						'logo'                      => plugins_url( 'assets/img/logo.png', MASTERIYO_PLUGIN_FILE ),
 						'maxUploadSize'             => size_format( wp_max_upload_size() ),
+						'add_new_single_course_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-single-course-page' ),
+						'add_new_course_archive_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-course-archive-page' ),
 					),
 				),
 				'ask-review'         => array(
@@ -1121,6 +1131,14 @@ class ScriptStyle {
 		);
 
 		foreach ( self::$localized_scripts as $handle => $script ) {
+			if (
+			! is_array( $script )
+			|| empty( $script['name'] )
+			|| ! isset( $script['data'] )
+			|| ! is_array( $script['data'] )
+			) {
+				continue;
+			}
 			\wp_localize_script( "masteriyo-{$handle}", $script['name'], $script['data'] );
 		}
 	}
@@ -1164,6 +1182,7 @@ class ScriptStyle {
 							'home'         => home_url(),
 							'myCourses'    => admin_url( 'admin.php?page=masteriyo#/courses' ),
 							'addNewCourse' => admin_url( 'admin.php?page=masteriyo#/courses/add-new-course' ),
+							'editCourse'   => admin_url( 'admin.php?page=masteriyo#/courses/:courseId/edit' ),
 							'webhooks'     => admin_url( 'admin.php?page=masteriyo#/webhooks' ),
 
 						),
@@ -1223,13 +1242,18 @@ class ScriptStyle {
 							'load_more_reviews_failed' => __( 'Failed to load more reviews', 'learning-management-system' ),
 							'see_more_reviews'         => __( 'See more reviews', 'learning-management-system' ),
 							'password_not_empty'       => __( 'Please enter a password.', 'learning-management-system' ),
+							'already_reviewed_pending' => __( 'You have already submitted a review for this course. It is currently pending approval.', 'learning-management-system' ),
+							'already_reviewed'         => __( 'You have already submitted a review for this course.', 'learning-management-system' ),
 						),
 						'ajaxURL'                  => admin_url( 'admin-ajax.php' ),
 						'course_id'                => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_id() : 0,
 						'course_review_pages'      => isset( $GLOBALS['course'] ) ? masteriyo_get_course_reviews_infinite_loading_pages_count( $GLOBALS['course'] ) : 0,
 						'review_form_enabled'      => isset( $GLOBALS['course'] ) ? masteriyo_bool_to_string( masteriyo_can_user_review_course( $GLOBALS['course'] ) ) : 0,
 						'current_user_logged_in'   => masteriyo_bool_to_string( is_user_logged_in() ),
+						'user_already_reviewed'    => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_has_user_already_reviewed_course( $GLOBALS['course']->get_id() ) ) : 'no',
 						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
+						'user_has_pending_review'  => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_user_has_pending_review_for_course( $GLOBALS['course']->get_id() ) ) : 'no',
+
 					),
 				),
 				'masteriyo-single-course' => array(
@@ -1263,13 +1287,17 @@ class ScriptStyle {
 							'load_more_reviews_failed' => __( 'Failed to load more reviews', 'learning-management-system' ),
 							'see_more_reviews'         => __( 'See more reviews', 'learning-management-system' ),
 							'password_not_empty'       => __( 'Please enter a password.', 'learning-management-system' ),
+							'already_reviewed_pending' => __( 'You have already submitted a review for this course. It is currently pending approval.', 'learning-management-system' ),
+							'already_reviewed'         => __( 'You have already submitted a review for this course.', 'learning-management-system' ),
 						),
 						'ajaxURL'                  => admin_url( 'admin-ajax.php' ),
 						'course_id'                => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_id() : 0,
 						'course_review_pages'      => isset( $GLOBALS['course'] ) ? masteriyo_get_course_reviews_infinite_loading_pages_count( $GLOBALS['course'] ) : 0,
 						'review_form_enabled'      => isset( $GLOBALS['course'] ) ? masteriyo_bool_to_string( masteriyo_can_user_review_course( $GLOBALS['course'] ) ) : 0,
 						'current_user_logged_in'   => masteriyo_bool_to_string( is_user_logged_in() ),
+						'user_already_reviewed'    => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_has_user_already_reviewed_course( $GLOBALS['course']->get_id() ) ) : 'no',
 						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
+						'user_has_pending_review'  => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_user_has_pending_review_for_course( $GLOBALS['course']->get_id() ) ) : 'no',
 					),
 				),
 				'checkout'                => array(
@@ -1342,6 +1370,14 @@ class ScriptStyle {
 		}
 
 		foreach ( self::$localized_scripts as $handle => $script ) {
+			if (
+			! is_array( $script )
+			|| empty( $script['name'] )
+			|| ! isset( $script['data'] )
+			|| ! is_array( $script['data'] )
+			) {
+				continue;
+			}
 			\wp_localize_script( "masteriyo-{$handle}", $script['name'], $script['data'] );
 		}
 	}

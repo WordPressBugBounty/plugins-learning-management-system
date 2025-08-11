@@ -12,6 +12,9 @@ namespace Masteriyo\Tracking;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Enums\UserCourseStatus;
+use Masteriyo\Roles;
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -129,6 +132,75 @@ class MasteriyoTrackingInfo {
 	 */
 	public static function get_completed_orders_count() {
 		return masteriyo_array_get( (array) wp_count_posts( PostType::ORDER ), OrderStatus::COMPLETED, 0 );
+	}
+
+	/**
+	 * Get total number of enrolled users on the site (excluding admins, instructors, and managers).
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return int Total enrolled users count.
+	 */
+	public static function masteriyo_count_total_enrolled_users() {
+		global $wpdb;
+
+		$count = 0;
+
+		if ( $wpdb ) {
+			$sql = $wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_user_items WHERE ( status = %s OR status = %s )",
+				UserCourseStatus::ACTIVE,
+				UserCourseStatus::ENROLLED
+			);
+
+			$exclude_users = array();
+			if ( did_action( 'plugins_loaded' ) ) {
+				$exclude_users = array_map(
+					'absint',
+					(array) get_users(
+						array(
+							'role__in' => array( Roles::ADMIN, Roles::INSTRUCTOR, Roles::MANAGER ),
+							'fields'   => 'ID',
+						)
+					)
+				);
+			}
+			if ( ! empty( $exclude_users ) ) {
+				$placeholders = implode( ',', array_fill( 0, count( $exclude_users ), '%d' ) );
+				$sql         .= $wpdb->prepare( " AND user_id NOT IN ($placeholders)", ...$exclude_users );
+			}
+
+			$count = $wpdb->get_var( $sql );
+		}
+
+		/**
+		 * Filters total enrolled users count.
+		 *
+		 * @since 1.20.0
+		 *
+		 * @param int $count Total enrolled users count.
+		 */
+		return absint( $count );
+	}
+
+	/**
+	 * Calculates the number of days since the plugin was installed.
+	 *
+	 * Retrieves the installation date from the 'masteriyo_install_date' option.
+	 * If the value is not numeric, it attempts to convert it to a timestamp.
+	 * Returns the number of full days elapsed since installation.
+	 *
+	 *  @since 1.20.0
+	 * @return int Number of days since the plugin was installed.
+	 */
+	public static function get_install_days() {
+		$install_time = get_option( 'masteriyo_install_date', time() );
+		if ( ! is_numeric( $install_time ) ) {
+			$install_time = strtotime( $install_time );
+		}
+		$current_time       = time();
+		$days_since_install = floor( ( $current_time - $install_time ) / DAY_IN_SECONDS );
+		return $days_since_install;
 	}
 
 	/**

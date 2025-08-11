@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: BuddyPress
  * Plan: Free
+ * Category: Social Engagement
  */
 
 use Masteriyo\Addons\BuddyPress\Helper;

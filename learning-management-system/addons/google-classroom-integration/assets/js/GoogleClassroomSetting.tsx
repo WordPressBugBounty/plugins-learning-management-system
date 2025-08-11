@@ -6,18 +6,19 @@ import {
 	MenuItem,
 	MenuList,
 	Stack,
+	Text,
 	useClipboard,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Col, Row } from 'react-grid-system';
 import { useForm } from 'react-hook-form';
 import { BiBook, BiCog, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink } from 'react-router-dom';
 import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
-import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import DisplayModal from '../../../../assets/js/back-end/components/common/DisplayModal';
 import {
 	Header,
@@ -35,10 +36,7 @@ import {
 	navActiveStyles,
 	navLinkStyles,
 } from '../../../../assets/js/back-end/config/styles';
-import {
-	AllCoursesIcon,
-	Gear,
-} from '../../../../assets/js/back-end/constants/images';
+import { Gear } from '../../../../assets/js/back-end/constants/images';
 import routes from '../../../../assets/js/back-end/constants/routes';
 import API from '../../../../assets/js/back-end/utils/api';
 import localized from '../../../../assets/js/back-end/utils/global';
@@ -170,23 +168,24 @@ const GoogleClassroomSetting = () => {
 			<Stack direction="column" spacing={8} alignItems="center">
 				<Header>
 					<HeaderTop>
-						<HeaderLeftSection>
-							<Stack direction={['column', 'column', 'column', 'row']}>
-								<HeaderLogo />
-							</Stack>
+						<HeaderLeftSection gap={7}>
+							<HeaderLogo />
 
-							<NavMenu sx={headerResponsive.larger} color={'gray.600'}>
+							<NavMenu sx={headerResponsive.larger}>
 								<NavMenuItem key={routes.googleClassroom.list} display="flex">
 									<NavMenuLink
 										as={NavLink}
 										_hover={{ textDecoration: 'none' }}
 										_activeLink={navActiveStyles}
 										to={routes.googleClassroom.list}
-										leftIcon={
-											<CustomIcon icon={AllCoursesIcon} boxSize="20px" />
-										}
 									>
-										{__('Google Courses', 'learning-management-system')}
+										<Text
+											fontSize="sm"
+											fontWeight="semibold"
+											_groupHover={{ color: 'primary.500' }}
+										>
+											{__('Google Courses', 'learning-management-system')}
+										</Text>
 									</NavMenuLink>
 								</NavMenuItem>
 
@@ -196,9 +195,17 @@ const GoogleClassroomSetting = () => {
 									_hover={{ textDecoration: 'none' }}
 									_activeLink={navActiveStyles}
 									to={routes.googleClassroom.setting}
-									leftIcon={<CustomIcon icon={Gear} boxSize="20px" />}
+									leftIcon={
+										<Gear height="20px" width="20px" fill="currentColor" />
+									}
 								>
-									{__('Settings', 'learning-management-system')}
+									<Text
+										fontSize="sm"
+										fontWeight="semibold"
+										_groupHover={{ color: 'primary.500' }}
+									>
+										{__('Settings', 'learning-management-system')}
+									</Text>
 								</NavMenuLink>
 							</NavMenu>
 
@@ -247,11 +254,12 @@ const GoogleClassroomSetting = () => {
 			</Stack>
 
 			<Container
+				mt={8}
 				maxW="container.xl"
 				width={'100%'}
 				borderRadius={10}
 				bg={'white'}
-				boxShadow={'14px 14px 100px #f2f2f2,-14px -14px 100px #ffffff;'}
+				boxShadow={'md'}
 				padding={10}
 			>
 				{resetCredentialsModal && (
@@ -287,7 +295,7 @@ const GoogleClassroomSetting = () => {
 							googleClassroomSettingQuery?.data?.refresh_token)) ? (
 					<GoogleClassroomSettingsSkeleton />
 				) : googleClassroomSettingQuery.isSuccess &&
-				  googleClassroomSettingQuery?.data?.client_id ? (
+				  googleClassroomSettingQuery?.data.client_id ? (
 					<ClassroomErrorConsentScreen
 						onResetCredentialsModalChange={onResetCredentialsModalChange}
 						onHandleConsentScreen={onHandleConsentScreen}

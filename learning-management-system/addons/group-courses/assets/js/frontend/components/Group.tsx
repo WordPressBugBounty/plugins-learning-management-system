@@ -20,17 +20,16 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
-import { BiBook, BiGroup } from 'react-icons/bi';
-import API from '../../../../../../assets/js/back-end/utils/api';
-import { urls } from '../../constants/urls';
-import { GroupStatus } from '../../enums/Enum';
-import { GroupSchema } from '../../types/group';
-// import { GroupStatus } from '../../enums/Enum';
+import { BiGroup } from 'react-icons/bi';
 import { RxDividerVertical } from 'react-icons/rx';
 import {
 	EditIcon,
 	Trash,
 } from '../../../../../../assets/js/back-end/constants/images';
+import API from '../../../../../../assets/js/back-end/utils/api';
+import { urls } from '../../constants/urls';
+import { GroupStatus } from '../../enums/Enum';
+import { GroupSchema } from '../../types/group';
 
 interface GroupProps {
 	group: GroupSchema;
@@ -57,7 +56,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 				queryClient.invalidateQueries({ queryKey: ['groupsList'] });
 				toast({
 					title: __(
-						'Group created successfully.',
+						'Group deleted successfully.',
 						'learning-management-system',
 					),
 					status: 'success',
@@ -144,7 +143,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 					<ButtonGroup
 						color="gray.600"
 						size="xs"
-						p="2"
+						p={{ base: 1, sm: 2 }}
 						alignItems={'center'}
 						flexWrap={'wrap'}
 					>
@@ -161,20 +160,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								</Text>
 							</HStack>
 						</Tooltip>
-						<Icon as={RxDividerVertical} />
-						<Tooltip
-							label={`${group?.courses_count || 0} ${__(
-								'Enrolled Courses',
-								'learning-management-system',
-							)}`}
-						>
-							<HStack>
-								<Icon as={BiBook} />
-								<Text textAlign="start" fontSize="md">
-									{group?.courses_count || 0}
-								</Text>
-							</HStack>
-						</Tooltip>
+
 						<Icon as={RxDividerVertical} />
 						<Tooltip label={__('Edit', 'learning-management-system')}>
 							<IconButton

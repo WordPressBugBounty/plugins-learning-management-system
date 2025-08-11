@@ -54,8 +54,8 @@ class CourseReviews extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		\ob_start();
 
 		/**
@@ -66,20 +66,33 @@ class CourseReviews extends BlockHandler {
 		 * @param array $attr Block attributes.
 		 */
 		do_action( 'masteriyo_blocks_before_course_reviews', $attr );
+		$is_block_page = $this->is_block_editor();
 		?>
 
 		<style>
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php if ( ! masteriyo_has_user_already_reviewed_course( $course_id ) && ! $is_block_page ) : ?>
+					.masteriyo-submit-container{
+						display: block !important;
+					}
+				<?php endif; ?>
+
+					<?php if ( $is_block_page ) : ?>
+					.masteriyo-stab--treviews,.masteriyo-stab--turating,.masteriyo-course-reviews-filters,.masteriyo-course-reviews-list{
+						display: none !important;
+					}
+				<?php endif; ?>
 		</style>
 
 		<?php
 		if ( $course && $course->is_review_allowed() ) {
 			$reviews_and_replies = masteriyo_get_course_reviews_and_replies( $course );
 
-			printf(
-				'<div class="masteriyo-block masteriyo-course-reviews-block--%s">',
-				esc_attr( $client_id )
-			);
+				printf(
+					'<div class="masteriyo-block masteriyo-course-reviews-block--%s" data-id="%s">',
+					esc_attr( $client_id ),
+					esc_attr( $course_id )
+				);
 
 			masteriyo_get_template(
 				'single-course/reviews.php',
@@ -88,6 +101,7 @@ class CourseReviews extends BlockHandler {
 					'course_reviews' => $reviews_and_replies['reviews'],
 					'replies'        => $reviews_and_replies['replies'],
 					'is_hidden'      => false,
+					'show_review'    => true,
 				)
 			);
 

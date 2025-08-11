@@ -7,7 +7,6 @@ import {
 	MenuItem,
 	MenuList,
 	SkeletonCircle,
-	Stack,
 	Text,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
@@ -115,10 +114,8 @@ const LeftHeader: React.FC = (props) => {
 
 	return (
 		<>
-			<HeaderLeftSection>
-				<Stack direction={['column', 'column', 'column', 'row']}>
-					<HeaderLogo />
-				</Stack>
+			<HeaderLeftSection gap="7">
+				<HeaderLogo />
 
 				<NavMenu sx={headerResponsive.larger} color={'gray.600'}>
 					{tabButtons.map((tab) => (

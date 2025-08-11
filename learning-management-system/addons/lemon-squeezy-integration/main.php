@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Author URI: https://masteriyo.com
  * Type: Integration
  * Plan: Free
+ * Category: Payments
  */
 
 use Masteriyo\Pro\Addons;
@@ -18,9 +19,9 @@ use Masteriyo\Addons\LemonSqueezyIntegration\LemonSqueezyIntegrationAddon;
 
 define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ASSETS', dirname( __FILE__ ) . '/assets' );
-define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_DIR', __DIR__ );
+define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ASSETS', __DIR__ . '/assets' );
+define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_SLUG', 'lemon-squeezy-integration' );
 define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ASSETS_URL', plugins_url( 'assets', MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_FILE ) );
 

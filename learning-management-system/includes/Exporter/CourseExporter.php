@@ -40,7 +40,7 @@ class CourseExporter {
 	 *
 	 * @since 1.14.0
 	 */
-	const FILE_PATH_ID = 'export_courses';
+	const FILE_PATH_ID = 'export_courses_json';
 
 	/**
 	 * Get exportable post types related to courses.
@@ -338,6 +338,13 @@ class CourseExporter {
 				),
 			),
 		);
+
+		if ( masteriyo_is_current_user_admin() ) {
+			return get_posts( $args );
+		}
+
+		$current_user_id = get_current_user_id();
+		$args['author']  = $current_user_id;
 
 		if ( PostType::GOOGLEMEET === $post_type ) {
 			$args['post_status'] = array_merge( GoogleMeetStatus::all(), $args['post_status'] );

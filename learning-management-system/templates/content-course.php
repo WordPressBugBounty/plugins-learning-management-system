@@ -50,7 +50,6 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 	<div class="masteriyo-course-item--wrapper masteriyo-course--card">
 	<?php
 	if ( masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) ) :
-		;
 		?>
 		<div class="masteriyo-course--img-wrap">
 			<a href="<?php echo esc_attr( $course->get_permalink() ); ?>">
@@ -133,7 +132,6 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 				<div class="masteriyo-course--content__rt">
 				<?php
 				if ( masteriyo_get_setting( 'course_archive.components_visibility.author' ) ) :
-					;
 					?>
 					<div class="masteriyo-course-author">
 						<?php if ( $author && ! is_wp_error( $author ) ) : ?>
@@ -190,6 +188,16 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					do_action( 'masteriyo_course_meta_data', $course );
 					?>
 
+				<?php
+				/**
+				 * Fire for masteriyo archive course Progress.
+				 *
+				 * @since 1.20.0
+				 *
+				 * @param \Masteriyo\Models\Course $course Course object.
+				 */
+				do_action( 'masteriyo_course_progress', $course );
+				?>
 
 			</div>
 			<!-- Border -->
@@ -197,12 +205,14 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) ) : ?>
 			<div class="masteriyo-course-card-footer masteriyo-time-btn">
 				<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) : ?>
+						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 				<div class="masteriyo-course-price">
-					<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 						<del class="old-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></del>
 					<?php endif; ?>
 					<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 				</div>
+				<?php endif; ?>
 				<?php endif; ?>
 				<?php
 				/**

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: Elementor
  * Plan: Free
+ * Category: Page Builders
  */
 
 use Masteriyo\Addons\ElementorIntegration\ElementorIntegrationAddon;
@@ -19,7 +20,7 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_ELEMENTOR_INTEGRATION_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_ELEMENTOR_INTEGRATION_DIR', __DIR__ );
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_SLUG', 'elementor-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_ELEMENTOR_INTEGRATION_SLUG ) && ! Helper::is_elementor_active() ) {
@@ -72,7 +73,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_ELEMENTOR_INTEGRATION_SLUG ) ) {
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

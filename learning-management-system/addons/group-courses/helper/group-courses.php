@@ -42,7 +42,9 @@ if ( ! function_exists( 'masteriyo_get_group' ) ) {
 	 * @return \Masteriyo\Addons\GroupCourses\Models\Group|null
 	 */
 	function masteriyo_get_group( $group ) {
-		$group_obj   = masteriyo( 'group-courses' );
+		/** @var \Masteriyo\Addons\GroupCourses\Models\Group */
+		$group_obj = masteriyo( 'group-courses' );
+		/** @var \Masteriyo\Addons\GroupCourses\Repository\GroupRepository */
 		$group_store = masteriyo( 'group-courses.store' );
 
 		if ( is_a( $group, 'Masteriyo\Addons\GroupCourses\Models\Group' ) ) {
@@ -161,20 +163,37 @@ if ( ! function_exists( 'masteriyo_is_course_valid_for_group' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_get_groups_limit' ) ) {
+if ( ! function_exists( 'masteriyo_get_group_max_size' ) ) {
 	/**
-	 * Retrieves the maximum number of group members allowed.
+	 * Get the maximum group size for a specific group.
 	 *
-	 * This function fetches the maximum number of members allowed in a group from the settings.
+	 * Note: In the current system, groups are associated with single courses.
+	 * However, for backward compatibility with legacy multi-course groups,
+	 * we take the first course's limit as the group size constraint.
+	 * This ensures consistent behavior across both old and new group structures.
 	 *
-	 * @since 1.9.0
+	 * @since 1.20.0
 	 *
-	 * @return int The maximum number of members allowed in a group.
+	 * @param int $group_id The group ID.
+	 * @return int The maximum group size (0 means unlimited).
 	 */
-	function masteriyo_get_groups_limit() {
-		$group_limit = Setting::get( 'max_members' );
+	function masteriyo_get_group_max_size( $group_id ) {
+		$max_group_size = 0;
+		$course_data    = get_post_meta( $group_id, 'masteriyo_course_data', true );
 
-		return absint( $group_limit );
+		if ( ! empty( $course_data ) && is_array( $course_data ) ) {
+			// For backward compatibility: take the first course's limit
+			// - New system: groups have single courses (array with one item)
+			// - Legacy system: groups could have multiple courses
+			// Using the first course's limit provides a reasonable constraint for both cases
+			$first_course_data = reset( $course_data );
+			if ( isset( $first_course_data['course_id'] ) ) {
+				$course_id      = absint( $first_course_data['course_id'] );
+				$max_group_size = absint( get_post_meta( $course_id, '_group_courses_max_group_size', true ) );
+			}
+		}
+
+		return $max_group_size;
 	}
 }
 

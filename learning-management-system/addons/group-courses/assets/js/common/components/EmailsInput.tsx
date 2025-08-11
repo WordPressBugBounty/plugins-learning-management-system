@@ -1,7 +1,8 @@
 import {
+	Alert,
+	AlertIcon,
 	Box,
 	FormControl,
-	FormErrorMessage,
 	FormLabel,
 	IconButton,
 	Input,
@@ -11,6 +12,7 @@ import {
 	Tag,
 	TagCloseButton,
 	TagLabel,
+	Text,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
@@ -20,9 +22,15 @@ import localized from '../../../../../../assets/js/account/utils/global';
 
 interface Props {
 	defaultValue?: string[];
+	maxGroupSize?: number;
+	disabled?: boolean;
 }
 
-const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
+const EmailsInput: React.FC<Props> = ({
+	defaultValue = [],
+	maxGroupSize,
+	disabled = false,
+}) => {
 	const {
 		setValue,
 		watch,
@@ -33,7 +41,8 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 	} = useFormContext();
 	const [input, setInput] = useState('');
 	const emails = watch('emails') || defaultValue;
-	const groupLimit = localized?.group_courses?.group_limit || 0;
+	// Use prop if provided, otherwise fallback to global limit
+	const groupLimit = maxGroupSize || localized?.group_courses?.group_limit || 0;
 
 	const isValidEmail = (email: string) => {
 		const re =
@@ -61,7 +70,10 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 		if (groupLimit > 0 && emails.length >= groupLimit) {
 			setError('emails', {
 				type: 'manual',
-				message: __('Group limit reached.', 'learning-management-system'),
+				message: __(
+					`Maximum group size of ${groupLimit} members reached`,
+					'learning-management-system',
+				),
 			});
 			return;
 		}
@@ -93,15 +105,23 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 	return (
 		<FormControl isInvalid={Boolean(errors.emails)}>
 			<FormLabel>
-				{`${__('Add Members', 'learning-management-system')}${
-					groupLimit > 0
-						? ` ( ${__('Group limit:', 'learning-management-system')} ${
-								emails.length
-							}/${groupLimit})`
-						: ''
-				}`}
+				{__('Members', 'learning-management-system')}
+				{groupLimit > 0
+					? ` (${__('Max', 'learning-management-system')}: ${groupLimit})`
+					: ` (${__('Unlimited', 'learning-management-system')})`}
 			</FormLabel>
-			<Stack spacing={2} direction="row" flexWrap="wrap">
+			<Stack spacing={2}>
+				{disabled && (
+					<Alert status="info" borderRadius="md">
+						<AlertIcon />
+						<Text fontSize="sm">
+							{__(
+								'Group is pending approval. Members cannot be modified until the group is approved.',
+								'learning-management-system',
+							)}
+						</Text>
+					</Alert>
+				)}
 				<InputGroup>
 					<Input
 						color={'gray.600'}
@@ -114,6 +134,9 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 								handleAddEmail();
 							}
 						}}
+						isDisabled={
+							disabled || (groupLimit > 0 && emails.length >= groupLimit)
+						}
 					/>
 					<InputRightElement>
 						<IconButton
@@ -121,6 +144,7 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 							icon={<MdOutlineKeyboardReturn size="24px" color="white" />}
 							onClick={handleAddEmail}
 							isDisabled={
+								disabled ||
 								!isValidEmail(input) ||
 								emails.includes(input) ||
 								(groupLimit > 0 && emails.length >= groupLimit)
@@ -131,11 +155,11 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 					</InputRightElement>
 				</InputGroup>
 				{errors.emails && (
-					<FormErrorMessage>
+					<Text fontSize="sm" color="red.500" mt={2}>
 						{errors.emails.message?.toString()}
-					</FormErrorMessage>
+					</Text>
 				)}
-				{emails.length && (
+				{emails.length > 0 && (
 					<Box
 						display={'flex'}
 						justifyContent={'flex-start'}
@@ -161,6 +185,7 @@ const EmailsInput: React.FC<Props> = ({ defaultValue = [] }) => {
 								<TagCloseButton
 									color={'gray'}
 									onClick={() => handleRemoveEmail(email)}
+									isDisabled={disabled}
 								/>
 							</Tag>
 						))}

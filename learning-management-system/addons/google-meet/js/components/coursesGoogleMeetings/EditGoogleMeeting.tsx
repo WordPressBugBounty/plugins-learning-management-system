@@ -14,9 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import BackToBuilder from '../../../../../assets/js/back-end/components/common/BackToBuilder';
 import {
 	Header,
@@ -29,9 +29,13 @@ import {
 	NavMenuItem,
 	NavMenuLink,
 } from '../../../../../assets/js/back-end/components/common/Nav';
-import { navActiveStyles } from '../../../../../assets/js/back-end/config/styles';
+import {
+	navActiveStyles,
+	navLinkStyles,
+} from '../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../../assets/js/back-end/constants/urls';
+import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import CourseSkeleton from '../../../../../assets/js/back-end/skeleton/CourseSkeleton';
 import { UsersApiResponse } from '../../../../../assets/js/back-end/types/users';
 import API from '../../../../../assets/js/back-end/utils/api';
@@ -52,7 +56,6 @@ interface Props {}
 
 const EditGoogleMeeting: React.FC<Props> = () => {
 	const methods = useForm<any>();
-	const { search } = useLocation();
 	const cancelRef = useRef<any>();
 	const { courseId, googleMeetId }: any = useParams();
 
@@ -82,6 +85,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 			googleMeetAPI.update(googleMeetQuery?.data?.meeting_id, data),
 		...{
 			onSuccess: (data: any) => {
+				methods.reset(methods.getValues());
 				editContentInBuilderCache(
 					queryClient,
 					[`builder${courseId}`, courseId],
@@ -132,6 +136,16 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 		updateGoogleMeet.mutate(deepMerge(data, newData));
 	};
+
+	useEffect(() => {
+		if (googleMeetQuery?.isSuccess && googleMeetQuery?.data) {
+			methods.reset(methods.getValues());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [googleMeetQuery?.data]);
+
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
@@ -141,8 +155,11 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 						<NavMenu>
 							<NavMenuItem>
 								<NavMenuLink
-									to={googleMeetRoutes.googleMeet.list}
+									as={NavLink}
+									sx={{ ...navLinkStyles, borderBottom: '2px solid white' }}
+									_hover={{ textDecoration: 'none' }}
 									_activeLink={navActiveStyles}
+									isActive={true}
 								>
 									{__('Edit Google Meeting', 'learning-management-system')}
 								</NavMenuLink>

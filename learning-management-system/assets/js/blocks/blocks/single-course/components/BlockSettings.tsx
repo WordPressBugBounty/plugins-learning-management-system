@@ -1,26 +1,24 @@
-import { InspectorControls } from '@wordpress/block-editor';
+import { extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Panel, Tab } from './../../../components';
 import PaddingSetting from './../../../components/PaddingSetting';
 
-const BlockSettings: React.FC<any> = (props) => {
-	const {
-		attributes: { height_n_width, margin, padding, clientId },
-		setAttributes,
-	} = props;
+const theme = extendTheme({});
 
+const BlockSettings: React.FC<any> = ({
+	attributes: { padding },
+	setAttributes,
+}) => {
 	return (
-		<InspectorControls>
-			<Tab tabTitle={__('Settings', 'masteriyo')}>
-				<Panel title={__('Layout', 'masteriyo')}>
-					<PaddingSetting
-						value={padding}
-						onChange={(val) => setAttributes({ padding: val })}
-					/>
-				</Panel>
-			</Tab>
-		</InspectorControls>
+		<Tab tabTitle={__('Settings', 'learning-management-system')}>
+			<Panel title={__('Layout', 'learning-management-system')} initialOpen>
+				<PaddingSetting
+					value={padding}
+					onChange={(val) => setAttributes({ padding: val })}
+				/>
+			</Panel>
+		</Tab>
 	);
 };
 

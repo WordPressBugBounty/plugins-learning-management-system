@@ -4,7 +4,6 @@ import {
 	ButtonGroup,
 	Container,
 	Stack,
-	useMediaQuery,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,8 +12,10 @@ import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import BackToBuilder from '../../../../../assets/js/back-end/components/common/BackToBuilder';
+import BuilderHeader from '../../../../../assets/js/back-end/components/common/BuilderHeader';
 import routes from '../../../../../assets/js/back-end/constants/routes';
 import urls from '../../../../../assets/js/back-end/constants/urls';
+import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import { UsersApiResponse } from '../../../../../assets/js/back-end/types/users';
 import API from '../../../../../assets/js/back-end/utils/api';
 import {
@@ -22,7 +23,6 @@ import {
 	deepMerge,
 } from '../../../../../assets/js/back-end/utils/utils';
 import GoogleMeetUrls from '../../../constants/urls';
-import GoogleMeetingHeader from '../../headers/CourseGoogleMeetingHeader';
 import { GoogleMeetSchema } from '../../schemas';
 import AddAttendees from '../AddAttendees';
 import Description from '../Description';
@@ -35,14 +35,10 @@ interface Props {}
 
 const AddNewGoogleMeeting: React.FC<Props> = () => {
 	const methods = useForm<GoogleMeetSchema>();
-	const { reset } = methods;
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const { sectionId, courseId }: any = useParams();
-	const courseAPI = new API(urls.courses);
-	const sectionsAPI = new API(urls.sections);
 	const googleMeetAPI = new API(GoogleMeetUrls.googleMeets);
-	const [isLargerThan992] = useMediaQuery('(min-width: 992px)');
 	const navigate = useNavigate();
 	const usersAPI = new API(urls.users);
 
@@ -61,6 +57,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 		mutationKey: ['addGoogleMeet'],
 		...{
 			onSuccess: (data: GoogleMeetSchema) => {
+				methods.reset(methods.getValues());
 				addContentToBuilderCache(
 					queryClient,
 					[`builder${courseId}`, courseId],
@@ -115,15 +112,22 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 		addGoogleMeetMutation.mutate(deepMerge(data, newData));
 	};
 
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
 	return (
-		<Stack direction="column" spacing="8" alignItems="center">
-			<GoogleMeetingHeader />
+		<FormProvider {...methods}>
+			<Stack direction="column" spacing="8" alignItems="center">
+				<BuilderHeader
+					onSaveAction={(status) =>
+						methods.handleSubmit((data) => onSubmit({ ...data, status }))
+					}
+					isLoading={addGoogleMeetMutation?.isPending}
+					disableMainButtons
+				/>
+				<Container maxW="container.xl">
+					<Stack direction="column" spacing="6">
+						<BackToBuilder />
 
-			<Container maxW="container.xl">
-				<Stack direction="column" spacing="6">
-					<BackToBuilder />
-
-					<FormProvider {...methods}>
 						<form
 							onSubmit={methods.handleSubmit((data: GoogleMeetSchema) =>
 								onSubmit(data),
@@ -182,10 +186,10 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 								</Box>
 							</Stack>
 						</form>
-					</FormProvider>
-				</Stack>
-			</Container>
-		</Stack>
+					</Stack>
+				</Container>
+			</Stack>
+		</FormProvider>
 	);
 };
 

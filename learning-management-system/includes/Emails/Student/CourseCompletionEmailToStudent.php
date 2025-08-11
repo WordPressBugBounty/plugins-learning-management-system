@@ -273,7 +273,7 @@ class CourseCompletionEmailToStudent extends Email {
 				'{student_nickname}'                    => $student->get_nickname(),
 				'{student_email}'                       => $student->get_email(),
 				'{account_login_link}'                  => wp_kses_post(
-					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
 				),
 				'{course_completion_celebration_image}' => $this->get_celebration_image(),
 			);

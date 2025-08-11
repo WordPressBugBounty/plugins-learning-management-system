@@ -81,7 +81,7 @@ class CourseAnnouncementAddon {
 			'page_title' => __( 'Announcements', 'learning-management-system' ),
 			'menu_title' => __( 'Announcements', 'learning-management-system' ),
 			'capability' => 'edit_courses',
-			'position'   => 62,
+			'position'   => 60,
 		);
 
 		return $submenus;

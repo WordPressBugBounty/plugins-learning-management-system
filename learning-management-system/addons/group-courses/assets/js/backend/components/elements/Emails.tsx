@@ -30,9 +30,10 @@ const validateEmail = (email: string): boolean => {
 
 interface Props {
 	defaultValue?: string[];
+	maxGroupSize?: number;
 }
 
-const Emails: React.FC<Props> = ({ defaultValue }) => {
+const Emails: React.FC<Props> = ({ defaultValue, maxGroupSize }) => {
 	const {
 		control,
 		formState: { errors },
@@ -61,12 +62,12 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 		return usersQuery.isSuccess
 			? usersQuery.data?.data?.map((user) => {
 					return {
-						value: user?.email,
-						label: user?.email,
+						value: user.email,
+						label: user.email,
 					};
 				})
 			: [];
-	}, [usersQuery.isSuccess, usersQuery?.data]);
+	}, [usersQuery.isSuccess, usersQuery.data]);
 
 	const defaultOptions: SelectOption[] = useMemo(() => {
 		return Array.isArray(defaultValue)
@@ -81,7 +82,10 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 		<Stack spacing={2}>
 			<FormControl isInvalid={!!errors.emails}>
 				<FormLabel htmlFor="emails">
-					{__('Emails', 'learning-management-system')}
+					{__('Members', 'learning-management-system')}
+					{maxGroupSize && maxGroupSize > 0
+						? ` (${__('Max', 'learning-management-system')}: ${maxGroupSize})`
+						: ` (${__('Unlimited', 'learning-management-system')})`}
 				</FormLabel>
 				{usersQuery.isLoading ? (
 					<Skeleton height="40px" width="100%" />
@@ -108,8 +112,8 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 									usersQuery.isSuccess
 										? usersQuery.data?.data?.map((user) => {
 												return {
-													value: user?.email,
-													label: user?.email,
+													value: user.email,
+													label: user.email,
 												};
 											})
 										: []
@@ -129,10 +133,10 @@ const Emails: React.FC<Props> = ({ defaultValue }) => {
 										})
 										.then((data) => {
 											callback(
-												data?.data?.map((user: any) => {
+												data.data.map((user: any) => {
 													return {
-														value: user?.email,
-														label: user?.email,
+														value: user.email,
+														label: user.email,
 													};
 												}),
 											);

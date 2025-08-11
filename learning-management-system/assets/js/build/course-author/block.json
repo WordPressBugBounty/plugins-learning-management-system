@@ -10,6 +10,9 @@
     "Courses Author Block"
   ],
   "textdomain": "masteriyo",
+  "example": {
+    "attributes": {}
+  },
   "attributes": {
     "clientId": {
       "type": "string",
@@ -22,13 +25,13 @@
       "type": "array",
       "default": []
     },
-    "hideAuthorsAvatar": {
-      "type": "string",
-      "default": "no"
+    "enableAuthorsAvatar": {
+      "type": "boolean",
+      "default": true
     },
-    "hideAuthorsName": {
-      "type": "string",
-      "default": "no"
+    "enableAuthorsName": {
+      "type": "boolean",
+      "default": true
     },
     "height_n_width": {
       "type": "object"
@@ -38,6 +41,20 @@
     },
     "courseId": {
       "type": "number"
+    },
+    "selectedCourseId": {
+      "type": "number"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "14",
+        "unit": "px"
+      }
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "usesContext": [

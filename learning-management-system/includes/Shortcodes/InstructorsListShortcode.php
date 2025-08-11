@@ -103,20 +103,20 @@ class InstructorsListShortcode extends Shortcode {
 		do_action( 'masteriyo_template_shortcode_instructors_list', $attrs );
 
 		if ( $attrs['paginate'] ) {
-			echo wp_kses(
-				paginate_links(
-					array(
-						'type'      => 'list',
-						'prev_text' => masteriyo_get_svg( 'left-arrow' ),
-						'next_text' => masteriyo_get_svg( 'right-arrow' ),
-						'total'     => $this->max_num_pages,
-						'current'   => $this->current_page,
-					)
-				),
-				'masteriyo_pagination'
+			$pagination = paginate_links(
+				array(
+					'type'      => 'list',
+					'prev_text' => masteriyo_get_svg( 'left-arrow' ),
+					'next_text' => masteriyo_get_svg( 'right-arrow' ),
+					'total'     => $this->max_num_pages,
+					'current'   => $this->current_page,
+				)
 			);
-		}
 
+			if ( ! empty( $pagination ) ) {
+				echo wp_kses( $pagination, 'masteriyo_pagination' );
+			}
+		}
 		return ob_get_clean();
 	}
 

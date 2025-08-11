@@ -111,6 +111,7 @@ class Addons {
 				'Author URI'  => 'Author URI',
 				'Requires'    => 'Requires',
 				'Plan'        => 'Plan',
+				'Category'    => 'Category',
 			)
 		);
 	}

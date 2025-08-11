@@ -10,6 +10,7 @@ export function useBlockCSS(props: any) {
 	} = attributes;
 	const BLOCK_WRAPPER = `#block-${clientId}`;
 	const MASTERIYO_WRAPPER = `.masteriyo-title-block--${persistedClientId}`;
+	const TITLE_WRAPPER = `h1.masteriyo-block.masteriyo-title-block--${persistedClientId}`;
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
 
 	const editorCSS = useMemo(() => {
@@ -18,10 +19,10 @@ export function useBlockCSS(props: any) {
 			css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
-			css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
+			css.push(`${TITLE_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${TITLE_WRAPPER} { color: ${textColor}; }`);
 		}
 		return css.join('\n');
 	}, [BLOCK_WRAPPER, alignment, fontSizeValue, textColor]);
@@ -33,10 +34,10 @@ export function useBlockCSS(props: any) {
 			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
-			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
+			css.push(`${TITLE_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${TITLE_WRAPPER} { color: ${textColor}; }`);
 		}
 		return css.join('\n');
 	}, [MASTERIYO_WRAPPER, alignment, fontSizeValue, textColor]);

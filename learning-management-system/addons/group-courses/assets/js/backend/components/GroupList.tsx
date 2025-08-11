@@ -17,7 +17,6 @@ import {
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import {
-	BiBook,
 	BiCalendar,
 	BiDotsVerticalRounded,
 	BiGroup,
@@ -105,14 +104,6 @@ const GroupList: React.FC<Props> = (props) => {
 					<Icon as={BiGroup} />
 					<Text fontSize="xs" fontWeight="medium">
 						{data?.emails?.length || 0}
-					</Text>
-				</Stack>
-			</Td>
-			<Td>
-				<Stack direction="row" spacing="2" alignItems="center">
-					<Icon as={BiBook} />
-					<Text fontSize="xs" fontWeight="medium" color="gray.600">
-						{data?.courses_count || 0}
 					</Text>
 				</Stack>
 			</Td>

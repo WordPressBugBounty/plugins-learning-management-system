@@ -175,6 +175,10 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			Blocks\CourseCurriculum::class,
 			Blocks\CourseReviews::class,
 			Blocks\CourseOverview::class,
+			Blocks\CourseComingSoon::class,
+			Blocks\CourseCategory::class,
+			Blocks\GroupPriceButton::class,
+			Blocks\CourseUserProgress::class,
 		);
 
 		/**

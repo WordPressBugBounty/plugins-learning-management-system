@@ -79,4 +79,15 @@ class Helper {
 			'XPF',
 		);
 	}
+
+	/**
+	 * Get stripe options.
+	 *
+	 * @return array
+	 */
+	public static function get_stripe_options() {
+		return array(
+			'api_key' => Setting::get_secret_key(),
+		);
+	}
 }

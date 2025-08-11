@@ -85,6 +85,10 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 
 		$data['product_data'][ MasteriyoTrackingInfo::get_slug() ] = MasteriyoTrackingInfo::all();
 		$data['base_product']                                      = MasteriyoTrackingInfo::get_name();
+		$data['plugin_activation_date']                            = get_option( 'masteriyo_install_date', time() );
+		$data['publish_course_count']                              = MasteriyoTrackingInfo::get_publish_course_count();
+		$data['enrolled_users_count']                              = MasteriyoTrackingInfo::masteriyo_count_total_enrolled_users();
+		$data['masteriyo_install_days']                            = MasteriyoTrackingInfo::get_install_days();
 		return $data;
 	}
 }

@@ -38,6 +38,20 @@
     },
     "blockCSS": {
       "type": "string"
+    },
+    "selectedCourseId": {
+      "type": "number"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "14",
+        "unit": "px"
+      }
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "style": "masteriyo-public",

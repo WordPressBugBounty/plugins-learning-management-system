@@ -15,7 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiSolidMegaphone } from 'react-icons/bi';
+import { BiChevronLeft } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 import {
@@ -25,6 +25,7 @@ import {
 } from '../../../../../../assets/js/back-end/components/common/Header';
 import { navActiveStyles } from '../../../../../../assets/js/back-end/config/styles';
 import routes from '../../../../../../assets/js/back-end/constants/routes';
+import { useWarnUnsavedChanges } from '../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import {
 	addOperationInCache,
@@ -64,6 +65,7 @@ const AddNewAnnouncement: React.FC = () => {
 	const onSubmit = (data: any) => {
 		addAnnouncement.mutate(deepClean(data), {
 			onSuccess: (data) => {
+				methods.reset(methods.getValues());
 				addOperationInCache(
 					queryClient,
 					[
@@ -82,12 +84,7 @@ const AddNewAnnouncement: React.FC = () => {
 					isClosable: true,
 				});
 				queryClient.invalidateQueries({ queryKey: [`announcementList`] });
-				navigate({
-					pathname: routes.courseAnnouncement.edit.replace(
-						':courseAnnouncementId',
-						data.id + '',
-					),
-				});
+				navigate(routes.courseAnnouncement.list);
 			},
 
 			onError: (error: any) => {
@@ -107,6 +104,8 @@ const AddNewAnnouncement: React.FC = () => {
 			},
 		});
 	};
+
+	useWarnUnsavedChanges(methods.formState.isDirty);
 
 	const FormButton = () => (
 		<ButtonGroup>
@@ -149,7 +148,6 @@ const AddNewAnnouncement: React.FC = () => {
 									rounded="none"
 									isActive
 								>
-									<Icon as={BiSolidMegaphone} />
 									{__('Add New Announcement', 'learning-management-system')}
 								</Button>
 							</Link>

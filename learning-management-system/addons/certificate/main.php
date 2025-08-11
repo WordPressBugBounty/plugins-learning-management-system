@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
  * Version: 1.13.0
  * Author URI: https://masteriyo.com
  * Plan: Free
+ * Category: Course Features
  */
 
 use Masteriyo\Addons\Certificate\CertificateAddon;
@@ -17,9 +18,9 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_CERTIFICATE_ASSETS', dirname( __FILE__ ) . '/assets' );
-define( 'MASTERIYO_CERTIFICATE_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_DIR', __DIR__ );
+define( 'MASTERIYO_CERTIFICATE_ASSETS', __DIR__ . '/assets' );
+define( 'MASTERIYO_CERTIFICATE_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_CERTIFICATE_ADDON_SLUG', 'certificate' );
 
 // Bail early if the addon is not active.
@@ -27,14 +28,14 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_CERTIFICATE_ADDON_SLUG ) ) {
 	return;
 }
 
-require_once dirname( __FILE__ ) . '/helper.php';
+require_once __DIR__ . '/helper.php';
 /**
  * Include service providers for certificate.
  */
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 
@@ -42,4 +43,3 @@ add_filter(
  * Initialize Masteriyo Certificate.
  */
 CertificateAddon::instance()->init();
-

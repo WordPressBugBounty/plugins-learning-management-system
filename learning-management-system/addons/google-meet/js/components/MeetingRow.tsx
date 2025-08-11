@@ -108,8 +108,9 @@ const MeetingRow: React.FC<Props> = (props) => {
 	const toast = useToast();
 	const onEditPress = () => {
 		navigate(
-			googleMeetRoutes.googleMeet.edit.replace(':googleMeetId', id.toString()) +
-				'?referrer=meeting-list',
+			googleMeetRoutes.googleMeet.edit
+				?.replace(':courseId', course_id.toString())
+				?.replace(':googleMeetId', id.toString()) + '?referrer=meeting-list',
 		);
 	};
 
@@ -189,10 +190,10 @@ const MeetingRow: React.FC<Props> = (props) => {
 				<Link
 					as={RouterLink}
 					to={
-						googleMeetRoutes.googleMeet.edit.replace(
-							':googleMeetId',
-							id.toString(),
-						) + '?referrer=meeting-list'
+						googleMeetRoutes.googleMeet.edit
+							?.replace(':courseId', course_id.toString())
+							?.replace(':googleMeetId', id.toString()) +
+						'?referrer=meeting-list'
 					}
 					fontWeight="semibold"
 					_hover={{ color: 'primary.500' }}

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: Divi
  * Plan: Free
+ * Category: Page Builders
  */
 
 use Masteriyo\Addons\DiviIntegration\Helper;
@@ -18,8 +19,8 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_DIVI_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_DIVI_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_DIVI_INTEGRATION_DIR', dirname( __FILE__ ) );
-define( 'MASTERIYO_DIVI_INTEGRATION_TEMPLATES', dirname( __FILE__ ) . '/templates' );
+define( 'MASTERIYO_DIVI_INTEGRATION_DIR', __DIR__ );
+define( 'MASTERIYO_DIVI_INTEGRATION_TEMPLATES', __DIR__ . '/templates' );
 define( 'MASTERIYO_DIVI_INTEGRATION_SLUG', 'divi-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_DIVI_INTEGRATION_SLUG ) && ! Helper::is_divi_active() ) {
@@ -74,7 +75,7 @@ require_once __DIR__ . '/helper/divi.php';
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

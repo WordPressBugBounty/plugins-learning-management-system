@@ -15,6 +15,7 @@ use Masteriyo\Addons\GroupCourses\Models\Setting;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Query\OrderQuery;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
 /**
@@ -86,12 +87,6 @@ class GroupsController extends PostsController {
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
 					'args'                => $this->get_collection_params(),
-				),
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_item' ),
-					'permission_callback' => 'is_user_logged_in',
-					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
 				),
 			)
 		);
@@ -269,17 +264,18 @@ class GroupsController extends PostsController {
 			);
 		}
 
-		if ( ! current_user_can( 'edit_others_posts' ) && get_current_user_id() !== absint( $post_author ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you are not allowed to view this resource.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
+		// Allow if user is admin OR is the author
+		if ( masteriyo_is_current_user_admin() || get_current_user_id() === absint( $post_author ) ) {
+			return true;
 		}
 
-		return true;
+		return new \WP_Error(
+			'masteriyo_rest_cannot_read',
+			__( 'Sorry, you are not allowed to view this resource.', 'learning-management-system' ),
+			array(
+				'status' => rest_authorization_required_code(),
+			)
+		);
 	}
 
 	/**
@@ -311,17 +307,18 @@ class GroupsController extends PostsController {
 
 		$post_author = get_post_field( 'post_author', $post_id );
 
-		if ( ! current_user_can( 'edit_others_posts', $post_id ) && get_current_user_id() !== absint( $post_author ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_update',
-				__( 'Sorry, you are not allowed to update this resource.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
+		// Allow if user is admin OR is the author
+		if ( masteriyo_is_current_user_admin() || get_current_user_id() === absint( $post_author ) ) {
+			return true;
 		}
 
-		return true;
+		return new \WP_Error(
+			'masteriyo_rest_cannot_update',
+			__( 'Sorry, you are not allowed to update this resource.', 'learning-management-system' ),
+			array(
+				'status' => rest_authorization_required_code(),
+			)
+		);
 	}
 
 	/**
@@ -352,17 +349,18 @@ class GroupsController extends PostsController {
 
 		$post_author = get_post_field( 'post_author', $post_id );
 
-		if ( ! current_user_can( 'delete_others_posts', $post_id ) && get_current_user_id() !== absint( $post_author ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_delete',
-				__( 'Sorry, you are not allowed to delete this resource.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
+		// Allow if user is admin OR is the author
+		if ( masteriyo_is_current_user_admin() || get_current_user_id() === absint( $post_author ) ) {
+			return true;
 		}
 
-		return true;
+		return new \WP_Error(
+			'masteriyo_rest_cannot_delete',
+			__( 'Sorry, you are not allowed to delete this resource.', 'learning-management-system' ),
+			array(
+				'status' => rest_authorization_required_code(),
+			)
+		);
 	}
 
 	/**
@@ -404,7 +402,7 @@ class GroupsController extends PostsController {
 
 			$post_author = get_post_field( 'post_author', $post_id );
 
-			if ( ! current_user_can( 'delete_others_posts', $post_id ) && get_current_user_id() !== absint( $post_author ) ) {
+			if ( ! masteriyo_is_current_user_admin() && get_current_user_id() !== absint( $post_author ) ) {
 					return new \WP_Error(
 						'masteriyo_rest_cannot_delete',
 						__( 'Sorry, you are not allowed to delete one or more of these resources.', 'learning-management-system' ),
@@ -441,6 +439,10 @@ class GroupsController extends PostsController {
 	public function get_group_setting() {
 		$data = Setting::all();
 
+		if ( ! isset( $data['groups_count'] ) ) {
+			$data['groups_count'] = $this->get_groups_count();
+		}
+
 		return rest_ensure_response( $data );
 	}
 
@@ -454,13 +456,14 @@ class GroupsController extends PostsController {
 	 * @return \WP_Error|array
 	 */
 	public function save_group_setting( $request ) {
-		$max_members                            = isset( $request['max_members'] ) ? sanitize_text_field( $request['max_members'] ) : '';
 		$deactivate_enrollment_on_member_change = isset( $request['deactivate_enrollment_on_member_change'] ) ? masteriyo_string_to_bool( $request['deactivate_enrollment_on_member_change'] ) : true;
 		$deactivate_enrollment_on_status_change = isset( $request['deactivate_enrollment_on_status_change'] ) ? masteriyo_string_to_bool( $request['deactivate_enrollment_on_status_change'] ) : true;
-
-		Setting::set( 'max_members', $max_members );
+		$group_buy_button_text                  = isset( $request['group_buy_button_text'] ) ? sanitize_text_field( $request['group_buy_button_text'] ) : '';
+		$group_buy_helper_text                  = isset( $request['group_buy_helper_text'] ) ? sanitize_text_field( $request['group_buy_helper_text'] ) : '';
 		Setting::set( 'deactivate_enrollment_on_member_change', $deactivate_enrollment_on_member_change );
 		Setting::set( 'deactivate_enrollment_on_status_change', $deactivate_enrollment_on_status_change );
+		Setting::set( 'group_buy_button_text', $group_buy_button_text );
+		Setting::set( 'group_buy_helper_text', $group_buy_helper_text );
 		Setting::save();
 
 		return rest_ensure_response( Setting::all() );
@@ -592,6 +595,48 @@ class GroupsController extends PostsController {
 		return masteriyo_array_only( $post_count, array_merge( array( 'any' ), PostStatus::all() ) );
 	}
 
+
+	/**
+	 * Get order information associated with a group.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @param int $group_id Group ID.
+	 *
+	 * @return array|null
+	 */
+	protected function get_group_order_info( $group_id ) {
+		$query = new OrderQuery(
+			array(
+				'meta_query' => array(
+					array(
+						'key'     => '_created_group_id',
+						'value'   => $group_id,
+						'compare' => '=',
+					),
+				),
+				'limit'      => 1,
+			)
+		);
+
+		$orders = $query->get_orders();
+
+		if ( empty( $orders ) ) {
+			return null;
+		}
+
+		$order = current( $orders );
+
+		if ( ! $order ) {
+			return null;
+		}
+
+		return array(
+			'id'     => $order->get_id(),
+			'status' => $order->get_status(),
+		);
+	}
+
 	/**
 	 * Get group data.
 	 *
@@ -633,18 +678,46 @@ class GroupsController extends PostsController {
 			'avatar_url'   => $author->get_avatar_url(),
 		);
 
-		$course_ids = masteriyo_get_active_course_ids_for_group( $group->get_id(), 'active' );
+		$courses_data = get_post_meta( $group->get_id(), 'masteriyo_course_data', true );
+
+		$course_ids = array_filter(
+			wp_list_pluck( (array) $courses_data, 'course_id' ),
+			fn( $id ) => ! empty( $id )
+		);
+
+		$courses = array();
+
+		foreach ( $course_ids as $course_id ) {
+			$course = masteriyo_get_course( $course_id );
+
+			if ( ! $course ) {
+				continue;
+			}
+
+			$courses[] = array(
+				'id'        => $course->get_id(),
+				'title'     => wp_specialchars_decode( $course->get_title( $context ) ),
+				'permalink' => $course->get_permalink(),
+			);
+		}
+
+		$max_group_size = masteriyo_get_group_max_size( $group->get_id() );
+
+		$order_info = $this->get_group_order_info( $group->get_id() );
 
 		$data = array(
-			'id'            => $group->get_id(),
-			'title'         => wp_specialchars_decode( $group->get_title( $context ) ),
-			'status'        => $group->get_status( $context ),
-			'description'   => $this->description_data( $group, $context ),
-			'date_created'  => masteriyo_rest_prepare_date_response( $group->get_date_created( $context ) ),
-			'date_modified' => masteriyo_rest_prepare_date_response( $group->get_date_modified( $context ) ),
-			'emails'        => $group->get_emails( $context ),
-			'author'        => $author,
-			'courses_count' => $course_ids ? count( $course_ids ) : 0,
+			'id'             => $group->get_id(),
+			'title'          => wp_specialchars_decode( $group->get_title( $context ) ),
+			'status'         => $group->get_status( $context ),
+			'description'    => $this->description_data( $group, $context ),
+			'date_created'   => masteriyo_rest_prepare_date_response( $group->get_date_created( $context ) ),
+			'date_modified'  => masteriyo_rest_prepare_date_response( $group->get_date_modified( $context ) ),
+			'emails'         => $group->get_emails( $context ),
+			'author'         => $author,
+			'courses_count'  => $course_ids ? count( $course_ids ) : 0,
+			'courses'        => $courses,
+			'max_group_size' => $max_group_size,
+			'order'          => $order_info,
 		);
 
 		/**
@@ -773,6 +846,26 @@ class GroupsController extends PostsController {
 						),
 					),
 				),
+				'order'         => array(
+					'description' => __( 'Associated order information', 'learning-management-system' ),
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+					'type'        => array( 'object', 'null' ),
+					'properties'  => array(
+						'id'     => array(
+							'description' => __( 'Order ID', 'learning-management-system' ),
+							'type'        => 'integer',
+							'context'     => array( 'view', 'edit' ),
+							'readonly'    => true,
+						),
+						'status' => array(
+							'description' => __( 'Order status', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+							'readonly'    => true,
+						),
+					),
+				),
 				'meta_data'     => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
@@ -818,22 +911,23 @@ class GroupsController extends PostsController {
 	protected function prepare_object_for_database( $request, $creating = false ) {
 		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
 
+		/** @var Group */
 		$group = masteriyo( 'group-courses' );
 
 		if ( 0 !== $id ) {
 			$group->set_id( $id );
+			/** @var GroupRepository */
 			$group_repo = masteriyo( 'group-courses.store' );
 			$group_repo->read( $group );
 		}
 
-		if ( isset( $request['emails'] ) && ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) ) {
-			if ( is_array( $request['emails'] ) ) {
-				$group_count         = count( array_unique( $request['emails'] ) );
-				$max_members_setting = masteriyo_get_groups_limit();
+		if ( isset( $request['emails'] ) && is_array( $request['emails'] ) ) {
+			$group_count    = count( array_unique( $request['emails'] ) );
+			$max_group_size = masteriyo_get_group_max_size( $group->get_id() );
 
-				if ( $max_members_setting && $group_count > $max_members_setting ) {
-					return new \WP_Error( "masteriyo_rest_{$this->post_type}_group_limit_reached", __( 'Group member limit reached. Please remove members or create a new group.', 'learning-management-system' ), array( 'status' => 400 ) );
-				}
+			// Only check limit if course-specific limit is set
+			if ( $max_group_size > 0 && $group_count > $max_group_size ) {
+				return new \WP_Error( "masteriyo_rest_{$this->post_type}_group_limit_reached", __( 'Group member limit reached. Please remove members or create a new group.', 'learning-management-system' ), array( 'status' => 400 ) );
 			}
 		}
 
@@ -870,6 +964,18 @@ class GroupsController extends PostsController {
 
 		// Group emails.
 		if ( isset( $request['emails'] ) ) {
+			// Ensure group author cannot be removed from the group
+			$group_author_id    = $group->get_author_id();
+			$group_author       = get_userdata( $group_author_id );
+			$group_author_email = $group_author ? $group_author->user_email : '';
+
+			if ( $group_author_email && ! in_array( $group_author_email, $request['emails'], true ) ) {
+				return new \WP_Error(
+					"masteriyo_rest_{$this->post_type}_cannot_remove_author",
+					__( 'The group creator cannot be removed from the group.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
 
 			if ( Setting::get( 'deactivate_enrollment_on_member_change' ) || ! empty( $request['emails'] ) ) {
 
@@ -915,7 +1021,7 @@ class GroupsController extends PostsController {
 
 		$post_author = get_post_field( 'post_author', $id );
 
-		if ( $id && get_current_user_id() !== absint( $post_author ) && ! empty( $restricted_changes ) ) {
+		if ( $id && get_current_user_id() !== absint( $post_author ) && ! empty( $restricted_changes ) && ! masteriyo_is_current_user_admin() ) {
 			return new \WP_Error( "masteriyo_rest_{$this->post_type}_cannot_update", __( 'Sorry, you are not allowed to update this resource.', 'learning-management-system' ), array( 'status' => 400 ) );
 		}
 

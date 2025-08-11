@@ -1,6 +1,8 @@
-import { Fragment } from '@wordpress/element';
-import React, { useEffect, useState } from 'react';
-import useClientId from './../../hooks/useClientId';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { Notice } from '@wordpress/components';
+import { Fragment, useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { useBlockCSS } from './block-css';
 import BlockSettings from './components/BlockSettings';
 
@@ -20,47 +22,84 @@ const Edit: React.FC<any> = (props) => {
 		setAttributes,
 	} = props;
 
-	useClientId(props.clientId, setAttributes, props.attributes);
-	const { editorCSS } = useBlockCSS(props);
-	const [shouldRender, setShouldRender] = useState(false);
-
 	const ServerSideRender = wp.serverSideRender
 		? wp.serverSideRender
 		: wp.components.ServerSideRender;
 
+	const [singleCourseId, setSingleCourseId] = useState(courseId || '');
+	const { editorCSS } = useBlockCSS(props);
+	const [shouldRender, setShouldRender] = useState(false);
+
 	useEffect(() => {
-		setAttributes({ courseId: context['masteriyo/course_id'] });
-		// Force re-render once courseId has a value
-		if (courseId) {
+		if (!clientId && props.clientId) {
+			setAttributes({ clientId: props.clientId });
+		}
+	}, [clientId, props.clientId]);
+
+	useEffect(() => {
+		setAttributes({ courseId: singleCourseId });
+	}, [singleCourseId]);
+
+	useEffect(() => {
+		if (!courseId && context['masteriyo/course_id']) {
+			setAttributes({ courseId: context['masteriyo/course_id'] });
+		}
+
+		if (singleCourseId || courseId || context['masteriyo/course_id']) {
 			setShouldRender(true);
 		}
-	}, [context['masteriyo/course_id'], courseId]);
+	}, [singleCourseId, courseId, context['masteriyo/course_id']]);
+
+	useEffect(() => {
+		if (editorCSS && clientId) {
+			const styleEl = document.createElement('style');
+			styleEl.textContent = editorCSS;
+			styleEl.setAttribute('data-masteriyo-block-css', clientId);
+			document.head.appendChild(styleEl);
+
+			return () => {
+				styleEl.remove();
+			};
+		}
+	}, [editorCSS, clientId]);
 
 	return (
-		<Fragment>
-			<BlockSettings {...props} />
-			<style>{editorCSS}</style>
-			<div
-				className="masteriyo-block-editor-wrapper"
-				onClick={(e) => e.preventDefault()}
-			>
-				{shouldRender && (
-					<ServerSideRender
-						block="masteriyo/course-price"
-						attributes={{
-							clientId: clientId ? clientId : '',
-							alignment: alignment,
-							fontSize: fontSize,
-							blockCSS: blockCSS,
-							textColor: textColor,
-							nameFormat: nameFormat,
-							price: price,
-							courseId: courseId ?? 0,
-						}}
-					/>
-				)}
-			</div>
-		</Fragment>
+		<>
+			<InspectorControls>
+				<BlockSettings setSingleCourseId={setSingleCourseId} {...props} />
+			</InspectorControls>
+			<Fragment>
+				<div
+					{...useBlockProps({
+						className: 'masteriyo-block-editor-wrapper',
+					})}
+					onClick={(e) => e.preventDefault()}
+				>
+					{shouldRender ? (
+						<ServerSideRender
+							block="masteriyo/course-price"
+							attributes={{
+								clientId: clientId || '',
+								alignment,
+								fontSize,
+								blockCSS,
+								textColor,
+								nameFormat,
+								price,
+								courseId: courseId ?? 0,
+							}}
+						/>
+					) : (
+						<Notice status="warning" isDismissible={false}>
+							{__(
+								'Please choose the course from settings or use inside a Single Course block.',
+								'learning-management-system',
+							)}
+						</Notice>
+					)}
+				</div>
+			</Fragment>
+		</>
 	);
 };
 

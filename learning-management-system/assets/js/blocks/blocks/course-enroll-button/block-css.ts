@@ -1,96 +1,113 @@
 import { useEffect, useMemo } from 'react';
+import { useDeviceType } from './../../hooks/useDeviceType';
 
 export function useBlockCSS(props: any) {
 	const { clientId, attributes, setAttributes } = props;
+
 	const {
 		clientId: persistedClientId,
 		alignment,
 		fontSize,
 		textColor,
+		backgroundColor,
+		startCourseButtonBorder = {},
 	} = attributes;
+
+	const [deviceType] = useDeviceType();
+
 	const BLOCK_WRAPPER = `#block-${clientId}`;
 	const MASTERIYO_WRAPPER = `.masteriyo-enroll-button-block--${persistedClientId}`;
+	const EnrollButton = `${MASTERIYO_WRAPPER} .masteriyo-enroll-btn`;
+	const EnrollButtonAlignment = `${MASTERIYO_WRAPPER} .masteriyo-time-btn`;
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
+
+	const radius =
+		startCourseButtonBorder?.radius?.[deviceType.toLowerCase()] || {};
+	const unit = startCourseButtonBorder?.radius?.unit || 'px';
+
+	const radiusCSS = Object.entries(radius)
+		.map(([key, val]) => {
+			if (val === undefined || val === null) return '';
+
+			const cssMap: Record<string, string> = {
+				top: 'border-top-left-radius',
+				right: 'border-top-right-radius',
+				bottom: 'border-bottom-right-radius',
+				left: 'border-bottom-left-radius',
+			};
+
+			const cssProp = cssMap[key];
+			if (!cssProp) return '';
+
+			const valueString = typeof val === 'number' ? `${val}${unit}` : `${val}`;
+			return `${EnrollButton} { ${cssProp}: ${valueString}; }`;
+		})
+		.filter(Boolean)
+		.join('\n');
 
 	const editorCSS = useMemo(() => {
 		let css: string[] = [];
+
 		if (alignment) {
 			css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
-			css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
+			css.push(`${EnrollButton} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${EnrollButton} { color: ${textColor}; }`);
 		}
-		// if (startCourseButtonBorder) {
-		// 	Object.keys(startCourseButtonBorder.radius).forEach((device) => {
-		// 		const deviceBorderRadius = startCourseButtonBorder.radius[device];
-		// 		css.push(
-		// 			`${BLOCK_WRAPPER}.masteriyo-course--content .masteriyo-time-btn .masteriyo-btn {
-		//          border-radius-top-left: ${deviceBorderRadius.top}${deviceBorderRadius.unit};
-		//          border-radius-top-right: ${deviceBorderRadius.right}${deviceBorderRadius.unit};
-		//          border-radius-bottom-right: ${deviceBorderRadius.bottom}${deviceBorderRadius.unit};
-		//          border-radius-bottom-left: ${deviceBorderRadius.left}${deviceBorderRadius.unit};
-		//        }`,
-		// 		);
-		// 	});
-		// }
+		if (backgroundColor) {
+			css.push(`${EnrollButton} { background-color: ${backgroundColor}; }`);
+		}
+		if (radiusCSS) {
+			css.push(radiusCSS);
+		}
+
 		return css.join('\n');
-	}, [BLOCK_WRAPPER, alignment, fontSizeValue, textColor]);
+	}, [
+		BLOCK_WRAPPER,
+		alignment,
+		fontSizeValue,
+		textColor,
+		backgroundColor,
+		radiusCSS,
+	]);
 
 	const cssToSave = useMemo(() => {
 		let css: string[] = [];
-		css.push(`${MASTERIYO_WRAPPER} { margin: 10px 0px 10px 0px; }`);
+
+		css.push(`${MASTERIYO_WRAPPER} { margin: 10px 0; }`);
 		if (alignment) {
-			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
+			css.push(`${EnrollButtonAlignment} { justify-content: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
-			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
+			css.push(`${EnrollButton} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${EnrollButton} { color: ${textColor}; }`);
 		}
-		// if (startCourseButtonBorder) {
-		// 	css.push(
-		// 		`${MASTERIYO_WRAPPER} .masteriyo-course--content .masteriyo-time-btn .masteriyo-btn {`,
-		// 	);
-		// 	// Desktop styles (no media query needed)
-		// 	const desktopButtonBorder = startCourseButtonBorder.radius.desktop;
+		if (backgroundColor) {
+			css.push(
+				`${EnrollButton} { background-color: ${backgroundColor} !important; }`,
+			);
+		}
 
-		// 	css.push(`
-		// 		  border-radius-top: ${desktopButtonBorder.top}${desktopButtonBorder.unit};
-		// 		  border-radius-right: ${desktopButtonBorder.right}${desktopButtonBorder.unit};
-		// 		  border-radius-bottom: ${desktopButtonBorder.bottom}${desktopButtonBorder.unit};
-		// 		  border-radius-left: ${desktopButtonBorder.left}${desktopButtonBorder.unit};
-		// 	 `);
+		if (radiusCSS) {
+			css.push(radiusCSS);
+		}
 
-		// 	// Tablet styles with media query
-		// 	const tabletButtonBorder = startCourseButtonBorder.radius.tablet;
-		// 	css.push(`
-		// 		@media (max-width: 960px) {
-		// 			 border-radius-top: ${tabletButtonBorder.top}${tabletButtonBorder.unit};
-		// 			 border-radius-right: ${tabletButtonBorder.right}${tabletButtonBorder.unit};
-		// 			 border-radius-bottom: ${tabletButtonBorder.bottom}${tabletButtonBorder.unit};
-		// 			 border-radius-left: ${tabletButtonBorder.left}${tabletButtonBorder.unit};
-		// 		}
-		// 	`);
-
-		// 	// Mobile styles with media query
-		// 	const mobileButtonBorder = startCourseButtonBorder.radius.mobile;
-		// 	css.push(`
-		// 		@media (max-width: 768px) {
-		// 			border-radius-top: ${mobileButtonBorder.top}${mobileButtonBorder.unit};
-		// 			border-radius-right: ${mobileButtonBorder.right}${mobileButtonBorder.unit};
-		// 			border-radius-bottom: ${mobileButtonBorder.bottom}${mobileButtonBorder.unit};
-		// 			border-radius-left: ${mobileButtonBorder.left}${mobileButtonBorder.unit};
-		// 		}
-		// 	`);
-
-		// 	css.push(`}`); // Close outer container rule
-		// }
 		return css.join('\n');
-	}, [MASTERIYO_WRAPPER, alignment, fontSizeValue, textColor]);
+	}, [
+		MASTERIYO_WRAPPER,
+		alignment,
+		fontSizeValue,
+		textColor,
+		backgroundColor,
+		EnrollButton,
+		radiusCSS,
+		EnrollButtonAlignment,
+	]);
 
 	useEffect(() => {
 		setAttributes({ blockCSS: cssToSave });

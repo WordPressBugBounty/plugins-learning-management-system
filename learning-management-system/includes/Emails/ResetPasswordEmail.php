@@ -205,7 +205,7 @@ class ResetPasswordEmail extends Email {
 			$placeholders['{user_email}']          = $user->get_email();
 			$placeholders['{username}']            = $user->get_username();
 			$placeholders['{password_reset_link}'] = wp_kses_post(
-				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">Reset Your Password</a>'
+				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">' . __( 'Reset Your Password', 'learning-management-system' ) . '</a>'
 			);
 		}
 

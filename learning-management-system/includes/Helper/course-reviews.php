@@ -286,7 +286,7 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 		if ( masteriyo_is_current_user_instructor() ) {
 			$course_ids = masteriyo_get_instructor_course_ids( get_current_user_id() );
 			if ( empty( $course_ids ) ) {
-				 return 0;
+				return 0;
 			}
 			$course_ids_placeholders = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
 			$prepared_query          = $wpdb->prepare(
@@ -350,5 +350,84 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 
 		return $pending_reviews_count ? absint( $pending_reviews_count ) : 0;
 
+	}
+}
+
+if ( ! function_exists( 'masteriyo_has_user_already_reviewed_course' ) ) {
+	/**
+	 * Check if a user has already submitted a review for a course.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @param int $course_id The ID of the course.
+	 * @param int $user_id The ID of the user. If not provided, uses current user.
+	 *
+	 * @return bool True if the user has already reviewed the course, false otherwise.
+	 */
+	function masteriyo_has_user_already_reviewed_course( $course_id, $user_id = null ) {
+		if ( ! $course_id ) {
+			return false;
+		}
+
+		if ( is_null( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		// Query for existing reviews by this user for this course.
+		$existing_reviews = masteriyo_get_course_reviews(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+				'parent'    => 0, // Only check parent reviews, not replies.
+				'status'    => array( CommentStatus::APPROVE_STR, CommentStatus::HOLD_STR ), // Check both approved and pending reviews.
+				'per_page'  => 1,
+			)
+		);
+
+		return ! empty( $existing_reviews );
+	}
+}
+
+
+if ( ! function_exists( 'masteriyo_user_has_pending_review_for_course' ) ) {
+	/**
+	 * Check if a user has a pending review for a course.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @param int $course_id The ID of the course.
+	 * @param int $user_id The ID of the user. If not provided, uses current user.
+	 *
+	 * @return bool True if the user has a pending review for the course, false otherwise.
+	 */
+	function masteriyo_user_has_pending_review_for_course( $course_id, $user_id = null ) {
+		if ( ! $course_id ) {
+			return false;
+		}
+
+		if ( is_null( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		// Query for pending reviews by this user for this course.
+		$pending_reviews = masteriyo_get_course_reviews(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+				'parent'    => 0, // Only check parent reviews, not replies.
+				'status'    => CommentStatus::HOLD_STR, // Check only pending reviews.
+				'per_page'  => 1,
+			)
+		);
+
+		return ! empty( $pending_reviews );
 	}
 }

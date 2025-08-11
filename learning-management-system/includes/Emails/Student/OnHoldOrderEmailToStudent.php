@@ -156,7 +156,7 @@ class OnHoldOrderEmailToStudent extends Email {
 			$placeholders['{billing_name}']       = ! empty( $billing_name ) ? $billing_name : $customer->get_display_name();
 			$placeholders['{billing_email}']      = ! empty( $customer->get_billing_email() ) ? $customer->get_billing_email() : $customer->get_email();
 			$placeholders['{account_login_link}'] = wp_kses_post(
-				'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+				'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
 			);
 		}
 

@@ -526,6 +526,15 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'subject'      => 'Congratulations! You\'re Now Part of the "{group_name}"!',
 					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>You’ve successfully joined the group "{group_name}"! We’re thrilled to have you with us. Your journey towards learning and growth starts here.</p><p class="email-template--info">To get started, you can access your account and discover all the available resources using the following link: {account_login_link}. Please, set your password the first time you log in.</p><p class="email-template--info">Dive into the content, participate in discussions, and don’t hesitate to reach out if you need any support. Your learning adventure is just beginning!</p>',
 				),
+				'group_published'            => array(
+					'enable'       => true,
+					'recipients'   => array(),
+					'to_address'   => '{author_email}',
+					'from_address' => '',
+					'from_name'    => '',
+					'subject'      => 'Great News! Your Group "{group_name}" is Now Active!',
+					'content'      => '<p class="email-template--info">Hi {author_first_name},</p><p>Exciting news! Your group "{group_name}" has been successfully activated and is now ready for members to join.</p><p class="email-template--info">You can now start inviting members and managing your group. To get started with group management, visit: {groups_management_link}</p><p class="email-template--info">Key features you can now use:</p><ul><li>Add and remove group members</li></ul><p class="email-template--info">Thank you for choosing our platform for your group learning needs. We\'re here to support you every step of the way!</p>',
+				),
 			),
 			'everyone'   => array(
 				'password_reset'     => array(

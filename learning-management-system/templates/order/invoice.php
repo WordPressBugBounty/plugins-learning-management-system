@@ -218,6 +218,17 @@ defined( 'ABSPATH' ) || exit;
 						?>
 				</div>
 			</div>
+
+			<?php
+			/**
+			 * Hook to display group information in invoice.
+			 *
+			 * @since 1.20.0
+			 *
+			 * @param array $invoice_data Invoice data array.
+			 */
+			do_action( 'masteriyo_invoice_after_customer_details', $invoice_data );
+			?>
 		</div>
 
 		<div class="masteriyo-invoice-body--table" style="margin-bottom: 20px;">
@@ -235,7 +246,12 @@ defined( 'ABSPATH' ) || exit;
 					<?php foreach ( $invoice_data['course_data'] as $course ) : ?>
 						<tr style="margin-bottom: 12px;">
 							<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 20px 6px 6px;"><?php echo esc_html( $course['course_id'] ); ?></td>
-							<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 20px 6px 6px;"><?php echo esc_html( $course['name'] ); ?></td>
+							<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 20px 6px 6px;">
+								<?php echo esc_html( $course['name'] ); ?>
+								<?php if ( ! empty( $course['is_group_purchase'] ) ) : ?>
+									<span style="color: #28a745; font-size: 12px; font-weight: 600; margin-left: 8px;">(<?php esc_html_e( 'Group', 'learning-management-system' ); ?>)</span>
+								<?php endif; ?>
+							</td>
 							<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 20px 6px 6px; text-align: center;"><?php echo esc_html( $course['quantity'] ); ?></td>
 							<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 20px 6px 6px; text-align: right;"><?php echo esc_html( $course['subtotal'] ); ?></td>
 						</tr>

@@ -605,17 +605,17 @@
         },
         {
             "name": "halaxa/json-machine",
-            "version": "1.2.3",
-            "version_normalized": "1.2.3.0",
+            "version": "1.2.5",
+            "version_normalized": "1.2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/halaxa/json-machine.git",
-                "reference": "58fb6e97c53c3341bb1f3685b8bdbeedf3f9616c"
+                "reference": "d0f84abf79ac98145d478b66d2bcf363d706477c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/58fb6e97c53c3341bb1f3685b8bdbeedf3f9616c",
-                "reference": "58fb6e97c53c3341bb1f3685b8bdbeedf3f9616c",
+                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/d0f84abf79ac98145d478b66d2bcf363d706477c",
+                "reference": "d0f84abf79ac98145d478b66d2bcf363d706477c",
                 "shasum": ""
             },
             "require": {
@@ -631,7 +631,7 @@
                 "ext-json": "To run JSON Machine out of the box without custom decoders.",
                 "guzzlehttp/guzzle": "To run example with GuzzleHttp"
             },
-            "time": "2025-05-30T12:36:04+00:00",
+            "time": "2025-07-07T13:38:34+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -658,7 +658,7 @@
             "description": "Efficient, easy-to-use and fast JSON pull parser",
             "support": {
                 "issues": "https://github.com/halaxa/json-machine/issues",
-                "source": "https://github.com/halaxa/json-machine/tree/1.2.3"
+                "source": "https://github.com/halaxa/json-machine/tree/1.2.5"
             },
             "funding": [
                 {
@@ -1221,17 +1221,17 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.13.1",
-            "version_normalized": "1.13.1.0",
+            "version": "1.13.3",
+            "version_normalized": "1.13.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c"
+                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/1720ddd719e16cf0db4eb1c6eca108031636d46c",
-                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/faed855a7b5f4d4637717c2b3863e277116beb36",
+                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36",
                 "shasum": ""
             },
             "require": {
@@ -1247,7 +1247,7 @@
                 "phpspec/prophecy": "^1.10",
                 "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
             },
-            "time": "2025-04-29T12:36:36+00:00",
+            "time": "2025-07-05T12:25:42+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1272,7 +1272,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.3"
             },
             "funding": [
                 {
@@ -1896,17 +1896,17 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.128.0",
-            "version_normalized": "7.128.0.0",
+            "version": "v17.3.0",
+            "version_normalized": "17.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "c704949c49b72985c76cc61063aa26fefbd2724e"
+                "reference": "cfe8244f7e5f910b7fdb5c2cf77428c0acbb9f7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/c704949c49b72985c76cc61063aa26fefbd2724e",
-                "reference": "c704949c49b72985c76cc61063aa26fefbd2724e",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/cfe8244f7e5f910b7fdb5c2cf77428c0acbb9f7c",
+                "reference": "cfe8244f7e5f910b7fdb5c2cf77428c0acbb9f7c",
                 "shasum": ""
             },
             "require": {
@@ -1916,12 +1916,11 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "3.5.0",
+                "friendsofphp/php-cs-fixer": "3.72.0",
                 "phpstan/phpstan": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^9.0",
-                "squizlabs/php_codesniffer": "^3.3"
+                "phpunit/phpunit": "^5.7 || ^9.0"
             },
-            "time": "2022-05-05T17:18:02+00:00",
+            "time": "2025-05-28T18:59:29+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1953,7 +1952,7 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.128.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v17.3.0"
             },
             "install-path": "../stripe/stripe-php"
         },
@@ -2181,8 +2180,8 @@
         },
         {
             "name": "themegrill/openai",
-            "version": "dev-MAS-2211-masteriyo-blocks-refactor",
-            "version_normalized": "dev-MAS-2211-masteriyo-blocks-refactor",
+            "version": "dev-MAS-2710-make-better-course-blocks-experience",
+            "version_normalized": "dev-MAS-2710-make-better-course-blocks-experience",
             "dist": {
                 "type": "path",
                 "url": "./packages/openai",
@@ -2204,29 +2203,29 @@
         },
         {
             "name": "woocommerce/action-scheduler",
-            "version": "3.9.2",
-            "version_normalized": "3.9.2.0",
+            "version": "3.9.3",
+            "version_normalized": "3.9.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/action-scheduler.git",
-                "reference": "efbb7953f72a433086335b249292f280dd43ddfe"
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/efbb7953f72a433086335b249292f280dd43ddfe",
-                "reference": "efbb7953f72a433086335b249292f280dd43ddfe",
+                "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/c58cdbab17651303d406cd3b22cf9d75c71c986c",
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.5",
+                "phpunit/phpunit": "^8.5",
                 "woocommerce/woocommerce-sniffs": "0.1.0",
                 "wp-cli/wp-cli": "~2.5.0",
                 "yoast/phpunit-polyfills": "^2.0"
             },
-            "time": "2025-02-03T09:09:30+00:00",
+            "time": "2025-07-15T09:32:30+00:00",
             "type": "wordpress-plugin",
             "extra": {
                 "scripts-description": {
@@ -2244,7 +2243,7 @@
             "homepage": "https://actionscheduler.org/",
             "support": {
                 "issues": "https://github.com/woocommerce/action-scheduler/issues",
-                "source": "https://github.com/woocommerce/action-scheduler/tree/3.9.2"
+                "source": "https://github.com/woocommerce/action-scheduler/tree/3.9.3"
             },
             "install-path": "../woocommerce/action-scheduler"
         }

@@ -142,8 +142,6 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	public function process_payment( $order_id ) {
 		masteriyo_get_logger()->info( 'Stripe process_payment: ' . $order_id, array( 'source' => 'payment-stripe' ) );
 		try {
-			Stripe::setApiKey( Setting::get_secret_key() );
-
 			$order   = masteriyo_get_order( $order_id );
 			$session = masteriyo( 'session' );
 
@@ -168,7 +166,8 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 					'receipt_email' => $order->get_billing_email(),
 					'metadata'      => array( 'order_id' => $order->get_id() ),
 					'amount'        => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
-				)
+				),
+				Helper::get_stripe_options()
 			);
 
 			masteriyo_get_logger()->info( 'Payment intent updated.', array( 'source' => 'payment-stripe' ) );
@@ -245,7 +244,7 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	protected function create_price_objects( $courses, $currency_code, $total ) {
 		masteriyo_get_logger()->info( 'Stripe create_price_objects: Start', array( 'source' => 'payment-stripe' ) );
 		$price_objects = array_map(
-			function( $course ) use ( $currency_code, $total ) {
+			function ( $course ) use ( $currency_code, $total ) {
 				return Price::create(
 					array(
 						'currency'     => $currency_code,
@@ -288,7 +287,10 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 		$stripe_customer    = null;
 
 		if ( ! empty( $stripe_customer_id ) ) {
-			$stripe_customer = Customer::retrieve( $stripe_customer_id );
+			$stripe_customer = Customer::retrieve(
+				$stripe_customer_id,
+				Helper::get_stripe_options()
+			);
 		}
 
 		if ( ! $stripe_customer ) {
@@ -302,7 +304,8 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 						'customer_id'    => $user->get_id(),
 						'customer_email' => $user->get_email(),
 					),
-				)
+				),
+				Helper::get_stripe_options()
 			);
 
 			update_post_meta( $user->get_id(), '_stripe_customer', $stripe_customer->id );
@@ -313,5 +316,4 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 
 		return $stripe_customer;
 	}
-
 }

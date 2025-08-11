@@ -1,53 +1,107 @@
 import { useEffect, useMemo } from 'react';
 
-type MinWidthSetting = {
-	value: number;
-};
+export function useBlockCSS(props: any) {
+	const { clientId, attributes, setAttributes } = props ?? {};
+	const {
+		clientId: persistedClientId,
+		minWidth,
+		fontSize,
+		textColor,
+		layoutOption,
+	} = attributes ?? {};
 
-interface BlockCSSProps {
-	clientId: string;
-	attributes: {
-		clientId: string;
-		minWidth?: MinWidthSetting;
-	};
-	setAttributes: (attrs: any) => void;
-}
-
-export function useBlockCSS(props: BlockCSSProps) {
-	const { clientId, attributes, setAttributes } = props;
-	const { clientId: persistedClientId, minWidth } = attributes;
-
-	const BLOCK_WRAPPER = `#block-${clientId}`;
 	const MASTERIYO_WRAPPER = `.masteriyo-course-stats-block--${persistedClientId}`;
+	const fontSizeValue =
+		fontSize?.value && fontSize?.unit
+			? `${fontSize.value}${fontSize.unit}`
+			: '';
+	const textColorValue = textColor || '';
+	const layoutOptionValue = layoutOption === 'grid' ? 'grid' : 'list';
+
+	const generateLayoutCSS = () => {
+		if (layoutOptionValue === 'grid') {
+			return `
+				${MASTERIYO_WRAPPER} .masteriyo-single-course-stats {
+					    display: flex;
+						flex-direction: row;
+						flex-wrap: wrap;
+						padding: 0 24px;
+						margin-top: 16px;
+				}
+			`;
+		} else {
+			return `
+				${MASTERIYO_WRAPPER} .masteriyo-single-course-stats {
+				         display: flex;
+						flex-direction: column;
+						flex-wrap: wrap;
+						padding: 0 24px;
+						margin-top: 16px;
+				}
+			`;
+		}
+	};
+
+	const generateFontSizeCSS = () => {
+		if (!fontSizeValue) return '';
+		return `
+			${MASTERIYO_WRAPPER} .duration span,
+			${MASTERIYO_WRAPPER} .student span,
+			${MASTERIYO_WRAPPER} .last-updated span,
+			${MASTERIYO_WRAPPER} .masteriyo-available-seats-for-students span,
+			${MASTERIYO_WRAPPER} .course-started-at span {
+				font-size: ${fontSizeValue};
+			}
+		`;
+	};
+
+	const generateTextColorCSS = () => {
+		if (!textColorValue) return '';
+		return `
+			${MASTERIYO_WRAPPER} .duration span,
+			${MASTERIYO_WRAPPER} .student span,
+			${MASTERIYO_WRAPPER} .last-updated span,
+			${MASTERIYO_WRAPPER} .course-started-at span {
+				color: ${textColorValue};
+			}
+		`;
+	};
+
+	const generateMinWidthCSS = () => {
+		if (minWidth?.value === undefined || minWidth?.value === null) return '';
+		return `
+			.masteriyo-single-course .masteriyo-block .masteriyo-course-stats-block--${clientId} .masteriyo-single-course-stats {
+				min-width: ${minWidth.value}px;
+			}
+		`;
+	};
 
 	const editorCSS = useMemo(() => {
-		let css: string[] = [];
-
-		if (minWidth?.value !== undefined && minWidth?.value !== null) {
-			css.push(
-				`.masteriyo-single-course .masteriyo-block .masteriyo-course-stats-block--${clientId} .masteriyo-single-course-stats {
-					min-width: ${minWidth.value}px;
-				}`,
-			);
-		}
-
-		return css.join('\n');
-	}, [BLOCK_WRAPPER, clientId, minWidth]);
+		return [
+			generateLayoutCSS(),
+			generateMinWidthCSS(),
+			generateFontSizeCSS(),
+			generateTextColorCSS(),
+		]
+			.filter(Boolean)
+			.join('\n');
+	}, [
+		clientId,
+		MASTERIYO_WRAPPER,
+		layoutOptionValue,
+		minWidth?.value,
+		fontSizeValue,
+		textColorValue,
+	]);
 
 	const cssToSave = useMemo(() => {
-		let css: string[] = [];
-
-		// You can add similar minWidth condition here if needed
-		// Example:
-		// if (minWidth?.value !== undefined && minWidth?.value !== null) {
-		//     css.push(`${MASTERIYO_WRAPPER} { min-width: ${minWidth.value}px; }`);
-		// }
-
-		return css.join('\n');
-	}, [MASTERIYO_WRAPPER, minWidth]);
+		return [generateLayoutCSS(), generateFontSizeCSS(), generateTextColorCSS()]
+			.filter(Boolean)
+			.join('\n');
+	}, [MASTERIYO_WRAPPER, layoutOptionValue, fontSizeValue, textColorValue]);
 
 	useEffect(() => {
-		setAttributes({ blockCSS: cssToSave });
+		setAttributes?.({ blockCSS: cssToSave });
 	}, [cssToSave, setAttributes]);
 
 	return { editorCSS, cssToSave };

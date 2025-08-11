@@ -12,6 +12,7 @@ namespace Masteriyo\Blocks;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Abstracts\BlockHandler;
+use Masteriyo\Query\CourseProgressQuery;
 
 /**
  * Class CourseEnrollButton
@@ -55,7 +56,15 @@ class CourseEnrollButton extends BlockHandler {
 		}
 
 		$course = $this->get_block_preview_course( $course_id );
+		$query  = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
 
+		$progress = current( $query->get_course_progress() );
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		\ob_start();
 
 		/**
@@ -69,20 +78,37 @@ class CourseEnrollButton extends BlockHandler {
 		?>
 		<style>
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			/* .masteriyo-single-course--btn {
-				text-wrap: nowrap;
-			} */
+
+			.masteriyo-time-btn .masteriyo-course-price{
+				display: none;
+			}
 		</style>
 		<?php
 
 		printf(
-			'<div class="masteriyo-block masteriyo-enroll-button-block--%s">',
+			'<div class="masteriyo-block  masteriyo-course--content  masteriyo-enroll-button-block--%s">',
 			esc_attr( $client_id )
 		);
 
-		do_action( 'masteriyo_template_enroll_button', $course );
+			masteriyo_get_template(
+				'single-course/price-and-enroll-button.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
 
 		echo '</div>';
+
+		?>
+			<style>
+	.masteriyo-enroll-button-block--<?php echo esc_attr( $client_id ); ?> .masteriyo-group-course__group-button {
+		display: none;
+	}
+</style>
+
+		<?php
 
 		/**
 		 * Fires after rendering the course enroll button.

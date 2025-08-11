@@ -54,6 +54,7 @@ class SingleCourseTitle extends BlockHandler {
 		}
 
 		$course = $this->get_block_preview_course( $course_id );
+	
 		if ( ! $course ) {
 			return '';
 		}

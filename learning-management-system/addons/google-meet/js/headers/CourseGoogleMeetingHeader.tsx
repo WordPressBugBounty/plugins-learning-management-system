@@ -4,7 +4,6 @@ import {
 	MenuButton,
 	MenuItem,
 	MenuList,
-	Stack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
@@ -58,15 +57,14 @@ const CourseGoogleMeetingHeader: React.FC<Props> = ({}) => {
 				icon: <Gear width={20} height={20} fill="currentColor" />,
 			},
 		];
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
 		<Header>
 			<HeaderTop>
-				<HeaderLeftSection>
-					<Stack direction={['column', 'column', 'column', 'row']}>
-						<HeaderLogo />
-					</Stack>
+				<HeaderLeftSection gap={7}>
+					<HeaderLogo />
 					<NavMenu sx={headerResponsive.larger}>
 						{HeaderData.map((data) => (
 							<NavMenuLink
@@ -74,7 +72,6 @@ const CourseGoogleMeetingHeader: React.FC<Props> = ({}) => {
 								as={NavLink}
 								_activeLink={navActiveStyles}
 								to={data.routes}
-								leftIcon={data.icon}
 							>
 								{data.name}
 							</NavMenuLink>

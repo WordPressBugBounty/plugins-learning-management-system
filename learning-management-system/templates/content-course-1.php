@@ -151,11 +151,22 @@ $categories = $course->get_categories( 'name' );
 				<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 					<div class="masteriyo-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price() ) ); ?></div>
 				<?php endif; ?>
-				<span class="masteriyo-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price() ) ); ?></span>
+					<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+				<span class="masteriyo-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+					<?php endif; ?>
 			</div>
 			<?php endif; ?>
 		</div>
-
+			<?php
+				/**
+				 * Fire for masteriyo archive course meta data.
+				 *
+				 * @since 1.11.0 [free]
+				 *
+				 * @param \Masteriyo\Models\Course $course Course object.
+				 */
+				do_action( 'masteriyo_course_progress', $course );
+			?>
 		<?php
 				/**
 				 * Fire for masteriyo archive course meta data layout 1.

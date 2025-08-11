@@ -54,8 +54,8 @@ class CourseOverview extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course = $this->get_block_preview_course( $course_id );
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		// Build custom inline style if width/height provided.
 		$style = '';
 		if ( isset( $attr['height'] ) ) {

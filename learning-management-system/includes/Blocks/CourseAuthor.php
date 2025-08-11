@@ -39,10 +39,11 @@ class CourseAuthor extends BlockHandler {
 	 * @return string Rendered HTML output.
 	 */
 	protected function build_html( $content ) {
-		$attr      = $this->attributes;
-		$block_css = $attr['blockCSS'] ?? '';
-		$course_id = $attr['courseId'] ?? 0;
-		$client_id = esc_attr( $attr['clientId'] ?? 0 );
+		$attr                 = $this->attributes;
+		$attr['enableRating'] = false;
+		$block_css            = $attr['blockCSS'] ?? '';
+		$course_id            = $attr['courseId'] ?? 0;
+		$client_id            = esc_attr( $attr['clientId'] ?? 0 );
 
 		if ( ! $course_id ) {
 			\ob_start();
@@ -54,12 +55,14 @@ class CourseAuthor extends BlockHandler {
 			return \ob_get_clean();
 		}
 
-		$course              = $this->get_block_preview_course( $course_id );
-		$hide_authors_name   = 'yes' === ( $attr['hideAuthorsName'] ?? 'no' ) ? 'none' : 'inline-block';
-		$hide_authors_avatar = 'yes' === ( $attr['hideAuthorsAvatar'] ?? 'no' ) ? 'none' : 'inline-block';
-
+		$course            = $this->get_block_preview_course( $course_id );
+		$GLOBALS['course'] = $course;
 		\ob_start();
-
+		?>
+		<style>
+			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</style>
+		<?php
 		/**
 		 * Fires before rendering course author in the course-author block.
 		 *
@@ -68,20 +71,6 @@ class CourseAuthor extends BlockHandler {
 		 * @param array $attr Block attributes.
 		 */
 		do_action( 'masteriyo_blocks_before_course_author', $attr );
-		?>
-		<style>
-			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			.masteriyo-single-course .masteriyo-course-author img {
-				display: <?php echo esc_attr( $hide_authors_avatar ); ?>;
-			}
-			.masteriyo-single-course .masteriyo-course-author .masteriyo-course-author--name {
-				display: <?php echo esc_attr( $hide_authors_name ); ?>;
-			}
-			.masteriyo-single-course .masteriyo-course-author a {
-				text-decoration: none;
-			}
-		</style>
-		<?php
 
 		printf(
 			'<div class="masteriyo-block masteriyo-title-block--%s">',
@@ -91,8 +80,9 @@ class CourseAuthor extends BlockHandler {
 		masteriyo_get_template(
 			'single-course/author-and-rating.php',
 			array(
-				'course' => $course,
-				'author' => masteriyo_get_user( $course->get_author_id() ),
+				'course'     => $course,
+				'author'     => masteriyo_get_user( $course->get_author_id() ),
+				'attributes' => $attr,
 			)
 		);
 

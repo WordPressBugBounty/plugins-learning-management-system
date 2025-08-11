@@ -151,9 +151,11 @@ do_action( 'masteriyo_before_related_posts_content' );
 					</div>
 					<!-- Price and Enroll Now Button -->
 					<div class="masteriyo-course-card-footer masteriyo-time-btn">
+						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 						<div class="masteriyo-course-price">
 							<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 						</div>
+						<?php endif; ?>
 						<?php
 						/**
 						 * Action hook for rendering enroll button template.

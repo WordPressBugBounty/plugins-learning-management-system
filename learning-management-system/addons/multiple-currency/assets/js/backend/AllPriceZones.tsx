@@ -11,7 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../../../assets/js/back-end/components/common/EmptyInfo';
@@ -51,6 +51,7 @@ const AllPriceZones = () => {
 	const pricingZoneAPI = new API(urls.pricingZones);
 	const navigate = useNavigate();
 	const toast = useToast();
+	const { pathname } = useLocation();
 
 	const [filterParams, setFilterParams] = useState<FilterParams>({
 		order: 'desc',
@@ -58,7 +59,10 @@ const AllPriceZones = () => {
 	});
 
 	const [searchParams] = useSearchParams();
-	const currentTab = searchParams.get('status');
+	const currentTab =
+		'/multiple-currency/settings' === pathname
+			? 'settings'
+			: (searchParams.get('status') ?? 'any');
 
 	useEffect(() => {
 		if (currentTab) {
@@ -73,7 +77,9 @@ const AllPriceZones = () => {
 	const [deletePricingZoneId, setDeletePricingZoneId] = useState<number>();
 	const queryClient = useQueryClient();
 	const { onClose, onOpen, isOpen } = useDisclosure();
-	const [active, setActive] = useState('any');
+	const [active, setActive] = useState(
+		pathname === '/multiple-currency/settings' ? 'settings' : 'any',
+	);
 	const [bulkAction, setBulkAction] = useState<string>('');
 	const [bulkIds, setBulkIds] = useState<string[]>([]);
 
@@ -81,7 +87,11 @@ const AllPriceZones = () => {
 
 	const pricingZoneQuery = useQuery({
 		queryKey: ['pricingZonesList', filterParams],
-		queryFn: () => pricingZoneAPI.list(filterParams),
+		queryFn: () =>
+			pricingZoneAPI.list({
+				...filterParams,
+				status: currentTab === 'settings' ? 'any' : filterParams?.status,
+			}),
 		...{
 			keepPreviousData: true,
 		},
@@ -321,7 +331,7 @@ const AllPriceZones = () => {
 												}
 												isIndeterminate={
 													pricingZoneQuery?.data?.data?.length !==
-														bulkIds?.length && bulkIds?.length > 0
+														bulkIds.length && bulkIds.length > 0
 												}
 												isChecked={
 													pricingZoneQuery?.data?.data?.length ===
@@ -333,7 +343,7 @@ const AllPriceZones = () => {
 														e.target.checked
 															? pricingZoneQuery?.data?.data?.map(
 																	(pricingZone: any) =>
-																		pricingZone?.id?.toString(),
+																		pricingZone.id.toString(),
 																)
 															: [],
 													)

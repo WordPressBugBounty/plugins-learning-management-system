@@ -119,6 +119,15 @@ class CoursePriceWidget extends WidgetBase {
 			return;
 		}
 
+		/**
+		 * Filters course data to apply multiple currency conversion in page builder context.
+		 *
+		 * @since 1.20.0
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		$course = apply_filters( 'masteriyo_setup_course_data', $course );
+
 		?>
 		<div class="masteriyo-course-price">
 			<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
@@ -135,6 +144,14 @@ class CoursePriceWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( $course ) {
+			/**
+			 * Filters course data to apply multiple currency conversion in page builder context.
+			 *
+			 * @since 1.20.0
+			 *
+			 * @param \Masteriyo\Models\Course $course The course object.
+			 */
+			$course = apply_filters( 'masteriyo_setup_course_data', $course );
 			?>
 			<div class="masteriyo-course-price">
 				<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>

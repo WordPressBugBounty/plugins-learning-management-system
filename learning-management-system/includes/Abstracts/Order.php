@@ -240,29 +240,42 @@ abstract class Order extends Model {
 	 * @return array
 	 */
 	public function get_invoice_data( $order ) {
-		return (
-			array(
-				'first_name'     => $order->get_billing_first_name(),
-				'last_name'      => $order->get_billing_last_name(),
-				'customer_id'    => $order->get_customer_id(),
-				'payment_method' => $order->get_payment_method(),
-				'transaction_id' => $order->get_transaction_id(),
-				'customer_note'  => $order->get_customer_note(),
-				'company_name'   => $order->get_billing_company(),
-				'address_one'    => $order->get_billing_address_1(),
-				'address_two'    => $order->get_billing_address_2(),
-				'city_name'      => $order->get_billing_city(),
-				'postcode'       => $order->get_billing_postcode(),
-				'country_name'   => masteriyo( 'countries' )->get_country_from_code( $order->get_billing_country() ),
-				'phone'          => $order->get_billing_phone(),
-				'user_id'        => $order->get_user_id(),
-				'status'         => $order->get_status(),
-				'created_at'     => $this->get_time_format( $order->get_date_created() ),
-				'state'          => masteriyo( 'countries' )->get_state_from_code( $order->get_billing_country(), $order->get_billing_state() ),
-				'order_id'       => $order->get_id(),
-				'course_data'    => $this->get_order_item_course( $this->get_items(), 'view' ),
-				'total'          => $order->get_rest_formatted_total(),
-			)
+		$data = array(
+			'first_name'     => $order->get_billing_first_name(),
+			'last_name'      => $order->get_billing_last_name(),
+			'customer_id'    => $order->get_customer_id(),
+			'payment_method' => $order->get_payment_method(),
+			'transaction_id' => $order->get_transaction_id(),
+			'customer_note'  => $order->get_customer_note(),
+			'company_name'   => $order->get_billing_company(),
+			'address_one'    => $order->get_billing_address_1(),
+			'address_two'    => $order->get_billing_address_2(),
+			'city_name'      => $order->get_billing_city(),
+			'postcode'       => $order->get_billing_postcode(),
+			'country_name'   => masteriyo( 'countries' )->get_country_from_code( $order->get_billing_country() ),
+			'phone'          => $order->get_billing_phone(),
+			'user_id'        => $order->get_user_id(),
+			'status'         => $order->get_status(),
+			'created_at'     => $this->get_time_format( $order->get_date_created() ),
+			'state'          => masteriyo( 'countries' )->get_state_from_code( $order->get_billing_country(), $order->get_billing_state() ),
+			'order_id'       => $order->get_id(),
+			'course_data'    => $this->get_order_item_course( $this->get_items(), 'view' ),
+			'total'          => $order->get_rest_formatted_total(),
+		);
+
+		/**
+		 * Get all order data for invoice in array format.
+		 *
+		 * @since 1.20.0
+		 * @param array $data An array containing all the order data for the invoice.
+		 * @param \Masteriyo\Models\Order\Order $order Order object.
+		 *
+		 * @return array An array containing all the order data for the invoice.
+		 */
+		return apply_filters(
+			'masteriyo_invoice_data',
+			$data,
+			$order
 		);
 	}
 

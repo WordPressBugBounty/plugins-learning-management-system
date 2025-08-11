@@ -897,11 +897,12 @@ class CourseListModule extends DiviModule {
 			);
 		}
 
-		if ( ! empty( $props['orderby'] ) ) {
-			$orderby = strtoupper( $props['orderby'] );
+		// -- before the switch --
+		if ( ! empty( $props['order_by'] ) ) {
+			$orderby = strtolower( $props['order_by'] );   // ① keep it lowercase
 			$order   = empty( $props['order'] ) ? 'DESC' : strtoupper( $props['order'] );
 
-			switch ( $orderby ) {
+			switch ( $orderby ) {                          // ② labels now match
 				case 'date':
 					$args['orderby'] = 'date';
 					$args['order']   = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
@@ -933,8 +934,9 @@ class CourseListModule extends DiviModule {
 		 *
 		 * @param array $args
 		 */
-		$args    = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
-		$query   = new \WP_Query( $args );
+		$args  = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
+		$query = new \WP_Query( $args );
+
 		$courses = array_filter( array_map( 'masteriyo_get_course', $query->posts ) );
 		$columns = empty( $props['columns'] ) ? masteriyo_get_setting( 'course_archive.display.per_row' ) : absint( $props['columns'] );
 

@@ -47,7 +47,7 @@ class CourseComingSoonAddon {
 		add_action( 'masteriyo_update_course', array( $this, 'save_course_coming_soon_data' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_course_coming_soon_data_in_response' ), 10, 4 );
 		add_action( 'masteriyo_single_course_sidebar_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
-
+		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_course_coming_soon' ), 10, 5 );
 		add_action( 'masteriyo_after_learn_page_process', array( $this, 'redirect' ) );
 		add_filter( 'masteriyo_single_course_start_text', array( $this, 'change_enroll_btn_text' ), 10, 2 );
@@ -64,6 +64,7 @@ class CourseComingSoonAddon {
 		add_action( 'masteriyo_before_single_course_highlights', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 
 		add_action( 'masteriyo_elementor_course_coming_soon_widget', array( $this, 'render_course_coming_soon_sidebar_content' ), 10, 1 );
+		add_action( 'masteriyo_course_coming_soon_block', array( $this, 'render_course_coming_soon_sidebar_content' ), 10, 1 );
 		add_filter( 'elementor_course_widgets', array( $this, 'append_custom_course_widgets' ), 10 );
 	}
 
@@ -326,6 +327,7 @@ class CourseComingSoonAddon {
 
 		if ( $hide_meta_data ) {
 			remove_action( 'masteriyo_single_course_sidebar_content', 'masteriyo_single_course_stats', 20 );
+			remove_action( 'masteriyo_single_course_sidebar_content_after_progress', 'masteriyo_single_course_stats', 20 );
 			remove_action( 'masteriyo_layout_1_single_course_aside_items', 'masteriyo_single_course_layout_1_stats', 20 );
 			remove_action( 'masteriyo_course_archive_layout_1_meta_data', 'masteriyo_course_archive_layout_1_stats', 20 );
 			remove_action( 'masteriyo_course_archive_layout_2_meta_data', 'masteriyo_course_archive_layout_2_stats', 20 );

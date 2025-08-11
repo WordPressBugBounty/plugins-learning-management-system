@@ -41,6 +41,22 @@
     },
     "blockCSS": {
       "type": "string"
+    },
+    "alignment": {
+      "type": "string"
+    },
+    "fontSize": {
+      "type": "object",
+      "default": {
+        "value": "24",
+        "unit": "px"
+      }
+    },
+    "textColor": {
+      "type": "string"
+    },
+    "selectedCourseId": {
+      "type": "number"
     }
   },
   "style": "masteriyo-public",

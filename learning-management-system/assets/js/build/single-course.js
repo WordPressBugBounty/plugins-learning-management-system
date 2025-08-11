@@ -49,6 +49,15 @@
 			});
 		},
 		getCourseReviewsPageHtml: function (data, options) {
+			if (!mto_data.course_id || mto_data.course_id.trim() === "" || mto_data.course_id == 0) {
+				var courseId = $("div[data-id]").attr("data-id");
+				if (courseId && courseId !== "0") {
+					mto_data.course_id = courseId;
+				} else {
+					return;
+				}
+			}
+
 			$.ajax({
 				type: 'POST',
 				dataType: 'json',
@@ -204,6 +213,31 @@
 				$('.masteriyo-login-msg').show();
 			} else {
 				$('.masteriyo-login-msg').hide();
+
+				// Only hide review form if user has already reviewed.
+				if ('yes' === mto_data.user_already_reviewed) {
+					$('.masteriyo-submit-container').hide();
+					$('.masteriyo-single-body__main--review-form').hide();
+
+					// Show message based on review status.
+					var message = '';
+					if ('yes' === mto_data.user_has_pending_review && mto_data.labels.already_reviewed_pending) {
+						message = mto_data.labels.already_reviewed_pending;
+					} else if (mto_data.labels.already_reviewed) {
+						message = mto_data.labels.already_reviewed;
+					}
+
+					if (message && !$('.masteriyo-already-reviewed-msg').length) {
+						var messageHtml = '<div class="masteriyo-already-reviewed-msg masteriyo-notify-message masteriyo-alert masteriyo-info-msg" style="margin-bottom: 20px; clear: both;"><span>' + message + '</span></div>';
+
+						// Add message after the hidden form.
+						if ($('.masteriyo-single-body__main--review-form').length) {
+							$('.masteriyo-single-body__main--review-form').after(messageHtml);
+						} else if ($('.masteriyo-submit-container').length) {
+							$('.masteriyo-submit-container').after(messageHtml);
+						}
+					}
+				}
 			}
 		},
 
@@ -334,7 +368,12 @@
 							masteriyo_utils.getSuccessNotice(mto_data.labels.submit_success),
 						);
 						$form.trigger('reset');
-						window.location.reload();
+
+						// Update the flag and hide the form since user has now reviewed.
+						mto_data.user_already_reviewed = 'yes';
+						setTimeout(function() {
+							window.location.reload();
+						}, 0);
 					},
 					onError: function (xhr, status, error) {
 						var message = error;
@@ -359,12 +398,23 @@
 				function (e) {
 					e.preventDefault();
 
+					// Show the form containers that might be hidden.
+					$('.masteriyo-submit-container').show();
+					$('.masteriyo-single-body__main--review-form').show();
+					// Hide any already reviewed message when replying.
+					$('.masteriyo-already-reviewed-msg').hide();
+
 					var $form = masteriyo.$create_review_form;
 					var $review = $(this).closest('.masteriyo-course-review');
 					var review_id = $review.data('id');
 					var $submit_button = $form.find('button[type="submit"]');
 					var title = $review.find('.title').data('value');
 
+					// Clear any edit mode data.
+					$form.removeData('edit-mode');
+					$form.removeData('review-id');
+
+					// Reset form fields for reply.
 					$form.find('input[name="title"]').val('');
 					$form.find('input[name="rating"]').val(0);
 					$form
@@ -394,6 +444,12 @@
 				'.masteriyo-edit-course-review',
 				function (e) {
 					e.preventDefault();
+
+					// Show the form containers that might be hidden.
+					$('.masteriyo-submit-container').show();
+					$('.masteriyo-single-body__main--review-form').show();
+					// Hide any already reviewed message when replying.
+					$('.masteriyo-already-reviewed-msg').hide();
 
 					var $form = masteriyo.$create_review_form;
 					var $review = $(this).closest('.masteriyo-course-review');
@@ -542,6 +598,11 @@
 										return;
 									}
 
+									// Check if this is the user's main review (not a reply).
+									// A main review has parent = 0, and if user can delete it, it's their review.
+									var parentValue = $review.find('input[name="parent"]').val();
+									var isUserMainReview = parentValue == '0' && !$review.hasClass('is-course-review-reply');
+
 									if (
 										$review
 											.next()
@@ -557,6 +618,29 @@
 										$('.masteriyo-stab--treviews').hide();
 										$('.masteriyo-stab--turating').hide();
 										$('.masteriyo-course-reviews-filters').hide();
+									}
+
+									// If user deleted their main review, show the review form again.
+									if (isUserMainReview) {
+										mto_data.user_already_reviewed = 'no';
+										mto_data.user_has_pending_review = 'no';
+										$('.masteriyo-submit-container').show();
+										$('.masteriyo-single-body__main--review-form').show();
+										// Hide any already reviewed message.
+										$('.masteriyo-already-reviewed-msg').remove();
+
+										// Reset the form to create mode
+										var $form = masteriyo.$create_review_form;
+										$form.removeData('edit-mode');
+										$form.removeData('review-id');
+										$form.find('input[name="title"]').val('');
+										$form.find('input[name="rating"]').val(0);
+										$form.find('.masteriyo-rstar').html(masteriyo_helper.get_rating_markup(0));
+										$form.find('[name="content"]').val('');
+										$form.find('[name="parent"]').val(0);
+										$form.find('button[type="submit"]').text(mto_data.labels.submit);
+										$('.masteriyo-form-title').text('');
+										$form.find('.masteriyo-title, .masteriyo-rating').show();
 									}
 								},
 								onError: function (xhr, status, error) {

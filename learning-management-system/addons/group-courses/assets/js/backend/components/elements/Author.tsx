@@ -135,7 +135,7 @@ const Author: React.FC<Props> = (props) => {
 							: defaultAuthor
 					}
 					onChange={(selectedOption: any) => {
-						setValue('author_id', selectedOption?.value);
+						setValue('author_id', selectedOption?.value, { shouldDirty: true });
 					}}
 					defaultOptions={
 						usersQuery.isSuccess

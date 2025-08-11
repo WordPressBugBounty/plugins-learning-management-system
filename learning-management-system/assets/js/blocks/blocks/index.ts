@@ -2,21 +2,25 @@ import { registerBlockType } from '@wordpress/blocks';
 import { applyFilters } from '@wordpress/hooks';
 import { blockIcons } from './../components/icon';
 
-import courseTitle from './course-title';
-import singleCourse from './single-course';
-import courseFeatureImage from './course-feature-image';
 import courseAuthor from './course-author';
-import courseContent from './course-contents';
-import coursePrice from './course-price';
-import courseEnrollButton from './course-enroll-button';
-import courseStats from './course-stats';
-import courseHighlights from './course-highlight';
-import courseSearchForm from './course-search-form';
-import courses from './courses';
 import courseCategories from './course-categories';
+import courseCategory from './course-category';
+import courseComingSoon from './course-coming-soon';
+import courseContent from './course-contents';
 import courseCurriculum from './course-curriculum';
-import courseReviews from './course-reviews';
+import courseEnrollButton from './course-enroll-button';
+import courseFeatureImage from './course-feature-image';
+import courseHighlights from './course-highlight';
 import courseOverview from './course-overview';
+import coursePrice from './course-price';
+import courseReviews from './course-reviews';
+import courseSearchForm from './course-search-form';
+import courseStats from './course-stats';
+import courseTitle from './course-title';
+import courseUserProgress from './course-user-progress';
+import courses from './courses';
+import groupPriceButton from './group-price-button';
+import singleCourse from './single-course';
 
 let blocks = [
 	singleCourse,
@@ -34,6 +38,10 @@ let blocks = [
 	courseCurriculum,
 	courseReviews,
 	courseOverview,
+	courseComingSoon,
+	courseCategory,
+	groupPriceButton,
+	courseUserProgress,
 ];
 
 blocks = applyFilters('masteriyo.blocks', blocks);

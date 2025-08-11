@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Single Course",
   "category": "masteriyo",
-  "description": "The Single Course Block serves as the primary container...",
+  "description": "The Single Course Block serves as the primary container for organizing and displaying your course content. This block is specifically designed to house additional blocks that provide enhanced functionality and detailed course information. To ensure proper functionality, make sure to add all related blocks within the Masteriyo Course Block section. Blocks placed outside of this section will not operate as intended.",
   "keywords": [
     "Single Course"
   ],
@@ -13,37 +13,53 @@
   "providesContext": {
     "masteriyo/course_id": "courseId"
   },
-  "example": {
-    "attributes": {}
-  },
   "supports": {
     "className": false,
     "customClassName": false,
     "reusable": false
   },
   "attributes": {
-    "formId": {
-      "type": "string",
-      "default": ""
-    },
-    "userState": {
-      "type": "string"
-    },
     "clientId": {
-      "type": "string",
-      "default": ""
-    },
-    "blockCSS": {
       "type": "string"
     },
     "courseId": {
       "type": "number"
     },
     "margin": {
-      "type": "string"
+      "type": "string",
+      "default": "auto"
     },
     "padding": {
-      "type": "object"
+      "type": "object",
+      "default": {
+        "border": 1,
+        "padding": {
+          "desktop": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "unit": "px"
+          },
+          "tablet": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "unit": "px"
+          },
+          "mobile": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "blockCSS": {
+      "type": "string"
     }
   },
   "style": "masteriyo-blocks",

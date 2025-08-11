@@ -113,7 +113,7 @@ const BlockSettings = ({ attributes, setAttributes }) => {
 								className="masteriyo-control-label"
 								style={{ marginBottom: '8px', display: 'block' }}
 							>
-								{__('View Mode', 'learning-management-system')}
+								{__('Course Display Mode', 'learning-management-system')}
 							</label>
 
 							<HStack spacing={4} {...group}>

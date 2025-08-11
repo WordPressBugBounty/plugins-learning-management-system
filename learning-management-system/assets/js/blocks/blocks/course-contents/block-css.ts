@@ -10,19 +10,21 @@ export function useBlockCSS(props: any) {
 	} = attributes;
 	const BLOCK_WRAPPER = `#block-${clientId}`;
 	const MASTERIYO_WRAPPER = `.masteriyo-course-content-block--${persistedClientId}`;
+	const MASTERIYO_ALIGNMENT = `.masteriyo-course-content-block--${persistedClientId} .masteriyo-stab`;
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
+	const textColorValue = `${MASTERIYO_WRAPPER} .course-overview`;
 
 	const editorCSS = useMemo(() => {
 		let css: string[] = [];
 
 		if (alignment) {
-			css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
+			css.push(`${MASTERIYO_ALIGNMENT} { justify-content: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
 			css.push(`${BLOCK_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${textColorValue} { color: ${textColor}; }`);
 		}
 
 		return css.join('\n');
@@ -32,13 +34,13 @@ export function useBlockCSS(props: any) {
 		let css: string[] = [];
 
 		if (alignment) {
-			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);
+			css.push(`${MASTERIYO_ALIGNMENT} { justify-content: ${alignment}; }`);
 		}
 		if (fontSizeValue) {
 			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
 		}
 		if (textColor) {
-			css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
+			css.push(`${textColorValue} { color: ${textColor}; }`);
 		}
 
 		return css.join('\n');

@@ -1,5 +1,51 @@
 == Changelog ==
 
+= 1.20.0 - 11-08-2025 =
+- Update - Added Stripe Connect.
+- Update - Integrate ThemeIsle SDK for deactivation feedback. [PRO]
+- Update - Introduce common header for multiple pages.
+- Update - Group Course addon rename to Groups.
+- Update - Integrate Formbricks for survey collection.
+- Refactor - Groups are now created after group purchase by user, manual group creation has been removed, group purchase is now visible to non-logged in users.
+- Refactor - Masteriyo blocks and additional single course blocks added.
+- Refactor - Masteriyo sub-menu cleaned up, renamed, and reorganized.
+- Enhancement - Addons Page UI/UX revamp.
+- Enhancement - Added automatic email reminders for live sessions. [PRO]
+- Enhancement - Added starter templates.
+- Enhancement - Added link for notifications.
+- Enhancement - All payment related settings move to payment methods tab.
+- Enhancement - Display password strength on reset password page.
+- Enhancement - Improved single course page & archive page UI/UX for enrolled users.
+- Enhancement - Multi-currency support for third-party page builders.
+- Enhancement - Quiz builder UI/UX revamp.
+- Enhancement - Restrict multiple reviews for a course by a single user.
+- Enhancement - Show alert in backend pages for unsaved changes.
+- Enhancement - Translation support added for email's link placeholder.
+- Fix - Adding video duration manually does not save correct values.
+- Fix - Course block in backend page not responsive on mobile preview.
+- Fix - Course filter & sorting not working with Divi.
+- Fix - Course list widget search issue and Zakra theme design issue in Elementor.
+- Fix - Correct tax calculation logic on checkout page. [PRO]
+- Fix - Duplicate certificates display on course completion.
+- Fix - Error displayed to students on reply submission in course Q&A.
+- Fix - Expiration date not displayed for courses expiring in 1 day.
+- Fix - Export tool allows instructors to export courses created by others.
+- Fix - Fatal error in courses page due to PMPRO Integration and RCP Integration. [PRO]
+- Fix - Logo removed in Masteriyo learn page settings when deleted from media library.
+- Fix - Manual enrollment updates not reflected on manual enrollment page. [PRO]
+- Fix - Multiple instructor assigned course gets removed after update by another instructor. [PRO]
+- Fix - PHP deprecated warnings in script styles and AddonsController.
+- Fix - Question reply color-mode issue, dashboard redirect issue & custom field renderer crash issue.
+- Fix - Removing a media item from one lesson also removes it from other lessons.
+- Fix - Sample course does not trigger completion notification and leads to 404 error on continue.
+- Fix - Send enrollment notification emails on CSV import for manually added students. [PRO]
+- Fix - Setup wizard UI issue.
+- Fix - Tax resets to zero when clicking "Buy Now" again after country selection. [PRO]
+- Fix - Tooltip text for “Public Profile” addon contains wrong text. [PRO]
+- Fix - User registration redirect to public profile issue when username already exists. [PRO]
+- Fix - Elementor create new template link doesn't work and added layout skeleton.
+- Fix - Randomize answer not working.
+
 = 1.18.4 - 17-07-2025 =
 - Fix - Security related issues.
 

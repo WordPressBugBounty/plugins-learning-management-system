@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: GamiPress
  * Plan: Free
+ * Category: Social Engagement
  */
 
 use Masteriyo\Pro\Addons;
@@ -18,7 +19,7 @@ use Masteriyo\Addons\GamiPressIntegration\Helper;
 
 define( 'MASTERIYO_GAMIPRESS_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_GAMIPRESS_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_GAMIPRESS_INTEGRATION_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_GAMIPRESS_INTEGRATION_DIR', __DIR__ );
 define( 'MASTERIYO_GAMIPRESS_INTEGRATION_SLUG', 'gamipress-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_GAMIPRESS_INTEGRATION_SLUG ) && ! Helper::is_gamipress_active() ) {
@@ -71,7 +72,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_GAMIPRESS_INTEGRATION_SLUG ) ) {
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

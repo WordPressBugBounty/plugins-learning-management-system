@@ -1,34 +1,58 @@
 import { useEffect, useMemo } from 'react';
 
 export function useBlockCSS(props: any) {
-	const { clientId, attributes, setAttributes } = props;
-	const { clientId: persistedClientId, fontSize, textColor } = attributes;
-	const BLOCK_WRAPPER = `#block-${clientId}`;
+	const { clientId, attributes, setAttributes } = props ?? {};
+	const { clientId: persistedClientId, height_n_width = {} } = attributes ?? {};
+
+	// ✅ Use correct block class
 	const MASTERIYO_WRAPPER = `.masteriyo-course-featured-image--${persistedClientId}`;
-	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
-	const editorCSS = useMemo(() => {
-		let css: string[] = [];
-		if (textColor) {
-			css.push(`${BLOCK_WRAPPER} { color: ${textColor}; }`);
+
+	const getSizeCSS = (
+		device: 'desktop' | 'tablet' | 'mobile' | null = null,
+	) => {
+		const size = device ? height_n_width?.[device] || {} : height_n_width;
+
+		const width = size?.width;
+		const height = size?.height;
+		const unit = size?.unit || 'px';
+
+		if (!width && !height) return '';
+
+		const styles = `
+			${MASTERIYO_WRAPPER} .masteriyo-feature-img img {
+				${width ? `width: ${width}${unit};` : ''}
+				${height ? `height: ${height}${unit};` : ''}
+			}
+		`;
+
+		if (!device || device === 'desktop') {
+			return styles;
 		}
 
-		return css.join('\n');
-	}, [BLOCK_WRAPPER, fontSizeValue, textColor]);
+		const mediaQuery =
+			device === 'tablet'
+				? '@media (max-width: 1024px)'
+				: '@media (max-width: 767px)';
+
+		return `
+			${mediaQuery} {
+				${styles}
+			}
+		`;
+	};
+
+	const editorCSS = useMemo(() => {
+		return getSizeCSS(null);
+	}, [MASTERIYO_WRAPPER, height_n_width]);
 
 	const cssToSave = useMemo(() => {
-		let css: string[] = [];
-		if (fontSizeValue) {
-			css.push(`${MASTERIYO_WRAPPER} { font-size: ${fontSizeValue}; }`);
-		}
-		if (textColor) {
-			css.push(`${MASTERIYO_WRAPPER} { color: ${textColor}; }`);
-		}
-
-		return css.join('\n');
-	}, [MASTERIYO_WRAPPER, fontSizeValue, textColor]);
+		return [getSizeCSS('desktop'), getSizeCSS('tablet'), getSizeCSS('mobile')]
+			.filter(Boolean)
+			.join('\n');
+	}, [MASTERIYO_WRAPPER, height_n_width]);
 
 	useEffect(() => {
-		setAttributes({ blockCSS: cssToSave });
+		setAttributes?.({ blockCSS: cssToSave });
 	}, [cssToSave, setAttributes]);
 
 	return { editorCSS, cssToSave };

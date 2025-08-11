@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo",
   "description": "An WordPress LMS plugin",
-  "version": "1.18.4",
+  "version": "1.20.0",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -104,7 +104,7 @@
     "pelago/emogrifier": "3.1.0",
     "psr/container": "1.0.0",
     "simplehtmldom/simplehtmldom": "^2.0@RC",
-    "stripe/stripe-php": "^7.116",
+    "stripe/stripe-php": "^17.3",
     "themegrill/openai": "@dev",
     "woocommerce/action-scheduler": "^3.8.1"
   },

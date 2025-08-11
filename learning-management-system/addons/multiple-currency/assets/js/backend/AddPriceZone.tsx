@@ -6,9 +6,8 @@ import {
 	Flex,
 	Heading,
 	Icon,
-	List,
-	ListItem,
 	Stack,
+	Text,
 	useBreakpointValue,
 	useMediaQuery,
 	useToast,
@@ -17,22 +16,22 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiCog, BiGroup } from 'react-icons/bi';
+import { BiChevronLeft, BiCog } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import {
 	Header,
 	HeaderLeftSection,
 	HeaderLogo,
+	HeaderTop,
 } from '../../../../../assets/js/back-end/components/common/Header';
 import {
 	NavMenu,
+	NavMenuItem,
 	NavMenuLink,
 } from '../../../../../assets/js/back-end/components/common/Nav';
-import {
-	navActiveStyles,
-	navLinkStyles,
-} from '../../../../../assets/js/back-end/config/styles';
+import { navActiveStyles } from '../../../../../assets/js/back-end/config/styles';
+import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../assets/js/back-end/utils/api';
 import { deepClean } from '../../../../../assets/js/back-end/utils/utils';
 import { urls } from '../constants/urls';
@@ -78,12 +77,7 @@ const AddPriceZone: React.FC = () => {
 					isClosable: true,
 				});
 				queryClient.invalidateQueries({ queryKey: [`pricingZonesList`] });
-				navigate({
-					pathname: multipleCurrencyBackendRoutes.edit.replace(
-						':pricingZoneID',
-						data.id + '',
-					),
-				});
+				navigate(multipleCurrencyBackendRoutes.list);
 			},
 
 			onError: (error: any) => {
@@ -103,6 +97,8 @@ const AddPriceZone: React.FC = () => {
 			},
 		});
 	};
+
+	useWarnUnsavedChanges(methods.formState.isDirty);
 
 	const FormButton = () => (
 		<ButtonGroup>
@@ -129,41 +125,52 @@ const AddPriceZone: React.FC = () => {
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
 			<Header>
-				<HeaderLeftSection>
-					<HeaderLogo />
-					<List
-						display={['none', 'flex', 'flex']}
-						flexDirection={['column', 'row', 'row', 'row']}
-					>
-						<ListItem mb="0">
-							<Link to={multipleCurrencyBackendRoutes.add}>
-								<Button
-									color="gray.600"
-									variant="link"
-									sx={headerTabStyles}
-									_active={navActiveStyles}
-									rounded="none"
-									isActive
+				<HeaderTop
+					display={'flex'}
+					flexWrap={'wrap'}
+					justifyContent={{ base: 'center', md: 'space-between' }}
+				>
+					<HeaderLeftSection gap={7}>
+						<HeaderLogo />
+
+						<NavMenu>
+							<NavMenuItem key={'new-price'} display="flex">
+								<NavMenuLink
+									as={NavLink}
+									_activeLink={navActiveStyles}
+									fontSize="sm"
+									fontWeight="semibold"
 								>
-									<Icon as={BiGroup} />
-									{__('Add New Pricing Zone', 'learning-management-system')}
-								</Button>
-							</Link>
-						</ListItem>
-					</List>
-					<NavMenu color={'gray.600'}>
-						<NavMenuLink
-							as={NavLink}
-							sx={{ ...navLinkStyles, borderBottom: '2px solid white' }}
-							_hover={{ textDecoration: 'none' }}
-							_activeLink={navActiveStyles}
-							to={multipleCurrencyBackendRoutes.settings}
-							leftIcon={<BiCog />}
-						>
-							{__('Settings', 'learning-management-system')}
-						</NavMenuLink>
-					</NavMenu>
-				</HeaderLeftSection>
+									<Text
+										fontSize="sm"
+										fontWeight="semibold"
+										_groupHover={{ color: 'primary.500' }}
+									>
+										{__('Add New Pricing Zone', 'learning-management-system')}
+									</Text>
+								</NavMenuLink>
+							</NavMenuItem>
+							<NavMenuItem key={multipleCurrencyBackendRoutes.settings}>
+								<NavMenuLink
+									fontSize="sm"
+									fontWeight="semibold"
+									as={NavLink}
+									_activeLink={navActiveStyles}
+									to={multipleCurrencyBackendRoutes.settings}
+									leftIcon={<BiCog />}
+								>
+									<Text
+										fontSize="sm"
+										fontWeight="semibold"
+										_groupHover={{ color: 'primary.500' }}
+									>
+										<Text>{__('Settings', 'learning-management-system')}</Text>
+									</Text>
+								</NavMenuLink>
+							</NavMenuItem>
+						</NavMenu>
+					</HeaderLeftSection>
+				</HeaderTop>
 			</Header>
 			<Container maxW="container.xl">
 				<Stack direction="column" spacing="6">

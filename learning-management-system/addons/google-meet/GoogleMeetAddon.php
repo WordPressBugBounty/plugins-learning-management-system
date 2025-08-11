@@ -699,7 +699,7 @@ class GoogleMeetAddon {
 			'page_title' => __( 'Google Meet', 'learning-management-system' ),
 			'menu_title' => __( 'Google Meet', 'learning-management-system' ),
 			'capability' => 'get_google-meets',
-			'position'   => 65,
+			'position'   => 75,
 		);
 		return $submenus;
 	}

@@ -1,13 +1,7 @@
 import { Box, Container, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-	BiCheckCircle,
-	BiLoaderCircle,
-	BiWalletAlt,
-	BiXCircle,
-} from 'react-icons/bi';
+import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
 import EmptyInfo from '../../../../../../assets/js/back-end/components/common/EmptyInfo';
@@ -54,22 +48,18 @@ const WITHDRAWS_TABS = [
 	{
 		status: 'any',
 		name: __('All', 'learning-management-system'),
-		icon: <BiWalletAlt />,
 	},
 	{
 		status: 'approved',
 		name: __('Approved', 'learning-management-system'),
-		icon: <BiCheckCircle />,
 	},
 	{
 		status: 'pending',
 		name: __('Pending', 'learning-management-system'),
-		icon: <BiLoaderCircle />,
 	},
 	{
 		status: 'rejected',
 		name: __('Rejected', 'learning-management-system'),
-		icon: <BiXCircle />,
 	},
 ];
 
@@ -106,18 +96,6 @@ const AllWithdraws: React.FC = () => {
 		},
 	});
 
-	useEffect(() => {
-		if (withdrawsQuery?.isSuccess) {
-			const withdrawCount = withdrawsQuery?.data?.meta?.withdraws_count;
-			setWithdrawStatusCount({
-				any: withdrawCount?.any,
-				approved: withdrawCount?.approved,
-				pending: withdrawCount?.pending,
-				rejected: withdrawCount?.rejected,
-			});
-		}
-	}, [withdrawsQuery?.isSuccess, withdrawsQuery?.data?.meta?.withdraws_count]);
-
 	const filterBy = (order: 'asc' | 'desc', orderBy: string) =>
 		setFilterParams(
 			deepMerge({
@@ -143,20 +121,20 @@ const AllWithdraws: React.FC = () => {
 	};
 
 	const selectedWithdraw = useMemo(() => {
-		return withdrawsQuery.data?.data?.find((item) => item?.id === actionId);
+		return withdrawsQuery.data?.data?.find((item) => item.id === actionId);
 	}, [actionId, withdrawsQuery.data?.data]);
 
 	return (
 		<Stack direction="column" spacing={8} alignItems="center">
 			<Header>
 				<HeaderTop>
-					<HeaderLeftSection>
+					<HeaderLeftSection gap={7}>
 						<HeaderLogo />
 						<FilterTabs
 							tabs={WITHDRAWS_TABS}
-							defaultActive="any"
+							defaultActive={withdrawStatus}
 							onTabChange={onChangeStatusFilter}
-							counts={withdrawStatusCount}
+							counts={withdrawsQuery?.data?.meta?.withdraws_count}
 							isCounting={withdrawsQuery.isLoading}
 						/>
 					</HeaderLeftSection>
@@ -216,7 +194,7 @@ const AllWithdraws: React.FC = () => {
 										<SkeletonWithdrawsList />
 									) : withdrawsQuery.isSuccess &&
 									  !isEmpty(withdrawsQuery?.data?.data) ? (
-										withdrawsQuery?.data?.data?.map((withdraw: any) => (
+										withdrawsQuery.data.data.map((withdraw: any) => (
 											<WithdrawRow
 												key={withdraw?.id}
 												data={withdraw}

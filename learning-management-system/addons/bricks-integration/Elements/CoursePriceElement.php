@@ -61,13 +61,13 @@ class CoursePriceElement extends \Bricks\Element {
 					),
 				),
 				// 'exclude' => array(
-				// 	'text-align',
-				// 	'line-height',
-				// 	'text-decoration',
-				// 	'color',
-				// 	'text-transform',
-				// 	'letter-spacing',
-				// 	'text-shadow',
+				//  'text-align',
+				//  'line-height',
+				//  'text-decoration',
+				//  'color',
+				//  'text-transform',
+				//  'letter-spacing',
+				//  'text-shadow',
 				// ),
 			);
 
@@ -86,17 +86,25 @@ class CoursePriceElement extends \Bricks\Element {
 	public function render() {
 		// Get the current page URL.
 		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $course ) {
+			/**
+			 * Filters course data to apply multiple currency conversion in page builder context.
+			 *
+			 * @since 1.20.0
+			 *
+			 * @param \Masteriyo\Models\Course $course The course object.
+			 */
+			$course = apply_filters( 'masteriyo_setup_course_data', $course );
+
 							echo "<div {$this->render_attributes( '_root' )}>";
 			?>
 							<div class="masteriyo-course-price">
-								<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price() ) ); ?></span>
+								<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 							</div>
 			<?php
 							echo '</div>';
 		}
 	}
 }
-

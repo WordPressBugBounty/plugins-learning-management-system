@@ -3900,6 +3900,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'course_completion'         => masteriyo_get_default_email_contents()['student']['course_completion'],
 					'group_course_enroll'       => masteriyo_get_default_email_contents()['student']['group_course_enroll'],
 					'group_joining'             => masteriyo_get_default_email_contents()['student']['group_joining'],
+					'group_published'           => masteriyo_get_default_email_contents()['student']['group_published'],
 				),
 				'everyone'   => array(
 					'password_reset'     => masteriyo_get_default_email_contents()['everyone']['password_reset'],
@@ -4742,7 +4743,7 @@ if ( ! function_exists( 'masteriyo_get_course_item_learn_page_url' ) ) {
 	 * @return string
 	 */
 	function masteriyo_get_course_item_learn_page_url( $course, $item = null ) {
-		if ( ! ( $course instanceof \Masteriyo\Models\Course ) || ! ( $item instanceof \Masteriyo\Models\Lesson || $item instanceof \Masteriyo\Models\Quiz ) || $item instanceof \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet  ) {
+		if ( ! ( $course instanceof \Masteriyo\Models\Course ) || ! ( $item instanceof \Masteriyo\Models\Lesson || $item instanceof \Masteriyo\Models\Quiz ) || $item instanceof \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet ) {
 			return '';
 		}
 
@@ -5448,38 +5449,37 @@ if ( ! function_exists( 'masteriyo_addon_menu_slugs' ) ) {
 			'course-announcement'          => array(
 				'menu_slug'  => 'course-announcements',
 				'menu_title' => __( 'Announcements', 'learning-management-system' ),
-				'position'   => 62,
+				'position'   => 60,
 
 			),
 			'google-classroom-integration' => array(
 				'menu_slug'  => 'google-classrooms',
 				'menu_title' => __( 'Google Classroom', 'learning-management-system' ),
-				'position'   => 64,
+				'position'   => 70,
 
 			),
 			'google-meet'                  => array(
 				'menu_slug'  => 'google-meet/meetings',
 				'menu_title' => __( 'Google Meet', 'learning-management-system' ),
-				'position'   => 65,
+				'position'   =>  75,
 
 			),
 			'group-courses'                => array(
 				'menu_slug'  => 'groups',
-				'menu_title' => __( 'Groups', 'learning-management-system' ),
-				'position'   => 66,
+				'menu_title' => '↳ ' . __( 'Groups', 'learning-management-system' ),
+				'position'   => 20,
 
 			),
 			'multiple-currency'            => array(
 				'menu_slug'  => 'multiple-currency/pricing-zones',
-				'menu_title' => __( 'Multiple Currency', 'learning-management-system' ),
-				'position'   => 63,
+				'menu_title' => '↳ ' . __( 'Currencies', 'learning-management-system' ),
+				'position'   => 82,
 
 			),
 			'certificate'                  => array(
 				'menu_slug'  => 'certificates',
 				'menu_title' => __( 'Certificates', 'learning-management-system' ),
-				'position'   => 75,
-
+				'position'   => 40,
 			),
 
 		);
@@ -6084,7 +6084,7 @@ if ( ! function_exists( 'masteriyo_show_onboarding_completion_notice' ) ) {
 
 					echo wp_kses_post(
 						sprintf(
-							'<div class="notice notice-warning"><p>%s</p></div>',
+							'<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
 							$message
 						)
 					);

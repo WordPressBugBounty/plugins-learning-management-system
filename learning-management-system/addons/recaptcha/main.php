@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
  * Author URI: https://masteriyo.com
  * Addon Type: enhancement
  * Plan: Free
+ * Category: Security
  */
 
 use Masteriyo\Pro\Addons;

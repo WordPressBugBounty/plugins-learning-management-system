@@ -170,23 +170,37 @@ abstract class BlockHandler {
 	 * @return \Masteriyo\Models\Course|null
 	 */
 	public function get_block_preview_course( $course_id ) {
-		global $course;
-		if ( empty( $course ) ) {
-			if ( 0 !== $course_id ) {
-				$course = masteriyo_get_course( $course_id );
-			}
-
-			if ( ! $course_id ) {
-				$args   = array(
-					'posts_per_page' => 1,
-					'post_type'      => PostType::COURSE,
-					'author'         => get_current_user_id(),
-					'post_status'    => array( PostStatus::PUBLISH, PostStatus::DRAFT ),
-				);
-				$posts  = get_posts( $args );
-				$course = empty( $posts ) ? null : masteriyo_get_course( $posts[0] );
-			}
+		if ( $course_id ) {
+			return masteriyo_get_course( $course_id );
 		}
-		return $course;
+
+		$args  = array(
+			'posts_per_page' => 1,
+			'post_type'      => PostType::COURSE,
+			'author'         => get_current_user_id(),
+			'post_status'    => array( PostStatus::PUBLISH, PostStatus::DRAFT ),
+		);
+		$posts = get_posts( $args );
+
+		return empty( $posts ) ? null : masteriyo_get_course( $posts[0] );
+	}
+
+
+	/**
+	 * Checks if the current screen is using the block editor.
+	 *
+	 * @return bool True if the block editor is active, false otherwise.
+	 */
+	public function is_block_editor() {
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			return $screen && method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor();
+		}
+
+		return false;
 	}
 }

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Addon Type: feature
  * Requires: Brick
  * Plan: Free
+ * Category: Page Builders
  */
 
 use Masteriyo\Addons\BricksIntegration\BricksIntegrationAddon;
@@ -19,7 +20,7 @@ use Masteriyo\Pro\Addons;
 
 define( 'MASTERIYO_BRICKS_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_BRICKS_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'MASTERIYO_BRICKS_INTEGRATION_DIR', dirname( __FILE__ ) );
+define( 'MASTERIYO_BRICKS_INTEGRATION_DIR', __DIR__ );
 define( 'MASTERIYO_BRICKS_INTEGRATION_SLUG', 'bricks-integration' );
 
 // to check if the bricks build is activated or not
@@ -73,7 +74,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_BRICKS_INTEGRATION_SLUG ) ) {
 add_filter(
 	'masteriyo_service_providers',
 	function( $providers ) {
-		return array_merge( $providers, require_once dirname( __FILE__ ) . '/config/providers.php' );
+		return array_merge( $providers, require_once __DIR__ . '/config/providers.php' );
 	}
 );
 

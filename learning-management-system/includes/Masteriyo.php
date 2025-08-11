@@ -188,7 +188,8 @@ class Masteriyo {
 		add_filter( 'user_registration_user_instance_check', '__return_true' );
 
 		// Add the lock icon to course items.
-		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon' ), 9, 2 );
+		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon_template_1' ), 9, 2 );
+
 		add_action( 'masteriyo_after_layout_1_single_course_curriculum_accordion_body_item_title', array( $this, 'add_lock_icon_template_1' ) );
 
 		// Check for first time course start.
@@ -716,7 +717,12 @@ class Masteriyo {
 	 *
 	 * @since 1.0.0
 	 */
+
 	public function admin_redirects() {
+
+		if ( wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return;
+		}
 
 		if ( ! get_transient( '_masteriyo_activation_redirect' ) ) {
 			return;
@@ -724,12 +730,17 @@ class Masteriyo {
 
 		delete_transient( '_masteriyo_activation_redirect' );
 
-		if ( ( ! empty( $_GET['page'] ) && in_array( $_GET['page'], array( 'masteriyo-onboard' ) ) ) || is_network_admin() || isset( $_GET['activate-multi'] ) || ! current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.PHP.StrictInArray.MissingTrueStrict
+		$current_page = $_GET['page'] ?? '';
+		if ( 'masteriyo-onboard' === $current_page || is_network_admin() || isset( $_GET['activate-multi'] ) ) {
 			return;
 		}
 
-		// If plugin is running for first time, redirect to onboard page.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( '1' !== get_option( 'masteriyo_first_time_activation_flag' ) ) {
+			update_option( 'masteriyo_first_time_activation_flag', '1' );
 			wp_safe_redirect( admin_url( 'index.php?page=masteriyo-onboard' ) );
 			exit;
 		}
@@ -1293,6 +1304,10 @@ class Masteriyo {
 		}
 
 		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
+			return;
+		}
+
+		if ( $object instanceof \Masteriyo\Models\Lesson && is_callable( 'masteriyo_course_preview_is_lesson_preview_enabled' ) && masteriyo_course_preview_is_lesson_preview_enabled( $object ) ) {
 			return;
 		}
 
