@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-11T17:48:14+05:45\n"
+"POT-Creation-Date: 2025-08-10T20:02:45+05:45\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: learning-management-system\n"
@@ -112,12 +112,10 @@ msgid "Complete Course"
 msgstr ""
 
 #: addons/group-courses/templates/group-buy-btn.php:14
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Buy for Group at {group_price}"
 msgstr ""
 
 #: addons/group-courses/templates/group-buy-btn.php:15
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Perfect for teams up to {group_size} members"
 msgstr ""
 
@@ -142,7 +140,8 @@ msgid "Group Status:"
 msgstr ""
 
 #: addons/group-courses/templates/order/invoice-group-info.php:52
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:10013
+#: assets/js/build/blocks.js:14441
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Active"
 msgstr ""
@@ -306,7 +305,7 @@ msgstr ""
 #: includes/AdminMenu.php:154
 #: includes/AdminMenu.php:155
 #: templates/course-filters/categories-filter.php:23
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14531
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Categories"
 msgstr ""
@@ -351,7 +350,24 @@ msgstr ""
 #: includes/AdminMenu.php:190
 #: includes/AdminMenu.php:191
 #: includes/Masteriyo.php:397
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9813
+#: assets/js/build/blocks.js:10016
+#: assets/js/build/blocks.js:10353
+#: assets/js/build/blocks.js:10660
+#: assets/js/build/blocks.js:10924
+#: assets/js/build/blocks.js:11217
+#: assets/js/build/blocks.js:11524
+#: assets/js/build/blocks.js:11898
+#: assets/js/build/blocks.js:12181
+#: assets/js/build/blocks.js:12455
+#: assets/js/build/blocks.js:12745
+#: assets/js/build/blocks.js:13088
+#: assets/js/build/blocks.js:13531
+#: assets/js/build/blocks.js:13870
+#: assets/js/build/blocks.js:14200
+#: assets/js/build/blocks.js:14444
+#: assets/js/build/blocks.js:14911
+#: assets/js/build/blocks.js:15410
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Settings"
 msgstr ""
@@ -528,7 +544,7 @@ msgid "Please ensure that only individual course elements are added inside the s
 msgstr ""
 
 #: includes/Blocks/GroupPriceButton.php:78
-#: includes/Blocks/GroupPriceButton.php:98
+#: includes/Blocks/GroupPriceButton.php:103
 msgid "Please select the course with group price."
 msgstr ""
 
@@ -7756,7 +7772,7 @@ msgstr ""
 
 #: includes/ScriptStyle.php:1240
 #: includes/ScriptStyle.php:1285
-#: templates/single-course/curriculum.php:68
+#: templates/single-course/curriculum.php:69
 #: templates/single-course/layout-1/main-content.php:193
 msgid "Collapse All"
 msgstr ""
@@ -8901,6 +8917,8 @@ msgstr ""
 #: templates/single-course/layout-1/review-filters.php:25
 #: templates/single-course/reviews-filters.php:26
 #: templates/single-course/reviews-filters.php:27
+#: assets/js/build/blocks.js:17238
+#: assets/js/build/blocks.js:17278
 #: assets/js/build/certificate-blocks.js:2
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Search"
@@ -8961,56 +8979,7 @@ msgid_plural "%s user ratings"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Desktop"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Tablet"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Mobile"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Top"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Right"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Bottom"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Left"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Image Size"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Width"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Height"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Unit"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8916
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9021,7 +8990,7 @@ msgid_plural "years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8917
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9032,7 +9001,7 @@ msgid_plural "months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8918
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9043,7 +9012,7 @@ msgid_plural "weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8919
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9054,7 +9023,7 @@ msgid_plural "days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8920
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9065,7 +9034,7 @@ msgid_plural "hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8921
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9076,7 +9045,7 @@ msgid_plural "minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8922
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9087,7 +9056,7 @@ msgid_plural "seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:8923
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9098,7 +9067,7 @@ msgid_plural "milliseconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9576
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9106,7 +9075,7 @@ msgstr[1] ""
 msgid "True/False"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9577
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9114,7 +9083,7 @@ msgstr ""
 msgid "Single Choice"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9578
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9122,7 +9091,7 @@ msgstr ""
 msgid "Multiple Choice"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9579
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9130,7 +9099,7 @@ msgstr ""
 msgid "Text Answer"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9580
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9138,7 +9107,7 @@ msgstr ""
 msgid "Match the Following"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9581
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9146,7 +9115,7 @@ msgstr ""
 msgid "Fill in the Blanks"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9582
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9154,7 +9123,7 @@ msgstr ""
 msgid "Audio"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9583
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9162,7 +9131,7 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9584
 #: assets/js/build/masteriyo-account.js:1
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -9170,109 +9139,41 @@ msgstr ""
 msgid "Sortable"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-#: assets/js/build/masteriyo-backend.js:1
-msgid "General"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Show/Hide Components"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Author's Avatar"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Author's Name"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Styles"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Color"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Font Size"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9695
+#: assets/js/build/blocks.js:10183
+#: assets/js/build/blocks.js:10619
+#: assets/js/build/blocks.js:10812
+#: assets/js/build/blocks.js:11108
+#: assets/js/build/blocks.js:11369
+#: assets/js/build/blocks.js:11797
+#: assets/js/build/blocks.js:12057
+#: assets/js/build/blocks.js:12344
+#: assets/js/build/blocks.js:12630
+#: assets/js/build/blocks.js:12936
+#: assets/js/build/blocks.js:13403
+#: assets/js/build/blocks.js:13755
+#: assets/js/build/blocks.js:14058
+#: assets/js/build/blocks.js:14740
 msgid "Please choose the course from settings or use inside a Single Course block."
 msgstr ""
 
-#: assets/js/build/blocks.js:281
-msgid "Design"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Grid"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "New Design"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Coming Soon"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "No. of Categories"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Hide courses count"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Include sub-categories"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Layout"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Columns"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Radius"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Top Left"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Top Right"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Bottom Right"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-msgid "Bottom Left"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
-#: assets/js/build/certificate-blocks.js:2
-msgid "Alignment"
-msgstr ""
-
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9815
+#: assets/js/build/blocks.js:10018
+#: assets/js/build/blocks.js:10355
+#: assets/js/build/blocks.js:10662
+#: assets/js/build/blocks.js:10926
+#: assets/js/build/blocks.js:11219
+#: assets/js/build/blocks.js:11526
+#: assets/js/build/blocks.js:11900
+#: assets/js/build/blocks.js:12183
+#: assets/js/build/blocks.js:12457
+#: assets/js/build/blocks.js:12747
+#: assets/js/build/blocks.js:13090
+#: assets/js/build/blocks.js:13533
+#: assets/js/build/blocks.js:13872
+#: assets/js/build/blocks.js:14202
+#: assets/js/build/blocks.js:14446
+#: assets/js/build/blocks.js:14913
 #: assets/js/build/certificate-blocks.js:2
 msgid "Center"
 msgstr ""
@@ -9338,59 +9239,345 @@ msgstr ""
 msgid "Select layout"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:9825
+#: assets/js/build/blocks.js:13543
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Show/Hide Components"
+msgstr ""
+
+#: assets/js/build/blocks.js:9827
+msgid "Author's Avatar"
+msgstr ""
+
+#: assets/js/build/blocks.js:9833
+msgid "Author's Name"
+msgstr ""
+
+#: assets/js/build/blocks.js:9839
+#: assets/js/build/blocks.js:10365
+#: assets/js/build/blocks.js:10936
+#: assets/js/build/blocks.js:11536
+#: assets/js/build/blocks.js:11910
+#: assets/js/build/blocks.js:12193
+#: assets/js/build/blocks.js:12467
+#: assets/js/build/blocks.js:13100
+#: assets/js/build/blocks.js:13575
+#: assets/js/build/blocks.js:13882
+#: assets/js/build/blocks.js:14212
+#: assets/js/build/blocks.js:14923
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Styles"
+msgstr ""
+
+#: assets/js/build/blocks.js:9844
+#: assets/js/build/blocks.js:10395
+#: assets/js/build/blocks.js:10966
+#: assets/js/build/blocks.js:11567
+#: assets/js/build/blocks.js:12198
+#: assets/js/build/blocks.js:12474
+#: assets/js/build/blocks.js:12790
+#: assets/js/build/blocks.js:13580
+#: assets/js/build/blocks.js:13912
+#: assets/js/build/blocks.js:15674
+#: assets/js/build/certificate-blocks.js:2
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Color"
+msgstr ""
+
+#: assets/js/build/blocks.js:9857
+#: assets/js/build/blocks.js:10408
+#: assets/js/build/blocks.js:10979
+#: assets/js/build/blocks.js:11586
+#: assets/js/build/blocks.js:12211
+#: assets/js/build/blocks.js:12487
+#: assets/js/build/blocks.js:12803
+#: assets/js/build/blocks.js:13594
+#: assets/js/build/blocks.js:13925
+#: assets/js/build/blocks.js:14231
+#: assets/js/build/certificate-blocks.js:2
+msgid "Font Size"
+msgstr ""
+
+#: assets/js/build/blocks.js:9863
+#: assets/js/build/blocks.js:11916
+#: assets/js/build/blocks.js:16718
+msgid "Image Size"
+msgstr ""
+
+#: assets/js/build/blocks.js:9997
+#: assets/js/build/blocks.js:14425
+msgid "Design"
+msgstr ""
+
+#: assets/js/build/blocks.js:10011
+#: assets/js/build/blocks.js:14439
+msgid "Grid"
+msgstr ""
+
+#: assets/js/build/blocks.js:10015
+#: assets/js/build/blocks.js:14443
+msgid "New Design"
+msgstr ""
+
+#: assets/js/build/blocks.js:10015
+#: assets/js/build/blocks.js:14443
+msgid "Coming Soon"
+msgstr ""
+
+#: assets/js/build/blocks.js:10024
+msgid "No. of Categories"
+msgstr ""
+
+#: assets/js/build/blocks.js:10033
+msgid "Hide courses count"
+msgstr ""
+
+#: assets/js/build/blocks.js:10039
+msgid "Include sub-categories"
+msgstr ""
+
+#: assets/js/build/blocks.js:10041
+#: assets/js/build/blocks.js:13605
+#: assets/js/build/blocks.js:14511
+#: assets/js/build/blocks.js:15412
+#: assets/js/build/certificate-blocks.js:2
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Layout"
+msgstr ""
+
+#: assets/js/build/blocks.js:10046
+#: assets/js/build/blocks.js:14516
+msgid "Columns"
+msgstr ""
+
+#: assets/js/build/blocks.js:10373
+#: assets/js/build/blocks.js:10944
+#: assets/js/build/blocks.js:11545
+#: assets/js/build/blocks.js:12768
+#: assets/js/build/blocks.js:13890
+#: assets/js/build/certificate-blocks.js:2
+msgid "Alignment"
+msgstr ""
+
+#: assets/js/build/blocks.js:10375
+#: assets/js/build/blocks.js:10946
+#: assets/js/build/blocks.js:11547
+#: assets/js/build/blocks.js:12770
+#: assets/js/build/blocks.js:13109
+#: assets/js/build/blocks.js:13892
+#: assets/js/build/blocks.js:15959
+#: assets/js/build/certificate-blocks.js:2
+msgid "Left"
+msgstr ""
+
+#: assets/js/build/blocks.js:10379
+#: assets/js/build/blocks.js:10950
+#: assets/js/build/blocks.js:11551
+#: assets/js/build/blocks.js:12774
+#: assets/js/build/blocks.js:13113
+#: assets/js/build/blocks.js:13896
+#: assets/js/build/certificate-blocks.js:2
+msgid "Center"
+msgstr ""
+
+#: assets/js/build/blocks.js:10383
+#: assets/js/build/blocks.js:10954
+#: assets/js/build/blocks.js:11555
+#: assets/js/build/blocks.js:12778
+#: assets/js/build/blocks.js:13117
+#: assets/js/build/blocks.js:13900
+#: assets/js/build/blocks.js:15957
+#: assets/js/build/certificate-blocks.js:2
+msgid "Right"
+msgstr ""
+
+#: assets/js/build/blocks.js:10387
+#: assets/js/build/blocks.js:10958
+#: assets/js/build/blocks.js:11559
+#: assets/js/build/blocks.js:12782
+#: assets/js/build/blocks.js:13121
+#: assets/js/build/blocks.js:13904
+#: assets/js/build/certificate-blocks.js:2
+msgid "Justify"
+msgstr ""
+
+#: assets/js/build/blocks.js:10420
+msgid "Border"
+msgstr ""
+
+#: assets/js/build/blocks.js:10474
+#: assets/js/build/blocks.js:11655
+#: assets/js/build/blocks.js:14594
+msgid "Radius"
+msgstr ""
+
+#: assets/js/build/blocks.js:10483
+#: assets/js/build/blocks.js:11664
+#: assets/js/build/blocks.js:14603
+msgid "Top Left"
+msgstr ""
+
+#: assets/js/build/blocks.js:10484
+#: assets/js/build/blocks.js:11665
+#: assets/js/build/blocks.js:14604
+msgid "Top Right"
+msgstr ""
+
+#: assets/js/build/blocks.js:10485
+#: assets/js/build/blocks.js:11666
+#: assets/js/build/blocks.js:14605
+msgid "Bottom Right"
+msgstr ""
+
+#: assets/js/build/blocks.js:10486
+#: assets/js/build/blocks.js:11667
+#: assets/js/build/blocks.js:14606
+msgid "Bottom Left"
+msgstr ""
+
+#: assets/js/build/blocks.js:11573
+#: assets/js/build/blocks.js:14929
+msgid "Background Color"
+msgstr ""
+
+#: assets/js/build/blocks.js:12757
+#: assets/js/build/certificate-blocks.js:2
+msgid "Text"
+msgstr ""
+
+#: assets/js/build/blocks.js:13107
+msgid "Text Alignment"
+msgstr ""
+
+#: assets/js/build/blocks.js:13129
+#: assets/js/build/blocks.js:14218
+msgid "Text Color"
+msgstr ""
+
+#: assets/js/build/blocks.js:13142
+msgid "Text Font Size"
+msgstr ""
+
+#: assets/js/build/blocks.js:13147
+msgid "Form Background Color"
+msgstr ""
+
+#: assets/js/build/blocks.js:13545
+msgid "Course Duration "
+msgstr ""
+
+#: assets/js/build/blocks.js:13551
+msgid "Student Count"
+msgstr ""
+
+#: assets/js/build/blocks.js:13557
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Available Seats Count"
+msgstr ""
+
+#: assets/js/build/blocks.js:13563
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Date Updated"
+msgstr ""
+
+#: assets/js/build/blocks.js:13569
+#: assets/js/build/masteriyo-backend.js:1
+msgid "Date Started"
+msgstr ""
+
+#: assets/js/build/blocks.js:13609
+msgid "Select layout"
+msgstr ""
+
+#: assets/js/build/blocks.js:14449
 msgid "Enable Course Filters "
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14450
 msgid "This feature does not work when the Global Course filter setting is enabled."
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14459
 msgid "No. of Courses"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14471
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Course Display Mode"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14522
 msgid "Filter"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14535
+#: assets/js/build/blocks.js:17111
 #: assets/js/build/certificate-blocks.js:2
 msgid "Select"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14540
 msgid "Button"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14935
 msgid "Buy Button Background Color"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14941
 msgid "Group Course Title"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14947
 msgid "Button Text Color"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14960
 msgid "Course Group Font Size"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14972
 msgid "Button Font Size"
 msgstr ""
 
-#: assets/js/build/blocks.js:281
+#: assets/js/build/blocks.js:14984
 msgid "Border Radius"
+msgstr ""
+
+#: assets/js/build/blocks.js:15861
+#: assets/js/build/certificate-blocks.js:2
+msgid "Desktop"
+msgstr ""
+
+#: assets/js/build/blocks.js:15874
+#: assets/js/build/certificate-blocks.js:2
+msgid "Tablet"
+msgstr ""
+
+#: assets/js/build/blocks.js:15887
+#: assets/js/build/certificate-blocks.js:2
+msgid "Mobile"
+msgstr ""
+
+#: assets/js/build/blocks.js:15956
+msgid "Top"
+msgstr ""
+
+#: assets/js/build/blocks.js:15958
+msgid "Bottom"
+msgstr ""
+
+#: assets/js/build/blocks.js:16749
+msgid "Width"
+msgstr ""
+
+#: assets/js/build/blocks.js:16759
+msgid "Height"
+msgstr ""
+
+#: assets/js/build/blocks.js:16766
+msgid "Unit"
 msgstr ""
 
 #: assets/js/build/certificate-blocks.js:2
@@ -11449,10 +11636,6 @@ msgid "No emails found."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
-msgid "Complete the associated order to publish this group"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
 msgid "Edit Group"
 msgstr ""
 
@@ -11487,30 +11670,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1
 msgid "Deactivate the enrollment status of members when they are removed from groups. Reactivate if they are added back and were previously enrolled in any course."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Group Buy Button Text"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Customize the text displayed on the group buy button. Use {group_price} as a placeholder for the group price."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Available placeholder: {group_price}"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Group Buy Helper Text"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Add helper text that will appear below the group buy button. Use {group_size} as a placeholder for the maximum group size. If group size is 0, it will show \"unlimited\"."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:1
-msgid "Available placeholder: {group_size} - Shows the group limit or \"unlimited\" if set to 0"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:1

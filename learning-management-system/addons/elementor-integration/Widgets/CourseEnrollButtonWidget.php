@@ -12,6 +12,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
 use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,11 +114,43 @@ class CourseEnrollButtonWidget extends WidgetBase {
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
 
-		if ( ! $course ) {
-			return;
-		}
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
 
-		masteriyo_template_enroll_button( $course );
+		$progress = current( $query->get_course_progress() );
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+		?>
+		<style>
+
+			.masteriyo-time-btn .masteriyo-course-price{
+				display: none;
+			}
+
+			.masteriyo-course--content{
+				padding: 0;
+			}
+		</style>
+		<?php
+		if ( $course ) {
+			?>
+			<div class="masteriyo-course--content">
+			<?php
+			masteriyo_get_template(
+				'single-course/price-and-enroll-button.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
+			?>
+			</div>
+			<?php
+		}
 	}
 
 	/**
@@ -127,9 +160,42 @@ class CourseEnrollButtonWidget extends WidgetBase {
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();
+		$query  = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
 
+		$progress = current( $query->get_course_progress() );
+		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+		?>
+		<style>
+
+			.masteriyo-time-btn .masteriyo-course-price{
+				display: none;
+			}
+
+			.masteriyo-course--content{
+				padding: 0;
+			}
+		</style>
+		<?php
 		if ( $course ) {
-			masteriyo_template_enroll_button( $course );
+			?>
+			<div class="masteriyo-course--content">
+			<?php
+			masteriyo_get_template(
+				'single-course/price-and-enroll-button.php',
+				array(
+					'course'   => $course,
+					'progress' => $progress,
+					'summary'  => $summary,
+				)
+			);
+			?>
+			</div>
+			<?php
 		}
 	}
 }

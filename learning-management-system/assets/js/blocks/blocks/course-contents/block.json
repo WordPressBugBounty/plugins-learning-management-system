@@ -1,66 +1,66 @@
 {
-  "$schema": "https://schemas.wp.org/block.json",
-  "apiVersion": 3,
-  "name": "masteriyo/course-contents",
-  "version": "1.0.0",
-  "title": "Course Content",
-  "category": "masteriyo-single-course",
-  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
-  "keywords": [
-    "Course Contents"
-  ],
-  "textdomain": "masteriyo",
-  "example": {
-    "attributes": {}
-  },
-  "usesContext": [
-    "masteriyo/course_id"
-  ],
-  "supports": {
-    "align": false,
-    "html": false,
-    "color": {
-      "background": false,
-      "gradient": false,
-      "text": false
-    },
-    "customClassName": false,
-    "className": false,
-    "reusable": false
-  },
-  "attributes": {
-    "clientId": {
-      "type": "string",
-      "default": ""
-    },
-    "course": {
-      "type": "string"
-    },
-    "courseId": {
-      "type": "number"
-    },
-    "blockCSS": {
-      "type": "string"
-    },
-    "alignment": {
-      "type": "string"
-    },
-    "fontSize": {
-      "type": "object",
-      "default": {
-        "value": "24",
-        "unit": "px"
-      }
-    },
-    "textColor": {
-      "type": "string"
-    },
-    "selectedCourseId": {
-      "type": "number"
-    }
-  },
-  "style": "masteriyo-public",
-  "editorScript": "masteriyo-blocks",
-  "viewScript": "masteriyo-single-course",
-  "editorStyle": "masteriyo-public"
+	"$schema": "https://schemas.wp.org/block.json",
+	"apiVersion": 3,
+	"name": "masteriyo/course-contents",
+	"version": "1.0.0",
+	"title": "Course Content",
+	"category": "masteriyo-single-course",
+	"description": "",
+	"keywords": [
+		"Course Contents"
+	],
+	"textdomain": "masteriyo",
+	"example": {
+		"attributes": {}
+	},
+	"usesContext": [
+		"masteriyo/course_id"
+	],
+	"supports": {
+		"align": false,
+		"html": false,
+		"color": {
+			"background": false,
+			"gradient": false,
+			"text": false
+		},
+		"customClassName": false,
+		"className": false,
+		"reusable": false
+	},
+	"attributes": {
+		"clientId": {
+			"type": "string",
+			"default": ""
+		},
+		"course": {
+			"type": "string"
+		},
+		"courseId": {
+			"type": "number"
+		},
+		"blockCSS": {
+			"type": "string"
+		},
+		"alignment": {
+			"type": "string"
+		},
+		"fontSize": {
+			"type": "object",
+			"default": {
+				"value": "24",
+				"unit": "px"
+			}
+		},
+		"textColor": {
+			"type": "string"
+		},
+		"selectedCourseId": {
+			"type": "number"
+		}
+	},
+	"style": "masteriyo-public",
+	"editorScript": "masteriyo-blocks",
+	"viewScript": "masteriyo-single-course",
+	"editorStyle": "masteriyo-public"
 }

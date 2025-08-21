@@ -1,56 +1,56 @@
 {
-  "$schema": "https://schemas.wp.org/block.json",
-  "apiVersion": 3,
-  "name": "masteriyo/course-highlights",
-  "version": "1.0.0",
-  "title": "Course Highlight",
-  "category": "masteriyo-single-course",
-  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
-  "keywords": [
-    "Course Highlight"
-  ],
-  "textdomain": "masteriyo",
-  "attributes": {
-    "clientId": {
-      "type": "string",
-      "default": ""
-    },
-    "blockCSS": {
-      "type": "string"
-    },
-    "alignment": {
-      "type": "string",
-      "default": "left"
-    },
-    "textColor": {
-      "type": "string",
-      "default": ""
-    },
-    "fontSize": {
-      "type": "object",
-      "default": {
-        "value": "16",
-        "unit": "px"
-      }
-    },
-    "courseId": {
-      "type": "number"
-    }
-  },
-  "usesContext": [
-    "masteriyo/course_id"
-  ],
-  "supports": {
-    "align": false,
-    "html": false,
-    "color": {
-      "background": false,
-      "gradient": false,
-      "text": false
-    },
-    "customClassName": false
-  },
-  "style": "masteriyo-public",
-  "editorScript": "masteriyo-blocks",
-  "editorStyle": "masteriyo-public"
+	"$schema": "https://schemas.wp.org/block.json",
+	"apiVersion": 3,
+	"name": "masteriyo/course-highlights",
+	"version": "1.0.0",
+	"title": "Course Highlight",
+	"category": "masteriyo-single-course",
+	"description": "",
+	"keywords": [
+		"Course Highlight"
+	],
+	"textdomain": "masteriyo",
+	"attributes": {
+		"clientId": {
+			"type": "string",
+			"default": ""
+		},
+		"blockCSS": {
+			"type": "string"
+		},
+		"alignment": {
+			"type": "string",
+			"default": "left"
+		},
+		"textColor": {
+			"type": "string",
+			"default": ""
+		},
+		"fontSize": {
+			"type": "object",
+			"default": {
+				"value": "16",
+				"unit": "px"
+			}
+		},
+		"courseId": {
+			"type": "number"
+		}
+	},
+	"usesContext": [
+		"masteriyo/course_id"
+	],
+	"supports": {
+		"align": false,
+		"html": false,
+		"color": {
+			"background": false,
+			"gradient": false,
+			"text": false
+		},
+		"customClassName": false
+	},
+	"style": "masteriyo-public",
+	"editorScript": "masteriyo-blocks",
+	"editorStyle": "masteriyo-public"
 }

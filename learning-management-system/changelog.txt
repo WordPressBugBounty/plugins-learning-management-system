@@ -1,5 +1,18 @@
 == Changelog ==
 
+= 1.20.1 - 21-08-2025 =
+- Enhancement - Show titles of timestamped notes. [PRO]
+- Enhancement - Choose Builder added in Stater Templates import.
+- Fix - Draft lesson display bug.  [PRO]
+- Fix - Vimeo unlisted video not working.
+- Fix - "Add to Cart" button shows only if course not purchased.  [PRO]
+- Fix - Correct UserCourseRepository query.
+- Fix - Right-click disabled on lesson links even with Content Protection off.  [PRO]
+- Fix - VAT issue on checkout when only country is selected.  [PRO]
+- Fix - Menu conflict with WooCommerce.
+- Fix - Price not showing with WooCommerce.
+- Fix - Enroll button design issue with elementor.
+
 = 1.20.0 - 11-08-2025 =
 - Update - Added Stripe Connect.
 - Update - Integrate ThemeIsle SDK for deactivation feedback. [PRO]

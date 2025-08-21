@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.20.0
+Stable tag: 1.20.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,7 +24,7 @@ You can always switch to a premium plan when your eLearning business starts pick
 
 👉 [Check out our Demo](https://themegrilldemos.com/elearning/)
 👉 [Check out our Flexible Pricing for Masteriyo Pro](https://masteriyo.com/pricing/)
-👉 [Give Masteriyo a Try](https://tastewp.com/recipe/masteriyo)
+👉 [Give Masteriyo a Try](https://app.instawp.io/launch?t=masteriyo-demo&d=v2)
 
 Also, join our growing LMS Facebook Community: [Masteriyo LMS Community](https://www.facebook.com/groups/masteriyo/)
 
@@ -242,6 +242,19 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 1.20.1 - 21-08-2025 =
+- Enhancement - Show titles of timestamped notes. [PRO]
+- Enhancement - Choose Builder added in Stater Templates import.
+- Fix - Draft lesson display bug.  [PRO]
+- Fix - Vimeo unlisted video not working.
+- Fix - "Add to Cart" button shows only if course not purchased.  [PRO]
+- Fix - Correct UserCourseRepository query.
+- Fix - Right-click disabled on lesson links even with Content Protection off.  [PRO]
+- Fix - VAT issue on checkout when only country is selected.  [PRO]
+- Fix - Menu conflict with WooCommerce.
+- Fix - Price not showing with WooCommerce.
+- Fix - Enroll button design issue with elementor.
 
 = 1.20.0 - 11-08-2025 =
 - Update - Added Stripe Connect.

@@ -325,7 +325,6 @@ class AdminMenu {
                 border-top: 1px solid hsla(0,0%,100%,.2);
                 content: "";
                 display: block;
-                float: left;
                 margin: -6px -15px 8px;
                 width: calc(100% + 26px);
             }

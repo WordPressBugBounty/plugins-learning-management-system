@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Course Author",
   "category": "masteriyo-single-course",
-  "description": "This block is designed to enhance the functionality of your LMS plugin by adding specific features within a Single Course Block. Please note that this block is only compatible when placed inside a Single Course Block. Using it outside of a Single Course Block will result in no functionality.",
+  "description": "",
   "keywords": [
     "Courses Author Block"
   ],

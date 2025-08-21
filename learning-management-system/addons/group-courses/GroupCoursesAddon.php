@@ -1772,18 +1772,22 @@ class GroupCoursesAddon {
 		}
 	}
 
-/**
-	 * Determines whether the currently logged-in user owns a group for the specified course.
-	 *
-	 * Performs a database lookup to check if the user has any published group
-	 * post (`mto-group` post type) associated with the given course ID.
-	 *
-	 * @since 1.20.0
-	 *
-	 * @param int $course_id Course ID to check against.
-	 *
-	 * @return bool True if the user owns a group for the given course, false otherwise.
-	 */
+	/**
+		 * Determines whether the currently logged-in user owns a group for the specified course.
+		 *
+		 * Performs a database lookup to check if the user has any published group
+		 * post (`mto-group` post type) associated with the given course ID.
+		 *
+
+		 * @since x.x.x
+
+		 * @since 1.20.0
+
+		 *
+		 * @param int $course_id Course ID to check against.
+		 *
+		 * @return bool True if the user owns a group for the given course, false otherwise.
+		 */
 	private function user_has_a_group_for_this_course( $course_id ) {
 		if ( ! is_user_logged_in() ) {
 			return false;

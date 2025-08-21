@@ -252,7 +252,8 @@ class CourseExporter {
 
 		if ( PostType::COURSE === $post_type || '' === $post_type ) {
 			foreach ( $course_ids as $course_id ) {
-				$post = self::fetch_post_data( $course_id, $get_attachments );
+				$post_id = ( $course_id instanceof \WP_Post ) ? $course_id->ID : $course_id;
+				$post    = self::fetch_post_data( $post_id, $get_attachments );
 				if ( $post ) {
 					yield $post;
 				}
@@ -264,8 +265,9 @@ class CourseExporter {
 		$posts_per_page = 100;
 		$has_more_posts = true;
 
-		$args = self::prepare_query_args( $course_ids, $post_type, $posts_per_page );
-
+		$args           = self::prepare_query_args( $course_ids, $post_type, $posts_per_page );
+		$args['fields'] = 'ids';
+		
 		while ( $has_more_posts ) {
 			$args['paged'] = $paged;
 

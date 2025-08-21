@@ -668,7 +668,16 @@ if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 		}
 
 		$user_course = $user_courses[0];
-		$order_id    = $user_course->get_order_id();
+
+		if ( $user_course->get_status() && 'active' === $user_course->get_status() ) {
+			return true;
+		}
+
+		if ( ! $user_course->get_order_id() ) {
+			return false;
+		}
+
+		$order_id = $user_course->get_order_id();
 
 		if ( ! $order_id ) {
 			return true;

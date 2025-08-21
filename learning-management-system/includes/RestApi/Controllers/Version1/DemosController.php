@@ -73,9 +73,15 @@ class DemosController extends RestController {
 					'callback'            => array( $this, 'import_themegrill_demo' ),
 					'permission_callback' => array( $this, 'import_permissions_check' ),
 					'args'                => array(
-						'slug' => array(
+						'slug'    => array(
 							'required' => true,
 							'type'     => 'string',
+						),
+
+						'builder' => array(
+							'required' => false,
+							'type'     => 'string',
+							'enum'     => array( 'elementor', 'blockart' ),
 						),
 					),
 				),
@@ -174,8 +180,6 @@ class DemosController extends RestController {
 		);
 	}
 
-
-
 	/**
 	 * Import ThemeGrill demo content.
 	 *
@@ -186,7 +190,11 @@ class DemosController extends RestController {
 	 */
 	public function import_themegrill_demo( WP_REST_Request $request ) {
 		$slug       = sanitize_key( $request->get_param( 'slug' ) );
+		$builder    = sanitize_key( (string) $request->get_param( 'builder' ) ); // 'elementor' | 'blockart' | ''
 		$theme_slug = 'elearning';
+
+		$download_slug = $this->resolve_demo_slug_for_builder( $slug, $builder );
+
 
 		$this->update_import_step( 'theme_install', 'in_progress' );
 
@@ -244,10 +252,12 @@ class DemosController extends RestController {
 		$response   = wp_remote_get( $config_url );
 		$demo_data  = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( ! isset( $demo_data['demos'][ $slug ]['plugins_list'] ) ) {
+
+		if ( ! isset( $demo_data['demos'][ $download_slug ]['plugins_list'] ) ) {
 			return new WP_Error( 'missing_plugins_list', 'No plugin list found for this demo.', array( 'status' => 400 ) );
 		}
-		$plugins = $demo_data['demos'][ $slug ]['plugins_list'];
+		$plugins = $demo_data['demos'][ $download_slug ]['plugins_list'];
+
 
 		foreach ( $plugins as $plugin => $plugin_data ) {
 			$plugin_path = $plugin_data['slug'];
@@ -283,6 +293,7 @@ class DemosController extends RestController {
 
 		$this->update_import_step( 'import_content', 'in_progress' );
 
+		// ---------- CHANGED: import the content for the *download* slug ----------
 		$response = wp_remote_post(
 			admin_url( 'admin-ajax.php' ),
 			array(
@@ -290,22 +301,47 @@ class DemosController extends RestController {
 				'sslverify' => ! masteriyo_is_development(),
 				'body'      => array(
 					'action'      => 'import-demo',
-					'slug'        => $slug,
+					'slug'        => $download_slug,
 					'_ajax_nonce' => wp_create_nonce( 'updates' ),
 				),
 				'cookies'   => $_COOKIE,
 			)
 		);
+		// ------------------------------------------------------------------------
 
 		if ( is_wp_error( $response ) ) {
 			$this->update_import_step( 'import_content', 'failed' );
 			return $response;
 		}
 
+		// Keep the *original* selected slug as activated so UI marks that card.
 		update_option( 'themegrill_demo_importer_activated_id', $slug );
 		$this->update_import_step( 'import_content', 'completed' );
 
 		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Map a selected slug to the actual demo slug to import based on builder.
+	 *
+	 * For Elementor, v2 slugs map to their Elementor counterparts.
+	 * For BlockArt (or anything else), we keep the selected slug.
+	 *
+	 * @param string $slug     Selected slug (e.g., 'elearning-v2').
+	 * @param string $builder  'elementor' | 'blockart' | ''.
+	 * @return string          Slug used for downloading/importing.
+	 */
+	protected function resolve_demo_slug_for_builder( $slug, $builder ) {
+		if ( 'elementor' !== $builder ) {
+			return $slug;
+		}
+
+		$map = array(
+			'elearning-v2'         => 'elearning-default',
+			'elearning-eduflex-v2' => 'elearning-eduflex',
+		);
+
+		return isset( $map[ $slug ] ) ? $map[ $slug ] : $slug;
 	}
 
 	/**
