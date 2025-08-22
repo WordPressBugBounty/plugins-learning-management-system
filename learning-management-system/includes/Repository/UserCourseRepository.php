@@ -336,7 +336,7 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 		$sql             = array();
 		$joins           = '';
 
-		if ( ! isset( $query_vars['user_id'] ) && empty( $query_vars['user__in'] ) ) {
+		if ( ! is_user_logged_in() ) {
 			$query->found_rows = 0;
 			$query->rows_count = 0;
 			return array();
@@ -368,21 +368,46 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 				)
 			);
 
-			$search_criteria[] = $prepared_query;
+				$search_criteria[] = $prepared_query;
 		}
 
 		if ( ! empty( $joins ) ) {
 			$sql[] = $joins;
 		}
 
+		// Generate meta query.
 		$meta_sql = $this->parse_meta_query( $query_vars );
 
 		if ( ! empty( $meta_sql['join'] ) ) {
 			$sql[] = $meta_sql['join'];
 		}
 
-		if ( isset( $query_vars['user_id'] ) ) {
-			$search_criteria[] = $wpdb->prepare( 'user_id = %d', absint( $query_vars['user_id'] ) );
+		// Construct where clause part.
+		if ( ! empty( $query_vars['user_id'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'user_id = %s', $query_vars['user_id'] );
+		}
+
+		if ( ! empty( $query_vars['search'] ) ) {
+
+			$search_criteria[] = $wpdb->prepare( "{$wpdb->posts}.post_title LIKE %s", '%' . $wpdb->esc_like( $query_vars['search'] ) . '%' );
+		}
+
+		if ( ! empty( $query_vars['category'] ) ) {
+			$search_criteria[] = $wpdb->prepare( "{$wpdb->term_taxonomy}.term_id = %d", absint( $query_vars['category'] ) );
+		}
+
+		if ( ! empty( $query_vars['course_id'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'item_id = %d', $query_vars['course_id'] );
+		}
+
+		if ( ! empty( $query_vars['course__in'] ) ) {
+			$courses           = array_map( 'absint', $query_vars['course__in'] );
+			$search_criteria[] = 'item_id IN(' . implode( ', ', $courses ) . ')';
+		}
+
+		if ( ! empty( $query_vars['user__in'] ) ) {
+			$users             = array_map( 'absint', $query_vars['user__in'] );
+			$search_criteria[] = 'user_id IN(' . implode( ', ', $users ) . ')';
 		}
 
 		if ( ! empty( $query_vars['search'] ) ) {
@@ -393,31 +418,14 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 			$search_criteria[] = $wpdb->prepare( "{$wpdb->term_taxonomy}.term_id = %d", absint( $query_vars['category'] ) );
 		}
 
-		if ( ! empty( $query_vars['course_id'] ) ) {
-			$search_criteria[] = $wpdb->prepare( 'item_id = %d', absint( $query_vars['course_id'] ) );
-		}
-
-		if ( ! empty( $query_vars['course__in'] ) ) {
-			$courses = array_map( 'absint', $query_vars['course__in'] );
-			if ( ! empty( $courses ) ) {
-				$search_criteria[] = 'item_id IN(' . implode( ', ', $courses ) . ')';
-			}
-		}
-
-		if ( ! empty( $query_vars['user__in'] ) ) {
-			$users = array_map( 'absint', $query_vars['user__in'] );
-			if ( ! empty( $users ) ) {
-				$search_criteria[] = 'user_id IN(' . implode( ', ', $users ) . ')';
-			}
-		}
-
 		$search_criteria[] = $wpdb->prepare( 'item_type = %s', 'user_course' );
 
 		if ( ! empty( $query_vars['status'] ) && UserCourseStatus::ANY !== $query_vars['status'] ) {
 			if ( is_array( $query_vars['status'] ) ) {
 				$statuses          = array_map(
-					function ( $status ) {
+					function( $status ) {
 						return "'" . esc_sql( $status ) . "'";
+
 					},
 					$query_vars['status']
 				);
@@ -442,12 +450,12 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 			$sql[] = $date_sql;
 		}
 
-		$orderby = ! empty( $query_vars['orderby'] ) ? $query_vars['orderby'] : "{$wpdb->prefix}masteriyo_user_items.id";
-		$order   = ! empty( $query_vars['order'] ) ? $query_vars['order'] : 'DESC';
-		$sql[]   = 'ORDER BY ' . sanitize_sql_orderby( $orderby . ' ' . $order );
+		// Construct order and order by part.
+		$sql[] = 'ORDER BY ' . sanitize_sql_orderby( $query_vars['orderby'] . ' ' . $query_vars['order'] );
 
-		$per_page = isset( $query_vars['per_page'] ) ? (int) $query_vars['per_page'] : 0;
-		$page     = isset( $query_vars['page'] ) ? (int) $query_vars['page'] : 0;
+		// Construct limit part.
+		$per_page = $query_vars['per_page'];
+		$page     = $query_vars['page'];
 
 		if ( $page > 0 && $per_page > 0 ) {
 			$count_sql    = $sql;
@@ -468,6 +476,7 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 			$sql[]  = $wpdb->prepare( 'LIMIT %d, %d', $offset, $per_page );
 		}
 
+		// Generate SQL from the SQL parts.
 		$sql = implode( ' ', $sql ) . ';';
 
 		$cache_key   = array_merge( array( 'user_course_query' ), $query_vars );

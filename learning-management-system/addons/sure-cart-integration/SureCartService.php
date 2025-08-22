@@ -12,6 +12,7 @@ namespace Masteriyo\Addons\SureCartIntegration;
 use Masteriyo\Constants;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
+use Masteriyo\Query\UserCourseQuery;
 use SureCart\Integrations\IntegrationService;
 use SureCart\Integrations\Contracts\IntegrationInterface;
 use SureCart\Integrations\Contracts\PurchaseSyncInterface;
@@ -316,6 +317,23 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return;
 		}
 
+		if ( is_user_logged_in() ) {
+			$user_id = masteriyo_get_current_user_id();
+
+			$query    = new UserCourseQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => $user_id,
+				)
+			);
+			$activity = current( $query->get_user_courses() );
+			$status   = $activity ? $activity->get_status() : '';
+
+			if ( 'active' === $status ) {
+				return;
+			}
+		}
+
 		masteriyo_get_template(
 			'sure-cart-integration/add-to-cart-btn.php',
 			array(
@@ -343,6 +361,23 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		if ( $prices === $course->get_id() ) {
 			return;
+		}
+
+		if ( is_user_logged_in() ) {
+			$user_id = masteriyo_get_current_user_id();
+
+			$query    = new UserCourseQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => $user_id,
+				)
+			);
+			$activity = current( $query->get_user_courses() );
+			$status   = $activity ? $activity->get_status() : '';
+
+			if ( 'active' === $status ) {
+				return;
+			}
 		}
 
 		masteriyo_get_template(
@@ -600,7 +635,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	 * @return string
 	 */
 	public function getLogo() {
-		 return esc_url_raw( trailingslashit( plugin_dir_url( MASTERIYO_SURECART_INTEGRATION_ADDON_FILE ) ) . 'masteriyolms.svg' );
+		return esc_url_raw( trailingslashit( plugin_dir_url( MASTERIYO_SURECART_INTEGRATION_ADDON_FILE ) ) . 'masteriyolms.svg' );
 	}
 
 	/**

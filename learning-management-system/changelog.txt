@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.20.2 - 22-08-2025 =
+- Fix - Account page user's courses listing in dashboard.
+
 = 1.20.1 - 21-08-2025 =
 - Enhancement - Show titles of timestamped notes. [PRO]
 - Enhancement - Choose Builder added in Stater Templates import.
