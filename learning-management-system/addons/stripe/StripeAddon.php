@@ -11,6 +11,7 @@
 namespace Masteriyo\Addons\Stripe;
 
 use Exception;
+use Masteriyo\Addons\Stripe\Client\StripeClient;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Masteriyo\Constants;
@@ -132,56 +133,30 @@ class StripeAddon {
 	public function save_stripe_account() {
 		$current_screen = get_current_screen();
 		if (
-			! $current_screen ||
-			'toplevel_page_masteriyo' !== $current_screen->base ||
-			! isset( $_GET['state'] ) ||
-			! isset( $_GET['nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_nonce' )
+		! $current_screen ||
+		'toplevel_page_masteriyo' !== $current_screen->base ||
+		! isset( $_GET['nonce'], $_GET['accountId'], $_GET['mode'] ) ||
+		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_nonce' )
 		) {
 			return;
 		}
-		$state = $_GET['state'] ?? '';
 
-		if ( ! $state ) {
-			return;
-		}
+		$account_id = sanitize_text_field( wp_unslash( $_GET['accountId'] ) );
+		$mode       = sanitize_text_field( wp_unslash( $_GET['mode'] ) );
 
-		$decoded_state = base64_decode( $state );
-		if ( ! $decoded_state ) {
-			return;
-		}
-		$state_data = json_decode( $decoded_state, true );
-
-		if ( ! $state_data || ! is_array( $state_data ) ) {
-			return;
-		}
-
-		if ( array_diff(
-			array(
-				'stripe_user_id',
-				'stripe_publishable_key',
-				'access_token',
-				'refresh_token',
-				'livemode',
-			),
-			array_keys( $state_data )
-		) ) {
-			return;
-		}
-		$is_live_mode = ! empty( $state_data['livemode'] );
-		$mode         = $is_live_mode ? 'live' : 'test';
 		Setting::read();
 		Setting::set_props(
 			array(
-				'stripe_user_id'          => $state_data['stripe_user_id'],
-				'sandbox'                 => ! $is_live_mode,
-				"{$mode}_publishable_key" => $state_data['stripe_publishable_key'],
-				"{$mode}_secret_key"      => $state_data['access_token'],
+				'enable'         => true,
+				'stripe_user_id' => $account_id,
+				'sandbox'        => 'test' === $mode,
+				'use_platform'   => true,
 			)
 		);
 		Setting::save();
 		update_option( '_masteriyo_stripe_integration_method', 'connect' );
-		echo '<script>window.location.href = "' . esc_url_raw( html_entity_decode( $state_data['return_url'], ENT_QUOTES, 'UTF-8' ) ) . '";</script>';
+		$url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
+		echo '<script>window.location.href = "' . esc_url_raw( html_entity_decode( $url, ENT_QUOTES, 'UTF-8' ) ) . '";</script>';
 		exit;
 	}
 
@@ -210,40 +185,25 @@ class StripeAddon {
 		}
 
 		$is_sandbox = masteriyo_bool_to_string( Setting::get( 'sandbox' ) );
-		$response   = wp_remote_post(
-			add_query_arg(
-				array(
-					'mode' => 'yes' === $is_sandbox ? 'test' : 'live',
-				),
-				'https://masteriyo.com/masteriyo-stripe-connect/account/link'
-			),
+		$client     = StripeClient::create();
+		$response   = $client->get_account_link(
 			array(
-				'body' => array(
-					'return_url' => sanitize_url( wp_unslash( $_POST['current_page_uri'] ?? '' ) ),
-					'nonce'      => sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ),
-				),
+				'mode'       => 'yes' === $is_sandbox ? 'test' : 'live',
+				'return_url' => sanitize_url( wp_unslash( $_POST['current_page_uri'] ?? '' ) ),
+				'nonce'      => sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ),
 			)
 		);
-		if ( ! $response || is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Failed to connect to Stripe. Please try again.', 'learning-management-system' ),
-				)
-			);
-			exit;
-		}
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			wp_send_json_error(
-				array(
-					'message' => json_last_error_msg(),
+					'message' => $response->get_error_message(),
 				)
 			);
 			exit;
 		}
 		wp_send_json_success(
 			array_merge(
-				$body,
+				$response,
 				array(
 					'type' => 'connect',
 				)
@@ -310,6 +270,7 @@ class StripeAddon {
 	 */
 	public function localize_admin_scripts( $scripts ) {
 		$scripts['backend']['data']['is_stripe_test_mode'] = masteriyo_bool_to_string( Setting::get( 'sandbox' ) );
+		$scripts['backend']['data']['stripe_nonce']        = wp_create_nonce( 'masteriyo_stripe_nonce' );
 		return $scripts;
 	}
 
@@ -386,21 +347,24 @@ class StripeAddon {
 	 * @return \Masteriyo\RestApi\Controllers\Version1\SettingsController $controller
 	 */
 	public function append_setting_in_response( $data, $object, $request, $controller ) {
-		// Add webhook endpoint.
 		$stripe_account = null;
-		$secret_key     = Setting::get_secret_key();
-		if ( $secret_key ) {
-			try {
-				$stripe_account = Account::retrieve( null, $secret_key );
-			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+
+		if ( Helper::use_platform() ) {
+			$account_response = StripeClient::create()->get_account_details();
+			$stripe_account   = ( ! is_wp_error( $account_response ) ) ? ( $account_response['data'] ?? null ) : null;
+		} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+			if ( ! empty( Setting::get_stripe_user_id() ) && ! empty( Setting::get_secret_key() ) ) {
+				try {
+					$stripe_account = Account::retrieve( null, Setting::get_secret_key() );
+				} catch ( \Exception $e ) {} // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace, Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 		}
+
 		$data['payments']['stripe'] = wp_parse_args(
 			Setting::all(),
 			array(
 				'webhook_endpoint' => Helper::get_webhook_endpoint_url(),
 				'account'          => $stripe_account,
-				'nonce'            => wp_create_nonce( 'masteriyo_stripe_nonce' ),
 				'method'           => get_option( '_masteriyo_stripe_integration_method', 'connect' ),
 			)
 		);
@@ -431,8 +395,11 @@ class StripeAddon {
 				throw new \Exception( 'Cart not found.' );
 			}
 
+			/** @var \Masteriyo\Session\Session */
 			$session = masteriyo( 'session' );
-			$cart    = masteriyo( 'cart' );
+
+			/** @var \Masteriyo\Cart\Cart */
+			$cart = masteriyo( 'cart' );
 			$cart->get_cart_from_session();
 
 			$email = '';
@@ -469,13 +436,21 @@ class StripeAddon {
 				'currency'             => masteriyo_strtolower( $currency_code ),
 				'receipt_email'        => $email ? $email : get_bloginfo( 'admin_email' ),
 				'payment_method_types' => $payment_methods,
+				'metadata'             => array( 'webhookUrl' => Helper::get_webhook_endpoint_url() ),
 			);
 
-			// Create a PaymentIntent with amount and currency
-			$payment_intent = \Stripe\PaymentIntent::create(
-				$payment_intent_params,
-				Helper::get_stripe_options()
-			);
+			if ( Helper::use_platform() ) {
+				$payment_intent = StripeClient::create()->create_payment_intent( $payment_intent_params );
+				if ( is_wp_error( $payment_intent ) ) {
+					throw new \Exception( $payment_intent->get_error_message() );
+				}
+				$payment_intent = (object) $payment_intent['data'];
+			} else {
+				$payment_intent = \Stripe\PaymentIntent::create(
+					$payment_intent_params,
+					Helper::get_stripe_options()
+				);
+			}
 
 			$session->put( 'stripe_payment_intent_id', $payment_intent->id );
 
@@ -546,7 +521,8 @@ class StripeAddon {
 				'stripe' => array(
 					'name' => '_MASTERIYO_STRIPE_',
 					'data' => array(
-						'publishableKey'   => Setting::get_publishable_key(),
+						'publishableKey'   => Helper::use_platform() ? ( Setting::is_sandbox_enable() ? MASTERIYO_STRIPE_PLATFORM_TEST_PUBLIC_KEY : MASTERIYO_STRIPE_PLATFORM_LIVE_PUBLIC_KEY ) : Setting::get_publishable_key(),
+						'accountId'        => Helper::use_platform() ? Setting::get_stripe_user_id() : null,
 						'ajaxURL'          => admin_url( 'admin-ajax.php' ),
 						'thankYouPage'     => masteriyo_get_checkout_endpoint_url( 'order-received' ),
 						'blogName'         => get_bloginfo( 'name' ),
@@ -588,75 +564,74 @@ class StripeAddon {
 			masteriyo_get_logger()->info( 'Stripe webhook triggered.', array( 'source' => 'payment-stripe' ) );
 
 			$sig_header     = isset( $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : null;
-			$payload        = @file_get_contents('php://input');  // phpcs:disable
+			$payload        = @file_get_contents( 'php://input' ); // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
 			$event          = null;
 			$webhook_secret = Setting::get_webhook_secret();
 
-			if (empty($payload)) {
-				masteriyo_get_logger()->error('Stripe webhook payload is empty.', array('source' => 'payment-stripe'));
-				throw new Exception(esc_html__('Payload is empty.', 'learning-management-system'), 400);
+			if ( empty( $payload ) ) {
+				masteriyo_get_logger()->error( 'Stripe webhook payload is empty.', array( 'source' => 'payment-stripe' ) );
+				throw new Exception( esc_html__( 'Payload is empty.', 'learning-management-system' ), 400 );
 			}
 
-
-			if (empty($sig_header) || empty($webhook_secret)) {
+			if ( empty( $sig_header ) || empty( $webhook_secret ) ) {
 				$event = \Stripe\Event::constructFrom(
-					json_decode($payload, true)
+					json_decode( $payload, true )
 				);
-			} else {
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 
 				/**
 				 * Filters whether to validate the webhook secret or not.
 				 *
 				 * @since 1.14.0
 				 */
-				if (apply_filters('masteriyo_stripe_validate_webhook', true)) {
+				if ( apply_filters( 'masteriyo_stripe_validate_webhook', true ) ) {
 					$event = \Stripe\Event::constructFrom(
-						json_decode($payload, true),
+						json_decode( $payload, true ),
 						$sig_header,
 						$webhook_secret
 					);
 				}
 			}
 
-			if (! $event) {
-				masteriyo_get_logger()->error('Stripe webhook event is null.', array('source' => 'payment-stripe'));
-				throw new Exception(esc_html__('Event is null.', 'learning-management-system'), 400);
+			if ( ! $event ) {
+				masteriyo_get_logger()->error( 'Stripe webhook event is null.', array( 'source' => 'payment-stripe' ) );
+				throw new Exception( esc_html__( 'Event is null.', 'learning-management-system' ), 400 );
 			}
 
 			$result = array();
-			if (masteriyo_starts_with($event->type, 'payment_intent')) {
+			if ( masteriyo_starts_with( $event->type, 'payment_intent' ) ) {
 				$payment_intent = $event->data->object;
 
-				if (! $payment_intent) {
-					masteriyo_get_logger()->error('Stripe webhook payment intent is null.', array('source' => 'payment-stripe'));
-					throw new Exception(esc_html__('Payment intent is null.', 'learning-management-system'), 400);
+				if ( ! $payment_intent ) {
+					masteriyo_get_logger()->error( 'Stripe webhook payment intent is null.', array( 'source' => 'payment-stripe' ) );
+					throw new Exception( esc_html__( 'Payment intent is null.', 'learning-management-system' ), 400 );
 				}
 
-				if (isset($payment_intent->metadata->order_id)) {
+				if ( isset( $payment_intent->metadata->order_id ) ) {
 					$order_id = $payment_intent->metadata->order_id;
-					$order    = masteriyo_get_order($order_id);
-					$result = $this->handle_payment_intent_webhook($event, $order);
+					$order    = masteriyo_get_order( $order_id );
+					$result   = $this->handle_payment_intent_webhook( $event, $order );
 				}
 			}
-			masteriyo_get_logger()->info('Stripe webhook completed.', array('source' => 'payment-stripe'));
-			wp_send_json_success($result);
-		} catch (UnexpectedValueException $e) {
-			masteriyo_get_logger()->error($e->getMessage(), array('source' => 'payment-stripe'));
+			masteriyo_get_logger()->info( 'Stripe webhook completed.', array( 'source' => 'payment-stripe' ) );
+			wp_send_json_success( $result );
+		} catch ( UnexpectedValueException $e ) {
+			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
 			$order->add_order_note(
-				esc_html__('Stripe invalid event type.', 'learning-management-system')
+				esc_html__( 'Stripe invalid event type.', 'learning-management-system' )
 			);
 
-			wp_send_json_error(array('message' => $e->getMessage()), $e->getCode());
-		} catch (SignatureVerificationException $e) {
-			masteriyo_get_logger()->error($e->getMessage(), array('source' => 'payment-stripe'));
+			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
+		} catch ( SignatureVerificationException $e ) {
+			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
 			$order->add_order_note(
-				esc_html__('Stripe webhook signature verification failed.', 'learning-management-system')
+				esc_html__( 'Stripe webhook signature verification failed.', 'learning-management-system' )
 			);
 
-			wp_send_json_error(array('message' => $e->getMessage()), $e->getCode());
-		} catch (Exception $e) {
-			masteriyo_get_logger()->error($e->getMessage(), array('source' => 'payment-stripe'));
-			wp_send_json_error(array('message' => $e->getMessage()), $e->getCode());
+			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
+		} catch ( Exception $e ) {
+			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
+			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
 		}
 
 		exit();
@@ -670,50 +645,61 @@ class StripeAddon {
 	 * @param \Stripe\Event $event Stripe event object.
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
-	protected function handle_payment_intent_webhook($event, $order) {
-		masteriyo_get_logger()->info('Payment intent webhook triggered.', array('source' => 'payment-stripe'));
-		$status = $this->map_stripe_events_to_order_status($event->type);
+	protected function handle_payment_intent_webhook( $event, $order ) {
+		masteriyo_get_logger()->info( 'Payment intent webhook triggered.', array( 'source' => 'payment-stripe' ) );
+		$status = $this->map_stripe_events_to_order_status( $event->type );
 
-		if (! $status) {
-			masteriyo_get_logger()->error('Invalid event type.', array('source' => 'payment-stripe'));
-			throw new Exception(esc_html__('Invalid event type.', 'learning-management-system'), 400);
+		if ( ! $status ) {
+			masteriyo_get_logger()->error( 'Invalid event type.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Invalid event type.', 'learning-management-system' ), 400 );
 		}
 
 		$payment_intent = $event->data->object;
 
-		if ($event->type === 'payment_intent.succeeded' && !empty($order->get_billing_email())) {
+		if ( 'payment_intent.succeeded' === $event->type && ! empty( $order->get_billing_email() ) ) {
 			try {
-				PaymentIntent::update(
-					$payment_intent->id,
-					array('receipt_email' => $order->get_billing_email())
-				);
-				masteriyo_get_logger()->info('Receipt email updated for Payment Intent.', array('source' => 'payment-stripe'));
-			} catch (Exception $e) {
-				masteriyo_get_logger()->error('Failed to update receipt email: ' . $e->getMessage(), array('source' => 'payment-stripe'));
+				if ( Helper::use_platform() ) {
+					$response = StripeClient::create()->update_payment_intent(
+						$payment_intent->id,
+						array( 'receipt_email' => $order->get_billing_email() )
+					);
+					if ( is_wp_error( $response ) ) {
+						throw new Exception( $response->get_error_message() );
+					}
+				} else {
+					\Stripe\PaymentIntent::update(
+						$payment_intent->id,
+						array( 'receipt_email' => $order->get_billing_email() )
+					);
+				}
+				masteriyo_get_logger()->info( 'Receipt email updated for Payment Intent.', array( 'source' => 'payment-stripe' ) );
+			} catch ( Exception $e ) {
+				masteriyo_get_logger()->error( 'Failed to update receipt email: ' . $e->getMessage(), array( 'source' => 'payment-stripe' ) );
 			}
 		}
 
-		masteriyo_get_logger()->info('Before saving the stripe data', array('source' => 'payment-stripe'));
-		$this->save_stripe_data($event, $order);
-		masteriyo_get_logger()->info('After saving the stripe data', array('source' => 'payment-stripe'));
+		masteriyo_get_logger()->info( 'Before saving the stripe data', array( 'source' => 'payment-stripe' ) );
+		$this->save_stripe_data( $event, $order );
+		masteriyo_get_logger()->info( 'After saving the stripe data', array( 'source' => 'payment-stripe' ) );
 
-		if ($status && $status !== $order->get_status()) {
-			$order->set_status($status);
+		if ( $status && $status !== $order->get_status() ) {
+			$order->set_status( $status );
 			$order->save();
 		}
 
-		masteriyo_get_logger()->info('Payment intent webhook completed.', array('source' => 'payment-stripe'));
+		masteriyo_get_logger()->info( 'Payment intent webhook completed.', array( 'source' => 'payment-stripe' ) );
 		// Add order notes.
 		$order->add_order_note(
 			sprintf(
-				esc_html__('Payment of %1$s: Event Type = %2$s, Payment Intent ID = %3$s', 'learning-management-system'),
+				/* translators: %1$s: Order id, %2$s: Event type, %3$s: Event id */
+				esc_html__( 'Payment of %1$s: Event Type = %2$s, Payment Intent ID = %3$s', 'learning-management-system' ),
 				$order->get_id(),
 				$event->type,
 				$event->data->object->id
 			)
 		);
 
-		return array('status' => $status);
+		return array( 'status' => $status );
 	}
 
 	/**
@@ -724,40 +710,40 @@ class StripeAddon {
 	 * @param \Stripe\Event $event Stripe event object.
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
-	protected function save_stripe_data($event, $order) {
-		masteriyo_get_logger()->info('Save stripe data method triggered: ' . print_r($event, true));
-		if (isset($event->type)) {
-			update_post_meta($order->get_id(), '_stripe_event_type', $event->type);
+	protected function save_stripe_data( $event, $order ) {
+		masteriyo_get_logger()->info( 'Save stripe data method triggered: ' . print_r( $event, true ) );
+		if ( isset( $event->type ) ) {
+			update_post_meta( $order->get_id(), '_stripe_event_type', $event->type );
 		}
 
-		if (isset($event->data->object->status)) {
-			update_post_meta($order->get_id(), '_stripe_status', $event->data->object->status);
+		if ( isset( $event->data->object->status ) ) {
+			update_post_meta( $order->get_id(), '_stripe_status', $event->data->object->status );
 		}
 
-		if (isset($event->data->object->id)) {
-			update_post_meta($order->get_id(), '_stripe_payment_intent_id', $event->data->object->id);
+		if ( isset( $event->data->object->id ) ) {
+			update_post_meta( $order->get_id(), '_stripe_payment_intent_id', $event->data->object->id );
 		}
 
-		if (isset($event->data->object->latest_charge)) {
-			$order->set_transaction_id($event->data->object->latest_charge);
+		if ( isset( $event->data->object->latest_charge ) ) {
+			$order->set_transaction_id( $event->data->object->latest_charge );
 		}
 
-		if (isset($event->data->object->currency)) {
-			update_post_meta($order->get_id(), '_stripe_currency', $event->data->object->currency);
+		if ( isset( $event->data->object->currency ) ) {
+			update_post_meta( $order->get_id(), '_stripe_currency', $event->data->object->currency );
 		}
 
-		if (isset($event->data->object->payment_method)) {
-			update_post_meta($order->get_id(), '_stripe_payment_method', $event->data->object->payment_method);
+		if ( isset( $event->data->object->payment_method ) ) {
+			update_post_meta( $order->get_id(), '_stripe_payment_method', $event->data->object->payment_method );
 		}
 
-		if (isset($event->data->object->amount)) {
+		if ( isset( $event->data->object->amount ) ) {
 			$amount = $event->data->object->amount;
 
-			if (0 !== $amount) {
-				$amount = masteriyo_format_decimal($event->data->object->amount / 100);
+			if ( 0 !== $amount ) {
+				$amount = masteriyo_format_decimal( $event->data->object->amount / 100 );
 			}
 
-			update_post_meta($order->get_id(), '_stripe_amount', $amount);
+			update_post_meta( $order->get_id(), '_stripe_amount', $amount );
 		}
 	}
 
@@ -770,8 +756,8 @@ class StripeAddon {
 	 *
 	 * @return string|null
 	 */
-	protected function map_stripe_events_to_order_status($event_type) {
-		masteriyo_get_logger()->info('Map stripe events to order status.', array('source' => 'payment-stripe'));
+	protected function map_stripe_events_to_order_status( $event_type ) {
+		masteriyo_get_logger()->info( 'Map stripe events to order status.', array( 'source' => 'payment-stripe' ) );
 		$map = array(
 			'payment_intent.amount_capturable_updated' => OrderStatus::PENDING,
 			'payment_intent.created'                   => OrderStatus::PENDING,
@@ -782,7 +768,7 @@ class StripeAddon {
 			'payment_intent.payment_failed'            => OrderStatus::FAILED,
 		);
 
-		$status = isset($map[$event_type]) ? $map[$event_type] : null;
+		$status = isset( $map[ $event_type ] ) ? $map[ $event_type ] : null;
 
 		return $status;
 	}
@@ -798,13 +784,13 @@ class StripeAddon {
 	 *
 	 * @return integer
 	 */
-	protected function convert_cart_total_to_stripe_amount($total_amount, $currency_code) {
-		masteriyo_get_logger()->info("Converting stripe amount.", array('source' => 'payment-stripe'));
-		$currency_code = masteriyo_strtoupper($currency_code);
+	protected function convert_cart_total_to_stripe_amount( $total_amount, $currency_code ) {
+		masteriyo_get_logger()->info( 'Converting stripe amount.', array( 'source' => 'payment-stripe' ) );
+		$currency_code = masteriyo_strtoupper( $currency_code );
 
 		// Return as it is for zero decimal currencies.
-		if (in_array($currency_code, $this->get_zero_decimal_currencies(), true)) {
-			$new_total_amount = absint($total_amount);
+		if ( in_array( $currency_code, $this->get_zero_decimal_currencies(), true ) ) {
+			$new_total_amount = absint( $total_amount );
 		} else {
 			$new_total_amount = masteriyo_round( $total_amount, 2 ) * 100;
 		}
@@ -836,7 +822,7 @@ class StripeAddon {
 			'VUV',
 			'XAF',
 			'XOF',
-			'XPF'
+			'XPF',
 		);
 	}
 }

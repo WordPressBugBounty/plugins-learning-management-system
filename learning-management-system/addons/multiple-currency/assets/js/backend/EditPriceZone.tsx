@@ -5,7 +5,6 @@ import {
 	Container,
 	Flex,
 	Heading,
-	Icon,
 	Stack,
 	Text,
 	useBreakpointValue,
@@ -16,9 +15,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft, BiCog } from 'react-icons/bi';
+import { BiCog } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link, NavLink, useParams } from 'react-router-dom';
+import BackButton from '../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
 	HeaderLeftSection,
@@ -203,13 +203,7 @@ const EditPriceZone: React.FC = () => {
 				<Stack direction="column" spacing="6">
 					<ButtonGroup>
 						<Link to={multipleCurrencyBackendRoutes.list}>
-							<Button
-								variant="link"
-								_hover={{ color: 'primary.500' }}
-								leftIcon={<Icon fontSize="xl" as={BiChevronLeft} />}
-							>
-								{__('Back to Pricing Zones', 'learning-management-system')}
-							</Button>
+							<BackButton />
 						</Link>
 					</ButtonGroup>
 					{pricingZoneQuery.isSuccess ? (

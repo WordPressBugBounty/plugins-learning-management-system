@@ -66,6 +66,8 @@ interface FilterParams {
 	page?: number;
 	orderby: string;
 	order: 'asc' | 'desc';
+	course_id?: string;
+	author_id?: string;
 }
 
 const AllAnnouncements = () => {
@@ -366,96 +368,116 @@ const AllAnnouncements = () => {
 							}}
 						>
 							<Table>
-								<Thead>
-									<Tr>
-										<Th>
-											<Checkbox
-												isDisabled={
-													announcementQuery.isLoading ||
-													announcementQuery.isFetching ||
-													announcementQuery.isRefetching
-												}
-												isIndeterminate={
-													announcementQuery?.data?.data?.length !==
-														bulkIds?.length && bulkIds?.length > 0
-												}
-												isChecked={
-													announcementQuery?.data?.data?.length ===
-														bulkIds.length &&
-													!isEmpty(announcementQuery?.data?.data as boolean)
-												}
-												onChange={(e) =>
-													setBulkIds(
-														e.target.checked
-															? announcementQuery?.data?.data?.map(
-																	(announcement: any) =>
-																		announcement?.id?.toString(),
-																)
-															: [],
-													)
-												}
-											/>
-										</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Title', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterAnnouncementsBy}
-													orderBy={'title'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Author', 'learning-management-system')}</Th>
-										<Th>{__('Course', 'learning-management-system')}</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Date', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterAnnouncementsBy}
-													orderBy={'date'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Actions', 'learning-management-system')}</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{announcementQuery.isLoading ||
-									!announcementQuery.isFetched ? (
-										<SkeletonAnnouncementList />
-									) : announcementQuery.isSuccess &&
-									  isEmpty(announcementQuery?.data?.data) ? (
-										<EmptyInfo
-											message={__(
-												'No announcement found.',
-												'learning-management-system',
+								{announcementQuery.isLoading || !announcementQuery.isFetched ? (
+									<SkeletonAnnouncementList />
+								) : announcementQuery.isSuccess &&
+								  isEmpty(announcementQuery?.data?.data) ? (
+									<EmptyInfo
+										onPrimaryButtonClick={() => {
+											navigate(routes.courseAnnouncement.add);
+										}}
+										title={__(
+											'Create Your First Announcement',
+											'learning-management-system',
+										)}
+										description={__(
+											'Start building your learning platform by creating your first course. Add lessons, quizzes, and materials to engage your students.',
+											'learning-management-system',
+										)}
+										primaryButtonLabel={__(
+											'Add New Announcement',
+											'learning-management-system',
+										)}
+										isResultFiltered={Boolean(
+											filterParams?.search ||
+												filterParams?.course_id ||
+												filterParams?.author_id ||
+												filterParams?.status !== 'any',
+										)}
+									/>
+								) : (
+									<>
+										<Thead>
+											<Tr>
+												<Th>
+													<Checkbox
+														isDisabled={
+															announcementQuery.isLoading ||
+															announcementQuery.isFetching ||
+															announcementQuery.isRefetching
+														}
+														isIndeterminate={
+															announcementQuery?.data?.data?.length !==
+																bulkIds?.length && bulkIds?.length > 0
+														}
+														isChecked={
+															announcementQuery?.data?.data?.length ===
+																bulkIds.length &&
+															!isEmpty(announcementQuery?.data?.data as boolean)
+														}
+														onChange={(e) =>
+															setBulkIds(
+																e.target.checked
+																	? announcementQuery?.data?.data?.map(
+																			(announcement: any) =>
+																				announcement?.id?.toString(),
+																		)
+																	: [],
+															)
+														}
+													/>
+												</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Title', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterAnnouncementsBy}
+															orderBy={'title'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Author', 'learning-management-system')}</Th>
+												<Th>{__('Course', 'learning-management-system')}</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Date', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterAnnouncementsBy}
+															orderBy={'date'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Actions', 'learning-management-system')}</Th>
+											</Tr>
+										</Thead>
+										<Tbody>
+											{announcementQuery?.data?.data?.map(
+												(announcement: any) => (
+													<AnnouncementList
+														key={announcement?.id}
+														data={announcement}
+														bulkIds={bulkIds}
+														onDeletePress={onDeletePress}
+														onRestorePress={onRestorePress}
+														onTrashPress={onTrashPress}
+														setBulkIds={setBulkIds}
+														isLoading={
+															announcementQuery.isLoading ||
+															announcementQuery.isFetching ||
+															announcementQuery.isRefetching
+														}
+													/>
+												),
 											)}
-										/>
-									) : (
-										announcementQuery?.data?.data?.map((announcement: any) => (
-											<AnnouncementList
-												key={announcement?.id}
-												data={announcement}
-												bulkIds={bulkIds}
-												onDeletePress={onDeletePress}
-												onRestorePress={onRestorePress}
-												onTrashPress={onTrashPress}
-												setBulkIds={setBulkIds}
-												isLoading={
-													announcementQuery.isLoading ||
-													announcementQuery.isFetching ||
-													announcementQuery.isRefetching
-												}
-											/>
-										))
-									)}
-								</Tbody>
+										</Tbody>
+									</>
+								)}
 							</Table>
 						</Stack>
 					</Stack>

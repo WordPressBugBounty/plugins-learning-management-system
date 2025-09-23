@@ -129,9 +129,9 @@ class CoursePriceWidget extends WidgetBase {
 		$course = apply_filters( 'masteriyo_setup_course_data', $course );
 
 		?>
-		<div class="masteriyo-course-price">
-			<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
-		</div>
+		<!-- <div class="masteriyo-course-price">
+			<span class="current-amount"><?php //echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+		</div> -->
 		<?php
 	}
 
@@ -153,9 +153,9 @@ class CoursePriceWidget extends WidgetBase {
 			 */
 			$course = apply_filters( 'masteriyo_setup_course_data', $course );
 			?>
-			<div class="masteriyo-course-price">
-				<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
-			</div>
+			<!-- <div class="masteriyo-course-price">
+				<span class="current-amount"><?php //echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+			</div> -->
 			<?php
 		}
 	}

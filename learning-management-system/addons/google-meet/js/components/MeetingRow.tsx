@@ -318,6 +318,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 						rounded="sm"
 						fontSize="sm"
 						_hover={{ color: 'red.500' }}
+						colorScheme={'red'}
 						onClick={() => onDeletePress(id)}
 						icon={<CustomIcon icon={Trash} boxSize="12px" />}
 						aria-label={__('Delete', 'learning-management-system')}

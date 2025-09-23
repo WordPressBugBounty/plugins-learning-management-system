@@ -128,7 +128,7 @@ const PasswordStrength: React.FC<Props> = (props) => {
 								<SliderTrack>
 									<SliderFilledTrack />
 								</SliderTrack>
-								<SliderThumb boxSize="6" bgColor="blue.500">
+								<SliderThumb boxSize="6" bgColor="primary.500">
 									<Text fontSize="xs" fontWeight="semibold" color="white">
 										{minLength || 4}
 									</Text>
@@ -162,7 +162,7 @@ const PasswordStrength: React.FC<Props> = (props) => {
 								<SliderTrack>
 									<SliderFilledTrack />
 								</SliderTrack>
-								<SliderThumb boxSize="6" bgColor="blue.500">
+								<SliderThumb boxSize="6" bgColor="primary.500">
 									<Text fontSize="xs" fontWeight="semibold" color="white">
 										{maxLength || 16}
 									</Text>

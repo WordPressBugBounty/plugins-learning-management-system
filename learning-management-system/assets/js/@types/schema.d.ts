@@ -637,14 +637,7 @@ type PaymentsSettings = {
 		identity_token: string;
 		invoice_prefix: string;
 		payment_action: string;
-		image_url: string;
 		debug: boolean;
-		sandbox_api_username: string;
-		sandbox_api_password: string;
-		sandbox_api_signature: string;
-		live_api_username: string;
-		live_api_password: string;
-		live_api_signature: string;
 	};
 	checkout_fields: CheckoutFields;
 };

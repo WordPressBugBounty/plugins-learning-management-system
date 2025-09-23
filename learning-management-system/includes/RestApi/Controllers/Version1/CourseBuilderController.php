@@ -408,7 +408,7 @@ class CourseBuilderController extends PostsController {
 		);
 
 		if ( 'mto-lesson' === $course_item->get_post_type() ) {
-			$data['video']        = ! empty( $course_item->get_video_source_url() );
+			$data['video']        = ! empty( $course_item->get_video_source_url() ) || 'video-lesson' === $course_item->get_lesson_type();
 			$data['video_source'] = $course_item->get_video_source();
 		}
 

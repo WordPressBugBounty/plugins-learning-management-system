@@ -336,12 +336,6 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 		$sql             = array();
 		$joins           = '';
 
-		if ( ! is_user_logged_in() ) {
-			$query->found_rows = 0;
-			$query->rows_count = 0;
-			return array();
-		}
-
 		$sql[] = "SELECT DISTINCT {$wpdb->prefix}masteriyo_user_items.* FROM {$wpdb->prefix}masteriyo_user_items INNER JOIN {$wpdb->posts} ON {$wpdb->prefix}masteriyo_user_items.item_id = {$wpdb->posts}.ID";
 
 		if ( ! empty( $query_vars['category'] ) ) {

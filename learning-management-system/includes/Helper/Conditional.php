@@ -147,6 +147,7 @@ function masteriyo_is_rest_api_request() {
 
 	$rest_prefix         = trailingslashit( rest_get_url_prefix() );
 	$is_rest_api_request = ( false !== strpos( $_SERVER['REQUEST_URI'], $rest_prefix ) ); // phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$is_rest_api_request = ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
 
 	/**
 	 * Filters boolean: true if current request is an API request.
@@ -651,6 +652,10 @@ if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 
 		if ( is_null( $course ) || is_wp_error( $user ) ) {
 			return false;
+		}
+
+		if ( current_user_can( 'administrator' ) && masteriyo_is_user_enrolled_in_course( $course_id, $user_id ) ) {
+			return true;
 		}
 
 		$query = new UserCourseQuery(

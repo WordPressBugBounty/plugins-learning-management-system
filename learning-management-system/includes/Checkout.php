@@ -486,13 +486,15 @@ class Checkout {
 			}
 
 			$wp_user = get_user_by( 'email', $user->get_email() );
+			$payment_gateway=masteriyo( 'payment-gateways' )->get_available_payment_gateways();
+			$verification_needed = 'stripe' === $data['payment_method'] && isset( $payment_gateway['stripe'] ) ? false : true;
 
 			if ( ! $wp_user ) {
 				throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) );
 			}
 
 			if ( masteriyo_registration_is_generate_password() ) {
-				if ( masteriyo_is_email_verification_enabled() ) {
+				if ( masteriyo_is_email_verification_enabled() &&$verification_needed) {
 					$user->set_status( UserStatus::SPAM );
 					masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
 				} else {

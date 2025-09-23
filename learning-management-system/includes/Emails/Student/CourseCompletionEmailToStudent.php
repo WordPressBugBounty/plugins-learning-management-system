@@ -267,7 +267,7 @@ class CourseCompletionEmailToStudent extends Email {
 				'{student_display_name}'                => $student->get_display_name(),
 				'{student_first_name}'                  => empty( $student->get_first_name() ) ? $student->get_display_name() : $student->get_first_name(),
 				'{student_last_name}'                   => empty( $student->get_last_name() ) ? $student->get_display_name() : $student->get_last_name(),
-				'{student_name}'                        => sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_display_name(),
+				'{student_name}'                        => '' !== trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) ? trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) : $student->get_display_name(),
 				'{student_username}'                    => $student->get_username(),
 				'{student_nicename}'                    => $student->get_nicename(),
 				'{student_nickname}'                    => $student->get_nickname(),

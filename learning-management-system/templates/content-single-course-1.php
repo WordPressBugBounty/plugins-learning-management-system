@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -32,12 +32,12 @@ if ( empty( $course ) || ! $course->is_visible() ) {
 do_action( 'masteriyo_before_single_course_content' );
 
 ?>
-<div id="course-<?php the_ID(); ?>" class="masteriyo-single">
+<div id="course-<?php the_ID(); ?>" class="masteriyo-single masteriyo-single-course--wrapper" data-layout="modern">
 		<?php
 			/**
 			 * Action hook for rendering single course page content.
 			 *
-			 * @since 1.10.0
+			 * @since 1.10.0 [Free]
 			 */
 			do_action( 'masteriyo_layout_1_single_course_content', $course );
 		?>

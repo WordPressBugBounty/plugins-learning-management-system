@@ -43,6 +43,7 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 	 * @since 1.18.1
 	 */
 	public function boot() {
+
 		add_filter( 'learning_management_system_logger_data', array( $this, 'provide_tracking_data' ) );
 
 		add_filter(
@@ -74,6 +75,7 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 	 * @since 1.18.1
 	 */
 	public function provide_tracking_data() {
+
 		if ( ! MasteriyoTrackingInfo::is_usage_allowed() ) {
 			return array();
 		}
@@ -89,6 +91,7 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 		$data['publish_course_count']                              = MasteriyoTrackingInfo::get_publish_course_count();
 		$data['enrolled_users_count']                              = MasteriyoTrackingInfo::masteriyo_count_total_enrolled_users();
 		$data['masteriyo_install_days']                            = MasteriyoTrackingInfo::get_install_days();
+		$data['onboarding_data']                                   = get_option('masteriyo_onboarding_data');
 		return $data;
 	}
 }

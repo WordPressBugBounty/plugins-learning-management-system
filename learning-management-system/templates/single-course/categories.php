@@ -29,11 +29,11 @@ do_action( 'masteriyo_before_single_course_categories' );
 
 ?>
 <?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.categories' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
-<div class="masteriyo-course--content__category">
+<div class="masteriyo-course--content__category masteriyo-course-category">
 	<?php foreach ( $course->get_categories() as $category ) : ?>
 		<a href="<?php echo esc_attr( $category->get_permalink() ); ?>"
 			alt="<?php echo esc_attr( $category->get_name() ); ?>"
-			class="masteriyo-course--content__category-items masteriyo-tag">
+			class="masteriyo-course--content__category-items masteriyo-tag masteriyo-course-category--item">
 			<?php echo esc_html( $category->get_name() ); ?>
 		</a>
 	<?php endforeach; ?>

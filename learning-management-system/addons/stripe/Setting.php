@@ -44,6 +44,7 @@ class Setting {
 		'live_secret_key'      => '',
 		'webhook_secret'       => '',
 		'stripe_user_id'       => '',
+		'use_platform'         => false,
 	);
 
 	/**
@@ -276,5 +277,14 @@ class Setting {
 	 */
 	public static function get_webhook_secret() {
 		return self::get( 'webhook_secret' );
+	}
+
+	/**
+	 * Get stripe user id.
+	 *
+	 * @return string
+	 */
+	public static function get_stripe_user_id() {
+		return self::get( 'stripe_user_id' );
 	}
 }

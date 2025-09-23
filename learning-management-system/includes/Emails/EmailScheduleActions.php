@@ -13,10 +13,12 @@ use Masteriyo\Emails\Admin\InstructorApplyEmailToAdmin;
 use Masteriyo\Emails\Admin\NewOrderEmailToAdmin;
 use Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorRegistrationEmailToInstructor;
+use Masteriyo\Emails\Instructor\NewQuestionEmailToInstructor;
 use Masteriyo\Emails\Instructor\VerificationEmailToInstructor;
 use Masteriyo\Emails\Student\CancelledOrderEmailToStudent;
 use Masteriyo\Emails\Student\CompletedOrderEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
+use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Emails\Student\OnHoldOrderEmailToStudent;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
 use Masteriyo\Emails\Student\VerificationEmailToStudent;
@@ -47,6 +49,10 @@ class EmailScheduleActions {
 
 		add_action( 'masteriyo/schedule/email/student-email-verification/to/student', array( __CLASS__, 'send_student_verification_email_to_student' ) );
 		add_action( 'masteriyo/schedule/email/instructor-email-verification/to/instructor', array( __CLASS__, 'send_instructor_verification_email_to_instructor' ) );
+
+		// Q&A notification emails.
+		add_action( 'masteriyo/schedule/email/new-question/to/instructor', array( __CLASS__, 'send_new_question_email_to_instructor' ) );
+		add_action( 'masteriyo/schedule/email/new-question-reply/to/student', array( __CLASS__, 'send_new_question_reply_email_to_student' ) );
 	}
 
 	/**
@@ -193,5 +199,52 @@ class EmailScheduleActions {
 	public static function send_instructor_apply_rejected_email_to_student( $student_id ) {
 		$email = new InstructorApplyRejectedEmailToStudent();
 		$email->trigger( $student_id );
+	}
+
+
+	/**
+	 * Send new question email to instructor.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_question_email_to_instructor( $args ) {
+		$question_id = isset( $args['question_id'] ) ? absint( $args['question_id'] ) : 0;
+
+		if ( ! $question_id ) {
+			return;
+		}
+
+		$question = masteriyo_get_course_qa( $question_id );
+		if ( ! $question ) {
+			return;
+		}
+
+		$email = new NewQuestionEmailToInstructor();
+		$email->trigger( $question );
+	}
+
+	/**
+	 * Send new question reply email to student.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_question_reply_email_to_student( $args ) {
+		$reply_id = isset( $args['reply_id'] ) ? absint( $args['reply_id'] ) : 0;
+
+		if ( ! $reply_id ) {
+			return;
+		}
+
+		$reply = masteriyo_get_course_qa( $reply_id );
+		if ( ! $reply ) {
+			return;
+		}
+
+		$email = new NewQuestionReplyEmailToStudent();
+		$email->trigger( $reply );
 	}
 }

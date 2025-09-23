@@ -188,6 +188,15 @@ class Pro {
 		$locked = false;
 		$course = masteriyo_get_course( $course_progress_item->get_course_id() );
 
+		// Only allow bypass when in preview mode AND user is admin or course author
+		$current_request = masteriyo_current_http_request();
+		$is_preview      = masteriyo_string_to_bool( isset( $current_request['mto-preview'] ) ? $current_request['mto-preview'] : false );
+
+		if ( $is_preview && ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_post_author( $course_progress_item->get_course_id() ) ) ) {
+			$data['locked'] = false;
+			return $data;
+		}
+
 		if ( $course && CourseFlow::SEQUENTIAL === $course->get_flow() ) {
 			$current_index = 0;
 			$contents      = masteriyo_get_course_contents( $course );

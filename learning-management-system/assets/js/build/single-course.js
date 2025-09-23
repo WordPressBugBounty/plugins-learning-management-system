@@ -199,6 +199,195 @@
 				masteriyo.init_course_code_copy();
 				masteriyo.init_layout_1_curriculum_accordions_handler();
 				masteriyo.init_single_course_review_item_visibility();
+				masteriyo.init_course_progress_chart();
+				masteriyo.toggle_masteriyo_instructor();
+				masteriyo.prerequisites_highlight();
+			});
+		},
+		prerequisites_highlight: function () {
+			$(document).on(
+				'click',
+				'.masteriyo-prerequisites-enroll-button',
+				function (e) {
+					e.preventDefault();
+
+					$('.masteriyo-single-course--prerequisites').addClass(
+						'masteriyo-single-course--prerequisites--required prerequisites-required',
+					);
+
+					setTimeout(function () {
+						$('.masteriyo-single-course--prerequisites').removeClass(
+							'masteriyo-single-course--prerequisites--required',
+						);
+					}, 1000);
+				},
+			);
+		},
+		toggle_masteriyo_instructor: function () {
+			$(document).on(
+				'click',
+				'.additional-masteriyo-instructors-more',
+				function (e) {
+					e.preventDefault();
+
+					var $btn = $(this);
+					var id = $btn.attr('aria-controls');
+					var $panel = $('#' + id);
+
+					if (!$panel.length) return;
+
+					var expanded = $btn.attr('aria-expanded') === 'true';
+					$btn.attr('aria-expanded', String(!expanded));
+
+					if (expanded) {
+						$panel.attr('hidden', 'hidden');
+					} else {
+						$panel.removeAttr('hidden');
+						$panel
+							.find('a')
+							.filter(function () {
+								return (
+									$.trim($(this).text()) === '' &&
+									$(this).children().length === 0
+								);
+							})
+							.remove();
+					}
+				},
+			);
+		},
+		init_course_progress_chart: function () {
+			if (window._courseProgressChartInitialized) return;
+			window._courseProgressChartInitialized = true;
+
+			$(document.body).on('click', '.progress-icon', function (e) {
+				e.preventDefault();
+
+
+				var $host = $(this).closest('.completed-component');
+				if (!$host.length) return;
+
+				var $existing = $host.find('.course-progress-popover');
+				if ($existing.length) {
+					$existing.remove();
+					$(document).off('click.mto_outside keydown.mto_esc');
+					return;
+				}
+
+
+				$('.course-progress-popover').remove();
+				$(document).off('click.mto_outside keydown.mto_esc');
+
+				var progress =
+					typeof mto_data !== 'undefined' &&
+					mto_data &&
+					mto_data.course_progress
+						? mto_data.course_progress
+						: {};
+
+				var keys = Object.keys(progress).filter(function (k) {
+					var item = progress[k] || {};
+					var total = Number(item.total);
+					// Only show components where total > 0
+					return total > 0 && k !== 'total';
+				});
+
+				function clampPct(v) {
+					return Number.isFinite(v) ? Math.min(Math.max(v, 0), 100) : 0;
+				}
+
+				function ring(pct) {
+					var pctClamped = clampPct(pct);
+					var pctInt = Math.round(pctClamped);
+					var radius = 90;
+					var circumference = 2 * Math.PI * radius;
+					var strokeDashoffset =
+						circumference - (pctClamped / 100) * circumference;
+
+					return (
+						'<div class="masteriyo-course-progress-stats">' +
+						'<svg class="masteriyo-course-progress-ring" viewBox="0 0 200 200">' +
+						'<circle class="masteriyo-course-progress-ring__background" cx="100" cy="100" r="90"></circle>' +
+						'<circle class="masteriyo-course-progress-ring__progress" cx="100" cy="100" r="90" style="stroke-dasharray: ' +
+						circumference +
+						'; stroke-dashoffset:' +
+						strokeDashoffset +
+						';"></circle>' +
+						'</svg>' +
+						'<div class="validity-countdown">' +
+						'<span class="validity-countdown--number">' +
+						pctInt +
+						'%</span>' +
+						'</div>' +
+						'</div>'
+					);
+				}
+
+				function row(title, data) {
+					var total = Number(data && data.total);
+					var completed = Number(data && data.completed);
+					var pending = Number(data && data.pending);
+
+					if (!Number.isFinite(total) || total < 0) total = 0;
+					if (!Number.isFinite(completed) || completed < 0) completed = 0;
+					if (!Number.isFinite(pending) || pending < 0) {
+						pending = Math.max(total - completed, 0);
+					}
+
+					var pct = total > 0 ? (completed / total) * 100 : 0;
+					var titleStr = String(title || '').toUpperCase();
+
+					return (
+						'<div class="row">' +
+						ring(pct) +
+						'<div class="course-progress-text">' +
+						'<div class="label">' +
+						titleStr +
+						'</div>' +
+						'<div class="progress-details">' +
+						'<div class="progress-completed">' +
+						completed +
+						' Completed</div>' +
+						'<div class="progress-left">' +
+						pending +
+						' Left</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>'
+					);
+				}
+
+				$host.find('.course-progress-popover').remove();
+
+				var $pop = $('<div class="course-progress-popover" />').appendTo($host);
+				$pop
+					.html(keys.map((k) => row(k, progress[k] || {})).join(''))
+					.addClass('visible');
+
+				$pop.off('click.mto_popstop').on('click.mto_popstop', function (evt) {
+					evt.stopPropagation();
+				});
+
+				$(document)
+					.off('click.mto_outside')
+					.on('click.mto_outside', function (evt) {
+						if (
+							!$(evt.target).closest('.course-progress-popover, .progress-icon')
+								.length
+						) {
+							$pop.remove();
+							$(document).off('click.mto_outside keydown.mto_esc');
+						}
+					});
+
+				$(document)
+					.off('keydown.mto_esc')
+					.on('keydown.mto_esc', function (evt) {
+						if (evt.key === 'Escape') {
+							$pop.remove();
+							$(document).off('click.mto_outside keydown.mto_esc');
+						}
+					});
 			});
 		},
 
@@ -228,7 +417,7 @@
 					}
 
 					if (message && !$('.masteriyo-already-reviewed-msg').length) {
-						var messageHtml = '<div class="masteriyo-already-reviewed-msg masteriyo-notify-message masteriyo-alert masteriyo-info-msg" style="margin-bottom: 20px; clear: both;"><span>' + message + '</span></div>';
+						var messageHtml = '<div class="masteriyo-already-reviewed-msg masteriyo-notify-message masteriyo-alert masteriyo-info-msg" style="clear: both;"><span>' + message + '</span></div>';
 
 						// Add message after the hidden form.
 						if ($('.masteriyo-single-body__main--review-form').length) {

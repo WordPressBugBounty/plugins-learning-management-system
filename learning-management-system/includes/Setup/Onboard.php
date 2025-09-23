@@ -11,6 +11,7 @@ namespace Masteriyo\Setup;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Addons\Stripe\Client\StripeClient;
 use Masteriyo\Addons\Stripe\Setting as StripeSetting;
 
 class Onboard {
@@ -57,7 +58,7 @@ class Onboard {
 	 */
 	public function onboard_setup_wizard() {
 
-		$this->handle_stripe_disconnect();
+		$this->stripe_connect();
 
 		// if we are here, we assume we don't need to run the wizard again
 		// and the user doesn't need to be redirected here
@@ -115,7 +116,7 @@ class Onboard {
 				'show_allow_usage_notice' => masteriyo_bool_to_string( masteriyo_show_usage_tracking_notice() ),
 			)
 		);
-
+		wp_enqueue_media();
 		wp_enqueue_script( 'masteriyo-onboarding' );
 		wp_enqueue_script( 'masteriyo-dependencies' );
 
@@ -129,83 +130,95 @@ class Onboard {
 	}
 
 	/**
-	 * Handle stripe disconnect.
+	 * Stripe connect.
+	 *
+	 * Handle stripe connect process.
 	 *
 	 * @return void
 	 */
-	private function handle_stripe_disconnect() {
+	private function stripe_connect() {
 		if (
-			! isset( $_GET['page'] ) || $this->page_name !== $_GET['page'] ||
-			! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
-			! isset( $_GET['action'] ) || 'stripe-disconnect' !== sanitize_text_field( wp_unslash( $_GET['action'] ) )
+		! isset( $_GET['page'] ) ||
+		$this->page_name !== $_GET['page'] ||
+		! isset( $_GET['nonce'] ) ||
+		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
+		! current_user_can( 'manage_options' )
 		) {
 			return;
 		}
 
-		$stripe_setting = new StripeSetting();
+		$error = false;
 
-		$stripe_setting->set_props(
-			[
-				'stripe_user_id'       => '',
-				'sandbox'              => true,
-				'test_secret_key'      => '',
-				'test_publishable_key' => '',
-				'live_secret_key'      => '',
-				'live_publishable_key' => '',
-				'enable'               => true,
-			]
+		if ( isset( $_GET['return_url'] ) ) { // Account link request.
+			$return_url = sanitize_url( wp_unslash( $_GET['return_url'] ) );
+
+			if ( ! $error ) {
+				$response = StripeClient::create()->get_account_link(
+					array(
+						'mode'       => StripeSetting::is_sandbox_enable() ? 'test' : 'live',
+						'return_url' => $return_url,
+						'nonce'      => sanitize_text_field( wp_unslash( $_GET['nonce'] ) ),
+					)
+				);
+
+				if ( is_wp_error( $response ) || empty( $response['data'] ) ) {
+					$error = true;
+				} else {
+					wp_redirect( $response['data'] );
+					exit;
+				}
+			}
+		} elseif ( isset( $_GET['accountId'], $_GET['mode'] ) ) { // Account save.
+			$account_id = sanitize_text_field( wp_unslash( $_GET['accountId'] ) );
+			$mode       = sanitize_text_field( wp_unslash( $_GET['mode'] ) );
+
+			if ( empty( $account_id ) ||
+			! preg_match( '/^acct_[a-zA-Z0-9]+$/', $account_id ) ||
+			! in_array( $mode, array( 'test', 'live' ), true ) ) { // Validate account id and mode.
+				$error = true;
+			}
+
+			if ( ! $error ) {
+				$stripe_setting = new StripeSetting();
+				$stripe_setting->set_props(
+					array(
+						'stripe_user_id' => $account_id,
+						'sandbox'        => 'test' === $mode,
+						'enable'         => true,
+						'use_platform'   => true,
+					)
+				);
+
+				$stripe_setting->save();
+			}
+		} else { // Reset.
+			$stripe_setting = new StripeSetting();
+			$stripe_setting->set_props(
+				array(
+					'stripe_user_id'       => '',
+					'sandbox'              => true,
+					'test_secret_key'      => '',
+					'test_publishable_key' => '',
+					'live_secret_key'      => '',
+					'live_publishable_key' => '',
+					'enable'               => true,
+				)
+			);
+
+			$stripe_setting->save();
+		}
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'step'  => 'payment',
+					'error' => $error ? 'true' : null,
+				),
+				remove_query_arg( array( 'action', 'nonce', 'accountId', 'mode', 'return_url' ) )
+			)
 		);
-		$stripe_setting->save();
-		wp_safe_redirect( remove_query_arg( array( 'action', 'nonce' ) ) );
 		exit;
 	}
-
-	/**
-	 * Handle stripe data.
-	 *
-	 * @return void
-	 */
-	private function handle_stripe_data() {
-		if (
-			! isset( $_GET['page'] ) || $this->page_name !== $_GET['page'] ||
-			! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
-			empty( $_GET['state'] )
-		) {
-			return;
-		}
-
-		$decoded_state = base64_decode( sanitize_text_field( wp_unslash( $_GET['state'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		if ( ! $decoded_state ) {
-			return;
-		}
-		$state_data = json_decode( $decoded_state, true );
-		if ( ! $state_data || ! is_array( $state_data ) ) {
-			return;
-		}
-		if ( array_diff(
-			array(
-				'stripe_user_id',
-				'stripe_publishable_key',
-				'access_token',
-				'refresh_token',
-				'livemode',
-			),
-			array_keys( $state_data )
-		) ) {
-			return;
-		}
-		$is_live_mode = ! empty( $state_data['livemode'] );
-		$mode         = $is_live_mode ? 'live' : 'test';
-		$data         = array(
-			'stripe_user_id'          => $state_data['stripe_user_id'],
-			'sandbox'                 => ! $is_live_mode,
-			"{$mode}_publishable_key" => $state_data['stripe_publishable_key'],
-			"{$mode}_secret_key"      => $state_data['access_token'],
-		);
-		printf( '<script>var _MASTERIYO_ONBOARDING_STRIPE_DATA_ = %s;</script>', wp_json_encode( $data ) );
-		printf( '<script>window.history.replaceState("", {}, "%s")</script>', esc_url_raw( admin_url( 'admin.php?page=masteriyo-onboard&step=payment' ) ) );
-	}
-
 
 	/**
 	 * Setup wizard header content.
@@ -223,7 +236,6 @@ class Onboard {
 						<?php esc_html_e( 'Masteriyo LMS - Onboarding', 'learning-management-system' ); ?>
 					</title>
 					<?php wp_print_head_scripts(); ?>
-					<?php $this->handle_stripe_data(); ?>
 				</head>
 		<?php
 	}

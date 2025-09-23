@@ -1,6 +1,6 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React from 'react';
 import { AdvanceSelect, Color, Panel, Slider, Tab } from '../../../components';
 import CourseFilterForBlocks from '../../../components/select-course/select-wrapper';
 const theme = extendTheme({});
@@ -28,9 +28,7 @@ const BlockSettings = (props: any) => {
 					/>
 				</ChakraProvider>
 			</Panel>
-			<Panel
-				title={__('Styles', 'learning-management-system')}
-			>
+			<Panel title={__('Styles', 'learning-management-system')}>
 				<AdvanceSelect
 					value={alignment}
 					onChange={(val) => setAttributes({ alignment: val })}

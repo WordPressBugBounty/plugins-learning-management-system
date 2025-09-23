@@ -425,6 +425,17 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{instructor_email}',
 					'content'          => '<p class="email-template--info">Hi {instructor_first_name},</p><p class="email-template--info">A student has just made an assignment submission. Here are the details:</p><p><span class="email-text--bold">Name</span>: {student_name} <br /> <span class="email-text--bold">Course</span>: {course_name}  <br /> <span class="email-text--bold">Assignment</span>: {assignment_name}</p><p class"email--template--info">If necessary, please review the assignment submission.</p>{assignment_submission_review_link}',
 				),
+				'new_question'              => array(
+					'enable'           => true,
+					'recipients'       => array(),
+					'subject'          => 'New question in {course_name}',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'to_address'       => '{instructor_email}',
+					'content'          => '<p class="email-template--info">Hi {instructor_first_name},</p><p class="email-template--info">A student has submitted a new question in your course <span class="email-text--bold">{course_name}</span>.</p><p><span class="email-text--bold">Student</span>: {student_name}<br /><span class="email-text--bold">Date</span>: {question_date}</p><p class="email-template--info"><span class="email-text--bold">Question:</span></p><p>{question_content}</p><p class="email-template--info">You can answer this question by clicking the link below:</p>{question_link}',
+				),
 			),
 			'student'    => array(
 				'student_registration'       => array(
@@ -534,6 +545,17 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'from_name'    => '',
 					'subject'      => 'Great News! Your Group "{group_name}" is Now Active!',
 					'content'      => '<p class="email-template--info">Hi {author_first_name},</p><p>Exciting news! Your group "{group_name}" has been successfully activated and is now ready for members to join.</p><p class="email-template--info">You can now start inviting members and managing your group. To get started with group management, visit: {groups_management_link}</p><p class="email-template--info">Key features you can now use:</p><ul><li>Add and remove group members</li></ul><p class="email-template--info">Thank you for choosing our platform for your group learning needs. We\'re here to support you every step of the way!</p>',
+				),
+				'new_question_reply'         => array(
+					'enable'           => true,
+					'recipients'       => array(),
+					'subject'          => 'Reply to your question in {course_name}',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'to_address'       => '{student_email}',
+					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p class="email-template--info">Great news! {reply_author_name} has replied to your question in the course <span class="email-text--bold">{course_name}</span>.</p><p><span class="email-text--bold">Reply by</span>: {reply_author_name}<br /><span class="email-text--bold">Date</span>: {reply_date}</p><p class="email-template--info"><span class="email-text--bold">Your Original Question:</span></p><p>{question_content}</p><p class="email-template--info"><span class="email-text--bold">Reply:</span></p><p>{reply_content}</p><p class="email-template--info">You can view the full conversation and continue the discussion by clicking the link below:</p>{reply_link}',
 				),
 			),
 			'everyone'   => array(

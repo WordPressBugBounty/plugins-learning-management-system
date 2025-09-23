@@ -47,7 +47,7 @@ if ( isset( $show_curriculum ) && $show_curriculum ) {
 ?>
 
 <div class="tab-content course-curriculum <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
-	<div class="masteriyo-stab--tcurriculum">
+	<div class="masteriyo-stab--tcurriculum masteriyo-course--accordion">
 		<div class="masteriyo-stab--shortinfo">
 			<div class="title-container">
 				<ul class="masteriyo-shortinfo-wrap">
@@ -87,7 +87,7 @@ if ( isset( $show_curriculum ) && $show_curriculum ) {
 			</div>
 
 			<div class="masteriyo-cbody">
-				<ol class="masteriyo-lesson-list">
+				<ol class="masteriyo-lesson-list masteriyo-list-accordion">
 				<?php
 					/**
 					 * Display single course curriculum section children content.

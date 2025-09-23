@@ -207,7 +207,7 @@ class NewQuizAttemptEmailToInstructor extends Email {
 				'{student_username}'     => $student->get_username(),
 				'{student_nicename}'     => $student->get_nicename(),
 				'{student_nickname}'     => $student->get_nickname(),
-				'{student_name}'         => sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_username(),
+				'{student_name}'         => '' !== trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) ? trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) : $student->get_username(),
 
 			);
 		}
@@ -228,7 +228,7 @@ class NewQuizAttemptEmailToInstructor extends Email {
 					'{instructor_username}'     => $instructor->get_username(),
 					'{instructor_nicename}'     => $instructor->get_nicename(),
 					'{instructor_nickname}'     => $instructor->get_nickname(),
-					'{instructor_name}'         => sprintf( '%s %s', $instructor->get_first_name(), $instructor->get_last_name() ) ?? $instructor->get_username(),
+					'{instructor_name}'         => '' !== trim( sprintf( '%s %s', $instructor->get_first_name(), $instructor->get_last_name() ) ) ? trim( sprintf( '%s %s', $instructor->get_first_name(), $instructor->get_last_name() ) ) : $instructor->get_username(),
 				);
 			}
 		}

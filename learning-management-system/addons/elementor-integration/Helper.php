@@ -252,27 +252,6 @@ class Helper {
 											),
 										),
 									),
-									array(
-										'elType'   => 'column',
-										'isInner'  => true,
-										'isLocked' => false,
-										'settings' => array(
-											'_column_size' => 50,
-											'_inline_size' => 64.362,
-										),
-										'elements' => array(
-											array(
-												'elType'   => 'widget',
-												'isInner'  => false,
-												'isLocked' => false,
-												'settings' => array(
-													'align' => 'flex-end',
-												),
-												'elements' => array(),
-												'widgetType' => 'masteriyo-course-rating',
-											),
-										),
-									),
 								),
 							),
 							array(
@@ -370,33 +349,6 @@ class Helper {
 												),
 												'elements' =>
 												array(
-													array(
-														'elType' => 'column',
-														'isInner' => true,
-														'isLocked' => false,
-														'settings' => array(
-															'_column_size' => 30,
-															'_inline_size' => null,
-															'padding' => array(
-																'unit' => 'px',
-																'top'  => '0',
-																'right' => '0',
-																'bottom' => '0',
-																'left' => '0',
-																'isLinked' => true,
-															),
-														),
-														'elements' => array(
-															array(
-																'elType' => 'widget',
-																'isInner' => false,
-																'isLocked' => false,
-																'settings' => array(),
-																'elements' => array(),
-																'widgetType' => 'masteriyo-course-price',
-															),
-														),
-													),
 													array(
 														'elType' => 'column',
 														'isInner' => true,

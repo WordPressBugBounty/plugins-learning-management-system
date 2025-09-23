@@ -3195,6 +3195,7 @@ function masteriyo_get_lesson_video_sources() {
 			'vimeo'       => __( 'Vimeo', 'learning-management-system' ),
 			'embed-video' => __( 'Embed Video', 'learning-management-system' ),
 			'live-stream' => __( 'Live Stream', 'learning-management-system' ),
+			'external'    => __( 'External', 'learning-management-system' ),
 		)
 	);
 }
@@ -3646,8 +3647,10 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 		return array(
 			'general'        => array(
 				'styling'       => array(
-					'primary_color' => '#4584FF',
-					'theme'         => 'minimum',
+					'primary_color'                => '#4584FF',
+					'primary_color_for_learn_page' => '#4584FF',
+					'button_color'                 => '#4584FF',
+					'theme'                        => 'minimum',
 				),
 				'widgets_css'   => '',
 				'pages'         => array(
@@ -3757,6 +3760,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 			'single_course'  => array(
 				'display'         => array(
 					'enable_review'                     => true,
+					'enable_review_visibility_control'  => true,
 					'enable_review_enrolled_users_only' => false,
 					'auto_approve_reviews'              => true,
 					'course_visibility'                 => false,
@@ -3889,18 +3893,21 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'course_completion'         => masteriyo_get_default_email_contents()['instructor']['course_completion'],
 					'withdraw_request_rejected' => masteriyo_get_default_email_contents()['instructor']['withdraw_request_rejected'],
 					'new_quiz_attempt'          => masteriyo_get_default_email_contents()['instructor']['new_quiz_attempt'],
+					'new_question'              => masteriyo_get_default_email_contents()['instructor']['new_question'],
 				),
 				'student'    => array(
-					'student_registration'      => masteriyo_get_default_email_contents()['student']['student_registration'],
-					'automatic_registration'    => masteriyo_get_default_email_contents()['student']['automatic_registration'],
-					'instructor_apply_rejected' => masteriyo_get_default_email_contents()['student']['instructor_apply_rejected'],
-					'completed_order'           => masteriyo_get_default_email_contents()['student']['completed_order'],
-					'onhold_order'              => masteriyo_get_default_email_contents()['student']['onhold_order'],
-					'cancelled_order'           => masteriyo_get_default_email_contents()['student']['cancelled_order'],
-					'course_completion'         => masteriyo_get_default_email_contents()['student']['course_completion'],
-					'group_course_enroll'       => masteriyo_get_default_email_contents()['student']['group_course_enroll'],
-					'group_joining'             => masteriyo_get_default_email_contents()['student']['group_joining'],
-					'group_published'           => masteriyo_get_default_email_contents()['student']['group_published'],
+					'student_registration'       => masteriyo_get_default_email_contents()['student']['student_registration'],
+					'automatic_registration'     => masteriyo_get_default_email_contents()['student']['automatic_registration'],
+					'instructor_apply_rejected'  => masteriyo_get_default_email_contents()['student']['instructor_apply_rejected'],
+					'completed_order'            => masteriyo_get_default_email_contents()['student']['completed_order'],
+					'onhold_order'               => masteriyo_get_default_email_contents()['student']['onhold_order'],
+					'cancelled_order'            => masteriyo_get_default_email_contents()['student']['cancelled_order'],
+					'course_completion'          => masteriyo_get_default_email_contents()['student']['course_completion'],
+					'course_completion_reminder' => masteriyo_get_default_email_contents()['student']['course_completion_reminder'],
+					'group_course_enroll'        => masteriyo_get_default_email_contents()['student']['group_course_enroll'],
+					'group_joining'              => masteriyo_get_default_email_contents()['student']['group_joining'],
+					'group_published'            => masteriyo_get_default_email_contents()['student']['group_published'],
+					'new_question_reply'         => masteriyo_get_default_email_contents()['student']['new_question_reply'],
 				),
 				'everyone'   => array(
 					'password_reset'     => masteriyo_get_default_email_contents()['everyone']['password_reset'],
@@ -3991,6 +3998,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_invoice'          => false,
 					'enable_profile_page'     => true,
 					'enable_instructor_apply' => true,
+					'instructor_max_attempts' => 3,
 					'enable_edit_profile'     => true,
 					'enable_google_meet'      => false,
 					'enable_certificate_page' => true,
@@ -5461,7 +5469,7 @@ if ( ! function_exists( 'masteriyo_addon_menu_slugs' ) ) {
 			'google-meet'                  => array(
 				'menu_slug'  => 'google-meet/meetings',
 				'menu_title' => __( 'Google Meet', 'learning-management-system' ),
-				'position'   =>  75,
+				'position'   => 75,
 
 			),
 			'group-courses'                => array(

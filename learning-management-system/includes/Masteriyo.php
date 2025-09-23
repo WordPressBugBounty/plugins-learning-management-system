@@ -188,7 +188,7 @@ class Masteriyo {
 		add_filter( 'user_registration_user_instance_check', '__return_true' );
 
 		// Add the lock icon to course items.
-		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon_template_1' ), 9, 2 );
+		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon_template_1' ), 11, 2 );
 
 		add_action( 'masteriyo_after_layout_1_single_course_curriculum_accordion_body_item_title', array( $this, 'add_lock_icon_template_1' ) );
 
@@ -256,7 +256,7 @@ class Masteriyo {
 		$this->handle_paypal_ipn();
 
 		masteriyo_notify_pages_missing();
-		masteriyo_show_onboarding_completion_notice();
+		// masteriyo_show_onboarding_completion_notice();
 
 		// Download the fonts.
 		masteriyo_download_certificate_fonts();
@@ -434,6 +434,8 @@ class Masteriyo {
 
 			if ( 'layout1' === $layout ) {
 				$layout_template = 'single-course-1.php';
+			} elseif ( 'minimal' === $layout ) {
+				$layout_template = 'single-course-minimal.php';
 			}
 
 			$template = masteriyo( 'template' )->locate( $layout_template );
@@ -1166,11 +1168,53 @@ class Masteriyo {
 	 * @return string
 	 */
 	public function prepped_lock_sign( $text, $course ) {
+		$modified_text = '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
+  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
+</svg>' . sanitize_text_field( $text );
+
+		// for making private course feature with the prerequisites addon.
 		if ( $course && post_password_required( get_post( $course->get_id() ) ) ) {
-			return '<span class="dashicons dashicons-lock" style="margin-right: 5px"></span>' . $text;
+
+			if ( $text === $modified_text ) {
+				return $text;
+			}
+
+			return $modified_text;
 		}
 
 		return $text;
+	}
+
+
+
+	/**
+	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
+	 *
+	 * @since 1.13.0 [Free]
+	 *
+	 * @param string $html The HTML to modify.
+	 * @param mixed $object The object to check for enrollment and lesson preview.
+	 *
+	 * @return string The modified HTML with the lock icon added if applicable.
+	 */
+	public function add_lock_icon( $object ) {
+		if ( is_null( $object ) || is_wp_error( $object ) ) {
+			return;
+		}
+
+		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
+			return;
+		}
+
+		if ( $object instanceof \Masteriyo\Models\Lesson && is_callable( 'masteriyo_course_preview_is_lesson_preview_enabled' ) && masteriyo_course_preview_is_lesson_preview_enabled( $object ) ) {
+			return;
+		}
+
+		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+		<path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
+		<path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
+		</svg>';
 	}
 
 	/**
@@ -1267,27 +1311,6 @@ class Masteriyo {
 		}
 	}
 
-	/**
-	 * Adds a lock icon to the course items if the user is not enrolled in the course.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param string $html The HTML to be modified.
-	 * @param object $object The course object.
-	 *
-	 * @return string The modified HTML.
-	 */
-	public function add_lock_icon( $html, $object ) {
-		if ( is_null( $object ) || is_wp_error( $object ) ) {
-			return $html;
-		}
-
-		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
-			return $html;
-		}
-
-		return str_replace( $object->get_name(), $object->get_name() . '<span class="dashicons dashicons-lock" style="margin-left:auto;"></span>', $html );
-	}
 
 	/**
 	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
@@ -1311,7 +1334,10 @@ class Masteriyo {
 			return;
 		}
 
-		echo '<span class="dashicons dashicons-lock" style="margin-left:auto;"></span>';
+		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
+  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
+</svg>';
 	}
 
 	/**

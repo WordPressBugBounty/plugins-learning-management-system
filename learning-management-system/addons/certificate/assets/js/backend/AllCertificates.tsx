@@ -368,89 +368,106 @@ const AllCertificates: React.FC = () => {
 						<Stack direction="column" spacing="10">
 							<Stack direction="column" spacing="8">
 								<Table>
-									<Thead>
-										<Tr>
-											<Th>
-												<Checkbox
-													isDisabled={
-														certificatesQuery.isLoading ||
-														certificatesQuery.isFetching ||
-														certificatesQuery.isRefetching
-													}
-													isIndeterminate={
-														certificatesQuery?.data?.data?.length !==
-															bulkIds.length && bulkIds.length > 0
-													}
-													isChecked={
-														certificatesQuery?.data?.data?.length ===
-															bulkIds.length &&
-														!isEmpty(certificatesQuery?.data?.data)
-													}
-													onChange={(e) => {
-														if (
-															certificatesQuery &&
-															certificatesQuery.data &&
-															certificatesQuery.data.data
-														) {
-															setBulkIds(
-																e.target.checked
-																	? certificatesQuery?.data?.data?.map(
-																			(certificate: Certificate) =>
-																				certificate.id.toString(),
-																		)
-																	: [],
-															);
-														} else {
-															setBulkIds([]);
+									{certificatesQuery.isLoading ||
+									!certificatesQuery.isFetched ? (
+										<CertificatesListSkeleton />
+									) : certificatesQuery.isSuccess &&
+									  isEmpty(certificatesQuery?.data?.data) ? (
+										<EmptyInfo
+											onPrimaryButtonClick={() => {
+												navigate(certificateBackendRoutes.certificate.add);
+											}}
+											title={__(
+												'Create Your First Certificate',
+												'learning-management-system',
+											)}
+											description={__(
+												'Design certificate templates that can be awarded to students upon course completion. Customize the design, add your branding, and set completion criteria.',
+												'learning-management-system',
+											)}
+											primaryButtonLabel={__(
+												'Add New Certificate',
+												'learning-management-system',
+											)}
+											docs={
+												'https://docs.masteriyo.com/free-addons/certificate-builder'
+											}
+											video="https://www.youtube.com/watch?v=6_3Wd3ZJeIU"
+										/>
+									) : (
+										<>
+											<Thead>
+												<Tr>
+													<Th>
+														<Checkbox
+															isDisabled={
+																certificatesQuery.isLoading ||
+																certificatesQuery.isFetching ||
+																certificatesQuery.isRefetching
+															}
+															isIndeterminate={
+																certificatesQuery?.data?.data?.length !==
+																	bulkIds.length && bulkIds.length > 0
+															}
+															isChecked={
+																certificatesQuery?.data?.data?.length ===
+																	bulkIds.length &&
+																!isEmpty(certificatesQuery?.data?.data)
+															}
+															onChange={(e) => {
+																if (
+																	certificatesQuery &&
+																	certificatesQuery.data &&
+																	certificatesQuery.data.data
+																) {
+																	setBulkIds(
+																		e.target.checked
+																			? certificatesQuery?.data?.data?.map(
+																					(certificate: Certificate) =>
+																						certificate.id.toString(),
+																				)
+																			: [],
+																	);
+																} else {
+																	setBulkIds([]);
+																}
+															}}
+														/>
+													</Th>
+													<Th>
+														<Stack direction="row" alignItems="center">
+															<Text>
+																{__('Title', 'learning-management-system')}
+															</Text>
+															<Sorting
+																filterParams={filterParams}
+																filterContentBy={filterBy}
+																orderBy={'title'}
+															/>
+														</Stack>
+													</Th>
+													<Th>{__('Author', 'learning-management-system')}</Th>
+													<Th>{__('Date', 'learning-management-system')}</Th>
+													<Th>{__('Actions', 'learning-management-system')}</Th>
+												</Tr>
+											</Thead>
+											<Tbody>
+												{certificatesQuery?.data?.data?.map((certificate) => (
+													<CertificateRow
+														key={certificate.id}
+														data={certificate}
+														bulkIds={bulkIds}
+														setBulkIds={setBulkIds}
+														isLoading={
+															certificatesQuery.isLoading ||
+															certificatesQuery.isFetching ||
+															certificatesQuery.isRefetching
 														}
-													}}
-												/>
-											</Th>
-											<Th>
-												<Stack direction="row" alignItems="center">
-													<Text>
-														{__('Title', 'learning-management-system')}
-													</Text>
-													<Sorting
-														filterParams={filterParams}
-														filterContentBy={filterBy}
-														orderBy={'title'}
 													/>
-												</Stack>
-											</Th>
-											<Th>{__('Author', 'learning-management-system')}</Th>
-											<Th>{__('Date', 'learning-management-system')}</Th>
-											<Th>{__('Actions', 'learning-management-system')}</Th>
-										</Tr>
-									</Thead>
-									<Tbody>
-										{certificatesQuery.isLoading ||
-										!certificatesQuery.isFetched ? (
-											<CertificatesListSkeleton />
-										) : certificatesQuery.isSuccess &&
-										  isEmpty(certificatesQuery?.data?.data) ? (
-											<EmptyInfo
-												message={__(
-													'No certificates found.',
-													'learning-management-system',
-												)}
-											/>
-										) : (
-											certificatesQuery?.data?.data?.map((certificate) => (
-												<CertificateRow
-													key={certificate.id}
-													data={certificate}
-													bulkIds={bulkIds}
-													setBulkIds={setBulkIds}
-													isLoading={
-														certificatesQuery.isLoading ||
-														certificatesQuery.isFetching ||
-														certificatesQuery.isRefetching
-													}
-												/>
-											))
-										)}
-									</Tbody>
+												))}
+											</Tbody>
+										</>
+									)}
 								</Table>
 							</Stack>
 						</Stack>

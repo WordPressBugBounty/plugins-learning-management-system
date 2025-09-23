@@ -25,19 +25,30 @@ do_action( 'masteriyo_before_archive_course_stats' );
 if ( ! masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) ) {
 	return;
 }
+$sections = masteriyo_get_course_structure( $course->get_id() );
+if ( empty( $sections ) ) {
+	return;
+}
+
 ?>
 <div class="masteriyo-course--content__stats">
+	<?php if ( $course->get_duration() > 0 ) : ?>
 	<div class="masteriyo-course-stats-duration">
 		<?php masteriyo_get_svg( 'time', true ); ?> <span><?php echo esc_html( masteriyo_minutes_to_time_length_string( $course->get_duration() ) ); ?></span>
 	</div>
+	<?php endif; ?>
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.students_count' ) && masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count() > 0 ) : ?>
 	<div class="masteriyo-course-stats-students">
 		<?php masteriyo_get_svg( 'group', true ); ?> <span><?php echo esc_html( masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count() ); ?></span>
 	</div>
+	<?php endif; ?>
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count > 0 ) : ?>
 	<div class="masteriyo-course-stats-curriculum">
-	<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count ); ?></span>
+		<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count ); ?></span>
 	</div>
+	<?php endif; ?>
 	<!-- Available seats for students-->
-	<?php if ( $course->get_enrollment_limit() > 0 ) : ?>
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.seats_for_students' ) && $course->get_enrollment_limit() > 0 ) : ?>
 		<div class="masteriyo-available-seats-for-students">
 			<?php masteriyo_get_svg( 'available-seats-for-students', true ); ?> <span><?php echo esc_html( $course->get_enrollment_limit() > 0 ? $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() ) : 0 ); ?></span>
 		</div>

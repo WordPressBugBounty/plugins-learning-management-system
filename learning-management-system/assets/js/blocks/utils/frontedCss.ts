@@ -8,9 +8,8 @@ export function saveFrontedCSS() {
 	const { getCurrentPostId } = select('core/editor');
 	let css = '';
 
-	if (hasMasteriyoBlocks(allBlocks)) {
-		css = generateFrontEndCSS(allBlocks);
-	}
+	if (!hasMasteriyoBlocks(allBlocks)) return;
+	css = generateFrontEndCSS(allBlocks);
 	return apiFetch({
 		path: '/masteriyo/v1/blocks/save_css',
 		method: 'POST',

@@ -109,7 +109,7 @@ class CertificateAddon {
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'add_submenus' ) );
 
-		add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
+		add_action( 'masteriyo_template_course_inside_progress', array( $this, 'render_certificate_share_for_single_course_page' ), 1, 1 );
 		// add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
 
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -156,6 +156,7 @@ class CertificateAddon {
 		$current_user_id      = get_current_user_id();
 		$is_admin             = masteriyo_is_current_user_admin();
 
+		// phpcs:ignore Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses
 		if ( ! ( $user_id && $user_id === $current_user_id ) && ! $is_admin || ! $is_valid_certificate ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to access this content.', 'learning-management-system' ) );
 		}
@@ -493,9 +494,21 @@ class CertificateAddon {
 		wp_enqueue_style( 'masteriyo-blocks' );
 		wp_add_inline_style( 'wp-edit-post', $this->get_certificate_fonts_css() );
 		wp_add_inline_style( 'wp-edit-post', 'html.wp-toolbar { background-color: #F7FAFC; }' );
+		$categories = function_exists( 'get_block_categories' ) ? get_default_block_categories() : array();
+
+		if ( ! empty( $categories ) ) {
+			array_unshift(
+				$categories,
+				array(
+					'slug'  => 'masteriyo',
+					'title' => esc_html__( 'Masteriyo LMS', 'learning-management-system' ),
+				)
+			);
+		}
+
 		wp_add_inline_script(
 			'wp-blocks',
-			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( $post ) ) ),
+			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( $categories ) ),
 			'after'
 		);
 	}

@@ -320,99 +320,117 @@ const AllPriceZones = () => {
 							}}
 						>
 							<Table>
-								<Thead>
-									<Tr>
-										<Th>
-											<Checkbox
-												isDisabled={
-													pricingZoneQuery.isLoading ||
-													pricingZoneQuery.isFetching ||
-													pricingZoneQuery.isRefetching
-												}
-												isIndeterminate={
-													pricingZoneQuery?.data?.data?.length !==
-														bulkIds.length && bulkIds.length > 0
-												}
-												isChecked={
-													pricingZoneQuery?.data?.data?.length ===
-														bulkIds.length &&
-													!isEmpty(pricingZoneQuery?.data?.data as boolean)
-												}
-												onChange={(e) =>
-													setBulkIds(
-														e.target.checked
-															? pricingZoneQuery?.data?.data?.map(
-																	(pricingZone: any) =>
-																		pricingZone.id.toString(),
-																)
-															: [],
-													)
-												}
-											/>
-										</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Name', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterPricingZonesBy}
-													orderBy={'title'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Currency', 'learning-management-system')}</Th>
-										<Th>{__('Exchange Rate', 'learning-management-system')}</Th>
-										<Th>{__('Countries', 'learning-management-system')}</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Date', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterPricingZonesBy}
-													orderBy={'date'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Status', 'learning-management-system')}</Th>
-										<Th>{__('Actions', 'learning-management-system')}</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{pricingZoneQuery.isLoading || !pricingZoneQuery.isFetched ? (
-										<SkeletonList />
-									) : pricingZoneQuery.isSuccess &&
-									  isEmpty(pricingZoneQuery?.data?.data) ? (
-										<EmptyInfo
-											message={__(
-												'No pricing zones found.',
-												'learning-management-system',
+								{pricingZoneQuery.isLoading || !pricingZoneQuery.isFetched ? (
+									<SkeletonList />
+								) : pricingZoneQuery.isSuccess &&
+								  isEmpty(pricingZoneQuery?.data?.data) ? (
+									<EmptyInfo
+										onPrimaryButtonClick={() => {
+											navigate(multipleCurrencyBackendRoutes.add);
+										}}
+										title={__(
+											'No Multiple Currencies yet',
+											'learning-management-system',
+										)}
+										description={__(
+											'Start building your learning platform by creating your first course. Add lessons, quizzes, and materials to engage your students.',
+											'learning-management-system',
+										)}
+										primaryButtonLabel={__(
+											'Add New Pricing Zone',
+											'learning-management-system',
+										)}
+										isResultFiltered={Boolean(
+											filterParams?.search || filterParams?.status !== 'any',
+										)}
+									/>
+								) : (
+									<>
+										<Thead>
+											<Tr>
+												<Th>
+													<Checkbox
+														isDisabled={
+															pricingZoneQuery.isLoading ||
+															pricingZoneQuery.isFetching ||
+															pricingZoneQuery.isRefetching
+														}
+														isIndeterminate={
+															pricingZoneQuery?.data?.data?.length !==
+																bulkIds.length && bulkIds.length > 0
+														}
+														isChecked={
+															pricingZoneQuery?.data?.data?.length ===
+																bulkIds.length &&
+															!isEmpty(pricingZoneQuery?.data?.data as boolean)
+														}
+														onChange={(e) =>
+															setBulkIds(
+																e.target.checked
+																	? pricingZoneQuery?.data?.data?.map(
+																			(pricingZone: any) =>
+																				pricingZone.id.toString(),
+																		)
+																	: [],
+															)
+														}
+													/>
+												</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Name', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterPricingZonesBy}
+															orderBy={'title'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Currency', 'learning-management-system')}</Th>
+												<Th>
+													{__('Exchange Rate', 'learning-management-system')}
+												</Th>
+												<Th>{__('Countries', 'learning-management-system')}</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Date', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterPricingZonesBy}
+															orderBy={'date'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Status', 'learning-management-system')}</Th>
+												<Th>{__('Actions', 'learning-management-system')}</Th>
+											</Tr>
+										</Thead>
+										<Tbody>
+											{pricingZoneQuery?.data?.data?.map(
+												(pricingZone: PriceZoneSchema) => (
+													<PricingZoneList
+														key={pricingZone?.id}
+														data={pricingZone}
+														bulkIds={bulkIds}
+														onDeletePress={onDeletePress}
+														onRestorePress={onRestorePress}
+														onTrashPress={onTrashPress}
+														setBulkIds={setBulkIds}
+														isLoading={
+															pricingZoneQuery.isLoading ||
+															pricingZoneQuery.isFetching ||
+															pricingZoneQuery.isRefetching
+														}
+													/>
+												),
 											)}
-										/>
-									) : (
-										pricingZoneQuery?.data?.data?.map(
-											(pricingZone: PriceZoneSchema) => (
-												<PricingZoneList
-													key={pricingZone?.id}
-													data={pricingZone}
-													bulkIds={bulkIds}
-													onDeletePress={onDeletePress}
-													onRestorePress={onRestorePress}
-													onTrashPress={onTrashPress}
-													setBulkIds={setBulkIds}
-													isLoading={
-														pricingZoneQuery.isLoading ||
-														pricingZoneQuery.isFetching ||
-														pricingZoneQuery.isRefetching
-													}
-												/>
-											),
-										)
-									)}
-								</Tbody>
+										</Tbody>
+									</>
+								)}
 							</Table>
 						</Stack>
 					</Stack>

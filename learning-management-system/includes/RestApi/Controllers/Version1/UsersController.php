@@ -646,6 +646,33 @@ class UsersController extends CrudController {
 			return new \WP_Error( 'invalid_user', 'Invalid user ID.', array( 'status' => 404 ) );
 		}
 
+		// Check application attempts limit.
+		$attempt_count = $user->get_instructor_application_attempts();
+		$max_attempts  = masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' ) ?? 3;
+
+		/**
+		 * Filter the maximum number of instructor application attempts.
+		 * This filter allows customization of the maximum attempts a user can make to apply for an instructor role.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param int $max_attempts The maximum number of application attempts. Default is retrieved from settings.
+		 * @return int The modified maximum number of application attempts.
+		 */
+		$max_attempts = apply_filters( 'masteriyo_instructor_max_application_attempts', $max_attempts );
+
+		if ( $attempt_count >= $max_attempts ) {
+			return new \WP_Error( 'max_attempts_reached', 'You have reached the maximum number of instructor applications allowed.', array( 'status' => 403 ) );
+		}
+
+		// Check if user is already approved.
+		if ( InstructorApplyStatus::APPROVED === $user->get_instructor_apply_status() ) {
+			return new \WP_Error( 'already_approved', 'You are already approved as an instructor.', array( 'status' => 400 ) );
+		}
+
+		// Increment attempt count.
+		$new_attempt_count = $user->increment_instructor_application_attempts();
+
 		// Apply for instructor and save the user.
 		$user->set_instructor_apply_status( InstructorApplyStatus::APPLIED );
 		$user->save();
@@ -662,9 +689,34 @@ class UsersController extends CrudController {
 		do_action( 'masteriyo_apply_for_instructor', $user );
 
 		// Return a success response.
-		$response = array( 'id' => $user_id );
+		$response = array(
+			'id'            => $user_id,
+			'attempts_used' => $new_attempt_count,
+			'max_attempts'  => $max_attempts,
+		);
 
 		return new \WP_REST_Response( $response, 200 );
+	}
+
+	/**
+	 * Check if user can apply for instructor status.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param User $user User object.
+	 * @return bool True if user can apply, false otherwise.
+	 */
+	private function can_user_apply_for_instructor( $user ) {
+		// If user is already approved, they can't apply again
+		if ( InstructorApplyStatus::APPROVED === $user->get_instructor_apply_status() ) {
+			return false;
+		}
+
+		$attempt_count = $user->get_instructor_application_attempts();
+		$max_attempts  = masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' );
+		$max_attempts  = apply_filters( 'masteriyo_instructor_max_application_attempts', $max_attempts );
+
+		return $attempt_count < $max_attempts;
 	}
 
 	/**
@@ -768,31 +820,31 @@ class UsersController extends CrudController {
 		$user_sessions_info = masteriyo_get_all_session_data();
 
 		$data = array(
-			'id'                      => $user->get_id(),
-			'username'                => $user->get_username( $context ),
-			'nicename'                => $user->get_nicename( $context ),
-			'email'                   => $user->get_email( $context ),
-			'url'                     => $user->get_url( $context ),
-			'date_created'            => masteriyo_rest_prepare_date_response( $user->get_date_created( $context ) ),
-			'status'                  => $user->get_status( $context ),
-			'display_name'            => $user->get_display_name( $context ),
-			'nickname'                => $user->get_nickname( $context ),
-			'first_name'              => $user->get_first_name( $context ),
-			'last_name'               => $user->get_last_name( $context ),
-			'description'             => $user->get_description( $context ),
-			'rich_editing'            => $user->get_rich_editing( $context ),
-			'syntax_highlighting'     => $user->get_syntax_highlighting( $context ),
-			'comment_shortcuts'       => $user->get_comment_shortcuts( $context ),
-			'use_ssl'                 => $user->get_use_ssl( $context ),
-			'show_admin_bar_front'    => $user->get_show_admin_bar_front( $context ),
-			'locale'                  => $user->get_locale( $context ),
-			'roles'                   => $user->get_roles( $context ),
-			'formatted_roles'         => $this->get_formatted_roles( $user->get_roles( $context ) ),
-			'profile_image'           => array(
+			'id'                              => $user->get_id(),
+			'username'                        => $user->get_username( $context ),
+			'nicename'                        => $user->get_nicename( $context ),
+			'email'                           => $user->get_email( $context ),
+			'url'                             => $user->get_url( $context ),
+			'date_created'                    => masteriyo_rest_prepare_date_response( $user->get_date_created( $context ) ),
+			'status'                          => $user->get_status( $context ),
+			'display_name'                    => $user->get_display_name( $context ),
+			'nickname'                        => $user->get_nickname( $context ),
+			'first_name'                      => $user->get_first_name( $context ),
+			'last_name'                       => $user->get_last_name( $context ),
+			'description'                     => $user->get_description( $context ),
+			'rich_editing'                    => $user->get_rich_editing( $context ),
+			'syntax_highlighting'             => $user->get_syntax_highlighting( $context ),
+			'comment_shortcuts'               => $user->get_comment_shortcuts( $context ),
+			'use_ssl'                         => $user->get_use_ssl( $context ),
+			'show_admin_bar_front'            => $user->get_show_admin_bar_front( $context ),
+			'locale'                          => $user->get_locale( $context ),
+			'roles'                           => $user->get_roles( $context ),
+			'formatted_roles'                 => $this->get_formatted_roles( $user->get_roles( $context ) ),
+			'profile_image'                   => array(
 				'id'  => $user->get_profile_image_id( $context ),
 				'url' => $user->profile_image_url(),
 			),
-			'billing'                 => array(
+			'billing'                         => array(
 				'first_name'   => $user->get_billing_first_name( $context ),
 				'last_name'    => $user->get_billing_last_name( $context ),
 				'company_name' => $user->get_billing_company_name( $context ),
@@ -808,9 +860,14 @@ class UsersController extends CrudController {
 				'email'        => $user->get_billing_email( $context ),
 				'phone'        => $user->get_billing_phone( $context ),
 			),
-			'avatar_url'              => $user->get_avatar_url(),
-			'instructor_apply_status' => $user->get_instructor_apply_status( $context ),
-			'user_sessions_info'      => $user_sessions_info,
+			'avatar_url'                      => $user->get_avatar_url(),
+			'instructor_apply_status'         => $user->get_instructor_apply_status( $context ),
+			'instructor_application_attempts' => array(
+				'used'      => $user->get_instructor_application_attempts(),
+				'max'       => apply_filters( 'masteriyo_instructor_max_application_attempts', masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' ) ),
+				'can_apply' => $this->can_user_apply_for_instructor( $user ),
+			),
+			'user_sessions_info'              => $user_sessions_info,
 		);
 
 		/**

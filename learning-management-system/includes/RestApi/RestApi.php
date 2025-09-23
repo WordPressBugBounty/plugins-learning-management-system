@@ -53,6 +53,8 @@ use Masteriyo\RestApi\Controllers\Version1\UtilitiesController;
 use Masteriyo\RestApi\Controllers\Version1\LogsController;
 use Masteriyo\RestApi\Controllers\Version1\OnboardingController;
 use Masteriyo\RestApi\Controllers\Version1\RestAuthController;
+use Masteriyo\RestApi\Controllers\Version1\WelcomePageController;
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -168,6 +170,7 @@ class RestApi {
 			'rest-api-auth'         => RestAuthController::class,
 			'onboarding'            => OnboardingController::class,
 			'demos'                 => DemosController::class,
+			'create_pages'          => WelcomePageController::class,
 		);
 	}
 

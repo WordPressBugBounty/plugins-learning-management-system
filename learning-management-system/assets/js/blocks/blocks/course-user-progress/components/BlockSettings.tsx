@@ -2,7 +2,6 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Panel, Slider, Tab } from '../../../components';
-import AdvanceSelect from '../../../components/advance-select';
 import Color from '../../../components/color';
 import CourseFilterForBlocks from '../../../components/select-course/select-wrapper';
 const theme = extendTheme({});

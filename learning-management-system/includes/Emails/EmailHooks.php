@@ -28,12 +28,14 @@ use Masteriyo\Emails\Student\CompletedOrderEmailToStudent;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
 use Masteriyo\Emails\Instructor\WithdrawRequestApprovedEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorRegistrationEmailToInstructor;
+use Masteriyo\Emails\Instructor\NewQuestionEmailToInstructor;
 use Masteriyo\Emails\Instructor\NewQuizAttemptEmailToInstructor;
 use Masteriyo\Emails\Instructor\WithdrawRequestPendingEmailToInstructor;
 use Masteriyo\Emails\Instructor\WithdrawRequestRejectedEmailToInstructor;
 use Masteriyo\Emails\Student\AutomaticRegistrationEmailToStudent;
 use Masteriyo\Emails\Student\CourseCompletionEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
+use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\InstructorApplyStatus;
 use Masteriyo\Query\UserCourseQuery;
@@ -94,6 +96,14 @@ class EmailHooks {
 		add_action( 'masteriyo_update_quiz_attempt', array( __CLASS__, 'schedule_new_quiz_attempt_email_to_instructor' ), 10, 2 );
 
 		add_action( 'masteriyo_course_progress_status_changed', array( __CLASS__, 'schedule_course_completion_email_to_student' ), 10, 4 );
+
+		// Q&A notification emails.
+		add_action( 'masteriyo_new_course_qa', array( __CLASS__, 'schedule_new_question_email_to_instructor' ), 10, 2 );
+		add_action( 'masteriyo_new_course_qa', array( __CLASS__, 'schedule_new_question_reply_email_to_student' ), 10, 2 );
+
+		// Disable WordPress core comment notifications for Q&A.
+		add_filter( 'comment_notification_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_qa' ), 10, 2 );
+		add_filter( 'comment_moderation_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_qa' ), 10, 2 );
 	}
 
 	/**
@@ -844,5 +854,90 @@ class EmailHooks {
 		} else {
 			$email->trigger( $course_progress );
 		}
+	}
+
+
+	/**
+	 * Schedule new question email to instructor.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int $id Question ID.
+	 * @param \Masteriyo\Models\CourseQuestionAnswer $course_qa Question object.
+	 */
+	public static function schedule_new_question_email_to_instructor( $id, $course_qa ) {
+		// Only send email for new questions (not replies)
+		if ( $course_qa->is_answer() ) {
+			return;
+		}
+
+		$email = new NewQuestionEmailToInstructor();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'question_id' => $course_qa->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $course_qa );
+		}
+	}
+
+	/**
+	 * Schedule new question reply email to student.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int $id Reply ID.
+	 * @param \Masteriyo\Models\CourseQuestionAnswer $course_qa Reply object.
+	 */
+	public static function schedule_new_question_reply_email_to_student( $id, $course_qa ) {
+		// Only send email for replies (not new questions)
+		if ( ! $course_qa->is_answer() ) {
+			return;
+		}
+
+		// Don't send email if the replier is the same as the question creator
+		$parent_question = masteriyo_get_course_qa( $course_qa->get_parent() );
+		if ( $parent_question && $parent_question->get_user_id() === $course_qa->get_user_id() ) {
+			return;
+		}
+
+		$email = new NewQuestionReplyEmailToStudent();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'reply_id' => $course_qa->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $course_qa );
+		}
+	}
+
+	/**
+	 * Disable WordPress core comment notifications for Q&A comments.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string[] $emails     List of recipient email addresses.
+	 * @param int      $comment_id Comment ID.
+	 * @return string[]
+	 */
+	public static function disable_core_comment_notifications_for_qa( $emails, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment ) {
+				return $emails;
+		}
+
+		// If this is a Q&A comment type, prevent notifications.
+		if ( 'mto_course_qa' === (string) $comment->comment_type ) {
+			return array(); // empty recipient list disables notifications.
+		}
+
+		return $emails;
 	}
 }

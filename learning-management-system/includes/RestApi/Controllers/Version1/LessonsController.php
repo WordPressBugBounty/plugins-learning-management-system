@@ -359,7 +359,7 @@ class LessonsController extends PostsController {
 			'live_chat_enabled'         => $lesson->get_live_chat_enabled( $context ),
 			'enable_lesson_comment'     => masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ),
 			'custom_fields'             => $lesson->get_custom_fields( $context ),
-
+			'lesson_type'               => $lesson->get_lesson_type( $context ),
 		);
 
 		$video_type       = $lesson->get_video_source( $context );
@@ -738,6 +738,12 @@ class LessonsController extends PostsController {
 					'default'     => '',
 					'context'     => array( 'view', 'edit' ),
 				),
+				'lesson_type'         => array(
+					'description' => __( 'Lesson Type', 'learning-management-system' ),
+					'type'        => 'string',
+					'default'     => '',
+					'context'     => array( 'view', 'edit' ),
+				),
 			),
 		);
 
@@ -885,6 +891,11 @@ class LessonsController extends PostsController {
 		// Custom Fields.
 		if ( isset( $request['custom_fields'] ) ) {
 			$lesson->set_custom_fields( $request['custom_fields'] );
+		}
+
+		// lesson type.
+		if ( isset( $request['lesson_type'] ) ) {
+			$lesson->set_lesson_type( $request['lesson_type'] );
 		}
 			/**
 			 * Filters an object before it is inserted via the REST API.

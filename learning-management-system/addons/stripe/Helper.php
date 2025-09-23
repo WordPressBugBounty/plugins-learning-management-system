@@ -90,4 +90,13 @@ class Helper {
 			'api_key' => Setting::get_secret_key(),
 		);
 	}
+
+	/**
+	 * Use platform.
+	 *
+	 * @return boolean
+	 */
+	public static function use_platform() {
+		return Setting::get_stripe_user_id() && Setting::get( 'use_platform' );
+	}
 }

@@ -1,0 +1,122 @@
+<?php
+/**
+ * The Template for displaying all single course detail
+ *
+ * This template can be overridden by copying it to yourtheme/masteriyo/single-course/content-single-course-minimal.php.
+ *
+ * HOWEVER, on occasion Masteriyo will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @package Masteriyo\Templates
+ * @version 2.0.0
+ */
+
+use Masteriyo\Query\CourseProgressQuery;
+
+defined( 'ABSPATH' ) || exit;
+
+global $course;
+
+// Ensure visibility.
+if ( empty( $course ) || ! $course->is_visible() ) {
+	return;
+}
+
+/**
+ * Fires before rendering single course page content.
+ *
+ * @since 2.0.0
+ */
+do_action( 'masteriyo_before_single_course_content' );
+
+?>
+<div id="course-<?php the_ID(); ?>" class="masteriyo-single masteriyo-single-course--wrapper" data-layout="minimal">
+	<?php
+		/**
+		 * Fires an action to allow customization of the single course featured image.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		do_action( 'masteriyo_single_course_minimal_featured_image', $course );
+	?>
+	<div class="masteriyo-single-main-content-wrapper">
+		<div class="masteriyo-col-8 masteriyo-main-content-area">
+			<div class="masteriyo-single-course--main masteriyo-course--content">
+				<?php
+				/**
+				 * Action hook for rendering single course page content.
+				 *
+				 * @hooked masteriyo_single_course_categories - 10
+				 * @hooked masteriyo_single_course_title - 20
+				 * @hooked masteriyo_single_course_badge - 30
+				 * @hooked masteriyo_course_expiration_info - 40
+				 * @hooked masteriyo_single_course_author_and_rating - 50
+				 *
+				 * @since 1.0.5
+				 */
+				do_action( 'masteriyo_single_course_minimal_content', $course );
+				?>
+			</div>
+		</div>
+
+		<div class="masteriyo-col-4 masteriyo-right-sidebar-area">
+			<aside class="masteriyo-single-course--aside masteriyo-course--content">
+				<?php
+				/**
+				 * Action hook for rendering sidebar in single course page.
+				 *
+				 * @hooked masteriyo_single_course_price_and_enroll_button - 10
+				 * @hooked masteriyo_single_course_stats - 20
+				 * @hooked masteriyo_single_course_highlights - 30
+				 *
+				 * @since 1.0.5
+				 */
+
+				$query = new CourseProgressQuery(
+					array(
+						'course_id' => $course->get_id(),
+						'user_id'   => get_current_user_id(),
+					)
+				);
+
+				$progress = current( $query->get_course_progress() );
+				if ( ! empty( $progress ) ) {
+					do_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', $course );
+				} else {
+					do_action( 'masteriyo_single_course_minimal_sidebar_content', $course );
+				}
+
+
+
+				?>
+			</aside>
+			<?php
+				do_action( 'masteriyo_after_course_content', $course );
+			?>
+		</div>
+	</div>
+	<?php
+		/**
+		 * Fires an action to allow customization of the single course main content.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @hooked masteriyo_single_course_minimal_main_content - 50
+		 *
+		 * @param \Masteriyo\Models\Course $course The course object.
+		 */
+		do_action( 'masteriyo_single_course_minimal_main_content', $course );
+	?>
+</div>
+<?php
+/**
+ * Fires after rendering single course page content.
+ *
+ * @since 2.0.0
+ */
+do_action( 'masteriyo_after_single_course_content' );

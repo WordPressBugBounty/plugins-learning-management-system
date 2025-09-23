@@ -13,7 +13,7 @@ import { deepMerge, isEmpty } from '../../../assets/js/back-end/utils/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ActionDialog from '../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../assets/js/back-end/components/common/EmptyInfo';
 import FloatingBulkAction from '../../../assets/js/back-end/components/common/FloatingBulkAction';
@@ -53,7 +53,6 @@ const GoogleMeetMeetings: React.FC = () => {
 		order: 'desc',
 		orderby: 'meta_value',
 	});
-	const location = useLocation();
 
 	const [googleMeetStatusCount, setGoogleMeetStatusCount] =
 		useState<GoogleMeetCount>({
@@ -85,11 +84,11 @@ const GoogleMeetMeetings: React.FC = () => {
 				});
 			}
 		}
-	}, [googleMeetMeetingQuery]);
+	}, [googleMeetMeetingQuery?.isSuccess, googleMeetMeetingQuery?.data]);
 
 	const onDeleteConfirm = () => {
-		googleMeetMeetingQuery?.data?.id
-			? deleteGoogleMeet.mutate(googleMeetMeetingQuery?.data?.id)
+		googleMeetMeetingQuery.data?.id
+			? deleteGoogleMeet.mutate(googleMeetMeetingQuery.data.id)
 			: null;
 	};
 
@@ -160,107 +159,156 @@ const GoogleMeetMeetings: React.FC = () => {
 							}}
 						>
 							<Table>
-								<Thead>
-									<Tr>
-										<Th>
-											<Checkbox
-												isDisabled={
-													googleMeetMeetingQuery.isLoading ||
-													googleMeetMeetingQuery.isFetching ||
-													googleMeetMeetingQuery.isRefetching
-												}
-												isIndeterminate={
-													googleMeetMeetingQuery?.data?.data?.length !==
-														bulkIds.length && bulkIds.length > 0
-												}
-												isChecked={
-													googleMeetMeetingQuery?.data?.data?.length ===
-														bulkIds.length &&
-													!isEmpty(googleMeetMeetingQuery?.data?.data)
-												}
-												onChange={(e) => {
-													setBulkIds(
-														e.target.checked
-															? googleMeetMeetingQuery?.data?.data?.map(
-																	(meeting: any) => meeting?.id?.toString(),
-																)
-															: [],
-													);
-												}}
-											/>
-										</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Title', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterMeetingsBy}
-													orderBy={'title'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Author', 'learning-management-system')}</Th>
-										<Th>{__('Status', 'learning-management-system')}</Th>
-
-										<Th style={{ width: '200px' }}>
-											{__('Course', 'learning-management-system')}
-										</Th>
-
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Start Time', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterMeetingsBy}
-													orderBy={'meta_value'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('End Time', 'learning-management-system')}</Th>
-										<Th>{__('Actions', 'learning-management-system')}</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{googleMeetMeetingQuery.isLoading && (
-										<GoogleMeetMeetingsListSkeleton />
-									)}
-									{googleMeetSettingQuery?.data?.access_token === '' ? (
-										<EmptyInfo
-											message={__(
-												'Add Google Meet Credentials.',
-												'learning-management-system',
-											)}
-										/>
-									) : googleMeetMeetingQuery.isSuccess &&
-									  googleMeetMeetingQuery?.data?.meta?.googleMeetCounts
-											?.all === 0 ? (
-										<EmptyInfo
-											message={__(
-												'No meetings found.',
-												'learning-management-system',
-											)}
-										/>
-									) : (
-										googleMeetMeetingQuery?.data?.data?.map((meeting: any) => (
-											<MeetingRow
-												key={meeting?.id}
-												meeting={meeting}
-												bulkIds={bulkIds}
-												setBulkIds={setBulkIds}
-												deleteCourseId={deleteCourseId}
-												isLoading={
-													googleMeetMeetingQuery.isLoading ||
-													googleMeetMeetingQuery.isFetching ||
-													googleMeetMeetingQuery.isRefetching
+								{googleMeetMeetingQuery.isLoading ? (
+									<GoogleMeetMeetingsListSkeleton />
+								) : (
+									<>
+										{googleMeetSettingQuery?.data?.access_token === '' ? (
+											<EmptyInfo
+												title={__(
+													'Add Google Meeting Credentials',
+													'learning-management-system',
+												)}
+												docs={
+													'https://docs.masteriyo.com/free-addons/google-meet-integration'
 												}
 											/>
-										))
-									)}
-								</Tbody>
+										) : googleMeetMeetingQuery.isSuccess &&
+										  googleMeetMeetingQuery?.data?.meta?.googleMeetCounts
+												?.all === 0 ? (
+											<EmptyInfo
+												title={__(
+													'No Meetings Yet.',
+													'learning-management-system',
+												)}
+												docs={
+													'https://docs.masteriyo.com/free-addons/google-meet-integration'
+												}
+											/>
+										) : (
+											<>
+												{isEmpty(googleMeetMeetingQuery?.data?.data) ? (
+													<EmptyInfo
+														title={__(
+															'No Meetings Yet.',
+															'learning-management-system',
+														)}
+														docs={
+															'https://docs.masteriyo.com/free-addons/google-meet-integration'
+														}
+														isResultFiltered={Boolean(
+															filterParams?.search ||
+																filterParams?.status !== 'any',
+														)}
+													/>
+												) : (
+													<>
+														<Thead>
+															<Tr>
+																<Th>
+																	<Checkbox
+																		isDisabled={
+																			googleMeetMeetingQuery.isLoading ||
+																			googleMeetMeetingQuery.isFetching ||
+																			googleMeetMeetingQuery.isRefetching
+																		}
+																		isIndeterminate={
+																			googleMeetMeetingQuery?.data?.data
+																				?.length !== bulkIds.length &&
+																			bulkIds.length > 0
+																		}
+																		isChecked={
+																			googleMeetMeetingQuery?.data?.data
+																				?.length === bulkIds.length &&
+																			!isEmpty(
+																				googleMeetMeetingQuery?.data?.data,
+																			)
+																		}
+																		onChange={(e) => {
+																			setBulkIds(
+																				e.target.checked
+																					? googleMeetMeetingQuery.data.data.map(
+																							(meeting: any) =>
+																								meeting.id.toString(),
+																						)
+																					: [],
+																			);
+																		}}
+																	/>
+																</Th>
+																<Th>
+																	<Stack direction="row" alignItems="center">
+																		<Text fontSize="xs">
+																			{__(
+																				'Title',
+																				'learning-management-system',
+																			)}
+																		</Text>
+																		<Sorting
+																			filterParams={filterParams}
+																			filterContentBy={filterMeetingsBy}
+																			orderBy={'title'}
+																		/>
+																	</Stack>
+																</Th>
+																<Th>
+																	{__('Author', 'learning-management-system')}
+																</Th>
+																<Th>
+																	{__('Status', 'learning-management-system')}
+																</Th>
+
+																<Th style={{ width: '200px' }}>
+																	{__('Course', 'learning-management-system')}
+																</Th>
+
+																<Th>
+																	<Stack direction="row" alignItems="center">
+																		<Text fontSize="xs">
+																			{__(
+																				'Start Time',
+																				'learning-management-system',
+																			)}
+																		</Text>
+																		<Sorting
+																			filterParams={filterParams}
+																			filterContentBy={filterMeetingsBy}
+																			orderBy={'meta_value'}
+																		/>
+																	</Stack>
+																</Th>
+																<Th>
+																	{__('End Time', 'learning-management-system')}
+																</Th>
+																<Th>
+																	{__('Actions', 'learning-management-system')}
+																</Th>
+															</Tr>
+														</Thead>
+														<Tbody>
+															{googleMeetMeetingQuery?.data?.data?.map(
+																(meeting: any) => (
+																	<MeetingRow
+																		key={meeting?.id}
+																		meeting={meeting}
+																		bulkIds={bulkIds}
+																		setBulkIds={setBulkIds}
+																		deleteCourseId={deleteCourseId}
+																		isLoading={
+																			googleMeetMeetingQuery.isLoading ||
+																			googleMeetMeetingQuery.isFetching ||
+																			googleMeetMeetingQuery.isRefetching
+																		}
+																	/>
+																),
+															)}
+														</Tbody>
+													</>
+												)}
+											</>
+										)}
+									</>
+								)}
 							</Table>
 						</Stack>
 					</Stack>

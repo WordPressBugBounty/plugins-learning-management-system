@@ -7,7 +7,6 @@ import {
 	Container,
 	Flex,
 	Heading,
-	Icon,
 	Stack,
 	useBreakpointValue,
 	useMediaQuery,
@@ -17,9 +16,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link, NavLink, useParams } from 'react-router-dom';
+import BackButton from '../../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
 	HeaderLeftSection,
@@ -123,7 +122,12 @@ const EditGroup: React.FC = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		updateGroup.mutate(deepClean(data));
+		// Ensure emails field is preserved even if empty
+		const cleanedData = deepClean(data);
+		if (!cleanedData.hasOwnProperty('emails')) {
+			cleanedData.emails = [];
+		}
+		updateGroup.mutate(cleanedData);
 	};
 
 	useWarnUnsavedChanges(methods.formState.isDirty);
@@ -190,13 +194,7 @@ const EditGroup: React.FC = () => {
 				<Stack direction="column" spacing="6">
 					<ButtonGroup>
 						<Link to={groupsBackendRoutes.list}>
-							<Button
-								variant="link"
-								_hover={{ color: 'primary.500' }}
-								leftIcon={<Icon fontSize="xl" as={BiChevronLeft} />}
-							>
-								{__('Back to Groups', 'learning-management-system')}
-							</Button>
+							<BackButton />
 						</Link>
 					</ButtonGroup>
 					{groupQuery.isSuccess ? (

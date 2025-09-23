@@ -315,8 +315,6 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 						!connectMutation?.isSuccess && (
 							<Button
 								size={'sm'}
-								width={'fit-content'}
-								colorScheme={'primary'}
 								onClick={() => connectMutation.mutate(true)}
 								isLoading={connectMutation?.isPending}
 								isDisabled={connectMutation?.isPending}

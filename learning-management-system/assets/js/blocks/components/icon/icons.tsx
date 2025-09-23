@@ -342,6 +342,86 @@ export default {
 				/>
 			</svg>
 		),
+		certificationVerificationCode: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 2.5l2.5 7.5h7.5l-6 4.5 2.5 7.5-6-4.5-6 4.5 2.5-7.5-6-4.5h7.5z"
+				/>
+				<path d="M12 6l1.5 4.5h3l-2.5 2.5 1.5 4.5-4-3-4 3 1.5-4.5-2.5-2.5h3z" />
+			</svg>
+		),
+		courseStartDate: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M3 4.5h18m-14-2v2m10-2v2M4.5 7.5h15v13h-15zM9 10.5h6v6H9z"
+				/>
+			</svg>
+		),
+		courseGradeResult: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 3.5l3 6 6 .9-4.5 4.4 1 6-5.5-3-5.5 3 1-6L3 10.4l6-.9z"
+				/>
+			</svg>
+		),
+		instructorName: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-5.33 0-8 2.67-8 8h16c0-5.33-2.67-8-8-8z"
+				/>
+			</svg>
+		),
+		coInstructorsName: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-5.33 0-8 2.67-8 8h16c0-5.33-2.67-8-8-8z"
+				/>
+				<circle cx="16.5" cy="4.5" r="2.5" />
+				<path d="M20.5 22h-8c0-2 1.33-4.67 4-4.67s4 2.67 4 4.67z" />
+			</svg>
+		),
+		courseDuration: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 1.5a10.5 10.5 0 1 0 10.5 10.5A10.5 10.5 0 0 0 12 1.5zM12 12V7m-3 0h6"
+				/>
+			</svg>
+		),
+		currentTimestamp: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 1.5a10.5 10.5 0 1 0 10.5 10.5A10.5 10.5 0 0 0 12 1.5zM12 6v6.75h6M4.5 19.5L5.25 15.75M18.75 19.5L18 15.75"
+				/>
+			</svg>
+		),
 		studentName: (
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				<path
@@ -370,6 +450,68 @@ export default {
 					ry="3.69"
 				/>
 				<path d="M17.43 14.29a1.29 1.29 0 0 0 2.57 0 1.29 1.29 0 1 0-2.57 0ZM21 18.43h.28v-.29a2 2 0 0 0-2-2h-1.14a2 2 0 0 0-2 2v.29Z" />
+			</svg>
+		),
+		QRCode: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<rect
+					x="3"
+					y="3"
+					width="6"
+					height="6"
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<rect
+					x="3"
+					y="15"
+					width="6"
+					height="6"
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<rect
+					x="15"
+					y="3"
+					width="6"
+					height="6"
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M15 15h2v2h2v-2h2v4h-2v2h-4v-4h2v-2h-2v-2h-2v-2h2v2z"
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<rect
+					x="10"
+					y="10"
+					width="4"
+					height="4"
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</svg>
+		),
+		currentTime: (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<path
+					fill="none"
+					stroke="#000"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 1.5a10.5 10.5 0 1 0 10.5 10.5A10.5 10.5 0 0 0 12 1.5zM12 6v6.75h6"
+				/>
 			</svg>
 		),
 	},

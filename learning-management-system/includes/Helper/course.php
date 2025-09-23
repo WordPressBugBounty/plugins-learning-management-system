@@ -295,7 +295,22 @@ function masteriyo_trim_course_highlights( $highlights, $limit = 3 ) {
 	$trimmed_highlights = '';
 
 	if ( ! empty( $matched_str ) ) {
-		$trimmed_highlights = '<ul>' . $matched_str . '</ul>';
+		$trimmed_highlights = preg_replace_callback(
+			'/<li[^>]*>(.*?)<\/li>/',
+			function ( $matches ) {
+				$content = $matches[1]; // Get the content inside <li>
+
+				// Check if the content already contains a <p> tag with or without attributes
+				if ( preg_match( '/<p[^>]*>.*?<\/p>/', $content ) === 0 ) {
+					// If no <p> tag is found, wrap the content in <p> tags
+					$content = '<p>' . $content . '</p>';
+				}
+
+				return '<div class="masteriyo-course-highlights--item">' . $content . '</div>';
+			},
+			$matched_str
+		);
+		// $trimmed_highlights = preg_replace( '/<li[^>]*>(.*?)<\/li>/', '<div class="masteriyo-course-highlights--item"><p>$1</p></div>', $matched_str );
 	}
 
 	/**

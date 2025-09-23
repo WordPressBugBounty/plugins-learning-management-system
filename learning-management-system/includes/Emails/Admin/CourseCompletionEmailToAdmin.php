@@ -177,7 +177,7 @@ class CourseCompletionEmailToAdmin extends Email {
 				'{student_username}'     => $student->get_username(),
 				'{student_nicename}'     => $student->get_nicename(),
 				'{student_nickname}'     => $student->get_nickname(),
-				'{student_name}'         => sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_username(),
+				'{student_name}'         => '' !== trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) ? trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) : $student->get_username(),
 			);
 		}
 

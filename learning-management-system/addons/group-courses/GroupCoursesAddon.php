@@ -843,6 +843,11 @@ class GroupCoursesAddon {
 	 * @param \Masteriyo\Models\Course $course The course object for which the group buy button is being rendered.
 	 */
 	public function get_group_btn_template( $course ) {
+		$user_id = get_current_user_id();
+		if ( ! masteriyo_is_single_course_page() ||  masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) ){
+			return;
+		}
+
 		// Check if group selling is enabled for this course (default to true if not set)
 		$group_enabled_meta = get_post_meta( $course->get_id(), '_group_courses_enabled', true );
 		// Only hide if explicitly set to 'no'
@@ -1779,7 +1784,7 @@ class GroupCoursesAddon {
 		 * post (`mto-group` post type) associated with the given course ID.
 		 *
 
-		 * @since x.x.x
+		 * @since 2.0.0
 
 		 * @since 1.20.0
 

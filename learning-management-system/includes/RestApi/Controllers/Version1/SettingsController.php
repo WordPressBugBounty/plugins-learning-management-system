@@ -393,6 +393,18 @@ class SettingsController extends CrudController {
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
+								'primary_color_for_learn_page' => array(
+									'description' => __( 'Primary color for learn page', 'learning-management-system' ),
+									'type'        => 'string',
+									'format'      => 'hex-color',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'button_color'  => array(
+									'description' => __( 'Button color', 'learning-management-system' ),
+									'type'        => 'string',
+									'format'      => 'hex-color',
+									'context'     => array( 'view', 'edit' ),
+								),
 								'theme'         => array(
 									'description' => __( 'Theme', 'learning-management-system' ),
 									'type'        => 'string',
@@ -538,6 +550,11 @@ class SettingsController extends CrudController {
 							'items'       => array(
 								'enable_review'        => array(
 									'description' => __( 'Enable course review.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_review_visibility_control' => array(
+									'description' => __( 'Enable course Review Visibility Control.', 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -719,6 +736,14 @@ class SettingsController extends CrudController {
 								'enable_edit_profile'     => array(
 									'description' => __( 'Enable edit profile button for profile page in accounts page.', 'learning-management-system' ),
 									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'instructor_max_attempts' => array(
+									'description' => __( 'Maximum number of times a user can apply for instructor status.', 'learning-management-system' ),
+									'type'        => 'integer',
+									'default'     => 3,
+									'minimum'     => 1,
+									'maximum'     => 10,
 									'context'     => array( 'view', 'edit' ),
 								),
 							),

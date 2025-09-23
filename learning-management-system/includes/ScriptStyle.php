@@ -1253,6 +1253,7 @@ class ScriptStyle {
 						'user_already_reviewed'    => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_has_user_already_reviewed_course( $GLOBALS['course']->get_id() ) ) : 'no',
 						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
 						'user_has_pending_review'  => isset( $GLOBALS['course'] ) && is_user_logged_in() ? masteriyo_bool_to_string( masteriyo_user_has_pending_review_for_course( $GLOBALS['course']->get_id() ) ) : 'no',
+						'course_progress'          => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? masteriyo_course_progress_summary( $GLOBALS['course'] ) : array(),
 
 					),
 				),

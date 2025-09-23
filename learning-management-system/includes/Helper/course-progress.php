@@ -279,3 +279,31 @@ if ( ! function_exists( 'masteriyo_get_user_activity_meta' ) ) {
 		return maybe_unserialize( $meta_value );
 	}
 }
+
+if ( ! function_exists( 'masteriyo_course_progress_summary' ) ) {
+	/**
+	 * Retrieves the progress summary for a given course for the current user.
+	 *
+	 * This function creates a CourseProgressQuery for the specified course and the current user,
+	 * fetches the course progress, and returns a summary of the progress.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param object $course The course object for which to retrieve progress summary.
+	 * @return string The progress summary for the course, or an empty string if no progress is found.
+	 */
+	function masteriyo_course_progress_summary( $course ) {
+		$query = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => get_current_user_id(),
+			)
+		);
+
+			$progress = current( $query->get_course_progress() );
+
+			$summary = $progress ? $progress->get_summary( 'all' ) : '';
+
+			return $summary;
+	}
+}

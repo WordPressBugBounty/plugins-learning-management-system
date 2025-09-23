@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Editor from '../../../../../../assets/js/back-end/components/common/Editor';
@@ -72,8 +72,24 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 		},
 	});
 
+	useEffect(() => {
+		if (group) {
+			// Convert emails array to the format expected by the select component
+			const formData = {
+				...group,
+				emails: group.emails || [],
+			};
+			methods.reset(formData);
+		}
+	}, [group, methods]);
+
 	const onSubmit = (data: GroupSchema) => {
-		updateGroup.mutate(deepClean(data));
+		// Ensure emails field is preserved even if empty
+		const cleanedData = deepClean(data);
+		if (!cleanedData.hasOwnProperty('emails')) {
+			cleanedData.emails = [];
+		}
+		updateGroup.mutate(cleanedData);
 	};
 
 	return (

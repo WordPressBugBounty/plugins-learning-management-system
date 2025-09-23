@@ -31,8 +31,8 @@ if ( empty( $course ) || ! $course->is_visible() ) {
 do_action( 'masteriyo_before_single_course_content' );
 
 ?>
-<div id="course-<?php the_ID(); ?>" class="masteriyo-single-course">
-	<div class="masteriyo-col-8">
+<div id="course-<?php the_ID(); ?>" class="masteriyo-single-course masteriyo-single-course--wrapper" data-layout="default">
+	<div class="masteriyo-col-8 masteriyo-main-content-area">
 		<div class="masteriyo-single-course--main masteriyo-course--content">
 			<?php
 			/**
@@ -51,7 +51,7 @@ do_action( 'masteriyo_before_single_course_content' );
 		</div>
 	</div>
 
-	<div class="masteriyo-col-4">
+	<div class="masteriyo-col-4 masteriyo-right-sidebar-area">
 		<aside class="masteriyo-single-course--aside masteriyo-course--content">
 			<?php
 			/**

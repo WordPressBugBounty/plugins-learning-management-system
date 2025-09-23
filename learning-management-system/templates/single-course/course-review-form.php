@@ -1,99 +1,118 @@
 <?php
 /**
- * The Template for displaying course review form in single course page
+ * Review form (Layout 1) — Nelwo theme override
  *
- * This template can be overridden by copying it to yourtheme/masteriyo/single-course/course-review-form.php.
- *
- * HOWEVER, on occasion Masteriyo will need to update template files and you
- * (the theme developer) will need to copy the new files to your theme to
- * maintain compatibility. We try to do this as little as possible, but it does
- * happen. When this occurs the version of the template file will be bumped and
- * the readme will list any important changes.
+ * Copy to:
+ * yourtheme/masteriyo/single-course/layout-1/review-form.php
  *
  * @package Masteriyo\Templates
- * @version 1.0.0
+ * @version 1.10.0 [Free] (customized for Nelwo)
  */
 
-defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * Fires before rendering review form in single course page.
+ * Before: review form hook.
  *
- * @since 1.0.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_before_single_course_review_form' );
 
+$review_for_enrolled_user_only = masteriyo_get_setting( 'single_course.display.enable_review_enrolled_users_only' );
+$can_review                    = function_exists( 'masteriyo_can_user_review_course' ) ? masteriyo_can_user_review_course( $course ) : true;
 ?>
-	<div class="masteriyo-submit-container">
-		<h3 class="masteriyo--title"><?php esc_html_e( 'Create a new review.', 'learning-management-system' ); ?></h3>
-		<form method="POST" class="masteriyo-submit-review-form">
-			<input type="hidden" name="id" value="">
-			<input type="hidden" name="course_id" value="<?php echo esc_attr( $course->get_id() ); ?>">
-			<input type="hidden" name="parent" value="0">
-			<div class="masteriyo-title">
-				<label class="masteriyo-label"><?php esc_html_e( 'Title', 'learning-management-system' ); ?></label>
-				<input type="text" name="title" class="masteriyo-input" />
+
+<?php if ( is_user_logged_in() ) : ?>
+	<div class="masteriyo-single-body__main--review-form nelwo-review-form">
+		<h3 class="masteriyo-single-body__main--review-form-heading">
+			<?php esc_html_e( 'Create a new review.', 'learning-management-system' ); ?>
+		</h3>
+
+		<?php if ( $review_for_enrolled_user_only && ! $can_review ) : ?>
+			<div class="masteriyo-enroll-msg">
+				<p><?php esc_html_e( 'You must be enrolled to submit a review.', 'learning-management-system' ); ?></p>
 			</div>
-			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.rating' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
-			<div class="masteriyo-rating">
-				<label class="masteriyo-label"><?php esc_html_e( 'Rating', 'learning-management-system' ); ?></label>
-				<input type="hidden" name="rating" value="0" />
-				<div class="masteriyo-stab-rs border-none">
-					<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
-						<?php masteriyo_render_stars( 0, 'masteriyo-rating-input-icon' ); ?>
-					</span>
+		<?php else : ?>
+			<form method="POST" class="masteriyo-submit-review-form" novalidate>
+				<input type="hidden" name="course_id" value="<?php echo esc_attr( $course->get_id() ); ?>">
+				<input type="hidden" name="id" value="">
+				<input type="hidden" name="parent" value="0">
+
+				<!-- Title -->
+				<div class="masteriyo-title masteriyo-single-form-group">
+					<label for="masteriyo-review-title">
+						<?php esc_html_e( 'Title', 'learning-management-system' ); ?>
+					</label>
+					<input id="masteriyo-review-title" type="text" name="title" class="masteriyo-text-input" required />
 				</div>
-			</div>
-			<?php endif; ?>
-			<div class="masteriyo-message">
-				<label class="masteriyo-label"><?php esc_html_e( 'Content', 'learning-management-system' ); ?></label>
-				<textarea type="text" name="content" class="masteriyo-input" required column="10" ></textarea>
-			</div>
-			<div>
-				<button type="submit" name="masteriyo-submit-review" value="yes" class="masteriyo-btn masteriyo-btn-primary">
+
+				<!-- Rating (respect visibility settings) -->
+				<?php
+				$show_rating =
+					( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
+						masteriyo_get_setting( 'course_archive.components_visibility.rating' ) )
+					|| ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' );
+
+				if ( $show_rating ) :
+					?>
+					<div class="masteriyo-rating masteriyo-single-form-group">
+						<label for="masteriyo-review-rating">
+							<?php esc_html_e( 'Rating', 'learning-management-system' ); ?>
+						</label>
+						<input id="masteriyo-review-rating" type="hidden" name="rating" value="0" />
+						<div class="masteriyo-stab-rs border-none">
+							<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
+								<?php masteriyo_render_stars( 0, 'masteriyo-rating-input-icon' ); ?>
+							</span>
+						</div>
+					</div>
+				<?php endif; ?>
+
+				<!-- Content -->
+				<div class="masteriyo-message masteriyo-single-form-group">
+					<label for="masteriyo-review-content">
+						<?php esc_html_e( 'Content', 'learning-management-system' ); ?>
+					</label>
+					<textarea id="masteriyo-review-content" name="content" cols="30" rows="10" required></textarea>
+				</div>
+
+				<button type="submit" name="masteriyo-submit-review" value="yes" class="masteriyo-single--review-submit masteriyo-btn masteriyo-btn-primary">
 					<?php esc_html_e( 'Submit', 'learning-management-system' ); ?>
 				</button>
-			</div>
-			<?php wp_nonce_field( 'masteriyo-submit-review' ); ?>
-		</form>
+
+				<?php wp_nonce_field( 'masteriyo-submit-review' ); ?>
+			</form>
+		<?php endif; ?>
 	</div>
-	<?php if ( ! is_user_logged_in() ) : ?>
-	<div class="masteriyo-login-msg masteriyo-submit-container">
+
+<?php else : ?>
+	<!-- Logged-out message -->
+	<div class="masteriyo-login-msg masteriyo-submit-container nelwo-review-login-msg">
 		<p>
-		<?php
-			$review_for_enrolled_user_only = masteriyo_get_setting( 'single_course.display.enable_review_enrolled_users_only' );
-			$enrollment_text               = $review_for_enrolled_user_only ? __( 'and enrolled', 'learning-management-system' ) : '';
+			<?php
+			$enrollment_text = $review_for_enrolled_user_only ? __( 'and enrolled', 'learning-management-system' ) : '';
 
 			printf(
-					/* translators: %s: Anchor tag html with text "logged in", %s: additional enrollment text when review is restricted to enrolled users. */
-				esc_html__( 'You must be %1$s %2$s to submit a review .', 'learning-management-system' ),
+				/* translators: 1: <a>logged in</a>, 2: 'and enrolled' when restricted */
+				esc_html__( 'You must be %1$s %2$s to submit a review.', 'learning-management-system' ),
 				wp_kses_post(
 					sprintf(
 						'<a href="%s" class="masteriyo-link-primary">%s</a>',
-						masteriyo_get_page_permalink( 'account' ),
-						__( 'logged in', 'learning-management-system' )
+						esc_url( masteriyo_get_page_permalink( 'account' ) ),
+						esc_html__( 'logged in', 'learning-management-system' )
 					)
 				),
 				esc_html( $enrollment_text )
 			);
-		?>
+			?>
 		</p>
 	</div>
 <?php endif; ?>
 
 <?php
-if ( is_user_logged_in() && ! masteriyo_can_user_review_course( $course ) ) :
-	?>
-	<div class="masteriyo-enroll-msg">
-		<p><?php esc_html_e( 'You must be enrolled to submit a review', 'learning-management-system' ); ?></p>
-	</div>
-<?php endif; ?>
-
-<?php
-
 /**
- * Fires after rendering review form in single course page.
+ * After: review form hook.
  *
- * @since 1.0.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_after_single_course_review_form' );

@@ -52,46 +52,49 @@ class User extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'username'                => '',
-		'password'                => '',
-		'nicename'                => '',
-		'email'                   => '',
-		'url'                     => '',
-		'date_created'            => null,
-		'date_modified'           => null,
-		'activation_key'          => '',
-		'status'                  => 0,
-		'display_name'            => '',
-		'nickname'                => '',
-		'first_name'              => '',
-		'last_name'               => '',
-		'description'             => '',
-		'rich_editing'            => true,
-		'syntax_highlighting'     => true,
-		'comment_shortcuts'       => false,
-		'admin_color'             => 'fresh',
-		'use_ssl'                 => false,
-		'spam'                    => false,
-		'show_admin_bar_front'    => true,
-		'locale'                  => '',
-		'roles'                   => array(),
-		'profile_image_id'        => 0,
+		'username'                        => '',
+		'password'                        => '',
+		'nicename'                        => '',
+		'email'                           => '',
+		'url'                             => '',
+		'date_created'                    => null,
+		'date_modified'                   => null,
+		'activation_key'                  => '',
+		'status'                          => 0,
+		'display_name'                    => '',
+		'nickname'                        => '',
+		'first_name'                      => '',
+		'last_name'                       => '',
+		'description'                     => '',
+		'rich_editing'                    => true,
+		'syntax_highlighting'             => true,
+		'comment_shortcuts'               => false,
+		'admin_color'                     => 'fresh',
+		'use_ssl'                         => false,
+		'spam'                            => false,
+		'show_admin_bar_front'            => true,
+		'locale'                          => '',
+		'roles'                           => array(),
+		'profile_image_id'                => 0,
 		// Billing details.
-		'billing_first_name'      => '',
-		'billing_last_name'       => '',
-		'billing_company_name'    => '',
-		'billing_company_id'      => '',
-		'billing_address_1'       => '',
-		'billing_address_2'       => '',
-		'billing_city'            => '',
-		'billing_postcode'        => '',
-		'billing_country'         => '',
-		'billing_state'           => '',
-		'billing_email'           => '',
-		'billing_phone'           => '',
+		'billing_first_name'              => '',
+		'billing_last_name'               => '',
+		'billing_company_name'            => '',
+		'billing_company_id'              => '',
+		'billing_address_1'               => '',
+		'billing_address_2'               => '',
+		'billing_city'                    => '',
+		'billing_postcode'                => '',
+		'billing_country'                 => '',
+		'billing_state'                   => '',
+		'billing_email'                   => '',
+		'billing_phone'                   => '',
 		// Apply for instructor status.
-		'instructor_apply_status' => InstructorApplyStatus::DEFAULT,
-		'auto_create_user'        => false,
+		'instructor_apply_status'         => InstructorApplyStatus::DEFAULT,
+		'instructor_application_attempts' => 0,
+
+		// Auto user creation during checkout.
+		'auto_create_user'                => false,
 	);
 
 	/**
@@ -117,7 +120,7 @@ class User extends Model {
 	 */
 	public function get_avatar_url( $args = null ) {
 
-		 // Check if avatars are disabled in WordPress settings.
+		// Check if avatars are disabled in WordPress settings.
 		if ( ! get_option( 'show_avatars' ) ) {
 			return '';
 		}
@@ -667,6 +670,19 @@ class User extends Model {
 	}
 
 	/**
+	 * Get instructor application attempts count.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return int
+	 */
+	public function get_instructor_application_attempts( $context = 'view' ) {
+		return absint( $this->get_prop( 'instructor_application_attempts', $context ) );
+	}
+
+	/**
 	 * Get auto create user flag.
 	 *
 	 * @since 1.15.0
@@ -1106,6 +1122,30 @@ class User extends Model {
 		$this->set_prop( 'instructor_apply_status', $status );
 	}
 
+	/**
+	 * Set instructor application attempts count.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int $attempts Number of application attempts.
+	 */
+	public function set_instructor_application_attempts( $attempts ) {
+		$this->set_prop( 'instructor_application_attempts', absint( $attempts ) );
+	}
+
+	/**
+	 * Increment instructor application attempts count.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return int New attempts count after increment.
+	 */
+	public function increment_instructor_application_attempts() {
+		$current_attempts = $this->get_instructor_application_attempts();
+		$new_attempts     = $current_attempts + 1;
+		$this->set_instructor_application_attempts( $new_attempts );
+		return $new_attempts;
+	}
 
 	/**
 	 * Set auto create user flag.

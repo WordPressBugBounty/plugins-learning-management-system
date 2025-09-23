@@ -73,7 +73,8 @@ $button_text = apply_filters( 'masteriyo_group_buy_btn_text', $button_text );
 		$checkout_url
 	);
 	?>
-	<a href="<?php echo esc_url( $checkout_url ); ?>" class="masteriyo-group-course__buy-now-button">
+	<span class="masteriyo-group-course__seperator">OR</span>
+	<a href="<?php echo esc_url( $checkout_url ); ?>" class="masteriyo-btn masteriyo-btn-secondary masteriyo-group-course__buy-now-button">
 		<?php echo wp_kses_post( $button_text ); ?>
 	</a>
 

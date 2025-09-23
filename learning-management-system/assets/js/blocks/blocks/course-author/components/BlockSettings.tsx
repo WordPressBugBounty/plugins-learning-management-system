@@ -1,6 +1,6 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import React from 'react';
 import {
 	Color,
 	ImageSizeControl,
@@ -37,9 +37,7 @@ const BlockSettings = (props: any) => {
 					/>
 				</ChakraProvider>
 			</Panel>
-			<Panel
-				title={__('Show/Hide Components', 'learning-management-system')}
-			>
+			<Panel title={__('Show/Hide Components', 'learning-management-system')}>
 				<Toggle
 					label={__("Author's Avatar", 'learning-management-system')}
 					checked={enableAuthorsAvatar}
@@ -51,9 +49,7 @@ const BlockSettings = (props: any) => {
 					onChange={(value) => setAttributes({ enableAuthorsName: value })}
 				/>
 			</Panel>
-			<Panel
-				title={__('Styles', 'learning-management-system')}
-			>
+			<Panel title={__('Styles', 'learning-management-system')}>
 				<Color
 					onChange={(val) => setAttributes({ textColor: val })}
 					label={__('Color', 'learning-management-system')}

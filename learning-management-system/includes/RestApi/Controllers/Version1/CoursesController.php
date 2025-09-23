@@ -548,6 +548,9 @@ class CoursesController extends PostsController {
 			'flow'                               => $course->get_flow( $context ),
 			'custom_fields'                      => $course->get_custom_fields( $context ),
 
+			// Preview mode helpers
+			'is_current_user_course_author'      => masteriyo_bool_to_string( masteriyo_is_current_user_post_author( $course->get_id() ) ),
+
 		);
 
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' ) || user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
@@ -1016,6 +1019,13 @@ class CoursesController extends PostsController {
 							),
 						),
 					),
+				),
+				'is_current_user_course_author'  => array(
+					'description' => __( 'Whether the current user is the course author', 'learning-management-system' ),
+					'type'        => 'string',
+					'enum'        => array( 'yes', 'no' ),
+					'context'     => array( 'view' ),
+					'readonly'    => true,
 				),
 			),
 		);

@@ -44,7 +44,7 @@ class CourseEnrollButtonWidget extends WidgetBase {
 	 * @return string
 	 */
 	public function get_title() {
-		return __( 'Course Enroll Button', 'learning-management-system' );
+		return __( 'Price and Enroll Button', 'learning-management-system' );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class CourseEnrollButtonWidget extends WidgetBase {
 		$this->start_controls_section(
 			'enroll_button_styles_section',
 			array(
-				'label' => esc_html__( 'Enroll Button', 'learning-management-system' ),
+				'label' => esc_html__( 'Price and Enroll Button', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -124,20 +124,9 @@ class CourseEnrollButtonWidget extends WidgetBase {
 		$progress = current( $query->get_course_progress() );
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		?>
-		<style>
-
-			.masteriyo-time-btn .masteriyo-course-price{
-				display: none;
-			}
-
-			.masteriyo-course--content{
-				padding: 0;
-			}
-		</style>
 		<?php
 		if ( $course ) {
 			?>
-			<div class="masteriyo-course--content">
 			<?php
 			masteriyo_get_template(
 				'single-course/price-and-enroll-button.php',
@@ -148,7 +137,6 @@ class CourseEnrollButtonWidget extends WidgetBase {
 				)
 			);
 			?>
-			</div>
 			<?php
 		}
 	}
@@ -170,20 +158,9 @@ class CourseEnrollButtonWidget extends WidgetBase {
 		$progress = current( $query->get_course_progress() );
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		?>
-		<style>
-
-			.masteriyo-time-btn .masteriyo-course-price{
-				display: none;
-			}
-
-			.masteriyo-course--content{
-				padding: 0;
-			}
-		</style>
 		<?php
 		if ( $course ) {
 			?>
-			<div class="masteriyo-course--content">
 			<?php
 			masteriyo_get_template(
 				'single-course/price-and-enroll-button.php',
@@ -194,7 +171,6 @@ class CourseEnrollButtonWidget extends WidgetBase {
 				)
 			);
 			?>
-			</div>
 			<?php
 		}
 	}

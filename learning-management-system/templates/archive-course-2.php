@@ -95,7 +95,7 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	</div>
 	<?php endif; ?>
 
-	<div class="masteriyo-course-list-display-section layout_2">
+	<div class="masteriyo-course-list-display-section layout_2" data-layout="layout_2">
 
 	<?php
 

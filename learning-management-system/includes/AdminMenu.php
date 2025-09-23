@@ -167,12 +167,6 @@ class AdminMenu {
 				'menu_title' => __( 'Users', 'learning-management-system' ),
 				'position'   => 25,
 			),
-			'question-answers'   => array(
-				'page_title' => __( 'Question & Answers', 'learning-management-system' ),
-				'menu_title' => __( 'Question & Answers', 'learning-management-system' ),
-				'capability' => 'edit_courses',
-				'position'   => 50,
-			),
 			'webhooks'           => array(
 				'page_title' => __( 'Webhooks', 'learning-management-system' ),
 				'menu_title' => '↳ ' . __( 'Webhooks', 'learning-management-system' ),
@@ -232,6 +226,18 @@ class AdminMenu {
 					break;
 				}
 			}
+
+			$qa_query = new \WP_Comment_Query(
+				array(
+					'type'   => 'mto_course_qa',
+					'status' => array( 'hold', 'approve' ),
+					'number' => 1,
+					'parent' => 0,
+					'fields' => 'ids',
+				)
+			);
+
+			$qa_exist = ! empty( $qa_query->comments );
 		}
 
 		if ( $quiz_attempts_exist ) {
@@ -250,6 +256,15 @@ class AdminMenu {
 				'menu_title' => __( 'Reviews', 'learning-management-system' ),
 				'capability' => 'edit_courses',
 				'position'   => 45,
+			);
+		}
+
+		if ( $qa_exist ) {
+			$submenus['question-answers'] = array(
+				'page_title' => __( 'Question & Answers', 'learning-management-system' ),
+				'menu_title' => __( 'Question & Answers', 'learning-management-system' ),
+				'capability' => 'edit_courses',
+				'position'   => 50,
 			);
 		}
 

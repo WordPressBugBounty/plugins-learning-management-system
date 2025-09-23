@@ -69,7 +69,7 @@ class Courses extends BlockHandler {
 
 		\ob_start();
 
-		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section" style="max-width: 1140px">';
+		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section">';
 			/**
 			 * Fires before course loop in course archive template.
 			 *

@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php masteriyo_get_svg( 'search', true ); ?>
 	</span>
 	<input type="search" id="masteriyo-course-search-field-<?php echo isset( $index ) ? absint( $index ) : 0; ?>" class="search-field masteriyo-input" placeholder="<?php echo esc_attr__( 'Search courses&hellip;', 'learning-management-system' ); ?>" value="<?php echo get_search_query(); ?>" name="s" />
-	<button type="submit" value="<?php echo esc_attr_x( 'Search', 'submit button', 'learning-management-system' ); ?>">
+	<button type="submit" value="<?php echo esc_attr_x( 'Search', 'submit button', 'learning-management-system' ); ?>" class="masteriyo-btn masteriyo-btn-primary">
 		<?php echo esc_html_x( 'Search', 'submit button', 'learning-management-system' ); ?>
 	</button>
 	<input type="hidden" name="post_type" value="mto-course" />

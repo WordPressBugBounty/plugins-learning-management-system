@@ -25,9 +25,17 @@ do_action( 'masteriyo_before_course_archive_layout_2_meta_data' );
 if ( ! masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) ) {
 	return;
 }
+
+
+$sections = masteriyo_get_course_structure( $course->get_id() );
+
+if ( empty( $sections ) ) {
+	return;
+}
+
 ?>
 	<div class="masteriyo-course-card__content--info">
-	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_duration' ) ) : ?>
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_duration' ) && $course->get_duration() > 0 ) : ?>
 				<div class="masteriyo-course-card__content--info-duration">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 						<path fill="#646464" fill-rule="evenodd" d="M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm1 5a1 1 0 1 0-2 0v6a1 1 0 0 0 .553.894l4 2a1 1 0 1 0 .894-1.788L13 11.382V6Z" clip-rule="evenodd" />
@@ -37,7 +45,7 @@ if ( ! masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) 
 
 				</div>
 				<?php endif; ?>
-				<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.students_count' ) ) : ?>
+				<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.students_count' ) && masteriyo_count_enrolled_users( $course->get_id() + $course->get_fake_enrolled_count() ) > 0 ) : ?>
 				<div class="masteriyo-course-card__content--info-students">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 						<path fill="#646464" fill-rule="evenodd" d="M6.5 7.583a2.75 2.75 0 1 1 5.5 0 2.75 2.75 0 0 1-5.5 0ZM9.25 3a4.583 4.583 0 1 0 0 9.167A4.583 4.583 0 0 0 9.25 3ZM5.583 14A4.583 4.583 0 0 0 1 18.583v1.834a.917.917 0 0 0 1.833 0v-1.834a2.75 2.75 0 0 1 2.75-2.75h7.334a2.75 2.75 0 0 1 2.75 2.75v1.834a.917.917 0 0 0 1.833 0v-1.834A4.584 4.584 0 0 0 12.917 14H5.583Zm12.863.807a.917.917 0 0 1 1.116-.659A4.583 4.583 0 0 1 23 18.582v1.835a.917.917 0 0 1-1.833 0v-1.833a2.75 2.75 0 0 0-2.063-2.66.917.917 0 0 1-.658-1.117Zm-2.552-11.66a.917.917 0 0 0-.455 1.777 2.75 2.75 0 0 1 0 5.328.917.917 0 0 0 .455 1.776 4.583 4.583 0 0 0 0-8.88Z" clip-rule="evenodd" />
@@ -48,7 +56,7 @@ if ( ! masteriyo_get_setting( 'course_archive.components_visibility.metadata' ) 
 				</div>
 
 				<?php endif; ?>
-	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.lessons_count' ) ) : ?>
+			<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count > 0 ) : ?>
 				<div class="masteriyo-course-card__content--info-lessons">
 					<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
 						<path d="M6 22h15v-2H6.012C5.55 19.988 5 19.805 5 19s.55-.988 1.012-1H21V4c0-1.103-.897-2-2-2H6c-1.206 0-3 .799-3 3v14c0 2.201 1.794 3 3 3zM5 8V5c0-.805.55-.988 1-1h13v12H5V8z"></path>

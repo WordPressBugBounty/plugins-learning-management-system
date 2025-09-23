@@ -155,61 +155,66 @@ const AllWithdraws: React.FC = () => {
 							}}
 						>
 							<Table>
-								<Thead>
-									<Tr>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Requested On', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterBy}
-													orderBy={'date'}
+								{withdrawsQuery.isLoading || !withdrawsQuery.isFetched ? (
+									<SkeletonWithdrawsList />
+								) : withdrawsQuery.isSuccess &&
+								  !isEmpty(withdrawsQuery?.data?.data) ? (
+									<>
+										<Thead>
+											<Tr>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Requested On', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterBy}
+															orderBy={'date'}
+														/>
+													</Stack>
+												</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Requested By', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterBy}
+															orderBy={'id'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Amount', 'learning-management-system')}</Th>
+												<Th>
+													{__('Withdraw Method', 'learning-management-system')}
+												</Th>
+												<Th>{__('Status', 'learning-management-system')}</Th>
+												<Th>{__('Actions', 'learning-management-system')}</Th>
+											</Tr>
+										</Thead>
+										<Tbody>
+											{withdrawsQuery.data.data.map((withdraw: any) => (
+												<WithdrawRow
+													key={withdraw?.id}
+													data={withdraw}
+													onUpdate={onUpdate}
 												/>
-											</Stack>
-										</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Requested By', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterBy}
-													orderBy={'id'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Amount', 'learning-management-system')}</Th>
-										<Th>
-											{__('Withdraw Method', 'learning-management-system')}
-										</Th>
-										<Th>{__('Status', 'learning-management-system')}</Th>
-										<Th>{__('Actions', 'learning-management-system')}</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{withdrawsQuery.isLoading || !withdrawsQuery.isFetched ? (
-										<SkeletonWithdrawsList />
-									) : withdrawsQuery.isSuccess &&
-									  !isEmpty(withdrawsQuery?.data?.data) ? (
-										withdrawsQuery.data.data.map((withdraw: any) => (
-											<WithdrawRow
-												key={withdraw?.id}
-												data={withdraw}
-												onUpdate={onUpdate}
-											/>
-										))
-									) : (
-										<EmptyInfo
-											message={__(
-												'No withdraw requests found',
-												'learning-management-system',
-											)}
-										/>
-									)}
-								</Tbody>
+											))}
+										</Tbody>
+									</>
+								) : (
+									<EmptyInfo
+										title={__('No Withdraws Yet', 'learning-management-system')}
+										isResultFiltered={Boolean(
+											filterParams?.after ||
+												filterParams?.before ||
+												filterParams?.instructor ||
+												filterParams?.status !== 'any',
+										)}
+									/>
+								)}
 							</Table>
 						</Stack>
 					</Stack>

@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 	<div class="masteriyo-single-body__main--user-review__search">
 		<?php masteriyo_get_svg( 'search', true ); ?>
 		<input type="text" name="search" placeholder=<?php echo esc_attr__( 'Search reviews&hellip;', 'learning-management-system' ); ?> id="masteriyo-course-reviews-search-field" />
-		<button class="masteriyo-single-search-btn" id="masteriyo-course-reviews-search-button"><?php esc_html_e( 'Search', 'learning-management-system' ); ?></button>
+		<button class="masteriyo-single-search-btn masteriyo-btn masteriyo-btn-primary" id="masteriyo-course-reviews-search-button"><?php esc_html_e( 'Search', 'learning-management-system' ); ?></button>
 	</div>
 
 	<div class="masteriyo-single-body__main--user-review__rating">

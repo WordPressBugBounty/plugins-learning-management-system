@@ -101,10 +101,7 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 					<Controller
 						name="payments.mollie.sandbox"
 						render={({ field }) => (
-							<Switch
-								{...field}
-								defaultChecked={paymentsData?.mollie?.sandbox}
-							/>
+							<Switch {...field} isChecked={!!field.value} />
 						)}
 					/>
 				</Stack>

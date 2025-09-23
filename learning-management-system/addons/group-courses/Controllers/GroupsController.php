@@ -921,8 +921,16 @@ class GroupsController extends PostsController {
 			$group_repo->read( $group );
 		}
 
-		if ( isset( $request['emails'] ) && is_array( $request['emails'] ) ) {
-			$group_count    = count( array_unique( $request['emails'] ) );
+		// Check if emails field is being updated for group size validation.
+		if ( isset( $request['emails'] ) || array_key_exists( 'emails', $request->get_params() ) ) {
+			$submitted_emails = isset( $request['emails'] ) ? $request['emails'] : array();
+
+			// Ensure emails is an array
+			if ( ! is_array( $submitted_emails ) ) {
+				$submitted_emails = array();
+			}
+
+			$group_count    = count( array_unique( $submitted_emails ) );
 			$max_group_size = masteriyo_get_group_max_size( $group->get_id() );
 
 			// Only check limit if course-specific limit is set
@@ -962,22 +970,29 @@ class GroupsController extends PostsController {
 			}
 		}
 
-		// Group emails.
-		if ( isset( $request['emails'] ) ) {
-			// Ensure group author cannot be removed from the group
+		// Group emails validation - check if emails field is being updated
+		if ( isset( $request['emails'] ) || array_key_exists( 'emails', $request->get_params() ) ) {
+			$submitted_emails = isset( $request['emails'] ) ? $request['emails'] : array();
+
+			// Ensure emails is an array
+			if ( ! is_array( $submitted_emails ) ) {
+				$submitted_emails = array();
+			}
+
+			// Group leader cannot be removed
 			$group_author_id    = $group->get_author_id();
 			$group_author       = get_userdata( $group_author_id );
 			$group_author_email = $group_author ? $group_author->user_email : '';
 
-			if ( $group_author_email && ! in_array( $group_author_email, $request['emails'], true ) ) {
+			if ( $group_author_email && ! in_array( $group_author_email, $submitted_emails, true ) ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_cannot_remove_author",
-					__( 'The group creator cannot be removed from the group.', 'learning-management-system' ),
+					__( 'Group leader cannot be removed from the group.', 'learning-management-system' ),
 					array( 'status' => 400 )
 				);
 			}
 
-			if ( Setting::get( 'deactivate_enrollment_on_member_change' ) || ! empty( $request['emails'] ) ) {
+			if ( Setting::get( 'deactivate_enrollment_on_member_change' ) ) {
 
 				$group_id = $group->get_id();
 
@@ -995,11 +1010,7 @@ class GroupsController extends PostsController {
 				}
 			}
 
-			$group->set_emails( $request['emails'] );
-		}
-
-		if ( ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) && empty( $group->get_emails() ) ) {
-			return new \WP_Error( "masteriyo_rest_{$this->post_type}_missing_emails", __( 'Group Missing emails.', 'learning-management-system' ), array( 'status' => 400 ) );
+			$group->set_emails( $submitted_emails );
 		}
 
 		// Menu order.

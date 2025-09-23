@@ -22,12 +22,18 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  * @since 1.0.0
  */
 do_action( 'masteriyo_before_single_course_highlights' );
-
+$layout = masteriyo_get_setting( 'single_course.display.template.layout' );
+$class  = '';
+if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
+	$class .= 'masteriyo-single-course--card';
+}
 ?>
-
-<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) ) : ?>
-	<div class="masteriyo-course--content__description">
-		<h5 class="title"><?php esc_html_e( 'This course includes', 'learning-management-system' ); ?></h5>
+<?php if ( empty( $progress ) ) : ?>
+	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) ) : ?>
+	<div class="masteriyo-course--content__description masteriyo-course-highlights <?php echo esc_attr( $class ); ?>">
+		<?php if ( 'minimal' !== $layout ) : ?>
+		<h5 class="title masteriyo-aside-heading"><?php esc_html_e( 'This course includes', 'learning-management-system' ); ?></h5>
+		<?php endif; ?>
 		<?php
 		/**
 		 * Filters course highlights to before rendering.
@@ -39,6 +45,7 @@ do_action( 'masteriyo_before_single_course_highlights' );
 		echo wp_kses_post( apply_filters( 'masteriyo_single_course_highlights_content', masteriyo_format_course_highlights( $course->get_highlights() ) ) );
 		?>
 	</div>
+	<?php endif; ?>
 <?php endif; ?>
 
 <?php

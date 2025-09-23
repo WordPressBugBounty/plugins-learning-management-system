@@ -14,7 +14,7 @@ if ( is_user_logged_in() ) {
 
 ?>
 <div class="masteriyo-signup-brevo-consent-checkbox">
-	<div style="display:inline-block">
+	<div class="masteriyo-signup-brevo-consent-checkbox--wrapper">
 		<input type="checkbox" id="masteriyo_brevo_consent_checkbox" name="masteriyo_brevo_consent_checkbox">
 		<label for="masteriyo_brevo_consent_checkbox" class="masteriyo-label"><?php echo esc_html( $consent_message ); ?></label>
 	</div>

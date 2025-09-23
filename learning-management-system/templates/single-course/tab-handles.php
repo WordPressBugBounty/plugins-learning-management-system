@@ -38,11 +38,13 @@ if (
 ) {
 	$show_overview_active = true;
 }
+
+$sections = masteriyo_get_course_structure( $course->get_id() );
 ?>
 
-<div class="tab-menu masteriyo-stab">
+<div class="tab-menu masteriyo-stab masteriyo-course-curriculum-tabs">
 
-	<?php if ( $show_overview_active ) : ?>
+	<?php if ( $show_overview_active && ! empty( $sections ) ) : ?>
 		<div class="masteriyo-tab active-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-overview');">
 			<?php echo esc_html__( 'Overview', 'learning-management-system' ); ?>
 		</div>
@@ -65,7 +67,7 @@ if (
 		</div>
 	<?php endif; ?>
 
-	<?php if ( masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) && $course->is_review_allowed() ) : ?>
+	<?php if ( masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) && $course->is_review_allowed() && is_user_logged_in() ) : ?>
 		<div class="masteriyo-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-reviews');">
 			<?php echo esc_html__( 'Reviews', 'learning-management-system' ); ?>
 		</div>

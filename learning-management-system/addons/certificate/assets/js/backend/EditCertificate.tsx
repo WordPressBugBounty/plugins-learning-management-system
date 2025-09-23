@@ -1,9 +1,7 @@
 import {
 	Box,
-	Button,
 	ButtonGroup,
 	Container,
-	Icon,
 	IconButton,
 	Link,
 	Menu,
@@ -17,8 +15,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiBook, BiChevronLeft, BiDotsHorizontalRounded } from 'react-icons/bi';
+import { BiBook, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { NavLink, Link as RouterLink, useParams } from 'react-router-dom';
+import BackButton from '../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
 	HeaderAccentButton,
@@ -247,7 +246,6 @@ const EditCertificate: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [certificateQuery?.data]);
 
-
 	return (
 		<Stack direction="column" spacing="8" align="center">
 			<Header isSticky={false} display={fullscreenMode ? 'none' : 'block'}>
@@ -334,13 +332,7 @@ const EditCertificate: React.FC = () => {
 				<Stack direction="column" spacing="6">
 					<ButtonGroup>
 						<RouterLink to={certificateBackendRoutes.certificate.list}>
-							<Button
-								variant="link"
-								_hover={{ color: 'primary.500' }}
-								leftIcon={<Icon fontSize="xl" as={BiChevronLeft} />}
-							>
-								{__('Back to certificates', 'learning-management-system')}
-							</Button>
+							<BackButton />
 						</RouterLink>
 					</ButtonGroup>
 					{certificateQuery.isSuccess ? (

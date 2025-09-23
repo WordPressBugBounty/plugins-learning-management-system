@@ -204,7 +204,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 											<Radio value="v2_i_am_not_a_robot">
 												{__('Version 2', 'learning-management-system')}
 											</Radio>
-											<Text color="gray.500">
+											<Text color="gray.500" mt={1}>
 												{__(
 													'Users have to check "I am not a robot" checkbox',
 													'learning-management-system',
@@ -215,7 +215,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 											<Radio value="v2_no_interaction">
 												{__('Version 2', 'learning-management-system')}
 											</Radio>
-											<Text color="gray.500">
+											<Text color="gray.500" mt={1}>
 												{__(
 													'No user interaction needed, however, if traffic is suspicious, users are asked to solve a CAPTCHA',
 													'learning-management-system',
@@ -226,7 +226,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 											<Radio value="v3">
 												{__('Version 3', 'learning-management-system')}
 											</Radio>
-											<Text color="gray.500">
+											<Text color="gray.500" mt={1}>
 												{__(
 													'Verify request with a score without user interaction',
 													'learning-management-system',
@@ -332,6 +332,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 							>
 								<Checkbox
 									{...register('authentication.recaptcha.enable_login_form')}
+									colorScheme="primary"
 									isChecked={enableLoginForm}
 									onChange={(e) => setEnableLoginForm(e.target.checked)}
 								>
@@ -341,6 +342,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 									{...register(
 										'authentication.recaptcha.enable_student_register_form',
 									)}
+									colorScheme="primary"
 									isChecked={enableStudentRegisterForm}
 									onChange={(e) =>
 										setEnableStudentRegisterForm(e.target.checked)
@@ -355,6 +357,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 									{...register(
 										'authentication.recaptcha.enable_instructor_register_form',
 									)}
+									colorScheme="primary"
 									isChecked={enableInstructorRegisterForm}
 									onChange={(e) =>
 										setEnableInstructorRegisterForm(e.target.checked)
@@ -474,6 +477,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 							/>
 						</FormLabel>
 						<Input
+							type={'text'}
 							bg="white"
 							{...register('authentication.recaptcha.error_message')}
 							defaultValue={data?.error_message}

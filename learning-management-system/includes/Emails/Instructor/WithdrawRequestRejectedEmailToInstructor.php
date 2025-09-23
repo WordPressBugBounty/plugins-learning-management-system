@@ -147,7 +147,7 @@ class WithdrawRequestRejectedEmailToInstructor extends Email {
 			$placeholders['{withdrawer_username}']     = $withdrawer->get_username();
 			$placeholders['{withdrawer_nicename}']     = $withdrawer->get_nicename();
 			$placeholders['{withdrawer_nickname}']     = $withdrawer->get_nickname();
-			$placeholders['{withdrawer_name}']         = sprintf( '%s %s', $first_name, $last_name ) ?? $withdrawer->get_display_name();
+			$placeholders['{withdrawer_name}']         = '' !== trim( sprintf( '%s %s', $first_name, $last_name ) ) ? trim( sprintf( '%s %s', $first_name, $last_name ) ) : $withdrawer->get_display_name();
 			$placeholders['{withdrawer_email}']        = $withdrawer->get_email();
 		}
 

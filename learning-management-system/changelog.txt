@@ -1,5 +1,44 @@
 == Changelog ==
 
+= 2.0.0 - 23-09-2025 =
+- Feature - Manual group enrollment option added. [PRO]
+- Feature - Support for 4 additional AI-generated question types added (Text Answer, Match the Following, Sortable & Fill in the Blanks). [PRO]
+- Feature - Added starter template.
+- Feature - Added a new minimal single layout.
+- Feature - Added 8 new starter templates.
+- Refactor - Eliminated unnecessary PayPal configuration.
+- Refactor - Stripe connect platform.
+- Update - As single course and courses components has been updated, some of the builder [Elementor/Divi and others] elements or widgets might need to be updated.
+- Update - Renamed Courses layout to Default, Modern, and Overlay; renamed Single course layout to Default and Modern.
+- Update - Added external video URL option in Free version.
+- Update - Added course completion reminder email, email from name, and address option in Free version.
+- Update - Added Primary color for learn page and button styling option in Free version.
+- Enhancement - Single course and courses page component UI revamp.
+- Enhancement - Course prerequisites single course page UI update.
+- Enhancement - Course enrollment expiration single course page UI update.
+- Enhancement - Course coming soon single course page UI update.
+- Enhancement - Onboarding page UI/UX revamp.
+- Enhancement - Added Home page, which shows incomplete setup parts.
+- Enhancement - New layout option for courses shortcode ([masteriyo_courses layout="default/layout1/layout2"]) added.
+- Enhancement - Added email notifications for course Q&A.
+- Enhancement - Added reply option for admin & instructors to lessons comment and course review from backend. [PRO]
+- Enhancement - Added maximum attempts limit option for instructor applications.
+- Enhancement - Added license details to the license page and added notice for no license key. [PRO]
+- Enhancement - Bypass drip content in preview mode for admins and course instructors.
+- Enhancement - Plugin rollback option. [PRO]
+- Enhancement - Action buttons label according to specific content in builder header.
+- Enhancement - Empty content info and no result found UI updated.
+- Enhancement - Overall UI/UX update in backend pages.
+- Fix - Show search only if categories exist in course edit page.
+- Fix - Masteriyo conflict with Pressidium Cookie Consent plugin.
+- Fix - Learn page emoji size inconsistent issue.
+- Fix - Prevented Save CSS Block API call when Masteriyo block is absent on pages.
+- Fix - Prevent user_id being set to 0 in user course enrollments.
+- Fix - Download material addon issue.
+- Fix - Save settings not working when WooCommerce addon activated.
+- Fix - Fixed issue where video lesson couldn’t be saved without adding a video (lesson_type meta added).
+- Fix - Woocommerce name null issue.
+
 = 1.20.2 - 22-08-2025 =
 - Fix - Account page user's courses listing in dashboard.
 

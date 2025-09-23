@@ -20,7 +20,6 @@
 			var sidebarTopPadding = 20;
 			$sidebar.addClass('masteriyo-expanded');
 
-
 			if (
 				$('#wpadminbar').css('position') === 'fixed' ||
 				scrollTop < $('#wpadminbar').height() - sidebarTopPadding
@@ -60,7 +59,6 @@
 			}
 		},
 	};
-
 
 	/**
 	 * MasteriyoCourses namespace.
@@ -321,7 +319,6 @@
 				},
 			);
 		},
-
 	};
 	/**
 	 * Return WordPress spinner.
@@ -351,38 +348,36 @@
 		refreshCallsCount: 0,
 
 		refreshCourses: function () {
-
 			filtersAndSorting.refreshCallsCount++;
 
 			var data = {
 				action: 'masteriyo_course_filter_and_sorting',
 			};
 
-
 			$('.masteriyo-courses-filters')
-			.find('input,select,textarea')
-			.each(function () {
-			  var type = $(this).prop('type');
-			  var name = $(this).prop('name');
+				.find('input,select,textarea')
+				.each(function () {
+					var type = $(this).prop('type');
+					var name = $(this).prop('name');
 
-			  if (type === 'checkbox') {
-				name = name.trim().replace(/\[\]$/, '');
+					if (type === 'checkbox') {
+						name = name.trim().replace(/\[\]$/, '');
 
-				if (!Array.isArray(data[name])) {
-				  data[name] = [];
-				}
+						if (!Array.isArray(data[name])) {
+							data[name] = [];
+						}
 
-				if ($(this).is(':checked')) {
-				  data[name].push($(this).val());
-				}
-			  } else if (type === 'radio') {
-				if ($(this).is(':checked')) {
-				  data[name] = $(this).val();
-				}
-			  } else {
-				data[name] = $(this).val();
-			  }
-			});
+						if ($(this).is(':checked')) {
+							data[name].push($(this).val());
+						}
+					} else if (type === 'radio') {
+						if ($(this).is(':checked')) {
+							data[name] = $(this).val();
+						}
+					} else {
+						data[name] = $(this).val();
+					}
+				});
 
 			data._wpnonce = $(
 				'[name="masteriyo_course_filter_and_sorting_nonce"]',
@@ -406,7 +401,6 @@
 				success: function (response, textStatus, jqXHR) {
 					var data = response.data;
 
-
 					if (
 						filtersAndSorting.refreshCallsCount <= 1 &&
 						data &&
@@ -420,7 +414,9 @@
 						});
 						masteriyo.fragments = data.fragments;
 					}
-					$('.masteriyo-group-course__group-button').addClass('masteriyo-hidden');
+					$('.masteriyo-group-course__group-button').addClass(
+						'masteriyo-hidden',
+					);
 					MasteriyoCourses.init();
 				},
 				error: function (jqXHR, textStatus, errorThrown) {},
@@ -445,9 +441,196 @@
 				masteriyo.init_course_sorting();
 				masteriyo.toggleFiltersSidebar();
 				masteriyo.init_price_slider();
+				masteriyo.toggle_masteriyo_instructor();
+				masteriyo.init_course_progress_chart();
 			});
 		},
+		init_course_progress_chart: function () {
+			$(document.body).on('click', '.progress-icon', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
 
+				var $host = $(this).closest('.completed-component');
+				if (!$host.length) return;
+
+				var $existing = $host.find('.course-progress-popover');
+				if ($existing.length) {
+					$existing.remove();
+					$(document).off('click.mto_outside keydown.mto_esc');
+					return;
+				}
+
+
+				$('.course-progress-popover').remove();
+				$(document).off('click.mto_outside keydown.mto_esc');
+
+				var summaryData = $(this)
+					.children('.masteriyo-summary-data')
+					.attr('data-summary');
+				var progress = summaryData ? JSON.parse(summaryData) : {};
+
+				function computePct(data) {
+					var total = Number(data.total) || 0;
+					var completed = Number(data.completed) || 0;
+					if (total <= 0) return 0;
+					return (Math.max(completed, 0) / total) * 100;
+				}
+
+				function generateProgressHTML(component, data) {
+					var total = Number(data.total);
+					var completed = Number(data.completed);
+					var pending = Number(data.pending);
+
+					if (!Number.isFinite(total) || total < 0) total = 0;
+					if (!Number.isFinite(completed) || completed < 0) completed = 0;
+					if (!Number.isFinite(pending) || pending < 0) {
+						pending = Math.max(total - completed, 0);
+					}
+
+					var pct = total > 0 ? (completed / total) * 100 : 0;
+					var titleStr = String(component).toUpperCase();
+					var radius = 90;
+					var circumference = 2 * Math.PI * radius;
+					var strokeDashoffset = circumference - (pct / 100) * circumference;
+
+					return (
+						'<div class="row">' +
+						'<div class="masteriyo-course-progress-stats">' +
+						'<svg class="masteriyo-course-progress-ring" viewBox="0 0 200 200">' +
+						'<circle class="masteriyo-course-progress-ring__background" cx="100" cy="100" r="90"></circle>' +
+						'<circle class="masteriyo-course-progress-ring__progress" cx="100" cy="100" r="90" style="stroke-dasharray: ' +
+						circumference +
+						'; stroke-dashoffset:' +
+						strokeDashoffset +
+						';"></circle>' +
+						'</svg>' +
+						'<div class="validity-countdown">' +
+						'<span class="validity-countdown--number">' +
+						Math.round(pct) +
+						'%</span>' +
+						'</div>' +
+						'</div>' +
+						'<div class="course-progress-text">' +
+						'<div class="label">' +
+						titleStr +
+						'</div>' +
+						'<div class="progress-details">' +
+						'<div class="progress-completed">' +
+						completed +
+						' Completed</div>' +
+						'<div class="progress-left">' +
+						pending +
+						' Left</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>'
+					);
+				}
+
+				$host.find('.course-progress-popover').remove();
+
+				var $pop = $('<div class="course-progress-popover" />').appendTo($host);
+
+				var progressHTML = '';
+				Object.keys(progress).forEach(function (component) {
+					if (component === 'total') return;
+					var componentData = progress[component] || {};
+					var total = Number(componentData.total);
+
+					if (total > 0) {
+						progressHTML += generateProgressHTML(component, componentData);
+					}
+				});
+
+				if (!progressHTML) {
+					$pop.remove();
+					return;
+				}
+
+				$pop.html(progressHTML).addClass('visible');
+
+				$pop.off('click.mto_popstop').on('click.mto_popstop', function (evt) {
+					evt.stopPropagation();
+				});
+
+				$(document)
+					.off('click.mto_outside')
+					.on('click.mto_outside', function (evt) {
+						if (
+							!$(evt.target).closest('.course-progress-popover, .progress-icon')
+								.length
+						) {
+							$pop.remove();
+							$(document).off('click.mto_outside keydown.mto_esc');
+						}
+					});
+
+				$(document)
+					.off('keydown.mto_esc')
+					.on('keydown.mto_esc', function (evt) {
+						if (evt.key === 'Escape') {
+							$pop.remove();
+							$(document).off('click.mto_outside keydown.mto_esc');
+						}
+					});
+			});
+		},
+		toggle_masteriyo_instructor: function () {
+			$(document).on(
+				'click',
+				'.additional-masteriyo-instructors-more',
+				function (e) {
+					e.preventDefault();
+
+					var $btn = $(this);
+					var id = $btn.attr('aria-controls');
+					var $panel = $('#' + id);
+
+					if (!$panel.length) return;
+
+					var expanded = $btn.attr('aria-expanded') === 'true';
+					$btn.attr('aria-expanded', String(!expanded));
+
+					if (expanded) {
+						$panel.attr('hidden', 'hidden');
+					} else {
+						$panel.removeAttr('hidden');
+						$panel
+							.find('a')
+							.filter(function () {
+								return (
+									$.trim($(this).text()) === '' &&
+									$(this).children().length === 0
+								);
+							})
+							.remove();
+					}
+
+					$(document)
+						.off('keydown.mto_esc')
+						.on('keydown.mto_esc', function (evt) {
+							if (evt.key === 'Escape') {
+								$panel.attr('hidden', 'hidden');
+							}
+						});
+
+					$(document)
+						.off('click.mto_outside')
+						.on('click.mto_outside', function (evt) {
+							if (
+								!$panel.is(evt.target) &&
+								$panel.has(evt.target).length === 0 &&
+								!$btn.is(evt.target) &&
+								$btn.has(evt.target).length === 0
+							) {
+								$panel.attr('hidden', 'hidden');
+								$btn.attr('aria-expanded', 'false');
+								$(document).off('click.mto_outside'); // cleanup
+							}
+						});
+				},
+			);
+		},
 		init_course_search: function () {
 			$(document.body).on(
 				'submit',
@@ -495,19 +678,13 @@
 							filtersAndSorting.refreshCourses();
 						}, 500);
 					};
-				})()
+				})(),
 			);
 
-
-
-			$(document.body).on(
-				'change',
-				'.range-min, .range-max',
-				function () {
-					filtersAndSorting.currentPage = 0;
-					filtersAndSorting.refreshCourses();
-				},
-			);
+			$(document.body).on('change', '.range-min, .range-max', function () {
+				filtersAndSorting.currentPage = 0;
+				filtersAndSorting.refreshCourses();
+			});
 
 			$(document.body).on(
 				'change',
@@ -530,7 +707,9 @@
 				const minVal = $('.range-min').attr('min') || 0;
 				const maxVal = $('.range-max').attr('max') || 100;
 
-				const $priceFrom = $('.masteriyo-courses-filters input[name="price-from"]');
+				const $priceFrom = $(
+					'.masteriyo-courses-filters input[name="price-from"]',
+				);
 				const $priceTo = $('.masteriyo-courses-filters input[name="price-to"]');
 
 				$priceFrom.val(minVal).trigger('input').trigger('change');
@@ -540,9 +719,9 @@
 
 				$(
 					'.masteriyo-courses-filters input[name="categories[]"], ' +
-					'.masteriyo-courses-filters input[name="difficulties[]"], ' +
-					'.masteriyo-courses-filters input[name="rating[]"], ' +
-					'.masteriyo-courses-filters input[name="price-type"]'
+						'.masteriyo-courses-filters input[name="difficulties[]"], ' +
+						'.masteriyo-courses-filters input[name="rating[]"], ' +
+						'.masteriyo-courses-filters input[name="price-type"]',
 				).prop('checked', false);
 
 				$(document.body).trigger('masteriyo_clear_course_filters');

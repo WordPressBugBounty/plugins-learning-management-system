@@ -48,6 +48,9 @@ class CourseComingSoonAddon {
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_course_coming_soon_data_in_response' ), 10, 4 );
 		add_action( 'masteriyo_single_course_sidebar_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
+		add_action( 'masteriyo_single_course_minimal_sidebar_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
+		add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
+		add_action( 'masteriyo_layout_1_single_course_aside_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_course_coming_soon' ), 10, 5 );
 		add_action( 'masteriyo_after_learn_page_process', array( $this, 'redirect' ) );
 		add_filter( 'masteriyo_single_course_start_text', array( $this, 'change_enroll_btn_text' ), 10, 2 );

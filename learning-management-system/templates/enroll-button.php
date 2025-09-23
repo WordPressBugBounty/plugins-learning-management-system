@@ -36,6 +36,10 @@ foreach ( $additional_attributes as $key => $value ) {
 	$additional_attributes_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
 }
 
+if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
+	return false;
+}
+
 ?>
 
 <?php if ( masteriyo_can_start_course( $course ) ) : ?>

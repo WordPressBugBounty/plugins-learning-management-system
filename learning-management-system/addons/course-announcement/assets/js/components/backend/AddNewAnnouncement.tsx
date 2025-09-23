@@ -3,7 +3,6 @@ import {
 	Button,
 	ButtonGroup,
 	Container,
-	Icon,
 	List,
 	ListItem,
 	Stack,
@@ -15,9 +14,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { BiChevronLeft } from 'react-icons/bi';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
+import BackButton from '../../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
 	HeaderLeftSection,
@@ -159,13 +158,7 @@ const AddNewAnnouncement: React.FC = () => {
 				<Stack direction="column" spacing="6">
 					<ButtonGroup>
 						<Link to={routes.courseAnnouncement.list}>
-							<Button
-								variant="link"
-								_hover={{ color: 'primary.500' }}
-								leftIcon={<Icon fontSize="xl" as={BiChevronLeft} />}
-							>
-								{__('Back to Announcements', 'learning-management-system')}
-							</Button>
+							<BackButton />
 						</Link>
 					</ButtonGroup>
 					<FormProvider {...methods}>

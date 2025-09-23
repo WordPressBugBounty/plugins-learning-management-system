@@ -6,7 +6,7 @@
  *
  * @category API
  * @package  Masteriyo\RestApi
- * @since    1.18.0
+ * @since    1.18.0 [Free]
  */
 
 namespace Masteriyo\RestApi\Controllers\Version1;
@@ -49,7 +49,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Onboarding data option name.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 * @var string
 	 */
 	const ONBOARDING_DATA_OPTION = 'masteriyo_onboarding_data';
@@ -57,20 +57,20 @@ class OnboardingController extends RestController {
 	/**
 	 * Valid onboarding steps.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 * @var string[]
 	 */
 	const VALID_STEPS = array(
-		'business_type',
-		'marketplace',
-		'course',
-		'payment',
+		'welcome',
+		'setup',
+		'templates',
+		'finish',
 	);
 
 	/**
 	 * Register REST routes for onboarding.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -124,7 +124,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Validate the step parameter.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string          $value   The step name.
 	 * @param WP_REST_Request $request The request object.
@@ -151,7 +151,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Check if a given request has access to read/delete item(s).
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -167,7 +167,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -179,7 +179,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Check if a given request has access to create items.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -191,7 +191,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Check if a given request has access to read an item.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -203,7 +203,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -215,7 +215,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Get default onboarding data structure.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 * @return array
 	 */
 	protected function get_default_onboarding_data() {
@@ -224,50 +224,30 @@ class OnboardingController extends RestController {
 		$revenue_setting = new Setting();
 		$stripe_setting  = new StripeSetting();
 
-			return array(
-				'started' => $saved_data['started'] ?? false,
-				'steps'   => array(
-					'business_type' => array(
-						'step'      => 1,
-						'completed' => $saved_data['steps']['business_type']['completed'] ?? false,
-						'skipped'   => $saved_data['steps']['business_type']['skipped'] ?? false,
-						'options'   => array(
-							'business_type' => $saved_data['steps']['business_type']['options']['business_type'] ?? 'individual',
-						),
+		return array(
+			'steps' => array(
+				'welcome'   => array(
+					'step'      => 1,
+					'completed' => $saved_data['steps']['welcome']['completed'] ?? false,
+					'skipped'   => $saved_data['steps']['welcome']['skipped'] ?? false,
+					'options'   => array(
+						'site_creator'     => $saved_data['steps']['welcome']['options']['site_creator'] ?? '',
+						'payments'         => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['payments'] ?? false ),
+						'certificates'     => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['certificates'] ?? false ),
+						'groups'           => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['groups'] ?? false ),
+						'multiple_courses' => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['multiple_courses'] ?? false ),
+						'revenue_sharing'  => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['revenue_sharing'] ?? false ),
+						'allow_usage'      => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['allow_usage'] ?? true ),
+
 					),
-					'marketplace'   => array(
-						'step'      => 2,
-						'completed' => $saved_data['steps']['marketplace']['completed'] ?? false,
-						'skipped'   => $saved_data['steps']['marketplace']['skipped'] ?? false,
-						'options'   => array(
-							'revenue_sharing'  => $revenue_setting->get( 'enable' ) ?? true,
-							'commission_rate'  => array(
-								'admin_rate'      => $revenue_setting->get( 'admin_rate' ) ?? 70,
-								'instructor_rate' => $revenue_setting->get( 'instructor_rate' ) ?? 30,
-							),
-							'withdraw_methods' => $revenue_setting->get( 'withdraw_methods' ) ?? array(),
-						),
-					),
-					'course'        => array(
-						'step'      => 3,
-						'completed' => $saved_data['steps']['course']['completed'] ?? false,
-						'skipped'   => $saved_data['steps']['course']['skipped'] ?? false,
-						'options'   => array(
-							'courses_plan_to_create' => $saved_data['steps']['course']['options']['courses_plan_to_create'] ?? 'single',
-							'view_mode'              => masteriyo_get_setting( 'course_archive.display.view_mode' ) ?? 'grid-view',
-							'per_row'                => masteriyo_get_setting( 'course_archive.display.per_row' ) ?? 3,
-							'per_page'               => masteriyo_get_setting( 'course_archive.display.per_page' ) ?? 12,
-							'enable_search'          => masteriyo_get_setting( 'course_archive.display.enable_search' ) ?? true,
-							'install_sample_course'  => $saved_data['steps']['course']['options']['install_sample_course'] ?? false,
-							'course_option'          => $saved_data['steps']['course']['options']['course_option'] ?? 'lessonsOnly',
-							'course_status'          => $saved_data['steps']['course']['options']['course_status'] ?? 'publish',
-						),
-					),
-					'payment'       => array(
-						'step'      => 4,
-						'completed' => $saved_data['steps']['payment']['completed'] ?? false,
-						'skipped'   => $saved_data['steps']['payment']['skipped'] ?? false,
-						'options'   => array(
+				),
+
+				'setup'     => array(
+					'step'      => 2,
+					'completed' => $saved_data['steps']['setup']['completed'] ?? false,
+					'skipped'   => $saved_data['steps']['setup']['skipped'] ?? false,
+					'options'   => array(
+						'payments'        => array(
 							'offer_paid_courses'   => $saved_data['steps']['payment']['options']['offer_paid_courses'] ?? false,
 							'currency'             => masteriyo_get_currency(),
 							'offline_payment'      => masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
@@ -276,16 +256,50 @@ class OnboardingController extends RestController {
 							'paypal_email'         => masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
 							'live_publishable_key' => $stripe_setting->get( 'live_publishable_key' ) ?? '',
 							'live_secret_key'      => $stripe_setting->get( 'live_secret_key' ) ?? '',
+							'test_secret_key'      => $stripe_setting->get( 'test_secret_key' ) ?? '',
+							'test_publishable_key' => $stripe_setting->get( 'test_publishable_key' ) ?? '',
+							'sandbox'              => $stripe_setting->get( 'sandbox' ) ?? false,
+							'stripe_user_id'       => $stripe_setting::get_stripe_user_id(),
+						),
+						'revenue_sharing' => array(
+							'commission_rate' => array(
+								'admin_rate'      => $revenue_setting->get( 'admin_rate' ) ?? 70,
+								'instructor_rate' => $revenue_setting->get( 'instructor_rate' ) ?? 30,
+							),
+							'payment_method'  => $revenue_setting->get( 'withdraw.methods' ) ?? array(),
 						),
 					),
 				),
-			);
+
+				'templates' => array(
+					'step'      => 3,
+					'completed' => $saved_data['steps']['templates']['completed'] ?? false,
+					'skipped'   => $saved_data['steps']['templates']['skipped'] ?? false,
+					'options'   => array(
+						'course_layout'                   => masteriyo_get_setting( 'course_archive.display.view_mode' ) ?? 'grid-view',
+						'course_card_layout_style'        => masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default',
+						'single_course_card_layout_style' => masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default',
+					),
+				),
+
+				'finish'    => array(
+					'step'      => 4,
+					'completed' => $saved_data['steps']['finish']['completed'] ?? false,
+					'skipped'   => $saved_data['steps']['finish']['skipped'] ?? false,
+					'options'   => array(
+						'install_sample_course' => $saved_data['steps']['course']['options']['install_sample_course'] ?? false,
+					),
+				),
+			),
+		);
+
 	}
+
 
 	/**
 	 * Get merged onboarding data with defaults.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @return array merged onboarding data.
 	 */
@@ -296,19 +310,19 @@ class OnboardingController extends RestController {
 	/**
 	 * Retrieve all onboarding data.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-			return rest_ensure_response( $this->get_onboarding_data() );
+		return rest_ensure_response( $this->get_onboarding_data() );
 	}
 
 	/**
 	 * Create new onboarding data.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error
@@ -328,7 +342,7 @@ class OnboardingController extends RestController {
 				/**
 				 * Action fired when onboarding is started.
 				 *
-				 * @since 1.18.0
+				 * @since 1.18.0 [Free]
 				 */
 				do_action( 'masteriyo_onboarding_started' );
 			}
@@ -356,7 +370,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Retrieve a single onboarding step.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error
@@ -385,7 +399,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Update an existing onboarding step.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error
@@ -432,7 +446,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Handle actions after user starts onboarding.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 */
 	protected function handle_getting_started_actions() {
 		// Create pages.
@@ -442,17 +456,17 @@ class OnboardingController extends RestController {
 	/**
 	 * Handle step-specific actions after update.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $step Step name.
 	 * @param array  $options Step options.
 	 */
 	protected function handle_step_specific_actions( $step, $options ) {
 			$handlers = array(
-				'business_type' => array( $this, 'handle_business_type_step_actions' ),
-				'marketplace'   => array( $this, 'handle_marketplace_step_actions' ),
-				'course'        => array( $this, 'handle_course_step_actions' ),
-				'payment'       => array( $this, 'handle_payment_step_actions' ),
+				'welcome'   => array( $this, 'handle_welcome_type_step_actions' ),
+				'setup'     => array( $this, 'handle_setup_actions' ),
+				'templates' => array( $this, 'handle_templates_step_actions' ),
+				'finish'    => array( $this, 'handle_finish_step_actions' ),
 			);
 
 			if ( isset( $handlers[ $step ] ) ) {
@@ -463,89 +477,177 @@ class OnboardingController extends RestController {
 	/**
 	 * Handle business type step actions.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param array $options Business type options.
 	 */
-	protected function handle_business_type_step_actions( $options ) {
-		if ( isset( $options['business_type'] ) ) {
-			$business_type = sanitize_text_field( $options['business_type'] );
-			masteriyo_set_setting( 'general.business_type', $business_type );
+	protected function handle_welcome_type_step_actions( $options ) {
+		$this->handle_getting_started_actions();
 
-			// If business_type is 'marketplace', enable revenue-sharing addon.
-			if ( 'marketplace' === $business_type ) {
-				$addons = new Addons();
-				if ( ! $addons->is_active( 'revenue-sharing' ) ) {
-					$addons->set_active( 'revenue-sharing' );
-				}
-			}
-		}
-	}
-
-	/**
-	 * Handle marketplace step actions.
-	 *
-	 * @since 1.18.0
-	 *
-	 * @param array $options Marketplace options.
-	 */
-	protected function handle_marketplace_step_actions( $options ) {
 		if ( ! empty( $options ) ) {
-			$enable = masteriyo_string_to_bool( $options['revenue_sharing'] ?? true );
-
-			// If addon not activated, activate it.
 			$addons  = new Addons();
 			$setting = new Setting();
 
-			$setting->set( 'enable', $enable );
-			if ( ! $enable ) {
+			$certificates_enable  = masteriyo_string_to_bool( $options['certificates'] ?? true );
+			$revenue_enable       = masteriyo_string_to_bool( $options['revenue_sharing'] ?? true );
+			$group_courses_enable = masteriyo_string_to_bool( $options['groups'] ?? true );
+
+			$setting->set( 'enable', $certificates_enable );
+			if ( ! $certificates_enable ) {
+				if ( $addons->is_active( 'certificate' ) ) {
+					$addons->set_inactive( 'certificate' );
+				}
+			} elseif ( ! $addons->is_active( 'certificate' ) ) {
+					$addons->set_active( 'certificate' );
+			}
+
+			if ( ! $revenue_enable ) {
 				if ( $addons->is_active( 'revenue-sharing' ) ) {
 					$addons->set_inactive( 'revenue-sharing' );
 				}
-				return;
+			} elseif ( ! $addons->is_active( 'revenue-sharing' ) ) {
+					$addons->set_active( 'revenue-sharing' );
 			}
 
-			if ( ! $addons->is_active( 'revenue-sharing' ) ) {
-				$addons->set_active( 'revenue-sharing' );
+			if ( ! $group_courses_enable ) {
+				if ( $addons->is_active( 'group-courses' ) ) {
+					$addons->set_inactive( 'group-courses' );
+				}
+			} elseif ( ! $addons->is_active( 'group-courses' ) ) {
+					$addons->set_active( 'group-courses' );
 			}
 
-			$settings = array(
-				'admin_rate'       => absint( $options['commission_rate']['admin_rate'] ?? 70 ),
-				'instructor_rate'  => absint( $options['commission_rate']['instructor_rate'] ?? 30 ),
-				'withdraw.methods' => $options['withdraw_methods'] ?? array(),
-			);
-
-			foreach ( $settings as $key => $value ) {
-				$setting->set( $key, $value );
-			}
+			masteriyo_set_setting( 'advance.tracking.allow_usage', $options['allow_usage'] );
 		}
 	}
 
 	/**
-	 * Handle course step actions.
+	 * Save setup-step settings (payments + revenue-sharing + stripe).
 	 *
-	 * @since 1.18.0
-	 *
-	 * @param array $options Course options.
+	 * @param array $options
 	 */
-	protected function handle_course_step_actions( $options ) {
-		$courses_plan_to_create = $options['courses_plan_to_create'] ?? 'single';
-		$view_mode              = 'single' === $courses_plan_to_create ? 'list-view' : $options['view_mode'] ?? 'grid-view';
+	protected function handle_setup_actions( $options ) {
+		$addons  = new Addons();
+		$setting = new Setting();
 
-		$settings = array(
-			'course_archive.display.view_mode' => $view_mode,
-		);
+		if ( ! $addons->is_active( 'revenue-sharing' ) ) {
+			$addons->set_active( 'revenue-sharing' );
+		}
 
-		if ( 'single' !== $courses_plan_to_create ) {
-			$settings['course_archive.display.per_row']       = absint( $options['per_row'] ?? 3 );
-			$settings['course_archive.display.per_page']      = absint( $options['per_page'] ?? 12 );
-			$settings['course_archive.display.enable_search'] = masteriyo_string_to_bool( $options['enable_search'] ?? true );
+		/* ---------------------------------------------------------------------
+		 * Payments  → saved to the main settings table
+		 * -------------------------------------------------------------------*/
+		$p        = (array) ( $options['payments'] ?? array() );
+		$settings = array();
+
+		if ( isset( $p['currency'] ) ) {
+			$settings['payments.currency.currency'] = sanitize_text_field( $p['currency'] );
+		}
+
+		if ( array_key_exists( 'offline_payment', $p ) ) {
+			$settings['payments.offline.enable'] = masteriyo_string_to_bool( $p['offline_payment'] );
+		}
+
+		if ( array_key_exists( 'paypal', $p ) ) {
+			$paypal_enabled                     = masteriyo_string_to_bool( $p['paypal'] );
+			$settings['payments.paypal.enable'] = $paypal_enabled;
+
+			if ( $paypal_enabled && ! empty( $p['paypal_email'] ) ) {
+				$settings['payments.paypal.email'] = sanitize_email( $p['paypal_email'] );
+			}
 		}
 
 		foreach ( $settings as $key => $value ) {
 			masteriyo_set_setting( $key, $value );
 		}
 
+		$rs = (array) ( $options['revenue_sharing'] ?? array() );
+
+		$cr = $rs['commission_rate'] ?? array();
+		if ( ! is_array( $cr ) ) {
+			$cr = array();
+		}
+
+		$admin_rate      = absint( $cr['admin_rate'] ?? 70 );
+		$instructor_rate = absint( $cr['instructor_rate'] ?? 30 );
+
+		$pm_raw = $rs['payment_method'] ?? $rs['withdraw_methods'] ?? array();
+
+		if ( is_string( $pm_raw ) ) {
+			$withdraw_methods = array_filter(
+				array_map( 'sanitize_text_field', array_map( 'trim', explode( ',', $pm_raw ) ) )
+			);
+		} elseif ( is_array( $pm_raw ) ) {
+			$withdraw_methods = array_filter( array_map( 'sanitize_text_field', $pm_raw ) );
+		} else {
+			$withdraw_methods = array();
+		}
+
+		$setting->set( 'admin_rate', $admin_rate );
+		$setting->set( 'instructor_rate', $instructor_rate );
+		$setting->set( 'withdraw.methods', $withdraw_methods );
+
+		if ( isset( $p['stripe'] ) && masteriyo_string_to_bool( $p['stripe'] ) ) {
+			$stripe_setting = new StripeSetting();
+			$stripe_setting::set( 'enable', true );
+
+			if ( ! $addons->is_active( 'stripe' ) ) {
+				$addons->set_active( 'stripe' );
+			}
+
+			foreach ( array(
+				'live_publishable_key',
+				'live_secret_key',
+				'test_publishable_key',
+				'test_secret_key',
+				'stripe_user_id',
+			) as $k ) {
+				if ( isset( $p[ $k ] ) ) {
+					$stripe_setting::set( $k, sanitize_text_field( $p[ $k ] ) );
+				}
+			}
+
+			$stripe_setting::set( 'sandbox', (bool) ( $p['sandbox'] ?? false ) );
+
+		} elseif ( isset( $p['stripe'] ) ) {
+			$stripe_setting = new StripeSetting();
+			$stripe_setting::set( 'enable', false );
+
+			if ( $addons->is_active( 'stripe' ) ) {
+				$addons->set_inactive( 'stripe' );
+			}
+		}
+	}
+
+
+	/**
+	 * Handle course step actions.
+	 *
+	 * @since 2.0.0 [Free]
+	 *
+	 * @param array $options Course options.
+	 */
+	protected function handle_templates_step_actions( $options ) {
+
+		$settings = array(
+			'course_archive.display.view_mode'       => $options['course_layout'],
+			'course_archive.display.template.layout' => $options['course_card_layout_style'],
+			'single_course.display.template.layout'  => $options['single_course_card_layout_style'],
+		);
+
+		foreach ( $settings as $key => $value ) {
+			masteriyo_set_setting( $key, $value );
+		}
+
+	}
+
+	/**
+	 * Handle finish step actions.
+	 *
+	 * @since 2.0.0 [Free]
+	 * @param array $options Course options.
+	 */
+	protected function handle_finish_step_actions( $options ) {
 		if ( $options['install_sample_course'] ?? false ) {
 			$this->import_sample_courses(
 				$options['course_option'] ?? 'lessonsOnly',
@@ -554,73 +656,11 @@ class OnboardingController extends RestController {
 		}
 	}
 
-	/**
-	 * Handle payment step actions.
-	 *
-	 * @since 1.18.0
-	 *
-	 * @param array $options Payment options.
-	 */
-	protected function handle_payment_step_actions( $options ) {
-		$settings = array();
-
-		if ( isset( $options['currency'] ) ) {
-			$settings['payments.currency.currency'] = sanitize_text_field( $options['currency'] );
-		}
-
-		if ( isset( $options['offline_payment'] ) ) {
-			$settings['payments.offline.enable'] = masteriyo_string_to_bool( $options['offline_payment'] );
-		}
-
-		if ( isset( $options['paypal'] ) ) {
-			$settings['payments.paypal.enable'] = masteriyo_string_to_bool( $options['paypal'] );
-
-			if ( $options['paypal'] && isset( $options['paypal_email'] ) ) {
-				$settings['payments.paypal.email'] = sanitize_email( $options['paypal_email'] );
-			}
-		}
-
-		foreach ( $settings as $key => $value ) {
-			masteriyo_set_setting( $key, $value );
-		}
-
-		if ( isset( $options['stripe'] ) ) {
-			$enable = masteriyo_string_to_bool( $options['stripe'] );
-
-			$addons         = new Addons();
-			$stripe_setting = new StripeSetting();
-
-			$stripe_setting::set( 'enable', $enable );
-
-			if ( ! $enable ) {
-				if ( $addons->is_active( 'stripe' ) ) {
-					$addons->set_inactive( 'stripe' );
-				}
-				return;
-			}
-
-			if ( ! $addons->is_active( 'stripe' ) ) {
-				$addons->set_active( 'stripe' );
-			}
-
-			if ( isset( $options['live_publishable_key'] ) ) {
-				$stripe_setting::set( 'live_publishable_key', sanitize_text_field( $options['live_publishable_key'] ) );
-			}
-
-			if ( isset( $options['live_secret_key'] ) ) {
-				$stripe_setting::set( 'live_secret_key', sanitize_text_field( $options['live_secret_key'] ) );
-			}
-
-			if ( ! empty( $options['live_publishable_key'] ?? '' ) && ! empty( $options['live_secret_key'] ?? '' ) ) {
-				$stripe_setting::set( 'sandbox', false );
-			}
-		}
-	}
 
 	/**
 	 * Merge saved onboarding data with defaults.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param array $default_data Default onboarding data.
 	 * @param array $saved_data   Saved onboarding data.
@@ -651,7 +691,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Validate onboarding data against defaults.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param array $input_data  Input data.
 	 * @param array $default_data Default data.
@@ -700,7 +740,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Validate step data.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $step       Step name.
 	 * @param array  $input_data Input data.
@@ -735,7 +775,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Validate step options.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $step Step name.
 	 * @param array $input_options Input options.
@@ -743,21 +783,19 @@ class OnboardingController extends RestController {
 	 * @return array Validated options.
 	 */
 	protected function validate_step_options( $step, $input_options, $default_options ) {
-		$validated_options = array();
-
-		foreach ( $default_options as $key => $default_value ) {
-			if ( isset( $input_options[ $key ] ) ) {
-				$validated_options[ $key ] = $this->sanitize_option_value( $key, $input_options[ $key ], $default_value );
-			}
+		$merged    = wp_parse_args( $input_options, $default_options );
+		$sanitized = array();
+		foreach ( $merged as $key => $value ) {
+			$def               = $default_options[ $key ] ?? $value;
+			$sanitized[ $key ] = $this->sanitize_option_value( $key, $value, $def );
 		}
-
-		return wp_parse_args( $validated_options, $default_options );
+		return $sanitized;
 	}
 
 	/**
 	 * Sanitize option value based on its type.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $key Option key.
 	 * @param mixed $value Option value.
@@ -770,16 +808,34 @@ class OnboardingController extends RestController {
 		} elseif ( is_int( $default_value ) ) {
 			return absint( $value );
 		} elseif ( is_array( $default_value ) ) {
-			return array_map( 'sanitize_text_field', (array) $value );
+			$is_list = array_values( $default_value ) === $default_value;
+
+			if ( $is_list ) {
+				return array_map( 'sanitize_text_field', (array) $value );
+			}
+
+			$sanitized = array();
+			$value     = (array) $value;
+
+			foreach ( $default_value as $k => $def ) {
+				if ( array_key_exists( $k, $value ) ) {
+					$sanitized[ $k ] = $this->sanitize_option_value( $k, $value[ $k ], $def );
+				} else {
+					$sanitized[ $k ] = $def;
+				}
+			}
+
+			return $sanitized;
 		}
 
 		return sanitize_text_field( $value );
 	}
 
+
 	/**
 	 * Validate a property.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $property     Property name.
 	 * @param mixed  $value        Property value.
@@ -801,7 +857,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Import sample courses.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param string $course_option Course option (lessonsOnly or lessonsAndQuizzes).
 	 * @param string $status        Course status (publish or draft).
@@ -834,7 +890,7 @@ class OnboardingController extends RestController {
 	/**
 	 * Sanitize request parameters recursively.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param array $params Request parameters.
 	 * @return array Sanitized parameters.
@@ -850,5 +906,35 @@ class OnboardingController extends RestController {
 		}
 
 		return $sanitized;
+	}
+
+	private function apply_revenue_sharing_settings_from_options( $options ) {
+		$enable = masteriyo_string_to_bool( $options['revenue_sharing'] ?? false );
+
+		$addons  = new Addons();
+		$setting = new Setting();
+
+		$setting->set( 'enable', $enable );
+
+		if ( ! $enable ) {
+			if ( $addons->is_active( 'revenue-sharing' ) ) {
+				$addons->set_inactive( 'revenue-sharing' );
+			}
+			return;
+		}
+
+		if ( ! $addons->is_active( 'revenue-sharing' ) ) {
+			$addons->set_active( 'revenue-sharing' );
+		}
+
+		if ( isset( $options['commission_rate']['admin_rate'] ) ) {
+			$setting->set( 'admin_rate', absint( $options['commission_rate']['admin_rate'] ) );
+		}
+		if ( isset( $options['commission_rate']['instructor_rate'] ) ) {
+			$setting->set( 'instructor_rate', absint( $options['commission_rate']['instructor_rate'] ) );
+		}
+		if ( isset( $options['withdraw_methods'] ) ) {
+			$setting->set( 'withdraw_methods', (array) $options['withdraw_methods'] );
+		}
 	}
 }

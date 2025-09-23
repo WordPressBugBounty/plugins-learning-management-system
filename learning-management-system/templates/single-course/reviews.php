@@ -24,26 +24,25 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 do_action( 'masteriyo_before_single_course_reviews' );
 
 $is_hidden = isset( $is_hidden ) ? $is_hidden : true;
-
 if ( isset( $show_review ) && $show_review ) {
 	$is_hidden = false;
 }
-
 ?>
 <div class="tab-content course-reviews <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
-	<?php
-	/**
-	 * Action hook for rendering course reviews list template.
-	 *
-	 * @hooked masteriyo_template_course_reviews_stats - 10
-	 * @hooked masteriyo_template_course_reviews_filters - 15
-	 * @hooked masteriyo_template_course_reviews_list - 20
-	 * @hooked masteriyo_single_course_review_form - 30
-	 *
-	 * @since 1.0.5
-	 */
-	do_action( 'masteriyo_course_reviews_content', $course, $course_reviews, $replies );
-	?>
+		<!-- Review form -->
+				<?php
+				$course_id = $course->get_id();
+
+				$reviews_and_replies = masteriyo_get_course_reviews_and_replies( $course_id, 1 );
+				/**
+				 * Fires to render review content on single course page layout 1.
+				 *
+				 * @since 1.10.0 [Free]
+				 *
+				 * @param \Masteriyo\Models\Course $course The course object.
+				 */
+				do_action( 'masteriyo_course_reviews_content', $course, $reviews_and_replies );
+				?>
 </div>
 <?php
 

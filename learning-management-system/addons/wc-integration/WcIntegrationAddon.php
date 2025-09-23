@@ -637,7 +637,6 @@ class WcIntegrationAddon {
 		// Hide shipping attributes.
 		$tabs['shipping']['class'][]  = 'hide_if_mto_course hide_if_mto_course_recurring';
 		$tabs['attribute']['class'][] = 'hide_if_mto_course hide_if_mto_course_recurring';
-		$tabs['advanced']['class'][]  = 'hide_if_mto_course hide_if_mto_course_recurring';
 
 		return $tabs;
 	}

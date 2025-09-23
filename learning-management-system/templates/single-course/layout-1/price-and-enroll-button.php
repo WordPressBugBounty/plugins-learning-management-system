@@ -24,9 +24,15 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_price_and_enroll_button' );
 
+$layout = masteriyo_get_setting('single_course.display.template.layout');
+$class = '';
+if  ('layout1' === $layout && masteriyo_is_single_course_page() ){
+	$class .= 'masteriyo-single-course--card';
+}
 ?>
+
 <?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
-<div class="masteriyo-single-body__aside--price">
+<div class="masteriyo-single-body__aside--price masteriyo-course-pricing--wrapper <?php echo esc_attr($class) ?>">
 	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
 		<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 	<div class="masteriyo-single-body__aside--price-wrapper">

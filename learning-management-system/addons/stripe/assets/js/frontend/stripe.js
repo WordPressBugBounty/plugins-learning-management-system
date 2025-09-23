@@ -3,12 +3,20 @@
 jQuery(function ($) {
 	'use strict';
 
+	let stripe = null;
+
 	try {
-		var stripe = Stripe(_MASTERIYO_STRIPE_.publishableKey, {
+		const stripeConfig = {
 			locale: _MASTERIYO_STRIPE_.locale || 'auto',
-		});
+		};
+
+		if ('accountId' in _MASTERIYO_STRIPE_ && _MASTERIYO_STRIPE_.accountId) {
+			stripeConfig.stripeAccount = _MASTERIYO_STRIPE_.accountId;
+		}
+
+		stripe = Stripe(_MASTERIYO_STRIPE_.publishableKey, stripeConfig);
 	} catch (error) {
-		console.log(error);
+		console.error('Stripe initialization failed:', error);
 		return;
 	}
 

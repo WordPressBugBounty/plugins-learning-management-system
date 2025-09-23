@@ -95,6 +95,8 @@ class Lesson extends Model {
 		'ends_at'             => '',
 		'live_chat_enabled'   => true,
 		'custom_fields'       => null,
+
+		'lesson_type'         => '',
 	);
 
 	/**
@@ -685,6 +687,18 @@ class Lesson extends Model {
 		return $this->get_prop( 'custom_fields', $context );
 	}
 
+	/**
+	 * Get lesson type.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return object
+	 */
+	public function get_lesson_type( $context = 'view' ) {
+		return $this->get_prop( 'lesson_type', $context );
+	}
 
 	/*
 	|--------------------------------------------------------------------------
@@ -986,5 +1000,16 @@ class Lesson extends Model {
 	 */
 	public function set_custom_fields( $custom_fields ) {
 		$this->set_prop( 'custom_fields', ( $custom_fields ) );
+	}
+
+	/**
+	 * Set lesson type
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $type lesson type.
+	 */
+	public function set_lesson_type( $type ) {
+		$this->set_prop( 'lesson_type', $type );
 	}
 }

@@ -22,9 +22,15 @@ $slider_class = '';
 if ( $is_slider_enabled ) {
 	$slider_class = 'swiper';
 }
-
+$class = '';
+$layout = masteriyo_get_setting('course_archive.display.template.layout') ?  masteriyo_get_setting('course_archive.display.template.layout') : 'default';
+if ('layout1' === $layout){
+	$class .= 'masteriyo-archive-cards';
+} elseif('layout2' === $layout){
+	$class .= 'masteriyo-course-cards';
+}
 ?>
-<div class="masteriyo-courses-wrapper masteriyo-course <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> columns-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?> <?php echo ' ' . esc_attr( $slider_class ); ?>">
+<div class="masteriyo-courses-wrapper masteriyo-course <?php  echo esc_attr($class) ?> <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> columns-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?> <?php echo ' ' . esc_attr( $slider_class ); ?>">
 
 <?php
 if ( $is_slider_enabled ) {

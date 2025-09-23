@@ -53,7 +53,7 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 									<?php masteriyo_get_svg( 'small-hamburger', true ); ?>
 								</span>
 							</label>
-							<ul class="slide menu">
+							<ul class="masteriyo-slide menu">
 								<li class="masteriyo-edit-course-review"><strong><?php esc_html_e( 'Edit', 'learning-management-system' ); ?></strong></li>
 								<li class="masteriyo-delete-course-review"><strong><?php esc_html_e( 'Delete', 'learning-management-system' ); ?></strong></li>
 							</ul>

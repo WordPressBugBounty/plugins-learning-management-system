@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import React from 'react';
 import icons from './icons';
 
-export const blockIcons = icons.blockIcon; 
+export const blockIcons = icons.blockIcon;
 
 interface PropsType {
 	type: string;

@@ -182,7 +182,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 			$placeholders['{student_display_name}'] = $student->get_display_name();
 			$placeholders['{student_first_name}']   = empty( $student->get_first_name() ) ? $student->get_display_name() : $student->get_first_name();
 			$placeholders['{student_last_name}']    = empty( $student->get_last_name() ) ? $student->get_display_name() : $student->get_last_name();
-			$placeholders['{student_name}']         = sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ?? $student->get_display_name();
+			$placeholders['{student_name}']         = '' !== trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) ? trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) : $student->get_display_name();
 			$placeholders['{student_username}']     = $student->get_username();
 			$placeholders['{student_nicename}']     = $student->get_nicename();
 			$placeholders['{student_nickname}']     = $student->get_nickname();

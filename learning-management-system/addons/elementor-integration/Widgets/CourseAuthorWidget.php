@@ -44,7 +44,7 @@ class CourseAuthorWidget extends WidgetBase {
 	 * @return string
 	 */
 	public function get_title() {
-		return __( 'Course Author', 'learning-management-system' );
+		return __( 'Course Author and Rating', 'learning-management-system' );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class CourseAuthorWidget extends WidgetBase {
 		$this->start_controls_section(
 			'author_styles',
 			array(
-				'label' => __( 'Author', 'learning-management-system' ),
+				'label' => __( 'Course Author and Rating', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -135,7 +135,7 @@ class CourseAuthorWidget extends WidgetBase {
 				'type'      => Controls_Manager::HIDDEN,
 				'default'   => 'yes',
 				'selectors' => array(
-					'{{WRAPPER}} .masteriyo-course-author' => 'display: block !important;',
+					// '{{WRAPPER}} .masteriyo-course-author' => 'display: block !important;',
 					'{{WRAPPER}} .masteriyo-course-author a' => 'display: inline-flex;',
 				),
 			)
@@ -362,18 +362,13 @@ class CourseAuthorWidget extends WidgetBase {
 			return;
 		}
 
-		?>
-		<div class="masteriyo-course-author">
-			<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
-				<img src="<?php echo esc_attr( $author->profile_image_url() ); ?>"
-					alt="<?php echo esc_attr( $author->get_display_name() ); ?>"
-					title="<?php echo esc_attr( $author->get_display_name() ); ?>"
-				>
-				<!-- Do not multiline below code, as it will create space around the display name. -->
-				<span class="masteriyo-course-author--name"><?php echo esc_html( $author->get_display_name() ); ?></span>
-			</a>
-		</div>
-		<?php
+		masteriyo_get_template(
+			'single-course/author-and-rating.php',
+			array(
+				'course' => $course,
+				'author' => masteriyo_get_user( $course->get_author_id() ),
+			)
+		);
 	}
 
 	/**
@@ -393,18 +388,12 @@ class CourseAuthorWidget extends WidgetBase {
 		if ( ! $author ) {
 			return;
 		}
-
-		?>
-		<div class="masteriyo-course-author">
-			<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
-				<img src="<?php echo esc_attr( $author->profile_image_url() ); ?>"
-					alt="<?php echo esc_attr( $author->get_display_name() ); ?>"
-					title="<?php echo esc_attr( $author->get_display_name() ); ?>"
-				>
-				<!-- Do not multiline below code, as it will create space around the display name. -->
-				<span class="masteriyo-course-author--name"><?php echo esc_html( $author->get_display_name() ); ?></span>
-			</a>
-		</div>
-		<?php
+			masteriyo_get_template(
+				'single-course/author-and-rating.php',
+				array(
+					'course' => $course,
+					'author' => masteriyo_get_user( $course->get_author_id() ),
+				)
+			);
 	}
 }

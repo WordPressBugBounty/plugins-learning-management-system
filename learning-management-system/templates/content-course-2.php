@@ -15,6 +15,8 @@
  * @version 1.10.0
  */
 
+
+
 defined( 'ABSPATH' ) || exit;
 
 global $course;
@@ -59,15 +61,7 @@ $categories = $course->get_categories( 'name' );
 	<div class="masteriyo-course-card__content">
 		<!-- Course category -->
 		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.categories' ) && ! empty( $categories ) ) : ?>
-		<div class="masteriyo-course-card__content--category">
-			<?php if ( ! empty( $categories ) ) : ?>
-				<?php foreach ( $categories as $category ) : ?>
-					<a href="<?php echo esc_attr( $category->get_permalink() ); ?>" alt="<?php echo esc_attr( $category->get_name() ); ?>" class="masteriyo-course-category">
-						<?php echo esc_html( $category->get_name() ); ?>
-					</a>
-				<?php endforeach; ?>
-			<?php endif; ?>
-		</div>
+				<?php do_action( 'masteriyo_course_category', $course ); ?>
 		<?php endif; ?>
 
 		<div class="masteriyo-course-title-wrapper">
@@ -101,12 +95,29 @@ $categories = $course->get_categories( 'name' );
 
 		<div class="masteriyo-course-card__content--rating-amount">
 		<?php
-		if ( masteriyo_get_setting( 'course_archive.components_visibility.rating' ) ) :
-			?>
-			<div class="masteriyo-course-card__content--rating">
-				<?php masteriyo_get_svg( 'full_star', true ); ?> <?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?> <?php echo '(' . esc_html( $course->get_review_count() . ')' ); ?>
-			</div>
-			<?php endif; ?>
+		if ( masteriyo_get_setting( 'course_archive.components_visibility.rating' ) && $course->is_review_allowed() ) :
+			if ( is_user_logged_in() && ! masteriyo_get_setting( 'single_course.enable_review_visibility_control' ) ) :
+				if ( $course->get_review_count() > 0 ) :
+					?>
+						<div class="masteriyo-course-card__content--rating">
+						<?php masteriyo_get_svg( 'full_star', true ); ?>
+						<?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?>
+						<?php echo '(' . esc_html( $course->get_review_count() ) . ')'; ?>
+						</div>
+						<?php
+					endif;
+				elseif ( masteriyo_get_setting( 'single_course.enable_review_visibility_control' ) ) :
+					?>
+					<div class="masteriyo-course-card__content--rating">
+						<?php masteriyo_get_svg( 'full_star', true ); ?>
+						<?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?>
+						<?php echo '(' . esc_html( $course->get_review_count() ) . ')'; ?>
+					</div>
+					<?php
+				endif;
+			endif;
+		?>
+
 			<?php
 			if ( masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) && masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) :
 				if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) :

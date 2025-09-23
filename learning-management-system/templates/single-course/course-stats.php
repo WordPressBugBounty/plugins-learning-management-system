@@ -9,11 +9,19 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
+use Masteriyo\Addons\CourseComingSoon\Helper;
 do_action( 'masteriyo_before_single_course_stats' );
 
 // For compatibility with global template loading
-$attributes = $attributes ?? array();
+$attributes  = $attributes ?? array();
+$is_enrolled = function_exists( 'masteriyo_is_user_enrolled_in_course' )
+	? masteriyo_is_user_enrolled_in_course( $course->get_id() )
+	: false;
+$satisfied   = Helper::course_coming_soon_satisfied( $course );
+
+if ( ! $satisfied ) {
+	return false;
+}
 
 if ( ! function_exists( 'is_component_visible' ) ) {
 	/**
@@ -34,11 +42,54 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 }
 ?>
 
-<div class="masteriyo-single-course-stats">
+<div class="masteriyo-single-course-stats masteriyo-course-statistics">
+<?php if ( $is_enrolled ) : ?>
+
+	<!-- Date Updated -->
+	<?php
+	if (
+		is_component_visible( $attributes['enableDateUpdated'] ?? null, 'date_updated' )
+		&& $course->get_date_modified()
+	) :
+		?>
+		<div class="masteriyo-stats last-updated">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'last-updated', true ); ?>
+				<span>
+					<?php
+					$modified_date = strtotime( $course->get_date_modified() );
+					echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), gmdate( 'F j, Y', $modified_date ) ) );
+					?>
+				</span>
+			</div>
+		</div>
+	<?php endif; ?>
+
+	<!-- Date Started -->
+	<?php
+	if (
+		is_component_visible( $attributes['enableDateStarted'] ?? null, 'date_started' )
+		&& ! empty( $progress ) && $progress->get_started_at()
+	) :
+		?>
+		<div class="masteriyo-stats course-started-at">
+			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
+				<?php masteriyo_get_svg( 'start-calendar', true ); ?>
+				<span>
+					<?php
+					$started_date = strtotime( $progress->get_started_at() );
+					echo esc_html( sprintf( __( 'Started At: %s', 'learning-management-system' ), gmdate( 'F j, Y', $started_date ) ) );
+					?>
+				</span>
+			</div>
+		</div>
+	<?php endif; ?>
+
+<?php else : ?>
 
 	<!-- Course Duration -->
-	<?php if ( is_component_visible( $attributes['enableCourseDuration'] ?? null, 'course_duration' ) ) : ?>
-		<div class="duration">
+	<?php if ( is_component_visible( $attributes['enableCourseDuration'] ?? null, 'course_duration' ) && $course->get_duration() > 0 ) : ?>
+		<div class="masteriyo-stats duration">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'time', true ); ?>
 				<span>
@@ -49,8 +100,8 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 	<?php endif; ?>
 
 	<!-- Student Count -->
-	<?php if ( is_component_visible( $attributes['enableStudentCount'] ?? null, 'students_count' ) ) : ?>
-		<div class="student">
+	<?php if ( is_component_visible( $attributes['enableStudentCount'] ?? null, 'students_count' ) && $enrolled_users_count > 0 ) : ?>
+		<div class="masteriyo-stats student">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'group', true ); ?>
 				<span>
@@ -72,7 +123,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 		&& $course->get_enrollment_limit() > 0
 	) :
 		?>
-		<div class="masteriyo-available-seats-for-students">
+		<div class="masteriyo-stats masteriyo-available-seats-for-students">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'available-seats-for-students', true ); ?>
 				<span>
@@ -94,7 +145,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 		&& $course->get_date_modified()
 	) :
 		?>
-		<div class="last-updated">
+		<div class="masteriyo-stats last-updated">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
 				<?php masteriyo_get_svg( 'last-updated', true ); ?>
 				<span>
@@ -111,12 +162,12 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 	<?php
 	if (
 		is_component_visible( $attributes['enableDateStarted'] ?? null, 'date_started' )
-		&& $progress
+		&& ! empty( $progress ) && $progress->get_started_at()
 	) :
 		?>
-		<div class="course-started-at">
+		<div class="masteriyo-stats course-started-at">
 			<div class="masteriyo-single-course--mdetail masteriyo-icon-svg">
-				<?php masteriyo_get_svg( 'calender', true ); ?>
+				<?php masteriyo_get_svg( 'start-calendar', true ); ?>
 				<span>
 					<?php
 					$started_date = strtotime( $progress->get_started_at() );
@@ -127,6 +178,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 		</div>
 	<?php endif; ?>
 
+<?php endif; ?>
 </div>
 
 <?php

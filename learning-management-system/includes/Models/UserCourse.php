@@ -292,7 +292,15 @@ class UserCourse extends Model {
 	 * @param int $value User ID.
 	 */
 	public function set_user_id( $value ) {
-		$this->set_prop( 'user_id', absint( $value ) );
+		$new_user_id     = absint( $value );
+		$current_user_id = $this->get_user_id();
+
+		// Never allow changing a valid user_id to 0.
+		if ( $current_user_id > 0 && $new_user_id <= 0 ) {
+			return;
+		}
+
+		$this->set_prop( 'user_id', $new_user_id );
 	}
 
 	/**

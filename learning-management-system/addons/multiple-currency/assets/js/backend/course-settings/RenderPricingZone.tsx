@@ -97,6 +97,8 @@ const PricingZonesData: React.FC<Props> = ({
 						boxShadow="none"
 						isDisabled={!enabled}
 						borderRadius="base"
+						bg={expanded ? 'gray.100' : 'transparent'}
+						_hover={{ bg: expanded ? 'gray.100' : 'inherit' }}
 					/>
 				</Flex>
 			</Flex>

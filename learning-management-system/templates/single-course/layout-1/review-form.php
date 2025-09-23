@@ -54,7 +54,7 @@ do_action( 'masteriyo_before_single_course_review_form' );
 			<textarea name="content" cols="30" rows="10"></textarea>
 		</div>
 
-		<button type="submit" name="masteriyo-submit-review" value="yes" class="masteriyo-single--review-submit">
+		<button type="submit" name="masteriyo-submit-review" value="yes" class="masteriyo-single--review-submit masteriyo-btn masteriyo-btn-primary">
 					<?php esc_html_e( 'Submit', 'learning-management-system' ); ?>
 				</button>
 				<?php wp_nonce_field( 'masteriyo-submit-review' ); ?>

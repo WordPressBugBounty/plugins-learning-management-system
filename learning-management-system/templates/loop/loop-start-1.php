@@ -12,9 +12,9 @@
  *
  * @see         https://docs.masteriyo.com/document/template-structure/
  * @package     Masteriyo\Templates
- * @version     1.10.0
+ * @version     1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="masteriyo-archive-cards <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> col-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?>">
+<div class="masteriyo-courses-wrapper masteriyo-archive-cards <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> col-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?>">

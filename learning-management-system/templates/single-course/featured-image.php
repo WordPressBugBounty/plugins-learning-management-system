@@ -2,39 +2,61 @@
 /**
  * The Template for displaying course featured image in single course page
  *
- * This template can be overridden by copying it to yourtheme/masteriyo/single-course/featured-image.php.
- *
- * HOWEVER, on occasion Masteriyo will need to update template files and you
- * (the theme developer) will need to copy the new files to your theme to
- * maintain compatibility. We try to do this as little as possible, but it does
- * happen. When this occurs the version of the template file will be bumped and
- * the readme will list any important changes.
- *
  * @package Masteriyo\Templates
  * @version 1.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
-?>
-<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
-<div class="masteriyo-course--img-wrap">
-	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' ) && $difficulty ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $difficulty ) ) : ?>
-		<div class="difficulty-badge <?php echo esc_attr( $difficulty['slug'] ); ?>" data-id="<?php echo esc_attr( $difficulty['id'] ); ?>">
-			<?php if ( $difficulty['color'] ) : ?>
-				<span class="masteriyo-badge" style="background-color: <?php echo esc_attr( $difficulty['color'] ); ?>">
-					<?php echo esc_html( $difficulty['name'] ); ?>
-				</span>
-			<?php else : ?>
-				<span class="masteriyo-badge <?php echo esc_attr( masteriyo_get_difficulty_badge_css_class( $difficulty['slug'] ) ); ?>">
-					<?php echo esc_html( $difficulty['name'] ); ?>
-				</span>
-			<?php endif; ?>
-		</div>
-	<?php endif; ?>
 
-	<div class="masteriyo-feature-img">
-		<?php echo wp_kses( $course->get_image( 'masteriyo_single' ), 'masteriyo_image' ); ?>
-	</div>
-</div>
+/** Precompute flags to keep logic tidy */
+$single_visibility = (bool) masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' );
+$show_thumbnail    = (bool) masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' );
+$show_difficulty   = (bool) masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' );
+$show_course_badge = (bool) masteriyo_get_setting( 'course_archive.components_visibility.course_badge' );
+
+$show_block = ( $single_visibility && $show_thumbnail ) || ( ! $single_visibility );
+
+/** Derived badge visibility */
+$has_difficulty = ! empty( $difficulty );
+$can_show_diff  = ( $single_visibility && $show_difficulty && $has_difficulty ) || ( ! $single_visibility && $has_difficulty );
+
+$course_badge_val = $course->get_course_badge();
+$can_show_cbadge  = (
+	( $single_visibility && $show_course_badge && $show_thumbnail && ! empty( $course_badge_val ) ) ||
+	( ! $single_visibility && $show_course_badge && $show_thumbnail && ! empty( $course_badge_val ) )
+);
+?>
+
+<?php if ( $show_block ) : ?>
+	<div class="masteriyo-course--img-wrap">
+
+		<?php if ( $can_show_diff || $can_show_cbadge ) : ?>
+			<div class="masteriyo-course--badges">
+				<?php if ( $can_show_diff ) : ?>
+					<div class="difficulty-badge <?php echo esc_attr( $difficulty['slug'] ); ?>" data-id="<?php echo esc_attr( $difficulty['id'] ); ?>">
+						<?php if ( ! empty( $difficulty['color'] ) ) : ?>
+							<span class="masteriyo-badge" style="background-color: <?php echo esc_attr( $difficulty['color'] ); ?>">
+								<?php echo esc_html( $difficulty['name'] ); ?>
+							</span>
+						<?php else : ?>
+							<span class="masteriyo-badge <?php echo esc_attr( masteriyo_get_difficulty_badge_css_class( $difficulty['slug'] ) ); ?>">
+								<?php echo esc_html( $difficulty['name'] ); ?>
+							</span>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $can_show_cbadge ) : ?>
+					<div class="masteriyo-single-course--badge">
+						<span class="masteriyo-badge"><?php echo esc_html( $course_badge_val ); ?></span>
+					</div>
+				<?php endif; ?>
+			</div><!-- /.masteriyo-course--badges -->
+		<?php endif; ?>
+
+		<div class="masteriyo-feature-img">
+			<?php echo wp_kses( $course->get_image( 'masteriyo_single' ), 'masteriyo_image' ); ?>
+		</div>
+
+	</div><!-- /.masteriyo-course--img-wrap -->
 <?php endif; ?>
-<?php

@@ -7,8 +7,15 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Enums\CourseProgressStatus;
+
+$layout = masteriyo_get_setting('single_course.display.template.layout');
+$class = '';
+if  ('layout1' === $layout && masteriyo_is_single_course_page() ){
+	$class .= 'masteriyo-single-course--card';
+}
 ?>
-<div class="masteriyo-single-course--course-coming-soon" id="masteriyo_coming_soon">
+
+<div class="masteriyo-single-course--course-coming-soon <?php echo esc_attr($class) ?>" id="masteriyo_coming_soon">
 	<div class="masteriyo-single-course--course-coming-soon-msg">
 		<div class="masteriyo-single-course--course-coming-soon-timer">
 			<span id="masteriyo_countdown"></span>
@@ -56,31 +63,31 @@ use Masteriyo\Enums\CourseProgressStatus;
 			var seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
 			var countdownText = `
-			<div style="display: flex; flex-wrap: wrap; justify-content: center;">
+			<div class="masteriyo-countdown-timer--wrapper">
 				<div class="masteriyo-countdown-segment">
-					<span> ${days < 10 ? '0' + days : days}</span><br>
-					<span style="font-size: 13px;"><?php echo esc_html__( 'Days', 'learning-management-system' ); ?></span>
+					<span class="masteriyo-countdown-segment--timer"> ${days < 10 ? '0' + days : days}</span><br>
+					<span class="masteriyo-countdown-segment--label"><?php echo esc_html__( 'Days', 'learning-management-system' ); ?></span>
 				</div>
 				<div class="masteriyo-countdown-separator">
-					<span>:</span>
+					<span class="masteriyo-countdown-separator--dots">:</span>
 				</div>
 				<div class="masteriyo-countdown-segment">
-					<span>${hours < 10 ? '0' + hours : hours}</span><br>
-					<span style="font-size: 13px;"><?php echo esc_html__( 'Hours', 'learning-management-system' ); ?></span>
+					<span class="masteriyo-countdown-segment--timer">${hours < 10 ? '0' + hours : hours}</span><br>
+					<span class="masteriyo-countdown-segment--label"><?php echo esc_html__( 'Hours', 'learning-management-system' ); ?></span>
 				</div>
 				<div class="masteriyo-countdown-separator">
-					<span>:</span>
+					<span class="masteriyo-countdown-separator--dots">:</span>
 				</div>
 				<div class="masteriyo-countdown-segment">
-					<span>${minutes < 10 ? '0' + minutes : minutes}</span><br>
-					<span style="font-size: 13px;"><?php echo esc_html__( 'Minutes', 'learning-management-system' ); ?></span>
+					<span class="masteriyo-countdown-segment--timer">${minutes < 10 ? '0' + minutes : minutes}</span><br>
+					<span class="masteriyo-countdown-segment--label"><?php echo esc_html__( 'Minutes', 'learning-management-system' ); ?></span>
 				</div>
 				<div class="masteriyo-countdown-separator">
-					<span>:</span>
+					<span class="masteriyo-countdown-separator--dots">:</span>
 				</div>
 				<div class="masteriyo-countdown-segment">
-					<span>${seconds < 10 ? '0' + seconds : seconds}</span><br>
-					<span style="font-size: 13px;"><?php echo esc_html__( 'Seconds', 'learning-management-system' ); ?></span>
+					<span class="masteriyo-countdown-segment--timer">${seconds < 10 ? '0' + seconds : seconds}</span><br>
+					<span class="masteriyo-countdown-segment--label"><?php echo esc_html__( 'Seconds', 'learning-management-system' ); ?></span>
 				</div>
 			</div>`;
 

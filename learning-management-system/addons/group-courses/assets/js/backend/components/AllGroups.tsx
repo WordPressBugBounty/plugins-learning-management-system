@@ -46,6 +46,7 @@ interface FilterParams {
 	page?: number;
 	orderby: string;
 	order: 'asc' | 'desc';
+	author_id?: string;
 }
 
 const shareYourIdeaLink =
@@ -381,104 +382,103 @@ const AllGroups = () => {
 							setFilterParams={setFilterParams}
 							filterParams={filterParams}
 						/>
-						<Stack
-							direction="column"
-							spacing="8"
-							mt={{
-								base: '15px !important',
-								sm: '15px !important',
-								md: '2.5rem !important',
-								lg: '2.5rem !important',
-							}}
-						>
+						<Stack direction="column" spacing="8">
 							<Table>
-								<Thead>
-									<Tr>
-										<Th>
-											<Checkbox
-												isDisabled={
-													groupQuery.isLoading ||
-													groupQuery.isFetching ||
-													groupQuery.isRefetching
-												}
-												isIndeterminate={
-													groupQuery?.data?.data?.length !== bulkIds.length &&
-													bulkIds.length > 0
-												}
-												isChecked={
-													groupQuery?.data?.data?.length === bulkIds.length &&
-													!isEmpty(groupQuery?.data?.data as boolean)
-												}
-												onChange={(e) =>
-													setBulkIds(
-														e.target.checked
-															? groupQuery?.data?.data?.map((group: any) =>
-																	group.id.toString(),
-																)
-															: [],
-													)
-												}
-											/>
-										</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Title', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterGroupsBy}
-													orderBy={'title'}
+								{groupQuery.isLoading || !groupQuery.isFetched ? (
+									<SkeletonList />
+								) : groupQuery.isSuccess && isEmpty(groupQuery?.data?.data) ? (
+									<EmptyInfo
+										title={__('No Groups Found', 'learning-management-system')}
+										description={__(
+											'Start building your learning community by adding students. Manage their access and track their progress.',
+											'learning-management-system',
+										)}
+										isResultFiltered={Boolean(
+											filterParams?.search ||
+												filterParams?.author_id ||
+												filterParams?.status !== 'any',
+										)}
+									/>
+								) : (
+									<>
+										<Thead>
+											<Tr>
+												<Th>
+													<Checkbox
+														isDisabled={
+															groupQuery.isLoading ||
+															groupQuery.isFetching ||
+															groupQuery.isRefetching
+														}
+														isIndeterminate={
+															groupQuery?.data?.data?.length !==
+																bulkIds.length && bulkIds.length > 0
+														}
+														isChecked={
+															groupQuery?.data?.data?.length ===
+																bulkIds.length &&
+															!isEmpty(groupQuery?.data?.data as boolean)
+														}
+														onChange={(e) =>
+															setBulkIds(
+																e.target.checked
+																	? groupQuery?.data?.data?.map((group: any) =>
+																			group.id.toString(),
+																		)
+																	: [],
+															)
+														}
+													/>
+												</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Title', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterGroupsBy}
+															orderBy={'title'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Author', 'learning-management-system')}</Th>
+												<Th>{__('Members', 'learning-management-system')}</Th>
+												<Th>
+													<Stack direction="row" alignItems="center">
+														<Text fontSize="xs">
+															{__('Date', 'learning-management-system')}
+														</Text>
+														<Sorting
+															filterParams={filterParams}
+															filterContentBy={filterGroupsBy}
+															orderBy={'date'}
+														/>
+													</Stack>
+												</Th>
+												<Th>{__('Actions', 'learning-management-system')}</Th>
+											</Tr>
+										</Thead>
+										<Tbody>
+											{groupQuery?.data?.data?.map((group: GroupSchema) => (
+												<GroupList
+													key={group?.id}
+													data={group}
+													bulkIds={bulkIds}
+													onDeletePress={onDeletePress}
+													onRestorePress={onRestorePress}
+													onTrashPress={onTrashPress}
+													setBulkIds={setBulkIds}
+													isLoading={
+														groupQuery.isLoading ||
+														groupQuery.isFetching ||
+														groupQuery.isRefetching
+													}
 												/>
-											</Stack>
-										</Th>
-										<Th>{__('Author', 'learning-management-system')}</Th>
-										<Th>{__('Members', 'learning-management-system')}</Th>
-										<Th>
-											<Stack direction="row" alignItems="center">
-												<Text fontSize="xs">
-													{__('Date', 'learning-management-system')}
-												</Text>
-												<Sorting
-													filterParams={filterParams}
-													filterContentBy={filterGroupsBy}
-													orderBy={'date'}
-												/>
-											</Stack>
-										</Th>
-										<Th>{__('Actions', 'learning-management-system')}</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{groupQuery.isLoading || !groupQuery.isFetched ? (
-										<SkeletonList />
-									) : groupQuery.isSuccess &&
-									  isEmpty(groupQuery?.data?.data) ? (
-										<EmptyInfo
-											message={__(
-												'No groups found.',
-												'learning-management-system',
-											)}
-										/>
-									) : (
-										groupQuery?.data?.data?.map((group: GroupSchema) => (
-											<GroupList
-												key={group?.id}
-												data={group}
-												bulkIds={bulkIds}
-												onDeletePress={onDeletePress}
-												onRestorePress={onRestorePress}
-												onTrashPress={onTrashPress}
-												setBulkIds={setBulkIds}
-												isLoading={
-													groupQuery.isLoading ||
-													groupQuery.isFetching ||
-													groupQuery.isRefetching
-												}
-											/>
-										))
-									)}
-								</Tbody>
+											))}
+										</Tbody>
+									</>
+								)}
 							</Table>
 						</Stack>
 					</Stack>

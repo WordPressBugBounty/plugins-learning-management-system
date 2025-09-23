@@ -43,6 +43,7 @@ class CoursesShortcode extends Shortcode {
 		'orderby'         => 'date',
 		'show_pagination' => 'off',
 		'view'            => 'grid',
+		'layout'          => 'default',
 	);
 
 	/**
@@ -91,7 +92,26 @@ class CoursesShortcode extends Shortcode {
 
 		\ob_start();
 
-		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section">';
+		// Apply layout-specific CSS class to the main wrapper.
+		$layout        = sanitize_text_field( $attr['layout'] );
+		$layout_class  = '';
+		$loop_template = 'loop/loop-start.php';
+
+		switch ( $layout ) {
+			case 'layout1':
+				$layout_class  = 'layout_1';
+				$loop_template = 'loop/loop-start-1.php';
+				break;
+			case 'layout2':
+				$layout_class  = 'layout_2';
+				$loop_template = 'loop/loop-start-2.php';
+				break;
+			default:
+				$layout_class = 'default';
+				break;
+		}
+
+		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section ' . esc_attr( $layout_class ) . '" data-layout=' . esc_attr( $layout_class ) . '>';
 
 		if ( $result->total ) {
 			$original_course = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;
@@ -106,12 +126,24 @@ class CoursesShortcode extends Shortcode {
 			 */
 			do_action( 'masteriyo_shortcode_before_courses_loop', $attr, $courses );
 
-			masteriyo_course_loop_start();
+			masteriyo_course_loop_start( true, $loop_template );
 
 			foreach ( $courses as $course ) {
 				$GLOBALS['course'] = $course;
 
-				\masteriyo_get_template_part( 'content', 'course' );
+				// Determine the template based on layout attribute.
+				$layout = sanitize_text_field( $attr['layout'] );
+				switch ( $layout ) {
+					case 'layout1':
+						\masteriyo_get_template_part( 'content', 'course-1' );
+						break;
+					case 'layout2':
+						\masteriyo_get_template_part( 'content', 'course-2' );
+						break;
+					default:
+						\masteriyo_get_template_part( 'content', 'course' );
+						break;
+				}
 			}
 
 			$GLOBALS['course'] = $original_course;
@@ -188,5 +220,4 @@ class CoursesShortcode extends Shortcode {
 		// Page number not found.
 		return $page_number;
 	}
-
 }

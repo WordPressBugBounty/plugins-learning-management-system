@@ -27,9 +27,11 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import React, { useRef, useState } from 'react';
+import { addQueryArgs } from '@wordpress/url';
+import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BiHide, BiShow } from 'react-icons/bi';
+import { useSearchParams } from 'react-router-dom';
 import FormControlTwoCol from '../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../assets/js/back-end/screens/settings/components/ToolTip';
 import localized from '../../../assets/js/back-end/utils/global';
@@ -88,7 +90,9 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 		) => {
 			const formData = new FormData();
 			formData.append('action', 'masteriyo_stripe_connect');
-			formData.append('nonce', paymentsData?.stripe?.nonce ?? '');
+			if ('stripe_nonce' in localized) {
+				formData.append('nonce', localized.stripe_nonce as string);
+			}
 			formData.append('current_page_uri', window.location.href);
 			formData.append(
 				'type',
@@ -98,7 +102,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 			return apiFetch<{
 				data:
 					| {
-							url: string;
+							data: string;
 							type: 'connect';
 					  }
 					| {
@@ -113,7 +117,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 		},
 		onSuccess(data) {
 			if (data.data.type == 'connect') {
-				window.location.href = data.data.url;
+				window.location.href = data.data.data;
 			} else {
 				window.location.reload();
 			}
@@ -124,6 +128,20 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const cancelRef = useRef<HTMLButtonElement>(null);
+	const [searchParams] = useSearchParams();
+
+	useEffect(() => {
+		const mode = searchParams.get('mode');
+		const accountId = searchParams.get('accountId');
+		if (!mode || !accountId) return;
+		window.location.href = addQueryArgs(localized.adminUrl + 'admin.php', {
+			page: 'masteriyo',
+			mode,
+			accountId,
+			nonce:
+				'stripe_nonce' in localized ? (localized.stripe_nonce as string) : null,
+		});
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<VStack
@@ -207,10 +225,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					<Controller
 						name="payments.stripe.enable_ideal"
 						render={({ field }) => (
-							<Switch
-								{...field}
-								defaultChecked={paymentsData?.stripe?.enable_ideal}
-							/>
+							<Switch {...field} isChecked={!!field.value} />
 						)}
 					/>
 				</Stack>
@@ -253,7 +268,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 						render={({ field }) => (
 							<Switch
 								{...field}
-								defaultChecked={paymentsData?.stripe?.sandbox}
+								isChecked={!!field.value}
 								onChange={(e) => {
 									onOpen();
 									field.onChange(e);

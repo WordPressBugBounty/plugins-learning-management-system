@@ -15,14 +15,10 @@ namespace Masteriyo\Addons\Stripe;
 use Exception;
 use Masteriyo\Abstracts\PaymentGateway;
 use Masteriyo\Contracts\PaymentGateway as PaymentGatewayInterface;
-use Masteriyo\Enums\OrderItemType;
-use Masteriyo\Pro\Enums\SubscriptionStatus;
-use Masteriyo\Pro\Models\Subscription;
+use Masteriyo\Addons\Stripe\Client\StripeClient;
 use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\Price;
-use Stripe\Stripe;
-use Stripe\Subscription as StripeSubscription;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -142,7 +138,9 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	public function process_payment( $order_id ) {
 		masteriyo_get_logger()->info( 'Stripe process_payment: ' . $order_id, array( 'source' => 'payment-stripe' ) );
 		try {
-			$order   = masteriyo_get_order( $order_id );
+			$order = masteriyo_get_order( $order_id );
+
+			/** @var \Masteriyo\Session\Session */
 			$session = masteriyo( 'session' );
 
 			if ( ! $order ) {
@@ -159,16 +157,21 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 			$order->set_transaction_id( $payment_intent_id );
 			$order->save();
 
-			// Update payment intent with order id.
-			PaymentIntent::update(
-				$payment_intent_id,
-				array(
-					'receipt_email' => $order->get_billing_email(),
-					'metadata'      => array( 'order_id' => $order->get_id() ),
-					'amount'        => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
-				),
-				Helper::get_stripe_options()
+			$payment_intent_args = array(
+				'receipt_email' => $order->get_billing_email(),
+				'metadata'      => array( 'order_id' => $order->get_id() ),
+				'amount'        => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
 			);
+
+			if ( Helper::use_platform() ) {
+				StripeClient::create()->update_payment_intent( $payment_intent_id, $payment_intent_args );
+			} else {
+				PaymentIntent::update(
+					$payment_intent_id,
+					$payment_intent_args,
+					Helper::get_stripe_options()
+				);
+			}
 
 			masteriyo_get_logger()->info( 'Payment intent updated.', array( 'source' => 'payment-stripe' ) );
 
@@ -245,25 +248,28 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 		masteriyo_get_logger()->info( 'Stripe create_price_objects: Start', array( 'source' => 'payment-stripe' ) );
 		$price_objects = array_map(
 			function ( $course ) use ( $currency_code, $total ) {
-				return Price::create(
-					array(
-						'currency'     => $currency_code,
-						'unit_amount'  => masteriyo_round( $total * 100, 2 ),
-						'recurring'    => array(
-							'interval_count' => $course->get_billing_interval(),
-							'interval'       => $course->get_billing_period(),
+				$price_data = array(
+					'currency'     => $currency_code,
+					'unit_amount'  => masteriyo_round( $total * 100, 2 ),
+					'recurring'    => array(
+						'interval_count' => $course->get_billing_interval(),
+						'interval'       => $course->get_billing_period(),
+					),
+					'product_data' => array(
+						'name'     => $course->get_name(),
+						'metadata' => array(
+							'course_id'            => $course->get_id(),
+							'billing_interval'     => $course->get_billing_interval(),
+							'billing_period'       => $course->get_billing_period(),
+							'billing_expire_after' => $course->get_billing_expire_after(),
 						),
-						'product_data' => array(
-							'name'     => $course->get_name(),
-							'metadata' => array(
-								'course_id'            => $course->get_id(),
-								'billing_interval'     => $course->get_billing_interval(),
-								'billing_period'       => $course->get_billing_period(),
-								'billing_expire_after' => $course->get_billing_expire_after(),
-							),
-						),
-					)
+					),
 				);
+				if ( Helper::use_platform() ) {
+					$price = StripeClient::create()->create_price( $price_data );
+					return $price['data'];
+				}
+				return Price::create( $price_data, Helper::get_stripe_options() );
 			},
 			$courses
 		);
@@ -278,41 +284,50 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	 *
 	 * @since 1.14.0
 	 *
-	 * @return object
+	 * @return object|array
 	 */
 	protected function create_stripe_customer() {
 		masteriyo_get_logger()->info( 'Stripe create_stripe_customer: Start', array( 'source' => 'payment-stripe' ) );
-		$user               = masteriyo_get_current_user();
-		$stripe_customer_id = get_user_meta( $user->get_id(), '_stripe_customer', true );
-		$stripe_customer    = null;
 
-		if ( ! empty( $stripe_customer_id ) ) {
-			$stripe_customer = Customer::retrieve(
-				$stripe_customer_id,
-				Helper::get_stripe_options()
-			);
-		}
+		$user                 = masteriyo_get_current_user();
+		$existing_customer_id = get_user_meta( $user->get_id(), '_stripe_customer', true );
+		$stripe_customer      = null;
 
-		if ( ! $stripe_customer ) {
-			$stripe_customer = Customer::create(
-				array(
+		try {
+			if ( ! empty( $existing_customer_id ) ) {
+				$stripe_customer = Helper::use_platform()
+				? StripeClient::create()->retrieve_customer( $existing_customer_id )
+				: Customer::retrieve( $existing_customer_id, Helper::get_stripe_options() );
+			}
+
+			if ( ! $stripe_customer ) {
+				$customer_data = array(
 					'phone'    => $user->get_billing_phone(),
 					'email'    => $user->get_billing_email(),
-					'name'     => $user->get_billing_first_name() . ' ' . $user->get_billing_last_name(),
+					'name'     => trim( $user->get_billing_first_name() . ' ' . $user->get_billing_last_name() ),
 					'address'  => $user->get_billing_address(),
 					'metadata' => array(
 						'customer_id'    => $user->get_id(),
 						'customer_email' => $user->get_email(),
 					),
-				),
-				Helper::get_stripe_options()
-			);
+				);
 
-			update_post_meta( $user->get_id(), '_stripe_customer', $stripe_customer->id );
+				$stripe_customer = Helper::use_platform()
+				? StripeClient::create()->create_customer( $customer_data )['data'] ?? null
+				: Customer::create( $customer_data, Helper::get_stripe_options() );
+			}
+
+			if ( is_wp_error( $stripe_customer ) ) {
+				throw new Exception( $stripe_customer->get_error_message() );
+			}
+			$stripe_customer = is_array( $stripe_customer ) ? (object) $stripe_customer['data'] : $stripe_customer;
+			$customer_id     = $stripe_customer->id;
+			update_post_meta( $user->get_id(), '_stripe_customer', $customer_id );
+			masteriyo_get_logger()->info( 'Stripe create_stripe_customer: Success', array( 'source' => 'payment-stripe' ) );
+			masteriyo_get_logger()->info( 'Stripe create_stripe_customer: Customer ID: ' . $customer_id, array( 'source' => 'payment-stripe' ) );
+		} catch ( Exception $e ) {
+			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
 		}
-
-		masteriyo_get_logger()->info( 'Stripe create_stripe_customer: Success', array( 'source' => 'payment-stripe' ) );
-		masteriyo_get_logger()->info( 'Stripe create_stripe_customer: Customer ID: ' . $stripe_customer->id, array( 'source' => 'payment-stripe' ) );
 
 		return $stripe_customer;
 	}

@@ -18,9 +18,7 @@
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
 ?>
-<div class="masteriyo-single-body__aside--items-wrapper">
-
-  <?php
+	<?php
 	/**
 	 * Fires to allow adding additional content in the aside section on single course pages using layout 1.
 	 *
@@ -30,5 +28,4 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 	 */
 	do_action( 'masteriyo_layout_1_single_course_aside_items', $course );
 	?>
-</div>
 <?php

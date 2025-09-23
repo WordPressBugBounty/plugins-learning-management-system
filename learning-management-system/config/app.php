@@ -19,6 +19,8 @@ use Masteriyo\Providers\OpenAIServiceProvider;
 use Masteriyo\Providers\NotificationServiceProvider;
 use Masteriyo\Providers\TrackingServiceProvider;
 use Masteriyo\Providers\FormbricksServiceProvider;
+use Masteriyo\Providers\StarterTemplateServiceProvider;
+
 
 return array_unique(
 	/**
@@ -76,7 +78,7 @@ return array_unique(
 			'Masteriyo\Providers\PostTypeServiceProvider',
 			'Masteriyo\Providers\TaxonomyServiceProvider',
 			'Masteriyo\Providers\FormsServiceProvider',
-
+			'Masteriyo\Providers\StarterServiceProvider',
 			CacheCompatibilityServiceProvider::class,
 			JobServiceProvider::class,
 			WebhookServiceProvider::class,
@@ -84,6 +86,7 @@ return array_unique(
 			SeoCompatibilityServiceProvider::class,
 			TrackingServiceProvider::class,
 			FormbricksServiceProvider::class,
+			StarterTemplateServiceProvider::class,
 
 			// Pro Service Providers.
 			ProServiceProvider::class,

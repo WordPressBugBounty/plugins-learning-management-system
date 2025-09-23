@@ -77,6 +77,12 @@ class Setting extends Model {
 				'seek_time'                          => 'absint',
 				'unmuted_autoplay'                   => 'masteriyo_string_to_bool',
 			),
+			'styling'       => array(
+				'primary_color'                => 'sanitize_hex_color',
+				'primary_color_for_learn_page' => 'sanitize_hex_color',
+				'button_color'                 => 'sanitize_hex_color',
+				'theme'                        => 'sanitize_text_field',
+			),
 		),
 		'learn_page'     => array(
 			'general' => array(
@@ -158,6 +164,7 @@ class Setting extends Model {
 		'single_course'  => array(
 			'display'         => array(
 				'enable_review'                     => 'masteriyo_string_to_bool',
+				'enable_review_visibility_control'  => 'masteriyo_string_to_bool',	
 				'enable_review_enrolled_users_only' => 'masteriyo_string_to_bool',
 				'auto_approve_reviews'              => 'masteriyo_string_to_bool',
 				'course_visibility'                 => 'masteriyo_string_to_bool',
@@ -257,7 +264,9 @@ class Setting extends Model {
 		),
 		'emails'         => array(
 			'general'    => array(
-				'enable' => 'masteriyo_string_to_bool',
+				'enable'     => 'masteriyo_string_to_bool',
+				'from_name'  => 'sanitize_text_field',
+				'from_email' => 'sanitize_email',
 			),
 			'admin'      => array(
 				'new_order'        => array(
@@ -272,6 +281,9 @@ class Setting extends Model {
 					'enable' => 'masteriyo_string_to_bool',
 				),
 				'instructor_apply_approved' => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_question'              => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
 			),
@@ -306,6 +318,9 @@ class Setting extends Model {
 				'group_published'           => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
+				'new_question_reply'        => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
 			),
 		),
 		'advance'        => array(
@@ -336,6 +351,7 @@ class Setting extends Model {
 				'enable_invoice'          => 'masteriyo_string_to_bool',
 				'enable_profile_page'     => 'masteriyo_string_to_bool',
 				'enable_instructor_apply' => 'masteriyo_string_to_bool',
+				'instructor_max_attempts' => 'absint',
 				'enable_edit_profile'     => 'masteriyo_string_to_bool',
 				'enable_google_meet'      => 'masteriyo_string_to_bool',
 				'enable_certificate_page' => 'masteriyo_string_to_bool',
@@ -401,11 +417,11 @@ class Setting extends Model {
 	 * @since 1.3.4
 	 */
 	protected function set_default_values() {
-		if ( empty( trim( strval( $this->get( 'email.general.from_email' ) ) ) ) ) {
+		if ( empty( trim( strval( $this->get( 'emails.general.from_email' ) ) ) ) ) {
 			$this->set( 'emails.general.from_email', get_bloginfo( 'admin_email' ) );
 		}
 
-		if ( empty( trim( strval( $this->get( 'email.general.from_name' ) ) ) ) ) {
+		if ( empty( trim( strval( $this->get( 'emails.general.from_name' ) ) ) ) ) {
 			$this->set( 'emails.general.from_name', get_bloginfo( 'name' ) );
 		}
 	}

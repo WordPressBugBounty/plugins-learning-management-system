@@ -142,6 +142,7 @@ const DocUploader: React.FC<Props> = (props) => {
 			setValue(keyIndex, files, { shouldDirty: true });
 		} else {
 			isMounted.current = true;
+			setValue(keyIndex, files || []);
 		}
 	}, [files, setValue, keyIndex]);
 
