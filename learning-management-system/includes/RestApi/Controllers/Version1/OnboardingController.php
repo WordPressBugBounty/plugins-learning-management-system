@@ -225,7 +225,8 @@ class OnboardingController extends RestController {
 		$stripe_setting  = new StripeSetting();
 
 		return array(
-			'steps' => array(
+			'started' => $saved_data['started'] ?? false,
+			'steps'   => array(
 				'welcome'   => array(
 					'step'      => 1,
 					'completed' => $saved_data['steps']['welcome']['completed'] ?? false,
@@ -248,25 +249,25 @@ class OnboardingController extends RestController {
 					'skipped'   => $saved_data['steps']['setup']['skipped'] ?? false,
 					'options'   => array(
 						'payments'        => array(
-							'offer_paid_courses'   => $saved_data['steps']['payment']['options']['offer_paid_courses'] ?? false,
-							'currency'             => masteriyo_get_currency(),
-							'offline_payment'      => masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
-							'paypal'               => masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
-							'stripe'               => $stripe_setting->get( 'enable' ) ?? false,
-							'paypal_email'         => masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
-							'live_publishable_key' => $stripe_setting->get( 'live_publishable_key' ) ?? '',
-							'live_secret_key'      => $stripe_setting->get( 'live_secret_key' ) ?? '',
-							'test_secret_key'      => $stripe_setting->get( 'test_secret_key' ) ?? '',
-							'test_publishable_key' => $stripe_setting->get( 'test_publishable_key' ) ?? '',
-							'sandbox'              => $stripe_setting->get( 'sandbox' ) ?? false,
-							'stripe_user_id'       => $stripe_setting::get_stripe_user_id(),
+							'offer_paid_courses'   => $saved_data['steps']['setup']['options']['payments']['offer_paid_courses'] ?? $saved_data['steps']['payment']['options']['offer_paid_courses'] ?? false,
+							'currency'             => $saved_data['steps']['setup']['options']['payments']['currency'] ?? masteriyo_get_currency(),
+							'offline_payment'      => $saved_data['steps']['setup']['options']['payments']['offline_payment'] ?? masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
+							'paypal'               => $saved_data['steps']['setup']['options']['payments']['paypal'] ?? masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
+							'stripe'               => $saved_data['steps']['setup']['options']['payments']['stripe'] ?? $stripe_setting->get( 'enable' ) ?? false,
+							'paypal_email'         => $saved_data['steps']['setup']['options']['payments']['paypal_email'] ?? masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
+							'live_publishable_key' => $saved_data['steps']['setup']['options']['payments']['live_publishable_key'] ?? $stripe_setting->get( 'live_publishable_key' ) ?? '',
+							'live_secret_key'      => $saved_data['steps']['setup']['options']['payments']['live_secret_key'] ?? $stripe_setting->get( 'live_secret_key' ) ?? '',
+							'test_secret_key'      => $saved_data['steps']['setup']['options']['payments']['test_secret_key'] ?? $stripe_setting->get( 'test_secret_key' ) ?? '',
+							'test_publishable_key' => $saved_data['steps']['setup']['options']['payments']['test_publishable_key'] ?? $stripe_setting->get( 'test_publishable_key' ) ?? '',
+							'sandbox'              => $saved_data['steps']['setup']['options']['payments']['sandbox'] ?? $stripe_setting->get( 'sandbox' ) ?? false,
+							'stripe_user_id'       => $saved_data['steps']['setup']['options']['payments']['stripe_user_id'] ?? $stripe_setting::get_stripe_user_id(),
 						),
 						'revenue_sharing' => array(
 							'commission_rate' => array(
-								'admin_rate'      => $revenue_setting->get( 'admin_rate' ) ?? 70,
-								'instructor_rate' => $revenue_setting->get( 'instructor_rate' ) ?? 30,
+								'admin_rate'      => $saved_data['steps']['setup']['options']['revenue_sharing']['commission_rate']['admin_rate'] ?? $revenue_setting->get( 'admin_rate' ) ?? 70,
+								'instructor_rate' => $saved_data['steps']['setup']['options']['revenue_sharing']['commission_rate']['instructor_rate'] ?? $revenue_setting->get( 'instructor_rate' ) ?? 30,
 							),
-							'payment_method'  => $revenue_setting->get( 'withdraw.methods' ) ?? array(),
+							'payment_method'  => $saved_data['steps']['setup']['options']['revenue_sharing']['payment_method'] ?? $revenue_setting->get( 'withdraw.methods' ) ?? array(),
 						),
 					),
 				),
@@ -276,9 +277,9 @@ class OnboardingController extends RestController {
 					'completed' => $saved_data['steps']['templates']['completed'] ?? false,
 					'skipped'   => $saved_data['steps']['templates']['skipped'] ?? false,
 					'options'   => array(
-						'course_layout'                   => masteriyo_get_setting( 'course_archive.display.view_mode' ) ?? 'grid-view',
-						'course_card_layout_style'        => masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default',
-						'single_course_card_layout_style' => masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default',
+						'course_layout'                   => $saved_data['steps']['templates']['options']['course_layout'] ?? masteriyo_get_setting( 'course_archive.display.view_mode' ) ?? 'grid-view',
+						'course_card_layout_style'        => $this->map_settings_to_onboarding_values( 'course_card', $saved_data['steps']['templates']['options']['course_card_layout_style'] ?? masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default' ),
+						'single_course_card_layout_style' => $this->map_settings_to_onboarding_values( 'single_course', $saved_data['steps']['templates']['options']['single_course_card_layout_style'] ?? masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default' ),
 					),
 				),
 
@@ -287,13 +288,42 @@ class OnboardingController extends RestController {
 					'completed' => $saved_data['steps']['finish']['completed'] ?? false,
 					'skipped'   => $saved_data['steps']['finish']['skipped'] ?? false,
 					'options'   => array(
-						'install_sample_course' => $saved_data['steps']['course']['options']['install_sample_course'] ?? false,
+						'install_sample_course' => $saved_data['steps']['finish']['options']['install_sample_course'] ?? $saved_data['steps']['course']['options']['install_sample_course'] ?? false,
 					),
 				),
 			),
 		);
 
 	}
+
+
+	/**
+	 * Map settings values to onboarding form values (reverse mapping).
+	 *
+	 * @since 2.0.1 [Free]
+	 *
+	 * @param string $type Either 'course_card' or 'single_course'.
+	 * @param string $value The settings value to map.
+	 * @return string The mapped onboarding value.
+	 */
+	private function map_settings_to_onboarding_values( $type, $value ) {
+		if ( 'course_card' === $type ) {
+			$reverse_map = array(
+				'default' => 'default',
+				'layout1' => 'modern',
+				'layout2' => 'overlay',
+			);
+		} else {
+			$reverse_map = array(
+				'default' => 'default',
+				'layout1' => 'modern',
+				'minimal' => 'minimal',
+			);
+		}
+
+		return $reverse_map[ $value ] ?? $value;
+	}
+
 
 
 	/**
@@ -485,14 +515,15 @@ class OnboardingController extends RestController {
 		$this->handle_getting_started_actions();
 
 		if ( ! empty( $options ) ) {
-			$addons  = new Addons();
-			$setting = new Setting();
+			$addons              = new Addons();
+			$certificate_setting = new Setting();
+			$revenue_setting     = new \Masteriyo\Addons\RevenueSharing\Setting();
 
 			$certificates_enable  = masteriyo_string_to_bool( $options['certificates'] ?? true );
 			$revenue_enable       = masteriyo_string_to_bool( $options['revenue_sharing'] ?? true );
 			$group_courses_enable = masteriyo_string_to_bool( $options['groups'] ?? true );
 
-			$setting->set( 'enable', $certificates_enable );
+			$certificate_setting->set( 'enable', $certificates_enable );
 			if ( ! $certificates_enable ) {
 				if ( $addons->is_active( 'certificate' ) ) {
 					$addons->set_inactive( 'certificate' );
@@ -500,6 +531,8 @@ class OnboardingController extends RestController {
 			} elseif ( ! $addons->is_active( 'certificate' ) ) {
 					$addons->set_active( 'certificate' );
 			}
+
+				$revenue_setting->set( 'enable', $revenue_enable );
 
 			if ( ! $revenue_enable ) {
 				if ( $addons->is_active( 'revenue-sharing' ) ) {
@@ -527,16 +560,13 @@ class OnboardingController extends RestController {
 	 * @param array $options
 	 */
 	protected function handle_setup_actions( $options ) {
-		$addons  = new Addons();
-		$setting = new Setting();
+		$addons          = new Addons();
+		$revenue_setting = new \Masteriyo\Addons\RevenueSharing\Setting();
 
 		if ( ! $addons->is_active( 'revenue-sharing' ) ) {
 			$addons->set_active( 'revenue-sharing' );
 		}
 
-		/* ---------------------------------------------------------------------
-		 * Payments  → saved to the main settings table
-		 * -------------------------------------------------------------------*/
 		$p        = (array) ( $options['payments'] ?? array() );
 		$settings = array();
 
@@ -583,9 +613,10 @@ class OnboardingController extends RestController {
 			$withdraw_methods = array();
 		}
 
-		$setting->set( 'admin_rate', $admin_rate );
-		$setting->set( 'instructor_rate', $instructor_rate );
-		$setting->set( 'withdraw.methods', $withdraw_methods );
+			$revenue_setting->set( 'enable', true );
+		$revenue_setting->set( 'admin_rate', $admin_rate );
+		$revenue_setting->set( 'instructor_rate', $instructor_rate );
+		$revenue_setting->set( 'withdraw.methods', $withdraw_methods );
 
 		if ( isset( $p['stripe'] ) && masteriyo_string_to_bool( $p['stripe'] ) ) {
 			$stripe_setting = new StripeSetting();
@@ -629,11 +660,35 @@ class OnboardingController extends RestController {
 	 */
 	protected function handle_templates_step_actions( $options ) {
 
-		$settings = array(
-			'course_archive.display.view_mode'       => $options['course_layout'],
-			'course_archive.display.template.layout' => $options['course_card_layout_style'],
-			'single_course.display.template.layout'  => $options['single_course_card_layout_style'],
-		);
+		if ( empty( $options ) ) {
+			return;
+		}
+
+		$settings = array();
+
+		if ( isset( $options['course_layout'] ) && ! empty( $options['course_layout'] ) ) {
+			$settings['course_archive.display.view_mode'] = $options['course_layout'];
+		}
+
+		if ( isset( $options['course_card_layout_style'] ) && ! empty( $options['course_card_layout_style'] ) ) {
+			$course_card_layout_map                             = array(
+				'default' => 'default',
+				'modern'  => 'layout1',
+				'overlay' => 'layout2',
+			);
+			$mapped_value                                       = $course_card_layout_map[ $options['course_card_layout_style'] ] ?? $options['course_card_layout_style'];
+			$settings['course_archive.display.template.layout'] = $mapped_value;
+		}
+
+		if ( isset( $options['single_course_card_layout_style'] ) && ! empty( $options['single_course_card_layout_style'] ) ) {
+			$single_course_layout_map                          = array(
+				'default' => 'default',
+				'modern'  => 'layout1',
+				'minimal' => 'minimal',
+			);
+			$mapped_value                                      = $single_course_layout_map[ $options['single_course_card_layout_style'] ] ?? $options['single_course_card_layout_style'];
+			$settings['single_course.display.template.layout'] = $mapped_value;
+		}
 
 		foreach ( $settings as $key => $value ) {
 			masteriyo_set_setting( $key, $value );

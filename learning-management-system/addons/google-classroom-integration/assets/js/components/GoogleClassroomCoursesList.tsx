@@ -1,9 +1,8 @@
-import { Icon, Stack, Text } from '@chakra-ui/react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { BiInfoCircle } from 'react-icons/bi';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
+import EmptyInfo from '../../../../../assets/js/back-end/components/common/EmptyInfo';
 import { googleClassroomCoursesList, newData } from '../GoogleClassroom';
 import GoogleClassroomCoursesRow from './GoogleClassroomCoursesRow';
 
@@ -51,15 +50,15 @@ function GoogleClassroomCoursesList(props: Props) {
 					</Table>
 				)
 			) : (
-				<Stack direction="row" spacing="1" align="center">
-					<Icon as={BiInfoCircle} color="primary.400" />
-					<Text as="span" fontWeight="medium" color="gray.600" fontSize="sm">
-						{__(
-							'No courses found, Please go to settings add necessary credentials and get courses from your google classroom.',
-							'learning-management-system',
-						)}
-					</Text>
-				</Stack>
+				<EmptyInfo
+					title={__(
+						'No courses found. Please add your Google Classroom credentials in Settings.',
+						'learning-management-system',
+					)}
+					docs={
+						'https://docs.masteriyo.com/free-addons/google-classroom-integration'
+					}
+				/>
 			)}
 		</>
 	);

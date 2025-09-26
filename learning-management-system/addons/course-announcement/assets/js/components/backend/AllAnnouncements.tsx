@@ -392,7 +392,8 @@ const AllAnnouncements = () => {
 											filterParams?.search ||
 												filterParams?.course_id ||
 												filterParams?.author_id ||
-												filterParams?.status !== 'any',
+												(filterParams?.status &&
+													filterParams?.status !== 'any'),
 										)}
 									/>
 								) : (

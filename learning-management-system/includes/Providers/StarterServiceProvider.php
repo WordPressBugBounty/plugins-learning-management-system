@@ -489,14 +489,78 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 		if ( empty( $data['masteriyo_data'] ) ) {
 			return;
 		}
+
+		$onboarding_data        = get_option( 'masteriyo_onboarding_data', array() );
+		$onboarding_started     = $onboarding_data['started'] ?? false;
+		$preserve_user_settings = $onboarding_started && ! empty( $onboarding_data['steps'] );
+
 		if ( function_exists( 'masteriyo_set_setting' ) && ! empty( $data['masteriyo_data']['masteriyo_settings'] ) ) {
 			foreach ( $data['masteriyo_data']['masteriyo_settings'] as $key => $value ) {
+				if ( $preserve_user_settings && $this->should_preserve_user_setting( $key, $onboarding_data ) ) {
+					continue;
+				}
 				masteriyo_set_setting( $key, $value );
 			}
 		}
 		if ( ! empty( $data['masteriyo_data']['masteriyo_active_addons'] ) ) {
 			update_option( 'masteriyo_active_addons', $data['masteriyo_data']['masteriyo_active_addons'] );
 		}
+	}
+
+	/**
+	 * Determine if a user setting should be preserved instead of overwritten by template data.
+	 *
+	 * @since 2.0.1 [Free]
+	 *
+	 * @param string $setting_key The setting key being processed.
+	 * @param array  $onboarding_data Saved onboarding data.
+	 * @return bool Whether to preserve the user's existing setting.
+	 */
+	private function should_preserve_user_setting( $setting_key, $onboarding_data ) {
+		$templates_completed = $onboarding_data['steps']['templates']['completed'] ?? false;
+		$setup_completed     = $onboarding_data['steps']['setup']['completed'] ?? false;
+
+		$course_layout_settings = array(
+			'course_archive.display.view_mode',
+			'course_archive.display.template.layout',
+			'single_course.display.template.layout',
+		);
+
+		if ( in_array( $setting_key, $course_layout_settings ) && $templates_completed ) {
+			$saved_templates_options = $onboarding_data['steps']['templates']['options'] ?? array();
+
+			$setting_map = array(
+				'course_archive.display.view_mode'       => 'course_layout',
+				'course_archive.display.template.layout' => 'course_card_layout_style',
+				'single_course.display.template.layout'  => 'single_course_card_layout_style',
+			);
+
+			$option_key = $setting_map[ $setting_key ] ?? '';
+			if ( $option_key && isset( $saved_templates_options[ $option_key ] ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		$payment_settings = array(
+			'payments.currency.currency',
+			'payments.offline.enable',
+			'payments.paypal.enable',
+			'payments.paypal.email',
+		);
+
+		if ( in_array( $setting_key, $payment_settings ) && $setup_completed ) {
+			$saved_payment_options = $onboarding_data['steps']['setup']['options']['payments'] ?? array();
+			$has_payment_config    = ! empty( $saved_payment_options );
+			return $has_payment_config;
+		}
+
+		if ( strpos( $setting_key, 'revenue' ) !== false || strpos( $setting_key, 'commission' ) !== false ) {
+			return false;
+		}
+
+		return false;
 	}
 
 	/**

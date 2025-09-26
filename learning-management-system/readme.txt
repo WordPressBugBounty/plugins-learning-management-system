@@ -4,11 +4,11 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-The complete WordPress LMS plugin for course creation & monetization. Create engaging courses, lessons, quizzes, assignments, gradebook, & certificates.
+The complete WordPress LMS plugin for course creation & monetization. Create engaging courses, lessons, quizzes, assignments & certificates.
 
 == Description ==
 
@@ -222,6 +222,13 @@ To improve the user experience, Masteriyo may use the following 3rd party servic
 
 These services are only activated when the corresponding feature is enabled and do not track personal data unless explicitly stated. Your approval and opt-in are always required.
 
+== Screenshots ==
+
+1. Onboarding Page.
+2. Course builder.
+3. Block, course page and learn page.
+4. Quiz Builder.
+5. Checkout and Account page.
 
 == Frequently Asked Questions ==
 
@@ -278,6 +285,24 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+
+= 2.0.1 - 26-09-2025 =
+- Fix - Courses shortcode layout UI issue.
+- Fix - Header UI issue in Masteriyo dashboard.
+- Fix - Empty contents UI in backend pages.
+- Fix - Manual groups enrollment leader change is not reflected in groups page. [PRO]
+- Fix - Deleted manual group enrollment appears in manual enrollment page. [PRO]
+- Fix - Stripe subscription issue on checkout. [PRO]
+- Fix - Group pricing enable issue even when course is free.
+- Fix - Pages not being set in the setting for first installation.
+- Fix - Onboarding user selected data being overwritten when importing starter templates.
+- Fix - Stripe connect not working initially when activated from payment setting.
+- Fix - Starter templates actual typography not showing issue.
+- Fix - Home page UI related issue.
+- Fix - Single course and courses page minor UI issues.
+- Fix - UI issues in Elementor course component widgets.
+- Fix - Course preview not clickable issue. [PRO]
+- Fix - Curriculum content link leads to 404 not found page.
 
 = 2.0.0 - 23-09-2025 =
 - Feature - Manual group enrollment option added. [PRO]

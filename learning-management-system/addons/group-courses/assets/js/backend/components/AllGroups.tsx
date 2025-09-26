@@ -396,7 +396,8 @@ const AllGroups = () => {
 										isResultFiltered={Boolean(
 											filterParams?.search ||
 												filterParams?.author_id ||
-												filterParams?.status !== 'any',
+												(filterParams?.status &&
+													filterParams?.status !== 'any'),
 										)}
 									/>
 								) : (

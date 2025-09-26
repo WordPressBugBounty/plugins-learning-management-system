@@ -1111,6 +1111,8 @@ class ScriptStyle {
 						'maxUploadSize'             => size_format( wp_max_upload_size() ),
 						'add_new_single_course_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-single-course-page' ),
 						'add_new_course_archive_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-course-archive-page' ),
+						'stripe_nonce'              => wp_create_nonce( 'masteriyo_stripe_nonce' ),
+
 					),
 				),
 				'ask-review'         => array(

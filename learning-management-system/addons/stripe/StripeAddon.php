@@ -95,7 +95,7 @@ class StripeAddon {
 		add_filter( 'masteriyo_payment_gateways', array( $this, 'add_payment_gateway' ) );
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'load_scripts' ) );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'load_localized_scripts' ) );
-		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
+		// add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
 		add_action( 'wp_ajax_masteriyo_stripe_payment_intent', array( $this, 'create_payment_intent' ) );
 		add_action( 'wp_ajax_nopriv_masteriyo_stripe_payment_intent', array( $this, 'create_payment_intent' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );

@@ -111,7 +111,7 @@ class CoursesShortcode extends Shortcode {
 				break;
 		}
 
-		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section ' . esc_attr( $layout_class ) . '" data-layout=' . esc_attr( $layout_class ) . '>';
+		echo '<div class="masteriyo-w-100 masteriyo-course-list-display-section masteriyo-shortcode ' . esc_attr( $layout_class ) . '" data-layout=' . esc_attr( $layout_class ) . '>';
 
 		if ( $result->total ) {
 			$original_course = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;

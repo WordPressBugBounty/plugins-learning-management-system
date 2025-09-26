@@ -91,12 +91,13 @@ class WXRImporter extends WP_Importer {
 		$this->options = wp_parse_args(
 			$options,
 			array(
-				'prefill_existing_posts'  => true,
-				'prefill_existing_terms'  => true,
-				'update_attachment_guids' => false,
-				'fetch_attachments'       => true,
-				'aggressive_url_search'   => false,
-				'default_author'          => get_current_user_id(),
+				'prefill_existing_posts'    => true,
+				'prefill_existing_comments' => true,
+				'prefill_existing_terms'    => true,
+				'update_attachment_guids'   => false,
+				'fetch_attachments'         => true,
+				'aggressive_url_search'     => false,
+				'default_author'            => get_current_user_id(),
 			)
 		);
 	}

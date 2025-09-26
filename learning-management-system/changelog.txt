@@ -1,5 +1,23 @@
 == Changelog ==
 
+= 2.0.1 - 26-09-2025 =
+- Fix - Courses shortcode layout UI issue.
+- Fix - Header UI issue in Masteriyo dashboard.
+- Fix - Empty contents UI in backend pages.
+- Fix - Manual groups enrollment leader change is not reflected in groups page. [PRO]
+- Fix - Deleted manual group enrollment appears in manual enrollment page. [PRO]
+- Fix - Stripe subscription issue on checkout. [PRO]
+- Fix - Group pricing enable issue even when course is free.
+- Fix - Pages not being set in the setting for first installation.
+- Fix - Onboarding user selected data being overwritten when importing starter templates.
+- Fix - Stripe connect not working initially when activated from payment setting.
+- Fix - Starter templates actual typography not showing issue.
+- Fix - Home page UI related issue.
+- Fix - Single course and courses page minor UI issues.
+- Fix - UI issues in Elementor course component widgets.
+- Fix - Course preview not clickable issue. [PRO]
+- Fix - Curriculum content link leads to 404 not found page.
+
 = 2.0.0 - 23-09-2025 =
 - Feature - Manual group enrollment option added. [PRO]
 - Feature - Support for 4 additional AI-generated question types added (Text Answer, Match the Following, Sortable & Fill in the Blanks). [PRO]

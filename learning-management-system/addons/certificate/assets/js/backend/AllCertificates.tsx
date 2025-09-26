@@ -393,6 +393,9 @@ const AllCertificates: React.FC = () => {
 												'https://docs.masteriyo.com/free-addons/certificate-builder'
 											}
 											video="https://www.youtube.com/watch?v=6_3Wd3ZJeIU"
+											isResultFiltered={Boolean(
+												filterParams?.status && filterParams?.status !== 'any',
+											)}
 										/>
 									) : (
 										<>

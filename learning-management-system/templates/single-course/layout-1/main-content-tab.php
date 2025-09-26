@@ -199,7 +199,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 														<?php
 														echo $object->get_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 														?>
-															<a href="<?php echo esc_url( home_url( "/learn/course/{$course->get_slug()}/#/course/{$course->get_id()}/lesson/{$lesson_id}" ) ); ?>">
+															<a href="<?php echo esc_url( home_url( "/learn/course/{$course->get_slug()}/#/course/{$course->get_id()}/{$object->get_object_type()}/{$lesson_id}" ) ); ?>">
 															<?php echo esc_html( $object->get_name() ); ?>
 														</a>
 														<span class="masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">

@@ -1,5 +1,7 @@
 import { useAddonsStore } from '@addons/add-ons/store/useAddons';
 import {
+	Alert,
+	AlertIcon,
 	Center,
 	Collapse,
 	FormErrorMessage,
@@ -29,11 +31,13 @@ import { CourseDataMap } from '../../../../../../../assets/js/back-end/types/cou
 interface Props {
 	courseData?: CourseDataMap;
 	isAddonActive?: boolean;
+	pricingType?: string;
 }
 
 const GroupCoursesSetting: React.FC<Props> = ({
 	courseData,
 	isAddonActive: initialAddonActive = false,
+	pricingType = 'paid',
 }) => {
 	const {
 		control,
@@ -128,16 +132,35 @@ const GroupCoursesSetting: React.FC<Props> = ({
 	};
 
 	const showOptions = isAddonReallyActive && !isActivating && watchSellToGroups;
+	const isFree = pricingType === 'free';
 
 	return (
 		<Stack direction="column" spacing={8}>
+			{isFree && (
+				<Alert status="info">
+					<AlertIcon />
+					{__(
+						'Group pricing is only available for paid courses. Set your course as "Paid" in the Pricing tab to enable these options.',
+						'learning-management-system',
+					)}
+				</Alert>
+			)}
+
 			<FormControlTwoCol>
 				<FormLabel>
 					{__('Sell to Groups', 'learning-management-system')}
-					{(!isAddonReallyActive || !watchSellToGroups) && (
+					{(!isAddonReallyActive || !watchSellToGroups) && !isFree && (
 						<ToolTip
 							label={__(
 								'Clicking this will activate the Groups addon.',
+								'learning-management-system',
+							)}
+						/>
+					)}
+					{isFree && (
+						<ToolTip
+							label={__(
+								'Group selling is not available for free courses.',
 								'learning-management-system',
 							)}
 						/>
@@ -146,7 +169,7 @@ const GroupCoursesSetting: React.FC<Props> = ({
 				<Switch
 					isChecked={watchSellToGroups}
 					onChange={handleSwitchChange}
-					isDisabled={activateAddonMutation.isPending || isActivating}
+					isDisabled={activateAddonMutation.isPending || isActivating || isFree}
 				/>
 			</FormControlTwoCol>
 
@@ -189,7 +212,7 @@ const GroupCoursesSetting: React.FC<Props> = ({
 							control={control}
 							defaultValue=""
 							render={({ field }) => (
-								<NumberInput {...field} w="full" min={0}>
+								<NumberInput {...field} w="full" min={0} isDisabled={isFree}>
 									<NumberInputField borderRadius="sm" shadow="input" />
 									<NumberInputStepper>
 										<NumberIncrementStepper />
@@ -234,7 +257,7 @@ const GroupCoursesSetting: React.FC<Props> = ({
 									/>
 								</FormLabel>
 								<Stack spacing={2} w="full">
-									<NumberInput {...field} w="full" min={0}>
+									<NumberInput {...field} w="full" min={0} isDisabled={isFree}>
 										<NumberInputField borderRadius="sm" shadow="input" />
 										<NumberInputStepper>
 											<NumberIncrementStepper />

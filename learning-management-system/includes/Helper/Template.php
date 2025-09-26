@@ -2628,7 +2628,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_con
 			$status                             = $lesson_progress_map[ $item_id ] ?? 'not_started';
 			list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $status );
 
-			$permalink = home_url( "/learn/course/{$course->get_slug()}/#/course/{$course_id}/lesson/{$item_id}" );
+			$permalink = home_url( "/learn/course/{$course->get_slug()}/#/course/{$course_id}/{$item->get_object_type()}/{$item_id}" );
 			?>
 		<li class="masteriyo-lesson-item masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?> masteriyo-list__item--accordion">
 				<?php echo $item->get_icon(); ?>

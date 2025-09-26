@@ -85,8 +85,8 @@ class WelcomePageController extends RestController {
 			'stripe'          => $stripe_setting->get( 'enable' ) ?? false,
 			'stripe_user_id'  => $stripe_setting->get( 'stripe_user_id' ) ?? false,
 		);
-		$show_staters_templates = get_option( 'masteriyo_show_starters_templates' );
-		$skip_payment_setup     = get_option( 'masteriyo_skip_payment_setup' );
+		$show_staters_templates = get_option( 'show_starters_templates', 'yes' );
+		$skip_payment_setup     = get_option( 'skip_payment_setup' );
 		$course_count           = $this->get_course_count();
 		$course_created         = false;
 		if ( $course_count > 0 ) {
@@ -134,8 +134,15 @@ class WelcomePageController extends RestController {
 
 		if ( isset( $request['show_starters_templates'] ) ) {
 			update_option(
-				'masteriyo_show_starters_templates',
-				masteriyo_string_to_bool( $request['show_starters_templates'] )
+				'show_starters_templates',
+				masteriyo_bool_to_string( $request['show_starters_templates'] )
+			);
+		}
+
+		if ( isset( $request['skip_payment_setup'] ) ) {
+			update_option(
+				'skip_payment_setup',
+				masteriyo_bool_to_string( $request['skip_payment_setup'] )
 			);
 		}
 
@@ -143,8 +150,9 @@ class WelcomePageController extends RestController {
 			array(
 				'missing_pages'           => $page_check_result,
 				'payment_data'            => $payment_data,
-				'show_starters_templates' => get_option( 'masteriyo_show_starters_templates' ),
+				'show_starters_templates' => get_option( 'show_starters_templates', 'yes' ),
 				'course_created'          => $this->get_course_count() > 0,
+				'skip_payment_setup'      => get_option( 'skip_payment_setup' ),
 			),
 			200
 		);

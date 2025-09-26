@@ -332,10 +332,6 @@ const AllPriceZones = () => {
 											'No Multiple Currencies yet',
 											'learning-management-system',
 										)}
-										description={__(
-											'Start building your learning platform by creating your first course. Add lessons, quizzes, and materials to engage your students.',
-											'learning-management-system',
-										)}
 										primaryButtonLabel={__(
 											'Add New Pricing Zone',
 											'learning-management-system',

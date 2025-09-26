@@ -15,6 +15,7 @@ use Masteriyo\Addons\GroupCourses\Emails\GroupPublishedEmailToAuthor;
 use Masteriyo\Addons\GroupCourses\Models\Setting;
 use Masteriyo\Addons\GroupCourses\PostType\Group;
 use Masteriyo\Constants;
+use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
@@ -844,7 +845,7 @@ class GroupCoursesAddon {
 	 */
 	public function get_group_btn_template( $course ) {
 		$user_id = get_current_user_id();
-		if ( ! masteriyo_is_single_course_page() ||  masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) ){
+		if ( ! masteriyo_is_single_course_page() || masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) ) {
 			return;
 		}
 
@@ -871,7 +872,8 @@ class GroupCoursesAddon {
 			return;
 		}
 
-		if ( ! $course->is_purchasable() || ! $course->get_price() ) {
+		$is_free = '' === trim( $course->get_price() ) || CoursePriceType::FREE === $course->get_price_type();
+		if ( $is_free ) {
 			return;
 		}
 

@@ -166,7 +166,7 @@ const GoogleMeetMeetings: React.FC = () => {
 										{googleMeetSettingQuery?.data?.access_token === '' ? (
 											<EmptyInfo
 												title={__(
-													'Add Google Meeting Credentials',
+													'You need to set credentials before creating google meet.',
 													'learning-management-system',
 												)}
 												docs={
