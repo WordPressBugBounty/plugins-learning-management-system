@@ -17,23 +17,7 @@ use Masteriyo\PostType\PostType;
 use PHP_CodeSniffer\Util\Common;
 
 class CourseQuestionAnswerServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.5.43
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'course-qa',
-		'course-qa.store',
-		'course-qa.rest',
-		'\Masteriyo\RestApi\Controllers\Version1\CourseQuestionAnswersController',
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -43,7 +27,7 @@ class CourseQuestionAnswerServiceProvider extends AbstractServiceProvider implem
 	 *
 	 * @since 1.5.43
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'course-qa.store', CourseQuestionAnswerRepository::class );
 
 		$this->getContainer()->add( 'course-qa.rest', CourseQuestionAnswersController::class )
@@ -54,6 +38,33 @@ class CourseQuestionAnswerServiceProvider extends AbstractServiceProvider implem
 
 		$this->getContainer()->add( 'course-qa', CourseQuestionAnswer::class )
 		->addArgument( 'course-qa.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'course-qa',
+				'course-qa.store',
+				'course-qa.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\CourseQuestionAnswersController',
+			),
+			true
+		);
 	}
 
 	/**
@@ -69,7 +80,7 @@ class CourseQuestionAnswerServiceProvider extends AbstractServiceProvider implem
 	 *
 	 * @since 1.5.43
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_filter( 'comments_open', array( $this, 'comments_open' ), 10, 2 );
 		add_action( 'comment_moderation_recipients', array( $this, 'comment_moderation_recipients' ), 10, 2 );
 		add_filter( 'get_avatar_comment_types', array( $this, 'add_avatar_for_review_comment_type' ) );

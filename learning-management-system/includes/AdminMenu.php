@@ -230,7 +230,7 @@ class AdminMenu {
 			$qa_query = new \WP_Comment_Query(
 				array(
 					'type'   => 'mto_course_qa',
-					'status' => array( 'hold', 'approve' ),
+					'status' => array( 'approve', 'hold', 'trash', 'spam' ),
 					'number' => 1,
 					'parent' => 0,
 					'fields' => 'ids',
@@ -484,6 +484,9 @@ class AdminMenu {
 	 * Call this method to output the script in the appropriate admin page context.
 	 */
 	public static function inject_submenu_visibility_script() {
+		if ( ! masteriyo_is_admin_page() ) {
+			return;
+		}
 		?>
 		<script>
 		jQuery(document).ready(function($) {

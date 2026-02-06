@@ -1,4 +1,4 @@
-import { Box, Tooltip, useToast } from '@chakra-ui/react';
+import { Box, Stack, Tooltip, useToast } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useState } from 'react';
@@ -48,7 +48,7 @@ const Groups: React.FC = () => {
 	}, [expandedGroupId, groupQuery]);
 
 	return (
-		<>
+		<Stack gap={'30px'}>
 			<PageTitle
 				title={__(
 					groupToBeEdited ? 'Edit Group' : 'Groups',
@@ -59,10 +59,9 @@ const Groups: React.FC = () => {
 						<Tooltip label={__('Back To Groups', 'learning-management-system')}>
 							<Box
 								onClick={() => setExpandedGroupId(null)}
-								borderRadius={'lg'}
+								borderRadius={'6px'}
 								bgColor={'muted'}
-								p={3}
-								mr={2}
+								p={'10px'}
 								cursor={'pointer'}
 							>
 								<IoIosArrowBack
@@ -117,7 +116,7 @@ const Groups: React.FC = () => {
 						perPageText={__('Groups Per Page:', 'learning-management-system')}
 					/>
 				)}
-		</>
+		</Stack>
 	);
 };
 

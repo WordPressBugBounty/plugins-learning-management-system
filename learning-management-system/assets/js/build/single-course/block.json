@@ -1,14 +1,12 @@
 {
-  "$schema": "https://schemas.wp.org/block-json/1.1",
+  "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "masteriyo/single-course",
   "version": "1.0.0",
   "title": "Single Course",
   "category": "masteriyo",
   "description": "",
-  "keywords": [
-    "Single Course"
-  ],
+  "keywords": ["Single Course"],
   "textdomain": "learning-management-system",
   "providesContext": {
     "masteriyo/course_id": "courseId"
@@ -25,38 +23,9 @@
     "courseId": {
       "type": "number"
     },
-    "margin": {
+    "template": {
       "type": "string",
-      "default": "auto"
-    },
-    "padding": {
-      "type": "object",
-      "default": {
-        "border": 1,
-        "padding": {
-          "desktop": {
-            "top": 0,
-            "right": 0,
-            "bottom": 0,
-            "left": 0,
-            "unit": "px"
-          },
-          "tablet": {
-            "top": 0,
-            "right": 0,
-            "bottom": 0,
-            "left": 0,
-            "unit": "px"
-          },
-          "mobile": {
-            "top": 0,
-            "right": 0,
-            "bottom": 0,
-            "left": 0,
-            "unit": "px"
-          }
-        }
-      }
+      "default": ""
     },
     "blockCSS": {
       "type": "string"

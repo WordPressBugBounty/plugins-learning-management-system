@@ -12,7 +12,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiBook, BiDotsHorizontalRounded } from 'react-icons/bi';
@@ -174,7 +174,11 @@ const EditCertificate: React.FC = () => {
 				toast({
 					title: sprintf(
 						/* translators: %s: Certificate name */
-						__('%s drafted', 'learning-management-system'),
+						_x(
+							'%s drafted',
+							'Content drafted status message',
+							'learning-management-system',
+						),
 						data.name,
 					),
 					status: 'success',

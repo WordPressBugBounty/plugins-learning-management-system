@@ -77,6 +77,7 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		'flow'                               => '_flow',
 		// Custom Fields
 		'custom_fields'                      => '_custom_fields',
+		'enable_end_date'                    => '_enable_end_date',
 	);
 
 	/**

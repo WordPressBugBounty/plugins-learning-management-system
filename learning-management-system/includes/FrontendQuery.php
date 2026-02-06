@@ -234,8 +234,18 @@ class FrontendQuery {
 				break;
 			case 'view-order':
 				$order = masteriyo_get_order( $wp->query_vars['view-order'] );
-				/* translators: %s: order number */
-				$title = ( $order ) ? sprintf( __( 'Order #%s', 'learning-management-system' ), $order->get_order_number() ) : '';
+				$title = ( $order )
+				? sprintf(
+					/* translators: %s: order number */
+					_x(
+						'Order #%s',
+						'Order title (order number)',
+						'learning-management-system'
+					),
+					$order->get_order_number()
+				)
+				: '';
+
 				break;
 			case 'downloads':
 				$title = __( 'Downloads', 'learning-management-system' );

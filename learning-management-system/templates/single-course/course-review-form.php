@@ -48,11 +48,7 @@ $can_review                    = function_exists( 'masteriyo_can_user_review_cou
 
 				<!-- Rating (respect visibility settings) -->
 				<?php
-				$show_rating =
-					( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-						masteriyo_get_setting( 'course_archive.components_visibility.rating' ) )
-					|| ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' );
-
+				$show_rating = masteriyo_get_setting( 'course_archive.components_visibility.rating' );
 				if ( $show_rating ) :
 					?>
 					<div class="masteriyo-rating masteriyo-single-form-group">
@@ -60,7 +56,7 @@ $can_review                    = function_exists( 'masteriyo_can_user_review_cou
 							<?php esc_html_e( 'Rating', 'learning-management-system' ); ?>
 						</label>
 						<input id="masteriyo-review-rating" type="hidden" name="rating" value="0" />
-						<div class="masteriyo-stab-rs border-none">
+						<div class="border-none masteriyo-stab-rs">
 							<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
 								<?php masteriyo_render_stars( 0, 'masteriyo-rating-input-icon' ); ?>
 							</span>

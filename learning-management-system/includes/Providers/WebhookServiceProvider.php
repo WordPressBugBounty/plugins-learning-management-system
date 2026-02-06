@@ -26,26 +26,6 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
  */
 class WebhookServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.6.9
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'webhook',
-		'webhook.store',
-		'webhook.rest',
-		'mto-webhook',
-		'mto-webhook.store',
-		'mto-webhook.rest',
-	);
-
-	/**
 	 * This is where the magic happens, within the method you can
 	 * access the container and register or retrieve anything
 	 * that you need to, but remember, every alias registered
@@ -53,7 +33,7 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 	 *
 	 * @since 1.6.9
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'webhook.store', WebhookRepository::class );
 
 		$this->getContainer()->add( 'webhook.rest', WebhooksController::class )
@@ -72,11 +52,40 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 	}
 
 	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.6.9
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'webhook',
+				'webhook.store',
+				'webhook.rest',
+				'mto-webhook',
+				'mto-webhook.store',
+				'mto-webhook.rest',
+			),
+			true
+		);
+	}
+
+	/**
 	 * This method is called after all service providers are registered.
 	 *
 	 * @since 1.6.9
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action( 'init', array( $this, 'register_webhook_listeners' ) );
 	}
 

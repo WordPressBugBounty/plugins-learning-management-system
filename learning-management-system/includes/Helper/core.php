@@ -732,16 +732,16 @@ function masteriyo_get_rating_indicators_markup( $classes = '' ) {
 		'masteriyo_rating_indicators_markup',
 		array(
 			'full_star'  =>
-				"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-				<path d='M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z'/>
+			"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes} full' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+				<path d='m8.482 8.21-7.024.78a.671.671 0 0 0-.561.457.66.66 0 0 0 .187.694C3.172 12.046 6.309 14.9 6.309 14.9c-.003 0-.861 4.15-1.432 6.92a.662.662 0 0 0 .979.712c2.458-1.398 6.14-3.499 6.14-3.499l6.14 3.5c.224.123.504.12.72-.039a.667.667 0 0 0 .26-.673c-.57-2.77-1.427-6.921-1.427-6.921l5.225-4.755a.67.67 0 0 0 .187-.698.665.665 0 0 0-.56-.455c-2.81-.315-7.026-.781-7.026-.781l-2.91-6.44a.674.674 0 0 0-.608-.392c-.27 0-.5.162-.604.392-1.166 2.576-2.91 6.44-2.91 6.44Z'/>
 			</svg>",
 			'half_star'  =>
-				"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+			"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes} half' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
 				<path d='M5.025 20.775A.998.998 0 006 22a1 1 0 00.555-.168L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082a1 1 0 00-.59-1.74l-5.701-.454-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.214 4.107-1.491 6.452zM12 5.429l2.042 4.521.588.047h.001l3.972.315-3.271 2.944-.001.002-.463.416.171.597v.003l1.253 4.385L12 15.798V5.429z'/>
 			</svg>",
 			'empty_star' =>
-				"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
-				<path d='M6.516 14.323l-1.49 6.452a.998.998 0 001.529 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082a1 1 0 00-.59-1.74l-5.701-.454-2.467-5.461a.998.998 0 00-1.822 0L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.214 4.107zm2.853-4.326a.998.998 0 00.832-.586L12 5.43l1.799 3.981a.998.998 0 00.832.586l3.972.315-3.271 2.944c-.284.256-.397.65-.293 1.018l1.253 4.385-3.736-2.491a.995.995 0 00-1.109 0l-3.904 2.603 1.05-4.546a1 1 0 00-.276-.94l-3.038-2.962 4.09-.326z'/>
+			"<svg class='masteriyo-inline-block masteriyo-fill-current {$classes} empty' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+				<path d='m8.482 8.21-7.024.78a.671.671 0 0 0-.561.457.66.66 0 0 0 .187.694C3.172 12.046 6.309 14.9 6.309 14.9c-.003 0-.861 4.15-1.432 6.92a.662.662 0 0 0 .979.712c2.458-1.398 6.14-3.499 6.14-3.499l6.14 3.5c.224.123.504.12.72-.039a.667.667 0 0 0 .26-.673c-.57-2.77-1.427-6.921-1.427-6.921l5.225-4.755a.67.67 0 0 0 .187-.698.665.665 0 0 0-.56-.455c-2.81-.315-7.026-.781-7.026-.781l-2.91-6.44a.674.674 0 0 0-.608-.392c-.27 0-.5.162-.604.392-1.166 2.576-2.91 6.44-2.91 6.44Z'/>
 			</svg>",
 		)
 	);
@@ -3650,6 +3650,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'primary_color'                => '#4584FF',
 					'primary_color_for_learn_page' => '#4584FF',
 					'button_color'                 => '#4584FF',
+					'button_hover_color'           => '#1262FF',
 					'theme'                        => 'minimum',
 				),
 				'widgets_css'   => '',
@@ -3727,16 +3728,13 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'featured_ribbon'          => true,
 					'categories'               => true,
 					'course_title'             => true,
-					'author'                   => true,
 					'author_avatar'            => true,
 					'author_name'              => true,
 					'rating'                   => true,
 					'course_description'       => true,
-					'metadata'                 => true,
 					'course_duration'          => true,
 					'students_count'           => true,
 					'lessons_count'            => true,
-					'card_footer'              => true,
 					'price'                    => true,
 					'enroll_button'            => true,
 					'seats_for_students'       => true,
@@ -3758,7 +3756,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 				),
 			),
 			'single_course'  => array(
-				'display'         => array(
+				'display'               => array(
 					'enable_review'                     => true,
 					'enable_review_visibility_control'  => true,
 					'enable_review_enrolled_users_only' => false,
@@ -3773,8 +3771,30 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 						'layout'          => 'default',
 					),
 				),
-				'related_courses' => array(
+				'related_courses'       => array(
 					'enable' => true,
+				),
+				'components_visibility' => array(
+					'single_course_visibility' => true,
+					'thumbnail'                => true,
+					'difficulty_badge'         => true,
+					'course_badge'             => true,
+					'featured_ribbon'          => true,
+					'categories'               => true,
+					'course_title'             => true,
+					'author_avatar'            => true,
+					'author_name'              => true,
+					'rating'                   => true,
+					'course_description'       => true,
+					'course_duration'          => true,
+					'students_count'           => true,
+					'lessons_count'            => true,
+					'price'                    => true,
+					'enroll_button'            => true,
+					'seats_for_students'       => true,
+					'date_updated'             => true,
+					'date_started'             => true,
+					'course_progress'          => true,
 				),
 			),
 			'learn_page'     => array(
@@ -3953,43 +3973,46 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 				),
 			),
 			'advance'        => array(
-				'permalinks' => array(
+				'permalinks'        => array(
 					'category_base'           => 'course-category',
 					'tag_base'                => 'course-tag',
 					'difficulty_base'         => 'course-difficulty',
 					'single_course_permalink' => 'course',
 				),
 				// Checkout endpoints.
-				'checkout'   => array(
+				'checkout'          => array(
 					'pay'                        => 'order-pay',
 					'order_received'             => 'order-received',
 					'add_payment_method'         => 'add-payment-method',
 					'delete_payment_method'      => 'delete-payment-method',
 					'set_default_payment_method' => 'set-default-payment-method',
 				),
-				'debug'      => array(
+				'debug'             => array(
 					'template_debug' => false,
 					'debug'          => false,
 					'enable_logger'  => false,
 				),
-				'uninstall'  => array(
+				'uninstall'         => array(
 					'remove_data' => false,
 				),
-				'tracking'   => array(
+				'tracking'          => array(
 					'allow_usage'       => false,
 					'subscribe_updates' => false,
 					'email'             => get_bloginfo( 'admin_email' ),
 				),
-				'gdpr'       => array(
+				'gdpr'              => array(
 					'enable'  => false,
 					'message' => "Check the box to confirm you've read our",
 				),
-				'openai'     => array(
+				'openai'            => array(
 					'api_key' => '',
 					'enable'  => false,
 				),
-				'editor'     => array(
+				'editor'            => array(
 					'default_editor' => 'classic_editor',
+				),
+				'password_strength' => array(
+					'enable' => false,
 				),
 			),
 			'accounts_page'  => array(

@@ -22,25 +22,7 @@ use Masteriyo\Addons\MultipleCurrency\Repository\PriceZoneRepository;
  * @since 1.11.0
  */
 class MultipleCurrencyServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.11.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'addons.multiple-currency',
-		MultipleCurrencyAddon::class,
-		'multiple-currency.settings.rest',
-		'pricing-zones.store',
-		'pricing-zones.rest',
-		'mto-pricing-zone',
-	);
+
 
 	/**
 	 * Registers services and dependencies for the Multiple Currency.
@@ -49,16 +31,45 @@ class MultipleCurrencyServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.11.0
 	 */
-	public function register() {
+	public function register(): void {
 
-		$this->getContainer()->add( 'addons.multiple-currency', MultipleCurrencyAddon::class, true );
+		$this->getContainer()->addShared( 'addons.multiple-currency', MultipleCurrencyAddon::class );
 
-		$this->getContainer()->add( 'multiple-currency.settings.rest', MultipleCurrencySettingsController::class, true );
+		$this->getContainer()->addShared( 'multiple-currency.settings.rest', MultipleCurrencySettingsController::class );
 
 		$this->getContainer()->add( 'pricing-zones.rest', PriceZonesController::class )->addArgument( 'permission' );
 
 		$this->getContainer()->add( 'pricing-zones.store', PriceZoneRepository::class );
 
 		$this->getContainer()->add( 'mto-pricing-zone', PriceZone::class )->addArgument( 'pricing-zones.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'addons.multiple-currency',
+				MultipleCurrencyAddon::class,
+				'multiple-currency.settings.rest',
+				'pricing-zones.store',
+				'pricing-zones.rest',
+				'mto-pricing-zone',
+			),
+			true
+		);
 	}
 }

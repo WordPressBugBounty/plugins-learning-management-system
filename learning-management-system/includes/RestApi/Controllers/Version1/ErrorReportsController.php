@@ -16,6 +16,7 @@ use Masteriyo\Helper\Permission;
 use Masteriyo\Pro\Addons;
 use Masteriyo\Tracking\ServerTrackingInfo;
 use Masteriyo\Tracking\WPTrackingInfo;
+use Masteriyo\Tracking\MasteriyoTrackingInfo;
 use WP_REST_Controller;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -150,12 +151,16 @@ class ErrorReportsController extends WP_REST_Controller {
 			),
 		);
 
-		$data   = $this->get_error_reports_data( $error_data );
-		$result = $this->send_error_to_tracking_server( $data );
+		$data             = $this->get_error_reports_data( $error_data );
+		$error_report_key = 'masteriyo_last_error_report';
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		$has_previous_report = get_option( $error_report_key, null ) !== null;
+
+		if ( $has_previous_report ) {
+			delete_option( $error_report_key );
 		}
+
+		update_option( $error_report_key, $data, false );
 
 		$redirect_url = home_url( '/wp-admin/admin.php?page=masteriyo#/dashboard' );
 
@@ -180,13 +185,55 @@ class ErrorReportsController extends WP_REST_Controller {
 	 * @return array The collected data.
 	 */
 	private function get_error_reports_data( $error_data ) {
-		$addons         = new Addons();
-		$active_addons  = $addons->get_active_addons();
+		$addons        = new Addons();
+		$active_addons = $addons->get_active_addons();
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		$active_plugins = get_option( 'active_plugins', array() );
+		$all_plugins    = get_plugins();
+
+		$masteriyo_slug = method_exists( \Masteriyo\Tracking\MasteriyoTrackingInfo::class, 'get_slug' )
+		? MasteriyoTrackingInfo::get_slug()
+		: 'learning-management-system/lms.php';
+
+		$other_plugin_titles = array();
+		foreach ( $active_plugins as $plugin_file ) {
+			if ( $plugin_file === $masteriyo_slug ) {
+				continue;
+			}
+
+			$title = ( isset( $all_plugins[ $plugin_file ]['Name'] ) && $all_plugins[ $plugin_file ]['Name'] )
+			? $all_plugins[ $plugin_file ]['Name']
+			: preg_replace( '/\.php$/', '', basename( $plugin_file ) );
+
+			$other_plugin_titles[] = $title;
+		}
+
+		$themes             = function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
+		$active_theme       = function_exists( 'wp_get_theme' ) ? wp_get_theme() : null;
+		$active_stylesheet  = $active_theme ? $active_theme->get_stylesheet() : '';
+		$other_theme_titles = array();
+
+		if ( ! empty( $themes ) ) {
+			foreach ( $themes as $stylesheet => $theme_obj ) {
+				if ( $stylesheet === $active_stylesheet ) {
+					continue;
+				}
+				$other_theme_titles[] = $theme_obj->get( 'Name' );
+			}
+		}
+
+		$other_plugin_titles = array_values( array_unique( $other_plugin_titles ) );
+		sort( $other_plugin_titles );
+
+		$other_theme_titles = array_values( array_unique( $other_theme_titles ) );
+		sort( $other_theme_titles );
 
 		$current_settings = masteriyo_get_settings()->get_data();
 		$advance          = masteriyo_array_only( $current_settings, array( 'advance' ) );
-
 		$filtered_advance = masteriyo_array_except( $advance['advance'], array( 'openai' ) );
 		$advance          = array( 'advance' => $filtered_advance );
 
@@ -206,10 +253,9 @@ class ErrorReportsController extends WP_REST_Controller {
 			'php_version'            => phpversion(),
 			'mysql_version'          => ServerTrackingInfo::get_database_version(),
 			'server_os'              => php_uname(),
-			'is_pro_version'         => 0,
+			'is_pro_version'         => defined( 'MASTERIYO_PRO_VERSION' ) ? 1 : 0,
 			'is_multisite'           => is_multisite() ? 1 : 0,
 			'activated_addons'       => wp_json_encode( $active_addons ),
-			'activated_plugins'      => wp_json_encode( $active_plugins ),
 			'current_settings'       => wp_json_encode( $filtered_settings ),
 			'php_memory_limit'       => $memory_limit,
 			'php_max_execution_time' => @ini_get( 'max_execution_time' ), // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,
@@ -226,7 +272,7 @@ class ErrorReportsController extends WP_REST_Controller {
 			'multi_site_count'         => WPTrackingInfo::get_sites_total(),
 			'timezone'                 => masteriyo_timezone_string(),
 			'server_info'              => isset( $_SERVER['SERVER_SOFTWARE'] ) ? wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) : '',
-			'curl_version'             => ! empty( $curl_version ) ? $curl_version : '',
+			'curl_version'             => function_exists( 'curl_version' ) ? curl_version()['version'] : '',
 			'max_upload_size'          => wp_max_upload_size(),
 			'enable_fsockopen_or_curl' => ( function_exists( 'fsockopen' ) || function_exists( 'curl_init' ) ),
 			'enable_soapclient'        => class_exists( 'SoapClient' ),
@@ -242,56 +288,21 @@ class ErrorReportsController extends WP_REST_Controller {
 
 		$data = array_merge( $error_data, $additional_data );
 
-		return $data;
-	}
-
-	/**
-	 * Send error to tracking server.
-	 *
-	 * @since 1.14.3
-	 *
-	 * @param string $error Error message.
-	 *
-	 * @return WP_Error|bool Returns WP_Error object  if not successful otherwise true.
-	 */
-	private function send_error_to_tracking_server( $data ) {
-		$result = wp_remote_post(
-			'https://stats.wpeverest.com/wp-json/tgreporting/v1/process-error-reports/',
+		$data['activated_plugins'] = wp_json_encode(
 			array(
-				'method'      => 'POST',
-				'timeout'     => 10,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'headers'     => array(
-					'user-agent' => 'Masteriyo/' . masteriyo_get_version() . '; ' . get_bloginfo( 'url' ),
+				'masteriyo_plugin_slug' => $masteriyo_slug,
+				'other_plugins'         => array(
+					'titles' => $other_plugin_titles,
+					'count'  => count( $other_plugin_titles ),
 				),
-				'body'        => array(
-					'data' => $data,
+				'other_themes'          => array(
+					'titles'       => $other_theme_titles,
+					'count'        => count( $other_theme_titles ),
+					'active_theme' => $active_theme ? $active_theme->get( 'Name' ) : '',
 				),
 			)
 		);
 
-		if ( is_wp_error( $result ) ) {
-			return new WP_Error(
-				'masteriyo_tracking_server_error',
-				__( 'Failed to send error report to the tracking server.', 'learning-management-system' ),
-				$result->get_error_message()
-			);
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $result );
-
-		if ( $response_code < 200 || $response_code >= 300 ) {
-			return new WP_Error(
-				'masteriyo_tracking_server_response_error',
-				__( 'Unexpected response from the tracking server.', 'learning-management-system' ),
-				array(
-					'response_code' => $response_code,
-					'response_body' => wp_remote_retrieve_body( $result ),
-				)
-			);
-		}
-
-		return true;
+		return $data;
 	}
 }

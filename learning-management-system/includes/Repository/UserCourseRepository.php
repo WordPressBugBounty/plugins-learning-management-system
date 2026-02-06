@@ -312,7 +312,7 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
 	 */
 	public function clear_cache( &$user_course ) {
-		masteriyo_cache()->flush_group( 'masteriyo-user-course-query' );
+		masteriyo_cache()->invalidate_cache_group( 'masteriyo-user-course-query' );
 		wp_cache_delete( 'item' . $user_course->get_id(), 'masteriyo-user-course' );
 		wp_cache_delete( 'items-' . $user_course->get_id(), 'masteriyo-user-course' );
 		wp_cache_delete( $user_course->get_id(), $this->meta_type . '_meta' );
@@ -473,8 +473,10 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 		// Generate SQL from the SQL parts.
 		$sql = implode( ' ', $sql ) . ';';
 
-		$cache_key   = array_merge( array( 'user_course_query' ), $query_vars );
-		$user_course = $cache->get( $cache_key, 'masteriyo-user-course-query' );
+		$cache_prefix = $cache->get_prefix( 'masteriyo-user-course-query' );
+		$cache_key    = array_merge( array( 'user_course_query', $cache_prefix ), $query_vars );
+		$cache_key    = md5( serialize( $cache_key ) );
+		$user_course  = $cache->get( $cache_key, 'masteriyo-user-course-query' );
 
 		if ( false === $user_course ) {
 			$user_course = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

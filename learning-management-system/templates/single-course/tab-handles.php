@@ -19,14 +19,19 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 use Masteriyo\Query\CourseProgressQuery;
 
 
-$query    = new CourseProgressQuery(
+$query        = new CourseProgressQuery(
 	array(
 		'course_id' => $course->get_id(),
 		'user_id'   => get_current_user_id(),
 	)
 );
-$progress = current( $query->get_course_progress() );
-$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+$progress     = current( $query->get_course_progress() );
+$summary      = $progress ? $progress->get_summary( 'all' ) : '';
+$completed    = isset( $summary['total']['completed'] ) ? (int) $summary['total']['completed'] : 0;
+$total        = isset( $summary['total']['total'] ) ? (int) $summary['total']['total'] : 0;
+$remaining    = max( 0, $total - $completed );
+$progress_raw = $total > 0 ? ( $completed / $total ) * 100 : 0;
+$progress_pct = max( 0, min( 100, $progress_raw ) );
 
 
 $show_overview_active = false;
@@ -39,7 +44,30 @@ if (
 	$show_overview_active = true;
 }
 
-$sections = masteriyo_get_course_structure( $course->get_id() );
+$sections        = masteriyo_get_course_structure( $course->get_id() );
+$reviews_enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) );
+$reviews_allowed = $course->is_review_allowed();
+$review_count    = (int) $course->get_review_count();
+$has_reviews     = $review_count > 0;
+$is_logged_in    = is_user_logged_in();
+$visibility_on   = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' ) );
+
+if ( $visibility_on ) {
+	if ( ! $is_logged_in ) {
+		if ( $has_reviews ) {
+			$show_tab = true;
+		} else {
+			$show_tab = false;
+		}
+	} elseif ( $has_reviews ) {
+			$show_tab = true;
+	} else {
+		$show_tab = true;
+	}
+} else {
+	$show_tab = true;
+}
+
 ?>
 
 <div class="tab-menu masteriyo-stab masteriyo-course-curriculum-tabs">
@@ -67,11 +95,11 @@ $sections = masteriyo_get_course_structure( $course->get_id() );
 		</div>
 	<?php endif; ?>
 
-	<?php if ( masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) && $course->is_review_allowed() && is_user_logged_in() ) : ?>
-		<div class="masteriyo-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-reviews');">
-			<?php echo esc_html__( 'Reviews', 'learning-management-system' ); ?>
-		</div>
-	<?php endif; ?>
+	<?php if ( $show_tab ) : ?>
+			<div class="masteriyo-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-reviews');">
+				<?php echo esc_html__( 'Reviews', 'learning-management-system' ); ?>
+			</div>
+		<?php endif; ?>
 
 	<?php
 	/**

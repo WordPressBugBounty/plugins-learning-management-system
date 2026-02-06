@@ -26,7 +26,13 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * @since 2.0.0
 	 * @var array
 	 */
-	protected $provides = array();
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
+	}
 
 	/**
 	 * Register services in the container.
@@ -34,7 +40,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * @since 2.0.0
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		// No container services to register for now.
 	}
 
@@ -45,7 +51,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * @since 2.0.0
 	 * @return void
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action( 'admin_init', array( $this, 'tg_update_demo_importer_options' ) );
 
 		add_action( 'themegrill_ajax_before_demo_import', array( $this, 'reset_widgets' ), 10 );
@@ -61,9 +67,12 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 		add_action( 'themegrill_ajax_demo_imported', array( $this, 'set_siteorigin_settings' ) );
 		add_action( 'themegrill_ajax_demo_imported', array( $this, 'setup_yith_woocommerce_wishlist' ), 10, 2 );
 		add_action( 'themegrill_ajax_demo_imported', array( $this, 'regenerate_elementor_styles' ), 10 );
-		add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_masteriyo_data' ), 10, 3 );
+		add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_masteriyo_data' ), 10, 2 );
+			add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_elementor_settings' ), 10, 2 );
 		add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_magazine_blocks_settings' ), 10, 3 );
 		add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_blockart_blocks_settings' ), 10, 3 );
+			add_action( 'themegrill_ajax_demo_imported', array( $this, 'update_elementor_settings' ), 10, 2 );
+		add_action( 'themegrill_import_post_data_processed', array( $this, 'import_post_data_processed' ), 10, 2 );
 
 		add_filter( 'themegrill_widget_import_settings', array( $this, 'update_widget_data' ), 10, 2 );
 		// Disable Masteriyo setup wizard.
@@ -80,7 +89,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 				) {
 					return;
 				}
-				if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.0.0', '>=' ) ) {
+				if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '2.0.0', '>=' ) ) {
 					$query = new WP_Query(
 						array(
 							'post_type' => 'elementor_library',
@@ -126,8 +135,50 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 			);
 	}
 
+	/**
+	 * Update Elementor-related options from provided data.
+	 *
+	 * Extracts an 'elementor_settings' associative array from the supplied $data
+	 * and iterates over its entries, calling update_option( $key, $value ) for
+	 * each pair. If 'elementor_settings' is empty or not present, the method
+	 * returns early without performing updates.
+	 *
+	 * @since 2.1.0
+	 *
+	 * Note: The $id parameter is accepted for compatibility with the caller but is
+	 * not used by this implementation.
+	 *
+	 * @param int|string $id   Identifier for the resource/context being updated (unused).
+	 * @param array      $data Data array which may contain:
+	 *                         - 'elementor_settings' (array<string, mixed>): associative
+	 *                           array of option_key => option_value pairs to be passed
+	 *                           to update_option().
+	 *
+	 * @return void
+	 */
+	public function update_elementor_settings( $id, $data ) {
+		$settings = $data['elementor_settings'] ?? array();
+
+		if ( empty( $settings ) ) {
+			return;
+		}
+
+		foreach ( $settings as $key => $value ) {
+			update_option( $key, $value );
+		}
+	}
+
+	public function import_post_data_processed( $post_data, $term_id_map = null ) {
+		if ( isset( $post_data['post_content'] ) && has_blocks( $post_data['post_content'] ) && $term_id_map ) {
+				$blocks = parse_blocks( $post_data['post_content'] );
+				$this->themegrill_update_block_term_ids( $blocks, $term_id_map );
+				$post_data['post_content'] = serialize_blocks( $blocks );
+		}
+				return $post_data;
+	}
+
 	public function update_customizer_data() {
-		$theme_mods = get_option( 'themegrill_starter_template_theme_mods' );
+		$theme_mods = get_option( 'themegrill_starter_template_theme_mods', array() );
 		foreach ( $theme_mods as $key => $value ) {
 			set_theme_mod( $key, $value );
 		}
@@ -206,7 +257,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	public function set_elementor_active_kit() {
 		$elementor_version = defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : false;
 
-		if ( version_compare( $elementor_version, '3.0.0', '>=' ) ) {
+		if ( version_compare( $elementor_version, '2.0.0', '>=' ) ) {
 			$query = new WP_Query(
 				array(
 					'post_type' => 'elementor_library',
@@ -297,7 +348,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 							}
 						}
 					} else {
-						$page_id = $page_ids[0]->ID;
+						$page_id = ! empty( $page_ids ) && isset( $page_ids[0]->ID ) ? $page_ids[0]->ID : 0;
 					}
 
 					// Delete posts.
@@ -502,9 +553,35 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 				masteriyo_set_setting( $key, $value );
 			}
 		}
+		$current_addons = get_option( 'masteriyo_active_addons', array() );
+
 		if ( ! empty( $data['masteriyo_data']['masteriyo_active_addons'] ) ) {
-			update_option( 'masteriyo_active_addons', $data['masteriyo_data']['masteriyo_active_addons'] );
+			$merged_addons = array_merge( $current_addons, $data['masteriyo_data']['masteriyo_active_addons'] );
+			update_option( 'masteriyo_active_addons', $merged_addons );
 		}
+
+		$mods = get_option( 'theme_mods_elearning' );
+		if ( ! is_array( $mods ) ) {
+			return array();
+		}
+
+		$palette = isset( $mods['elearning_color_palette'] ) && is_array( $mods['elearning_color_palette'] )
+		? $mods['elearning_color_palette']
+		: array();
+
+		$colors = isset( $palette['colors'] ) && is_array( $palette['colors'] )
+		? $palette['colors']
+		: array();
+
+		if ( empty( $colors ) ) {
+			return array();
+		}
+
+		masteriyo_set_setting( 'general.styling.primary_color', $colors['elearning-color-1'] );
+		masteriyo_set_setting( 'general.styling.primary_color_for_learn_page', $colors['elearning-color-1'] );
+		masteriyo_set_setting( 'general.styling.button_color', $colors['elearning-color-1'] );
+		masteriyo_set_setting( 'general.styling.button_hover_color', $colors['elearning-color-2'] );
+
 	}
 
 	/**
@@ -796,13 +873,97 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 		}
 
 		foreach ( $widget_blocks as $index => $widget ) {
-			if ( isset( $widget['content'] ) && is_string( $widget['content'] ) ) {
+			if ( isset( $widget['content'] ) ) {
 				$blocks = parse_blocks( $widget['content'] );
-				$this->update_block_term_ids( $blocks, $term_id_map );
+				$this->themegrill_update_block_term_ids( $blocks, $term_id_map );
 				$widget_blocks[ $index ]['content'] = serialize_blocks( $blocks );
 			}
 		}
 
 		update_option( 'widget_block', $widget_blocks );
+	}
+
+	public function update_evf_form_ids( array &$blocks, array $post_id_map ) {
+		foreach ( $blocks as &$block ) {
+			if ( isset( $block['blockName'] ) ) {
+				if ( 'everest-forms/form-selector' === $block['blockName'] ) {
+					if ( isset( $block['attrs']['formId'] ) ) {
+						$current_form_id = $block['attrs']['formId'];
+						if ( isset( $post_id_map[ $current_form_id ] ) ) {
+							$block['attrs']['formId'] = (string) $post_id_map[ $current_form_id ];
+						}
+					}
+				}
+				if ( ! empty( $block['innerBlocks'] ) ) {
+					$this->update_evf_form_ids( $block['innerBlocks'], $post_id_map );
+				}
+			}
+		}
+	}
+
+	public function themegrill_update_block_term_ids( array &$blocks, array $term_id_map ) {
+		foreach ( $blocks as &$block ) {
+			if ( isset( $block['blockName'] ) ) {
+				if ( str_starts_with( $block['blockName'], 'magazine-blocks/' ) ) {
+					if ( isset( $block['attrs'] ) ) {
+						$key1 = array( 'category', 'category2', 'tag', 'tag2', 'authorName' );
+
+						foreach ( $key1 as $key ) {
+							if ( 'authorName' === $key && isset( $block['attrs'][ $key ] ) ) {
+								$block['attrs'][ $key ] = (string) get_current_user_id();
+								break;
+							}
+							if ( isset( $block['attrs'][ $key ] ) && isset( $term_id_map[ $block['attrs'][ $key ] ] ) ) {
+								$block['attrs'][ $key ] = (string) $term_id_map[ $block['attrs'][ $key ] ];
+							}
+						}
+
+						$key2 = array( 'excludedCategory', 'excludedCategory2' );
+
+						foreach ( $key2 as $key ) {
+							if ( isset( $block['attrs'][ $key ] ) && is_array( $block['attrs'][ $key ] ) ) {
+								$block['attrs'][ $key ] = array_map(
+									function ( $cat_id ) use ( $term_id_map ) {
+										return isset( $term_id_map[ $cat_id ] ) ? (string) $term_id_map[ $cat_id ] : false;
+									},
+									$block['attrs'][ $key ]
+								);
+							}
+						}
+					}
+
+					// Recursively update inner blocks
+					if ( ! empty( $block['innerBlocks'] ) ) {
+						$this->themegrill_update_block_term_ids( $block['innerBlocks'], $term_id_map );
+					}
+				}
+				if ( 'core/group' === $block['blockName'] ) {
+					if ( ! empty( $block['innerBlocks'] ) ) {
+						foreach ( $block['innerBlocks'] as &$inner_block ) {
+							if ( 'core/legacy-widget' === $inner_block['blockName'] ) {
+								if ( isset( $inner_block['attrs']['idBase'] ) && 'nav_menu' === $inner_block['attrs']['idBase'] ) {
+									if ( isset( $inner_block['attrs']['instance']['raw']['nav_menu'] ) ) {
+										$current_menu_id = $inner_block['attrs']['instance']['raw']['nav_menu'];
+										if ( isset( $term_id_map[ $current_menu_id ] ) ) {
+											$new_menu_id = $term_id_map[ $current_menu_id ];
+											$inner_block['attrs']['instance']['raw']['nav_menu'] = $new_menu_id;
+
+											// Preserve existing raw data and update nav_menu
+											$new_data             = $inner_block['attrs']['instance']['raw'];
+											$new_data['nav_menu'] = $new_menu_id;
+
+											// Update encoded and hash with complete data
+											$inner_block['attrs']['instance']['encoded'] = base64_encode( serialize( $new_data ) );
+											$inner_block['attrs']['instance']['hash']    = wp_hash( serialize( $new_data ) );
+
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

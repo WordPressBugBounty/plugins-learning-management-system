@@ -16,27 +16,12 @@ use Masteriyo\Shortcodes\CourseCategoriesShortcode;
 use Masteriyo\Shortcodes\CoursesShortcode;
 use Masteriyo\Shortcodes\InstructorRegistrationShortcode;
 use Masteriyo\Shortcodes\InstructorsListShortcode;
+use Masteriyo\Shortcodes\OrderSummaryShortcode;
 use Masteriyo\Shortcodes\RelatedCoursesShortcode;
 use Masteriyo\Shortcodes\RegisterUserShortcode;
 
 class ShortcodesServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'shortcode.account',
-		'shortcode.checkout',
-		'shortcode.cart',
-		'shortcode.instructor-registration',
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -46,11 +31,38 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 	 *
 	 * @since 1.0.0
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'shortcode.account', AccountShortcode::class );
 		$this->getContainer()->add( 'shortcode.checkout', CheckoutShortcode::class );
 		$this->getContainer()->add( 'shortcode.cart', CartShortcode::class );
 		$this->getContainer()->add( 'shortcode.instructor-registration', CartShortcode::class );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'shortcode.account',
+				'shortcode.checkout',
+				'shortcode.cart',
+				'shortcode.instructor-registration',
+			),
+			true
+		);
 	}
 
 
@@ -67,7 +79,7 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 	 *
 	 * @since 1.5.41
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action(
 			'init',
 			function() {
@@ -99,7 +111,6 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 			array(
 				'account'                 => AccountShortcode::class,
 				'register-user'           => RegisterUserShortcode::class,
-
 				'checkout'                => CheckoutShortcode::class,
 				'cart'                    => CartShortcode::class,
 				'courses'                 => CoursesShortcode::class,
@@ -107,6 +118,7 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 				'instructor-registration' => InstructorRegistrationShortcode::class,
 				'related_courses'         => RelatedCoursesShortcode::class,
 				'instructors_list'        => InstructorsListShortcode::class,
+				'order_summary'           => OrderSummaryShortcode::class,
 			)
 		);
 	}

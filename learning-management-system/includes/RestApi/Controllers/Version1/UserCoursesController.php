@@ -333,8 +333,20 @@ class UserCoursesController extends CrudController {
 				)
 			);
 
-			$progress                    = current( $course_progress_query->get_course_progress() );
-			$progress_data               = $course->get_progress_data( $user_course->get_user_id() );
+			$progress      = current( $course_progress_query->get_course_progress() );
+			$progress_data = array();
+
+			if ( ! empty( $progress ) ) {
+				$progress_data = array(
+					'status'               => $progress->get_status(),
+					'started_at'           => masteriyo_rest_prepare_date_response( $progress->get_started_at() ),
+					'modified_at'          => masteriyo_rest_prepare_date_response( $progress->get_modified_at() ),
+					'completed_at'         => masteriyo_rest_prepare_date_response( $progress->get_completed_at() ),
+					'is_password_required' => post_password_required( get_post( $progress->get_course_id() ) ),
+					'retake_url'           => 'completed' === $progress->get_status() ? $course->get_retake_url() : '',
+					'summary'              => $progress->get_summary( 'all' ),
+				);
+			}
 			$progress_data['percentage'] = $course->get_progress_status( false, $user_course->get_user_id() );
 
 			$data['course'] = array(

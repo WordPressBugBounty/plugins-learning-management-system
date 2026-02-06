@@ -21,37 +21,7 @@ use Masteriyo\Repository\QuestionRepository;
 use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
 
 class QuestionServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'\Masteriyo\RestApi\Controllers\Version1\QuestionsController',
 
-		'question',
-		'question.store',
-		'question.rest',
-		'question.true-false',
-		'question.single-choice',
-		'question.multiple-choice',
-		'question.short-answer',
-
-		// Post type.
-		'mto-question',
-		'mto-question.store',
-		'mto-question.rest',
-		'mto-question.true-false',
-		'mto-question.single-choice',
-		'mto-question.multiple-choice',
-		'mto-question.short-answer',
-	);
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -61,7 +31,7 @@ class QuestionServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.0.0
 	*/
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'question.store', QuestionRepository::class );
 
 		$this->getContainer()->add( 'question.rest', QuestionsController::class )
@@ -105,5 +75,46 @@ class QuestionServiceProvider extends AbstractServiceProvider {
 
 		$this->getContainer()->add( 'mto-question.short-answer', ShortAnswer::class )
 			->addArgument( 'mto-question.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'\Masteriyo\RestApi\Controllers\Version1\QuestionsController',
+
+				'question',
+				'question.store',
+				'question.rest',
+				'question.true-false',
+				'question.single-choice',
+				'question.multiple-choice',
+				'question.short-answer',
+
+				// Post type.
+				'mto-question',
+				'mto-question.store',
+				'mto-question.rest',
+				'mto-question.true-false',
+				'mto-question.single-choice',
+				'mto-question.multiple-choice',
+				'mto-question.short-answer',
+			),
+			true
+		);
 	}
 }

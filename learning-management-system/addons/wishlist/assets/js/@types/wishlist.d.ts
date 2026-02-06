@@ -68,6 +68,7 @@ interface WishlistItemSchema {
 			display_name: string;
 			avatar_url: string;
 		};
+		progress_data?: Record<string, any>;
 	};
 }
 

@@ -22,15 +22,12 @@ defined( 'ABSPATH' ) || exit;
 if ( ! $order ) {
 	echo wp_kses_post(
 		sprintf(
-			'<p class = "masteriyo-notice masteriyo-notice--success masteriyo-thankyou-order-received">%s</p>',
-			/**
-			 * Filters order-received thank you message.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param string $message The thank you message.
-			 */
-			apply_filters( 'masteriyo_thankyou_order_received_text', __( 'Thank you. Your order has been received.', 'learning-management-system' ), null )
+			'<p class="masteriyo-notice masteriyo-notice--error masteriyo-thankyou-order-received">%s</p>',
+			apply_filters(
+				'masteriyo_thankyou_order_received_text',
+				__( 'We couldn’t find your order. Please contact your administrator for assistance.', 'learning-management-system' ),
+				null
+			)
 		)
 	);
 

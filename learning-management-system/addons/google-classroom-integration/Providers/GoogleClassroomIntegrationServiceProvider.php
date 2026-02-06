@@ -20,28 +20,7 @@ use Masteriyo\Addons\GoogleClassroomIntegration\Models\GoogleClassroomSetting;
  * @since 1.8.3
  */
 class GoogleClassroomIntegrationServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.8.3
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'google-classroom',
-		'google-classroom.store',
-		'google-classroom.rest',
-		'mto-google-classroom',
-		'mto-google-classroom.store',
-		'mto-google-classroom.rest',
-		'addons.google-classroom-integration',
-		'addons.google-classroom-integration.setting',
-		GoogleClassroomIntegrationAddon::class,
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -51,17 +30,49 @@ class GoogleClassroomIntegrationServiceProvider extends AbstractServiceProvider 
 	 *
 	 * @since 1.8.3
 	 */
-	public function register() {
+	public function register(): void {
 
-		$this->getLeagueContainer()->add( 'google-classroom.rest', GoogleClassroomIntegrationController::class )
+		$this->getContainer()->add( 'google-classroom.rest', GoogleClassroomIntegrationController::class )
 			->addArgument( 'permission' );
 
 		// Register based on post type.
-		$this->getLeagueContainer()->add( 'mto-google-classroom.rest', GoogleClassroomIntegrationController::class )
+		$this->getContainer()->add( 'mto-google-classroom.rest', GoogleClassroomIntegrationController::class )
 			->addArgument( 'permission' );
 
-		$this->getLeagueContainer()->add( 'addons.google-classroom-integration.setting', GoogleClassroomSetting::class );
+		$this->getContainer()->add( 'addons.google-classroom-integration.setting', GoogleClassroomSetting::class );
 
-		$this->getLeagueContainer()->add( 'addons.google-classroom-integration', GoogleClassroomIntegrationAddon::class )->addArgument( 'addons.google-classroom-integration.setting' );
+		$this->getContainer()->add( 'addons.google-classroom-integration', GoogleClassroomIntegrationAddon::class )->addArgument( 'addons.google-classroom-integration.setting' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'google-classroom',
+				'google-classroom.store',
+				'google-classroom.rest',
+				'mto-google-classroom',
+				'mto-google-classroom.store',
+				'mto-google-classroom.rest',
+				'addons.google-classroom-integration',
+				'addons.google-classroom-integration.setting',
+				GoogleClassroomIntegrationAddon::class,
+			),
+			true
+		);
 	}
 }

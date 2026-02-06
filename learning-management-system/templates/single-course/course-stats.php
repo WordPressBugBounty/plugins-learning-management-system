@@ -9,7 +9,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-use Masteriyo\Addons\CourseComingSoon\Helper;
+use Masteriyo\CoreFeatures\CourseComingSoon\Helper;
 do_action( 'masteriyo_before_single_course_stats' );
 
 // For compatibility with global template loading
@@ -37,7 +37,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 		if ( is_bool( $block_attr ) ) {
 			return $block_attr;
 		}
-		return masteriyo_get_setting( "course_archive.components_visibility.$global_key", $default );
+		return masteriyo_get_setting( "single_course.components_visibility.$global_key", $default );
 	}
 }
 ?>
@@ -58,8 +58,13 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 				<span>
 					<?php
 					$modified_date = strtotime( $course->get_date_modified() );
-					echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), gmdate( 'F j, Y', $modified_date ) ) );
+					printf(
+						/* translators: %s: last updated date */
+						esc_html__( 'Last Updated: %s', 'learning-management-system' ),
+						gmdate( 'F j, Y', $modified_date )
+					);
 					?>
+
 				</span>
 			</div>
 		</div>
@@ -78,7 +83,12 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 				<span>
 					<?php
 					$started_date = strtotime( $progress->get_started_at() );
-					echo esc_html( sprintf( __( 'Started At: %s', 'learning-management-system' ), gmdate( 'F j, Y', $started_date ) ) );
+
+					printf(
+							/* translators: %s: course start date */
+						esc_html__( 'Started At: %s', 'learning-management-system' ),
+						gmdate( 'F j, Y', $started_date )
+					);
 					?>
 				</span>
 			</div>
@@ -107,7 +117,14 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 				<span>
 					<?php
 					printf(
-						esc_html( _nx( '%s Student', '%s Students', $enrolled_users_count, 'Enrolled Students Count', 'learning-management-system' ) ),
+						/* translators: %s: number of enrolled students */
+						_nx(
+							'%s Student',
+							'%s Students',
+							$enrolled_users_count,
+							'Enrolled Students Count',
+							'learning-management-system'
+						),
 						esc_html( number_format_i18n( $enrolled_users_count ) )
 					);
 					?>
@@ -129,10 +146,18 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 				<span>
 					<?php
 					printf(
-						esc_html( _nx( 'Available Seat: %s', 'Available Seats: %s', $remaining_available_seats, 'Available Seats Count', 'learning-management-system' ) ),
-						esc_html( $remaining_available_seats )
+						/* translators: %s: number of available seats */
+						_nx(
+							'Available Seat: %s',
+							'Available Seats: %s',
+							$remaining_available_seats,
+							'Available Seats Count',
+							'learning-management-system'
+						),
+						esc_html( number_format_i18n( $remaining_available_seats ) )
 					);
 					?>
+
 				</span>
 			</div>
 		</div>

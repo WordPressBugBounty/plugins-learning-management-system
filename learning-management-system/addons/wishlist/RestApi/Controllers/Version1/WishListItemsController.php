@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Helper\Permission;
 use Masteriyo\Helper\Utils;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
 class WishListItemsController extends PostsController {
@@ -291,6 +292,21 @@ class WishListItemsController extends PostsController {
 		if ( $course ) {
 			$course_author = masteriyo_get_user( $course->get_author_id( $context ) );
 
+			$course_progress_query = new CourseProgressQuery(
+				array(
+					'course_id' => $wishlist_item->get_course_id( $context ),
+					'user_id'   => get_current_user_id(),
+				)
+			);
+
+			$progress                    = current( $course_progress_query->get_course_progress() );
+			$progress_data               = $course->get_progress_data( get_current_user_id() );
+			$progress_data['percentage'] = $course->get_progress_status( false, get_current_user_id() );
+
+			if ( ! empty( $progress ) ) {
+				$progress_data['summary'] = $progress->get_summary( 'all' );
+			}
+
 			/**
 			 * Filters short description of a course.
 			 *
@@ -337,6 +353,7 @@ class WishListItemsController extends PostsController {
 				'start_course_url'   => $course->start_course_url(),
 				'add_to_cart_url'    => $course->add_to_cart_url(),
 				'buy_button'         => masteriyo_get_course_buy_button( $course ),
+				'progress_data'      => $progress_data,
 			);
 
 			if ( ! is_wp_error( $course_author ) ) {

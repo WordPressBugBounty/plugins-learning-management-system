@@ -46,18 +46,7 @@ class CacheCompatibilityServiceProvider extends AbstractServiceProvider implemen
 		JetPack::class,
 	);
 
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.5.43
-	 *
-	 * @var array
-	 */
-	protected $provides = array();
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -67,7 +56,29 @@ class CacheCompatibilityServiceProvider extends AbstractServiceProvider implemen
 	 *
 	 * @since 1.5.43
 	 */
-	public function register() {
+	public function register(): void {
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 	/**
@@ -83,7 +94,7 @@ class CacheCompatibilityServiceProvider extends AbstractServiceProvider implemen
 	 *
 	 * @since 1.5.43
 	 */
-	public function boot() {
+	public function boot(): void {
 		if ( ! is_blog_installed() ) {
 			return;
 		}

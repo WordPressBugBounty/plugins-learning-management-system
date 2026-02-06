@@ -22,10 +22,16 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_progress_bar', $course );
 
+
+if ( is_singular( 'mto-course' ) ) {
+	$show_progress = masteriyo_get_setting( 'single_course.components_visibility.course_progress' );
+} else {
+	$show_progress = masteriyo_get_setting( 'course_archive.components_visibility.course_progress' );
+}
 ?>
 
 <!-- Course Progress -->
-<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.course_progress' ) && $summary ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $summary ) ) : ?>
+<?php if ( $show_progress && $summary ) : ?>
 	<div class="course-progress">
 		<div class="course-progress-bar">
 			<div class="masteriyo-progress-info">

@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
 					<span>
 						<?php
 						/* translators: 1: Count of courses in a category */
-						echo esc_html( sprintf( '%s Courses', $category->get_count() ) );
+						echo esc_html( sprintf( __( '%d Courses', 'learning-management-system' ), $category->get_count() ) );
 						?>
 					</span>
 				</div>

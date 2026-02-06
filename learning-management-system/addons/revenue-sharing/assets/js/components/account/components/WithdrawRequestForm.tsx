@@ -22,11 +22,10 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
-import { useWarnUnsavedChanges } from '../../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../../constants/urls';
@@ -117,8 +116,6 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 		},
 	});
 
-	useWarnUnsavedChanges(isDirty);
-
 	return (
 		<>
 			<Tooltip
@@ -179,8 +176,10 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 													data?.revenue_sharing?.minimum_withdraw_amount ?? 0;
 												if (value < minWithdrawAmount) {
 													return sprintf(
-														__(
+														/* translators: %s: minimum withdrawable amount */
+														_x(
 															'Amount must be at least %s',
+															'Withdrawal amount validation error',
 															'learning-management-system',
 														),
 														data?.revenue_sharing
@@ -189,12 +188,26 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 												}
 												if (value > availableBalance) {
 													return sprintf(
-														__(
-															'Amount must be at most %s',
+														/* translators: %s: minimum withdrawable amount */
+														_x(
+															'Amount must be at least %s',
+															'Withdrawal amount validation error',
 															'learning-management-system',
 														),
 														data?.revenue_sharing
-															?.withdrawable_amount_formatted,
+															?.minimum_withdraw_amount_formatted,
+													);
+												}
+												if (value > availableBalance) {
+													return sprintf(
+														/* translators: %s: minimum withdrawable amount */
+														_x(
+															'Amount must be at least %s',
+															'Withdrawal amount validation error',
+															'learning-management-system',
+														),
+														data?.revenue_sharing
+															?.minimum_withdraw_amount_formatted,
 													);
 												}
 												return true;

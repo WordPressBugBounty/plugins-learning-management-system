@@ -51,6 +51,7 @@ class CourseUserProgress extends BlockHandler {
 		<div style="color:red;padding-left:60px;">
 			<?php
 			printf(
+				/* translators: %s: block name */
 				esc_html__( 'No course found for the course user progress block: %s', 'learning-management-system' ),
 				esc_html( $this->block_name )
 			);
@@ -98,9 +99,11 @@ class CourseUserProgress extends BlockHandler {
 		<div style="color:red;padding-left:60px;">
 			<?php
 			printf(
+				/* translators: %s: course title */
 				esc_html__( 'No progress found for the course: %s', 'learning-management-system' ),
 				esc_html( $course->get_title() )
 			);
+
 			?>
 		</div>
 		</div>

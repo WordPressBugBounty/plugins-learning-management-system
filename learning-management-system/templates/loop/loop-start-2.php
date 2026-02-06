@@ -16,5 +16,13 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
+
+if ( 'layout1' === $layout ) {
+	$courses_class = 'masteriyo-archive-cards';
+}
+if ( 'layout2' === $layout ) {
+	$courses_class = 'masteriyo-course-cards';
+}
 ?>
-<div class="masteriyo-courses-wrapper masteriyo-course-cards <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> col-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?>">
+<div class="masteriyo-courses-wrapper <?php echo esc_attr( $courses_class ); ?> <?php echo esc_attr( masteriyo_get_courses_view_mode() ); ?> col-<?php echo esc_attr( masteriyo_get_loop_prop( 'columns' ) ); ?>">

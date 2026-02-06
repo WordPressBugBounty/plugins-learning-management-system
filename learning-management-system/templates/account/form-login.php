@@ -120,6 +120,15 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 				);
 			}
 
+			/**
+			 * Filters signup args to add/edit more parameters.
+			 *
+			 * @since 2.1.4
+			 *
+			 * @param array $args Signup args.
+			 */
+			$args = apply_filters( 'masteriyo_signup_args', $args, 10 );
+
 			?>
 			<h3 class="masteriyo-title"><?php esc_html_e( 'Register', 'learning-management-system' ); ?></h3>
 			<span><?php esc_html_e( "Don't have an account?", 'learning-management-system' ); ?></span>

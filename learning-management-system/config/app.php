@@ -12,6 +12,7 @@ use Masteriyo\Pro\Providers\AddonsServiceProvider;
 use Masteriyo\Pro\Providers\ProServiceProvider;
 use Masteriyo\Providers\SettingsServiceProvider;
 use Masteriyo\Providers\CacheCompatibilityServiceProvider;
+use Masteriyo\Providers\TranslationCompatibilityServiceProvider;
 use Masteriyo\Providers\JobServiceProvider;
 use Masteriyo\Providers\SeoCompatibilityServiceProvider;
 use Masteriyo\Providers\WebhookServiceProvider;
@@ -80,6 +81,7 @@ return array_unique(
 			'Masteriyo\Providers\FormsServiceProvider',
 			'Masteriyo\Providers\StarterServiceProvider',
 			CacheCompatibilityServiceProvider::class,
+			TranslationCompatibilityServiceProvider::class,
 			JobServiceProvider::class,
 			WebhookServiceProvider::class,
 			OpenAIServiceProvider::class,

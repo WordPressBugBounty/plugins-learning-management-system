@@ -802,7 +802,15 @@ abstract class PaymentGateway {
 			$is_available = false;
 		}
 
-		return $is_available;
+		/**
+		 * Filter: Allow developers to modify gateway availability.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param bool $is_available Whether the gateway is available.
+		 * @param object $gateway    The gateway instance.
+		 */
+		return apply_filters( 'masteriyo_gateway_is_available', $is_available, $this );
 	}
 
 	/**

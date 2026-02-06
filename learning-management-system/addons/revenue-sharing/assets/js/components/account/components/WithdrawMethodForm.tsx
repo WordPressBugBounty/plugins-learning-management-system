@@ -21,7 +21,6 @@ import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
-import { useWarnUnsavedChanges } from '../../../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { WithdrawPreferenceDataMap } from '../../../types/withdraw';
 
@@ -134,8 +133,6 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 	const onSubmit = (data: WithdrawPreferenceDataMap) => {
 		updateWithdrawData.mutate(data);
 	};
-
-	useWarnUnsavedChanges(isDirty);
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>

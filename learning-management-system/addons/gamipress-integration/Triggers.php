@@ -103,24 +103,54 @@ class Triggers {
 	 * @return array
 	 */
 	public function add_specific_activity_trigger_label( $specific_activity_trigger_labels ) {
+
 		// Quizzes
-		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_quiz']        = __( 'Complete the quiz %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_complete_quiz_specific_course'] = __( 'Complete any quiz of the course %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_pass_specific_quiz']            = __( 'Pass the quiz %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_pass_quiz_specific_course']     = __( 'Pass a quiz of the course %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_fail_specific_quiz']            = __( 'Fail the quiz %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_fail_quiz_specific_course']     = __( 'Fail a quiz of the course %s', 'learning-management-system' );
+		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_quiz']
+		/* translators: %s: quiz title */
+		= __( 'Complete the quiz %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_complete_quiz_specific_course']
+		/* translators: %s: course title */
+		= __( 'Complete any quiz of the course %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_pass_specific_quiz']
+		/* translators: %s: quiz title */
+		= __( 'Pass the quiz %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_pass_quiz_specific_course']
+		/* translators: %s: course title */
+		= __( 'Pass a quiz of the course %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_fail_specific_quiz']
+		/* translators: %s: quiz title */
+		= __( 'Fail the quiz %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_fail_quiz_specific_course']
+		/* translators: %s: course title */
+		= __( 'Fail a quiz of the course %s', 'learning-management-system' );
 
 		// Lessons
-		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_lesson']        = __( 'Complete the lesson %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_complete_lesson_specific_course'] = __( 'Complete a lesson of the course %s', 'learning-management-system' );
+		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_lesson']
+			/* translators: %s: lesson title */
+		= __( 'Complete the lesson %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_complete_lesson_specific_course']
+			/* translators: %s: course title */
+		= __( 'Complete a lesson of the course %s', 'learning-management-system' );
 
 		// Courses
-		$specific_activity_trigger_labels['masteriyo_gamipress_enroll_specific_course']   = __( 'Enroll the course %s', 'learning-management-system' );
-		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_course'] = __( 'Complete the course %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_enroll_specific_course']
+		/* translators: %s: course title */
+		= __( 'Enroll the course %s', 'learning-management-system' );
+
+		$specific_activity_trigger_labels['masteriyo_gamipress_complete_specific_course']
+		/* translators: %s: course title */
+		= __( 'Complete the course %s', 'learning-management-system' );
 
 		return $specific_activity_trigger_labels;
 	}
+
 
 	/**
 	 * Add specific activity triggers.
@@ -165,31 +195,57 @@ class Triggers {
 	 * @return string
 	 */
 	public function get_activity_trigger_label( $title, $requirement_id, $requirement ) {
-		$tutor_category = ( isset( $requirement['tutor_category'] ) ) ? $requirement['tutor_category'] : '';
+		$tutor_category = isset( $requirement['tutor_category'] ) ? $requirement['tutor_category'] : '';
 		$term           = get_term_by( 'id', $tutor_category, Taxonomy::COURSE_CATEGORY );
 
 		switch ( $requirement['trigger_type'] ) {
+
 			case 'masteriyo_gamipress_complete_quiz_course_category':
-				return sprintf( __( 'Complete a quiz of a course of "%s" category', 'learning-management-system' ), $term->name );
+				return sprintf(
+					/* translators: %s: course category name */
+					__( 'Complete a quiz of a course of "%s" category', 'learning-management-system' ),
+					$term->name
+				);
 
 			case 'masteriyo_gamipress_pass_quiz_course_category':
-				return sprintf( __( 'Successfully pass a quiz of a course of %s category', 'learning-management-system' ), $term->name );
+				return sprintf(
+					/* translators: %s: course category name */
+					__( 'Successfully pass a quiz of a course of %s category', 'learning-management-system' ),
+					$term->name
+				);
 
 			case 'masteriyo_gamipress_fail_quiz_course_category':
-				return sprintf( __( 'Fail a quiz of a course of %s category', 'learning-management-system' ), $term->name );
+				return sprintf(
+					/* translators: %s: course category name */
+					__( 'Fail a quiz of a course of %s category', 'learning-management-system' ),
+					$term->name
+				);
 
 			case 'masteriyo_gamipress_complete_lesson_course_category':
-				return sprintf( __( 'Complete a lesson of a course of %s category', 'learning-management-system' ), $term->name );
+				return sprintf(
+						/* translators: %s: course category name */
+					__( 'Complete a lesson of a course of %s category', 'learning-management-system' ),
+					$term->name
+				);
 
 			case 'masteriyo_gamipress_complete_course_category':
-				return sprintf( __( 'Complete a course of %s category', 'learning-management-system' ), $term->name );
+				return sprintf(
+					/* translators: %s: course category name */
+					__( 'Complete a course of %s category', 'learning-management-system' ),
+					$term->name
+				);
 
 			case 'masteriyo_gamipress_enroll_course_category':
-				return sprintf( __( 'Enroll a course of %s category', 'learning-management-system' ), $term->name );
+				return sprintf(
+					/* translators: %s: course category name */
+					__( 'Enroll a course of %s category', 'learning-management-system' ),
+					$term->name
+				);
 		}
 
 		return $title;
 	}
+
 
 	/**
 	 * Get user for a given trigger action.

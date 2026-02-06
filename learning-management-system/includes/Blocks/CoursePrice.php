@@ -12,6 +12,7 @@ namespace Masteriyo\Blocks;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Abstracts\BlockHandler;
+use Masteriyo\CoreFeatures\CourseComingSoon\Helper;
 
 /**
  * Class CoursePrice
@@ -61,6 +62,9 @@ class CoursePrice extends BlockHandler {
 
 		$client_id = esc_attr( $attr['clientId'] ?? '' );
 
+		$satisfied = Helper::course_coming_soon_satisfied( $course );
+		$is_free   = ( method_exists( $course, 'get_price_type' ) && 'free' === $course->get_price_type() ) || ( floatval( $course->get_price() ) == 0 );
+
 		\ob_start();
 
 		/**
@@ -80,20 +84,38 @@ class CoursePrice extends BlockHandler {
 		</style>
 		<?php
 
+		$class_name = $attr['className'] ?? '';
+
 		printf(
-			'<div class="masteriyo-block masteriyo-price-block--%s">',
-			esc_attr( $client_id )
+			'<div class="masteriyo-block masteriyo-price-block--%s %s">',
+			esc_attr( $client_id ),
+			esc_attr( $class_name )
 		);
 		?>
-		<div class="masteriyo-course-price">
-			<?php if ( ! empty( $course->get_sale_price() ) ) : ?>
-				<del class="old-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price() ) ); ?></del>
+		<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+				<?php if ( ! $satisfied && $is_free ) : ?>
+				<?php else : ?>
+					<div class="masteriyo-course-price">
+						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+							<del class="old-amount">
+								<?php
+								echo wp_kses_post(
+									masteriyo_price(
+										$course->get_regular_price(),
+										array(
+											'currency' => $course->get_currency(),
+										)
+									)
+								);
+								?>
+							</del>
+						<?php endif; ?>
+						<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
-			<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price() ) ); ?></span>
-		</div>
+	</div>
 		<?php
-		echo '</div>';
-
 		/**
 		 * Fires after rendering course price in the course-price block.
 		 *

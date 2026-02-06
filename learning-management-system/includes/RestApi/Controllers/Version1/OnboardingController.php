@@ -233,10 +233,10 @@ class OnboardingController extends RestController {
 					'skipped'   => $saved_data['steps']['welcome']['skipped'] ?? false,
 					'options'   => array(
 						'site_creator'     => $saved_data['steps']['welcome']['options']['site_creator'] ?? '',
-						'payments'         => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['payments'] ?? false ),
-						'certificates'     => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['certificates'] ?? false ),
+						'payments'         => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['payments'] ?? true ),
+						'certificates'     => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['certificates'] ?? true ),
 						'groups'           => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['groups'] ?? false ),
-						'multiple_courses' => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['multiple_courses'] ?? false ),
+						'multiple_courses' => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['multiple_courses'] ?? true ),
 						'revenue_sharing'  => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['revenue_sharing'] ?? false ),
 						'allow_usage'      => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['allow_usage'] ?? true ),
 

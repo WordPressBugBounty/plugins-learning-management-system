@@ -22,13 +22,7 @@ use Masteriyo\Blocks;
  */
 class BlocksServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
-	/**
-	 * Services provided by this service provider.
-	 *
-	 * @since 1.18.2
-	 * @var array
-	 */
-	protected $provides = array();
+
 
 	/**
 	 * Register services in the container.
@@ -36,8 +30,30 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 	 * @since 1.18.2
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		// No container services to register for now.
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 	/**
@@ -47,7 +63,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 	 * @since 1.18.2
 	 * @return void
 	 */
-	public function boot() {
+	public function boot(): void {
 		if ( version_compare( get_bloginfo( 'version' ), '5.8', '>=' ) ) {
 			add_filter( 'block_categories_all', array( $this, 'block_categories' ), 999999, 2 );
 		} else {
@@ -169,7 +185,6 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			Blocks\CourseEnrollButton::class,
 			Blocks\CourseStats::class,
 			Blocks\CourseHighlight::class,
-			Blocks\CourseSearchForm::class,
 			Blocks\Courses::class,
 			Blocks\CourseCategories::class,
 			Blocks\CourseCurriculum::class,

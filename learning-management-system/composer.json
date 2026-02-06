@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo",
   "description": "An WordPress LMS plugin",
-  "version": "2.0.1",
+  "version": "2.1.4",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -59,11 +59,13 @@
     "psr-4": {
       "Masteriyo\\": "includes/",
       "Masteriyo\\Pro\\": "pro/",
+      "Masteriyo\\CoreFeatures\\PasswordStrength\\": "includes/core-features/password-strength/",
+      "Masteriyo\\CoreFeatures\\CourseComingSoon\\": "includes/core-features/course-coming-soon/",
+      "Masteriyo\\CoreFeatures\\BunnyNet\\": "includes/core-features/bunny-net/",
       "Masteriyo\\Addons\\DownloadMaterials\\": "addons/download-materials",
       "Masteriyo\\Addons\\RevenueSharing\\": "addons/revenue-sharing",
       "Masteriyo\\Addons\\CourseAnnouncement\\": "addons/course-announcement",
       "Masteriyo\\Addons\\Recaptcha\\": "addons/recaptcha",
-      "Masteriyo\\Addons\\PasswordStrength\\": "addons/password-strength",
       "Masteriyo\\Addons\\ElementorIntegration\\": "addons/elementor-integration/",
       "Masteriyo\\Addons\\DiviIntegration\\": "addons/divi-integration/",
       "Masteriyo\\Addons\\GamiPressIntegration\\": "addons/gamipress-integration/",
@@ -78,9 +80,7 @@
       "Masteriyo\\Addons\\LemonSqueezyIntegration\\": "addons/lemon-squeezy-integration/",
       "Masteriyo\\Addons\\BeaverIntegration\\": "addons/beaver-integration",
       "Masteriyo\\Addons\\MultipleCurrency\\": "addons/multiple-currency/",
-      "Masteriyo\\Addons\\BunnyNet\\": "addons/bunny-net",
       "Masteriyo\\Addons\\GoogleMeet\\": "addons/google-meet/",
-      "Masteriyo\\Addons\\CourseComingSoon\\": "addons/course-coming-soon/",
       "Masteriyo\\Addons\\SureCartIntegration\\": "addons/sure-cart-integration/",
       "Masteriyo\\Addons\\WishList\\": "addons/wishlist/",
       "Masteriyo\\Addons\\Certificate\\": "addons/certificate",
@@ -92,31 +92,35 @@
     }
   },
   "require": {
-    "php": ">=7.0.0",
+    "php": ">=7.4.0",
     "chillerlan/php-qrcode": "3.4.1",
     "codeinwp/themeisle-sdk": "^3.3",
     "halaxa/json-machine": "^1.1",
-    "league/container": "3.4.1",
+    "league/container": "^4.2",
     "league/oauth2-google": "^4.0",
     "maxmind-db/reader": "^1.11",
     "mollie/mollie-api-php": "^2.75",
     "mpdf/mpdf": "^8.2",
-    "pelago/emogrifier": "3.1.0",
-    "psr/container": "1.0.0",
+    "tijsverkoyen/css-to-inline-styles": "2.3.0",
+    "psr/container": "^2.0",
     "simplehtmldom/simplehtmldom": "^2.0@RC",
     "stripe/stripe-php": "^17.3",
     "themegrill/openai": "@dev",
     "woocommerce/action-scheduler": "^3.8.1"
   },
   "require-dev": {
+    "brain/monkey": "^2",
     "composer/installers": "^2.0",
     "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+    "php-stubs/wordpress-stubs": "6.3.*",
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
+    "phpunit/phpunit": "^9",
     "vlucas/phpdotenv": "^5.4",
     "wp-cli/db-command": "^2.0",
     "wp-cli/i18n-command": "^v2.2.13",
     "wp-cli/wp-cli": "^2.4",
-    "wp-coding-standards/wpcs": "^3.0"
+    "wp-coding-standards/wpcs": "^3.0",
+    "yoast/phpunit-polyfills": "^3"
   },
   "repositories": [
     {
@@ -143,7 +147,10 @@
     "post-update-cmd": [
       "@php -r \"! file_exists( '.env' ) && copy( '.env.example', '.env' );\"",
       "rm -rf wp-content"
-    ]
+    ],
+    "test": "vendor/bin/phpunit --testdox",
+    "test:coverage": "@php -r \"if (!extension_loaded('xdebug') && !extension_loaded('pcov')) { echo 'Warning: Xdebug or PCOV extension required for coverage reports\n'; echo 'Install: pecl install xdebug\n'; exit(1); }\" && vendor/bin/phpunit --testdox --coverage-html coverage",
+    "test:unit": "vendor/bin/phpunit --testsuite unit --testdox"
   },
   "extra": {
     "wordpress-install-dir": "tests/wordpress",

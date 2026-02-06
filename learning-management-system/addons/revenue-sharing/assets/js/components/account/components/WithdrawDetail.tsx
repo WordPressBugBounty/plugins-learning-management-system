@@ -3,23 +3,23 @@ import {
 	Button,
 	Grid,
 	GridItem,
+	Icon,
 	Stack,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiMoney, BiMoneyWithdraw } from 'react-icons/bi';
 import { BsPersonFillGear } from 'react-icons/bs';
+import AccountCountBox from '../../../../../../../assets/js/account/common/AccountCountBox';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
 import API from '../../../../../../../assets/js/back-end/utils/api';
-import CountBox from './CountBox';
 import SkeletonWithdrawDetails from './SkeletonWithdrawDetails';
 import WithdrawMethodForm from './WithdrawMethodForm';
-import WithdrawRequestForm from './WithdrawRequestForm';
 
 const withdrawMethods = {
 	e_check: __('E-Check', 'learning-management-system'),
@@ -27,13 +27,13 @@ const withdrawMethods = {
 	paypal: __('PayPal', 'learning-management-system'),
 };
 
-const WithdrawDetail: React.FC = () => {
+interface Props {
+	userDataQuery: UseQueryResult<UserSchema, Error>;
+}
+
+const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
 	const userAPI = new API(urls.currentUser);
 
-	const userDataQuery = useQuery<UserSchema>({
-		queryKey: ['userProfile'],
-		queryFn: () => userAPI.get(),
-	});
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const withdrawPreference =
@@ -53,33 +53,47 @@ const WithdrawDetail: React.FC = () => {
 					mb="4"
 				>
 					<GridItem>
-						<CountBox
+						<AccountCountBox
 							title={__('Total Balance', 'learning-management-system')}
-							subtitle={
+							description={
 								userDataQuery.data?.revenue_sharing
 									?.available_amount_formatted ??
 								localized?.currency?.symbol + '0'
 							}
-							colorScheme="primary"
-							icon={<BiMoney />}
+							icon={
+								<Icon
+									as={BiMoney}
+									color="primary.500"
+									fontSize="xl"
+									height="1.5em"
+									width="1.5em"
+								/>
+							}
 						/>
 					</GridItem>
 					<GridItem>
-						<CountBox
+						<AccountCountBox
 							title={__('Withdrawable Balance', 'learning-management-system')}
-							subtitle={
+							description={
 								userDataQuery.data?.revenue_sharing
 									?.withdrawable_amount_formatted ??
 								localized?.currency?.symbol + '0'
 							}
-							colorScheme="green"
-							icon={<BiMoneyWithdraw />}
+							icon={
+								<Icon
+									as={BiMoneyWithdraw}
+									color="primary.500"
+									fontSize="xl"
+									height="1.5em"
+									width="1.5em"
+								/>
+							}
 						/>
 					</GridItem>
 					<GridItem>
-						<CountBox
+						<AccountCountBox
 							title={__('Withdraw Method', 'learning-management-system')}
-							subtitle={
+							description={
 								<Stack direction="row" align="center" spacing="2">
 									<Text>
 										{withdrawMethods?.[withdrawPreference] ??
@@ -96,13 +110,18 @@ const WithdrawDetail: React.FC = () => {
 									</Button>
 								</Stack>
 							}
-							colorScheme="cyan"
-							icon={<BsPersonFillGear />}
+							icon={
+								<Icon
+									as={BsPersonFillGear}
+									color="primary.500"
+									fontSize="xl"
+									height="1.5em"
+									width="1.5em"
+								/>
+							}
 						/>
 					</GridItem>
 				</Grid>
-
-				<WithdrawRequestForm data={userDataQuery.data as UserSchema} />
 			</Stack>
 
 			<WithdrawMethodForm

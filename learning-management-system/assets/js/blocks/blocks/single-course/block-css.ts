@@ -42,6 +42,15 @@ export function useBlockCSS(props: any) {
 				gap: 2rem;
 			}
 
+			.masteriyo-course--img-wrap {
+				margin-bottom: 30px;
+			}
+
+			.masteriyo-course-title-wrapper {
+				padding-left: 30px;
+				padding-right: 30px;
+			}
+
 			.masteriyo-main-content {
 				padding-right: 1rem;
 			}
@@ -75,6 +84,70 @@ export function useBlockCSS(props: any) {
 				border-top: 1px solid #e2e8f0;
 				padding-top: 1rem;
 			}
+
+			.masteriyo-course-pricing--wrapper {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.masteriyo-course-pricing--wrapper {
+				margin: 0px !important;
+				padding: 0px !important;
+				border-bottom: none !important;
+			}
+
+			.masteriyo-single-course--aside > .masteriyo-course-pricing--wrapper {
+				border-bottom: none !important;
+			}
+
+			.masteriyo-course-pricing--wrapper .masteriyo-price-block {
+				flex: 0 1 auto;
+			}
+
+			.masteriyo-course-pricing--wrapper .masteriyo-enroll-btn-block {
+				flex: 1 1 auto;
+			}
+
+			.masteriyo-col-4 {
+				margin-top: 16px !important;
+			}
+
+			.masteriyo-col-8 .masteriyo-course--content{
+				padding: 0;
+			}
+
+			// /* Disable WordPress default layout flow margins within single course block */
+			// .masteriyo-single-course.is-layout-flow > *,
+			// .masteriyo-single-course.is-layout-constrained > *,
+			// .masteriyo-single-course .is-layout-flow > *,
+			// .masteriyo-single-course .is-layout-constrained > *,
+			// .masteriyo-single-course .block-editor-block-list__block {
+			// 	margin-block-start: 0 !important;
+			// 	margin-block-end: 0 !important;
+			// }
+
+			.masteriyo-course-author-rating-wrapper{
+				margin-bottom: 0 !important;
+			}
+
+			.masteriyo-single-course--main .masteriyo-course-author-rating-wrapper {
+				padding: 0px 16px;
+			}
+
+			.masteriyo-single-course-stats-wrapper .masteriyo-course-statistics{
+				padding-bottom: 30px !important;
+			}
+
+			.masteriyo-price-currencySymbol{
+				margin: 0 4px;
+			}
+
+			.masteriyo-single-course-stats.masteriyo-course-statistics{
+				padding: 0 0 32px 0;
+				border-bottom: 1px solid #e2e8f0 !important;
+			} 
 		`);
 
 		return css.join('\n');
@@ -132,6 +205,10 @@ export function useBlockCSS(props: any) {
 				gap: 2rem;
 			}
 
+			.masteriyo-course--img-wrap {
+				margin-bottom: 30px;
+			}
+
 			.masteriyo-main-content {
 				padding-right: 1rem;
 			}
@@ -165,6 +242,98 @@ export function useBlockCSS(props: any) {
 				border-top: 1px solid #e2e8f0;
 				padding-top: 1rem;
 			}
+
+			.masteriyo-course-pricing--wrapper {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 10px;
+				margin: 0px;
+				padding: 0px;
+			}
+
+			 .masteriyo-course-title-wrapper {
+				padding-left: 30px !important;
+				padding-right: 30px !important;
+			}
+
+			.masteriyo-course-pricing--wrapper {
+				margin: 0px !important;
+				padding: 0px !important;
+			}
+
+			.masteriyo-single-course--aside > .masteriyo-course-pricing--wrapper {
+				border-bottom: none !important;
+			}
+
+			.masteriyo-single-course--aside > .masteriyo-single-course-stats-wrapper{
+				margin: 0px !important;
+				padding-top: 12px !important;
+				padding-bottom: 12px !important;
+				border-top: 1px solid #e2e8f0 !important;
+			}
+
+			.masteriyo-single-course-stats-wrapper > .masteriyo-single-course{
+				margin: 0 0 30px !important;
+			}
+
+			.masteriyo-single-course-stats-wrapper > .masteriyo-single-course-stats{
+				border-bottom: none !important;
+			}
+
+			.masteriyo-course-pricing--wrapper .masteriyo-price-block {
+				flex: 0 1 auto;
+			}
+
+			.masteriyo-course-pricing--wrapper .masteriyo-enroll-btn-block {
+				flex: 1 1 auto;
+			}
+
+			.masteriyo-single-course-group-price-btn > .masteriyo-group-course__group-button {
+				padding: 0px !important;
+			}
+
+			/* Disable WordPress default layout flow margins within single course block */
+			.masteriyo-single-course.is-layout-flow > *,
+			.masteriyo-single-course.is-layout-constrained > *,
+			.masteriyo-single-course .is-layout-flow > *,
+			.masteriyo-single-course .is-layout-constrained > *,
+			.masteriyo-single-course .block-editor-block-list__block {
+				margin-block-start: 0 !important;
+				margin-block-end: 0 !important;
+			}
+
+			.masteriyo-col-8 .masteriyo-course--content{
+				font-size: 16px !important;
+			}
+
+			.masteriyo-course-author-rating-wrapper{
+					margin-bottom: 0 !important;
+			}
+
+			.masteriyo-single-course--main .masteriyo-course-author-rating-wrapper {
+				padding: 0px 16px;
+			}
+
+			.masteriyo-single-course-stats-wrapper .masteriyo-course-statistics{
+				padding-bottom: 30px !important;
+			}
+
+			.masteriyo-price-currencySymbol{
+				margin: 0 4px;
+			}
+
+			.masteriyo-single-course-stats.masteriyo-course-statistics{
+				padding: 0 0 32px 0;
+				border-bottom: 1px solid #e2e8f0 !important;
+			}
+
+			.masteriyo-single-course-highlights-wrapper .masteriyo-single-course-social-share {
+				padding-top: 36px !important;
+				margin-top: 36px !important;
+				border-top: 1px solid #e2e8f0 !important;
+			} 
+
 		`);
 
 		return css.join('\n');

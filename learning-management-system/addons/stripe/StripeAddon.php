@@ -442,6 +442,7 @@ class StripeAddon {
 			if ( Helper::use_platform() ) {
 				$payment_intent = StripeClient::create()->create_payment_intent( $payment_intent_params );
 				if ( is_wp_error( $payment_intent ) ) {
+					masteriyo_get_logger()->info( print_r( $payment_intent->get_error_data(), true ), array( 'source' => 'payment-stripe' ) );
 					throw new \Exception( $payment_intent->get_error_message() );
 				}
 				$payment_intent = (object) $payment_intent['data'];
@@ -792,7 +793,7 @@ class StripeAddon {
 		if ( in_array( $currency_code, $this->get_zero_decimal_currencies(), true ) ) {
 			$new_total_amount = absint( $total_amount );
 		} else {
-			$new_total_amount = masteriyo_round( $total_amount, 2 ) * 100;
+			$new_total_amount = (int)  masteriyo_round( $total_amount, 2 ) * 100;
 		}
 
 		return $new_total_amount;

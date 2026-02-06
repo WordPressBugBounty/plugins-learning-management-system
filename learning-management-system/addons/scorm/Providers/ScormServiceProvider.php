@@ -19,23 +19,7 @@ use Masteriyo\Addons\Scorm\ScormAddon;
  * @since 1.8.3
  */
 class ScormServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.8.3
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'scorm',
-		'scorm.rest',
-		'addons.scorm',
-		ScormAddon::class,
-	);
+
 
 	/**
 	 * Registers services and dependencies for the Scorm.
@@ -44,13 +28,40 @@ class ScormServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.8.3
 	 */
-	public function register() {
+	public function register(): void {
 
 		// Register the REST controller for migration operations.
 		$this->getContainer()->add( 'scorm.rest', ScormController::class )
 			->addArgument( 'permission' );
 
 		// Register the main addon class.
-		$this->getContainer()->add( 'addons.scorm', ScormAddon::class, true );
+		$this->getContainer()->addShared( 'addons.scorm', ScormAddon::class );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'scorm',
+				'scorm.rest',
+				'addons.scorm',
+				ScormAddon::class,
+			),
+			true
+		);
 	}
 }

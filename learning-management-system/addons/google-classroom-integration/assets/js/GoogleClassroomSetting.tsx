@@ -57,7 +57,7 @@ export interface GoogleClassroomSettingsSchema {
 	token_available?: boolean;
 }
 
-export const defaultCopyValue = `${localized.home_url}/wp-admin/admin.php?page=masteriyo`;
+export const defaultCopyValue = `${localized.adminUrl}admin.php?page=masteriyo`;
 
 const GoogleClassroomSetting = () => {
 	const methods = useForm<GoogleClassroomSettingsSchema>();
@@ -72,7 +72,7 @@ const GoogleClassroomSetting = () => {
 		onCopy: clipToCopyForGoogle,
 		value,
 		setValue,
-	} = useClipboard(`${localized.home_url}/wp-admin/admin.php?page=masteriyo`);
+	} = useClipboard(defaultCopyValue);
 
 	const googleClassroomSettingQuery = useQuery({
 		queryKey: ['googleClassroomSettings'],

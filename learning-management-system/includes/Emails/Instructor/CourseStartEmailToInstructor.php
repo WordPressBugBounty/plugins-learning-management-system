@@ -181,13 +181,14 @@ class CourseStartEmailToInstructor extends Email {
 	public function get_placeholders() {
 		$placeholders = parent::get_placeholders();
 
-		/** @var \Masteriyo\Models\User|null $student */
+		/** @var \Masteriyo\Models\User|\WP_Error|null $student */
 		$student = $this->get( 'student' );
 
-		/** @var \Masteriyo\Models\Course|null $course */
+		/** @var \Masteriyo\Models\Course|\WP_Error|null $course */
 		$course = $this->get( 'course' );
 
-		if ( $student ) {
+
+		if ( $student && ! is_wp_error( $student ) ) {
 			$placeholders = $placeholders + array(
 				'{student_display_name}' => $student->get_display_name(),
 				'{student_first_name}'   => $student->get_first_name(),
@@ -195,12 +196,24 @@ class CourseStartEmailToInstructor extends Email {
 				'{student_username}'     => $student->get_username(),
 				'{student_nicename}'     => $student->get_nicename(),
 				'{student_nickname}'     => $student->get_nickname(),
-				'{student_name}'         => '' !== trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) ? trim( sprintf( '%s %s', $student->get_first_name(), $student->get_last_name() ) ) : $student->get_username(),
-
+				'{student_name}'         => '' !== trim(
+					sprintf(
+						'%s %s',
+						$student->get_first_name(),
+						$student->get_last_name()
+					)
+				) ? trim(
+					sprintf(
+						'%s %s',
+						$student->get_first_name(),
+						$student->get_last_name()
+					)
+				) : $student->get_username(),
 			);
 		}
 
-		if ( $course ) {
+
+		if ( $course && ! is_wp_error( $course ) ) {
 			$placeholders = $placeholders + array(
 				'{course_name}' => $course->get_name(),
 				'{course_url}'  => $course->get_permalink(),
@@ -208,7 +221,8 @@ class CourseStartEmailToInstructor extends Email {
 
 			$instructor = masteriyo_get_user( absint( $course->get_author_id() ) );
 
-			if ( $instructor ) {
+			
+			if ( $instructor && ! is_wp_error( $instructor ) ) {
 				$placeholders = $placeholders + array(
 					'{instructor_display_name}' => $instructor->get_display_name(),
 					'{instructor_first_name}'   => $instructor->get_first_name(),
@@ -216,7 +230,19 @@ class CourseStartEmailToInstructor extends Email {
 					'{instructor_username}'     => $instructor->get_username(),
 					'{instructor_nicename}'     => $instructor->get_nicename(),
 					'{instructor_nickname}'     => $instructor->get_nickname(),
-					'{instructor_name}'         => '' !== trim( sprintf( '%s %s', $instructor->get_first_name(), $instructor->get_last_name() ) ) ? trim( sprintf( '%s %s', $instructor->get_first_name(), $instructor->get_last_name() ) ) : $instructor->get_username(),
+					'{instructor_name}'         => '' !== trim(
+						sprintf(
+							'%s %s',
+							$instructor->get_first_name(),
+							$instructor->get_last_name()
+						)
+					) ? trim(
+						sprintf(
+							'%s %s',
+							$instructor->get_first_name(),
+							$instructor->get_last_name()
+						)
+					) : $instructor->get_username(),
 				);
 			}
 		}

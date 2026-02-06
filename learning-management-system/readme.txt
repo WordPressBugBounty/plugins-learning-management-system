@@ -2,9 +2,9 @@
 Contributors: Masteriyo, themeisle
 Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: 2.1.4
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -27,7 +27,7 @@ Get started today with all essential LMS features:
 
 As your course platform grows, you can upgrade to Pro for white-label options, enterprise-level features, and premium support.
 
-👉 [Check out Masteriyo Pro](https://masteriyo.com/pricing/)
+👉 [Check out Masteriyo Pro](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=prolink)
 
 Also, join our growing LMS Facebook Community: [Masteriyo LMS Community](https://www.facebook.com/groups/masteriyo/)
 
@@ -224,11 +224,11 @@ These services are only activated when the corresponding feature is enabled and 
 
 == Screenshots ==
 
-1. Onboarding Page.
-2. Course builder.
-3. Block, course page and learn page.
-4. Quiz Builder.
-5. Checkout and Account page.
+1. Course Builder.
+2. Lesson Builder.
+3. Quiz Builder.
+4. Courses, Single Course and Checkout Page.
+5. Account and Learn page.
 
 == Frequently Asked Questions ==
 
@@ -285,6 +285,120 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.1.4 - 08-01-2026 =
+- Enhancement - Admin role support for Two-Factor Authentication OTP email. [PRO]
+- Enhancement - Added filter to support custom redirect URL after user email verification.
+- Update - Support custom admin URLs in Google Meet and Google Classroom setting.
+- Fix - Question description blank issue when updating quiz.
+- Fix - Account page minor UI issue with theme css.
+- Fix - Question and Answer reply of a user is not visible in dark mode.
+- Fix - Disable individual course review option when global review setting is disabled.
+- Fix - Hamburger menu appearing while changing routes and sidebar height fixed to full in the account page.
+- Fix - Course setting tab position for FAQ and Lemon Squeezy. [PRO]
+- Fix - Restore import sample grade button. [PRO]
+
+= 2.1.3 - 30-12-2025 =
+- Enhancement - Improved Account page UI/UX.
+- Fix - Resolved string translation issues.
+- Fix - Prevented the Sell to Groups toggle from resetting after add-on activation.
+- Fix - Prevented a fatal error when creating reviews with an invalid comment ID.
+- Fix - Cast Stripe payment amount to integer to prevent floating-point error.
+- Fix - Improved group buy button compatibility with Course Coming Soon mode.
+- Fix - Resolved password strength string translation issue.
+- Fix - Corrected group pricing logic based on available course seats.
+- Fix - Hide the group buy button when the course enrollment limit is reached.
+- Fix - Fixed spacing issue on the Forgot Password section of the sign-in page.
+- Fix - Resolved issues with adding and removing additional instructors in course settings. [PRO]
+- Fix - Fixed multiple-instructor backend filter issues across courses, quiz attempts, and assignments.
+- Fix - Added a webhook menu for instructors in the backend.
+- Fix - Stripe subscription fails for users created during checkout. [PRO]
+
+= 2.1.2 - 19-12-2025 =
+- Fix - Courses page filter issue.
+- Fix - RTL issue in responsive mode.
+- Fix - Social share icon showing even when social share is disabled. [PRO]
+- Fix - Course update issue when selecting Bunny.net video type.
+- Fix - Cohort course date picker showing current date as placeholder. [PRO]
+- Fix - Checkout UI-related issue.
+- Fix - Learn page sidebar lock icon UI issue.
+- Fix - Course review affecting single course layout 1 UI.
+- Update - Added filter `masteriyo_is_account_page` to check if the current page is a Masteriyo account page.
+
+= 2.1.1 - 16-12-2025 =
+- Fix - Plugin file size issue.
+
+= 2.1.0 - 16-12-2025 =
+- Feature - Cohort-based course feature added. [PRO]
+- Feature - Multi-group pricing options added. [PRO]
+- Update - Improved compatibility with TranslatePress plugin.
+- Update - RTL layout update across frontend pages.
+- Update - Upgrade PHP League Container from v3.4 to v4.2.
+- Compatibility - WordPress v6.9 compatible.
+- Refactor - Migrated selected addons to core (BunnyNet, Event Calendar [PRO], Two-Factor Authentication [PRO], Social Share [PRO], Password Strength, Course Coming Soon).
+- Enhancement - 3 Layout select option added in courses blocks.
+- Enhancement - Overall blocks setting improvement.
+- Enhancement - Added show/hide component options for the single course page.
+- Enhancement - Added Order Summary shortcode ([masteriyo_order_summary]) for post-checkout pages.
+- Enhancement - Learn page UI/UX updated.
+- Enhancement - Single course review section UI updated.
+- Enhancement - Learn page comment section UI updated.
+- Enhancement - Added review courses table in student report. [PRO]
+- Enhancement - Match the Following question type selection UI updated. [PRO]
+- Enhancement - Sample courses updated to match current demo courses.
+- Enhancement - Single course settings rearranged with new Schedule & Access tab and related options moved accordingly.
+- Enhancement - Group pricing single course UI updated.
+- Fix - Aspect ratio issue in video lesson in safari browser.
+- Fix - Accordion section expansion/collapse issue on navigation in learn page.
+- Fix - Update enrollment status logic to keep enrollments active for 'publish' and 'private' courses. [PRO]
+- Fix - Course list page multiple column selection UI issue.
+- Fix - Links not clickable in PDF lesson. [PRO]
+- Fix - Undefined method issue get_display_name().
+- Fix - Fatal error when Google event deleted in Google calender.
+- Fix - Caching issues with Redis in UserCourseRepository.
+- Fix - File parsing error.
+- Fix - 404 on Learn page when navigating from course curriculum.
+- Fix - PHP 8.4 compatibility issues.
+
+= 2.0.4 - 04-11-2025 =
+- Fix - Security related issue.
+- Fix - Fatal error in CourseEnrollButtonWidget during Elementor editing.
+- Fix - Courses filters and sorting disappear issue when search or sorting is disabled.
+- Fix - Masteriyo player full screen issue in small devices, audio boost issue and video stopping randomly issue.
+- Fix - Course contents missing while exporting.
+- Fix - Course retake popup modal not opening on single course modern layout.
+- Fix - Single course and courses minor UI issues.
+- Fix - Single course bundle page UI and tab issues. [PRO]
+
+= 2.0.3 - 16-10-2025 =
+- Fix - Curriculum tab showing only for user who has course progress.
+- Fix - Review visibility control condition sometime not showing review tab.
+
+= 2.0.2 - 15-10-2025 =
+- Enhancement - Added full screen mode in PDF lesson. [PRO]
+- Enhancement - Color palette UI updated and button hover color added.
+- Enhancement - Modern and Overlay courses layout UI and component revamp.
+- Enhancement - Single course and courses page responsiveness.
+- Compatibility - Global color option in Masteriyo styling option for eLearning theme.
+- Fix - "Start Course/Continue" button disappears after starting the course in the modern layout.
+- Fix - Notice related issue.
+- Fix - Required missing pages box not shown initially on home page.
+- Fix - Course filter not working properly in the responsive view.
+- Fix - Payment settings redirection issue fixed in the home page.
+- Fix - Starter template typography and color not being set after importing.
+- Fix - Incorrect license expiration information. [PRO]
+- Fix - Retake course button not showing issue.
+- Fix - Course end date not showing in modern layout.
+- Fix - Lock icon missing for course password access mode.
+- Fix - Group buy button issue in single course modern layout.
+- Fix - Featured video popup modal scrolling issue. [PRO]
+- Fix - Minor UI related issue on single course and courses page.
+- Fix - Quiz setting pass type issue and auto calculate button color. [PRO]
+- Fix - Unlink WooCommerce product from duplicated courses. [PRO]
+- Fix - Course setting data removed issue when updated in course analytics page. [PRO]
+- Fix - Course completion reminder emails goes even after course expiration. [PRO]
+- Fix - Extra box appear even though there is nothing on header in dashboard.
+- Fix - Stripe payment description information changed to course name.
+- Fix - Question/Answer tabs disappear when marking all questions as spam or moving to trash.
 
 = 2.0.1 - 26-09-2025 =
 - Fix - Courses shortcode layout UI issue.
@@ -470,127 +584,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Compatibility issue with YITH gift cards.
 - Fix - Course start email not sending issue to admin and instructor.
 - Fix - Course bundle and webhook issue in checkout. [PRO]
-
-= 1.17.5 - 01-05-2025 =
-- Feature - Coupons can now be applied to specific courses, bundles, and course categories. [PRO]
-- Feature - Added support for automatic and stackable coupons. [PRO]
-- Compatibility - PHP 8.4 compatible.
-- Enhancement - Send login info to the user when created via admin.
-- Enhancement - Custom font support in certificate blocks. [PRO]
-- Refactor - Implement transient cache in user course repository.
-- Fix - Extra questions appearing after importing quiz.
-- Fix - User role undefined issue in account page.
-- Fix - useMasteriyoPlayer scope issue.
-- Fix - Cannot declare class WpOrg\Requests\Requests. [PRO]
-- Fix - PDF lesson flickering issue. [PRO]
-- Fix - Correct password handling in CSV user enrolment. [PRO]
-- Fix - Reduce unnecessary activity log requests by skipping tracking for non-logged-in users. [PRO]
-- Fix - Fill in the blanks answers prefill issue. [PRO]
-- Fix - Order invoice fatal error when certificate addon is disable.
-
-= 1.17.4 - 18-04-2025 =
-- Fix - Import users password does not match while login.
-- Fix - Update authentication error messages and API references in RestAPIAuth and RestAuthController.
-- Fix - Three elements with same id warning in course settings.
-- Fix - Review star reset issue on IOS devices.
-
-= 1.17.3 - 08-04-2025 =
-- Update - Removed unwanted files from repo.
-
-= 1.17.2 - 08-04-2025 =
-- Fix - Security related issues.
-
-= 1.17.1 - 02-04-2025 =
-- Enhancement - Email Translations support using WPML.
-- Enhancement - Added group pricing multiple currencies option.
-- Enhancement - Instructor auto approval when added by admin.
-- Enhancement - Added duplicate question option in Question Bank.
-- Enhancement - Order purchase email send only after payment is successful in case of payment gateway excluding offline payment.
-- Refactor - REST API Success/Error Handling.
-- Refactor - Masteriyo player.
-- Fix - Certificate font compatibility issue for different OS.
-- Fix - Public profile pagination issue. [PRO]
-- Fix - Improve contact existence check and update/create logic in Brevo integration.
-- Fix - Deprecated issue for course pagination in PHP 8.1 or above.
-- Fix - Global setting svg alignItem console warning.
-- Fix - Timer not updating when switching between contents in learn page.
-- Fix - Questions not showing in quiz builder if exceeds 100.
-- Fix - Invoice download issue from account page. [PRO]
-- Fix - Runtime error in Gamipress setting. [PRO]
-- Fix - Pass user ID instead of user object to allow_password_reset filter.
-- Fix - Check if Masteriyo account shortcode is exists or not in the account page.
-- Fix - Mollie payment issue for course bundle. [PRO]
-- Fix - Fatal error call to a member function get_page_permastruct().
-- Fix - Resolve conflict between Masteriyo checkout and WooCommerce checkout.
-
-= 1.17.0 - 12-03-2025 =
-- Feature - Question bank.
-- Feature - Custom fonts upload option for certificate. [PRO]
-- Refactor - Show/hide components of courses page.
-- Refactor - Used Mailchimp REST API instead of SDK.
-- Enhancement - Featured video support on related course and course bundle. [PRO]
-- Enhancement - Added option to reflect show/hide component in single course page.
-- Enhancement - Added a scroll bar to the single course curriculum UI when the section's exceeds 17 contents.
-- Enhancement - Add functionality to mark course or content complete from student report. [PRO]
-- Fix - Hide courses per row option in list view mode and other layouts.
-- Fix - Disable enroll button on enrollment limit reached.
-- Fix - Curriculum count showing only lessons count issue.
-- Fix - Fatal error for SCORM course when certificate is disabled.
-- Fix - Permission notice for non previewable content in learn page for non enrolled users. [PRO]
-- Fix - WooCommerce product delete issue if course is linked. [PRO]
-- Fix - Start URL issue for Google Meet.
-- Fix - Start URL issue for Zoom. [PRO]
-
-= 1.16.1 - 05-03-2025 =
-- Enhancement - Gamipress support for SCORM's course completion.
-- Enhancement - Added `view` attribute in courses shortcode for list and grid view.
-- Enhancement - Option to show course attachments to login user or enrolled users. [PRO]
-- Fix - Resolved security vulnerabilities.
-- Fix - Global setting's single course page icon.
-- Fix - Group courses enrolment limit notice.
-- Fix - Light/dark mode text not translatable.
-- Fix - Supported WooCommerce Shipping & Tax in course related product page.
-- Fix - Design issue in Divi Builder.
-- Fix - URL, Image support for quiz's questions.
-- Fix - React Warning for Data targetId.
-- Fix - Zoom in PDF lesson Viewer. [PRO]
-- Fix - Get Gravatar img url if only enable.
-- Fix - Whitelisted CSS for plugin like Elementor, Rank Math, MonsterInsight in learn page.
-
-= 1.16.0 - 12-02-2025 =
-- Feature - Mollie Payment Gateway.
-- Feature - MasterStudy and Lifter LMS migration.
-- Feature - REST API Authentication.
-- Feature - Individual quiz import and export option in course builder.
-- Feature - Added audio lesson type. [PRO]
-- Feature - Video subtitle upload options in video lesson. [PRO]
-- Enhancement - Filters and sorting option for courses page.
-- Enhancement - Wire transfer option in offline payment.
-- Enhancement - Added option to enable/disable OpenAI.
-- Enhancement - Additional file type support for audio and video types in doc uploader.
-- Enhancement - Masteriyo Global Setting UI minor revamp.
-- Enhancement - Added option to convert Youtube livestream to normal Youtube video after live stream end. [PRO]
-- Refactor - Social login for plain permalink selected case. [PRO]
-- Fix - Backend pages not working with AI engine plugin.
-- Fix - Stripe recipient email issue.
-- Fix - Compatibility with Divi builder plugin.
-- Fix - Correct answer handling when switching from multiple to single choice question type.
-- Fix - Watch full video issue when content drip is sequential.
-- Fix - Quiz title media displayed as plain text in learn page.
-- Fix - Password updated for same current and new passwords issue.
-- Fix - Lesson comment redirection for guest user after logged in.
-- Fix - Course exports key translation issue.
-- Fix - Completed course showing in account page dashboard in continue studying.
-- Fix - Ajax filter not working in course archive for layout 1 and 2. [PRO]
-- Fix - Courses sorting query logic in Courses page. [PRO]
-- Fix - Assignment retake issue when it is reviewed. [PRO]
-- Fix - Enrollment limit issue.
-- Fix - Course list badge UI.
-- Fix - Single course permalink URL changed based on permalink structure of WordPress.
-- Fix - Invoice download fails after PayPal payment.
-- Fix - .mov and .flv video support in Doc Uploader.
-- Fix - Issue on UI on layout 1 and 2 while filtering courses in courses page.
-- Fix - Delete the registered users data associated with the Masteriyo while uninstalling delete all data.
-- Fix - Stripe transaction id not generating issue.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

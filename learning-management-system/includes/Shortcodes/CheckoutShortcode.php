@@ -35,7 +35,7 @@ class CheckoutShortcode extends Shortcode {
 	 * @return string
 	 */
 	public function get_content() {
-		 global $wp;
+		global $wp;
 
 		// Bail early if the cart is null.
 		if ( is_null( masteriyo( 'cart' ) ) ) {
@@ -127,20 +127,22 @@ class CheckoutShortcode extends Shortcode {
 		 * @param integer $order_id The order ID.
 		 */
 		$order_id = apply_filters( 'masteriyo_thankyou_order_id', absint( $order_id ) );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$order_key = isset( $_GET['key'] ) && empty( $_GET['key'] ) ? '' : masteriyo_clean( wp_unslash( $_GET['key'] ) );
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order_key = isset( $_GET['key'] ) && empty( $_GET['key'] ) ? '' : masteriyo_clean( wp_unslash( $_GET['key'] ?? '' ) );
 
 		/**
 		 * Filters order key for thankyou message.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param integer $order_key The order key.
+		 * @param string $order_key The order key.
 		 */
 		$order_key = apply_filters( 'masteriyo_thankyou_order_key', $order_key );
 
 		if ( $order_id > 0 ) {
 			$order = masteriyo_get_order( $order_id );
+
 			if ( ! $order || ! hash_equals( $order->get_order_key(), $order_key ) ) {
 				$order = false;
 			}
@@ -159,19 +161,39 @@ class CheckoutShortcode extends Shortcode {
 		// Empty current cart.
 		masteriyo( 'cart' )->clear();
 
-		//after successful checkout, redirect to a custom page
+		// After successful checkout, redirect to a custom page or show default template.
 		$display_type = masteriyo_get_setting( 'general.pages.after_checkout_page' );
 
 		if ( 'default' === $display_type['display_type'] ) {
 			masteriyo_get_template( 'checkout/thankyou.php', array( 'order' => $order ) );
 		} elseif ( 'url' === $display_type['display_type'] ) {
 			$custom_url = $display_type['custom_url'];
-			echo '<script type="text/javascript">window.location.href = "' . esc_url( $custom_url ) . '";</script>';
-			exit;
+			if ( ! empty( $custom_url ) ) {
+				$redirect_url = add_query_arg(
+					array(
+						'order-received' => $order_id,
+						'key'            => $order ? $order->get_order_key() : $order_key,
+					),
+					$custom_url
+				);
+
+				echo '<script type="text/javascript">window.location.href = "' . esc_url( $redirect_url ) . '";</script>';
+				exit;
+			}
 		} elseif ( 'wp_pages' === $display_type['display_type'] ) {
 			$permalink = get_permalink( $display_type['page_id'] );
-			echo '<script type="text/javascript">window.location.href = "' . esc_url( $permalink ) . '";</script>';
-			exit;
+			if ( $permalink ) {
+				$redirect_url = add_query_arg(
+					array(
+						'order-received' => $order_id,
+						'key'            => $order ? $order->get_order_key() : $order_key,
+					),
+					$permalink
+				);
+
+				echo '<script type="text/javascript">window.location.href = "' . esc_url( $redirect_url ) . '";</script>';
+				exit;
+			}
 		}
 	}
 }

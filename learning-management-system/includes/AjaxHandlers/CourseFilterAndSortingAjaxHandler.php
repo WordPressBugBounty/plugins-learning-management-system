@@ -79,6 +79,14 @@ class CourseFilterAndSortingAjaxHandler extends AjaxHandler {
 
 			masteriyo_set_loop_prop( 'columns', masteriyo_get_setting( 'course_archive.display.per_row' ) );
 
+			$layout_param = isset( $_POST['layout'] ) ? sanitize_text_field( $_POST['layout'] ) : 'default'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+			if ( 'layout_1' === $layout_param ) {
+				$GLOBALS['masteriyo_block_template'] = 'layout1';
+			} elseif ( 'layout_2' === $layout_param ) {
+				$GLOBALS['masteriyo_block_template'] = 'layout2';
+			}
+
 			\ob_start();
 
 			if ( count( $courses ) > 0 ) {

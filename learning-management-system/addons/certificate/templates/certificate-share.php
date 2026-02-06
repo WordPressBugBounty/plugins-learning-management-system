@@ -22,7 +22,7 @@ $button_text = __( 'Certificate Share', 'learning-management-system' );
 ?>
 
 <div class="masteriyo-certificate-share-container" id="masteriyoCertificateShareButton">
-	<button href="javascript:;" class="masteriyo-certificate-share__share-button">
+	<button href="javascript:;" class="masteriyo-btn masteriyo-btn-primary masteriyo-certificate-share__share-button">
 		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share-2">
 			<circle cx="18" cy="5" r="3" />
 			<circle cx="6" cy="12" r="3" />

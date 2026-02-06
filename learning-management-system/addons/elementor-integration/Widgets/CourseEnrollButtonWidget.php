@@ -114,6 +114,10 @@ class CourseEnrollButtonWidget extends WidgetBase {
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
 
+		if ( ! $course ) {
+			return;
+		}
+
 		$query = new CourseProgressQuery(
 			array(
 				'course_id' => $course->get_id(),
@@ -125,20 +129,14 @@ class CourseEnrollButtonWidget extends WidgetBase {
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		?>
 		<?php
-		if ( $course ) {
-			?>
-			<?php
-			masteriyo_get_template(
-				'single-course/price-and-enroll-button.php',
-				array(
-					'course'   => $course,
-					'progress' => $progress,
-					'summary'  => $summary,
-				)
-			);
-			?>
-			<?php
-		}
+		masteriyo_get_template(
+			'single-course/price-and-enroll-button.php',
+			array(
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
+			)
+		);
 	}
 
 	/**
@@ -148,7 +146,12 @@ class CourseEnrollButtonWidget extends WidgetBase {
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();
-		$query  = new CourseProgressQuery(
+
+		if ( ! $course ) {
+			return;
+		}
+
+		$query = new CourseProgressQuery(
 			array(
 				'course_id' => $course->get_id(),
 				'user_id'   => get_current_user_id(),
@@ -159,19 +162,13 @@ class CourseEnrollButtonWidget extends WidgetBase {
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
 		?>
 		<?php
-		if ( $course ) {
-			?>
-			<?php
-			masteriyo_get_template(
-				'single-course/price-and-enroll-button.php',
-				array(
-					'course'   => $course,
-					'progress' => $progress,
-					'summary'  => $summary,
-				)
-			);
-			?>
-			<?php
-		}
+		masteriyo_get_template(
+			'single-course/price-and-enroll-button.php',
+			array(
+				'course'   => $course,
+				'progress' => $progress,
+				'summary'  => $summary,
+			)
+		);
 	}
 }

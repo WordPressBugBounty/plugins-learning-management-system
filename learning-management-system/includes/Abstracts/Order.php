@@ -202,7 +202,7 @@ abstract class Order extends Model {
 	 * @param \Masteriyo\Models\Order\OrderItem[] $items Order items.
 	 * @return array
 	 */
-	protected function get_order_item_course( $items, $context ) {
+	public function get_order_item_course( $items, $context ) {
 		$course_items = array_filter(
 			$items,
 			function( $item ) {

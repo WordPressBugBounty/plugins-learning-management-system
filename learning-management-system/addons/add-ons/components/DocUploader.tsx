@@ -5,9 +5,10 @@ import {
 	Spacer,
 	Stack,
 	Text,
+	useColorModeValue,
 	useToast,
 } from '@chakra-ui/react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { uploadMedia } from '@wordpress/media-utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Accept, useDropzone } from 'react-dropzone';
@@ -137,6 +138,8 @@ const DocUploader: React.FC<Props> = (props) => {
 	const { setValue } = useFormContext();
 	const isMounted = useRef(false);
 
+	const textColorValue = useColorModeValue('#383838', 'white');
+
 	useEffect(() => {
 		if (isMounted.current) {
 			setValue(keyIndex, files, { shouldDirty: true });
@@ -198,7 +201,7 @@ const DocUploader: React.FC<Props> = (props) => {
 
 	return (
 		<FormControl>
-			<FormLabel>{title}</FormLabel>
+			<FormLabel color={textColorValue}>{title}</FormLabel>
 			<Stack
 				direction="column"
 				justify="center"
@@ -253,8 +256,10 @@ const DocUploader: React.FC<Props> = (props) => {
 					<Text fontSize="sm" color="gray.500">
 						(
 						{sprintf(
-							__(
+							/* translators: %d: maximum upload size in megabytes */
+							_x(
 								'Maximum upload size limit is %d MB.',
+								'File upload size validation message',
 								'learning-management-system',
 							),
 							maxUploadFileSize,

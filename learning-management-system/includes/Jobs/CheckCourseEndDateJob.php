@@ -49,31 +49,35 @@ class CheckCourseEndDateJob {
 	 * @param int $course_id The course's ID.
 	 */
 	public function handle( $course_id ) {
-
 		$course = masteriyo_get_course( $course_id );
 
 		if ( is_null( $course ) || is_wp_error( $course ) ) {
 			return;
 		}
 
+		$enable_end_date = method_exists( $course, 'get_enable_end_date' ) && $course->get_enable_end_date();
+
+		if ( ! $enable_end_date ) {
+			return;
+		}
+
 		$raw_end_date = $course->get_end_date();
-
-		$end_date = date_i18n( 'Y-m-d', strtotime( $raw_end_date ) );
-
-		if ( empty( $end_date ) ) {
+		if ( empty( $raw_end_date ) ) {
 			return;
 		}
 
-		$today = current_time( 'Y-m-d' );
-
-		if ( $end_date !== $today ) {
+		$end_ts = strtotime( $raw_end_date );
+		if ( ! $end_ts ) {
 			return;
 		}
 
-		// Revoke all the enrollments for the course.
+		$now_ts = current_time( 'timestamp' );
+
+		if ( $now_ts < $end_ts ) {
+			return;
+		}
+
 		$this->revoke_enrollments_for_course( $course );
-
-		// Set the course status to `draft` and save.
 		$this->set_course_to_draft( $course );
 	}
 

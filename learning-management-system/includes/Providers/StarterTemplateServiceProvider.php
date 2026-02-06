@@ -21,21 +21,31 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
 class StarterTemplateServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
 	/**
-	 * Services provided by this service provider.
-	 *
-	 * @since 2.0.0
-	 * @var array
-	 */
-	protected $provides = array();
-
-	/**
 	 * Register services in the container.
 	 *
 	 * @since 2.0.0
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		// No container services to register for now.
+	}
+
+	/**
+	 * Services provided by this service provider.
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 	/**
@@ -45,7 +55,7 @@ class StarterTemplateServiceProvider extends AbstractServiceProvider implements 
 	 * @since 2.0.0
 	 * @return void
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
 	}
 

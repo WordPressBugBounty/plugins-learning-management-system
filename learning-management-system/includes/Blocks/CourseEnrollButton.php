@@ -78,30 +78,51 @@ class CourseEnrollButton extends BlockHandler {
 		?>
 		<style>
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-
-			.masteriyo-time-btn .masteriyo-course-price{
-				display: none;
-			}
 		</style>
 		<?php
 
+		$class_name = $attr['className'] ?? '';
+
 		printf(
-			'<div class="masteriyo-block  masteriyo-course--content  masteriyo-enroll-button-block--%s">',
-			esc_attr( $client_id )
+			'<div class="masteriyo-block  masteriyo-enroll-button-block--%s %s">',
+			esc_attr( $client_id ),
+			esc_attr( $class_name )
 		);
 
-			masteriyo_get_template(
-				'single-course/price-and-enroll-button.php',
-				array(
-					'course'   => $course,
-					'progress' => $progress,
-					'summary'  => $summary,
-				)
-			);
+		/**
+		 * Action hook for rendering retake button template.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 */
+		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
+		if ( 'default' === $layout || 'minimal' === $layout ) {
+			do_action( 'masteriyo_template_course_retake_button', $course );
+		}
+		?>
 
-		echo '</div>';
+		<?php
+		/**
+		 * Action hook for rendering enroll button template.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 */
+			$user_id = get_current_user_id();
+		if ( masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) && 'layout1' === $layout && masteriyo_is_single_course_page() && $progress_pct > 0 ) {
+		} else {
+			do_action( 'masteriyo_template_enroll_button', $course );
+		}
 
 		?>
+
+		<?php masteriyo_display_all_notices(); ?>
+
+		<?php echo '</div>'; ?>
+
+	 
 			<style>
 	.masteriyo-enroll-button-block--<?php echo esc_attr( $client_id ); ?> .masteriyo-group-course__group-button {
 		display: none;

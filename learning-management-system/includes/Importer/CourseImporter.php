@@ -243,6 +243,14 @@ class CourseImporter {
 			return $local_upload;
 		}
 
+		// Validate that we have the required file and url keys.
+		if ( ! isset( $local_upload['file'] ) || ! isset( $local_upload['url'] ) ) {
+			return new \WP_Error(
+				'import_file_error',
+				__( 'Failed to upload file. Invalid upload response.', 'learning-management-system' )
+			);
+		}
+
 		$filetype = wp_check_filetype( $local_upload['file'] );
 
 		if ( $filetype ) {
@@ -402,9 +410,21 @@ class CourseImporter {
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== intval( wp_remote_retrieve_response_code( $response ) ) ) {
+		if ( is_wp_error( $response ) ) {
 			$filesystem->delete( $upload['file'] );
 			return $response;
+		}
+
+		if ( 200 !== intval( wp_remote_retrieve_response_code( $response ) ) ) {
+			$filesystem->delete( $upload['file'] );
+			return new \WP_Error(
+				'import_file_error',
+				sprintf(
+					/* translators: %d: HTTP response code */
+					__( 'Remote server returned error response: %d', 'learning-management-system' ),
+					wp_remote_retrieve_response_code( $response )
+				)
+			);
 		}
 
 		$filesize = filesize( $upload['file'] );

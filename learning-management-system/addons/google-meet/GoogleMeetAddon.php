@@ -9,6 +9,7 @@
 
 namespace Masteriyo\Addons\GoogleMeet;
 
+use Masteriyo\Addons\GoogleMeet\Enums\GoogleMeetStatus;
 use Masteriyo\Addons\GoogleMeet\Models\GoogleMeetSetting;
 use Masteriyo\Addons\GoogleMeet\Models\Setting;
 use Masteriyo\PostType\PostType;
@@ -85,6 +86,7 @@ class GoogleMeetAddon {
 		add_action( 'masteriyo_layout_1_single_course_curriculum_accordion_header_info_item', array( $this, 'header_info_item' ), 20, 1 );
 		add_filter( 'masteriyo_post_type_default_labels', array( $this, 'append_post_type_default_label' ), 10 );
 		add_action( 'masteriyo_new_user_course', array( $this, 'masteriyo_add_user_to_google_calender' ), 10, 2 );
+		add_action( 'masteriyo_course_contents_post_status', array( $this, 'include_google_meet_status' ) );
 	}
 
 	/**
@@ -717,5 +719,24 @@ class GoogleMeetAddon {
 		$namespaces['masteriyo/v1']['google-meet']         = GoogleMeetController::class;
 
 		return $namespaces;
+	}
+
+	/**
+	 * Include google meet status.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param array $status post status.
+	 * @return array
+	 */
+	public function include_google_meet_status( $status ) {
+		return array_merge(
+			$status,
+			array(
+				GoogleMeetStatus::UPCOMING,
+				GoogleMeetStatus::ACTIVE,
+				GoogleMeetStatus::EXPIRED,
+			)
+		);
 	}
 }

@@ -110,10 +110,9 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 			)
 		);
 
-		//Set comment status.
-		wp_set_comment_status( $id, $quiz_review->get_status() );
-
 		if ( $id && ! is_wp_error( $id ) ) {
+			wp_set_comment_status( $id, $quiz_review->get_status() );
+
 			$quiz_review->set_id( $id );
 			$this->update_comment_meta( $quiz_review, true );
 
@@ -271,7 +270,7 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 		$force_delete = $quiz_review->is_reply() ? true : $args['force_delete'];
 		// First delete replies because WP will change the comment_parent of replies later.
 		if ( ! $quiz_review->is_reply() && $args['children'] ) {
-			  masteriyo_delete_comment_replies( $id );
+				masteriyo_delete_comment_replies( $id );
 		}
 
 		if ( $force_delete ) {
@@ -527,8 +526,4 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 			$parent_review->delete( true );
 		}
 	}
-
-
 }
-
-

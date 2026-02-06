@@ -13,23 +13,7 @@ use Masteriyo\Repository\SessionRepository;
 
 
 class SessionServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'session',
-		'session.store',
-		'\Masteriyo\Session\Session',
-		'\Masteriyo\Repository\SessionRepository',
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -39,12 +23,39 @@ class SessionServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()
 			->add( 'session.store', SessionRepository::class );
 
 		$this->getContainer()
-			->add( 'session', Session::class, true )
+			->addShared( 'session', Session::class )
 			->addArgument( 'session.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'session',
+				'session.store',
+				'\Masteriyo\Session\Session',
+				'\Masteriyo\Repository\SessionRepository',
+			),
+			true
+		);
 	}
 }

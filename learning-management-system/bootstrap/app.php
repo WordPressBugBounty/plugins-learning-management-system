@@ -20,7 +20,7 @@ $masteriyo->delegate(
 $masteriyo_service_providers = require_once dirname( dirname( __FILE__ ) ) . '/config/app.php';
 
 foreach ( $masteriyo_service_providers as $p ) {
-	$masteriyo->addServiceProvider( $p );
+	$masteriyo->addServiceProvider( new $p() );
 }
 
 return $masteriyo;

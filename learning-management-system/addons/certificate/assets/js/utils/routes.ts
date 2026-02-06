@@ -10,3 +10,7 @@ export const certificateBackendRoutes = {
 		settings: '/certificates-settings',
 	},
 };
+
+export const accountPageRoutes = {
+	certificates: '/certificates',
+};

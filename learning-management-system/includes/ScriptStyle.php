@@ -186,35 +186,37 @@ class ScriptStyle {
 	private static function init_scripts() {
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		$account_src            = self::get_asset_url( '/assets/js/build/masteriyo-account.js' );
-		$backend_src            = self::get_asset_url( '/assets/js/build/masteriyo-backend.js' );
-		$learn_src              = self::get_asset_url( '/assets/js/build/masteriyo-interactive.js' );
-		$single_course_src      = self::get_asset_url( '/assets/js/build/single-course' . $suffix . '.js' );
-		$courses_src            = self::get_asset_url( '/assets/js/build/courses' . $suffix . '.js' );
-		$admin_src              = self::get_asset_url( '/assets/js/build/admin' . $suffix . '.js' );
-		$login_form_src         = self::get_asset_url( '/assets/js/build/login-form' . $suffix . '.js' );
-		$checkout_src           = self::get_asset_url( '/assets/js/build/checkout' . $suffix . '.js' );
-		$ask_review_src         = self::get_asset_url( '/assets/js/build/ask-review' . $suffix . '.js' );
-		$jquery_block_ui_src    = self::get_asset_url( '/assets/js/build/jquery-block-ui' . $suffix . '.js' );
-		$ask_usage_tracking_src = self::get_asset_url( '/assets/js/build/usage-tracking' . $suffix . '.js' );
-		$swiper_src             = plugins_url( 'libs/swiper/swiper-bundle.min.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) );
-		$categories_slider_src  = self::get_asset_url( '/assets/js/build/categories-slider' . $suffix . '.js' );
-		$custom_field_src       = self::get_asset_url( '/assets/js/build/masteriyo-builder-custom-fields' . $suffix . '.js' );
+		$account_src                = self::get_asset_url( '/assets/js/build/masteriyo-account.js' );
+		$backend_src                = self::get_asset_url( '/assets/js/build/masteriyo-backend.js' );
+		$learn_src                  = self::get_asset_url( '/assets/js/build/masteriyo-interactive.js' );
+		$single_course_src          = self::get_asset_url( '/assets/js/build/single-course' . $suffix . '.js' );
+		$courses_src                = self::get_asset_url( '/assets/js/build/courses' . $suffix . '.js' );
+		$admin_src                  = self::get_asset_url( '/assets/js/build/admin' . $suffix . '.js' );
+		$login_form_src             = self::get_asset_url( '/assets/js/build/login-form' . $suffix . '.js' );
+		$checkout_src               = self::get_asset_url( '/assets/js/build/checkout' . $suffix . '.js' );
+		$ask_review_src             = self::get_asset_url( '/assets/js/build/ask-review' . $suffix . '.js' );
+		$jquery_block_ui_src        = self::get_asset_url( '/assets/js/build/jquery-block-ui' . $suffix . '.js' );
+		$ask_usage_tracking_src     = self::get_asset_url( '/assets/js/build/usage-tracking' . $suffix . '.js' );
+		$swiper_src                 = plugins_url( 'libs/swiper/swiper-bundle.min.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) );
+		$categories_slider_src      = self::get_asset_url( '/assets/js/build/categories-slider' . $suffix . '.js' );
+		$custom_field_src           = self::get_asset_url( '/assets/js/build/masteriyo-builder-custom-fields' . $suffix . '.js' );
+		$language_hash_preserve_src = self::get_asset_url( '/assets/js/build/masteriyo-language-hash-preserver' . $suffix . '.js' );
 
 		if ( masteriyo_is_development() ) {
-			$account_src            = 'http://localhost:3000/dist/account.js';
-			$backend_src            = 'http://localhost:3000/dist/backend.js';
-			$learn_src              = 'http://localhost:3000/dist/interactive.js';
-			$single_course_src      = self::get_asset_url( '/assets/js/frontend/single-course.js' );
-			$courses_src            = self::get_asset_url( '/assets/js/frontend/courses.js' );
-			$admin_src              = self::get_asset_url( '/assets/js/admin/admin.js' );
-			$login_form_src         = self::get_asset_url( '/assets/js/frontend/login-form.js' );
-			$checkout_src           = self::get_asset_url( '/assets/js/frontend/checkout.js' );
-			$ask_review_src         = self::get_asset_url( '/assets/js/frontend/ask-review.js' );
-			$jquery_block_ui_src    = self::get_asset_url( '/assets/js/frontend/jquery-block-ui.js' );
-			$ask_usage_tracking_src = self::get_asset_url( '/assets/js/frontend/usage-tracking.js' );
-			$categories_slider_src  = self::get_asset_url( '/assets/js/frontend/categories-slider.js' );
-			$custom_field_src       = self::get_asset_url( '/assets/js/admin/masteriyo-builder-custom-fields.js' );
+			$account_src                = 'http://localhost:3000/dist/account.js';
+			$backend_src                = 'http://localhost:3000/dist/backend.js';
+			$learn_src                  = 'http://localhost:3000/dist/interactive.js';
+			$single_course_src          = self::get_asset_url( '/assets/js/frontend/single-course.js' );
+			$courses_src                = self::get_asset_url( '/assets/js/frontend/courses.js' );
+			$admin_src                  = self::get_asset_url( '/assets/js/admin/admin.js' );
+			$login_form_src             = self::get_asset_url( '/assets/js/frontend/login-form.js' );
+			$checkout_src               = self::get_asset_url( '/assets/js/frontend/checkout.js' );
+			$ask_review_src             = self::get_asset_url( '/assets/js/frontend/ask-review.js' );
+			$jquery_block_ui_src        = self::get_asset_url( '/assets/js/frontend/jquery-block-ui.js' );
+			$ask_usage_tracking_src     = self::get_asset_url( '/assets/js/frontend/usage-tracking.js' );
+			$categories_slider_src      = self::get_asset_url( '/assets/js/frontend/categories-slider.js' );
+			$custom_field_src           = self::get_asset_url( '/assets/js/admin/masteriyo-builder-custom-fields.js' );
+			$language_hash_preserve_src = self::get_asset_url( '/assets/js/admin/masteriyo-language-hash-preserver.js' );
 		}
 
 		/**
@@ -227,25 +229,25 @@ class ScriptStyle {
 		self::$scripts = apply_filters(
 			'masteriyo_enqueue_scripts',
 			array(
-				'dependencies'            => array(
+				'dependencies'                      => array(
 					'src'      => self::get_asset_url( '/assets/js/build/masteriyo-dependencies.js' ),
 					'context'  => array( 'admin', 'public' ),
 					'callback' => function () {
 						return masteriyo_is_production() && ( masteriyo_is_admin_page() || masteriyo_is_learn_page() || ( is_user_logged_in() && masteriyo_is_account_page() ) );},
 				),
-				'blocks'                  => array(
+				'blocks'                            => array(
 					'src'           => self::get_asset_url( '/assets/js/build/blocks.js' ),
 					'context'       => 'blocks',
 					'deps'          => array_merge( self::get_asset_deps( 'blocks' ), array( 'jquery', 'wp-dom-ready', 'wp-hooks', 'wp-keyboard-shortcuts' ) ),
 					'register_only' => true,
 				),
-				'admin'                   => array(
+				'admin'                             => array(
 					'src'      => $admin_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => 'admin',
 					'callback' => 'masteriyo_is_admin_page',
 				),
-				'masteriyo-custom'        => array(
+				'masteriyo-custom'                  => array(
 					'src'      => $custom_field_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => array( 'admin', 'public' ),
@@ -253,13 +255,30 @@ class ScriptStyle {
 					'callback' => function () {
 						return ( masteriyo_is_courses_page() || masteriyo_is_learn_page() || ( isset( $_GET['page'] ) && $_GET['page'] === 'masteriyo' ) );},
 				),
-				'backend'                 => array(
+				'masteriyo-language-hash-preserver' => array(
+					'src'      => $language_hash_preserve_src,
+					'deps'     => array( 'jquery' ),
+					'context'  => array( 'admin', 'public' ),
+					'type'     => 'module',
+					'callback' => function () {
+						$is_masteriyo =
+							( function_exists( 'masteriyo_is_courses_page' ) && masteriyo_is_courses_page() ) ||
+							( function_exists( 'masteriyo_is_learn_page' ) && masteriyo_is_learn_page() ) ||
+							( function_exists( 'masteriyo_is_account_page' ) && masteriyo_is_account_page() ) ||
+							( isset( $_GET['page'] ) && $_GET['page'] === 'trp-edit-translation=true' );
+
+						$is_translatepress_active = defined( 'TRP_PLUGIN_VERSION' );
+
+						return $is_masteriyo && $is_translatepress_active;
+					},
+				),
+				'backend'                           => array(
 					'src'      => $backend_src,
 					'deps'     => array_merge( self::get_asset_deps( 'masteriyo-backend' ), array( 'wp-core-data', 'wp-components', 'wp-element', 'wp-editor', 'wp-rich-text', 'wp-format-library' ) ),
 					'context'  => 'admin',
 					'callback' => 'masteriyo_is_admin_page',
 				),
-				'single-course'           => array(
+				'single-course'                     => array(
 					'src'      => $single_course_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => 'public',
@@ -267,7 +286,7 @@ class ScriptStyle {
 						return masteriyo_is_single_course_page() || isset( $_GET['masteriyo-load-single-course-js'] ) || is_masteriyo_block(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					},
 				),
-				'courses'                 => array(
+				'courses'                           => array(
 					'src'      => $courses_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => 'public',
@@ -275,7 +294,7 @@ class ScriptStyle {
 						return masteriyo_is_courses_page() || isset( $_GET['masteriyo-load-courses-js'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					},
 				),
-				'account'                 => array(
+				'account'                           => array(
 					'src'      => $account_src,
 					'deps'     => array_merge( self::get_asset_deps( 'masteriyo-backend' ), array( 'wp-core-data', 'wp-components', 'wp-element' ) ),
 					'version'  => self::get_version(),
@@ -284,7 +303,7 @@ class ScriptStyle {
 						return is_user_logged_in() && masteriyo_is_account_page();
 					},
 				),
-				'login-form'              => array(
+				'login-form'                        => array(
 					'src'      => $login_form_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
@@ -294,28 +313,28 @@ class ScriptStyle {
 						( ! is_user_logged_in() && masteriyo_get_setting( 'single_course.display.course_visibility' ) );
 					},
 				),
-				'checkout'                => array(
+				'checkout'                          => array(
 					'src'      => $checkout_src,
 					'deps'     => array( 'jquery', 'masteriyo-jquery-block-ui' ),
 					'version'  => self::get_version(),
 					'context'  => 'public',
 					'callback' => 'masteriyo_is_checkout_page',
 				),
-				'ask-review'              => array(
+				'ask-review'                        => array(
 					'src'      => $ask_review_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
 					'context'  => 'admin',
 					'callback' => 'masteriyo_is_show_review_notice',
 				),
-				'learn'                   => array(
+				'learn'                             => array(
 					'src'      => $learn_src,
 					'deps'     => array_merge( self::get_asset_deps( 'masteriyo-interactive' ), array( 'wp-data', 'wp-core-data', 'wp-components', 'wp-element' ) ),
 					'version'  => self::get_version(),
 					'context'  => 'public',
 					'callback' => 'masteriyo_is_learn_page',
 				),
-				'jquery-block-ui'         => array(
+				'jquery-block-ui'                   => array(
 					'src'      => $jquery_block_ui_src,
 					'version'  => self::get_version(),
 					'context'  => 'public',
@@ -323,7 +342,7 @@ class ScriptStyle {
 						return masteriyo_is_checkout_page() || is_post_type_archive( PostType::COURSE ) || masteriyo_is_courses_page();
 					},
 				),
-				'ask-usage-tracking'      => array(
+				'ask-usage-tracking'                => array(
 					'src'      => $ask_usage_tracking_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
@@ -332,7 +351,7 @@ class ScriptStyle {
 						return masteriyo_show_usage_tracking_notice();
 					},
 				),
-				'swiper'                  => array(
+				'swiper'                            => array(
 					'src'      => $swiper_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
@@ -341,7 +360,7 @@ class ScriptStyle {
 						return masteriyo_is_slider_enabled();
 					},
 				),
-				'categories-slider'       => array(
+				'categories-slider'                 => array(
 					'src'      => $categories_slider_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
@@ -350,7 +369,7 @@ class ScriptStyle {
 						return masteriyo_is_categories_slider_enabled();
 					},
 				),
-				'masteriyo-single-course' => array(
+				'masteriyo-single-course'           => array(
 					'src'      => $single_course_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => 'public',
@@ -358,7 +377,7 @@ class ScriptStyle {
 						return masteriyo_is_single_page_contains_block();
 					},
 				),
-				'masteriyo-ask-review'    => array(
+				'masteriyo-ask-review'              => array(
 					'src'      => $ask_review_src,
 					'deps'     => array( 'jquery' ),
 					'version'  => self::get_version(),
@@ -367,7 +386,7 @@ class ScriptStyle {
 						return masteriyo_is_single_page_contains_block();
 					},
 				),
-				'masteriyo-courses'       => array(
+				'masteriyo-courses'                 => array(
 					'src'      => $courses_src,
 					'deps'     => array( 'jquery' ),
 					'context'  => 'public',
@@ -748,12 +767,18 @@ class ScriptStyle {
 		$primary_light = masteriyo_color_luminance( $primary_color, 0.3 );
 		$primary_dark  = masteriyo_color_luminance( $primary_color, -0.05 );
 
+		$button_color = masteriyo_get_setting( 'general.styling.button_color' ) ?? '';
+
+		$button_hover_color = masteriyo_get_setting( 'general.styling.button_hover_color' );
+
 		$custom_css = "
       :root {
-		--masteriyo-color-primary: $primary_color ;
+		    --masteriyo-color-primary: $primary_color ;
         --masteriyo-color-primary-light: $primary_light;
         --masteriyo-color-primary-dark: $primary_dark;
         --masteriyo-color-btn-blue-hover: $primary_light;
+				--masteriyo-button-primary: $button_color;
+				--masteriyo-button-primary-hover: $button_hover_color;
       }
     ";
 		wp_add_inline_style( 'masteriyo-public', $custom_css );
@@ -768,16 +793,14 @@ class ScriptStyle {
     ';
 		wp_add_inline_style( 'admin-bar', $custom_css );
 
-		$button_color = masteriyo_get_setting( 'general.styling.button_color' ) ?? '';
-
 		if ( trim( $button_color ) ) {
 			$button_color_light = masteriyo_color_luminance( $button_color, 0.3 );
 
 			$custom_css = "
-				.masteriyo-btn.masteriyo-btn-primary {
-					background-color: {$button_color};
-					border-color: {$button_color}
-				}
+				// .masteriyo-btn.masteriyo-btn-primary {
+				// 	background-color: {$button_color};
+				// 	border-color: {$button_color}
+				// }
 
 				:root {
 					--masteriyo-color-btn-blue-hover: $button_color_light;
@@ -1068,6 +1091,7 @@ class ScriptStyle {
 						'show_allow_usage_notice'   => masteriyo_bool_to_string( masteriyo_show_usage_tracking_notice() ),
 						'total_posts'               => count_user_posts( get_current_user_id() ),
 						'settings'                  => masteriyo_get_setting( 'general' ),
+						'isGlobalReviewEnabled'     => masteriyo_bool_to_string( masteriyo_get_setting( 'single_course.display.enable_review' ) ? true : false ),
 						'current_user'              => $user ? masteriyo_array_except( $user->get_data(), array( 'password' ) ) : null,
 						'canDeleteCourseCategories' => masteriyo_bool_to_string( current_user_can( 'delete_course_categories' ) ),
 						'isOpenAIKeyFound'          => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.openai.api_key' ) ? true : false ),
@@ -1112,6 +1136,7 @@ class ScriptStyle {
 						'add_new_single_course_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-single-course-page' ),
 						'add_new_course_archive_page_template_url' => admin_url( 'edit.php?post_type=elementor_library&tabs_group&elementor_library_type=masteriyo-course-archive-page' ),
 						'stripe_nonce'              => wp_create_nonce( 'masteriyo_stripe_nonce' ),
+						'hideHomePage'              => masteriyo_bool_to_string( get_hide_home_page() ),
 
 					),
 				),
@@ -1579,6 +1604,7 @@ class ScriptStyle {
 					'wp-block-library',
 					// Support translatepress plugin language switch floater.
 					'trp-language-switcher-style',
+					'trp-language-switcher-v2',
 					'trp-floater-language-switcher-style',
 					'everest-forms-general',
 					'user-registration-general',

@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { ControlProps, OptionProps, components } from 'chakra-react-select';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { accountPageFormLabelStyles } from '../../../../../../../assets/js/account/utils/general';
 import AsyncSelect from '../../../../../../../assets/js/back-end/components/common/AsyncSelect';
 import { reactSelectStyles } from '../../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
@@ -102,7 +103,9 @@ const Author: React.FC<Props> = (props) => {
 
 	return (
 		<FormControl>
-			<FormLabel>{__('Author', 'learning-management-system')}</FormLabel>
+			<FormLabel sx={accountPageFormLabelStyles}>
+				{__('Group Leader', 'learning-management-system')}
+			</FormLabel>
 			{!usersQuery.isLoading && defaultAuthor ? (
 				<AsyncSelect
 					isDisabled={!canEditUsers}

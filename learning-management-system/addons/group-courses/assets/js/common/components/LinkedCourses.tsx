@@ -12,6 +12,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiBook, BiLinkExternal } from 'react-icons/bi';
+import { accountPageFormLabelStyles } from '../../../../../../assets/js/account/utils/general';
 
 interface Course {
 	id: number;
@@ -33,8 +34,8 @@ const LinkedCourses: React.FC<LinkedCoursesProps> = ({ courses }) => {
 	if (!courses || courses.length === 0) {
 		return (
 			<FormControl>
-				<FormLabel>{courseLabel}</FormLabel>
-				<Text color="gray.500" fontSize="sm">
+				<FormLabel sx={accountPageFormLabelStyles}>{courseLabel}</FormLabel>
+				<Text color="saint-blue" fontSize="sm">
 					{__(
 						'No courses are enrolled for this group.',
 						'learning-management-system',

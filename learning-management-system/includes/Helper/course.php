@@ -346,7 +346,7 @@ function masteriyo_get_course_contents( $course, $status = PostStatus::PUBLISH )
 			array(
 				'post_type'      => CourseChildrenPostType::all(),
 				'posts_per_page' => -1,
-				'post_status'    => $status,
+				'post_status'    => apply_filters( 'masteriyo_course_contents_post_status', array( $status ) ), // @since 2.1.0 [Free] added filter to include custom post status.
 				'meta_key'       => '_course_id',
 				'meta_value'     => $course->get_id(),
 				'meta_compare'   => 'numeric',

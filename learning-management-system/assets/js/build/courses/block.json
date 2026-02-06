@@ -5,9 +5,13 @@
   "version": "1.0.0",
   "title": "Courses",
   "category": "masteriyo",
-  "description": "",
+  "description": "Display a customizable grid or list of courses with filtering, sorting, and layout options. Perfect for course archives, landing pages, and category showcases.",
   "keywords": [
-    "Courses Block"
+    "Courses Block",
+    "course grid",
+    "course list",
+    "course archive",
+    "course catalog"
   ],
   "textdomain": "learning-management-system",
   "attributes": {
@@ -45,6 +49,118 @@
     "enableCourseFilters": {
       "type": "boolean",
       "default": false
+    },
+    "enableCategoryFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableDifficultyLevelFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "enablePriceTypeFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "enablePriceFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableRatingFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableSorting": {
+      "type": "boolean",
+      "default": false
+    },
+    "enableSortByDate": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableSortByPrice": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableSortByRating": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableSortByTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "template": {
+      "type": "string",
+      "default": ""
+    },
+    "showSearch": {
+      "type": "boolean",
+      "default": true
+    },
+    "showThumbnail": {
+      "type": "boolean",
+      "default": true
+    },
+    "showDifficultyBadge": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCategories": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCourseTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAuthor": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAuthorAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAuthorName": {
+      "type": "boolean",
+      "default": true
+    },
+    "showRating": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCourseDescription": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMetadata": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCourseDuration": {
+      "type": "boolean",
+      "default": true
+    },
+    "showStudentsCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLessonsCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCardFooter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPrice": {
+      "type": "boolean",
+      "default": true
+    },
+    "showEnrollButton": {
+      "type": "boolean",
+      "default": true
     }
   },
   "supports": {

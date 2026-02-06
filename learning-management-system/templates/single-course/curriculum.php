@@ -26,23 +26,39 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
  */
 do_action( 'masteriyo_before_single_course_curriculum', $course );
 
-$query    = new \Masteriyo\Query\CourseProgressQuery(
+$query        = new \Masteriyo\Query\CourseProgressQuery(
 	array(
 		'course_id' => $course->get_id(),
 		'user_id'   => get_current_user_id(),
 	)
 );
-$progress = current( $query->get_course_progress() );
-$summary  = $progress ? $progress->get_summary( 'all' ) : '';
+$progress     = current( $query->get_course_progress() );
+$progress     = current( $query->get_course_progress() );
+$summary      = $progress ? $progress->get_summary( 'all' ) : '';
+$completed    = isset( $summary['total']['completed'] ) ? (int) $summary['total']['completed'] : 0;
+$total        = isset( $summary['total']['total'] ) ? (int) $summary['total']['total'] : 0;
+$remaining    = max( 0, $total - $completed );
+$progress_raw = $total > 0 ? ( $completed / $total ) * 100 : 0;
+$progress_pct = max( 0, min( 100, $progress_raw ) );
 
 
 $show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id() );
-
-$is_hidden = $show_overview_active;
-
+$is_hidden            = $show_overview_active;
 if ( isset( $show_curriculum ) && $show_curriculum ) {
 	$is_hidden = false;
 }
+if (
+	! is_user_logged_in() ||
+	empty( $progress ) ||
+	$completed === 0 ||
+	$total === 0
+) {
+	$show_overview_active = true;
+	$is_hidden            = true;
+}
+
+$course_values = $course->get_custom_fields();
+$course_values = is_array( $course_values ) ? $course_values : array();
 
 ?>
 

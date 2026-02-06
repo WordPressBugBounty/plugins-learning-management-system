@@ -135,6 +135,7 @@ class Course extends Model {
 		'pricing_method'                     => '',
 		'flow'                               => CourseFlow::FREE_FLOW,
 		'custom_fields'                      => null,
+		'enable_end_date'                    => false,
 
 	);
 
@@ -615,6 +616,18 @@ class Course extends Model {
 	 */
 	public function get_reviews_allowed( $context = 'view' ) {
 		return $this->get_prop( 'reviews_allowed', $context );
+	}
+
+	/**
+	 * Retrieves the value of the 'enable_end_date' property.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $context Optional. The context for retrieving the property. Default is 'view'.
+	 * @return mixed The value of the 'enable_end_date' property.
+	 */
+	public function get_enable_end_date( $context = 'view' ) {
+		return $this->get_prop( 'enable_end_date', $context );
 	}
 
 
@@ -1192,6 +1205,19 @@ class Course extends Model {
 	public function set_date_created( $date = null ) {
 		$this->set_date_prop( 'date_created', $date );
 	}
+
+
+	/**
+	 * Set the enable_end_date attribute.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param boolean $value
+	 */
+	public function set_enable_end_date( $value ) {
+		$this->set_prop( 'enable_end_date', masteriyo_string_to_bool( $value ) );
+	}
+
 
 	/**
 	 * Set course modified date.

@@ -78,9 +78,10 @@ class Setting extends Model {
 				'unmuted_autoplay'                   => 'masteriyo_string_to_bool',
 			),
 			'styling'       => array(
-				'primary_color'                => 'sanitize_hex_color',
-				'primary_color_for_learn_page' => 'sanitize_hex_color',
-				'button_color'                 => 'sanitize_hex_color',
+				'primary_color'                => 'sanitize_text_field',
+				'primary_color_for_learn_page' => 'sanitize_text_field',
+				'button_color'                 => 'sanitize_text_field',
+				'button_hover_color'           => 'sanitize_text_field',
 				'theme'                        => 'sanitize_text_field',
 			),
 		),
@@ -134,16 +135,13 @@ class Setting extends Model {
 				'featured_ribbon'          => 'masteriyo_string_to_bool',
 				'categories'               => 'masteriyo_string_to_bool',
 				'course_title'             => 'masteriyo_string_to_bool',
-				'author'                   => 'masteriyo_string_to_bool',
 				'author_avatar'            => 'masteriyo_string_to_bool',
 				'author_name'              => 'masteriyo_string_to_bool',
 				'rating'                   => 'masteriyo_string_to_bool',
 				'course_description'       => 'masteriyo_string_to_bool',
-				'metadata'                 => 'masteriyo_string_to_bool',
 				'course_duration'          => 'masteriyo_string_to_bool',
 				'students_count'           => 'masteriyo_string_to_bool',
 				'lessons_count'            => 'masteriyo_string_to_bool',
-				'card_footer'              => 'masteriyo_string_to_bool',
 				'price'                    => 'masteriyo_string_to_bool',
 				'enroll_button'            => 'masteriyo_string_to_bool',
 				'seats_for_students'       => 'masteriyo_string_to_bool',
@@ -162,22 +160,40 @@ class Setting extends Model {
 			),
 		),
 		'single_course'  => array(
-			'display'         => array(
+			'display'               => array(
 				'enable_review'                     => 'masteriyo_string_to_bool',
-				'enable_review_visibility_control'  => 'masteriyo_string_to_bool',	
+				'enable_review_visibility_control'  => 'masteriyo_string_to_bool',
 				'enable_review_enrolled_users_only' => 'masteriyo_string_to_bool',
 				'auto_approve_reviews'              => 'masteriyo_string_to_bool',
 				'course_visibility'                 => 'masteriyo_string_to_bool',
 			),
-			'related_courses' => array(
+			'related_courses'       => array(
 				'enable' => 'masteriyo_string_to_bool',
 			),
-			'custom_template' => array(
+			'components_visibility' => array(
+				'single_course_visibility' => 'masteriyo_string_to_bool',
+				'thumbnail'                => 'masteriyo_string_to_bool',
+				'difficulty_badge'         => 'masteriyo_string_to_bool',
+				'featured_ribbon'          => 'masteriyo_string_to_bool',
+				'categories'               => 'masteriyo_string_to_bool',
+				'course_title'             => 'masteriyo_string_to_bool',
+				'author_avatar'            => 'masteriyo_string_to_bool',
+				'author_name'              => 'masteriyo_string_to_bool',
+				'rating'                   => 'masteriyo_string_to_bool',
+				'course_description'       => 'masteriyo_string_to_bool',
+				'course_duration'          => 'masteriyo_string_to_bool',
+				'students_count'           => 'masteriyo_string_to_bool',
+				'lessons_count'            => 'masteriyo_string_to_bool',
+				'price'                    => 'masteriyo_string_to_bool',
+				'enroll_button'            => 'masteriyo_string_to_bool',
+				'seats_for_students'       => 'masteriyo_string_to_bool',
+			),
+			'custom_template'       => array(
 				'enable'          => 'masteriyo_string_to_bool',
 				'template_source' => 'sanitize_title',
 				'template_id'     => 'absint',
 			),
-			'layout'          => 'sanitize_text_field',
+			'layout'                => 'sanitize_text_field',
 		),
 		'authentication' => array(
 			'email_verification'  => array(
@@ -324,25 +340,28 @@ class Setting extends Model {
 			),
 		),
 		'advance'        => array(
-			'debug'     => array(
+			'debug'             => array(
 				'template_debug' => 'masteriyo_string_to_bool',
 				'debug'          => 'masteriyo_string_to_bool',
 				'enable_logger'  => 'masteriyo_string_to_bool',
 			),
-			'uninstall' => array(
+			'uninstall'         => array(
 				'remove_data' => 'masteriyo_string_to_bool',
 			),
-			'tracking'  => array(
+			'tracking'          => array(
 				'allow_usage'       => 'masteriyo_string_to_bool',
 				'subscribe_updates' => 'masteriyo_string_to_bool',
 				'email'             => 'sanitize_email',
 			),
-			'gdpr'      => array(
+			'gdpr'              => array(
 				'enable'  => 'masteriyo_string_to_bool',
 				'message' => 'sanitize_text_field',
 			),
-			'openai'    => array(
+			'openai'            => array(
 				'api_key' => 'sanitize_text_field',
+			),
+			'password_strength' => array(
+				'enable' => 'masteriyo_string_to_bool',
 			),
 		),
 		'accounts_page'  => array(
@@ -423,6 +442,18 @@ class Setting extends Model {
 
 		if ( empty( trim( strval( $this->get( 'emails.general.from_name' ) ) ) ) ) {
 			$this->set( 'emails.general.from_name', get_bloginfo( 'name' ) );
+		}
+
+		if ( empty( trim( strval( $this->get( 'emails.general.header_logo.url' ) ) ) ) ) {
+			$this->set( 'emails.general.header_logo.url', masteriyo_get_plugin_url() . '/assets/img/masteriyo-email-template-logo.png' );
+		}
+
+		if ( empty( trim( strval( $this->get( 'emails.general.header_bg_img.url' ) ) ) ) ) {
+			$this->set( 'emails.general.header_bg_img.url', masteriyo_get_plugin_url() . '/assets/img/email-template-header-bg-img.png' );
+		}
+
+		if ( empty( trim( strval( $this->get( 'emails.general.footer_text' ) ) ) ) ) {
+			$this->set( 'emails.general.footer_text', masteriyo_get_email_footer_text() );
 		}
 	}
 

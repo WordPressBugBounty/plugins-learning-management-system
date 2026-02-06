@@ -22,27 +22,7 @@ use Masteriyo\Addons\CourseAnnouncement\Controllers\CourseAnnouncementController
  * @since 1.6.16
  */
 class CourseAnnouncementServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.6.16
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'course-announcement',
-		'course-announcement.store',
-		'course-announcement.rest',
-		'mto-course-announcement',
-		'mto-course-announcement.store',
-		'mto-course-announcement.rest',
-		'addons.course-announcement',
-		CourseAnnouncementAddon::class,
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -52,7 +32,7 @@ class CourseAnnouncementServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.6.16
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'course-announcement.store', CourseAnnouncementRepository::class );
 
 		$this->getContainer()->add( 'course-announcement.rest', CourseAnnouncementController::class )
@@ -69,6 +49,37 @@ class CourseAnnouncementServiceProvider extends AbstractServiceProvider {
 		$this->getContainer()->add( 'mto-course-announcement', CourseAnnouncement::class )
 			->addArgument( 'mto-course-announcement.store' );
 
-		$this->getContainer()->add( 'addons.course-announcement', CourseAnnouncementAddon::class, true );
+		$this->getContainer()->addShared( 'addons.course-announcement', CourseAnnouncementAddon::class );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'course-announcement',
+				'course-announcement.store',
+				'course-announcement.rest',
+				'mto-course-announcement',
+				'mto-course-announcement.store',
+				'mto-course-announcement.rest',
+				'addons.course-announcement',
+				CourseAnnouncementAddon::class,
+			),
+			true
+		);
 	}
 }

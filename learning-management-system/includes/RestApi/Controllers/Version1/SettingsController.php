@@ -386,8 +386,8 @@ class SettingsController extends CrudController {
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
-								'type'          => 'object',
-								'primary_color' => array(
+								'type'               => 'object',
+								'primary_color'      => array(
 									'description' => __( 'Primary color', 'learning-management-system' ),
 									'type'        => 'string',
 									'format'      => 'hex-color',
@@ -399,13 +399,19 @@ class SettingsController extends CrudController {
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
-								'button_color'  => array(
+								'button_color'       => array(
 									'description' => __( 'Button color', 'learning-management-system' ),
 									'type'        => 'string',
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
-								'theme'         => array(
+								'button_hover_color' => array(
+									'description' => __( 'Button hover color', 'learning-management-system' ),
+									'type'        => 'string',
+									'format'      => 'hex-color',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'theme'              => array(
 									'description' => __( 'Theme', 'learning-management-system' ),
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
@@ -1509,6 +1515,59 @@ class SettingsController extends CrudController {
 	}
 
 	/**
+	 * Return the Elearning palette "colors" array from theme_mods_elearning.
+	 * Empty array if Elearning isn't active or keys/option are missing.
+	 *
+	 * @since 2.0.2
+	 * @return array
+	 */
+	protected function get_elearning_colors_only() {
+		$theme = wp_get_theme();
+
+		$is_elearning_active = (
+		$theme && (
+			$theme->get_stylesheet() === 'elearning' ||
+			$theme->get_template() === 'elearning'
+		)
+		);
+
+		if ( ! $is_elearning_active ) {
+			return array();
+		}
+
+		$mods = get_option( 'theme_mods_elearning' );
+		if ( ! is_array( $mods ) ) {
+			return array();
+		}
+
+		$palette = isset( $mods['elearning_color_palette'] ) && is_array( $mods['elearning_color_palette'] )
+		? $mods['elearning_color_palette']
+		: array();
+
+		$colors = isset( $palette['colors'] ) && is_array( $palette['colors'] )
+		? $palette['colors']
+		: array();
+
+		if ( empty( $colors ) ) {
+			return array();
+		}
+
+		$allowed_keys = array(
+			'elearning-color-1',
+			'elearning-color-2',
+			'elearning-color-3',
+			'elearning-color-4',
+			'elearning-color-5',
+			'elearning-color-6',
+			'elearning-color-7',
+			'elearning-color-8',
+			'elearning-color-9',
+		);
+
+		return array_intersect_key( $colors, array_flip( $allowed_keys ) );
+	}
+
+	/**
 	 * Get settings data.
 	 *
 	 * @since 1.0.0
@@ -1537,7 +1596,11 @@ class SettingsController extends CrudController {
 		 * @param string $context What the value is for. Valid values are view and edit.
 		 * @param Masteriyo\RestApi\Controllers\Version1\SettingsController $controller REST settings controller object.
 		 */
-		return apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $setting, $context, $this );
+
+		$data = apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $setting, $context, $this );
+		$data['general']['styling']['elearning_colors'] = $this->get_elearning_colors_only();
+
+		return $data;
 	}
 
 	/**

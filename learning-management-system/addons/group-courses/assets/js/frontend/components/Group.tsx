@@ -97,7 +97,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 							)}
 						</AlertDialogBody>
 						<AlertDialogFooter>
-							<Button ref={cancelRef} onClick={onClose}>
+							<Button ref={cancelRef} onClick={onClose} variant={'outline'}>
 								{__('Cancel', 'learning-management-system')}
 							</Button>
 							<Button
@@ -114,7 +114,6 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 			</AlertDialog>
 			<Box
 				bgColor="muted"
-				my={3}
 				border="1px"
 				borderColor="gray.200"
 				rounded={'md'}
@@ -130,12 +129,18 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 					<Text
 						cursor="pointer"
 						onClick={() => onExpandedGroupsChange?.(group.id)}
-						color={'gray.600'}
+						color={'oxford-night'}
 						fontWeight={'semibold'}
 					>
 						{group.title}
 						{!isPublished && (
-							<Badge ml={3} colorScheme="yellow" p={1} borderRadius="md">
+							<Badge
+								ml={3}
+								color="yellow.500"
+								p={1}
+								borderRadius="base"
+								variant={'link'}
+							>
 								{__('Pending', 'learning-management-system')}
 							</Badge>
 						)}
@@ -155,7 +160,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 						>
 							<HStack>
 								<Icon as={BiGroup} />
-								<Text textAlign="start" fontSize="md">
+								<Text textAlign="start" fontSize="md" color={'saint-blue'}>
 									{group?.emails?.length || 0}
 								</Text>
 							</HStack>

@@ -157,7 +157,11 @@ class PluginImporter {
 			}
 			$results[ $pg[0] ] = array(
 				'status'  => 'success',
-				'message' => sprintf( __( '%s installed and activated.', 'learning-management-system' ), $api->name ),
+				'message' => sprintf(
+					/* translators: %s: plugin name */
+					__( '%s installed and activated.', 'learning-management-system' ),
+					$api->name
+				),
 			);
 		}
 		return $results;

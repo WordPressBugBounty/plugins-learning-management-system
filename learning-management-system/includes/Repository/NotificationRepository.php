@@ -299,6 +299,36 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 			$search_criteria[] = $this->create_sql_in_query( 'post_id', $query_vars['post_id'] );
 		}
 
+		if ( ! empty( $query_vars['name'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'title LIKE %s', '%' . $wpdb->esc_like( $query_vars['name'] ) . '%' );
+		}
+
+		if ( ! empty( $query_vars['include'] ) ) {
+			$include_ids = array_map( 'absint', (array) $query_vars['include'] );
+			if ( ! empty( $include_ids ) ) {
+				$search_criteria[] = 'id IN (' . implode( ',', $include_ids ) . ')';
+			}
+		}
+
+		if ( ! empty( $query_vars['exclude'] ) ) {
+			$exclude_ids = array_map( 'absint', (array) $query_vars['exclude'] );
+			if ( ! empty( $exclude_ids ) ) {
+				$search_criteria[] = 'id NOT IN (' . implode( ',', $exclude_ids ) . ')';
+			}
+		}
+
+		if ( ! empty( $query_vars['created_at'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'created_at = %s', $query_vars['created_at'] );
+		}
+
+		if ( ! empty( $query_vars['modified_at'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'modified_at = %s', $query_vars['modified_at'] );
+		}
+
+		if ( ! empty( $query_vars['expire_at'] ) ) {
+			$search_criteria[] = $wpdb->prepare( 'expire_at = %s', $query_vars['expire_at'] );
+		}
+
 		if ( 1 <= count( $search_criteria ) ) {
 			$criteria = implode( ' AND ', $search_criteria );
 			$sql[]    = 'WHERE ' . $criteria;
@@ -309,6 +339,28 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 
 		$query->rows_count = $this->get_rows_count( $sql );
 
+		$per_page = ! empty( $query_vars['per_page'] ) ? intval( $query_vars['per_page'] ) : 10;
+
+		if ( -1 !== $per_page && isset( $query_vars['limit'] ) ) {
+			$per_page = intval( $query_vars['limit'] );
+		} else {
+			$per_page = -1;
+		}
+
+		$page = ! empty( $query_vars['paged'] ) ? absint( $query_vars['paged'] ) : 1;
+		if ( ! empty( $query_vars['page'] ) && empty( $query_vars['paged'] ) ) {
+			$page = absint( $query_vars['page'] );
+		}
+
+		$offset = ( $page - 1 ) * $per_page;
+		if ( isset( $query_vars['offset'] ) && $query_vars['offset'] > 0 ) {
+			$offset = absint( $query_vars['offset'] );
+		}
+
+		if ( $per_page > 0 ) {
+			$sql[] = $wpdb->prepare( 'LIMIT %d OFFSET %d', $per_page, $offset );
+		}
+
 		// Generate SQL from the SQL parts.
 		$sql = implode( ' ', $sql ) . ';';
 
@@ -318,6 +370,10 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 		$ids = wp_list_pluck( $notifications, 'id' );
 
 		$query->found_rows = count( $ids );
+
+		if ( isset( $query_vars['return'] ) && 'ids' === $query_vars['return'] ) {
+			return $ids;
+		}
 
 		return array_filter( array_map( 'masteriyo_get_notification', $ids ) );
 	}

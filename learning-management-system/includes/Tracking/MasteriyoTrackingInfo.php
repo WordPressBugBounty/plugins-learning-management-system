@@ -14,7 +14,7 @@ use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Roles;
-
+use WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -201,6 +201,122 @@ class MasteriyoTrackingInfo {
 		$current_time       = time();
 		$days_since_install = floor( ( $current_time - $install_time ) / DAY_IN_SECONDS );
 		return $days_since_install;
+	}
+
+
+	/**
+	 * Get total published certificates.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return int Published certificate count.
+	 */
+	public static function total_published_certificates() {
+		$query = new WP_Query(
+			array(
+				'post_type'      => 'mto-certificate',
+				'post_status'    => 'publish',
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+			)
+		);
+
+		return $query->found_posts;
+	}
+
+	/**
+	 * Get total published groups.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return int Group count.
+	 */
+	public static function total_publish_groups() {
+		return masteriyo_array_get(
+			(array) wp_count_posts( PostType::GROUP ),
+			PostStatus::PUBLISH,
+			0
+		);
+	}
+
+	/**
+	 * Get total published announcements.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return int Announcement count.
+	 */
+	public static function total_publish_announcement() {
+		return masteriyo_array_get(
+			(array) wp_count_posts( PostType::COURSEANNOUNCEMENT ),
+			PostStatus::PUBLISH,
+			0
+		);
+	}
+
+	/**
+	 * Get addon data such as activated addons and counts.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array Addon data list.
+	 */
+	public static function get_addons_data() {
+		$addons = get_option( 'masteriyo_active_addons', array() );
+
+		if ( empty( $addons ) || ! is_array( $addons ) ) {
+			return array(
+				'total_activated_addons' => 0,
+				'activated_addons'       => array(),
+			);
+		}
+
+		$activated_addons = array();
+
+		foreach ( $addons as $addon_key => $addon ) {
+			$stats                          = self::get_addon_stats( $addon_key );
+			$activated_addons[ $addon_key ] = ! empty( $stats ) ? $stats : '';
+		}
+
+		return array(
+			'total_activated_addons' => count( $activated_addons ),
+			'activated_addons'       => $activated_addons,
+		);
+	}
+
+
+
+
+	/**
+	 * Get addon specific statistics.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $addon_key Addon key.
+	 * @return array Addon statistics.
+	 */
+	protected static function get_addon_stats( $addon_key ) {
+
+		switch ( $addon_key ) {
+
+			case 'certificate':
+				return array(
+					'total_publish_certificates' => self::total_published_certificates(),
+				);
+
+			case 'group-courses':
+				return array(
+					'total_publish_groups' => self::total_publish_groups(),
+				);
+
+			case 'course-announcement':
+				return array(
+					'total_publish_announcement' => self::total_publish_announcement(),
+				);
+
+			default:
+				return array();
+		}
 	}
 
 	/**

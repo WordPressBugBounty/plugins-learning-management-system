@@ -20,7 +20,6 @@ import { GroupSettingsSchema } from '../../../types/group';
 import { SkeletonSetting } from '../Skeleton/SkeletonSetting';
 import EnrollmentStatusControl from './EnrollmentStatusControl';
 import GroupBuyButtonText from './GroupBuyButtonText';
-import GroupBuyHelperText from './GroupBuyHelperText';
 
 export interface FilterParams {
 	category?: string | number;
@@ -183,11 +182,6 @@ const GroupSettings = () => {
 											<GroupBuyButtonText
 												defaultValue={
 													groupSettingQuery?.data?.group_buy_button_text
-												}
-											/>
-											<GroupBuyHelperText
-												defaultValue={
-													groupSettingQuery?.data?.group_buy_helper_text
 												}
 											/>
 										</Stack>

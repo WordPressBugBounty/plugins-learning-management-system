@@ -43,7 +43,7 @@ class SingleCourseTitle extends BlockHandler {
 		$block_css = $attr['blockCSS'] ?? '';
 		$course_id = $attr['courseId'] ?? 0;
 
-		if ( ! $attr['courseId'] ) {
+		if ( ! $course_id ) {
 			\ob_start();
 			?>
 			<div style="color:red;padding-left:60px;">

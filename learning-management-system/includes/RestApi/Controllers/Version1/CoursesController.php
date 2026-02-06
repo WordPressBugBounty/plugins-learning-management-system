@@ -16,7 +16,8 @@ use Masteriyo\Helper\Permission;
 use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Jobs\CheckCourseEndDateJob;
-
+use DateTime;
+use DateTimeZone;
 class CoursesController extends PostsController {
 	/**
 	 * Endpoint namespace.
@@ -538,7 +539,8 @@ class CoursesController extends PostsController {
 			'difficulty'                         => $this->get_taxonomy_terms( $course, 'difficulty' ),
 			'is_ai_created'                      => $course->get_is_ai_created( $context ),
 			'is_creating'                        => $course->get_is_creating( $context ),
-			'end_date'                           => $course->get_end_date( $context ),
+			'end_date'                           => ! empty( $course->get_end_date( $context ) ) ? masteriyo_rest_prepare_date_response( $course->get_end_date( $context ) ) : null,
+			'enable_end_date'                    => $course->get_enable_end_date( $context ),
 			'enable_course_retake'               => $course->get_enable_course_retake( $context ),
 			'review_after_course_completion'     => $course->get_review_after_course_completion( $context ),
 			'disable_course_content'             => $course->get_disable_course_content( $context ),
@@ -1183,17 +1185,25 @@ class CoursesController extends PostsController {
 
 		// Course end date.
 		if ( isset( $request['end_date'] ) ) {
-			$end_date = sanitize_text_field( $request['end_date'] );
+			$raw_end_date = $request['end_date'];
+			$end_date     = ! empty( $raw_end_date )
+			? ( new DateTime( $raw_end_date, new \DateTimeZone( 'UTC' ) ) )->format( 'Y-m-d\TH:i:s\Z' )
+			: '';
+
 			$course->set_end_date( $end_date );
 
 			if ( ! empty( $end_date ) ) {
-				$timestamp = strtotime( $end_date );
+				try {
+					$dt        = new \DateTime( $end_date, new \DateTimeZone( 'UTC' ) );
+					$timestamp = $dt->getTimestamp();
 
-				if ( false !== $timestamp ) {
-					try {
-						as_schedule_single_action( $timestamp, CheckCourseEndDateJob::NAME, array( $course->get_id() ), 'learning-management-system' );
-					} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					}
+					as_schedule_single_action(
+						$timestamp,
+						CheckCourseEndDateJob::NAME,
+						array( $course->get_id() ),
+						'learning-management-system'
+					);
+				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				}
 			}
 		}
@@ -1234,6 +1244,10 @@ class CoursesController extends PostsController {
 		// Custom field values.
 		if ( isset( $request['custom_fields'] ) ) {
 			$course->set_custom_fields( $request['custom_fields'] );
+		}
+
+		if ( isset( $request['enable_end_date'] ) ) {
+			$course->set_enable_end_date( $request['enable_end_date'] );
 		}
 
 		/**

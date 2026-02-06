@@ -8,14 +8,13 @@ import {
 	IconButton,
 	Input,
 	InputGroup,
-	InputLeftElement,
 	Select,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { Controller, useFormContext } from 'react-hook-form';
-import { BiLeftArrow, BiRightArrow, BiTimeFive } from 'react-icons/bi';
+import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import { GoogleMeetSchema } from '../schemas';
 import { numberRange } from '../utils/number';
 
@@ -63,9 +62,6 @@ const StartTime: React.FC<Props> = (props) => {
 				<InputGroup isolation={'auto'}>
 					<Box zIndex="auto" position="relative" width={'100%'}>
 						<style>{customDatePickerStyles}</style>
-						<InputLeftElement>
-							<BiTimeFive />
-						</InputLeftElement>
 						<Controller
 							control={control}
 							name="starts_at"

@@ -49,9 +49,13 @@
 			});
 		},
 		getCourseReviewsPageHtml: function (data, options) {
-			if (!mto_data.course_id || mto_data.course_id.trim() === "" || mto_data.course_id == 0) {
-				var courseId = $("div[data-id]").attr("data-id");
-				if (courseId && courseId !== "0") {
+			if (
+				!mto_data.course_id ||
+				mto_data.course_id.trim() === '' ||
+				mto_data.course_id == 0
+			) {
+				var courseId = $('div[data-id]').attr('data-id');
+				if (courseId && courseId !== '0') {
 					mto_data.course_id = courseId;
 				} else {
 					return;
@@ -202,6 +206,31 @@
 				masteriyo.init_course_progress_chart();
 				masteriyo.toggle_masteriyo_instructor();
 				masteriyo.prerequisites_highlight();
+				masteriyo.toggle_review_form();
+			});
+		},
+		toggle_review_form: function () {
+			if ($('.masteriyo-already-reviewed-msg').length > 0) {
+				$('#masteriyo-show-review-form').hide();
+			}
+
+			$(document).on('click', '#masteriyo-show-review-form', function () {
+				$('#masteriyo-review-form').show();
+				$('.masteriyo-single-body__main--user-review').hide();
+				$('.masteriyo-single-body__main--review-count').hide();
+				$(this).hide();
+			});
+
+			$(document).on('click', '#masteriyo-cancel-review-form', function (e) {
+				e.preventDefault();
+				$('#masteriyo-review-form').hide();
+				$('.masteriyo-single-body__main--user-review').show();
+				$('.masteriyo-single-body__main--review-count').show();
+				if ($('.masteriyo-already-reviewed-msg').length) {
+					$('.masteriyo-already-reviewed-msg').show();
+				} else {
+					$('#masteriyo-show-review-form').css('display', 'inline-flex');
+				}
 			});
 		},
 		prerequisites_highlight: function () {
@@ -263,7 +292,6 @@
 			$(document.body).on('click', '.progress-icon', function (e) {
 				e.preventDefault();
 
-
 				var $host = $(this).closest('.completed-component');
 				if (!$host.length) return;
 
@@ -273,7 +301,6 @@
 					$(document).off('click.mto_outside keydown.mto_esc');
 					return;
 				}
-
 
 				$('.course-progress-popover').remove();
 				$(document).off('click.mto_outside keydown.mto_esc');
@@ -410,14 +437,20 @@
 
 					// Show message based on review status.
 					var message = '';
-					if ('yes' === mto_data.user_has_pending_review && mto_data.labels.already_reviewed_pending) {
+					if (
+						'yes' === mto_data.user_has_pending_review &&
+						mto_data.labels.already_reviewed_pending
+					) {
 						message = mto_data.labels.already_reviewed_pending;
 					} else if (mto_data.labels.already_reviewed) {
 						message = mto_data.labels.already_reviewed;
 					}
 
 					if (message && !$('.masteriyo-already-reviewed-msg').length) {
-						var messageHtml = '<div class="masteriyo-already-reviewed-msg masteriyo-notify-message masteriyo-alert masteriyo-info-msg" style="clear: both;"><span>' + message + '</span></div>';
+						var messageHtml =
+							'<div class="masteriyo-already-reviewed-msg masteriyo-notify-message masteriyo-alert masteriyo-info-msg" style="clear: both;"><span>' +
+							message +
+							'</span></div>';
 
 						// Add message after the hidden form.
 						if ($('.masteriyo-single-body__main--review-form').length) {
@@ -487,6 +520,40 @@
 					});
 			}
 
+			function bindStarHoverEvents($starsParent) {
+				const $stars = $starsParent.find('.masteriyo-rating-input-icon');
+				let savedRating =
+					parseInt($form.find('input[name="rating"]').val()) || 0;
+
+				$stars.each(function (index) {
+					$(this).on('mouseenter', function () {
+						$stars.removeClass('hovered');
+						for (let i = 0; i <= index; i++) {
+							$stars.eq(i).addClass('hovered');
+						}
+					});
+
+					$(this).on('mouseleave', function () {
+						$stars.removeClass('hovered');
+						$stars.removeClass('selected');
+						for (let i = 0; i < savedRating; i++) {
+							$stars.eq(i).addClass('selected');
+						}
+					});
+
+					$(this).on('click', function () {
+						savedRating = index + 1;
+						$form.find('input[name="rating"]').val(savedRating);
+
+						$stars.removeClass('selected hovered');
+
+						for (let i = 0; i < savedRating; i++) {
+							$stars.eq(i).addClass('selected');
+						}
+					});
+				});
+			}
+
 			function renderStars(rating) {
 				const $starsParent = $form.find('.masteriyo-rstar');
 
@@ -506,6 +573,7 @@
 
 				$starsParent.html(masteriyo_helper.get_rating_markup(rating));
 				bindStarClickEvents($starsParent); // Rebind after rendering
+				bindStarHoverEvents($starsParent);
 			}
 
 			// Handle clicks outside the stars — avoid resetting when unnecessary
@@ -538,11 +606,20 @@
 
 				var $form = masteriyo.$create_review_form;
 				var $submit_button = $form.find('button[type="submit"]');
+				var parent = $form.find('[name="parent"]').val();
+				var content = '';
+				var $replyContent = $form.find('#masteriyo-reply-content');
+				if ($replyContent.length) {
+					content = $replyContent.val() || '';
+				} else {
+					content = $form.find('[name="content"]').val() || '';
+				}
+
 				var data = {
 					title: $form.find('input[name="title"]').val(),
 					rating: $form.find('input[name="rating"]').val(),
-					content: $form.find('[name="content"]').val(),
-					parent: $form.find('[name="parent"]').val(),
+					content: content,
+					parent: parent,
 					course_id: $form.find('[name="course_id"]').val(),
 				};
 
@@ -560,7 +637,7 @@
 
 						// Update the flag and hide the form since user has now reviewed.
 						mto_data.user_already_reviewed = 'yes';
-						setTimeout(function() {
+						setTimeout(function () {
 							window.location.reload();
 						}, 0);
 					},
@@ -581,29 +658,27 @@
 			});
 		},
 		init_reply_btn_handler: function () {
-			$(document.body).on(
+			$('.masteriyo-reply-form').hide();
+			$(document).on(
 				'click',
 				'.masteriyo-reply-course-review, .masteriyo-single-body__main--review-list-content-reply-btn',
 				function (e) {
 					e.preventDefault();
-
-					// Show the form containers that might be hidden.
-					$('.masteriyo-submit-container').show();
-					$('.masteriyo-single-body__main--review-form').show();
-					// Hide any already reviewed message when replying.
-					$('.masteriyo-already-reviewed-msg').hide();
-
-					var $form = masteriyo.$create_review_form;
 					var $review = $(this).closest('.masteriyo-course-review');
+					const $currentForm = $review.find('.masteriyo-reply-form');
+					$('.masteriyo-reply-form').not($currentForm).slideUp(200);
+					if ($currentForm.is(':visible')) {
+						$currentForm.slideUp(200);
+						return;
+					}
+					var $form = masteriyo.$create_review_form;
 					var review_id = $review.data('id');
-					var $submit_button = $form.find('button[type="submit"]');
-					var title = $review.find('.title').data('value');
-
 					// Clear any edit mode data.
 					$form.removeData('edit-mode');
 					$form.removeData('review-id');
 
 					// Reset form fields for reply.
+
 					$form.find('input[name="title"]').val('');
 					$form.find('input[name="rating"]').val(0);
 					$form
@@ -611,21 +686,19 @@
 						.html(masteriyo_helper.get_rating_markup(0));
 					$form.find('[name="content"]').val('');
 					$form.find('[name="parent"]').val(review_id);
-					$submit_button.text(mto_data.labels.submit);
-
-					$('.masteriyo-form-title').text(
-						mto_data.labels.reply_to + ': ' + title,
-					);
-					$form.find('.masteriyo-title, .masteriyo-rating').hide();
-					$form.find('[name="content"]').focus();
+					$currentForm.find('#masteriyo-reply-content').val('').focus();
+					$currentForm.slideDown(200);
 					$('html, body').animate(
 						{
-							scrollTop: $form.offset().top,
+							scrollTop: $currentForm.offset().top - 100,
 						},
-						500,
+						400,
 					);
 				},
 			);
+			$(document).on('click', '.masteriyo-cancel-reply', function () {
+				$(this).closest('.masteriyo-reply-form').slideUp(200);
+			});
 		},
 		init_edit_reviews_handler: function () {
 			$(document.body).on(
@@ -639,6 +712,8 @@
 					$('.masteriyo-single-body__main--review-form').show();
 					// Hide any already reviewed message when replying.
 					$('.masteriyo-already-reviewed-msg').hide();
+					$('.masteriyo-single-body__main--user-review').hide();
+					$('.masteriyo-single-body__main--review-count').hide();
 
 					var $form = masteriyo.$create_review_form;
 					var $review = $(this).closest('.masteriyo-course-review');
@@ -790,7 +865,9 @@
 									// Check if this is the user's main review (not a reply).
 									// A main review has parent = 0, and if user can delete it, it's their review.
 									var parentValue = $review.find('input[name="parent"]').val();
-									var isUserMainReview = parentValue == '0' && !$review.hasClass('is-course-review-reply');
+									var isUserMainReview =
+										parentValue == '0' &&
+										!$review.hasClass('is-course-review-reply');
 
 									if (
 										$review
@@ -824,10 +901,14 @@
 										$form.removeData('review-id');
 										$form.find('input[name="title"]').val('');
 										$form.find('input[name="rating"]').val(0);
-										$form.find('.masteriyo-rstar').html(masteriyo_helper.get_rating_markup(0));
+										$form
+											.find('.masteriyo-rstar')
+											.html(masteriyo_helper.get_rating_markup(0));
 										$form.find('[name="content"]').val('');
 										$form.find('[name="parent"]').val(0);
-										$form.find('button[type="submit"]').text(mto_data.labels.submit);
+										$form
+											.find('button[type="submit"]')
+											.text(mto_data.labels.submit);
 										$('.masteriyo-form-title').text('');
 										$form.find('.masteriyo-title, .masteriyo-rating').show();
 									}
@@ -1394,17 +1475,17 @@ function masteriyoSelectSingleCoursePageTabById(e) {
  */
 
 function initCustomFieldsRenderer() {
-	const singleCourseElementTextContent = document.getElementById('masteriyo-course-values')?.textContent;
-    if (!singleCourseElementTextContent) return;
+	const singleCourseElementTextContent = document.getElementById(
+		'masteriyo-course-values',
+	)?.textContent;
+	if (!singleCourseElementTextContent) return;
 
 	let customFieldsInitialized = false;
 
 	if (customFieldsInitialized) return;
 
 	const container = document.querySelector('.custom-fields-container');
-	const courseValues = JSON.parse(
-		singleCourseElementTextContent,
-	);
+	const courseValues = JSON.parse(singleCourseElementTextContent);
 
 	function nl2br(str) {
 		return typeof str === 'string' ? str.replace(/\n/g, '<br>') : str;

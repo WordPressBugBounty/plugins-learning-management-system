@@ -23,29 +23,7 @@ use Masteriyo\PDF\Order\OrderPDF;
 use Masteriyo\PostType\PostType;
 
 class OrderServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'order',
-		'order.store',
-		'order.rest',
-		'\Masteriyo\RestApi\Controllers\Version1\OrdersController',
-		'order-item',
-		'order-item.store',
-		'order-item.rest',
-		'\Masteriyo\RestApi\Controllers\Version1\OrderItemsController',
-		'order-item.course',
-		'order-item.course.store',
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -55,7 +33,7 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 	*
 	* @since 1.0.0
 	*/
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'order.store', OrderRepository::class );
 
 		$this->getContainer()->add( 'order.rest', OrdersController::class )
@@ -86,6 +64,39 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 	}
 
 	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'order',
+				'order.store',
+				'order.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\OrdersController',
+				'order-item',
+				'order-item.store',
+				'order-item.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\OrderItemsController',
+				'order-item.course',
+				'order-item.course.store',
+			),
+			true
+		);
+	}
+
+	/**
 	 * In much the same way, this method has access to the container
 	 * itself and can interact with it however you wish, the difference
 	 * is that the boot method is invoked as soon as you register
@@ -98,7 +109,7 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 	 *
 	 * @since 1.5.43
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_filter( 'comments_open', array( $this, 'comments_open' ), 10, 2 );
 		add_action( 'comment_moderation_recipients', array( $this, 'comment_moderation_recipients' ), 10, 2 );
 		add_action( 'parse_comment_query', array( $this, 'remove_order_note_from_query' ) );

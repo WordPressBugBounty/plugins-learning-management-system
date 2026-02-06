@@ -95,6 +95,14 @@
 				MasteriyoCourses.init_password_projected_form_handler();
 				MasteriyoCourses.init_course_filters();
 			});
+
+			$(document).ready(function () {
+				$('.masteriyo-course-archive--aside').each(function () {
+					if ($(this).children().length === 0) {
+						$(this).remove();
+					}
+				});
+			});
 		},
 
 		/**
@@ -460,7 +468,6 @@
 					return;
 				}
 
-
 				$('.course-progress-popover').remove();
 				$(document).off('click.mto_outside keydown.mto_esc');
 
@@ -769,9 +776,60 @@
 				var $section = $(this).closest('.masteriyo-filter-section');
 				var $content = $section.find('.masteriyo-filter-wrapper');
 				var $arrow = $section.find('.toggle-arrow');
+				var $seeMore = $section.find('.masteriyo-see-more-categories');
+				var $seeLess = $section.find('.masteriyo-see-less-categories');
 
 				$content.slideToggle(200);
 				$arrow.toggleClass('rotated');
+
+				if ($arrow.hasClass('rotated')) {
+					$seeMore.slideUp(200);
+					$seeLess.slideUp(200);
+				} else {
+
+					var $hiddenCategories = $section.find(
+						'.masteriyo-overflowed-category.masteriyo-hidden',
+					);
+					var $visibleCategories = $section.find(
+						'.masteriyo-overflowed-category:not(.masteriyo-hidden)',
+					);
+
+					if ($hiddenCategories.length > 0) {
+						$seeMore.slideDown(200);
+						$seeLess.hide();
+					} else if ($visibleCategories.length > 0) {
+
+						$seeMore.hide();
+						$seeLess.slideDown(200);
+					}
+				}
+			});
+
+			$('.masteriyo-see-more-categories').on('click', function (e) {
+				e.preventDefault();
+				var $section = $(this).closest('.masteriyo-filter-section');
+				var $hiddenCategories = $section.find('.masteriyo-overflowed-category');
+				var $seeMore = $(this);
+				var $seeLess = $section.find('.masteriyo-see-less-categories');
+
+				$hiddenCategories.removeClass('masteriyo-hidden');
+
+				$seeMore.hide();
+				$seeLess.show();
+			});
+
+
+			$('.masteriyo-see-less-categories').on('click', function (e) {
+				e.preventDefault();
+				var $section = $(this).closest('.masteriyo-filter-section');
+				var $hiddenCategories = $section.find('.masteriyo-overflowed-category');
+				var $seeMore = $section.find('.masteriyo-see-more-categories');
+				var $seeLess = $(this);
+
+				$hiddenCategories.addClass('masteriyo-hidden');
+
+				$seeMore.show();
+				$seeLess.hide();
 			});
 		},
 		init_price_slider: function () {

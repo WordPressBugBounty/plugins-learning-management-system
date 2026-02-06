@@ -16,14 +16,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-if (
-	masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-	masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) ||
-	! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' )
-) :
+if ( masteriyo_get_setting( 'single_course.components_visibility.thumbnail' ) ) :
 	?>
 <div class="masteriyo-single-header__img-wrap">
-	<?php if ( ( masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' ) && $difficulty ) || ( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && $difficulty ) ) : ?>
+	<?php if ( masteriyo_get_setting( 'single_course.components_visibility.difficulty_badge' ) && $difficulty ) : ?>
 		<div class="masteriyo-course--badges">
 			<div class="difficulty-badge <?php echo esc_attr( $difficulty['slug'] ); ?>" data-id="<?php echo esc_attr( $difficulty['id'] ); ?>">
 				<?php if ( $difficulty['color'] ) : ?>
@@ -38,16 +34,9 @@ if (
 			</div>
 
 			<?php
-			if (
-				( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-					masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) &&
-					masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) &&
-					! empty( $course->get_course_badge() ) )
-				||
-				( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-					masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) &&
-					masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) &&
-					! empty( $course->get_course_badge() ) )
+			if ( masteriyo_get_setting( 'single_course.components_visibility.course_badge' ) &&
+				masteriyo_get_setting( 'single_course.components_visibility.thumbnail' ) &&
+				! empty( $course->get_course_badge() )
 			) :
 				?>
 				<div class="masteriyo-single-course--badge">
@@ -58,7 +47,7 @@ if (
 		</div><!-- /.masteriyo-course--badges -->
 	<?php endif; ?>
 
-	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
+	<?php if ( masteriyo_get_setting( 'single_course.components_visibility.thumbnail' ) ) : ?>
 			<div class="masteriyo-single-header__image">
 				<img src="<?php echo esc_attr( $course->get_featured_image_url( 'masteriyo_single' ) ); ?>" alt="<?php echo esc_attr( $course->get_title() ); ?>">
 			</div>

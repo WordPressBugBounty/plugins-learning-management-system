@@ -120,10 +120,9 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			)
 		);
 
-		// Set comment status.
-		wp_set_comment_status( $id, $lesson_review->get_status() );
-
 		if ( $id && ! is_wp_error( $id ) ) {
+			wp_set_comment_status( $id, $lesson_review->get_status() );
+
 			$lesson_review->set_id( $id );
 			$this->update_comment_meta( $lesson_review, true );
 

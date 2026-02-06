@@ -21,6 +21,7 @@ use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Roles;
+use Masteriyo\CoreFeatures\CourseComingSoon\Helper;
 
 /**
  * Group Courses Addon main class for Masteriyo.
@@ -90,6 +91,7 @@ class GroupCoursesAddon {
 		add_filter( 'masteriyo_rest_response_order_data', array( $this, 'append_group_courses_data_in_order_response' ), 10, 4 );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_editor_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_group_pricing_tiers_script' ) );
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'add_group_courses_dependencies_to_account_page' ) );
 
 		add_action( 'masteriyo_group_course_new_user', array( __CLASS__, 'schedule_group_joined_email_to_new_member' ), 10, 3 );
@@ -149,9 +151,22 @@ class GroupCoursesAddon {
 	public function adjust_course_for_group_pricing( $course, $cart_content, $cart ) {
 		// Handle new group purchase flow
 		if ( isset( $cart_content['group_purchase'] ) && $cart_content['group_purchase'] ) {
-			$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
+			$group_price = null;
 
-			if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
+			// Check if multi-tier pricing
+			if ( isset( $cart_content['group_tier_id'] ) && isset( $cart_content['group_seats'] ) ) {
+				$tier_id     = $cart_content['group_tier_id'];
+				$seat_count  = intval( $cart_content['group_seats'] );
+				$group_price = $this->calculate_tier_price( $course->get_id(), $tier_id, $seat_count );
+			}
+
+			// Fallback to legacy single-tier pricing
+			if ( null === $group_price ) {
+				$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
+			}
+
+			// Apply currency/pricing zone conversion if needed
+			if ( $group_price && function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
 				list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
 
 				if ( ! empty( $currency ) ) {
@@ -378,10 +393,67 @@ class GroupCoursesAddon {
 		// Check if this is a group purchase from the new flow
 		if ( isset( $_GET['group_purchase'] ) && 'yes' === $_GET['group_purchase'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$cart_item_data['group_purchase'] = true;
+
+			// Capture tier ID and seat count for multi-tier pricing
+			if ( isset( $_GET['group_tier_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$cart_item_data['group_tier_id'] = sanitize_text_field( wp_unslash( $_GET['group_tier_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+
+			if ( isset( $_GET['group_seats'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$cart_item_data['group_seats'] = absint( $_GET['group_seats'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+
 			return $cart_item_data;
 		}
 
 		return $cart_item_data;
+	}
+
+
+	/**
+	 * Calculate price based on selected tier and seat count.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param int    $course_id  Course ID.
+	 * @param string $tier_id    Tier ID.
+	 * @param int    $seat_count Seat count.
+	 *
+	 * @return float|null Calculated price or null if tier not found.
+	 */
+	private function calculate_tier_price( $course_id, $tier_id, $seat_count ) {
+		// Get pricing tiers
+		$pricing_tiers = $this->get_course_pricing_tiers( $course_id );
+
+		if ( empty( $pricing_tiers ) ) {
+			return null;
+		}
+
+		// Find the selected tier
+		$selected_tier = null;
+		foreach ( $pricing_tiers as $tier ) {
+			if ( isset( $tier['id'] ) && $tier['id'] === $tier_id ) {
+				$selected_tier = $tier;
+				break;
+			}
+		}
+
+		if ( ! $selected_tier ) {
+			return null;
+		}
+
+		$seat_model    = isset( $selected_tier['seat_model'] ) ? $selected_tier['seat_model'] : 'fixed';
+		$regular_price = isset( $selected_tier['regular_price'] ) ? floatval( $selected_tier['regular_price'] ) : 0;
+		$sale_price    = isset( $selected_tier['sale_price'] ) && ! empty( $selected_tier['sale_price'] ) ? floatval( $selected_tier['sale_price'] ) : 0;
+		$base_price    = $sale_price > 0 ? $sale_price : $regular_price;
+
+		// Calculate price based on seat model
+		if ( 'fixed' === $seat_model ) {
+			// Fixed seats: return tier price
+			return $base_price;
+		}
+
+		return null;
 	}
 
 	/**
@@ -404,9 +476,22 @@ class GroupCoursesAddon {
 				if ( isset( $cart_item['group_purchase'] ) && $cart_item['group_purchase'] ) {
 					$course = $cart_item['data'];
 					if ( $course ) {
-						$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
+						$group_price = null;
 
-						if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
+						// Check if multi-tier pricing
+						if ( isset( $cart_item['group_tier_id'] ) && isset( $cart_item['group_seats'] ) ) {
+							$tier_id     = $cart_item['group_tier_id'];
+							$seat_count  = intval( $cart_item['group_seats'] );
+							$group_price = $this->calculate_tier_price( $course->get_id(), $tier_id, $seat_count );
+						}
+
+						// Fallback to legacy single-tier pricing
+						if ( null === $group_price ) {
+							$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
+						}
+
+						// Apply currency/pricing zone conversion if needed
+						if ( $group_price && function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
 							list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
 
 							if ( ! empty( $currency ) ) {
@@ -428,6 +513,43 @@ class GroupCoursesAddon {
 		);
 
 		return $cart_contents;
+	}
+
+	/**
+	 * Get pricing tiers for a course, falling back to legacy data if necessary.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param int $course_id Course ID.
+	 * @return array List of pricing tiers.
+	 */
+	private function get_course_pricing_tiers( $course_id ) {
+		// Get pricing tiers (new format)
+		$pricing_tiers_json = get_post_meta( $course_id, '_group_courses_pricing_tiers', true );
+		$pricing_tiers      = ! empty( $pricing_tiers_json ) ? json_decode( $pricing_tiers_json, true ) : array();
+
+		// If no pricing tiers exist but legacy data exists, migrate it
+		if ( empty( $pricing_tiers ) ) {
+			$group_price    = get_post_meta( $course_id, '_group_courses_group_price', true );
+			$max_group_size = get_post_meta( $course_id, '_group_courses_max_group_size', true );
+
+			// If legacy data exists, create a default tier
+			if ( ! empty( $group_price ) || ! empty( $max_group_size ) ) {
+				$pricing_tiers = array(
+					array(
+						'id'            => 'tier_1',
+						'seat_model'    => 'fixed',
+						'group_name'    => __( 'Group', 'learning-management-system' ),
+						'group_size'    => ! empty( $max_group_size ) ? intval( $max_group_size ) : 0,
+						'pricing_type'  => 'one_time',
+						'regular_price' => ! empty( $group_price ) ? $group_price : '',
+						'sale_price'    => '',
+					),
+				);
+			}
+		}
+
+		return $pricing_tiers;
 	}
 
 	/**
@@ -619,6 +741,47 @@ class GroupCoursesAddon {
 		}
 	}
 
+
+	/**
+	 * Enqueue group pricing tiers script on single course page.
+	 *
+	 * @since 2.1.0
+	 */
+	public function enqueue_group_pricing_tiers_script() {
+		if ( ! masteriyo_is_single_course_page() ) {
+			return;
+		}
+
+		// Enqueue the JavaScript file
+		wp_enqueue_script(
+			'masteriyo-group-pricing-tiers',
+			plugin_dir_url( __FILE__ ) . 'assets/js/group-pricing-tiers.js',
+			array( 'jquery' ),
+			MASTERIYO_VERSION,
+			true
+		);
+
+		// Get current course ID
+		$course_id = get_the_ID();
+
+		// Localize script with necessary data
+		wp_localize_script(
+			'masteriyo-group-pricing-tiers',
+			'masteriyoGroupPricing',
+			array(
+				'courseId' => $course_id,
+				'urls'     => array(
+					'checkout' => masteriyo_get_page_permalink( 'checkout' ),
+				),
+				'currency' => array(
+					'symbol'   => masteriyo_get_currency_symbol(),
+					'position' => masteriyo_get_setting( 'payments.currency.currency_position' ),
+					'decimals' => masteriyo_get_setting( 'payments.currency.number_of_decimals' ),
+				),
+			)
+		);
+	}
+
 	/**
 	 * Appends the groups data to the order response data.
 	 *
@@ -657,9 +820,13 @@ class GroupCoursesAddon {
 					continue;
 				}
 
+				$details = $this->get_group_purchase_details( $group->get_id(), $course_id, $order->get_id() );
+
 				$group_data[] = array(
 					'id'     => $group->get_id(),
 					'title'  => $group->get_title(),
+					'seats'  => $details['seats'],
+					'plan'   => $details['plan'],
 					'emails' => masteriyo_get_enrolled_group_user_emails( $group, $course_id ),
 				);
 			}
@@ -668,6 +835,50 @@ class GroupCoursesAddon {
 		$data['groups'] = $group_data;
 
 		return $data;
+	}
+
+	/**
+	 * Get group purchase details (seats and plan name).
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param int $group_id  Group ID.
+	 * @param int $course_id Course ID.
+	 * @param int $order_id  Order ID (Optional). If provided, prioritizes data from order meta.
+	 * @return array
+	 */
+	private function get_group_purchase_details( $group_id, $course_id, $order_id = 0 ) {
+		$details = array(
+			'seats' => 0,
+			'plan'  => '',
+		);
+
+		// Get from Order Meta (Snapshot of purchase).
+		if ( $order_id ) {
+			$order = masteriyo_get_order( $order_id );
+			if ( $order ) {
+				$purchase_data = get_post_meta( $order_id, '_group_purchase_data', true );
+
+				if ( ! empty( $purchase_data ) && is_array( $purchase_data ) ) {
+					if ( isset( $purchase_data['seats'] ) ) {
+						$details['seats'] = intval( $purchase_data['seats'] );
+					}
+					if ( isset( $purchase_data['plan_name'] ) ) {
+						$details['plan'] = $purchase_data['plan_name'];
+					}
+				}
+			}
+		}
+
+		// Legacy check
+		if ( ! $details['seats'] ) {
+			$max_group_size = get_post_meta( $course_id, '_group_courses_max_group_size', true );
+			if ( $max_group_size ) {
+				$details['seats'] = intval( $max_group_size );
+			}
+		}
+
+		return $details;
 	}
 
 	/**
@@ -795,6 +1006,39 @@ class GroupCoursesAddon {
 						// Store flag to create group after order completion
 						$order->update_meta_data( '_create_group_after_completion', 'yes' );
 						$order->update_meta_data( '_group_course_id', $course_id );
+
+						// Prepare purchase data object.
+						$purchase_data = array();
+
+						// Store tier information for multi-tier pricing
+						if ( isset( $cart_content['group_tier_id'] ) ) {
+							$tier_id                  = $cart_content['group_tier_id'];
+							$purchase_data['tier_id'] = $tier_id;
+
+							// Resolve Plan Name and Per Seat Price
+							$pricing_tiers_json = get_post_meta( $course_id, '_group_courses_pricing_tiers', true );
+							$pricing_tiers      = ! empty( $pricing_tiers_json ) ? json_decode( $pricing_tiers_json, true ) : array();
+
+							$seats = isset( $cart_content['group_seats'] ) ? intval( $cart_content['group_seats'] ) : 0;
+
+							foreach ( $pricing_tiers as $tier ) {
+								if ( isset( $tier['id'] ) && $tier['id'] === $tier_id ) {
+									if ( isset( $tier['group_name'] ) ) {
+										$purchase_data['plan_name'] = $tier['group_name'];
+									}
+									break;
+								}
+							}
+						}
+
+						if ( isset( $cart_content['group_seats'] ) ) {
+							$purchase_data['seats'] = intval( $cart_content['group_seats'] );
+						}
+
+						if ( ! empty( $purchase_data ) ) {
+							$order->update_meta_data( '_group_purchase_data', $purchase_data );
+						}
+
 						$order->save_meta_data();
 					}
 				}
@@ -857,9 +1101,14 @@ class GroupCoursesAddon {
 			return;
 		}
 
+		// Get pricing tiers (new format)
+		$pricing_tiers = $this->get_course_pricing_tiers( $course->get_id() );
+
+		// Get legacy fields for backward compatibility
 		$group_price = get_post_meta( $course->get_id(), '_group_courses_group_price', true );
 
-		if ( ! $group_price ) {
+		// Exit if no pricing tiers
+		if ( empty( $pricing_tiers ) ) {
 			remove_action( 'masteriyo_template_group_btn', array( $this, 'get_group_btn_template' ), 20, 1 );
 			return;
 		}
@@ -877,10 +1126,15 @@ class GroupCoursesAddon {
 			return;
 		}
 
-		$group_price = floatval( get_post_meta( $course->get_id(), '_group_courses_group_price', true ) );
-
-		if ( ! $group_price ) {
-			return;
+		// Check if course coming soon is active and enrollment is not yet available
+		$is_coming_soon      = false;
+		$coming_soon_enabled = get_post_meta( $course->get_id(), '_course_coming_soon_enable', true );
+		if ( masteriyo_string_to_bool( $coming_soon_enabled ) ) {
+			// Check if the enrollment time has been reached
+			$coming_soon_satisfied = Helper::course_coming_soon_satisfied( $course );
+			if ( ! $coming_soon_satisfied ) {
+				$is_coming_soon = true;
+			}
 		}
 
 		/**
@@ -893,7 +1147,7 @@ class GroupCoursesAddon {
 		 *
 		 * @return int The filtered group price.
 		 */
-		$group_price = apply_filters( 'masteriyo_group_buy_btn_price', $group_price, $course->get_id() );
+		$group_price = apply_filters( 'masteriyo_group_buy_btn_price', floatval( $group_price ), $course->get_id() );
 
 		$currency = '';
 
@@ -910,6 +1164,9 @@ class GroupCoursesAddon {
 				'course_id'      => $course->get_id(),
 				'course'         => $course,
 				'max_group_size' => $max_group_size,
+				'pricing_tiers'  => $pricing_tiers, // New: pass pricing tiers to template
+				'currency'       => $currency,       // New: pass currency for price formatting
+				'is_coming_soon' => $is_coming_soon,
 			)
 		);
 	}
@@ -958,10 +1215,6 @@ class GroupCoursesAddon {
 	 */
 	public function masteriyo_template_group_buy_button( $course ) {
 		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
-
-		if ( masteriyo_is_single_course_page() && 'layout1' === $layout ) {
-			return;
-		}
 
 		// Exit early if the user already has a group for this course.
 		if ( $this->user_has_a_group_for_this_course( $course->get_id() ) ) {
@@ -1028,6 +1281,44 @@ class GroupCoursesAddon {
 				<?php esc_html_e( 'Manage group:', 'learning-management-system' ); ?>
 				<strong><a href="<?php echo esc_url( $groups_url ); ?>"><?php esc_html_e( 'View in account', 'learning-management-system' ); ?></a></strong>
 			</li>
+
+			<?php
+			$course_id = 0;
+			// Try to find course ID from order items
+			foreach ( $order->get_items() as $item ) {
+				// We assume one group course per order for now or just take the first one found
+				$c_id = $item->get_course_id(); // Use get_course_id() instead of get_product_id()
+				if ( $c_id ) {
+					$course_id = $c_id;
+					break;
+				}
+			}
+
+			// Or fallback to meta if set
+			if ( ! $course_id ) {
+				$course_id = $order->get_meta( '_group_course_id', true );
+			}
+
+			$details = $this->get_group_purchase_details( $group->get_id(), $course_id, $order->get_id() );
+
+			if ( ! empty( $details['seats'] ) ) {
+				?>
+				<li class="masteriyo-order-overview__group-seats">
+					<?php esc_html_e( 'Total Seats:', 'learning-management-system' ); ?>
+					<strong><?php echo esc_html( $details['seats'] ); ?></strong>
+				</li>
+				<?php
+			}
+
+			if ( ! empty( $details['plan'] ) ) {
+				?>
+				<li class="masteriyo-order-overview__group-plan">
+					<?php esc_html_e( 'Plan:', 'learning-management-system' ); ?>
+					<strong><?php echo esc_html( $details['plan'] ); ?></strong>
+				</li>
+				<?php
+			}
+			?>
 		</ul>
 		<?php
 	}
@@ -1065,6 +1356,29 @@ class GroupCoursesAddon {
 			'status'       => $group->get_status(),
 			'member_count' => count( $group->get_emails() ),
 		);
+
+		$course_id = 0;
+		// Try to find course ID from order items
+		foreach ( $order->get_items() as $item ) {
+			$c_id = $item->get_course_id();
+			if ( $c_id ) {
+				$course_id = $c_id;
+				break;
+			}
+		}
+		if ( ! $course_id ) {
+			$course_id = $order->get_meta( '_group_course_id', true );
+		}
+
+		$details = $this->get_group_purchase_details( $group->get_id(), $course_id, $order->get_id() );
+
+		if ( ! empty( $details['seats'] ) ) {
+			$data['group_info']['seats'] = $details['seats'];
+		}
+
+		if ( ! empty( $details['plan'] ) ) {
+			$data['group_info']['plan_name'] = $details['plan'];
+		}
 
 		// Add group purchase indicator to course data
 		if ( isset( $data['course_data'] ) && is_array( $data['course_data'] ) ) {
@@ -1178,13 +1492,28 @@ class GroupCoursesAddon {
 		$group_repository = masteriyo_create_group_store();
 		$group_repository->create( $group );
 
-		// Update title with the actual group ID after creation
+		// Update title with the actual group name or ID after creation
 		if ( $group->get_id() ) {
 			// Re-read the group to ensure proper change tracking
 			$group = masteriyo_get_group( $group->get_id() );
 			if ( $group ) {
-				/* translators: % 1$s: Course name, % 2$d: Group ID */
-				$group->set_title( sprintf( __( '%1$s - Group #%2$d', 'learning-management-system' ), $course->get_name(), $group->get_id() ) );
+				// Get purchase data to extract the configured group name
+				$purchase_data = $order->get_meta( '_group_purchase_data', true );
+				$group_name    = '';
+
+				// Try to get the admin-configured group name from purchase data
+				if ( is_array( $purchase_data ) && isset( $purchase_data['plan_name'] ) && ! empty( $purchase_data['plan_name'] ) ) {
+					$group_name = $purchase_data['plan_name'];
+				}
+
+				// Set title using the configured group name or fall back to generic format.
+				if ( ! empty( $group_name ) ) {
+					/* translators: %1$s: Course name, %2$s: Group name (e.g., Small Team, Enterprise) */
+					$group->set_title( sprintf( __( '%1$s - %2$s', 'learning-management-system' ), $course->get_name(), $group_name ) );
+				} else {
+					/* translators: %1$s: Course name, %2$d: Group ID */
+					$group->set_title( sprintf( __( '%1$s - Group #%2$d', 'learning-management-system' ), $course->get_name(), $group->get_id() ) );
+				}
 				$group_repository->update( $group );
 			}
 
@@ -1194,6 +1523,22 @@ class GroupCoursesAddon {
 				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
 			);
 			update_post_meta( $group->get_id(), 'masteriyo_course_data', array( $course_data ) );
+
+			// Store tier information in group meta (flattened for easier querying)
+			$purchase_data = $order->get_meta( '_group_purchase_data', true );
+			if ( is_array( $purchase_data ) ) {
+				if ( isset( $purchase_data['tier_id'] ) ) {
+					update_post_meta( $group->get_id(), '_group_tier_id', $purchase_data['tier_id'] );
+				}
+
+				if ( isset( $purchase_data['seats'] ) ) {
+					update_post_meta( $group->get_id(), '_group_seats', intval( $purchase_data['seats'] ) );
+				}
+
+				if ( isset( $purchase_data['plan_name'] ) ) {
+					update_post_meta( $group->get_id(), '_group_plan_name', $purchase_data['plan_name'] );
+				}
+			}
 
 			// Store group ID in order meta
 			$order->update_meta_data( '_created_group_id', $group->get_id() );
@@ -1342,21 +1687,23 @@ class GroupCoursesAddon {
 	 *
 	 * @param array $data Course data.
 	 * @param \Masteriyo\Models\Course $course Course object.
-	 * @param string $context What the value is for. Valid values are view and edit.
-	 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST courses controller object.
 	 *
 	 * @return array
 	 */
 	public function append_group_courses_data_in_response( $data, $course, $context, $controller ) {
 
 		if ( $course instanceof \Masteriyo\Models\Course ) {
-			// Default to true if not set
+			// Default to false if not set
 			$enabled_meta = get_post_meta( $course->get_id(), '_group_courses_enabled', true );
-			// Consider enabled unless explicitly set to 'no'
-			$enabled = ( 'no' !== $enabled_meta );
+			// Consider disabled unless explicitly set to 'yes'
+			$enabled = ( 'yes' === $enabled_meta );
+
+			// Get pricing tiers (new format)
+			$pricing_tiers = $this->get_course_pricing_tiers( $course->get_id() );
 
 			$data['group_courses'] = array(
 				'enabled'        => $enabled,
+				'pricing_tiers'  => ! empty( $pricing_tiers ) ? $pricing_tiers : array(),
 				'group_price'    => get_post_meta( $course->get_id(), '_group_courses_group_price', true ),
 				'max_group_size' => get_post_meta( $course->get_id(), '_group_courses_max_group_size', true ),
 			);
@@ -1384,11 +1731,41 @@ class GroupCoursesAddon {
 			return;
 		}
 
+		// Save enabled status
 		if ( isset( $request['group_courses']['enabled'] ) ) {
 			$enabled = $request['group_courses']['enabled'] ? 'yes' : 'no';
 			update_post_meta( $id, '_group_courses_enabled', $enabled );
 		}
 
+		// Save pricing tiers.
+		if ( isset( $request['group_courses']['pricing_tiers'] ) && is_array( $request['group_courses']['pricing_tiers'] ) ) {
+			$pricing_tiers = $request['group_courses']['pricing_tiers'];
+
+			// Sanitize each tier
+			$sanitized_tiers = array();
+			foreach ( $pricing_tiers as $tier ) {
+				$sanitized_tier = array(
+					'id'            => isset( $tier['id'] ) ? sanitize_text_field( $tier['id'] ) : '',
+					'seat_model'    => isset( $tier['seat_model'] ) ? sanitize_text_field( $tier['seat_model'] ) : 'fixed',
+					'group_name'    => isset( $tier['group_name'] ) ? sanitize_text_field( $tier['group_name'] ) : '',
+					'pricing_type'  => isset( $tier['pricing_type'] ) ? sanitize_text_field( $tier['pricing_type'] ) : 'one_time',
+					'regular_price' => isset( $tier['regular_price'] ) ? sanitize_text_field( $tier['regular_price'] ) : '',
+					'sale_price'    => isset( $tier['sale_price'] ) ? sanitize_text_field( $tier['sale_price'] ) : '',
+				);
+
+				// Add fields based on seat model
+				if ( 'fixed' === $sanitized_tier['seat_model'] ) {
+					$sanitized_tier['group_size'] = isset( $tier['group_size'] ) ? intval( $tier['group_size'] ) : 0;
+				}
+
+				$sanitized_tiers[] = $sanitized_tier;
+			}
+
+			// Save as JSON
+			update_post_meta( $id, '_group_courses_pricing_tiers', wp_json_encode( $sanitized_tiers ) );
+		}
+
+		// Keep legacy fields for backwards compatibility (deprecated but maintained)
 		if ( isset( $request['group_courses']['group_price'] ) ) {
 			update_post_meta( $id, '_group_courses_group_price', sanitize_text_field( $request['group_courses']['group_price'] ) );
 		}
@@ -1420,21 +1797,68 @@ class GroupCoursesAddon {
 							'enabled'        => array(
 								'description' => __( 'Enable selling to groups.', 'learning-management-system' ),
 								'type'        => 'boolean',
-								'default'     => true,
+								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
+							'pricing_tiers'  => array(
+								'description' => __( 'Group pricing tiers configuration.', 'learning-management-system' ),
+								'type'        => 'array',
+								'context'     => array( 'view', 'edit' ),
+								'items'       => array(
+									'type'       => 'object',
+									'properties' => array(
+										'id'            => array(
+											'type'    => 'string',
+											'context' => array( 'view', 'edit' ),
+										),
+										'seat_model'    => array(
+											'type'    => 'string',
+											'enum'    => array( 'fixed', 'variable' ),
+											'context' => array( 'view', 'edit' ),
+										),
+										'group_name'    => array(
+											'type'    => 'string',
+											'context' => array( 'view', 'edit' ),
+										),
+										'group_size'    => array(
+											'type'    => 'integer',
+											'context' => array( 'view', 'edit' ),
+										),
+										'pricing_model' => array(
+											'type'    => 'string',
+											'enum'    => array( 'per_seat', 'tiered' ),
+											'context' => array( 'view', 'edit' ),
+										),
+										'pricing_type'  => array(
+											'type'    => 'string',
+											'enum'    => array( 'one_time', 'recurring' ),
+											'context' => array( 'view', 'edit' ),
+										),
+										'regular_price' => array(
+											'type'    => 'string',
+											'context' => array( 'view', 'edit' ),
+										),
+										'sale_price'    => array(
+											'type'    => 'string',
+											'context' => array( 'view', 'edit' ),
+										),
+									),
+								),
+							),
+							// Legacy fields - kept for backwards compatibility
 							'group_price'    => array(
-								'description' => __( 'Group price.', 'learning-management-system' ),
+								'description' => __( 'Group price (legacy).', 'learning-management-system' ),
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'max_group_size' => array(
-								'description' => __( 'Maximum Group Size', 'learning-management-system' ),
+								'description' => __( 'Maximum Group Size (legacy).', 'learning-management-system' ),
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
 							),
 						),
 					),

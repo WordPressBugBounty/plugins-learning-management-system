@@ -7,7 +7,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -66,7 +66,12 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 				);
 				toast({
 					title: sprintf(
-						__('%s has been added.', 'learning-management-system'),
+						/* translators: %s: item summary or name */
+						_x(
+							'%s has been added.',
+							'Item added notification message',
+							'learning-management-system',
+						),
 						data.summary,
 					),
 					status: 'success',

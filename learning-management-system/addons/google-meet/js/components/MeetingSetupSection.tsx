@@ -15,7 +15,7 @@ import MeetingErrorConsentScreen from './MeetingErrorConsentScreen';
 import MeetingSuccessConsentScreen from './MeetingSuccessConsentScreen';
 import MeetingsTextAndLinkSection from './MeetingsTextAndLinkSection';
 
-export const defaultCopyValue = `${localized.home_url}/wp-admin/admin.php?page=masteriyo`;
+export const defaultCopyValue = `${localized.adminUrl}admin.php?page=masteriyo`;
 
 interface Props {}
 

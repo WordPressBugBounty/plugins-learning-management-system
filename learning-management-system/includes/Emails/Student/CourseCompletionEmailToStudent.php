@@ -87,6 +87,10 @@ class CourseCompletionEmailToStudent extends Email {
 
 					$certificate = masteriyo_get_certificate( $certificate_id );
 
+					if ( ! $certificate || is_wp_error( $certificate ) ) {
+						return;
+					}
+
 					$certificate_html_content = $certificate->get_html_content();
 
 					$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content );

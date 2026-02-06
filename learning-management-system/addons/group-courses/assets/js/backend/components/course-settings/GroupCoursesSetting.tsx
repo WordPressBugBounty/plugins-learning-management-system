@@ -2,15 +2,11 @@ import { useAddonsStore } from '@addons/add-ons/store/useAddons';
 import {
 	Alert,
 	AlertIcon,
+	Button,
+	ButtonGroup,
 	Center,
 	Collapse,
-	FormErrorMessage,
 	FormLabel,
-	NumberDecrementStepper,
-	NumberIncrementStepper,
-	NumberInput,
-	NumberInputField,
-	NumberInputStepper,
 	Spinner,
 	Stack,
 	Switch,
@@ -21,12 +17,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { BiPlus } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
+import { ProText } from '../../../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
 import { activateAddon } from '../../../../../../../assets/js/back-end/screens/add-ons/addons-api';
 import { addAndRemoveMenuItem } from '../../../../../../../assets/js/back-end/screens/add-ons/api/addons';
 import ToolTip from '../../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../../../assets/js/back-end/types/course';
+import PricingTierCard from './PricingTierCard';
 
 interface Props {
 	courseData?: CourseDataMap;
@@ -34,16 +33,30 @@ interface Props {
 	pricingType?: string;
 }
 
+interface PricingTier {
+	id: string;
+	seat_model: 'fixed' | 'variable';
+	group_name: string;
+	group_size?: number;
+	min_seats?: number;
+	max_seats?: number;
+	pricing_model?: 'per_seat' | 'tiered';
+	pricing_type: 'one_time' | 'recurring';
+	regular_price: string;
+	sale_price: string;
+	tiers?: Array<{
+		from: number;
+		to: number;
+		per_seat_price: string;
+	}>;
+}
+
 const GroupCoursesSetting: React.FC<Props> = ({
 	courseData,
 	isAddonActive: initialAddonActive = false,
 	pricingType = 'paid',
 }) => {
-	const {
-		control,
-		setValue,
-		formState: { errors },
-	} = useFormContext();
+	const { control, setValue, formState } = useFormContext();
 
 	const toast = useToast();
 	const queryClient = useQueryClient();
@@ -51,13 +64,13 @@ const GroupCoursesSetting: React.FC<Props> = ({
 	const [isAddonActive, setIsAddonActive] = useState(initialAddonActive);
 	const [isActivating, setIsActivating] = useState(false);
 
-	const watchSellToGroups = useWatch({
-		name: 'group_courses.enabled',
+	const { fields, append, remove } = useFieldArray({
 		control,
+		name: 'group_courses.pricing_tiers',
 	});
 
-	const watchGroupPrice = useWatch({
-		name: 'group_courses.group_price',
+	const watchSellToGroups = useWatch({
+		name: 'group_courses.enabled',
 		control,
 	});
 
@@ -71,19 +84,53 @@ const GroupCoursesSetting: React.FC<Props> = ({
 	// Sync form values when courseData changes
 	useEffect(() => {
 		if (courseData?.group_courses) {
-			setValue('group_courses.enabled', !!courseData.group_courses.enabled, {
-				shouldDirty: true,
+			const isEnabled = !!courseData.group_courses.enabled;
+			setValue('group_courses.enabled', isEnabled, {
+				shouldDirty: false,
 			});
-			setValue(
-				'group_courses.group_price',
-				courseData.group_courses.group_price ?? '',
-				{ shouldDirty: true },
-			);
-			setValue(
-				'group_courses.max_group_size',
-				courseData.group_courses.max_group_size ?? '',
-				{ shouldDirty: true },
-			);
+
+			// Handle pricing_tiers - either from new format or migrated from legacy
+			const pricingTiers = courseData.group_courses.pricing_tiers;
+			if (
+				pricingTiers &&
+				Array.isArray(pricingTiers) &&
+				pricingTiers.length > 0
+			) {
+				setValue('group_courses.pricing_tiers', pricingTiers, {
+					shouldDirty: false,
+				});
+			} else if (
+				!pricingTiers &&
+				(courseData.group_courses.group_price ||
+					courseData.group_courses.max_group_size)
+			) {
+				// Migration: Convert legacy format to new format
+				const migratedTier: PricingTier = {
+					id: `tier_${Date.now()}`,
+					seat_model: 'fixed',
+					group_name: __('Group', 'learning-management-system'),
+					group_size: parseInt(courseData.group_courses.max_group_size || '0'),
+					pricing_type: 'one_time',
+					regular_price: courseData.group_courses.group_price || '',
+					sale_price: '',
+				};
+				setValue('group_courses.pricing_tiers', [migratedTier], {
+					shouldDirty: false,
+				});
+			} else if (isEnabled) {
+				const defaultTier: PricingTier = {
+					id: `tier_${Date.now()}`,
+					seat_model: 'fixed',
+					group_name: '',
+					group_size: 0,
+					pricing_type: 'one_time',
+					regular_price: '',
+					sale_price: '',
+				};
+				setValue('group_courses.pricing_tiers', [defaultTier], {
+					shouldDirty: false,
+				});
+			}
 		}
 	}, [courseData, setValue]);
 
@@ -129,6 +176,32 @@ const GroupCoursesSetting: React.FC<Props> = ({
 			activateAddonMutation.mutate();
 			dispatch(useAddonsStore).updateAddons('group-courses', true);
 		}
+
+		if (isChecked && fields.length === 0) {
+			const newTier: PricingTier = {
+				id: `tier_${Date.now()}`,
+				seat_model: 'fixed',
+				group_name: '',
+				group_size: 0,
+				pricing_type: 'one_time',
+				regular_price: '',
+				sale_price: '',
+			};
+			append(newTier);
+		}
+	};
+
+	const addNewPricingTier = () => {
+		const newTier: PricingTier = {
+			id: `tier_${Date.now()}`,
+			seat_model: 'fixed',
+			group_name: '',
+			group_size: 0,
+			pricing_type: 'one_time',
+			regular_price: '',
+			sale_price: '',
+		};
+		append(newTier);
 	};
 
 	const showOptions = isAddonReallyActive && !isActivating && watchSellToGroups;
@@ -197,80 +270,31 @@ const GroupCoursesSetting: React.FC<Props> = ({
 
 			<Collapse in={showOptions} animateOpacity>
 				<Stack direction="column" spacing={6}>
-					<FormControlTwoCol>
-						<FormLabel>
-							{__('Group Price', 'learning-management-system')}
-							<ToolTip
-								label={__(
-									'Set the price for enrolling as a group. This allows multiple students to enroll together at a discounted rate compared to individual enrollments.',
-									'learning-management-system',
-								)}
-							/>
-						</FormLabel>
-						<Controller
-							name="group_courses.group_price"
-							control={control}
-							defaultValue=""
-							render={({ field }) => (
-								<NumberInput {...field} w="full" min={0} isDisabled={isFree}>
-									<NumberInputField borderRadius="sm" shadow="input" />
-									<NumberInputStepper>
-										<NumberIncrementStepper />
-										<NumberDecrementStepper />
-									</NumberInputStepper>
-								</NumberInput>
-							)}
+					{/* Render all pricing tiers */}
+					{fields.map((field, index) => (
+						<PricingTierCard
+							key={field.id}
+							index={index}
+							onRemove={() => remove(index)}
+							isFree={isFree}
 						/>
-					</FormControlTwoCol>
+					))}
 
-					<Controller
-						name="group_courses.max_group_size"
-						control={control}
-						defaultValue=""
-						rules={{
-							required:
-								watchSellToGroups &&
-								watchGroupPrice &&
-								parseFloat(watchGroupPrice) > 0
-									? __(
-											'Group size is required when group price is set',
-											'learning-management-system',
-										)
-									: false,
-							min: {
-								value: 0,
-								message: __(
-									'Group size cannot be negative',
-									'learning-management-system',
-								),
-							},
-						}}
-						render={({ field, fieldState: { error } }) => (
-							<FormControlTwoCol isInvalid={!!error}>
-								<FormLabel>
-									{__('Group Size', 'learning-management-system')}
-									<ToolTip
-										label={__(
-											'Specify the maximum number of students that can enroll as part of a single group. Set to 0 for unlimited group size.',
-											'learning-management-system',
-										)}
-									/>
-								</FormLabel>
-								<Stack spacing={2} w="full">
-									<NumberInput {...field} w="full" min={0} isDisabled={isFree}>
-										<NumberInputField borderRadius="sm" shadow="input" />
-										<NumberInputStepper>
-											<NumberIncrementStepper />
-											<NumberDecrementStepper />
-										</NumberInputStepper>
-									</NumberInput>
-									{error && (
-										<FormErrorMessage>{error.message}</FormErrorMessage>
-									)}
-								</Stack>
-							</FormControlTwoCol>
-						)}
-					/>
+					{/* Add Another Group Pricing Button */}
+					<ButtonGroup justifyContent="center">
+						<Button
+							onClick={fields?.length >= 1 ? undefined : addNewPricingTier}
+							variant="outline"
+							size="md"
+							leftIcon={<BiPlus />}
+						>
+							{fields?.length >= 1
+								? __('Add Another Group Pricing', 'learning-management-system')
+								: __('Add Group Pricing', 'learning-management-system')}
+
+							{fields?.length >= 1 && <ProText />}
+						</Button>
+					</ButtonGroup>
 				</Stack>
 			</Collapse>
 		</Stack>

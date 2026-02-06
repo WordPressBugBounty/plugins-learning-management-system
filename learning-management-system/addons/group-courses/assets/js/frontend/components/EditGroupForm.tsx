@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { accountPageFormLabelStyles } from '../../../../../../assets/js/account/utils/general';
 import Editor from '../../../../../../assets/js/back-end/components/common/Editor';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { deepClean } from '../../../../../../assets/js/back-end/utils/utils';
@@ -99,7 +100,7 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 					<Stack direction="column" spacing="6">
 						<Name defaultValue={group?.title || ''} />
 						<FormControl>
-							<FormLabel>
+							<FormLabel sx={accountPageFormLabelStyles}>
 								{__('Group Description', 'learning-management-system')}
 							</FormLabel>
 							<Editor

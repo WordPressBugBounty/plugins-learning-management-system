@@ -15,6 +15,8 @@ use Masteriyo\Addons\Certificate\PostType\Certificate;
 use Masteriyo\Addons\Certificate\RestApi\Controllers\Version1\CertificatesController;
 use Masteriyo\Constants;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Enums\PostStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\ScriptStyle;
 
@@ -109,7 +111,9 @@ class CertificateAddon {
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'add_submenus' ) );
 
+		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_certificate_share_for_single_course_page' ) );
 		add_action( 'masteriyo_template_course_inside_progress', array( $this, 'render_certificate_share_for_single_course_page' ), 1, 1 );
+		add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', array( $this, 'render_certificate_share_for_single_course_page' ) );
 		// add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
 
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -421,15 +425,32 @@ class CertificateAddon {
 			return $scripts;
 		}
 
-		$course_slug = sanitize_text_field( $wp->query_vars['course_name'] );
+		// To support different permalink structures.
+		$course_name = isset( $wp->query_vars['course_name'] ) ? (string) $wp->query_vars['course_name'] : '';
 
-		$course_id = $this->get_course_id_by_name( $course_slug );
+		if ( preg_match( '/^\d+$/', $course_name ) ) {
+			$args = array(
+				'p'              => absint( $course_name ),
+				'posts_per_page' => 1,
+				'post_type'      => PostType::COURSE,
+				'post_status'    => PostStatus::PUBLISH,
+			);
+		} else {
+			$args = array(
+				'name'           => sanitize_text_field( $course_name ),
+				'posts_per_page' => 1,
+				'post_type'      => PostType::COURSE,
+				'post_status'    => PostStatus::PUBLISH,
+			);
+		}
 
-		if ( ! $course_id ) {
+		$posts = get_posts( $args );
+
+		if ( empty( $posts ) ) {
 			return $scripts;
 		}
 
-		$enabled = masteriyo_is_certificate_enabled_for_course( $course_id );
+		$enabled = masteriyo_is_certificate_enabled_for_course( $posts[0]->ID );
 		$scripts['learn']['data']['isCertificateEnabled'] = masteriyo_bool_to_string( $enabled );
 
 		return $scripts;

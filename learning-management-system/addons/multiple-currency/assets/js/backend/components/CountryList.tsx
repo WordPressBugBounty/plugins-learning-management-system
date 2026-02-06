@@ -7,7 +7,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { PriceZoneSchema } from '../../types/multiCurrency';
 interface Props {
@@ -55,13 +55,7 @@ const CountryList: React.FC<Props> = (props) => {
 							_hover={{ background: 'none' }}
 							_odd={{ background: 'gray.100' }}
 						>
-							<Text>
-								{sprintf(
-									/* translators: %s: Country */
-									__('%s', 'learning-management-system'),
-									country?.label,
-								)}
-							</Text>
+							<Text>{country?.label}</Text>
 						</MenuItem>
 					))}
 				</MenuList>
@@ -71,13 +65,7 @@ const CountryList: React.FC<Props> = (props) => {
 
 	return (
 		<Stack direction="row">
-			<Text>
-				{sprintf(
-					/* translators: %s: Country */
-					__('%s', 'learning-management-system'),
-					firstCountry?.label,
-				)}
-			</Text>
+			<Text>{firstCountry?.label ?? ''}</Text>
 		</Stack>
 	);
 };

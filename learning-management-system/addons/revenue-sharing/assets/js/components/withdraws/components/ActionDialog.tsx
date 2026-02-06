@@ -162,8 +162,10 @@ const ActionDialog: React.FC<Props> = (props) => {
 							<>
 								<Text mb={4}>
 									{sprintf(
+										/* translators: %1$s: withdraw amount, %2$s: user display name */
 										__(
-											'Are you sure you want to reject %s withdraw request from %s?',
+											'Are you sure you want to reject %1$s withdraw request from %2$s?',
+											'learning-management-system',
 										),
 										data?.withdraw_amount,
 										data?.withdrawer.display_name,
@@ -215,8 +217,10 @@ const ActionDialog: React.FC<Props> = (props) => {
 							</>
 						) : (
 							sprintf(
+								/* translators: %1$s: withdraw amount, %2$s: user display name */
 								__(
-									'Are you sure you want to approve %s withdraw request from %s?',
+									'Are you sure you want to approve %1$s withdraw request from %2$s?',
+									'learning-management-system',
 								),
 								data?.withdraw_amount,
 								data?.withdrawer.display_name,

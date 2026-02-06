@@ -33,11 +33,11 @@ if ( ! isset( $is_completed ) ) {
 	$is_completed = ( $total > 0 ) && ( $completed >= $total );
 }
 
-
-$show_progress = ! empty( $summary ) && (
-	(bool) masteriyo_get_setting( 'course_archive.components_visibility.course_progress' )
-	|| ! (bool) masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' )
-);
+if ( is_singular( 'mto-course' ) ) {
+	$show_progress = ! empty( $summary ) && (bool) masteriyo_get_setting( 'single_course.components_visibility.course_progress' );
+} else {
+	$show_progress = ! empty( $summary ) && (bool) masteriyo_get_setting( 'course_archive.components_visibility.course_progress' );
+}
 
 $layout = masteriyo_get_setting( 'single_course.display.template.layout' );
 $class  = '';
@@ -81,8 +81,17 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 						</h2>
 						<div class="progress-percent">
 							<?php
-							/* translators: %s: percent completed (e.g. 75%) */
-							printf( '%s', esc_html( sprintf( __( '%.0f%%', 'learning-management-system' ), $progress_pct ) ) );
+							echo esc_html(
+								sprintf(
+									/* translators: %f: progress percentage (e.g. 75) */
+									_x(
+										'%.0f%%',
+										'Course progress percentage',
+										'learning-management-system'
+									),
+									$progress_pct
+								)
+							);
 							?>
 						</div>
 					</div>
@@ -97,8 +106,10 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 						</div>
 						<div class="completed-info">
 							<?php
-							/* translators: 1: remaining items, 2: total items */
-							echo esc_html( sprintf( __( '%1$d out of %2$d Left', 'learning-management-system' ), $remaining, $total ) );
+							if ( masteriyo_is_single_course_page() ) {
+								/* translators: 1: remaining items, 2: total items */
+								echo esc_html( sprintf( __( '%1$d out of %2$d Left', 'learning-management-system' ), $remaining, $total ) );
+							}
 							?>
 						</div>
 

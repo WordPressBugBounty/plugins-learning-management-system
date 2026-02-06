@@ -198,8 +198,21 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 													<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon">
 														<?php
 														echo $object->get_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+															$learn_page_url = masteriyo_get_page_permalink( 'learn' );
+															$permalink      = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
+
+														if ( '' === get_option( 'permalink_structure' ) ) {
+															$permalink = add_query_arg(
+																array(
+																	'course_name' => $course->get_id(),
+																),
+																$learn_page_url
+															);
+														}
+
+															$permalink .= '#/course/' . $course->get_id() . '/' . $object->get_object_type() . '/' . $lesson_id;
 														?>
-															<a href="<?php echo esc_url( home_url( "/learn/course/{$course->get_slug()}/#/course/{$course->get_id()}/{$object->get_object_type()}/{$lesson_id}" ) ); ?>">
+															<a href="<?php echo esc_url( $permalink ); ?>">
 															<?php echo esc_html( $object->get_name() ); ?>
 														</a>
 														<span class="masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">

@@ -56,7 +56,7 @@ class WelcomePageController extends RestController {
 	/**
 	 * Return publish courses count.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @return integer
 	 */
@@ -76,7 +76,7 @@ class WelcomePageController extends RestController {
 	 * @return WP_REST_Response The response object.
 	 */
 	public function get_item( $request ) {
-		$page_check_result      = $this->check_required_pages();
+		$page_check_result      = check_required_pages();
 		$stripe_setting         = new StripeSetting();
 		$payment_data           = array(
 			'offline_payment' => masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
@@ -94,7 +94,7 @@ class WelcomePageController extends RestController {
 		}
 		return new WP_REST_Response(
 			array(
-				'page_status'             => $page_check_result,
+				'missing_pages'           => $page_check_result,
 				'payment_data'            => $payment_data,
 				'show_starters_templates' => $show_staters_templates,
 				'course_created'          => $course_created,
@@ -103,8 +103,6 @@ class WelcomePageController extends RestController {
 			200
 		);
 	}
-
-
 
 
 	/**
@@ -119,7 +117,7 @@ class WelcomePageController extends RestController {
 	 */
 	public function create_item( $request ) {
 		$page_check_result = $this->check_required_pages();
-		if ( ! empty( $page_check_result ) ) {
+		if ( ! empty( $page_check_result ) && ! isset( $request['payments'] ) ) {
 			Activation::create_pages();
 		}
 
@@ -131,7 +129,6 @@ class WelcomePageController extends RestController {
 		if ( isset( $request['payments'] ) && is_array( $request['payments'] ) ) {
 			$this->process_payment_settings( $request['payments'], $addons, $stripe_setting );
 		}
-
 		if ( isset( $request['show_starters_templates'] ) ) {
 			update_option(
 				'show_starters_templates',
@@ -145,7 +142,6 @@ class WelcomePageController extends RestController {
 				masteriyo_bool_to_string( $request['skip_payment_setup'] )
 			);
 		}
-
 		return new WP_REST_Response(
 			array(
 				'missing_pages'           => $page_check_result,

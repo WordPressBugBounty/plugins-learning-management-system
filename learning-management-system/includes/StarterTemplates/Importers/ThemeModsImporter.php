@@ -140,10 +140,11 @@ class ThemeModsImporter {
 			$existing_custom[] = $new_custom;
 
 			$new_value                  = array(
-				'id'     => $id,
-				'name'   => 'Importer Color Palette',
-				'colors' => $colors,
-				'custom' => $existing_custom,
+				'id'         => $id,
+				'name'       => 'Starter Colors',
+				'colors'     => $colors,
+				'custom'     => $existing_custom,
+				'updated_at' => time(),
 			);
 			$mods[ $color_palette_key ] = $new_value;
 		}

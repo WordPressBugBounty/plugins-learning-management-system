@@ -16,7 +16,12 @@ function CourseFilterForBlocks(props) {
 	}, []);
 
 	useEffect(() => {
-		if (selectedCourseId && !selectedCourse) {
+		if (selectedCourseId) {
+			// Check if the current selected course matches the selectedCourseId
+			if (selectedCourse && selectedCourse.value === selectedCourseId) {
+				return; // Already have the correct course selected
+			}
+
 			fetchCoursesFromAPI().then((courses) => {
 				const match = courses.find((c) => c.value === selectedCourseId);
 				if (match) {
@@ -29,6 +34,9 @@ function CourseFilterForBlocks(props) {
 					});
 				}
 			});
+		} else {
+			// Clear selection if no course ID
+			setSelectedCourse(null);
 		}
 	}, [selectedCourseId]);
 

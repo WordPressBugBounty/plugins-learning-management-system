@@ -26,13 +26,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 */
 	const ENVIRONMENT_ID = 'cmcn73ighcqgkwk017mrq94f8';
 
-	/**
-	 * Services provided by this service provider.
-	 *
-	 * @since 1.20.0
-	 * @var array
-	 */
-	protected $provides = array();
+
 
 	/**
 	 * Register services in the container.
@@ -40,8 +34,30 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * @since 1.20.0
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		// No container services to register for now.
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 	/**
@@ -51,7 +67,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * @since 1.20.0
 	 * @return void
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action( 'admin_enqueue_scripts', array( $this, 'declare_internal_pages' ) );
 		add_filter( 'themeisle-sdk/survey/' . MASTERIYO_SLUG, array( $this, 'configure_formbricks' ), 10, 2 );
 	}

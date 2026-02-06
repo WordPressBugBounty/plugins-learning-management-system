@@ -40,7 +40,10 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 	 * @since 1.0.0
 	 * @var array
 	 */
-	protected $internal_meta_keys = array();
+	protected $internal_meta_keys = array(
+		'ratings_modal_opened' => '_ratings_modal_opened',
+	);
+
 
 	/**
 	 * Create a course progress in the database.
@@ -301,6 +304,9 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 			)
 		);
 
+		// Read meta data.
+		$this->read_course_progress_data( $course_progress );
+
 		$course_progress->read_meta_data();
 		$course_progress->set_object_read( true );
 
@@ -314,6 +320,35 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		 */
 		do_action( 'masteriyo_course_progress_read', $course_progress->get_id(), $course_progress );
 	}
+
+	/**
+	 * Read course progress data from database.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 */
+	protected function read_course_progress_data( &$course_progress ) {
+		$set_props   = array();
+		$meta_values = $this->read_meta( $course_progress );
+
+		$meta_values = array_reduce(
+			$meta_values,
+			function( $result, $meta_value ) {
+				$result[ $meta_value->key ][] = $meta_value->value;
+				return $result;
+			},
+			array()
+		);
+
+		foreach ( $this->internal_meta_keys as $prop => $meta_key ) {
+			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
+			$set_props[ $prop ] = maybe_unserialize( $meta_value );
+		}
+
+		$course_progress->set_props( $set_props );
+	}
+
 
 	/**
 	 * Clear meta cache.

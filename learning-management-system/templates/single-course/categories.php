@@ -27,8 +27,13 @@ if ( empty( $course->get_categories() ) ) {
  */
 do_action( 'masteriyo_before_single_course_categories' );
 
+if ( is_singular( 'mto-course' ) ) {
+	$show_categories = masteriyo_get_setting( 'single_course.components_visibility.categories' );
+} else {
+	$show_categories = masteriyo_get_setting( 'course_archive.components_visibility.categories' );
+}
 ?>
-<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.categories' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
+<?php if ( $show_categories ) : ?>
 <div class="masteriyo-course--content__category masteriyo-course-category">
 	<?php foreach ( $course->get_categories() as $category ) : ?>
 		<a href="<?php echo esc_attr( $category->get_permalink() ); ?>"

@@ -1,8 +1,6 @@
-import { Flex, Text } from '@chakra-ui/react';
+import { Flex, Stack, Text } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { GiAchievement, GiCrownCoin } from 'react-icons/gi';
-import { TbMilitaryRank } from 'react-icons/tb';
 import { isEmpty } from '../../../../assets/js/back-end/utils/utils';
 import { RewardType } from '../enums/enums';
 
@@ -94,10 +92,17 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 		.forEach((uiPlacement) => {
 			const components: React.ReactNode[] = [];
 
+			const isAccountPlacementPositionInsideSidebar =
+				uiPlacement.location !== 'new-tab' &&
+				uiPlacement.location !== 'dashboard-new-section' &&
+				uiPlacement.location !== 'dashboard-card';
+
 			if (RewardType.POINT === uiPlacement.reward_type && pointTypes) {
 				const pointTypesToShow = isEmpty(uiPlacement.types)
 					? Object.keys(pointTypes)
 					: uiPlacement.types;
+
+				const pointItems: React.ReactNode[] = [];
 
 				if (
 					pointTypesToShow?.length &&
@@ -107,10 +112,13 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 				) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'}>
-							<Text color={'black'} fontWeight={'semibold'} mr={1}>
+							<Text
+								color={'oxford-night'}
+								fontWeight={'semibold'}
+								fontSize={'md'}
+							>
 								{__('Points', 'learning-management-system')}
 							</Text>
-							<GiCrownCoin size={16} color={'orange'} />
 						</Flex>,
 					);
 				}
@@ -120,19 +128,36 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 					if (pointTypeData && !alreadyAddedPointTypes.includes(pointType)) {
 						alreadyAddedPointTypes.push(pointType);
-						components.push(
+						pointItems.push(
 							<React.Fragment key={uiPlacement.id + pointType}>
 								{renderPoint(pointTypeData, uiPlacement)}
 							</React.Fragment>,
 						);
 					}
 				});
+
+				if (pointItems.length > 0) {
+					components.push(
+						<Stack
+							width={'full'}
+							key="points-stack"
+							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
+							direction={
+								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
+							}
+						>
+							{pointItems}
+						</Stack>,
+					);
+				}
 			}
 
 			if (RewardType.RANK === uiPlacement.reward_type && rankTypes) {
 				const rankTypesToShow = isEmpty(uiPlacement.types)
 					? Object.keys(rankTypes)
 					: uiPlacement.types;
+
+				const rankItems: React.ReactNode[] = [];
 
 				if (
 					rankTypesToShow?.length &&
@@ -142,10 +167,13 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 				) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'}>
-							<Text color={'black'} fontWeight={'semibold'} mr={1}>
+							<Text
+								color={'oxford-night'}
+								fontWeight={'semibold'}
+								fontSize={'md'}
+							>
 								{__('Ranks', 'learning-management-system')}
 							</Text>
-							<TbMilitaryRank size={18} color={'blue'} />
 						</Flex>,
 					);
 				}
@@ -155,13 +183,28 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 					if (rankTypeData && !alreadyAddedRankTypes.includes(rankType)) {
 						alreadyAddedRankTypes.push(rankType);
-						components.push(
+						rankItems.push(
 							<React.Fragment key={uiPlacement.id + rankType}>
 								{renderRank(rankTypeData, uiPlacement)}
 							</React.Fragment>,
 						);
 					}
 				});
+
+				if (rankItems.length > 0) {
+					components.push(
+						<Stack
+							key="points-stack"
+							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
+							direction={
+								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
+							}
+							width={'full'}
+						>
+							{rankItems}
+						</Stack>,
+					);
+				}
 			}
 
 			if (
@@ -172,6 +215,8 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 					? Object.keys(achievementTypes)
 					: uiPlacement.types;
 
+				const achievementItems: React.ReactNode[] = [];
+
 				if (
 					achievementTypesToShow?.length &&
 					uiPlacement.location !== 'new-tab' &&
@@ -180,10 +225,13 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 				) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'} mr={1}>
-							<Text color={'black'} fontWeight={'semibold'}>
+							<Text
+								color={'oxford-night'}
+								fontWeight={'semibold'}
+								fontSize={'md'}
+							>
 								{__('Achievements', 'learning-management-system')}
 							</Text>
-							<GiAchievement size={20} color={'green'} />
 						</Flex>,
 					);
 				}
@@ -198,7 +246,7 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 						alreadyAddedAchievementTypes.push(achievementType);
 
 						achievementTypeData.achievements?.forEach((achievement, index) => {
-							components.push(
+							achievementItems.push(
 								<React.Fragment key={uiPlacement.id + achievementType + index}>
 									{renderAchievement(
 										achievement,
@@ -210,6 +258,21 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 						});
 					}
 				});
+
+				if (achievementItems.length > 0) {
+					components.push(
+						<Stack
+							key="points-stack"
+							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
+							direction={
+								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
+							}
+							width={'full'}
+						>
+							{achievementItems}
+						</Stack>,
+					);
+				}
 			}
 
 			allComponents.push(

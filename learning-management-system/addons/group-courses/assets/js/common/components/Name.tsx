@@ -7,6 +7,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { accountPageFormLabelStyles } from '../../../../../../assets/js/account/utils/general';
 
 interface Props {
 	defaultValue?: string;
@@ -20,7 +21,9 @@ const Name: React.FC<Props> = (props) => {
 	} = useFormContext();
 	return (
 		<FormControl isInvalid={!!errors?.title}>
-			<FormLabel>{__('Group Name', 'learning-management-system')}</FormLabel>
+			<FormLabel sx={accountPageFormLabelStyles}>
+				{__('Group Name', 'learning-management-system')}
+			</FormLabel>
 			<Input
 				color={'gray.600'}
 				defaultValue={defaultValue}

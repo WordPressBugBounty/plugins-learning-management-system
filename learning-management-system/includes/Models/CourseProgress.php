@@ -76,12 +76,15 @@ class CourseProgress extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'user_id'      => 0,
-		'course_id'    => 0,
-		'status'       => '',
-		'started_at'   => null,
-		'modified_at'  => null,
-		'completed_at' => null,
+		'user_id'              => 0,
+		'course_id'            => 0,
+		'status'               => '',
+		'started_at'           => null,
+		'modified_at'          => null,
+		'completed_at'         => null,
+
+		// Meta keys
+		'ratings_modal_opened' => false,
 	);
 
 	/**
@@ -325,6 +328,17 @@ class CourseProgress extends Model {
 		$this->set_date_prop( 'completed_at', $completed_at );
 	}
 
+		/**
+	 * Set ratings modal.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param bool $ratings_modal_opened Whether the rating modal is opened or not.
+	 */
+	public function set_ratings_modal_opened( $ratings_modal_opened ) {
+		$this->set_prop( 'ratings_modal_opened', masteriyo_string_to_bool( $ratings_modal_opened ) );
+	}
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -451,6 +465,17 @@ class CourseProgress extends Model {
 	 */
 	public function get_status_transition() {
 		return $this->status_transition;
+	}
+
+	/**
+	 * Get ratings modal opened.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array
+	 */
+	public function get_ratings_modal_opened( $context = 'view' ) {
+		return masteriyo_string_to_bool( $this->get_prop( 'ratings_modal_opened', $context ) );
 	}
 
 	/**

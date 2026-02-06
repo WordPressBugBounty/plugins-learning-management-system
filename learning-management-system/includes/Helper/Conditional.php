@@ -1113,21 +1113,36 @@ if ( ! function_exists( 'masteriyo_is_course_previewable' ) ) {
 function masteriyo_is_account_page( $page_id = null ) {
 	global $post;
 
+	$is_account_page = false;
 	$account_page_id = masteriyo_get_page_id( 'account' );
 
 	if ( ! is_null( $page_id ) && $page_id === $account_page_id ) {
-			return true;
+		$is_account_page = true;
 	}
 
 	if ( isset( $post->ID ) && $post->ID === $account_page_id ) {
-			return true;
+		$is_account_page = true;
 	}
 
 	if ( isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_account' ) ) {
-			return true;
+		$is_account_page = true;
 	}
 
-	return false;
+	/**
+	 * Filter whether the current page is a Masteriyo account page.
+	 *
+	 * @since 2.1.2
+	 *
+	 * @param bool     $is_account_page Whether it is an account page.
+	 * @param int|null $page_id          Page ID passed to the function.
+	 * @param int      $account_page_id  Masteriyo account page ID.
+	 */
+	return apply_filters(
+		'masteriyo_is_account_page',
+		$is_account_page,
+		$page_id,
+		$account_page_id
+	);
 }
 
 

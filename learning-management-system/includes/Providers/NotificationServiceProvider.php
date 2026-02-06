@@ -19,29 +19,14 @@ use Masteriyo\Query\UserCourseQuery;
 
 
 class NotificationServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.4.1
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'notification',
-		'notification.store',
-		'notification.rest',
-	);
+
 
 	/**
 	 * This method is called after all service providers are registered.
 	 *
 	 * @since 1.7.1
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action( 'masteriyo_new_user_course', array( $this, 'schedule_course_start_notification_to_student' ), 10, 2 );
 		add_action( 'masteriyo_course_progress_status_changed', array( $this, 'schedule_course_end_notification_to_student' ), 10, 4 );
 		add_action( 'masteriyo_order_status_completed', array( $this, 'schedule_completed_order_notification_to_student' ), 10, 2 );
@@ -338,7 +323,7 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 	 *
 	 * @since 1.4.1
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'notification.store', NotificationRepository::class );
 
 		$this->getContainer()->add( 'notification.rest', NotificationsController::class )
@@ -346,5 +331,31 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 
 		$this->getContainer()->add( 'notification', Notification::class )
 			->addArgument( 'notification.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'notification',
+				'notification.store',
+				'notification.rest',
+			),
+			true
+		);
 	}
 }

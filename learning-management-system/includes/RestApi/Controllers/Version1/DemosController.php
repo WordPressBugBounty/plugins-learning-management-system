@@ -144,7 +144,7 @@ class DemosController extends RestController {
 			if ( is_wp_error( $api ) || empty( $api->download_link ) ) {
 				return new WP_Error(
 					'theme_api_failed',
-					__( 'Could not find the "elearning" theme on WordPress.org.', 'themegrill-demo-importer' ),
+					__( 'Could not find the "elearning" theme on WordPress.org.', 'learning-management-system' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -159,7 +159,7 @@ class DemosController extends RestController {
 			if ( ! $result ) {
 				return new WP_Error(
 					'theme_install_failed',
-					__( 'Theme installation failed.', 'themegrill-demo-importer' ),
+					__( 'Theme installation failed.', 'learning-management-system' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -174,12 +174,12 @@ class DemosController extends RestController {
 
 		$action = $request instanceof \WP_REST_Request ? $request->get_param( 'action' ) : ( $request['action'] ?? '' );
 		if ( ! $action ) {
-			return new WP_Error( 'invalid_action', __( 'Invalid action provided', 'themegrill-demo-importer' ), array( 'status' => 500 ) );
+			return new WP_Error( 'invalid_action', __( 'Invalid action provided', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
 
 		$demo_config = $request instanceof \WP_REST_Request ? $request->get_param( 'demo_config' ) : ( $request['demo_config'] ?? array() );
 		if ( empty( $demo_config ) ) {
-			return new WP_Error( 'invalid_demo_config', __( 'Invalid demo config provided', 'themegrill-demo-importer' ), array( 'status' => 500 ) );
+			return new WP_Error( 'invalid_demo_config', __( 'Invalid demo config provided', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
 
 		$options        = $request instanceof \WP_REST_Request ? ( $request->get_param( 'opts' ) ?: array() ) : ( $request['opts'] ?? array() );

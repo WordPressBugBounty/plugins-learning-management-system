@@ -20,13 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 
 <?php
-if (
-	( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-	masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) &&
-	masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) && ! empty( $course->get_course_badge() ) ) ||
-	( ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) &&
-		masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) &&
-		masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) && ! empty( $course->get_course_badge() ) ) ) :
+if ( masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) && masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) && ! empty( $course->get_course_badge() ) ) :
 	?>
 	<div class="masteriyo-course--content__badge">
 		<span class="masteriyo-badge"><?php echo esc_html( $course->get_course_badge() ); ?></span>

@@ -156,7 +156,7 @@ const DocPreview: React.FC<Props> = (props) => {
 									>
 										<Text
 											fontSize="xs"
-											fontWeight="medium"
+											fontWeight="normal"
 											cursor={isDownloadable ? 'pointer' : 'inherit'}
 											_hover={{
 												color: isDownloadable ? 'blue.500' : 'inherit',
@@ -164,6 +164,8 @@ const DocPreview: React.FC<Props> = (props) => {
 											onClick={
 												isDownloadable ? () => onDownloadPress(file) : undefined
 											}
+											color={'saint-blue'}
+											lineHeight={'24px'}
 										>
 											{getFileNameFromURL(file?.url)}
 										</Text>

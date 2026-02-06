@@ -18,6 +18,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MdOutlineKeyboardReturn } from 'react-icons/md';
+import { accountPageFormLabelStyles } from '../../../../../../assets/js/account/utils/general';
 import localized from '../../../../../../assets/js/account/utils/global';
 
 interface Props {
@@ -104,7 +105,7 @@ const EmailsInput: React.FC<Props> = ({
 
 	return (
 		<FormControl isInvalid={Boolean(errors.emails)}>
-			<FormLabel>
+			<FormLabel sx={accountPageFormLabelStyles}>
 				{__('Members', 'learning-management-system')}
 				{groupLimit > 0
 					? ` (${__('Max', 'learning-management-system')}: ${groupLimit})`
@@ -181,7 +182,7 @@ const EmailsInput: React.FC<Props> = ({
 								my={2}
 								p={2}
 							>
-								<TagLabel color={'gray.600'}>{email}</TagLabel>
+								<TagLabel color={'saint-blue'}>{email}</TagLabel>
 								<TagCloseButton
 									color={'gray'}
 									onClick={() => handleRemoveEmail(email)}

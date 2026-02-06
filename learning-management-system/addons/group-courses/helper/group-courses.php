@@ -178,8 +178,15 @@ if ( ! function_exists( 'masteriyo_get_group_max_size' ) ) {
 	 * @return int The maximum group size (0 means unlimited).
 	 */
 	function masteriyo_get_group_max_size( $group_id ) {
-		$max_group_size = 0;
-		$course_data    = get_post_meta( $group_id, 'masteriyo_course_data', true );
+		// 1. Try to get purchased seats limit from group meta
+		$max_group_size = absint( get_post_meta( $group_id, '_group_seats', true ) );
+
+		if ( $max_group_size > 0 ) {
+			return $max_group_size;
+		}
+
+		// 2. Fallback to backward compatibility logic: use course's max group size setting
+		$course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
 
 		if ( ! empty( $course_data ) && is_array( $course_data ) ) {
 			// For backward compatibility: take the first course's limit

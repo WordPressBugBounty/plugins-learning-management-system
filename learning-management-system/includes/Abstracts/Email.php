@@ -9,8 +9,7 @@
 
 namespace Masteriyo\Abstracts;
 
-use Pelago\Emogrifier;
-use Pelago\Emogrifier\HtmlProcessor\HtmlPruner;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -302,22 +301,54 @@ abstract class Email {
 		$css = apply_filters( 'masteriyo_email_styles', masteriyo_get_template_html( 'emails/email-styles.php' ), $this );
 
 		try {
-			$emogrifier = new Emogrifier( $content, $css );
+			$css_to_inline_styles = new CssToInlineStyles();
 
 			/**
 			 * Fires before applying CSS into an email HTML.
 			 *
 			 * @since 1.0.0
 			 *
-			 * @param \Pelago\Emogrifier $emogrifier Object that provides functions for converting CSS styles into inline style attributes in your HTML code.
+			 * @param \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles $css_to_inline_styles Object that provides functions for converting CSS styles into inline style attributes in your HTML code.
 			 * @param \Masteriyo\Emails\Email $email Email object.
 			 */
-			do_action( 'masteriyo_emogrifier', $emogrifier, $this );
+			do_action( 'masteriyo_emogrifier', $css_to_inline_styles, $this );
 
-			$content    = $emogrifier->emogrify();
-			$html_prune = HtmlPruner::fromHtml( $content );
-			$html_prune->removeElementsWithDisplayNone();
-			$content = $html_prune->render();
+			$content = $css_to_inline_styles->convert(
+				$content,
+				$css
+			);
+
+			// Remove elements with display: none.
+			$dom = new \DOMDocument();
+			// Suppress warnings for invalid HTML.
+			\libxml_use_internal_errors( true );
+			// Load HTML with UTF-8 encoding hack.
+				$converted = mb_encode_numericentity(
+					$content,
+					array( 0x80, 0x10FFFF, 0, 0xFFFF ),
+					'UTF-8'
+				);
+
+			$dom->loadHTML(
+				$converted,
+				LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+			);
+			\libxml_clear_errors();
+
+			$xpath = new \DOMXPath( $dom );
+			// Find all elements with style attribute.
+			$nodes = $xpath->query( '//*[@style]' );
+
+			foreach ( $nodes as $node ) {
+				$style = $node->getAttribute( 'style' );
+				if ( preg_match( '/display\s*:\s*none/i', $style ) ) {
+					$node->parentNode->removeChild( $node );
+				}
+			}
+
+			$content = $dom->saveHTML( $dom->documentElement );
+			$content = "<!DOCTYPE html>\n" . $content;
+
 		} catch ( \Exception $e ) {
 			masteriyo_get_logger()->error(
 				$e->getMessage(),

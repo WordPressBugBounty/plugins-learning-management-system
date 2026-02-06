@@ -267,7 +267,7 @@ class CourseExporter {
 
 		$args           = self::prepare_query_args( $course_ids, $post_type, $posts_per_page );
 		$args['fields'] = 'ids';
-		
+
 		while ( $has_more_posts ) {
 			$args['paged'] = $paged;
 
@@ -341,12 +341,11 @@ class CourseExporter {
 			),
 		);
 
-		if ( masteriyo_is_current_user_admin() ) {
-			return get_posts( $args );
-		}
-
 		$current_user_id = get_current_user_id();
-		$args['author']  = $current_user_id;
+
+		if ( ! masteriyo_is_current_user_admin() ) {
+			$args['author'] = $current_user_id;
+		}
 
 		if ( PostType::GOOGLEMEET === $post_type ) {
 			$args['post_status'] = array_merge( GoogleMeetStatus::all(), $args['post_status'] );

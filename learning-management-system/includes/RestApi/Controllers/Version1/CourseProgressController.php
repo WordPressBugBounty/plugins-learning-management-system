@@ -24,6 +24,7 @@ use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Query\CourseProgressItemQuery;
+use Masteriyo\Pro\Addons;
 
 /**
  * User activities controller class.
@@ -552,10 +553,14 @@ class CourseProgressController extends CrudController {
 			'disable_course_content'             => $course ? $course->get_disable_course_content( $context ) : '',
 			'welcome_message_to_first_time_user' => masteriyo_get_learn_page_welcome_message_status( $course_progress->get_course_id( $context ), get_current_user_id(), $course_progress->get_status( $context ) ),
 			'review_after_course_completion'     => $review_after_course_completion,
+			'ratings_modal_opened'               => $course_progress->get_ratings_modal_opened( $context ),
 		);
 
 		if ( 'completed' === $course_progress->get_status( 'edit' ) && $course ) {
 			$data['retake_url'] = $course->get_retake_url();
+			if ( ( new Addons() )->is_active( MASTERIYO_CERTIFICATE_ADDON_SLUG ) ) {
+				$data['certificate_download_url'] = masteriyo_generate_certificate_download_url( $course );
+			}
 		}
 
 		// Add wp_page_url key if wp_pages is selected as thank you page.
@@ -744,6 +749,11 @@ class CourseProgressController extends CrudController {
 			$course_progress->set_completed_at( $request['completed_at'] );
 		}
 
+		// Ratings modal opened
+		if ( isset( $request['ratings_modal_opened'] ) ) {
+			$course_progress->set_ratings_modal_opened( $request['ratings_modal_opened'] );
+		}
+
 		/**
 		 * Filters an object before it is inserted via the REST API.
 		 *
@@ -909,6 +919,10 @@ class CourseProgressController extends CrudController {
 
 		$progress = masteriyo_get_course_progress( (int) $request['id'] );
 
+		if ( $progress && masteriyo_get_current_user_id() === $progress->get_user_id() ) {
+			return true;
+		}
+
 		if ( $progress && ! $this->permission->rest_check_course_progress_permissions( 'update', $request['id'] ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_update',
@@ -1067,10 +1081,18 @@ class CourseProgressController extends CrudController {
 			if ( ! isset( $item['item_id'] ) ) {
 				return new \WP_Error(
 					'rest_missing_callback_param',
-					/* translators: %s: item id */
-					sprintf( __( 'Missing parameter(s): %s', 'learning-management-system' ), 'item_id' ),
+					sprintf(
+					/* translators: %s: missing parameter name(s) */
+						_x(
+							'Missing parameter(s): %s',
+							'REST API missing parameters',
+							'learning-management-system'
+						),
+						'item_id'
+					),
 					array( 'status' => rest_authorization_required_code() )
 				);
+
 			}
 
 			if ( ! isset( $item['item_type'] ) ) {
@@ -1184,22 +1206,30 @@ class CourseProgressController extends CrudController {
 	 * @return array
 	 */
 	protected function get_course_progress_item_data( $course_progress_item, $context = 'view' ) {
-		$video        = '';
-		$video_source = '';
+		$video            = '';
+		$video_source     = '';
+		$video_source_url = '';
 
 		if ( 'lesson' === $course_progress_item->get_item_type() ) {
-			$video        = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
-			$video_source = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source', true );
+			$video            = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
+			$video_source     = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source', true );
+			$video_source_url = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
 		}
 
 		$data = array(
-			'item_id'      => $course_progress_item->get_item_id( $context ),
-			'item_title'   => wp_specialchars_decode( $course_progress_item->get_item_title( $context ) ),
-			'item_type'    => $course_progress_item->get_item_type( $context ),
-			'completed'    => $course_progress_item->get_completed( $context ),
-			'video'        => ! empty( trim( $video ) ),
-			'video_source' => $video_source,
+			'item_id'          => $course_progress_item->get_item_id( $context ),
+			'item_title'       => wp_specialchars_decode( $course_progress_item->get_item_title( $context ) ),
+			'item_type'        => $course_progress_item->get_item_type( $context ),
+			'completed'        => $course_progress_item->get_completed( $context ),
+			'video'            => ! empty( trim( $video ) ),
+			'video_source'     => $video_source,
+			'video_source_url' => $video_source_url,
 		);
+
+		if ( 'quiz' === $course_progress_item->get_item_type() ) {
+			$quiz_duration         = get_post_meta( $course_progress_item->get_item_id( $context ), '_duration', true );
+			$data['quiz_duration'] = $quiz_duration ? absint( $quiz_duration ) : 0;
+		}
 
 		/**
 		 * Filters course progress item data.

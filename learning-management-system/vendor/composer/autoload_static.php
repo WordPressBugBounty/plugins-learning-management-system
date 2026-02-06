@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7d635e9109fac46db696a591cd253cda
+class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -47,34 +47,34 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
     );
 
     public static $prefixLengthsPsr4 = array (
-        's' => 
+        's' =>
         array (
             'setasign\\Fpdi\\' => 14,
         ),
-        'c' => 
+        'c' =>
         array (
             'chillerlan\\Settings\\' => 20,
             'chillerlan\\QRCode\\' => 18,
         ),
-        'T' => 
+        'T' =>
         array (
+            'TijsVerkoyen\\CssToInlineStyles\\' => 31,
             'ThemeGrill\\OpenAI\\' => 18,
         ),
-        'S' => 
+        'S' =>
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
             'Symfony\\Component\\CssSelector\\' => 30,
             'Stripe\\' => 7,
         ),
-        'P' => 
+        'P' =>
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Container\\' => 14,
-            'Pelago\\' => 7,
         ),
-        'M' => 
+        'M' =>
         array (
             'Mpdf\\PsrLogAwareTrait\\' => 22,
             'Mpdf\\PsrHttpMessageShim\\' => 24,
@@ -82,6 +82,9 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
             'Mollie\\Api\\' => 11,
             'MaxMind\\Db\\' => 11,
             'Masteriyo\\Pro\\' => 14,
+            'Masteriyo\\CoreFeatures\\PasswordStrength\\' => 40,
+            'Masteriyo\\CoreFeatures\\CourseComingSoon\\' => 40,
+            'Masteriyo\\CoreFeatures\\BunnyNet\\' => 32,
             'Masteriyo\\Addons\\WishList\\' => 26,
             'Masteriyo\\Addons\\WcIntegration\\' => 31,
             'Masteriyo\\Addons\\UserRegistrationIntegration\\' => 45,
@@ -90,7 +93,6 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
             'Masteriyo\\Addons\\Scorm\\' => 23,
             'Masteriyo\\Addons\\RevenueSharing\\' => 32,
             'Masteriyo\\Addons\\Recaptcha\\' => 27,
-            'Masteriyo\\Addons\\PasswordStrength\\' => 34,
             'Masteriyo\\Addons\\OxygenIntegration\\' => 35,
             'Masteriyo\\Addons\\MultipleCurrency\\' => 34,
             'Masteriyo\\Addons\\Mollie\\' => 24,
@@ -104,269 +106,267 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
             'Masteriyo\\Addons\\ElementorIntegration\\' => 38,
             'Masteriyo\\Addons\\DownloadMaterials\\' => 35,
             'Masteriyo\\Addons\\DiviIntegration\\' => 33,
-            'Masteriyo\\Addons\\CourseComingSoon\\' => 34,
             'Masteriyo\\Addons\\CourseAnnouncement\\' => 36,
             'Masteriyo\\Addons\\Certificate\\' => 29,
-            'Masteriyo\\Addons\\BunnyNet\\' => 26,
             'Masteriyo\\Addons\\BuddyPress\\' => 28,
             'Masteriyo\\Addons\\BricksIntegration\\' => 35,
             'Masteriyo\\Addons\\BrevoIntegration\\' => 34,
             'Masteriyo\\Addons\\BeaverIntegration\\' => 35,
             'Masteriyo\\' => 10,
         ),
-        'L' => 
+        'L' =>
         array (
             'League\\OAuth2\\Client\\' => 21,
             'League\\Container\\' => 17,
         ),
-        'J' => 
+        'J' =>
         array (
             'JsonMachine\\' => 12,
         ),
-        'G' => 
+        'G' =>
         array (
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
         ),
-        'D' => 
+        'D' =>
         array (
             'DeepCopy\\' => 9,
         ),
-        'C' => 
+        'C' =>
         array (
             'Composer\\CaBundle\\' => 18,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'setasign\\Fpdi\\' => 
+        'setasign\\Fpdi\\' =>
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
         ),
-        'chillerlan\\Settings\\' => 
+        'chillerlan\\Settings\\' =>
         array (
             0 => __DIR__ . '/..' . '/chillerlan/php-settings-container/src',
         ),
-        'chillerlan\\QRCode\\' => 
+        'chillerlan\\QRCode\\' =>
         array (
             0 => __DIR__ . '/..' . '/chillerlan/php-qrcode/src',
         ),
-        'ThemeGrill\\OpenAI\\' => 
+        'TijsVerkoyen\\CssToInlineStyles\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src',
+        ),
+        'ThemeGrill\\OpenAI\\' =>
         array (
             0 => __DIR__ . '/..' . '/themegrill/openai/src',
         ),
-        'Symfony\\Polyfill\\Php80\\' => 
+        'Symfony\\Polyfill\\Php80\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
         ),
-        'Symfony\\Component\\CssSelector\\' => 
+        'Symfony\\Component\\CssSelector\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/css-selector',
         ),
-        'Stripe\\' => 
+        'Stripe\\' =>
         array (
             0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
         ),
-        'Psr\\Log\\' => 
+        'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
-        'Psr\\Http\\Message\\' => 
+        'Psr\\Http\\Message\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
             1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
-        'Psr\\Http\\Client\\' => 
+        'Psr\\Http\\Client\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
-        'Psr\\Container\\' => 
+        'Psr\\Container\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
-        'Pelago\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/pelago/emogrifier/src',
-        ),
-        'Mpdf\\PsrLogAwareTrait\\' => 
+        'Mpdf\\PsrLogAwareTrait\\' =>
         array (
             0 => __DIR__ . '/..' . '/mpdf/psr-log-aware-trait/src',
         ),
-        'Mpdf\\PsrHttpMessageShim\\' => 
+        'Mpdf\\PsrHttpMessageShim\\' =>
         array (
             0 => __DIR__ . '/..' . '/mpdf/psr-http-message-shim/src',
         ),
-        'Mpdf\\' => 
+        'Mpdf\\' =>
         array (
             0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
         ),
-        'Mollie\\Api\\' => 
+        'Mollie\\Api\\' =>
         array (
             0 => __DIR__ . '/..' . '/mollie/mollie-api-php/src',
         ),
-        'MaxMind\\Db\\' => 
+        'MaxMind\\Db\\' =>
         array (
             0 => __DIR__ . '/..' . '/maxmind-db/reader/src/MaxMind/Db',
         ),
-        'Masteriyo\\Pro\\' => 
+        'Masteriyo\\Pro\\' =>
         array (
             0 => __DIR__ . '/../..' . '/pro',
         ),
-        'Masteriyo\\Addons\\WishList\\' => 
+        'Masteriyo\\CoreFeatures\\PasswordStrength\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/includes/core-features/password-strength',
+        ),
+        'Masteriyo\\CoreFeatures\\CourseComingSoon\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/includes/core-features/course-coming-soon',
+        ),
+        'Masteriyo\\CoreFeatures\\BunnyNet\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/includes/core-features/bunny-net',
+        ),
+        'Masteriyo\\Addons\\WishList\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/wishlist',
         ),
-        'Masteriyo\\Addons\\WcIntegration\\' => 
+        'Masteriyo\\Addons\\WcIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/wc-integration',
         ),
-        'Masteriyo\\Addons\\UserRegistrationIntegration\\' => 
+        'Masteriyo\\Addons\\UserRegistrationIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/user-registration-integration',
         ),
-        'Masteriyo\\Addons\\SureCartIntegration\\' => 
+        'Masteriyo\\Addons\\SureCartIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/sure-cart-integration',
         ),
-        'Masteriyo\\Addons\\Stripe\\' => 
+        'Masteriyo\\Addons\\Stripe\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/stripe',
         ),
-        'Masteriyo\\Addons\\Scorm\\' => 
+        'Masteriyo\\Addons\\Scorm\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/scorm',
         ),
-        'Masteriyo\\Addons\\RevenueSharing\\' => 
+        'Masteriyo\\Addons\\RevenueSharing\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/revenue-sharing',
         ),
-        'Masteriyo\\Addons\\Recaptcha\\' => 
+        'Masteriyo\\Addons\\Recaptcha\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/recaptcha',
         ),
-        'Masteriyo\\Addons\\PasswordStrength\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/addons/password-strength',
-        ),
-        'Masteriyo\\Addons\\OxygenIntegration\\' => 
+        'Masteriyo\\Addons\\OxygenIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/oxygen-integration',
         ),
-        'Masteriyo\\Addons\\MultipleCurrency\\' => 
+        'Masteriyo\\Addons\\MultipleCurrency\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/multiple-currency',
         ),
-        'Masteriyo\\Addons\\Mollie\\' => 
+        'Masteriyo\\Addons\\Mollie\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/mollie',
         ),
-        'Masteriyo\\Addons\\MigrationTool\\' => 
+        'Masteriyo\\Addons\\MigrationTool\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/migration-tool',
         ),
-        'Masteriyo\\Addons\\LemonSqueezyIntegration\\' => 
+        'Masteriyo\\Addons\\LemonSqueezyIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration',
         ),
-        'Masteriyo\\Addons\\GroupCourses\\' => 
+        'Masteriyo\\Addons\\GroupCourses\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/group-courses',
         ),
-        'Masteriyo\\Addons\\GoogleMeet\\' => 
+        'Masteriyo\\Addons\\GoogleMeet\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/google-meet',
         ),
-        'Masteriyo\\Addons\\GoogleClassroomIntegration\\' => 
+        'Masteriyo\\Addons\\GoogleClassroomIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/google-classroom-integration',
         ),
-        'Masteriyo\\Addons\\GamiPressIntegration\\' => 
+        'Masteriyo\\Addons\\GamiPressIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/gamipress-integration',
         ),
-        'Masteriyo\\Addons\\FluentCRM\\' => 
+        'Masteriyo\\Addons\\FluentCRM\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/fluent-crm',
         ),
-        'Masteriyo\\Addons\\ElementorIntegration\\' => 
+        'Masteriyo\\Addons\\ElementorIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/elementor-integration',
         ),
-        'Masteriyo\\Addons\\DownloadMaterials\\' => 
+        'Masteriyo\\Addons\\DownloadMaterials\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/download-materials',
         ),
-        'Masteriyo\\Addons\\DiviIntegration\\' => 
+        'Masteriyo\\Addons\\DiviIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/divi-integration',
         ),
-        'Masteriyo\\Addons\\CourseComingSoon\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/addons/course-coming-soon',
-        ),
-        'Masteriyo\\Addons\\CourseAnnouncement\\' => 
+        'Masteriyo\\Addons\\CourseAnnouncement\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/course-announcement',
         ),
-        'Masteriyo\\Addons\\Certificate\\' => 
+        'Masteriyo\\Addons\\Certificate\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/certificate',
         ),
-        'Masteriyo\\Addons\\BunnyNet\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/addons/bunny-net',
-        ),
-        'Masteriyo\\Addons\\BuddyPress\\' => 
+        'Masteriyo\\Addons\\BuddyPress\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/buddy-press',
         ),
-        'Masteriyo\\Addons\\BricksIntegration\\' => 
+        'Masteriyo\\Addons\\BricksIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/bricks-integration',
         ),
-        'Masteriyo\\Addons\\BrevoIntegration\\' => 
+        'Masteriyo\\Addons\\BrevoIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/brevo-integration',
         ),
-        'Masteriyo\\Addons\\BeaverIntegration\\' => 
+        'Masteriyo\\Addons\\BeaverIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/beaver-integration',
         ),
-        'Masteriyo\\' => 
+        'Masteriyo\\' =>
         array (
             0 => __DIR__ . '/../..' . '/includes',
         ),
-        'League\\OAuth2\\Client\\' => 
+        'League\\OAuth2\\Client\\' =>
         array (
             0 => __DIR__ . '/..' . '/league/oauth2-google/src',
             1 => __DIR__ . '/..' . '/league/oauth2-client/src',
         ),
-        'League\\Container\\' => 
+        'League\\Container\\' =>
         array (
             0 => __DIR__ . '/..' . '/league/container/src',
         ),
-        'JsonMachine\\' => 
+        'JsonMachine\\' =>
         array (
             0 => __DIR__ . '/..' . '/halaxa/json-machine/src',
         ),
-        'GuzzleHttp\\Psr7\\' => 
+        'GuzzleHttp\\Psr7\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
-        'GuzzleHttp\\Promise\\' => 
+        'GuzzleHttp\\Promise\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
         ),
-        'GuzzleHttp\\' => 
+        'GuzzleHttp\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
-        'DeepCopy\\' => 
+        'DeepCopy\\' =>
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
-        'Composer\\CaBundle\\' => 
+        'Composer\\CaBundle\\' =>
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
@@ -516,16 +516,26 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'JsonMachine\\Tokens' => __DIR__ . '/..' . '/halaxa/json-machine/src/Tokens.php',
         'JsonMachine\\TokensWithDebugging' => __DIR__ . '/..' . '/halaxa/json-machine/src/TokensWithDebugging.php',
         'JsonMachine\\ValidJsonPointers' => __DIR__ . '/..' . '/halaxa/json-machine/src/ValidJsonPointers.php',
+        'League\\Container\\Argument\\ArgumentInterface' => __DIR__ . '/..' . '/league/container/src/Argument/ArgumentInterface.php',
         'League\\Container\\Argument\\ArgumentResolverInterface' => __DIR__ . '/..' . '/league/container/src/Argument/ArgumentResolverInterface.php',
         'League\\Container\\Argument\\ArgumentResolverTrait' => __DIR__ . '/..' . '/league/container/src/Argument/ArgumentResolverTrait.php',
-        'League\\Container\\Argument\\ClassName' => __DIR__ . '/..' . '/league/container/src/Argument/ClassName.php',
-        'League\\Container\\Argument\\ClassNameInterface' => __DIR__ . '/..' . '/league/container/src/Argument/ClassNameInterface.php',
-        'League\\Container\\Argument\\ClassNameWithOptionalValue' => __DIR__ . '/..' . '/league/container/src/Argument/ClassNameWithOptionalValue.php',
-        'League\\Container\\Argument\\RawArgument' => __DIR__ . '/..' . '/league/container/src/Argument/RawArgument.php',
-        'League\\Container\\Argument\\RawArgumentInterface' => __DIR__ . '/..' . '/league/container/src/Argument/RawArgumentInterface.php',
+        'League\\Container\\Argument\\DefaultValueArgument' => __DIR__ . '/..' . '/league/container/src/Argument/DefaultValueArgument.php',
+        'League\\Container\\Argument\\DefaultValueInterface' => __DIR__ . '/..' . '/league/container/src/Argument/DefaultValueInterface.php',
+        'League\\Container\\Argument\\LiteralArgument' => __DIR__ . '/..' . '/league/container/src/Argument/LiteralArgument.php',
+        'League\\Container\\Argument\\LiteralArgumentInterface' => __DIR__ . '/..' . '/league/container/src/Argument/LiteralArgumentInterface.php',
+        'League\\Container\\Argument\\Literal\\ArrayArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/ArrayArgument.php',
+        'League\\Container\\Argument\\Literal\\BooleanArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/BooleanArgument.php',
+        'League\\Container\\Argument\\Literal\\CallableArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/CallableArgument.php',
+        'League\\Container\\Argument\\Literal\\FloatArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/FloatArgument.php',
+        'League\\Container\\Argument\\Literal\\IntegerArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/IntegerArgument.php',
+        'League\\Container\\Argument\\Literal\\ObjectArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/ObjectArgument.php',
+        'League\\Container\\Argument\\Literal\\StringArgument' => __DIR__ . '/..' . '/league/container/src/Argument/Literal/StringArgument.php',
+        'League\\Container\\Argument\\ResolvableArgument' => __DIR__ . '/..' . '/league/container/src/Argument/ResolvableArgument.php',
+        'League\\Container\\Argument\\ResolvableArgumentInterface' => __DIR__ . '/..' . '/league/container/src/Argument/ResolvableArgumentInterface.php',
         'League\\Container\\Container' => __DIR__ . '/..' . '/league/container/src/Container.php',
         'League\\Container\\ContainerAwareInterface' => __DIR__ . '/..' . '/league/container/src/ContainerAwareInterface.php',
         'League\\Container\\ContainerAwareTrait' => __DIR__ . '/..' . '/league/container/src/ContainerAwareTrait.php',
+        'League\\Container\\DefinitionContainerInterface' => __DIR__ . '/..' . '/league/container/src/DefinitionContainerInterface.php',
         'League\\Container\\Definition\\Definition' => __DIR__ . '/..' . '/league/container/src/Definition/Definition.php',
         'League\\Container\\Definition\\DefinitionAggregate' => __DIR__ . '/..' . '/league/container/src/Definition/DefinitionAggregate.php',
         'League\\Container\\Definition\\DefinitionAggregateInterface' => __DIR__ . '/..' . '/league/container/src/Definition/DefinitionAggregateInterface.php',
@@ -625,8 +635,6 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Addons\\BuddyPress\\Classes\\BuddyPressGroupSettings' => __DIR__ . '/../..' . '/addons/buddy-press/Classes/BuddyPressGroupSettings.php',
         'Masteriyo\\Addons\\BuddyPress\\Helper' => __DIR__ . '/../..' . '/addons/buddy-press/Helper.php',
         'Masteriyo\\Addons\\BuddyPress\\Providers\\BuddyPressServiceProvider' => __DIR__ . '/../..' . '/addons/buddy-press/Providers/BuddyPressServiceProvider.php',
-        'Masteriyo\\Addons\\BunnyNet\\BunnyNetAddon' => __DIR__ . '/../..' . '/addons/bunny-net/BunnyNetAddon.php',
-        'Masteriyo\\Addons\\BunnyNet\\Providers\\BunnyNetServiceProvider' => __DIR__ . '/../..' . '/addons/bunny-net/Providers/BunnyNetServiceProvider.php',
         'Masteriyo\\Addons\\Certificate\\Blocks' => __DIR__ . '/../..' . '/addons/certificate/Blocks.php',
         'Masteriyo\\Addons\\Certificate\\CertificateAddon' => __DIR__ . '/../..' . '/addons/certificate/CertificateAddon.php',
         'Masteriyo\\Addons\\Certificate\\Models\\Certificate' => __DIR__ . '/../..' . '/addons/certificate/Models/Certificate.php',
@@ -654,10 +662,6 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Addons\\CourseAnnouncement\\PostType\\CourseAnnouncement' => __DIR__ . '/../..' . '/addons/course-announcement/PostType/CourseAnnouncement.php',
         'Masteriyo\\Addons\\CourseAnnouncement\\Providers\\CourseAnnouncementServiceProvider' => __DIR__ . '/../..' . '/addons/course-announcement/Providers/CourseAnnouncementServiceProvider.php',
         'Masteriyo\\Addons\\CourseAnnouncement\\Repository\\CourseAnnouncementRepository' => __DIR__ . '/../..' . '/addons/course-announcement/Repository/CourseAnnouncementRepository.php',
-        'Masteriyo\\Addons\\CourseComingSoon\\CourseComingSoonAddon' => __DIR__ . '/../..' . '/addons/course-coming-soon/CourseComingSoonAddon.php',
-        'Masteriyo\\Addons\\CourseComingSoon\\CourseComingSoonMetaWidget' => __DIR__ . '/../..' . '/addons/course-coming-soon/CourseComingSoonMetaWidget.php',
-        'Masteriyo\\Addons\\CourseComingSoon\\Helper' => __DIR__ . '/../..' . '/addons/course-coming-soon/Helper.php',
-        'Masteriyo\\Addons\\CourseComingSoon\\Providers\\CourseComingSoonServiceProvider' => __DIR__ . '/../..' . '/addons/course-coming-soon/Providers/CourseComingSoonServiceProvider.php',
         'Masteriyo\\Addons\\DiviIntegration\\DiviIntegrationAddon' => __DIR__ . '/../..' . '/addons/divi-integration/DiviIntegrationAddon.php',
         'Masteriyo\\Addons\\DiviIntegration\\DiviModule' => __DIR__ . '/../..' . '/addons/divi-integration/DiviModule.php',
         'Masteriyo\\Addons\\DiviIntegration\\Helper' => __DIR__ . '/../..' . '/addons/divi-integration/Helper.php',
@@ -780,10 +784,6 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Addons\\OxygenIntegration\\OxygenElement' => __DIR__ . '/../..' . '/addons/oxygen-integration/OxygenElement.php',
         'Masteriyo\\Addons\\OxygenIntegration\\OxygenIntegrationAddon' => __DIR__ . '/../..' . '/addons/oxygen-integration/OxygenIntegrationAddon.php',
         'Masteriyo\\Addons\\OxygenIntegration\\Providers\\OxygenIntegrationServiceProvider' => __DIR__ . '/../..' . '/addons/oxygen-integration/Providers/OxygenIntegrationServiceProvider.php',
-        'Masteriyo\\Addons\\PasswordStrength\\Enums\\PasswordStrength' => __DIR__ . '/../..' . '/addons/password-strength/Enums/PasswordStrength.php',
-        'Masteriyo\\Addons\\PasswordStrength\\GlobalSetting' => __DIR__ . '/../..' . '/addons/password-strength/GlobalSetting.php',
-        'Masteriyo\\Addons\\PasswordStrength\\PasswordStrengthAddon' => __DIR__ . '/../..' . '/addons/password-strength/PasswordStrengthAddon.php',
-        'Masteriyo\\Addons\\PasswordStrength\\Providers\\PasswordStrengthServiceProvider' => __DIR__ . '/../..' . '/addons/password-strength/Providers/PasswordStrengthServiceProvider.php',
         'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaDomain' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaDomain.php',
         'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaPage' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaPage.php',
         'Masteriyo\\Addons\\Recaptcha\\Enums\\RecaptchaSize' => __DIR__ . '/../..' . '/addons/recaptcha/Enums/RecaptchaSize.php',
@@ -896,6 +896,7 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Compatibility\\Cache\\WPSuperCache' => __DIR__ . '/../..' . '/includes/Compatibility/Cache/WPSuperCache.php',
         'Masteriyo\\Compatibility\\Seo\\RankMathSeo' => __DIR__ . '/../..' . '/includes/Compatibility/Seo/RankMathSeo.php',
         'Masteriyo\\Compatibility\\Seo\\YoastSeo' => __DIR__ . '/../..' . '/includes/Compatibility/Seo/YoastSeo.php',
+        'Masteriyo\\Compatibility\\Translation\\TranslatePressSimple' => __DIR__ . '/../..' . '/includes/Compatibility/Translation/TranslatePressSimple.php',
         'Masteriyo\\Constants' => __DIR__ . '/../..' . '/includes/Constants.php',
         'Masteriyo\\Contracts\\Cache' => __DIR__ . '/../..' . '/includes/Contracts/Cache.php',
         'Masteriyo\\Contracts\\LogHandlerInterface' => __DIR__ . '/../..' . '/includes/Contracts/LogHandlerInterface.php',
@@ -906,6 +907,17 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Contracts\\Session' => __DIR__ . '/../..' . '/includes/Contracts/Session.php',
         'Masteriyo\\Contracts\\Template' => __DIR__ . '/../..' . '/includes/Contracts/Template.php',
         'Masteriyo\\Contracts\\TransientCacheInterface' => __DIR__ . '/../..' . '/includes/Contracts/TransientCacheInterface.php',
+        'Masteriyo\\CoreFeatures' => __DIR__ . '/../..' . '/includes/CoreFeatures.php',
+        'Masteriyo\\CoreFeatures\\BunnyNet\\BunnyNet' => __DIR__ . '/../..' . '/includes/core-features/bunny-net/BunnyNet.php',
+        'Masteriyo\\CoreFeatures\\BunnyNet\\Providers\\BunnyNetServiceProvider' => __DIR__ . '/../..' . '/includes/core-features/bunny-net/Providers/BunnyNetServiceProvider.php',
+        'Masteriyo\\CoreFeatures\\CourseComingSoon\\CourseComingSoon' => __DIR__ . '/../..' . '/includes/core-features/course-coming-soon/CourseComingSoon.php',
+        'Masteriyo\\CoreFeatures\\CourseComingSoon\\CourseComingSoonMetaWidget' => __DIR__ . '/../..' . '/includes/core-features/course-coming-soon/CourseComingSoonMetaWidget.php',
+        'Masteriyo\\CoreFeatures\\CourseComingSoon\\Helper' => __DIR__ . '/../..' . '/includes/core-features/course-coming-soon/Helper.php',
+        'Masteriyo\\CoreFeatures\\CourseComingSoon\\Providers\\CourseComingSoonServiceProvider' => __DIR__ . '/../..' . '/includes/core-features/course-coming-soon/Providers/CourseComingSoonServiceProvider.php',
+        'Masteriyo\\CoreFeatures\\PasswordStrength\\Enums\\PasswordStrength' => __DIR__ . '/../..' . '/includes/core-features/password-strength/Enums/PasswordStrength.php',
+        'Masteriyo\\CoreFeatures\\PasswordStrength\\GlobalSetting' => __DIR__ . '/../..' . '/includes/core-features/password-strength/GlobalSetting.php',
+        'Masteriyo\\CoreFeatures\\PasswordStrength\\PasswordStrength' => __DIR__ . '/../..' . '/includes/core-features/password-strength/PasswordStrength.php',
+        'Masteriyo\\CoreFeatures\\PasswordStrength\\Providers\\PasswordStrengthServiceProvider' => __DIR__ . '/../..' . '/includes/core-features/password-strength/Providers/PasswordStrengthServiceProvider.php',
         'Masteriyo\\Countries' => __DIR__ . '/../..' . '/includes/Countries.php',
         'Masteriyo\\CourseComponentStyles\\ArchiveCourseComponentStyles' => __DIR__ . '/../..' . '/includes/CourseComponentStyles/ArchiveCourseComponentStyles.php',
         'Masteriyo\\CourseComponentStyles\\CategoryCourseComponentStyles' => __DIR__ . '/../..' . '/includes/CourseComponentStyles/CategoryCourseComponentStyles.php',
@@ -1121,6 +1133,7 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Providers\\TemplateServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TemplateServiceProvider.php',
         'Masteriyo\\Providers\\TrackingServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TrackingServiceProvider.php',
         'Masteriyo\\Providers\\TransientCacheServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TransientCacheServiceProvider.php',
+        'Masteriyo\\Providers\\TranslationCompatibilityServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/TranslationCompatibilityServiceProvider.php',
         'Masteriyo\\Providers\\UserCourseServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/UserCourseServiceProvider.php',
         'Masteriyo\\Providers\\UserCoursesServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/UserCoursesServiceProvider.php',
         'Masteriyo\\Providers\\UserServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/UserServiceProvider.php',
@@ -1248,6 +1261,7 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Masteriyo\\Shortcodes\\CoursesShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/CoursesShortcode.php',
         'Masteriyo\\Shortcodes\\InstructorRegistrationShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/InstructorRegistrationShortcode.php',
         'Masteriyo\\Shortcodes\\InstructorsListShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/InstructorsListShortcode.php',
+        'Masteriyo\\Shortcodes\\OrderSummaryShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/OrderSummaryShortcode.php',
         'Masteriyo\\Shortcodes\\RegisterUserShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/RegisterUserShortcode.php',
         'Masteriyo\\Shortcodes\\RelatedCoursesShortcode' => __DIR__ . '/../..' . '/includes/Shortcodes/RelatedCoursesShortcode.php',
         'Masteriyo\\ShowHideComponents\\ShowHideArchiveCourseComponents' => __DIR__ . '/../..' . '/includes/ShowHideComponents/ShowHideArchiveCourseComponents.php',
@@ -1660,14 +1674,6 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'Mpdf\\Writer\\OptionalContentWriter' => __DIR__ . '/..' . '/mpdf/mpdf/src/Writer/OptionalContentWriter.php',
         'Mpdf\\Writer\\PageWriter' => __DIR__ . '/..' . '/mpdf/mpdf/src/Writer/PageWriter.php',
         'Mpdf\\Writer\\ResourceWriter' => __DIR__ . '/..' . '/mpdf/mpdf/src/Writer/ResourceWriter.php',
-        'Pelago\\Emogrifier' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier.php',
-        'Pelago\\Emogrifier\\CssInliner' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/CssInliner.php',
-        'Pelago\\Emogrifier\\HtmlProcessor\\AbstractHtmlProcessor' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/HtmlProcessor/AbstractHtmlProcessor.php',
-        'Pelago\\Emogrifier\\HtmlProcessor\\CssToAttributeConverter' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/HtmlProcessor/CssToAttributeConverter.php',
-        'Pelago\\Emogrifier\\HtmlProcessor\\HtmlNormalizer' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/HtmlProcessor/HtmlNormalizer.php',
-        'Pelago\\Emogrifier\\HtmlProcessor\\HtmlPruner' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/HtmlProcessor/HtmlPruner.php',
-        'Pelago\\Emogrifier\\Utilities\\ArrayIntersector' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/Utilities/ArrayIntersector.php',
-        'Pelago\\Emogrifier\\Utilities\\CssConcatenator' => __DIR__ . '/..' . '/pelago/emogrifier/src/Emogrifier/Utilities/CssConcatenator.php',
         'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
         'Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
@@ -2125,6 +2131,12 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
         'ThemeGrill\\OpenAI\\ChatGPT' => __DIR__ . '/..' . '/themegrill/openai/src/ChatGPT.php',
         'ThemeGrill\\OpenAI\\OpenAI' => __DIR__ . '/..' . '/themegrill/openai/src/OpenAI.php',
         'ThemeGrill\\OpenAI\\Request' => __DIR__ . '/..' . '/themegrill/openai/src/Request.php',
+        'TijsVerkoyen\\CssToInlineStyles\\CssToInlineStyles' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/CssToInlineStyles.php',
+        'TijsVerkoyen\\CssToInlineStyles\\Css\\Processor' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Processor.php',
+        'TijsVerkoyen\\CssToInlineStyles\\Css\\Property\\Processor' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Property/Processor.php',
+        'TijsVerkoyen\\CssToInlineStyles\\Css\\Property\\Property' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Property/Property.php',
+        'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Processor' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Processor.php',
+        'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Rule' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Rule.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
         'chillerlan\\QRCode\\Data\\AlphaNum' => __DIR__ . '/..' . '/chillerlan/php-qrcode/src/Data/AlphaNum.php',
@@ -2212,9 +2224,9 @@ class ComposerStaticInit7d635e9109fac46db696a591cd253cda
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7d635e9109fac46db696a591cd253cda::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7d635e9109fac46db696a591cd253cda::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7d635e9109fac46db696a591cd253cda::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$classMap;
 
         }, null, ClassLoader::class);
     }

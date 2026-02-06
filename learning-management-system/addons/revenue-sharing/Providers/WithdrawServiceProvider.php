@@ -23,23 +23,7 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
  * @since 1.6.14
  */
 class WithdrawServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.6.14
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'withdraw',
-		'withdraw.store',
-		'withdraw.rest',
-		WithdrawRepository::class,
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -49,12 +33,39 @@ class WithdrawServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * @since 1.6.14
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'withdraw.store', WithdrawRepository::class );
 		$this->getContainer()->add( 'withdraw', Withdraw::class )
 			->addArgument( 'withdraw.store' );
 		$this->getContainer()->add( 'withdraw.rest', WithdrawsController::class )
 			->addArgument( 'permission' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'withdraw',
+				'withdraw.store',
+				'withdraw.rest',
+				WithdrawRepository::class,
+			),
+			true
+		);
 	}
 
 	/**
@@ -70,7 +81,7 @@ class WithdrawServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * @since 1.6.14
 	 */
-	public function boot() {
+	public function boot(): void {
 		add_action( 'init', array( $this, 'register_withdraw_statuses' ), 0 );
 	}
 

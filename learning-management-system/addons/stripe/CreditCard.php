@@ -157,9 +157,15 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 			$order->set_transaction_id( $payment_intent_id );
 			$order->save();
 
+			$order_courses     = $order->get_order_item_course( $order->get_items(), 'view' );
+			$first_course_name = ( is_array( $order_courses ) && ! empty( $order_courses[0]['name'] ) )
+			? $order_courses[0]['name']
+			: '';
+
 			$payment_intent_args = array(
 				'receipt_email' => $order->get_billing_email(),
 				'metadata'      => array( 'order_id' => $order->get_id() ),
+				'description'   => sprintf( 'Item: %s', $first_course_name ),
 				'amount'        => Helper::convert_cart_total_to_stripe_amount( $order->get_total(), $order->get_currency() ),
 			);
 

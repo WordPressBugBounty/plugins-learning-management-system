@@ -38,11 +38,14 @@ defined( 'ABSPATH' ) || exit;
 
 			<input type="checkbox" id="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>" name="rating[]"  value="<?php echo esc_attr( $rating ); ?>">
 			<label for="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>">
-				<div class="masteriyo-stab-rs border-none">
+				<div class="border-none masteriyo-stab-rs border">
 					<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
 						<?php masteriyo_render_stars( $rating ); ?>
 					</span>
-					<?php esc_html_e( '- ' . $rating . ' star', 'learning-management-system' ); ?>
+					<?php
+					/* translators: %d: number of stars in the rating. */
+					printf( esc_html__( '- %d star', 'learning-management-system' ), esc_attr( $rating ) );
+					?>
 				</div>
 			</label>
 		</div>

@@ -61,6 +61,8 @@ class WXRImporter extends WP_Importer {
 
 	protected $url_remap       = array();
 	protected $featured_images = array();
+	protected $temp_file       = null;
+
 
 	/**
 	 * Constructor
@@ -91,16 +93,16 @@ class WXRImporter extends WP_Importer {
 		$this->options = wp_parse_args(
 			$options,
 			array(
-				'prefill_existing_posts'    => true,
-				'prefill_existing_comments' => true,
-				'prefill_existing_terms'    => true,
-				'update_attachment_guids'   => false,
-				'fetch_attachments'         => true,
-				'aggressive_url_search'     => false,
-				'default_author'            => get_current_user_id(),
+				'prefill_existing_posts'  => true,
+				'prefill_existing_terms'  => true,
+				'update_attachment_guids' => false,
+				'fetch_attachments'       => true,
+				'aggressive_url_search'   => false,
+				'default_author'          => get_current_user_id(),
 			)
 		);
 	}
+
 
 	/**
 	 * Get a stream reader for the file.
@@ -111,7 +113,46 @@ class WXRImporter extends WP_Importer {
 	protected function get_reader( $file ) {
 		if ( ! class_exists( 'XMLReader' ) ) {
 			masteriyo_get_logger()->info( 'The XMLReader class is missing! Please install the XMLReader PHP extension on your server.', array( 'source' => 'starter-templates' ) );
-			return new WP_Error( 'wxr_importer.cannot_parse', __( 'The XMLReader class is missing! Please install the XMLReader PHP extension on your server', 'wordpress-importer' ) );
+			return new WP_Error( 'wxr_importer.cannot_parse', __( 'The XMLReader class is missing! Please install the XMLReader PHP extension on your server', 'learning-management-system' ) );
+		}
+
+		if ( filter_var( $file, FILTER_VALIDATE_URL ) ) {
+
+			$response = wp_remote_get(
+				$file,
+				array(
+					'headers'   => array(
+						'User-Agent' => 'ThemeGrill Starter Template/1.0',
+					),
+					'sslverify' => true,
+					'timeout'   => 30,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$masteriyo_get_logger()->error(
+					'Error downloading the remote file: ' . $response->get_error_message()
+				);
+				return new WP_Error( 'wxr_importer.download_failed', __( 'Could not download the XML file from the provided URL', 'learning-management-system' ) );
+			}
+
+			$content = wp_remote_retrieve_body( $response );
+
+			if ( empty( $content ) ) {
+				masteriyo_get_logger()->error(
+					'Downloaded file is empty'
+				);
+				return new WP_Error( 'wxr_importer.empty_file', __( 'The downloaded XML file is empty', 'learning-management-system' ) );
+			}
+
+			$wp_upload_dir = wp_upload_dir( null, false );
+			$file_path     = $wp_upload_dir['basedir'] . '/themegrill-demo.xml';
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+			global $wp_filesystem;
+			WP_Filesystem();
+			$wp_filesystem->put_contents( $file_path, $content );
+			$file            = $file_path;
+			$this->temp_file = $file_path;
 		}
 
 		$reader = new XMLReader();
@@ -176,12 +217,18 @@ class WXRImporter extends WP_Importer {
 					if ( version_compare( $this->version, self::MAX_WXR_VERSION, '>' ) ) {
 						masteriyo_get_logger()->warning(
 							sprintf(
-								__( 'This WXR file (version %1$s) is newer than the importer (version %2$s) and may not be supported. Please consider updating.', 'learning-management-system' ),
+								/* translators: %1$s: WXR file version, %2$s: importer version */
+								__(
+									'This WXR file (version %1$s) is newer than the importer (version %2$s) and may not be supported. Please consider updating.',
+									'learning-management-system'
+								),
 								$this->version,
 								self::MAX_WXR_VERSION
 							)
 						);
+
 					}
+
 					// Handled everything in this node, move on to the next
 					$reader->next();
 					break;
@@ -208,6 +255,7 @@ class WXRImporter extends WP_Importer {
 					// Handled everything in this node, move on to the next
 					$reader->next();
 					break;
+
 				case 'wp:category':
 					$node = $reader->expand();
 
@@ -277,6 +325,7 @@ class WXRImporter extends WP_Importer {
 		if ( $this->options['aggressive_url_search'] ) {
 			$this->replace_attachment_urls_in_content();
 		}
+
 		$this->remap_featured_images();
 		$this->import_end();
 	}
@@ -287,7 +336,6 @@ class WXRImporter extends WP_Importer {
 	 * @param WP_Error $error Error instance to log.
 	 */
 	protected function log_error( WP_Error $error ) {
-		masteriyo_get_logger()->warning( $error->get_error_message() );
 
 		// Log the data as debug info too
 		$data = $error->get_error_data();
@@ -316,9 +364,6 @@ class WXRImporter extends WP_Importer {
 		if ( $this->options['prefill_existing_posts'] ) {
 			$this->prefill_existing_posts();
 		}
-		if ( $this->options['prefill_existing_comments'] ) {
-			$this->prefill_existing_comments();
-		}
 		if ( $this->options['prefill_existing_terms'] ) {
 			$this->prefill_existing_terms();
 		}
@@ -346,6 +391,12 @@ class WXRImporter extends WP_Importer {
 
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+
+		// Clean up temporary content file if it exists
+		if ( isset( $this->temp_file ) && file_exists( $this->temp_file ) ) {
+			wp_delete_file( $this->temp_file );
+			$this->temp_file = null;
+		}
 
 		/**
 		 * Complete the import.
@@ -463,6 +514,7 @@ class WXRImporter extends WP_Importer {
 						$meta[] = $meta_item;
 					}
 					break;
+
 				case 'category':
 					$term_item = $this->parse_category_node( $child );
 					if ( ! empty( $term_item ) ) {
@@ -492,7 +544,6 @@ class WXRImporter extends WP_Importer {
 		 * @param array $comments Comments on the post.
 		 * @param array $terms Terms on the post.
 		 */
-
 		$data = apply_filters( 'wxr_importer.pre_process.post', $data, $meta, $comments, $terms );
 		if ( empty( $data ) ) {
 			return false;
@@ -510,14 +561,15 @@ class WXRImporter extends WP_Importer {
 
 		// Is this type even valid?
 		if ( ! $post_type_object ) {
-
 			masteriyo_get_logger()->warning(
 				sprintf(
+					/* translators: %1$s: post title, %2$s: post type */
 					__( 'Failed to import "%1$s": Invalid post type %2$s', 'learning-management-system' ),
 					$data['post_title'],
 					$data['post_type']
 				)
 			);
+
 			return false;
 		}
 
@@ -525,9 +577,9 @@ class WXRImporter extends WP_Importer {
 			$post_exists = $this->post_exists( $data );
 
 			if ( $post_exists ) {
-
 				masteriyo_get_logger()->info(
 					sprintf(
+						/* translators: %1$s: post type label, %2$s: post title */
 						__( '%1$s "%2$s" already exists.', 'learning-management-system' ),
 						$post_type_object->labels->singular_name,
 						$data['post_title']
@@ -540,9 +592,6 @@ class WXRImporter extends WP_Importer {
 				 * @param array $data Raw data imported for the post.
 				 */
 				do_action( 'wxr_importer.process_already_imported.post', $data );
-
-				// Even though this post already exists, new comments might need importing
-				$this->process_comments( $comments, $original_id, $data, $post_exists );
 
 				return false;
 			}
@@ -606,7 +655,9 @@ class WXRImporter extends WP_Importer {
 			$postdata[ $key ] = $data[ $key ];
 		}
 
-		$postdata = apply_filters( 'wp_import_post_data_processed', $postdata, $data, $this->mapping['term_id'] );
+		$postdata = apply_filters( 'wp_import_post_data_processed', $postdata, $data );
+
+		$postdata = apply_filters( 'themegrill_import_post_data_processed', $postdata, $this->mapping['term_id'] );
 
 		$postdata = wp_slash( $postdata );
 
@@ -619,6 +670,7 @@ class WXRImporter extends WP_Importer {
 						$data['post_title']
 					)
 				);
+
 				/**
 				 * Post processing skipped.
 				 *
@@ -632,20 +684,25 @@ class WXRImporter extends WP_Importer {
 			$post_id    = $this->process_attachment( $postdata, $meta, $remote_url );
 		} else {
 			$post_id = wp_insert_post( $postdata, true );
+			if ( $postdata['post_content'] && has_blocks( $postdata['post_content'] ) && has_block( 'everest-forms/form-selector', $postdata['post_content'] ) ) {
+				$posts_with_evf   = get_option( 'themegrill_demo_importer_posts_with_evf', array() );
+				$posts_with_evf[] = $post_id;
+				update_option( 'themegrill_demo_importer_posts_with_evf', $posts_with_evf );
+			}
 			do_action( 'wp_import_insert_post', $post_id, $original_id, $postdata, $data );
 		}
 
 		if ( is_wp_error( $post_id ) ) {
-
 			masteriyo_get_logger()->error(
 				sprintf(
+					/* translators: %1$s: post title, %2$s: post type label */
 					__( 'Failed to import "%1$s" (%2$s)', 'learning-management-system' ),
 					$data['post_title'],
 					$post_type_object->labels->singular_name
 				)
 			);
-			masteriyo_get_logger()->debug( $post_id->get_error_message() );
 
+			masteriyo_get_logger()->debug( $post_id->get_error_message() );
 			/**
 			 * Post processing failed.
 			 *
@@ -681,14 +738,21 @@ class WXRImporter extends WP_Importer {
 
 		masteriyo_get_logger()->info(
 			sprintf(
+				/* translators: %1$s: post title, %2$s: post type label */
 				__( 'Imported "%1$s" (%2$s)', 'learning-management-system' ),
 				$data['post_title'],
 				$post_type_object->labels->singular_name
 			)
 		);
+
 		masteriyo_get_logger()->debug(
 			sprintf(
-				__( 'Post %1$d remapped to %2$d', 'learning-management-system' ),
+			/* translators: 1: original post ID, 2: new post ID */
+				_x(
+					'Post %1$d remapped to %2$d',
+					'Import log message',
+					'learning-management-system'
+				),
 				$original_id,
 				$post_id
 			)
@@ -744,7 +808,6 @@ class WXRImporter extends WP_Importer {
 			}
 		}
 
-		$this->process_comments( $comments, $post_id, $data );
 		$this->process_post_meta( $meta, $post_id, $data );
 
 		if ( 'nav_menu_item' === $data['post_type'] ) {
@@ -777,7 +840,6 @@ class WXRImporter extends WP_Importer {
 		$item_type          = get_post_meta( $post_id, '_menu_item_type', true );
 		$original_object_id = get_post_meta( $post_id, '_menu_item_object_id', true );
 		$object_id          = null;
-
 		masteriyo_get_logger()->debug( sprintf( 'Processing menu item %s', $item_type ) );
 
 		$requires_remapping = false;
@@ -820,7 +882,6 @@ class WXRImporter extends WP_Importer {
 			// Nothing needed here.
 			return;
 		}
-
 		masteriyo_get_logger()->debug( sprintf( 'Menu item %d mapped to %d', $original_object_id, $object_id ) );
 		update_post_meta( $post_id, '_menu_item_object_id', wp_slash( $object_id ) );
 	}
@@ -988,6 +1049,15 @@ class WXRImporter extends WP_Importer {
 					$value = maybe_unserialize( $meta_item['value'] );
 				}
 
+				if ( '_elementor_data' === $key ) {
+					if ( is_string( $value ) ) {
+						$value = json_decode( $value, true );
+					} else {
+						$value = $value;
+					}
+					$this->replace_elementor_categories_ids( $value, $this->mapping['term_id'] );
+				}
+
 				add_post_meta( $post_id, wp_slash( $key ), wp_slash_strings_only( $value ) );
 
 				do_action( 'import_post_meta', $post_id, $key, $value );
@@ -1003,14 +1073,20 @@ class WXRImporter extends WP_Importer {
 	}
 
 	/**
-	 * Recursively replace category, tag, and author IDs in an elements tree.
+	 * Recursively replaces category, author, and tag IDs in Elementor elements' settings with mapped IDs.
 	 *
-	 * @since 2.0.0
+	 * @since 2.1.2
 	 *
-	 * @param array $elements         Elements array passed by reference.
-	 * @param array $category_mapping Mapping of old IDs to new IDs.
+	 * This function iterates through the provided elements array and updates the IDs for the fields
+	 * 'categories_selected', 'authors_selected', and 'tags_selected' in each element's 'settings'.
+	 * - For 'authors_selected', it sets the value to the current user ID.
+	 * - For 'categories_selected' and 'tags_selected', it replaces old IDs with new ones based on the provided mapping.
+	 * If an element contains nested elements (in the 'elements' key), the function is called recursively.
+	 *
+	 * @param array $elements          Reference to the array of Elementor elements to process.
+	 * @param array $category_mapping  Associative array mapping old category/tag IDs to new IDs.
 	 */
-	private function replace_categories_ids( &$elements, $category_mapping ) {
+	private function replace_elementor_categories_ids( &$elements, $category_mapping ) {
 		foreach ( $elements as &$element ) {
 			$fields_to_replace = array( 'categories_selected', 'authors_selected', 'tags_selected' );
 
@@ -1023,7 +1099,7 @@ class WXRImporter extends WP_Importer {
 						$old_ids = $element['settings'][ $field ];
 						$new_ids = array();
 
-						foreach ( $old_ids as $old_id ) {
+						foreach ( (array) $old_ids as $old_id ) {
 							if ( isset( $category_mapping[ $old_id ] ) ) {
 								$new_ids[] = $category_mapping[ $old_id ];
 							} else {
@@ -1037,226 +1113,28 @@ class WXRImporter extends WP_Importer {
 			}
 
 			if ( isset( $element['elements'] ) && ! empty( $element['elements'] ) ) {
-				$this->replace_categories_ids( $element['elements'], $category_mapping );
+				$this->replace_elementor_categories_ids( $element['elements'], $category_mapping );
 			}
 		}
 	}
+
+
 
 	/**
-	 * Parse a comment node into comment data.
+	 * Parses a <category> XML node and extracts taxonomy data.
 	 *
-	 * @param DOMElement $node Parent node of comment data (typically `wp:comment`).
-	 * @return array Comment data array.
-	 */
-	protected function parse_comment_node( $node ) {
-		$data = array(
-			'commentmeta' => array(),
-		);
-
-		foreach ( $node->childNodes as $child ) {
-			// We only care about child elements
-			if ( $child->nodeType !== XML_ELEMENT_NODE ) {
-				continue;
-			}
-
-			switch ( $child->tagName ) {
-				case 'wp:comment_id':
-					$data['comment_id'] = $child->textContent;
-					break;
-				case 'wp:comment_author':
-					$data['comment_author'] = $child->textContent;
-					break;
-
-				case 'wp:comment_author_email':
-					$data['comment_author_email'] = $child->textContent;
-					break;
-
-				case 'wp:comment_author_IP':
-					$data['comment_author_IP'] = $child->textContent;
-					break;
-
-				case 'wp:comment_author_url':
-					$data['comment_author_url'] = $child->textContent;
-					break;
-
-				case 'wp:comment_user_id':
-					$data['comment_user_id'] = $child->textContent;
-					break;
-
-				case 'wp:comment_date':
-					$data['comment_date'] = $child->textContent;
-					break;
-
-				case 'wp:comment_date_gmt':
-					$data['comment_date_gmt'] = $child->textContent;
-					break;
-
-				case 'wp:comment_content':
-					$data['comment_content'] = $child->textContent;
-					break;
-
-				case 'wp:comment_approved':
-					$data['comment_approved'] = $child->textContent;
-					break;
-
-				case 'wp:comment_type':
-					$data['comment_type'] = $child->textContent;
-					break;
-
-				case 'wp:comment_parent':
-					$data['comment_parent'] = $child->textContent;
-					break;
-
-				case 'wp:commentmeta':
-					$meta_item = $this->parse_meta_node( $child );
-					if ( ! empty( $meta_item ) ) {
-						$data['commentmeta'][] = $meta_item;
-					}
-					break;
-			}
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Process and import comment data.
+	 * @since 2.1.2
 	 *
-	 * @param array $comments List of comment data arrays.
-	 * @param int $post_id Post to associate with.
-	 * @param array $post Post data.
-	 * @return int|WP_Error Number of comments imported on success, error otherwise.
+	 * This method reads attributes and text content from the provided DOM node,
+	 * building an associative array with taxonomy information. It defaults the taxonomy
+	 * to 'category', but will use the 'domain' attribute if present. The 'nicename'
+	 * attribute is used as the slug, and the node's text content as the name.
+	 * If the taxonomy is 'tag', it is normalized to 'post_tag' for compatibility.
+	 * Returns null if the slug is missing.
+	 *
+	 * @param DOMElement $node The <category> XML node to parse.
+	 * @return array|null Associative array with taxonomy data, or null if slug is missing.
 	 */
-	protected function process_comments( $comments, $post_id, $post, $post_exists = false ) {
-
-		$comments = apply_filters( 'wp_import_post_comments', $comments, $post_id, $post );
-		if ( empty( $comments ) ) {
-			return 0;
-		}
-
-		$num_comments = 0;
-
-		// Sort by ID to avoid excessive remapping later
-		usort( $comments, array( $this, 'sort_comments_by_id' ) );
-
-		foreach ( $comments as $key => $comment ) {
-			/**
-			 * Pre-process comment data
-			 *
-			 * @param array $comment Comment data. (Return empty to skip.)
-			 * @param int $post_id Post the comment is attached to.
-			 */
-			$comment = apply_filters( 'wxr_importer.pre_process.comment', $comment, $post_id );
-			if ( empty( $comment ) ) {
-				return false;
-			}
-
-			$original_id = isset( $comment['comment_id'] ) ? (int) $comment['comment_id'] : 0;
-			$parent_id   = isset( $comment['comment_parent'] ) ? (int) $comment['comment_parent'] : 0;
-			$author_id   = isset( $comment['comment_user_id'] ) ? (int) $comment['comment_user_id'] : 0;
-
-			// if this is a new post we can skip the comment_exists() check
-			// TODO: Check comment_exists for performance
-			if ( $post_exists ) {
-				$existing = $this->comment_exists( $comment );
-				if ( $existing ) {
-
-					/**
-					 * Comment processing already imported.
-					 *
-					 * @param array $comment Raw data imported for the comment.
-					 */
-					do_action( 'wxr_importer.process_already_imported.comment', $comment );
-
-					$this->mapping['comment'][ $original_id ] = $existing;
-					continue;
-				}
-			}
-
-			// Remove meta from the main array
-			$meta = isset( $comment['commentmeta'] ) ? $comment['commentmeta'] : array();
-			unset( $comment['commentmeta'] );
-
-			// Map the parent comment, or mark it as one we need to fix
-			$requires_remapping = false;
-			if ( $parent_id ) {
-				if ( isset( $this->mapping['comment'][ $parent_id ] ) ) {
-					$comment['comment_parent'] = $this->mapping['comment'][ $parent_id ];
-				} else {
-					// Prepare for remapping later
-					$meta[]             = array(
-						'key'   => '_wxr_import_parent',
-						'value' => $parent_id,
-					);
-					$requires_remapping = true;
-
-					// Wipe the parent for now
-					$comment['comment_parent'] = 0;
-				}
-			}
-
-			// Map the author, or mark it as one we need to fix
-			if ( $author_id ) {
-				if ( isset( $this->mapping['user'][ $author_id ] ) ) {
-					$comment['user_id'] = $this->mapping['user'][ $author_id ];
-				} else {
-					// Prepare for remapping later
-					$meta[]             = array(
-						'key'   => '_wxr_import_user',
-						'value' => $author_id,
-					);
-					$requires_remapping = true;
-
-					// Wipe the user for now
-					$comment['user_id'] = 0;
-				}
-			}
-
-			// Run standard core filters
-			$comment['comment_post_ID'] = $post_id;
-			$comment                    = wp_filter_comment( $comment );
-
-			// wp_insert_comment expects slashed data
-			$comment_id = wp_insert_comment( wp_slash( $comment ) );
-
-			$this->mapping['comment'][ $original_id ] = $comment_id;
-			if ( $requires_remapping ) {
-				$this->requires_remapping['comment'][ $comment_id ] = true;
-			}
-			$this->mark_comment_exists( $comment, $comment_id );
-
-			/**
-			 * Comment has been imported.
-			 *
-			 * @param int $comment_id New comment ID
-			 * @param array $comment Comment inserted (`comment_id` item refers to the original ID)
-			 * @param int $post_id Post parent of the comment
-			 * @param array $post Post data
-			 */
-			do_action( 'wp_import_insert_comment', $comment_id, $comment, $post_id, $post );
-
-			// Process the meta items
-			foreach ( $meta as $meta_item ) {
-				$value = maybe_unserialize( $meta_item['value'] );
-				add_comment_meta( $comment_id, wp_slash( $meta_item['key'] ), wp_slash( $value ) );
-			}
-
-			/**
-			 * Post processing completed.
-			 *
-			 * @param int $post_id New post ID.
-			 * @param array $comment Raw data imported for the comment.
-			 * @param array $meta Raw meta data, already processed by {@see process_post_meta}.
-			 * @param array $post_id Parent post ID.
-			 */
-			do_action( 'wxr_importer.processed.comment', $comment_id, $comment, $meta, $post_id );
-
-			++$num_comments;
-		}
-
-		return $num_comments;
-	}
-
 	protected function parse_category_node( $node ) {
 		$data = array(
 			// Default taxonomy to "category", since this is a `<category>` tag
@@ -1285,180 +1163,20 @@ class WXRImporter extends WP_Importer {
 		return $data;
 	}
 
+
 	/**
-	 * Callback for `usort` to sort comments by ID
+	 * Parses a term node from a WXR (WordPress eXtended RSS) XML document and extracts term data and metadata.
 	 *
-	 * @param array $a Comment data for the first comment
-	 * @param array $b Comment data for the second comment
-	 * @return int
+	 * @since 2.1.2
+	 *
+	 * Handles different term types such as 'term', 'category', and 'tag', mapping their XML tags to appropriate keys.
+	 * Also processes term meta information if available.
+	 *
+	 * @param DOMElement $node The XML node representing the term.
+	 * @param string     $type The type of term to parse. Accepts 'term', 'category', or 'tag'. Default is 'term'.
+	 *
+	 * @return array|null An associative array with 'data' (term fields) and 'meta' (term meta fields), or null if taxonomy is missing.
 	 */
-	public static function sort_comments_by_id( $a, $b ) {
-		if ( empty( $a['comment_id'] ) ) {
-			return 1;
-		}
-
-		if ( empty( $b['comment_id'] ) ) {
-			return -1;
-		}
-
-		return $a['comment_id'] - $b['comment_id'];
-	}
-
-	protected function parse_author_node( $node ) {
-		$data = array();
-		$meta = array();
-		foreach ( $node->childNodes as $child ) {
-			// We only care about child elements
-			if ( $child->nodeType !== XML_ELEMENT_NODE ) {
-				continue;
-			}
-
-			switch ( $child->tagName ) {
-				case 'wp:author_login':
-					$data['user_login'] = $child->textContent;
-					break;
-
-				case 'wp:author_id':
-					$data['ID'] = $child->textContent;
-					break;
-
-				case 'wp:author_email':
-					$data['user_email'] = $child->textContent;
-					break;
-
-				case 'wp:author_display_name':
-					$data['display_name'] = $child->textContent;
-					break;
-
-				case 'wp:author_first_name':
-					$data['first_name'] = $child->textContent;
-					break;
-
-				case 'wp:author_last_name':
-					$data['last_name'] = $child->textContent;
-					break;
-			}
-		}
-
-		return compact( 'data', 'meta' );
-	}
-
-	protected function process_author( $data, $meta ) {
-		/**
-		 * Pre-process user data.
-		 *
-		 * @param array $data User data. (Return empty to skip.)
-		 * @param array $meta Meta data.
-		 */
-		$data = apply_filters( 'wxr_importer.pre_process.user', $data, $meta );
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		// Have we already handled this user?
-		$original_id   = isset( $data['ID'] ) ? $data['ID'] : 0;
-		$original_slug = $data['user_login'];
-
-		if ( isset( $this->mapping['user'][ $original_id ] ) ) {
-			$existing = $this->mapping['user'][ $original_id ];
-
-			// Note the slug mapping if we need to too
-			if ( ! isset( $this->mapping['user_slug'][ $original_slug ] ) ) {
-				$this->mapping['user_slug'][ $original_slug ] = $existing;
-			}
-
-			return false;
-		}
-
-		if ( isset( $this->mapping['user_slug'][ $original_slug ] ) ) {
-			$existing = $this->mapping['user_slug'][ $original_slug ];
-
-			// Ensure we note the mapping too
-			$this->mapping['user'][ $original_id ] = $existing;
-
-			return false;
-		}
-
-		// Allow overriding the user's slug
-		$login = $original_slug;
-		if ( isset( $this->user_slug_override[ $login ] ) ) {
-			$login = $this->user_slug_override[ $login ];
-		}
-
-		$userdata = array(
-			'user_login' => sanitize_user( $login, true ),
-			'user_pass'  => wp_generate_password(),
-		);
-
-		$allowed = array(
-			'user_email'   => true,
-			'display_name' => true,
-			'first_name'   => true,
-			'last_name'    => true,
-		);
-		foreach ( $data as $key => $value ) {
-			if ( ! isset( $allowed[ $key ] ) ) {
-				continue;
-			}
-
-			$userdata[ $key ] = $data[ $key ];
-		}
-
-		$user_id = wp_insert_user( wp_slash( $userdata ) );
-
-		if ( is_wp_error( $user_id ) ) {
-			masteriyo_get_logger()->error(
-				sprintf(
-					__( 'Failed to import user "%s"', 'learning-management-system' ),
-					$userdata['user_login']
-				)
-			);
-			masteriyo_get_logger()->debug( $user_id->get_error_message() );
-
-			/**
-			 * User processing failed.
-			 *
-			 * @param WP_Error $user_id Error object.
-			 * @param array $userdata Raw data imported for the user.
-			 */
-			do_action( 'wxr_importer.process_failed.user', $user_id, $userdata );
-			return false;
-		}
-
-		$imported_users   = get_option( 'themegrill_demo_importer_imported_users', array() );
-		$imported_users[] = $user_id;
-		$imported_users   = array_unique( $imported_users );
-		update_option( 'themegrill_demo_importer_imported_users', $imported_users );
-
-		if ( $original_id ) {
-			$this->mapping['user'][ $original_id ] = $user_id;
-		}
-		$this->mapping['user_slug'][ $original_slug ] = $user_id;
-
-		masteriyo_get_logger()->info(
-			sprintf(
-				__( 'Imported user "%s"', 'learning-management-system' ),
-				$userdata['user_login']
-			)
-		);
-		masteriyo_get_logger()->debug(
-			sprintf(
-				__( 'User %1$d remapped to %2$d', 'learning-management-system' ),
-				$original_id,
-				$user_id
-			)
-		);
-
-		// TODO: Implement meta handling once WXR includes it
-		/**
-		 * User processing completed.
-		 *
-		 * @param int $user_id New user ID.
-		 * @param array $userdata Raw data imported for the user.
-		 */
-		do_action( 'wxr_importer.processed.user', $user_id, $userdata );
-	}
-
 	protected function parse_term_node( $node, $type = 'term' ) {
 		$data = array();
 		$meta = array();
@@ -1525,6 +1243,19 @@ class WXRImporter extends WP_Importer {
 		return compact( 'data', 'meta' );
 	}
 
+	/**
+	 * Processes a term during WXR import.
+	 *
+	 * @since 2.1.2
+	 *
+	 * Handles the import of a term, including checking for existing terms,
+	 * inserting new terms, mapping term IDs, logging, and triggering relevant actions.
+	 * Applies filters and actions to allow customization and error handling.
+	 *
+	 * @param array $data Term data to import. Should include at least 'name', 'taxonomy', and optionally 'id', 'parent', 'slug', 'description'.
+	 * @param array $meta Meta data associated with the term.
+	 * @return false|void Returns false if the term is skipped or import fails, otherwise nothing.
+	 */
 	protected function process_term( $data, $meta ) {
 		/**
 		 * Pre-process term data.
@@ -1596,11 +1327,13 @@ class WXRImporter extends WP_Importer {
 		if ( is_wp_error( $result ) ) {
 			masteriyo_get_logger()->warning(
 				sprintf(
+					/* translators: %1$s: taxonomy name, %2$s: term name */
 					__( 'Failed to import %1$s %2$s', 'learning-management-system' ),
 					$data['taxonomy'],
 					$data['name']
 				)
 			);
+
 			masteriyo_get_logger()->debug( $result->get_error_message() );
 			do_action( 'wp_import_insert_term_failed', $result, $data );
 
@@ -1624,17 +1357,27 @@ class WXRImporter extends WP_Importer {
 
 		$this->mapping['term'][ $mapping_key ]    = $term_id;
 		$this->mapping['term_id'][ $original_id ] = $term_id;
-
 		masteriyo_get_logger()->info(
 			sprintf(
-				__( 'Imported "%1$s" (%2$s)', 'learning-management-system' ),
+			/* translators: 1: imported term name, 2: taxonomy name */
+				_x(
+					'Imported "%1$s" (%2$s)',
+					'Import log message',
+					'learning-management-system'
+				),
 				$data['name'],
 				$data['taxonomy']
 			)
 		);
+
 		masteriyo_get_logger()->debug(
 			sprintf(
-				__( 'Term %1$d remapped to %2$d', 'learning-management-system' ),
+			/* translators: 1: original term ID, 2: new term ID */
+				_x(
+					'Term %1$d remapped to %2$d',
+					'Import log message',
+					'learning-management-system'
+				),
 				$original_id,
 				$term_id
 			)
@@ -1719,9 +1462,10 @@ class WXRImporter extends WP_Importer {
 				'stream'    => true,
 				'filename'  => $upload['file'],
 				'headers'   => array(
-					'User-Agent' => 'ThemeGrill/1.0',
+					'User-Agent' => 'ThemeGrill Starter Template/1.0',
 				),
-				'sslverify' => false,
+				'sslverify' => true,
+				'timeout'   => 30,
 			)
 		);
 
@@ -1739,6 +1483,7 @@ class WXRImporter extends WP_Importer {
 			return new WP_Error(
 				'import_file_error',
 				sprintf(
+					/* translators: %1$d: HTTP status code, %2$s: HTTP status message, %3$s: request URL */
 					__( 'Remote server returned %1$d %2$s for %3$s', 'learning-management-system' ),
 					$code,
 					get_status_header_desc( $code ),
@@ -1763,7 +1508,11 @@ class WXRImporter extends WP_Importer {
 		$max_size = (int) $this->max_attachment_size();
 		if ( ! empty( $max_size ) && $filesize > $max_size ) {
 			unlink( $upload['file'] );
-			$message = sprintf( __( 'Remote file is too large, limit is %s', 'learning-management-system' ), size_format( $max_size ) );
+			$message = sprintf(
+				/* translators: %s: maximum allowed file size */
+				__( 'Remote file is too large, limit is %s', 'learning-management-system' ),
+				size_format( $max_size )
+			);
 			return new WP_Error( 'import_file_error', $message );
 		}
 
@@ -1775,21 +1524,10 @@ class WXRImporter extends WP_Importer {
 		if ( ! empty( $this->requires_remapping['post'] ) ) {
 			$this->post_process_posts( $this->requires_remapping['post'] );
 		}
-		if ( ! empty( $this->requires_remapping['comment'] ) ) {
-			$this->post_process_comments( $this->requires_remapping['comment'] );
-		}
 	}
 
 	protected function post_process_posts( $todo ) {
 		foreach ( $todo as $post_id => $_ ) {
-			masteriyo_get_logger()->debug(
-				sprintf(
-				// Note: title intentionally not used to skip extra processing
-				// for when debug logging is off
-					__( 'Running post-processing for post %d', 'learning-management-system' ),
-					$post_id
-				)
-			);
 
 			$data = array();
 
@@ -1799,44 +1537,12 @@ class WXRImporter extends WP_Importer {
 				if ( isset( $this->mapping['post'][ $parent_id ] ) ) {
 					$data['post_parent'] = $this->mapping['post'][ $parent_id ];
 				} else {
-					masteriyo_get_logger()->warning(
-						sprintf(
-							__( 'Could not find the post parent for "%1$s" (post #%2$d)', 'learning-management-system' ),
-							get_the_title( $post_id ),
-							$post_id
-						)
-					);
-					masteriyo_get_logger()->debug(
-						sprintf(
-							__( 'Post %1$d was imported with parent %2$d, but could not be found', 'learning-management-system' ),
-							$post_id,
-							$parent_id
-						)
-					);
 				}
 			}
 
 			$author_slug = get_post_meta( $post_id, '_wxr_import_user_slug', true );
 			if ( ! empty( $author_slug ) ) {
-				// Have we imported the user now?
-				if ( isset( $this->mapping['user_slug'][ $author_slug ] ) ) {
-					$data['post_author'] = $this->mapping['user_slug'][ $author_slug ];
-				} else {
-					masteriyo_get_logger()->warning(
-						sprintf(
-							__( 'Could not find the author for "%1$s" (post #%2$d)', 'learning-management-system' ),
-							get_the_title( $post_id ),
-							$post_id
-						)
-					);
-					masteriyo_get_logger()->debug(
-						sprintf(
-							__( 'Post %1$d was imported with author "%2$s", but could not be found', 'learning-management-system' ),
-							$post_id,
-							$author_slug
-						)
-					);
-				}
+				$data['post_author'] = (int) get_current_user_id();
 			}
 
 			$has_attachments = get_post_meta( $post_id, '_wxr_import_has_attachment_refs', true );
@@ -1859,10 +1565,12 @@ class WXRImporter extends WP_Importer {
 			if ( empty( $data ) ) {
 				masteriyo_get_logger()->debug(
 					sprintf(
+							/* translators: %d: post ID */
 						__( 'Post %d was marked for post-processing, but none was required.', 'learning-management-system' ),
 						$post_id
 					)
 				);
+
 				continue;
 			}
 
@@ -1872,11 +1580,13 @@ class WXRImporter extends WP_Importer {
 			if ( is_wp_error( $result ) ) {
 				masteriyo_get_logger()->warning(
 					sprintf(
+						/* translators: %1$s: post title, %2$d: post ID */
 						__( 'Could not update "%1$s" (post #%2$d) with mapped data', 'learning-management-system' ),
 						get_the_title( $post_id ),
 						$post_id
 					)
 				);
+
 				masteriyo_get_logger()->debug( $result->get_error_message() );
 				continue;
 			}
@@ -1919,95 +1629,28 @@ class WXRImporter extends WP_Importer {
 		} else {
 			masteriyo_get_logger()->warning(
 				sprintf(
+					/* translators: %1$s: post title, %2$d: post ID */
 					__( 'Could not find the menu object for "%1$s" (post #%2$d)', 'learning-management-system' ),
 					get_the_title( $post_id ),
 					$post_id
 				)
 			);
+
 			masteriyo_get_logger()->debug(
 				sprintf(
+					/* translators: %1$d: post ID, %2$d: object ID, %3$s: object type */
 					__( 'Post %1$d was imported with object "%2$d" of type "%3$s", but could not be found', 'learning-management-system' ),
 					$post_id,
 					$menu_object_id,
 					$menu_item_type
 				)
 			);
+
 		}
 
 		delete_post_meta( $post_id, '_wxr_import_menu_item' );
 	}
 
-	protected function post_process_comments( $todo ) {
-		foreach ( $todo as $comment_id => $_ ) {
-			$data = array();
-
-			$parent_id = get_comment_meta( $comment_id, '_wxr_import_parent', true );
-			if ( ! empty( $parent_id ) ) {
-				// Have we imported the parent now?
-				if ( isset( $this->mapping['comment'][ $parent_id ] ) ) {
-					$data['comment_parent'] = $this->mapping['comment'][ $parent_id ];
-				} else {
-					masteriyo_get_logger()->warning(
-						sprintf(
-							__( 'Could not find the comment parent for comment #%d', 'learning-management-system' ),
-							$comment_id
-						)
-					);
-					masteriyo_get_logger()->debug(
-						sprintf(
-							__( 'Comment %1$d was imported with parent %2$d, but could not be found', 'learning-management-system' ),
-							$comment_id,
-							$parent_id
-						)
-					);
-				}
-			}
-
-			$author_id = get_comment_meta( $comment_id, '_wxr_import_user', true );
-			if ( ! empty( $author_id ) ) {
-				// Have we imported the user now?
-				if ( isset( $this->mapping['user'][ $author_id ] ) ) {
-					$data['user_id'] = $this->mapping['user'][ $author_id ];
-				} else {
-					masteriyo_get_logger()->warning(
-						sprintf(
-							__( 'Could not find the author for comment #%d', 'learning-management-system' ),
-							$comment_id
-						)
-					);
-					masteriyo_get_logger()->debug(
-						sprintf(
-							__( 'Comment %1$d was imported with author %2$d, but could not be found', 'learning-management-system' ),
-							$comment_id,
-							$author_id
-						)
-					);
-				}
-			}
-
-			// Do we have updates to make?
-			if ( empty( $data ) ) {
-				continue;
-			}
-
-			// Run the update
-			$data['comment_ID'] = $comment_ID;
-			$result             = wp_update_comment( wp_slash( $data ) );
-			if ( empty( $result ) ) {
-				masteriyo_get_logger()->warning(
-					sprintf(
-						__( 'Could not update comment #%d with mapped data', 'learning-management-system' ),
-						$comment_id
-					)
-				);
-				continue;
-			}
-
-			// Clear out our temporary meta keys
-			delete_comment_meta( $comment_id, '_wxr_import_parent' );
-			delete_comment_meta( $comment_id, '_wxr_import_user' );
-		}
-	}
 
 	/**
 	 * Use stored mapping information to update old attachment URLs
@@ -2143,57 +1786,6 @@ class WXRImporter extends WP_Importer {
 		$this->exists['post'][ $exists_key ] = $post_id;
 	}
 
-	/**
-	 * Prefill existing comment data.
-	 *
-	 * @see self::prefill_existing_posts() for justification of why this exists.
-	 */
-	protected function prefill_existing_comments() {
-		global $wpdb;
-		$posts = $wpdb->get_results( "SELECT comment_ID, comment_author, comment_date FROM {$wpdb->comments}" );
-
-		foreach ( $posts as $item ) {
-			$exists_key                             = sha1( $item->comment_author . ':' . $item->comment_date );
-			$this->exists['comment'][ $exists_key ] = $item->comment_ID;
-		}
-	}
-
-	/**
-	 * Does the comment exist?
-	 *
-	 * @param array $data Comment data to check against.
-	 * @return int|bool Existing comment ID if it exists, false otherwise.
-	 */
-	protected function comment_exists( $data ) {
-		$exists_key = sha1( $data['comment_author'] . ':' . $data['comment_date'] );
-
-		// Constant-time lookup if we prefilled
-		if ( $this->options['prefill_existing_comments'] ) {
-			return isset( $this->exists['comment'][ $exists_key ] ) ? $this->exists['comment'][ $exists_key ] : false;
-		}
-
-		// No prefilling, but might have already handled it
-		if ( isset( $this->exists['comment'][ $exists_key ] ) ) {
-			return $this->exists['comment'][ $exists_key ];
-		}
-
-		// Still nothing, try comment_exists, and cache it
-		$exists                                 = comment_exists( $data['comment_author'], $data['comment_date'] );
-		$this->exists['comment'][ $exists_key ] = $exists;
-
-		return $exists;
-	}
-
-	/**
-	 * Mark the comment as existing.
-	 *
-	 * @param array $data Comment data to mark as existing.
-	 * @param int $comment_id Comment ID.
-	 */
-	protected function mark_comment_exists( $data, $comment_id ) {
-		$exists_key                             = sha1( $data['comment_author'] . ':' . $data['comment_date'] );
-		$this->exists['comment'][ $exists_key ] = $comment_id;
-	}
 
 	/**
 	 * Prefill existing term data.
@@ -2231,7 +1823,7 @@ class WXRImporter extends WP_Importer {
 			return $this->exists['term'][ $exists_key ];
 		}
 
-		// Still nothing, try comment_exists, and cache it
+		// Still nothing, try term_exists, and cache it
 		$exists = term_exists( $data['slug'], $data['taxonomy'] );
 		if ( is_array( $exists ) ) {
 			$exists = $exists['term_id'];

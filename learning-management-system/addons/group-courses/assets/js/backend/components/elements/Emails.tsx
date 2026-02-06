@@ -11,6 +11,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import AsyncCreatableSelect from 'react-select/async-creatable';
+import { accountPageFormLabelStyles } from '../../../../../../../assets/js/account/utils/general';
 import { reactSelectStyles } from '../../../../../../../assets/js/back-end/config/styles';
 import urls from '../../../../../../../assets/js/back-end/constants/urls';
 import { UsersApiResponse } from '../../../../../../../assets/js/back-end/types/users';
@@ -81,7 +82,7 @@ const Emails: React.FC<Props> = ({ defaultValue, maxGroupSize }) => {
 	return (
 		<Stack spacing={2}>
 			<FormControl isInvalid={!!errors.emails}>
-				<FormLabel htmlFor="emails">
+				<FormLabel htmlFor="emails" sx={accountPageFormLabelStyles}>
 					{__('Members', 'learning-management-system')}
 					{maxGroupSize && maxGroupSize > 0
 						? ` (${__('Max', 'learning-management-system')}: ${maxGroupSize})`
@@ -104,6 +105,7 @@ const Emails: React.FC<Props> = ({ defaultValue, maxGroupSize }) => {
 								styles={reactSelectStyles}
 								formatCreateLabel={(inputValue) =>
 									sprintf(
+										/* translators: %s: user input value */
 										__('Add "%s"', 'learning-management-system'),
 										inputValue,
 									)

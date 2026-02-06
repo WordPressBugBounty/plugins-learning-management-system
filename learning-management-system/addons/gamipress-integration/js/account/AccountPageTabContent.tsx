@@ -1,9 +1,9 @@
-import { HStack, Image, Stack, Text } from '@chakra-ui/react';
+import { Image, Stack } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Col, Row } from 'react-grid-system';
-import { BiInfoCircle } from 'react-icons/bi';
 import AccountCountBox from '../../../../assets/js/account/common/AccountCountBox';
+import EmptyCourse from '../../../../assets/js/account/common/EmptyCourse';
 import PageTitle from '../../../../assets/js/account/common/PageTitle';
 import { isEmpty } from '../../../../assets/js/back-end/utils/utils';
 import PlacementsInAccountPage from '../components/PlacementsInAccountPage';
@@ -25,8 +25,8 @@ const AccountPageTabContent: React.FC<Props> = (props) => {
 					<AccountCountBox
 						isGamipressActive
 						showBg={false}
-						title={pointTypeData.plural_name}
-						count={pointTypeData.points}
+						description={pointTypeData.plural_name}
+						title={pointTypeData.points}
 						icon={
 							pointTypeData.image_url ? (
 								<Image
@@ -45,8 +45,8 @@ const AccountPageTabContent: React.FC<Props> = (props) => {
 					<AccountCountBox
 						isGamipressActive
 						showBg={false}
-						title={rankTypeData.singular_name}
-						count={rankTypeData.rank}
+						description={rankTypeData.singular_name}
+						title={rankTypeData.rank}
 						icon={
 							rankTypeData.image_url ? (
 								<Image
@@ -65,8 +65,8 @@ const AccountPageTabContent: React.FC<Props> = (props) => {
 					<AccountCountBox
 						isGamipressActive
 						showBg={false}
-						title={achievementData.label}
-						count={''}
+						description={achievementData.label}
+						title={''}
 						icon={
 							achievementData.image_url ? (
 								<Image
@@ -107,12 +107,10 @@ const AccountPageTabContent: React.FC<Props> = (props) => {
 							}}
 						></Stack>
 						{isEmpty(contents) ? (
-							<HStack bgColor="gray.100" p="2">
-								<BiInfoCircle />
-								<Text fontWeight="md">
-									{__('Not found.', 'learning-management-system')}
-								</Text>
-							</HStack>
+							<EmptyCourse
+								text={__('No content found', 'learning-management-system')}
+								showButton={false}
+							/>
 						) : (
 							<Row
 								gutterWidth={30}

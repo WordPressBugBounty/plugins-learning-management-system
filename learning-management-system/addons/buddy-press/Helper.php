@@ -97,6 +97,7 @@ class Helper {
 					'action'            => apply_filters(
 						'bp_masteriyo_user_course_start_activity',
 						sprintf(
+							/* translators: %1$s: user link, %2$s: course link */
 							__( '%1$s started taking the course %2$s', 'learning-management-system' ),
 							$user_link,
 							$course_link_html

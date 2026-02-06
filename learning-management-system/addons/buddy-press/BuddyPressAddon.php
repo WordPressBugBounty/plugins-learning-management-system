@@ -161,6 +161,7 @@ class BuddyPressAddon {
 			'action'            => apply_filters(
 				'bp_masteriyo_new_lesson_activity',
 				sprintf(
+					/* translators: %1$s: user link, %2$s: lesson link, %3$s: course link */
 					__( '%1$s added new lesson %2$s to the course %3$s', 'learning-management-system' ),
 					$user_link,
 					$lesson_link_html,
@@ -237,7 +238,8 @@ class BuddyPressAddon {
 			'action'            => apply_filters(
 				'bp_masteriyo_user_quiz_end_activity',
 				sprintf(
-					__( '%1$s completed the quiz %2$s for course %3$s ', 'learning-management-system' ),
+						/* translators: %1$s: user link, %2$s: quiz link, %3$s: course link */
+					__( '%1$s completed the quiz %2$s for course %3$s', 'learning-management-system' ),
 					$user_link,
 					$lesson_link_html,
 					$course_link_html
@@ -307,7 +309,8 @@ class BuddyPressAddon {
 			'action'            => apply_filters(
 				'bp_masteriyo_user_lesson_end_activity',
 				sprintf(
-					__( '%1$s completed the lesson %2$s for course %3$s ', 'learning-management-system' ),
+					/* translators: %1$s: user link, %2$s: lesson link, %3$s: course link */
+					__( '%1$s completed the lesson %2$s for course %3$s', 'learning-management-system' ),
 					$user_link,
 					$lesson_link_html,
 					$course_link_html
@@ -418,6 +421,7 @@ class BuddyPressAddon {
 			'action'            => apply_filters(
 				'bp_masteriyo_user_course_end_activity',
 				sprintf(
+					/* translators: %1$s: user link, %2$s: course link */
 					__( '%1$s completed the course %2$s', 'learning-management-system' ),
 					$user_link,
 					$course_link_html
@@ -425,6 +429,7 @@ class BuddyPressAddon {
 				$user_id,
 				$course_id
 			),
+
 			'item_id'           => $group_attached,
 			'secondary_item_id' => $course_id,
 			'component'         => $bp->groups->id,

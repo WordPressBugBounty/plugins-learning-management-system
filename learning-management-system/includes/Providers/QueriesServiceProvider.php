@@ -20,40 +20,7 @@ use Masteriyo\Query\QuestionQuery;
 use Masteriyo\Query\SectionQuery;
 
 class QueriesServiceProvider extends AbstractServiceProvider {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'query.sections',
-		'query.lessons',
-		'query.quizes',
-		'query.questions',
-		'query.orders',
-		'query.order-items',
-		'query.course-reviews',
-		'query.lesson-reviews',
-		'query.course-qas',
-		'query.quizes-reviews',
 
-		'\Masteriyo\Query\SectionQuery',
-		'\Masteriyo\Query\LessonQuery',
-		'\Masteriyo\Query\QuizQuery',
-		'\Masteriyo\Query\QuestionQuery',
-		'\Masteriyo\Query\OrderQuery',
-		'\Masteriyo\Query\OrderItemQuery',
-		'\Masteriyo\Query\CourseReviewQuery',
-		'\Masteriyo\Query\LessonReviewQuery',
-		'\Masteriyo\Query\QuizReviewQuery',
-		'\Masteriyo\Query\CourseQuestionAnswerQuery',
-	);
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -63,7 +30,7 @@ class QueriesServiceProvider extends AbstractServiceProvider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'query.sections', SectionQuery::class );
 		$this->getContainer()->add( 'query.lessons', LessonQuery::class );
 		$this->getContainer()->add( 'query.quizes', QuizQuery::class );
@@ -85,5 +52,49 @@ class QueriesServiceProvider extends AbstractServiceProvider {
 		$this->getContainer()->add( '\Masteriyo\Query\QuizReviewQuery' );
 
 		$this->getContainer()->add( '\Masteriyo\Query\CourseQuestionAnswerQuery' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'query.sections',
+				'query.lessons',
+				'query.quizes',
+				'query.questions',
+				'query.orders',
+				'query.order-items',
+				'query.course-reviews',
+				'query.lesson-reviews',
+				'query.course-qas',
+				'query.quizes-reviews',
+
+				'\Masteriyo\Query\SectionQuery',
+				'\Masteriyo\Query\LessonQuery',
+				'\Masteriyo\Query\QuizQuery',
+				'\Masteriyo\Query\QuestionQuery',
+				'\Masteriyo\Query\OrderQuery',
+				'\Masteriyo\Query\OrderItemQuery',
+				'\Masteriyo\Query\CourseReviewQuery',
+				'\Masteriyo\Query\LessonReviewQuery',
+				'\Masteriyo\Query\QuizReviewQuery',
+				'\Masteriyo\Query\CourseQuestionAnswerQuery',
+			),
+			true
+		);
 	}
 }

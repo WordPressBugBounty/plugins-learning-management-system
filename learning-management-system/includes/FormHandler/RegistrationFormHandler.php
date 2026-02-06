@@ -118,6 +118,10 @@ class RegistrationFormHandler {
 			return $user;
 		}
 
+		if ( isset( $request['redirect_to'] ) && ! empty( $request['redirect_to'] ) && masteriyo_is_email_verification_enabled() ) {
+			update_user_meta( $user->get_id(), '_masteriyo_registration_redirect_url', esc_url_raw( $request['redirect_to'] ) );
+		}
+
 		if ( masteriyo_registration_is_generate_password() ) {
 			masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
 		} else {

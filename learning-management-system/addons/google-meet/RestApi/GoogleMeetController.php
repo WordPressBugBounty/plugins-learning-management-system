@@ -635,6 +635,16 @@ class GoogleMeetController extends PostsController {
 
 			$data_from_calender = $this->get_google_meet( $meta_meeting_id );
 
+			if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+				wp_delete_post( $meta_meeting_id['meeting_id'] );
+				masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
+			}
+
+			if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+					wp_delete_post( $meta_meeting_id['meeting_id'] );
+					masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
+			}
+
 			$response = $this->delete_google_calendar_event( $token, $google_provider, $meta_meeting_id, $data_from_calender );
 
 			return $response;
@@ -677,6 +687,11 @@ class GoogleMeetController extends PostsController {
 				);
 
 				$data_from_calender = $this->get_google_meet( $meta_meeting_id );
+
+				if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+					wp_delete_post( $meta_meeting_id['meeting_id'] );
+					masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
+				}
 
 				$response = $this->delete_google_calendar_events( $token, $google_provider, $meta_meeting_id, $data_from_calender );
 			}
@@ -849,21 +864,44 @@ class GoogleMeetController extends PostsController {
 
 		$client = new Client();
 
-		$response = $client->request(
-			'DELETE',
-			$endpoint,
-			array(
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $token->getToken(),
-					'Content-Type'  => 'application/json',
-				),
-			)
-		);
+		try {
+			$response = $client->request(
+				'DELETE',
+				$endpoint,
+				array(
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $token->getToken(),
+						'Content-Type'  => 'application/json',
+					),
+				)
+			);
 
-		if ( $response->getStatusCode() === 204 ) {
-			wp_delete_post( $event_id['meeting_id'] );
-			return true;
-		} else {
+			$status = $response->getStatusCode();
+
+			if ( 204 === $status || 404 === $status || 410 === $status ) {
+				masteriyo_get_logger()->info(
+					sprintf( 'Google Calendar event deleted or not found. Status: %d', $status ),
+					array( 'source' => 'google-meet' )
+				);
+				wp_delete_post( $event_id['meeting_id'] );
+				return true;
+			}
+
+			masteriyo_get_logger()->warning(
+				sprintf( 'Unexpected Google Calendar delete status: %d', $status ),
+				array( 'source' => 'google-meet' )
+			);
+			return false;
+
+		} catch ( \Exception $e ) {
+			masteriyo_get_logger()->error(
+				'Google Calendar delete exception: ' . $e->getMessage(),
+				array( 'source' => 'google-meet' )
+			);
+			masteriyo_get_logger()->error(
+				$e->getMessage(),
+				array( 'source' => 'google-meet' )
+			);
 			return false;
 		}
 	}

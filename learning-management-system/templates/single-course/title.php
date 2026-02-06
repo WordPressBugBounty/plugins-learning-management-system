@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) && masteriyo_get_setting( 'course_archive.components_visibility.course_title' ) || ! masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' ) ) : ?>
+<?php if ( masteriyo_get_setting( 'single_course.components_visibility.course_title' ) ) : ?>
 <h1 class="masteriyo-course-title masteriyo-single-course--title">
 	<?php
 	/**

@@ -14,22 +14,7 @@ use Masteriyo\Repository\SettingRepository;
 use Masteriyo\RestApi\Controllers\Version1\SettingsController;
 
 class SettingsServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array(
-		'setting',
-		'setting.store',
-		'setting.rest',
-	);
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -39,11 +24,37 @@ class SettingsServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * @since 1.0.0
 	 */
-	public function register() {
+	public function register(): void {
 		$this->getContainer()->add( 'setting.store', SettingRepository::class );
 		$this->getContainer()->add( 'setting.rest', SettingsController::class );
 		$this->getContainer()->add( 'setting', Setting::class )
 			->addArgument( 'setting.store' );
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'setting',
+				'setting.store',
+				'setting.rest',
+			),
+			true
+		);
 	}
 
 	/**
@@ -59,7 +70,7 @@ class SettingsServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * @since 1.5.43
 	 */
-	public function boot() {
+	public function boot(): void {
 		$this->register();
 	}
 }

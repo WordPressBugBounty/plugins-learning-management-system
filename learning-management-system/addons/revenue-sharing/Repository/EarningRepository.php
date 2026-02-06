@@ -307,9 +307,7 @@ class EarningRepository extends AbstractRepository {
 	 * @return string
 	 */
 	protected function get_earning_title() {
-		// phpcs:enable
 		/* translators: %s: Earning date */
-		return sprintf( __( 'Earning &ndash; %s', 'learning-management-system' ), strftime( _x( '%1$b %2$d, %Y @ %I:%M %p', 'Earning date parsed by strftime', 'learning-management-system' ) ) );
-		// phpcs:disable
+		return sprintf( __( 'Earning &ndash; %s', 'learning-management-system' ), wp_date( _x( 'M d, Y @ h:i A', 'Earning date format', 'learning-management-system' ) ) );
 	}
 }

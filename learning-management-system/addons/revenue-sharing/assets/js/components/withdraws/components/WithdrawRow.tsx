@@ -6,7 +6,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { BiCalendar } from 'react-icons/bi';
 import { Td, Tr } from 'react-super-responsive-table';
@@ -67,16 +67,26 @@ const WithdrawRow: React.FC<Props> = (props) => {
 				{'e_check' === withdrawMethod && (
 					<Text color="gray.600" fontSize="xs" align="left">
 						{sprintf(
-							__('Physical Address: %s', 'learning-management-system'),
-							withdraw_method?.physical_address,
+							/* translators: %s: physical mailing address */
+							_x(
+								'Physical Address: %s',
+								'Withdrawal payment details label',
+								'learning-management-system',
+							),
+							withdraw_method?.physical_address ?? '',
 						)}
 					</Text>
 				)}
 				{'paypal' === withdrawMethod && (
 					<Text color="gray.600" fontSize="xs" align="left">
 						{sprintf(
-							__('Email: %s', 'learning-management-system'),
-							withdraw_method?.paypal_email,
+							/* translators: %s: PayPal email address */
+							_x(
+								'Email: %s',
+								'Withdrawal payment details label',
+								'learning-management-system',
+							),
+							withdraw_method?.paypal_email ?? '',
 						)}
 					</Text>
 				)}
@@ -84,32 +94,57 @@ const WithdrawRow: React.FC<Props> = (props) => {
 					<>
 						<Text color="gray.600" fontSize="xs" align="left">
 							{sprintf(
-								__('Bank Name: %s', 'learning-management-system'),
-								withdraw_method?.bank_name,
+								/* translators: %s: bank name */
+								_x(
+									'Bank Name: %s',
+									'Withdrawal bank details label',
+									'learning-management-system',
+								),
+								withdraw_method?.bank_name ?? '',
 							)}
 						</Text>
 						<Text color="gray.600" fontSize="xs" align="left">
 							{sprintf(
-								__('A/C Name: %s', 'learning-management-system'),
-								withdraw_method?.account_number,
+								/* translators: %s: bank account holder name */
+								_x(
+									'A/C Name: %s',
+									'Withdrawal bank details label',
+									'learning-management-system',
+								),
+								withdraw_method?.account_name ?? '',
 							)}
 						</Text>
 						<Text color="gray.600" fontSize="xs" align="left">
 							{sprintf(
-								__('A/C Number: %s', 'learning-management-system'),
-								withdraw_method?.account_number,
+								/* translators: %s: bank account number */
+								_x(
+									'A/C Number: %s',
+									'Withdrawal bank details label',
+									'learning-management-system',
+								),
+								withdraw_method?.account_number ?? '',
 							)}
 						</Text>
 						<Text color="gray.600" fontSize="xs" align="left">
 							{sprintf(
-								__('IBAN: %s', 'learning-management-system'),
-								withdraw_method?.iban,
+								/* translators: %s: IBAN number */
+								_x(
+									'IBAN: %s',
+									'Withdrawal bank details label',
+									'learning-management-system',
+								),
+								withdraw_method?.iban ?? '',
 							)}
 						</Text>
 						<Text color="gray.600" fontSize="xs" align="left">
 							{sprintf(
-								__('BIC/SWIFT CODE: %s', 'learning-management-system'),
-								withdraw_method?.swift_code,
+								/* translators: %s: BIC/SWIFT code */
+								_x(
+									'BIC/SWIFT CODE: %s',
+									'Withdrawal bank details label',
+									'learning-management-system',
+								),
+								withdraw_method?.swift_code ?? '',
 							)}
 						</Text>
 					</>

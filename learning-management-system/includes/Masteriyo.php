@@ -570,7 +570,14 @@ class Masteriyo {
 		delete_user_meta( $uid, 'masteriyo_email_verification_token' . $uid );
 		delete_user_meta( $uid, 'masteriyo_email_verification_token_expiration' . $uid );
 
+		$stored_redirect_url    = get_user_meta( $uid, '_masteriyo_registration_redirect_url', true );
 		$account_page_permalink = masteriyo_get_page_permalink( 'account' ) . '/#/dashboard';
+
+		$default_redirect_url = ! empty( $stored_redirect_url ) ? $stored_redirect_url : $account_page_permalink;
+
+		if ( ! empty( $stored_redirect_url ) ) {
+			delete_user_meta( $uid, '_masteriyo_registration_redirect_url' );
+		}
 
 		/**
 		 * Filters redirection URL to redirect to after user registration.
@@ -578,8 +585,9 @@ class Masteriyo {
 		 * @since 1.0.0
 		 *
 		 * @param string $url Redirection URL.
+		 * @param int $uid User ID.
 		 */
-		$redirection_url = apply_filters( 'masteriyo_registration_redirect_url', $account_page_permalink );
+		$redirection_url = apply_filters( 'masteriyo_registration_redirect_url', $default_redirect_url, $uid );
 
 		$redirection_url = wp_validate_redirect( $redirection_url, $account_page_permalink );
 
@@ -798,7 +806,7 @@ class Masteriyo {
 	 */
 	public function display_allow_usage_notice() {
 		if ( masteriyo_show_usage_tracking_notice() ) {
-			masteriyo_get_template( 'notices/allow-usage-tracking.php' );
+			// masteriyo_get_template( 'notices/allow-usage-tracking.php' );
 		}
 	}
 

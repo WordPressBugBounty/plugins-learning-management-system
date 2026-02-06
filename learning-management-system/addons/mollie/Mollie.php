@@ -164,8 +164,12 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 					'currency' => $order->get_currency() ?? 'EUR',
 					'value'    => number_format( $order->get_total(), 2, '.', '' ),
 				),
-				/* translators: %s: order id */
-				'description' => sprintf( __( 'Order #%s', 'learning-management-system' ), $order_id ),
+
+				'description' => sprintf(
+				/* translators: %s: order number */
+					_x( 'Order #%s', 'Payment description (order number)', 'learning-management-system' ),
+					$order_id
+				),
 				'redirectUrl' => $this->get_return_url( $order ),
 				'webhookUrl'  => admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' ),
 				'metadata'    => array(

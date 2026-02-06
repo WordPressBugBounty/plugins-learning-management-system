@@ -8,7 +8,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { BiCalendar } from 'react-icons/bi';
 import { RiCalendar2Line, RiLiveLine } from 'react-icons/ri';
@@ -40,10 +40,20 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 		<Tr>
 			<Td>
 				<Stack direction="column" spacing="2">
-					<Text fontSize="sm" fontWeight="semibold">
+					<Text
+						fontSize="sm"
+						fontWeight="semibold"
+						color={'oxford-night'}
+						lineHeight={'24px'}
+					>
 						{data?.name}
 					</Text>
-					<Text color="gray.600" fontSize="xs">
+					<Text
+						color="saint-blue"
+						fontSize="13px"
+						fontWeight={'normal'}
+						lineHeight={'23px'}
+					>
 						{__('Course:', 'learning-management-system')} {data?.course_name}
 					</Text>
 				</Stack>
@@ -51,19 +61,13 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 			<Td>
 				<Stack direction="row">
 					<Avatar src={data.author?.avatar_url} size="xs" />
-					<Text>
-						{sprintf(
-							/* translators: %s: Author display name */
-							__('%s', 'learning-management-system'),
-							data.author?.display_name,
-						)}
-					</Text>
+					<Text>{data.author?.display_name}</Text>
 				</Stack>
 			</Td>
 			<Td>
 				<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
 					<Icon as={BiCalendar} />
-					<Text as="span" fontSize="xs" fontWeight="medium" color="gray.600">
+					<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
 						{data?.starts_at
 							? new Date(data?.starts_at).toLocaleString()
 							: null}
@@ -73,7 +77,7 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 			<Td>
 				<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
 					<Icon as={BiCalendar} />
-					<Text as="span" fontSize="xs" fontWeight="medium" color="gray.600">
+					<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
 						{data?.ends_at ? new Date(data?.ends_at).toLocaleString() : null}
 					</Text>
 				</Stack>
@@ -87,14 +91,16 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 						color="gray.600"
 					>
 						<Badge
-							textTransform="uppercase"
-							colorScheme={
+							color={
 								status === GoogleMeetStatus.UpComing
-									? 'yellow'
+									? 'golden-amber'
 									: status === GoogleMeetStatus.Expired
-										? 'orange'
-										: 'green'
+										? 'orange.500'
+										: 'green.500'
 							}
+							textTransform={'capitalize'}
+							variant="link"
+							fontSize={'sm'}
 						>
 							{status}
 						</Badge>
@@ -105,7 +111,7 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 				<Stack
 					direction="column"
 					spacing="2"
-					alignItems={'end'}
+					alignItems={'start'}
 					justifyContent="center"
 				>
 					<ButtonGroup alignItems="center">
@@ -115,11 +121,12 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 							isExternal
 						>
 							<Button
-								variant="outline"
 								colorScheme="primary"
-								size="xs"
-								gap="2"
+								size="md"
 								fontWeight="semibold"
+								px={4}
+								py={2}
+								fontSize={'sm'}
 							>
 								<RiCalendar2Line />
 								{__('Google Calender', 'learning-management-system')}
@@ -133,10 +140,12 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 								isExternal
 							>
 								<Button
-									colorScheme="blue"
-									size="xs"
-									gap="2"
+									colorScheme="primary"
+									size="md"
 									fontWeight="semibold"
+									px={4}
+									py={2}
+									fontSize={'sm'}
 								>
 									<RiLiveLine />
 									{__('Start Meeting', 'learning-management-system')}

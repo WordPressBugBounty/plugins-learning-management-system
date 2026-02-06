@@ -29,7 +29,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 		if ( is_bool( $block_attr ) ) {
 			return $block_attr;
 		}
-		return masteriyo_get_setting( "course_archive.components_visibility.$global_key", $default );
+		return masteriyo_get_setting( "single_course.components_visibility.$global_key", $default );
 	}
 }
 ?>
@@ -82,21 +82,39 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 	<?php endif; ?>
 <?php
 if ( is_component_visible( $attributes['enableRating'] ?? null, 'rating' ) && $course->is_review_allowed() ) :
-	if ( is_user_logged_in() && ! masteriyo_get_setting( 'single_course.enable_review_visibility_control' ) ) :
-		if ( $course->get_review_count() > 0 ) :
-			?>
-			<span class="masteriyo-icon-svg masteriyo-rating">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-					<path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"></path>
-				</svg>
-				<?php
-				echo ' ' . esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) );
-				echo ' (' . esc_html( $course->get_review_count() ) . ')';
+	$review_count  = $course->get_review_count();
+	$visibility_on = masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' );
+
+	if ( $visibility_on ) :
+		if ( is_user_logged_in() ) :
+			if ( $review_count > 0 ) :
 				?>
-			</span>
-			<?php
+				<span class="masteriyo-icon-svg masteriyo-rating">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+						<path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"></path>
+					</svg>
+					<?php
+					echo ' ' . esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) );
+					echo ' (' . esc_html( $review_count ) . ')';
+					?>
+				</span>
+				<?php
+			endif;
+		elseif ( $review_count > 0 ) :
+			?>
+				<span class="masteriyo-icon-svg masteriyo-rating">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+						<path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"></path>
+					</svg>
+					<?php
+					echo ' ' . esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) );
+					echo ' (' . esc_html( $review_count ) . ')';
+					?>
+				</span>
+				<?php
+
 		endif;
-	elseif ( masteriyo_get_setting( 'single_course.enable_review_visibility_control' ) ) :
+	else :
 		?>
 		<span class="masteriyo-icon-svg masteriyo-rating">
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -104,7 +122,7 @@ if ( is_component_visible( $attributes['enableRating'] ?? null, 'rating' ) && $c
 			</svg>
 			<?php
 			echo ' ' . esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) );
-			echo ' (' . esc_html( $course->get_review_count() ) . ')';
+			echo ' (' . esc_html( $review_count ) . ')';
 			?>
 		</span>
 		<?php

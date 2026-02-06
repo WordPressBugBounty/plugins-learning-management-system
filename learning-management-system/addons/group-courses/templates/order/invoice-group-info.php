@@ -57,6 +57,30 @@ $group_info = $invoice_data['group_info'];
 		</div>
 	</div>
 
+	<?php if ( ! empty( $group_info['plan_name'] ) ) : ?>
+	<div class="masteriyo-invoice-body--form-data" style="margin-bottom: 10px;">
+		<div style="float: left; width: 180px; color: #222222; font-size: 14px; font-weight: 500; line-height: 24px;">
+			<?php echo esc_html( __( 'Plan:', 'learning-management-system' ) ); ?>
+		</div>
+
+		<div class="masteriyo-invoice-body--form-data__content" style="float: right; color: #383838; font-size: 14px; font-weight: 400; line-height: 24px;">
+			<?php echo esc_html( $group_info['plan_name'] ); ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $group_info['seats'] ) ) : ?>
+	<div class="masteriyo-invoice-body--form-data" style="margin-bottom: 10px;">
+		<div style="float: left; width: 180px; color: #222222; font-size: 14px; font-weight: 500; line-height: 24px;">
+			<?php echo esc_html( __( 'Total Seats:', 'learning-management-system' ) ); ?>
+		</div>
+
+		<div class="masteriyo-invoice-body--form-data__content" style="float: right; color: #383838; font-size: 14px; font-weight: 400; line-height: 24px;">
+			<?php echo esc_html( sprintf( '%d', $group_info['seats'] ) ); ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
 	<div class="masteriyo-invoice-body--form-data" style="margin-bottom: 10px;">
 		<div style="float: left; width: 180px; color: #222222; font-size: 14px; font-weight: 500; line-height: 24px;">
 			<?php echo esc_html( __( 'Total Members:', 'learning-management-system' ) ); ?>

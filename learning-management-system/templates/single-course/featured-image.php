@@ -8,22 +8,19 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** Precompute flags to keep logic tidy */
-$single_visibility = (bool) masteriyo_get_setting( 'course_archive.components_visibility.single_course_visibility' );
-$show_thumbnail    = (bool) masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' );
-$show_difficulty   = (bool) masteriyo_get_setting( 'course_archive.components_visibility.difficulty_badge' );
-$show_course_badge = (bool) masteriyo_get_setting( 'course_archive.components_visibility.course_badge' );
+$show_thumbnail    = (bool) masteriyo_get_setting( 'single_course.components_visibility.thumbnail' );
+$show_difficulty   = (bool) masteriyo_get_setting( 'single_course.components_visibility.difficulty_badge' );
+$show_course_badge = (bool) masteriyo_get_setting( 'single_course.components_visibility.course_badge' );
 
-$show_block = ( $single_visibility && $show_thumbnail ) || ( ! $single_visibility );
+$show_block = $show_thumbnail;
 
 /** Derived badge visibility */
 $has_difficulty = ! empty( $difficulty );
-$can_show_diff  = ( $single_visibility && $show_difficulty && $has_difficulty ) || ( ! $single_visibility && $has_difficulty );
+$can_show_diff  = ( $show_difficulty && $has_difficulty );
 
 $course_badge_val = $course->get_course_badge();
 $can_show_cbadge  = (
-	( $single_visibility && $show_course_badge && $show_thumbnail && ! empty( $course_badge_val ) ) ||
-	( ! $single_visibility && $show_course_badge && $show_thumbnail && ! empty( $course_badge_val ) )
+	$show_course_badge && $show_thumbnail && ! empty( $course_badge_val )
 );
 ?>
 

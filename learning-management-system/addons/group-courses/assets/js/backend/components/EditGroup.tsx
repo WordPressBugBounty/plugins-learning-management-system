@@ -13,7 +13,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -242,12 +242,14 @@ const EditGroup: React.FC = () => {
 																	fontWeight: 'medium',
 																}}
 															>
-																{__(
-																	'Edit Order #%d',
-																	'learning-management-system',
-																).replace(
-																	'%d',
-																	groupQuery.data.order.id.toString(),
+																{sprintf(
+																	/* translators: %d: order ID */
+																	_x(
+																		'Edit Order #%d',
+																		'Edit order action label',
+																		'learning-management-system',
+																	),
+																	groupQuery.data.order.id,
 																)}
 															</Link>{' '}
 															{__(

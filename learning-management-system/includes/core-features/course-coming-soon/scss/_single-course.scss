@@ -1,0 +1,131 @@
+.masteriyo-single {
+	&-body {
+		&__aside {
+			&--items-wrapper {
+				.masteriyo-single-course--course-coming-soon {
+					&-msg {
+						padding: 0;
+					}
+				}
+			}
+		}
+	}
+}
+
+.masteriyo-single-course--course-coming-soon-btn {
+	font-weight: 500;
+    align-content: center;
+	text-decoration: none;
+	border-radius: $border_radius_4;
+    background: #f7f7f7;
+	padding: 0 $spacing_24px;
+	min-height: 40px;
+	color: var(--masteriyo-color-primary);
+	font-size: 15px;
+	line-height: 25px;
+	text-align: center;
+
+	&.masteriyo-btn-disabled {
+		opacity: 1;
+	}
+}
+
+.masteriyo-single-course--course-coming-soon {
+    &-msg {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &-timer {
+        border: 0;
+        display: block;
+
+        &:hover {
+            padding: 0;
+        }
+
+        #masteriyo_countdown {
+            .masteriyo-countdown-timer--wrapper {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+
+                .masteriyo-countdown-segment {
+                    width: 64px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+
+                    @media screen and (max-width: 600px) {
+                        width: 50px;
+                    }
+
+                    br {
+                        display: none;
+                    }
+
+                    &--timer {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 60px;
+                        height: 50px;
+                        font-size: 24px;
+                        color: #16181a;
+                        line-height: 32px;
+                        font-weight: 500;
+                        border-radius: 4px;
+                        border: 1px solid #EBECF2;
+                        background: #FBFBFB;
+
+                        @media screen and (max-width: 600px) {
+                            width: 45px;
+                            height: 40px;
+                            font-size: 18px;
+                            line-height: 26px;
+                        }
+                    }
+
+                    &--label {
+                        color: #9F9F9F;
+                        font-size: 12px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        text-transform: uppercase;
+                        text-align: center;
+
+                        @media screen and (max-width: 600px) {
+                            font-size: 10px;
+                            line-height: 18px;
+                        }
+                    }
+                }
+
+                .masteriyo-countdown-separator {
+                    &--dots {
+                        color: #9F9F9F;
+                        text-align: center;
+                        font-size: 32px;
+                        font-weight: 500;
+                        line-height: 45px;
+
+                         @media screen and (max-width: 600px) {
+                            font-size: 26px;
+                            line-height: 36px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &-text {
+        color: #51585F;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 25px;
+        margin-top: 0;
+    }
+}

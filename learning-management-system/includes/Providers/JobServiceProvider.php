@@ -31,19 +31,6 @@ use Masteriyo\Roles;
  */
 class JobServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.6.0
-	 *
-	 * @var array
-	 */
-	protected $provides = array();
-
-	/**
 	 * This is where the magic happens, within the method you can
 	 * access the container and register or retrieve anything
 	 * that you need to, but remember, every alias registered
@@ -51,8 +38,30 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 	 *
 	 * @since 1.6.0
 	 */
-	public function register() {
+	public function register(): void {
 		// Register any services or dependencies here.
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 	/**
@@ -62,7 +71,7 @@ class JobServiceProvider extends AbstractServiceProvider implements BootableServ
 	 *
 	 * @since 1.6.0
 	 */
-	public function boot() {
+	public function boot(): void {
 		$this->register_send_course_completion_reminder_email_job();
 		$this->register_webhook_delivery_job();
 

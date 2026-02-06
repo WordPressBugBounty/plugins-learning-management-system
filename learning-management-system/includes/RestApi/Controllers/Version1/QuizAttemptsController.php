@@ -104,7 +104,7 @@ class QuizAttemptsController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => array(
 						'context' => $this->get_context_param(
 							array(
@@ -1135,5 +1135,75 @@ class QuizAttemptsController extends CrudController {
 		do_action( "masteriyo_rest_bulk_delete_{$this->object_type}_objects", $deleted_objects, $objects, $request );
 
 		return rest_ensure_response( $deleted_objects );
+	}
+
+	/**
+	 * View Attempt
+	 *
+	 * @since 2.0.4
+	 *
+	 * @param \Masteriyo\Models\QuizAttempt $attempt
+	 * @return bool
+	 */
+	protected function can_view_attempt( QuizAttempt $attempt ) {
+		$current_user_id = masteriyo_get_current_user_id();
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		$course = masteriyo_get_course( $attempt->get_course_id() );
+		if ( $course && masteriyo_is_current_user_post_author( $course->get_id() ) ) {
+			$instructor = masteriyo_get_current_instructor();
+			if ( ! $instructor || $instructor->is_active() ) {
+				return true;
+			}
+		}
+
+		if ( (int) $attempt->get_user_id() === (int) $current_user_id ) {
+			return true;
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Check if a given request has access to read the terms.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function get_item_permissions_check( $request ) {
+		$attempt_id = absint( $request['id'] );
+		$attempt    = $this->get_object( $attempt_id );
+
+		if ( ! $attempt ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_auth_required',
+				__( 'Authentication required.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( ! $this->can_view_attempt( $attempt ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_forbidden',
+				__( 'Sorry, you are not allowed to view this resource.', 'learning-management-system' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 }

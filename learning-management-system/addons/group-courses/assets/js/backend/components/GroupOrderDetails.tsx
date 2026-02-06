@@ -23,6 +23,8 @@ interface Props {
 		title: string;
 		emails: string[];
 		edit_url: string;
+		seats?: number;
+		plan?: string;
 	}[];
 }
 
@@ -60,6 +62,20 @@ const GroupOrderDetails: React.FC<Props> = ({ groups }) => {
 						</AccordionButton>
 						<AccordionPanel pb={4}>
 							<Flex direction="column" gap={2}>
+								{group.plan && (
+									<Text>
+										<strong>{__('Plan', 'learning-management-system')}:</strong>{' '}
+										{group.plan}
+									</Text>
+								)}
+								{group.seats && (
+									<Text>
+										<strong>
+											{__('Total Seats', 'learning-management-system')}:
+										</strong>{' '}
+										{group.seats}
+									</Text>
+								)}
 								<Text>
 									<strong>
 										{__('Members', 'learning-management-system')}:

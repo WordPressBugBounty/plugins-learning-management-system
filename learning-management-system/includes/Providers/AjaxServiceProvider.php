@@ -29,18 +29,7 @@ use Masteriyo\AjaxHandlers\CourseFilterAndSortingAjaxHandler;
  * @since 1.4.3
  */
 class AjaxServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * @since 1.4.3
-	 *
-	 * @var array
-	 */
-	protected $provides = array();
+
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -50,7 +39,29 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 	 *
 	 * @since 1.4.3
 	 */
-	public function register() {
+	public function register(): void {
+	}
+
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(),
+			true
+		);
 	}
 
 
@@ -67,7 +78,7 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 	 *
 	 * @since 1.5.43
 	 */
-	public function boot() {
+	public function boot(): void {
 		$handlers = array_unique(
 			/**
 			 * Filters ajax handler classes.
