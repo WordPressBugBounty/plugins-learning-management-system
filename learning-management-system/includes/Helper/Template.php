@@ -934,28 +934,8 @@ if ( ! function_exists( 'masteriyo_course_archive_layout_1_stats' ) ) {
 	 * @since 1.12.0
 	 */
 	function masteriyo_course_archive_layout_1_stats( $course ) {
-		$course_meta = get_post_meta( $course->get_id() );
-
-		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
-			$enable = $course_meta['_course_coming_soon_enable'] ?? false;
-			$enable = end( $enable );
-
-			if ( $enable ) {
-				$ending_date = $course_meta['_course_coming_soon_ending_date'] ?? false;
-				$timestamp   = $course_meta['_course_coming_soon_timestamp'] ?? false;
-				if ( $timestamp ) {
-					$timestamp = end( $timestamp );
-				}
-				if ( $timestamp > time() ) {
-					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
-						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
-						$hide_meta_data = end( $hide_meta_data );
-						if ( $hide_meta_data ) {
-							return;
-						}
-					}
-				}
-			}
+		if ( \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) {
+			return;
 		}
 
 		masteriyo_get_template(
@@ -976,28 +956,8 @@ if ( ! function_exists( 'masteriyo_course_archive_layout_2_stats' ) ) {
 	 * @since 1.12.0
 	 */
 	function masteriyo_course_archive_layout_2_stats( $course ) {
-		$course_meta = get_post_meta( $course->get_id() );
-
-		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
-			$enable = $course_meta['_course_coming_soon_enable'] ? $course_meta['_course_coming_soon_enable'] : false;
-			$enable = end( $enable );
-
-			if ( $enable ) {
-				$ending_date = $course_meta['_course_coming_soon_ending_date'] ?? false;
-				$timestamp   = $course_meta['_course_coming_soon_timestamp'] ?? false;
-				if ( $timestamp ) {
-					$timestamp = end( $timestamp );
-				}
-				if ( $timestamp > time() ) {
-					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
-						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
-						$hide_meta_data = end( $hide_meta_data );
-						if ( $hide_meta_data ) {
-							return;
-						}
-					}
-				}
-			}
+		if ( \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) {
+			return;
 		}
 
 		masteriyo_get_template(
@@ -1102,28 +1062,8 @@ if ( ! function_exists( 'masteriyo_single_course_stats' ) ) {
 	function masteriyo_single_course_stats( $course ) {
 		$comments_count = masteriyo_count_course_comments( $course );
 
-		$course_meta = get_post_meta( $course->get_id() );
-
-		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
-			$enable = $course_meta['_course_coming_soon_enable'] ? $course_meta['_course_coming_soon_enable'] : false;
-			$enable = end( $enable );
-
-			if ( $enable ) {
-				$ending_date = isset( $course_meta['_course_coming_soon_ending_date'] ) ? $course_meta['_course_coming_soon_ending_date'] : false;
-				$timestamp   = isset( $course_meta['_course_coming_soon_timestamp'] ) ? $course_meta['_course_coming_soon_timestamp'] : false;
-				if ( $timestamp ) {
-					$timestamp = end( $timestamp );
-				}
-				if ( $timestamp > time() ) {
-					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
-						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
-						$hide_meta_data = end( $hide_meta_data );
-						if ( $hide_meta_data ) {
-							return;
-						}
-					}
-				}
-			}
+		if ( \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) {
+			return;
 		}
 
 		$query = new CourseProgressQuery(
@@ -1199,28 +1139,8 @@ if ( ! function_exists( 'masteriyo_single_course_layout_1_stats' ) ) {
 		$comments_count = masteriyo_count_course_comments( $course );
 		$difficulty     = $course->get_difficulty();
 
-		$course_meta = get_post_meta( $course->get_id() );
-
-		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
-			$enable = $course_meta['_course_coming_soon_enable'] ? $course_meta['_course_coming_soon_enable'] : false;
-			$enable = end( $enable );
-
-			if ( $enable ) {
-				$ending_date = $course_meta['_course_coming_soon_ending_date'] ?? false;
-				$timestamp   = $course_meta['_course_coming_soon_timestamp'] ?? false;
-				if ( $timestamp ) {
-					$timestamp = end( $timestamp );
-				}
-				if ( $timestamp > time() ) {
-					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
-						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
-						$hide_meta_data = end( $hide_meta_data );
-						if ( $hide_meta_data ) {
-							return;
-						}
-					}
-				}
-			}
+		if ( \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) {
+			return;
 		}
 
 		$query = new CourseProgressQuery(
@@ -1259,28 +1179,8 @@ if ( ! function_exists( 'masteriyo_archive_course_stats' ) ) {
 
 		$comments_count = masteriyo_count_course_comments( $course );
 
-		$course_meta = get_post_meta( $course->get_id() );
-
-		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
-			$enable = $course_meta['_course_coming_soon_enable'] ? $course_meta['_course_coming_soon_enable'] : false;
-			$enable = end( $enable );
-
-			if ( $enable ) {
-				$ending_date = $course_meta['_course_coming_soon_ending_date'] ?? false;
-				$timestamp   = $course_meta['_course_coming_soon_timestamp'] ?? false;
-				if ( $timestamp ) {
-					$timestamp = end( $timestamp );
-				}
-				if ( $timestamp > time() ) {
-					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
-						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
-						$hide_meta_data = end( $hide_meta_data );
-						if ( $hide_meta_data ) {
-							return;
-						}
-					}
-				}
-			}
+		if ( \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) {
+			return;
 		}
 
 		masteriyo_get_template(

@@ -280,6 +280,7 @@ class OnboardingController extends RestController {
 						'course_layout'                   => $saved_data['steps']['templates']['options']['course_layout'] ?? masteriyo_get_setting( 'course_archive.display.view_mode' ) ?? 'grid-view',
 						'course_card_layout_style'        => $this->map_settings_to_onboarding_values( 'course_card', $saved_data['steps']['templates']['options']['course_card_layout_style'] ?? masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default' ),
 						'single_course_card_layout_style' => $this->map_settings_to_onboarding_values( 'single_course', $saved_data['steps']['templates']['options']['single_course_card_layout_style'] ?? masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default' ),
+						'is_fresh_site'                   => $this->is_site_fresh(),
 					),
 				),
 
@@ -294,6 +295,80 @@ class OnboardingController extends RestController {
 			),
 		);
 
+	}
+
+		/**
+		 * Get the IDs of pages created by the Masteriyo plugin.
+		 *
+		 * Reads the page IDs stored in WordPress options by Masteriyo during activation
+		 * (e.g. courses page, account page, checkout page, learn page).
+		 *
+		 * @since x.x.x
+		 * @return int[] Array of page IDs created by Masteriyo.
+		 */
+		protected function get_masteriyo_page_ids() {
+			$option_keys = array(
+				'masteriyo_courses_page_id',
+				'masteriyo_account_page_id',
+				'masteriyo_checkout_page_id',
+				'masteriyo_learn_page_id',
+			);
+
+			$page_ids = array();
+
+			foreach ( $option_keys as $key ) {
+				$id = (int) get_option( $key, 0 );
+				if ( $id > 0 ) {
+					$page_ids[] = $id;
+				}
+			}
+
+			return $page_ids;
+		}
+
+
+	/**
+	 * Determines if the current WordPress site is considered "fresh" based on several criteria.
+	 *
+	 * The method calculates a score by checking:
+	 * - The 'fresh_site' option value.
+	 * - The number of published pages and posts.
+	 * - The number of media attachments.
+	 * - The number of customized theme modifications.
+	 *
+	 * Returns true if the calculated score is less than or equal to 2, indicating a fresh site.
+	 *
+	 * @return bool True if the site is fresh, false otherwise.
+	 */
+	public function is_site_fresh() {
+		$fresh_site_option = (int) get_option( 'fresh_site' );
+
+		$masteriyo_page_ids = $this->get_masteriyo_page_ids();
+		$pages_query = new \WP_Query(
+			array(
+				'post_type'              => 'page',
+				'post_status'            => 'publish',
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => false,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'post__not_in'           => $masteriyo_page_ids,
+			)
+		);
+		$pages = $pages_query->found_posts;
+
+		$posts = wp_count_posts( 'post' )->publish ?? 0;
+		$media = wp_count_posts( 'attachment' )->inherit ?? 0;
+		$mods  = array_filter( get_theme_mods() );
+
+		$is_fresh = $fresh_site_option === 1
+			&& $pages <= 1
+			&& $posts <= 1
+			&& $media <= 2
+			&& count( $mods ) <= 2;
+
+		return (bool) $is_fresh;
 	}
 
 

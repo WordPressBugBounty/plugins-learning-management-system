@@ -60,4 +60,40 @@ class Helper {
 		return false;
 
 	}
+
+	/**
+	 * Check if the course meta data should be hidden.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 *
+	 * @return boolean
+	 */
+	public static function should_hide_meta_data( $course ) {
+		$course_meta = get_post_meta( $course->get_id() );
+
+		if ( isset( $course_meta['_course_coming_soon_enable'] ) ) {
+			$enable = $course_meta['_course_coming_soon_enable'] ?? false;
+			$enable = end( $enable );
+
+			if ( masteriyo_string_to_bool( $enable ) ) {
+				$timestamp = $course_meta['_course_coming_soon_timestamp'] ?? false;
+
+				if ( $timestamp ) {
+					$timestamp = end( $timestamp );
+				}
+				if ( $timestamp > time() ) {
+					if ( isset( $course_meta['_course_coming_soon_hide_meta_data'] ) ) {
+						$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'];
+						$hide_meta_data = end( $hide_meta_data );
+						if ( masteriyo_string_to_bool( $hide_meta_data ) ) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
 }

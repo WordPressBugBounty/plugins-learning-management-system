@@ -475,6 +475,15 @@ class CourseProgress extends Model {
 	 * @return array
 	 */
 	public function get_ratings_modal_opened( $context = 'view' ) {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) ) {
+			return true;
+		}
+
+		$course = masteriyo_get_course( $this->get_course_id( $context ) );
+		if ( $course && ! $course->get_reviews_allowed() ) {
+			return true;
+		}
+
 		return masteriyo_string_to_bool( $this->get_prop( 'ratings_modal_opened', $context ) );
 	}
 

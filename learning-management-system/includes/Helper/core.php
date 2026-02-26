@@ -6124,3 +6124,14 @@ if ( ! function_exists( 'masteriyo_show_onboarding_completion_notice' ) ) {
 		);
 	}
 }
+
+/**
+ * Hooks into the 'admin_init' action to check if the current theme is 'elearning'.
+ * If the 'elearning' theme is active, it updates the 'elearning_hide_welcome_notice' option to true,
+ * effectively hiding the welcome notice for the theme in the WordPress admin area.
+ */
+add_action( 'admin_init', function() {
+    if ( get_template() === 'elearning' ) {
+        update_option( 'elearning_hide_welcome_notice', true );
+    }
+});

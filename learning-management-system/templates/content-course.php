@@ -247,6 +247,9 @@ endif;
 			<div class="masteriyo-course-card-footer masteriyo-time-btn masteriyo-course-pricing--wrapper">
 				<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
 						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+							<?php
+							if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
+								?>
 				<div class="masteriyo-course-price">
 							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 						<del class="old-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></del>
@@ -255,6 +258,7 @@ endif;
 				</div>
 				<?php endif; ?>
 				<?php endif; ?>
+			<?php endif; ?>
 				<?php
 				/**
 				 * Action hook for rendering enroll button template.

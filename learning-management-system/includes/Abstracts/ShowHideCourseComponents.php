@@ -109,7 +109,7 @@ abstract class ShowHideCourseComponents {
 			return $styles;
 		}
 		$styles .= implode( ',', array_keys( $hidden_components ) );
-		$styles .= '{display:none !important;}';
+		// $styles .= '{display:none !important;}';
 		return $styles;
 	}
 }

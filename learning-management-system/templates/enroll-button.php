@@ -36,6 +36,19 @@ foreach ( $additional_attributes as $key => $value ) {
 	$additional_attributes_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
 }
 
+/**
+ * Filter the target attribute for course buttons (Start Course, Continue Course, etc.).
+ *
+ * This filter allows users to control whether course buttons open in a new tab or the same tab.
+ * By default, buttons open in a new blank tab (_blank).
+ *
+ * @since x.x.x [Free]
+ *
+ * @param string                   $target The target attribute value. Default '_blank'.
+ * @param \Masteriyo\Models\Course $course Course object.
+ */
+$button_target = apply_filters( 'masteriyo_course_button_target', '_blank', $course );
+
 if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
 	return false;
 }
@@ -53,7 +66,7 @@ if ( post_password_required( get_post( $course->get_id() ) ) ) {
 
 <?php if ( masteriyo_can_start_course( $course ) ) : ?>
 	<?php if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) : ?>
-		<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="_blank" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
+	<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="<?php echo esc_attr( $button_target ); ?>" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 			<?php echo $svg_lock; ?>
 			<?php echo wp_kses_post( $course->single_course_completed_text() ); ?>
 		</a>
@@ -63,24 +76,24 @@ if ( post_password_required( get_post( $course->get_id() ) ) ) {
 		$quiz_exists  = $quiz_attempt ? masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) : false;
 		if ( $quiz_exists && $quiz_attempt && $course->get_disable_course_content() ) :
 			?>
-			<a href="<?php echo esc_url( masteriyo_get_course_item_learn_page_url( $course, masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) ) ); ?>" target="_blank" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
+			<a href="<?php echo esc_url( masteriyo_get_course_item_learn_page_url( $course, masteriyo_get_quiz( $quiz_attempt->get_quiz_id() ) ) ); ?>" target="<?php echo esc_attr( $button_target ); ?>" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 				<?php echo $svg_lock; ?>
 				<?php echo wp_kses_post( $course->single_course_continue_quiz_text() ); ?>
 			</a>
 		<?php else : ?>
-			<a href="<?php echo esc_url( $course->continue_course_url( $progress ) ); ?>" target="_blank" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
+			<a href="<?php echo esc_url( $course->continue_course_url( $progress ) ); ?>" target="<?php echo esc_attr( $button_target ); ?>" class="<?php echo esc_attr( $class ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 				<?php echo $svg_lock; ?>
 				<?php echo wp_kses_post( $course->single_course_continue_text() ); ?>
 			</a>
 		<?php endif; ?>
 	<?php else : ?>
-		<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="_blank" class="<?php echo esc_attr( $class ); ?>" data-course-id="<?php echo esc_attr( $course->get_id() ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
+		<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="<?php echo esc_attr( $button_target ); ?>" class="<?php echo esc_attr( $class ); ?>" data-course-id="<?php echo esc_attr( $course->get_id() ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 			<?php echo $svg_lock; ?>
 			<?php echo wp_kses_post( $course->single_course_start_text() ); ?>
 		</a>
 	<?php endif; ?>
 <?php else : ?>
-	<a href="<?php echo esc_url( $course->add_to_cart_url() ); ?>" class="<?php echo esc_attr( $class ); ?>" data-course-id="<?php echo esc_attr( $course->get_id() ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
+	<a href="<?php echo esc_url( $course->add_to_cart_url() ); ?>" target="<?php echo esc_attr( $button_target ); ?>" class="<?php echo esc_attr( $class ); ?>" data-course-id="<?php echo esc_attr( $course->get_id() ); ?>" <?php echo esc_attr( $additional_attributes_string ); ?> >
 		<?php echo $svg_lock; ?>
 		<?php echo wp_kses_post( $course->add_to_cart_text() ); ?>
 	</a>

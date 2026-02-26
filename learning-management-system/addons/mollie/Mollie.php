@@ -158,21 +158,67 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 				throw new Exception( __( 'Invalid course data in the order.', 'learning-management-system' ) );
 			}
 
-			$receipt_id   = $order->get_billing_email();
+			$receipt_id  = $order->get_billing_email();
+			$order_items = $order->get_items();
+
+			$order_lines = array();
+			foreach ( $order_items as $order_item ) {
+				$item_name     = '';
+				$item_quantity = 1;
+				$item_price    = 0;
+
+				$course = $order_item->get_course();
+				if ( $course ) {
+					$item_name  = $course->get_name();
+					$item_price = $order_item->get_total();
+				}
+
+				$order_lines[] = array(
+					'type'        => 'digital',
+					'description' => $item_name ? $item_name : __( 'Course', 'learning-management-system' ),
+					'quantity'    => $item_quantity,
+					'unitPrice'   => array(
+						'currency' => $order->get_currency() ?? 'EUR',
+						'value'    => number_format( (float) $item_price, 2, '.', '' ),
+					),
+					'totalAmount' => array(
+						'currency' => $order->get_currency() ?? 'EUR',
+						'value'    => number_format( (float) $item_price * $item_quantity, 2, '.', '' ),
+					),
+					'vatRate'     => '0.00',
+					'vatAmount'   => array(
+						'currency' => $order->get_currency() ?? 'EUR',
+						'value'    => '0.00',
+					),
+				);
+			}
+
+			$street_and_number = trim( $order->get_billing_address_1() . ' ' . $order->get_billing_address_2() );
+			$billing_address   = array(
+				'givenName'       => $order->get_billing_first_name() ? $order->get_billing_first_name() : '',
+				'familyName'      => $order->get_billing_last_name() ? $order->get_billing_last_name() : '',
+				'streetAndNumber' => $street_and_number ? $street_and_number : '',
+				'postalCode'      => $order->get_billing_postcode() ? $order->get_billing_postcode() : '',
+				'city'            => $order->get_billing_city() ? $order->get_billing_city() : '',
+				'country'         => $order->get_billing_country() ? $order->get_billing_country() : '',
+				'email'           => $order->get_billing_email() ? $order->get_billing_email() : '',
+			);
+
 			$payment_data = array(
-				'amount'      => array(
+				'amount'         => array(
 					'currency' => $order->get_currency() ?? 'EUR',
 					'value'    => number_format( $order->get_total(), 2, '.', '' ),
 				),
-
-				'description' => sprintf(
+				'description'    => sprintf(
 				/* translators: %s: order number */
 					_x( 'Order #%s', 'Payment description (order number)', 'learning-management-system' ),
 					$order_id
 				),
-				'redirectUrl' => $this->get_return_url( $order ),
-				'webhookUrl'  => admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' ),
-				'metadata'    => array(
+				'redirectUrl'    => $this->get_return_url( $order ),
+				'webhookUrl'     => admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' ),
+				'billingAddress' => $billing_address,
+				'lines'          => $order_lines,
+				'metadata'       => array(
 					'order_id'     => $order_id,
 					'payment_type' => $payment_type,
 					'course_id'    => $first_course->get_id(),

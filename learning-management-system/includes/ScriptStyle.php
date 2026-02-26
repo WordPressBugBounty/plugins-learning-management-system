@@ -1373,6 +1373,7 @@ class ScriptStyle {
 						'reviewOptionIsVisible'           => masteriyo_bool_to_string( masteriyo_is_reviews_enabled_in_learn_page() ),
 						'isCurrentUserAdmin'              => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 						'isAutoApproveReviews'            => masteriyo_bool_to_string( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ),
+						'logoURL'                         => apply_filters( 'masteriyo_learn_page_logo_url', home_url() ),
 					),
 				),
 				'courses'                 => array(

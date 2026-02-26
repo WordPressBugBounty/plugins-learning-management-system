@@ -706,7 +706,7 @@ class WcIntegrationAddon {
 			'context'  => 'public',
 			'deps'     => array( 'jquery' ),
 			'callback' => function() {
-				return masteriyo_is_single_course_page() || masteriyo_is_courses_page();
+				return masteriyo_is_single_course_page() || masteriyo_is_courses_page() || is_tax( 'course_cat' );
 			},
 		);
 

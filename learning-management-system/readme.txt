@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -285,6 +285,23 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.1.5 - 26-02-2026 =
+- Enhancement - Added MathJax support in question descriptions.
+- Enhancement - Added option for users to choose whether to start with a starter template.
+- Compatibility - Added Mollie support for Klarna.
+- Refactor - Improved handling of course “Coming Soon” metadata.
+- Update - Added filters for the Start Course button target attribute and Learn page logo URL.
+- Update - Added filters for Facebook and Google redirect URLs. [PRO]
+- Update - Made profile info labels translation-ready.
+- Fix - Resolved issue where quiz attempt user filter was not working.
+- Fix - Fixed course review popup showing even when course reviews are disabled.
+- Fix - Fixed issue where assignment due date could not be left empty. [PRO]
+- Fix - HubSpot integration now fetches all lists using pagination. [PRO]
+- Fix - Resolved Add to Cart AJAX not triggering on course category archive pages.
+- Fix - Fixed Remember Me login not persisting user sessions.
+- Fix - Resolved RTL layout issue on Account page content.
+- Fix - Ensured taxonomies are cloned during post duplication. [PRO]
+
 = 2.1.4 - 08-01-2026 =
 - Enhancement - Admin role support for Two-Factor Authentication OTP email. [PRO]
 - Enhancement - Added filter to support custom redirect URL after user email verification.

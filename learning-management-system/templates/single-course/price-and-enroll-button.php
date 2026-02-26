@@ -45,7 +45,7 @@ $class = trim( $class );
 	<div class="masteriyo-time-btn masteriyo-course-pricing--wrapper <?php echo esc_attr( $class ); ?>">
 		<?php if ( masteriyo_get_setting( 'single_course.components_visibility.price' ) ) : ?>
 			<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
-				<?php if ( ! $satisfied && $is_free ) : ?>
+				<?php if ( ! $satisfied && ( $is_free || \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) ) : ?>
 				<?php else : ?>
 					<div class="masteriyo-course-price">
 						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>

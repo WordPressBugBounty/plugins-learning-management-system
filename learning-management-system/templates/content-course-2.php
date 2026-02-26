@@ -132,7 +132,9 @@ $categories = $course->get_categories( 'name' );
 					endif;
 				endif;
 		?>
-
+		<?php
+			if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
+				?>
 			<?php
 			if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) :
 				if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) :
@@ -145,6 +147,7 @@ $categories = $course->get_categories( 'name' );
 			</div>
 			<?php endif; ?>
 			<?php endif; ?>
+		<?php endif; ?>
 		</div>
 
 		<div class="masteriyo-course-card__content--container d-none">

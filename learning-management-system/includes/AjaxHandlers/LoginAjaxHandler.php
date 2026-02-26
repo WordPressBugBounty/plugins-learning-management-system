@@ -77,7 +77,7 @@ class LoginAjaxHandler extends AjaxHandler {
 			$credentials = array(
 				'user_login'    => $username,
 				'user_password' => $password,
-				'remember'      => 'yes' === $remember,
+				'remember'      => in_array( $remember, array( 'yes', 'on', 'true', '1' ), true ),
 			);
 
 			$validate = $this->validate_form( $credentials );

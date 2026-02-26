@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 2.1.4\n"
+"Project-Id-Version: Masteriyo LMS 2.1.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-08T06:48:41+00:00\n"
+"POT-Creation-Date: 2026-02-25T14:29:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -187,7 +187,7 @@ msgstr ""
 
 #: addons/scorm/templates/scorm-header.php:32
 #: includes/Models/Course.php:2055
-#: templates/single-course/course-progress.php:80
+#: templates/single-course/course-progress.php:93
 #: assets/js/build/masteriyo-account.js:14
 #: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:38
@@ -607,7 +607,7 @@ msgid "An item which is no longer available was removed from your cart."
 msgstr ""
 
 #: includes/Cart/Cart.php:1112
-#: templates/enroll-button.php:91
+#: templates/enroll-button.php:104
 msgid "Sorry, students limit reached. Course closed for enrollment."
 msgstr ""
 
@@ -1139,7 +1139,7 @@ msgstr ""
 #: includes/CourseRetake.php:63
 #: includes/CourseRetake.php:99
 #: includes/CourseRetake.php:127
-#: templates/retake-button.php:39
+#: templates/retake-button.php:53
 #: templates/single-course/retake-button-modal.php:24
 msgid "Retake Course"
 msgstr ""
@@ -1463,7 +1463,7 @@ msgstr ""
 
 #. translators: Cart total order
 #: includes/Gateways/Offline/Offline.php:69
-#: includes/Helper/Template.php:1560
+#: includes/Helper/Template.php:1460
 msgid "Confirm Payment"
 msgstr ""
 
@@ -2779,24 +2779,24 @@ msgstr ""
 msgid "You are not allowed to view this content."
 msgstr ""
 
-#: includes/Helper/Template.php:1777
+#: includes/Helper/Template.php:1677
 msgid "Select View:"
 msgstr ""
 
-#: includes/Helper/Template.php:1782
+#: includes/Helper/Template.php:1682
 msgid "View on list Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1791
+#: includes/Helper/Template.php:1691
 msgid "View on Grid Mode"
 msgstr ""
 
-#: includes/Helper/Template.php:1823
+#: includes/Helper/Template.php:1723
 msgid "No courses found."
 msgstr ""
 
 #. translators: %d: Course sections count
-#: includes/Helper/Template.php:2351
+#: includes/Helper/Template.php:2251
 #, php-format
 msgctxt "Sections Count"
 msgid "%s Section"
@@ -2805,7 +2805,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of lessons
-#: includes/Helper/Template.php:2365
+#: includes/Helper/Template.php:2265
 #, php-format
 msgctxt "lesson count"
 msgid "%s Lesson"
@@ -2814,7 +2814,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of quizzes
-#: includes/Helper/Template.php:2387
+#: includes/Helper/Template.php:2287
 #, php-format
 msgctxt "quiz count"
 msgid "%s Quiz"
@@ -2823,13 +2823,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Lecture hours
-#: includes/Helper/Template.php:2407
+#: includes/Helper/Template.php:2307
 #, php-format
 msgid "%s Duration"
 msgstr ""
 
 #. translators: %d: Section lessons count
-#: includes/Helper/Template.php:2499
+#: includes/Helper/Template.php:2399
 #, php-format
 msgctxt "Lessons Count"
 msgid "%s Lesson"
@@ -2838,7 +2838,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: Section quizzes count
-#: includes/Helper/Template.php:2511
+#: includes/Helper/Template.php:2411
 #, php-format
 msgctxt "Quizzes Count"
 msgid "%s Quiz"
@@ -2846,35 +2846,35 @@ msgid_plural "%s Quizzes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Helper/Template.php:2754
+#: includes/Helper/Template.php:2654
 msgid "Latest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2759
+#: includes/Helper/Template.php:2659
 msgid "Oldest First"
 msgstr ""
 
-#: includes/Helper/Template.php:2771
+#: includes/Helper/Template.php:2671
 msgid "Price: Low to High"
 msgstr ""
 
-#: includes/Helper/Template.php:2776
+#: includes/Helper/Template.php:2676
 msgid "Price: High to Low"
 msgstr ""
 
-#: includes/Helper/Template.php:2788
+#: includes/Helper/Template.php:2688
 msgid "Highest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2793
+#: includes/Helper/Template.php:2693
 msgid "Lowest rated first"
 msgstr ""
 
-#: includes/Helper/Template.php:2805
+#: includes/Helper/Template.php:2705
 msgid "Sort by Course Title (A-Z)"
 msgstr ""
 
-#: includes/Helper/Template.php:2810
+#: includes/Helper/Template.php:2710
 msgid "Sort by Course Title (Z-A)"
 msgstr ""
 
@@ -2951,7 +2951,7 @@ msgid "Invalid export arguments for appending post data."
 msgstr ""
 
 #: includes/Listeners/Webhook/CourseCompletedListener.php:40
-#: templates/single-course/course-progress.php:62
+#: templates/single-course/course-progress.php:76
 #: assets/js/build/masteriyo-account.js:14
 msgid "Course Completed"
 msgstr ""
@@ -5519,7 +5519,7 @@ msgid "Exporting courses failed: "
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:263
-#: includes/RestApi/Controllers/Version1/OnboardingController.php:927
+#: includes/RestApi/Controllers/Version1/OnboardingController.php:1002
 msgid "Sample courses file not found."
 msgstr ""
 
@@ -5964,9 +5964,9 @@ msgstr ""
 msgid "%1$s is not one of %2$s."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/OnboardingController.php:415
-#: includes/RestApi/Controllers/Version1/OnboardingController.php:448
-#: includes/RestApi/Controllers/Version1/OnboardingController.php:809
+#: includes/RestApi/Controllers/Version1/OnboardingController.php:490
+#: includes/RestApi/Controllers/Version1/OnboardingController.php:523
+#: includes/RestApi/Controllers/Version1/OnboardingController.php:884
 msgid "Invalid onboarding step."
 msgstr ""
 
@@ -8143,7 +8143,7 @@ msgstr ""
 
 #: includes/ScriptStyle.php:1271
 #: includes/ScriptStyle.php:1317
-#: includes/ScriptStyle.php:1384
+#: includes/ScriptStyle.php:1385
 msgid "Please enter a password."
 msgstr ""
 
@@ -8798,6 +8798,7 @@ msgstr ""
 
 #: templates/account/form-signup.php:55
 #: templates/account/instructor-registration.php:55
+#: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:41
 msgid "Username"
 msgstr ""
@@ -8947,7 +8948,7 @@ msgid "Account Holder Name:"
 msgstr ""
 
 #: templates/content-course-1.php:85
-#: templates/content-course-2.php:220
+#: templates/content-course-2.php:223
 #: templates/content-related-posts-1.php:103
 #: templates/content-related-posts-2.php:258
 msgid "Preview Course"
@@ -9247,24 +9248,24 @@ msgstr ""
 msgid "Instructor Rating"
 msgstr ""
 
-#: templates/single-course/course-progress.php:65
+#: templates/single-course/course-progress.php:79
 msgid "Revisit Course"
 msgstr ""
 
 #. translators: %f: progress percentage (e.g. 75)
-#: templates/single-course/course-progress.php:87
+#: templates/single-course/course-progress.php:100
 #, php-format
 msgctxt "Course progress percentage"
 msgid "%.0f%%"
 msgstr ""
 
 #. translators: 1: remaining items, 2: total items
-#: templates/single-course/course-progress.php:111
+#: templates/single-course/course-progress.php:124
 #, php-format
 msgid "%1$d out of %2$d Left"
 msgstr ""
 
-#: templates/single-course/course-progress.php:123
+#: templates/single-course/course-progress.php:136
 msgid "Course progress"
 msgstr ""
 
@@ -11926,6 +11927,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-account.js:19
 msgid "Applied for instructor successfully."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:19
+msgid "No info"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:19
@@ -18651,6 +18656,10 @@ msgid "Latest Updates"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:43
+msgid "This will replace your active theme with the eLearning theme and add demo pages and courses. Your existing content won't be deleted, but may be affected."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:43
 msgid "Filter by Student"
 msgstr ""
 
@@ -19207,11 +19216,31 @@ msgid "Edit Announcement"
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
-msgid "Choose Builder"
+msgid "Would you like to use a starter template for your LMS site?"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "No, skip starter templates"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "If you already have a website with existing content and design, choose this to keep everything as it is."
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Yes, import a starter template"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "If you're building a new LMS site from scratch, choose this to start with a professionally designed template."
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Skip this step"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Choose Builder"
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
@@ -19235,10 +19264,6 @@ msgid "Untitled Course"
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
-msgid "Start Import?"
-msgstr ""
-
-#: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Importing your site"
 msgstr ""
 
@@ -19255,15 +19280,39 @@ msgid "."
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
-msgid "Importing this template adds content to your site and overwrites current theme settings."
-msgstr ""
-
-#: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "It might take a couple of minutes. Please do not close or refresh this page."
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Try Again"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Start Import?"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Before you proceed, here's what will change on your site."
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Your current theme will be replaced by eLearning theme"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Starter pages, courses, and demo content will be imported"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Existing content won't be deleted, but may be affected"
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid "Type "
+msgstr ""
+
+#: assets/js/build/masteriyo-gettingStarted.js:1
+msgid " in the field above to start the import."
 msgstr ""
 
 #: assets/js/build/masteriyo-gettingStarted.js:1
