@@ -1,4 +1,8 @@
 == Changelog ==
+= 2.1.6 - 11-03-2026 =
+- Fix - Security issue related to Stripe addon.
+- Fix - Course archive page default layout Elementor template not importing.
+
 = 2.1.5 - 26-02-2026 =
 - Enhancement - Added MathJax support in question descriptions.
 - Enhancement - Added option for users to choose whether to start with a starter template.

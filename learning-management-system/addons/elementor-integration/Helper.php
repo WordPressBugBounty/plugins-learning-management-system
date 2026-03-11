@@ -629,14 +629,6 @@ class Helper {
 								'isLocked'   => false,
 								'settings'   => array(),
 								'elements'   => array(),
-								'widgetType' => 'masteriyo-course-archive-view-mode',
-							),
-							array(
-								'elType'     => 'widget',
-								'isInner'    => false,
-								'isLocked'   => false,
-								'settings'   => array(),
-								'elements'   => array(),
 								'widgetType' => 'masteriyo-course-list',
 							),
 							array(

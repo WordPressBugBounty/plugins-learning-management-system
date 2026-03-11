@@ -20,6 +20,7 @@ use Masteriyo\Addons\Stripe\Setting;
 use Stripe\Account;
 use Stripe\Exception\UnexpectedValueException;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -567,6 +568,7 @@ class StripeAddon {
 			$sig_header     = isset( $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : null;
 			$payload        = @file_get_contents( 'php://input' ); // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
 			$event          = null;
+			$order          = null;
 			$webhook_secret = Setting::get_webhook_secret();
 
 			if ( empty( $payload ) ) {
@@ -574,11 +576,11 @@ class StripeAddon {
 				throw new Exception( esc_html__( 'Payload is empty.', 'learning-management-system' ), 400 );
 			}
 
-			if ( empty( $sig_header ) || empty( $webhook_secret ) ) {
-				$event = \Stripe\Event::constructFrom(
-					json_decode( $payload, true )
-				);
-			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+			if ( ! empty( $webhook_secret ) ) {
+				if ( empty( $sig_header ) ) {
+					masteriyo_get_logger()->error( 'Stripe webhook: Stripe-Signature header is missing.', array( 'source' => 'payment-stripe' ) );
+					throw new Exception( esc_html__( 'Stripe-Signature header is missing.', 'learning-management-system' ), 400 );
+				}
 
 				/**
 				 * Filters whether to validate the webhook secret or not.
@@ -586,12 +588,13 @@ class StripeAddon {
 				 * @since 1.14.0
 				 */
 				if ( apply_filters( 'masteriyo_stripe_validate_webhook', true ) ) {
-					$event = \Stripe\Event::constructFrom(
-						json_decode( $payload, true ),
-						$sig_header,
-						$webhook_secret
-					);
+					$event = Webhook::constructEvent( $payload, $sig_header, $webhook_secret );
+				} else {
+					$event = \Stripe\Event::constructFrom( json_decode( $payload, true ) );
 				}
+			} else {
+				masteriyo_get_logger()->warning( 'Stripe webhook: no webhook secret configured, skipping signature verification.', array( 'source' => 'payment-stripe' ) );
+				$event = \Stripe\Event::constructFrom( json_decode( $payload, true ) );
 			}
 
 			if ( ! $event ) {
@@ -618,16 +621,20 @@ class StripeAddon {
 			wp_send_json_success( $result );
 		} catch ( UnexpectedValueException $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
-			$order->add_order_note(
-				esc_html__( 'Stripe invalid event type.', 'learning-management-system' )
-			);
+			if ( $order ) {
+				$order->add_order_note(
+					esc_html__( 'Stripe invalid event type.', 'learning-management-system' )
+				);
+			}
 
 			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
 		} catch ( SignatureVerificationException $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
-			$order->add_order_note(
-				esc_html__( 'Stripe webhook signature verification failed.', 'learning-management-system' )
-			);
+			if ( $order ) {
+				$order->add_order_note(
+					esc_html__( 'Stripe webhook signature verification failed.', 'learning-management-system' )
+				);
+			}
 
 			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
 		} catch ( Exception $e ) {

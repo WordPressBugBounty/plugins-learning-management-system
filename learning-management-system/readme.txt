@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -285,6 +285,10 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.1.6 - 11-03-2026 =
+- Fix - Security issue related to Stripe addon.
+- Fix - Course archive page default layout Elementor template not importing.
+
 = 2.1.5 - 26-02-2026 =
 - Enhancement - Added MathJax support in question descriptions.
 - Enhancement - Added option for users to choose whether to start with a starter template.
@@ -489,117 +493,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Menu conflict with WooCommerce.
 - Fix - Price not showing with WooCommerce.
 - Fix - Enroll button design issue with elementor.
-
-= 1.20.0 - 11-08-2025 =
-- Update - Added Stripe Connect.
-- Update - Integrate ThemeIsle SDK for deactivation feedback. [PRO]
-- Update - Introduce common header for multiple pages.
-- Update - Group Course addon rename to Groups.
-- Update - Integrate Formbricks for survey collection.
-- Refactor - Groups are now created after group purchase by user, manual group creation has been removed, group purchase is now visible to non-logged in users.
-- Refactor - Masteriyo blocks and additional single course blocks added.
-- Refactor - Masteriyo sub-menu cleaned up, renamed, and reorganized.
-- Enhancement - Addons Page UI/UX revamp.
-- Enhancement - Added automatic email reminders for live sessions. [PRO]
-- Enhancement - Added starter templates.
-- Enhancement - Added link for notifications.
-- Enhancement - All payment related settings move to payment methods tab.
-- Enhancement - Display password strength on reset password page.
-- Enhancement - Improved single course page & archive page UI/UX for enrolled users.
-- Enhancement - Multi-currency support for third-party page builders.
-- Enhancement - Quiz builder UI/UX revamp.
-- Enhancement - Restrict multiple reviews for a course by a single user.
-- Enhancement - Show alert in backend pages for unsaved changes.
-- Enhancement - Translation support added for email's link placeholder.
-- Fix - Adding video duration manually does not save correct values.
-- Fix - Course block in backend page not responsive on mobile preview.
-- Fix - Course filter & sorting not working with Divi.
-- Fix - Course list widget search issue and Zakra theme design issue in Elementor.
-- Fix - Correct tax calculation logic on checkout page. [PRO]
-- Fix - Duplicate certificates display on course completion.
-- Fix - Error displayed to students on reply submission in course Q&A.
-- Fix - Expiration date not displayed for courses expiring in 1 day.
-- Fix - Export tool allows instructors to export courses created by others.
-- Fix - Fatal error in courses page due to PMPRO Integration and RCP Integration. [PRO]
-- Fix - Logo removed in Masteriyo learn page settings when deleted from media library.
-- Fix - Manual enrollment updates not reflected on manual enrollment page. [PRO]
-- Fix - Multiple instructor assigned course gets removed after update by another instructor. [PRO]
-- Fix - PHP deprecated warnings in script styles and AddonsController.
-- Fix - Question reply color-mode issue, dashboard redirect issue & custom field renderer crash issue.
-- Fix - Removing a media item from one lesson also removes it from other lessons.
-- Fix - Sample course does not trigger completion notification and leads to 404 error on continue.
-- Fix - Send enrollment notification emails on CSV import for manually added students. [PRO]
-- Fix - Setup wizard UI issue.
-- Fix - Tax resets to zero when clicking "Buy Now" again after country selection. [PRO]
-- Fix - Tooltip text for “Public Profile” addon contains wrong text. [PRO]
-- Fix - User registration redirect to public profile issue when username already exists. [PRO]
-- Fix - Elementor create new template link doesn't work and added layout skeleton.
-- Fix - Randomize answer not working.
-
-= 1.18.4 - 17-07-2025 =
-- Fix - Security related issues.
-
-= 1.18.3 - 16-07-2025 =
-- Fix - Builder price now persists correctly after updates.
-- Fix - Parent category is now properly selected when assigning categories.
-
-= 1.18.2 - 24-06-2025 =
-- Feature - Added support for Private Courses. [PRO]
-- Feature - Introduced Tax option. [PRO]
-- Feature - Export individual course as a PDF files. [PRO]
-- Refactor - Improved internal structure of Masteriyo blocks.
-- Update - Minor UI revamp of Global Settings for a more consistent experience.
-- Update - Dashboard menu updated to About and contents in about page updated.
-- Enhancement - Enhanced Course Builder UI/UX for improved usability.
-- Enhancement - Added support to reveal quiz answers across multiple attempts.
-- Enhancement - Enrolled users are now added to Google Meet calendar, with event sync to Google Calendar.
-- Enhancement - Google Meet event sync with event calendar. [PRO]
-- Enhancement - Added addon plan tags and filtering options for easier navigation.
-- Enhancement - Manual course enrollment now sends email notifications to students. [PRO]
-- Fix - Resolved issue where Multiple Instructor Addon didn’t work in draft courses. [PRO]
-- Fix - Issue causing automatic user course deletion after purchase when enrollment expiration was set.
-- Fix - Facebook login not working. [PRO]
-- Fix - Corrected 'Expand All' label display on initial curriculum load.
-- Fix - Added handler for accurate social login path detection. [PRO]
-- Fix - Resolved ArgumentCountError in masteriyo_maybe_define_constant() with W3 Total Cache compatibility.
-- Fix - General performance improvements.
-- Fix - Ensured all sections render properly on the student reports page. [PRO]
-- Fix - Builder section disable for Google Classroom course.
-
-= 1.18.1 - 02-06-2025 =
-- Feature - Google reCAPTCHA & Password strength addon now available in Free.
-- Enhancement - Integrated Themeisle SDK for rollback updates and deactivation feedback.
-- Update - Feature and addon availability now varies by plan. [PRO]
-- Refactor - Codebase updated to support plan-based feature access. [PRO]
-- Fix - Invalid invoice PDF download issue in Edit Order.
-- Fix - Hide quiz description in student quiz scoreboard.
-- Fix - VdoCipher embed issue caused by encrypted-media restriction on iframe.
-- Fix - Enforced email verification before account access after checkout.
-- Fix - Translation issue in thankyou page.
-- Fix - Password strength message issue.
-
-= 1.18.0 - 20-05-2025 =
-- Feature - Webhook actions. [PRO]
-- Feature - Custom fields in course builder.
-- Enhancement - Masteriyo onboarding UI/UX revamp.
-- Enhancement - Instructor list page UI revamp.
-- Enhancement - Google Meet tab option in the account page.
-- Enhancement - Dynamic Minimum Payout Amount for Instructors.
-- Enhancement - Added refresh template button to refetch certificate templates.
-- Enhancement - Added additional certificate templates. [PRO]
-- Refactor - Questions per page max limit is set to 999.
-- Refactor - Course archive filter UI revamp.
-- Refactor - Enqueue style and scripts for page speed.
-- Refactor - Overall new icons updated in backend and frontend side.
-- Fix - Other Users order invoice PDF downloadable. [PRO]
-- Fix - i.map is not a function.
-- Fix - Course review reply undefined get_avatar_url.
-- Fix - Show review for enrolled users only not working.
-- Fix - Revenue sharing minimum payout amount issue.
-- Fix - Account Page width in WP default theme.
-- Fix - Learnpress conflicting our backend pages.
-- Fix - Compatibility issue with YITH gift cards.
-- Fix - Course start email not sending issue to admin and instructor.
-- Fix - Course bundle and webhook issue in checkout. [PRO]
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).
