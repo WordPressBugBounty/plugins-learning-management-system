@@ -117,6 +117,21 @@ abstract class Listener {
 			return true;
 		}
 
-		return empty( $post_id ) || user_can( $webhook->get_author_id(), 'manage_masteriyo_settings' ) || user_can( $webhook->get_author_id(), 'edit_course', $post_id );
+		$can_deliver = empty( $post_id ) || user_can( $webhook->get_author_id(), 'manage_masteriyo_settings' ) || user_can( $webhook->get_author_id(), 'edit_course', $post_id );
+
+		if ( ! $can_deliver ) {
+			masteriyo_get_logger()->warning(
+				sprintf(
+					'Webhook delivery blocked (no permission): webhook_id=%d, event=%s, author_id=%d, post_id=%d.',
+					$webhook->get_id(),
+					$this->get_name(),
+					$webhook->get_author_id(),
+					$post_id
+				),
+				array( 'source' => 'webhooks-delivery' )
+			);
+		}
+
+		return $can_deliver;
 	}
 }

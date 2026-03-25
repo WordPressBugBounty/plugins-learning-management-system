@@ -26,32 +26,6 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
  */
 class WebhookServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.6.9
-	 */
-	public function register(): void {
-		$this->getContainer()->add( 'webhook.store', WebhookRepository::class );
-
-		$this->getContainer()->add( 'webhook.rest', WebhooksController::class )
-			->addArgument( 'permission' );
-		$this->getContainer()->add( 'webhook', Webhook::class )
-			->addArgument( 'webhook.store' );
-
-		// Register based on post type.
-		$this->getContainer()->add( 'mto-webhook.store', WebhookRepository::class );
-
-		$this->getContainer()->add( 'mto-webhook.rest', WebhooksController::class )
-			->addArgument( 'permission' );
-
-		$this->getContainer()->add( 'mto-webhook', Webhook::class )
-			->addArgument( 'mto-webhook.store' );
-	}
-
-	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
 	 * provider. Every service that is registered via
@@ -81,11 +55,38 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 	}
 
 	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.6.9
+	 */
+	public function register(): void {
+		$this->getContainer()->add( 'webhook.store', WebhookRepository::class );
+
+		$this->getContainer()->add( 'webhook.rest', WebhooksController::class )
+			->addArgument( 'permission' );
+		$this->getContainer()->add( 'webhook', Webhook::class )
+			->addArgument( 'webhook.store' );
+
+		// Register based on post type.
+		$this->getContainer()->add( 'mto-webhook.store', WebhookRepository::class );
+
+		$this->getContainer()->add( 'mto-webhook.rest', WebhooksController::class )
+			->addArgument( 'permission' );
+
+		$this->getContainer()->add( 'mto-webhook', Webhook::class )
+			->addArgument( 'mto-webhook.store' );
+	}
+
+	/**
 	 * This method is called after all service providers are registered.
 	 *
 	 * @since 1.6.9
 	 */
 	public function boot(): void {
+		( new WebhookDeliveryJob() )->init();
 		add_action( 'init', array( $this, 'register_webhook_listeners' ) );
 	}
 
@@ -99,7 +100,7 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 			return;
 		}
 
-		$query     = new WebhookQuery(
+		$query    = new WebhookQuery(
 			array(
 				'status'   => array( WebhookStatus::ACTIVE ),
 				'paginate' => false,
@@ -107,6 +108,7 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 				'limit'    => -1,
 			)
 		);
+
 		$webhooks  = $query->get_webhooks();
 		$listeners = masteriyo_get_webhook_listeners();
 
@@ -132,20 +134,57 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 					try {
 						masteriyo_send_webhook( $event_name, $webhook, $payload );
 					} catch ( Exception $e ) {
+						masteriyo_get_logger()->error(
+							sprintf(
+								'Webhook delivery failed (sync): event="%s", webhook_id=%d, error="%s".',
+								$event_name,
+								$webhook['id'] ?? 0,
+								$e->getMessage()
+							),
+							array( 'source' => 'webhooks-delivery' )
+						);
 						error_log( 'Webhook: ' . $e->getMessage() );
 					}
 				};
 
 				if ( $queue ) {
 					$deliver_callback = function( $webhook, $payload ) use ( $event_name ) {
-						as_enqueue_async_action(
-							WebhookDeliveryJob::HOOK,
+						// AS enforces a 191-char JSON limit on args. Store the full
+						// payload in a transient and pass only the transient key to AS.
+						$transient_key = 'masteriyo_webhook_' . wp_generate_uuid4();
+						set_transient(
+							$transient_key,
 							array(
 								'event_name' => $event_name,
 								'webhook'    => $webhook,
 								'payload'    => $payload,
 							),
+							HOUR_IN_SECONDS
+						);
+
+						masteriyo_get_logger()->info(
+							sprintf(
+								'Queuing async webhook delivery: event="%s", webhook_id=%d, transient_key="%s".',
+								$event_name,
+								$webhook['id'] ?? 0,
+								$transient_key
+							),
+							array( 'source' => 'webhooks-delivery' )
+						);
+
+						$as_job_id = as_enqueue_async_action(
+							WebhookDeliveryJob::HOOK,
+							array( 'transient_key' => $transient_key ),
 							'masteriyo-webhooks'
+						);
+
+						masteriyo_get_logger()->info(
+							sprintf(
+								'AS job enqueued: action_id=%d, transient_key="%s".',
+								(int) $as_job_id,
+								$transient_key
+							),
+							array( 'source' => 'webhooks-delivery' )
 						);
 					};
 				}

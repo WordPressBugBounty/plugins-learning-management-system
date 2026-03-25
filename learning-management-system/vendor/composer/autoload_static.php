@@ -1032,6 +1032,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Listeners\\Webhook\\NewCourseReviewListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/NewCourseReviewListener.php',
         'Masteriyo\\Listeners\\Webhook\\NewEnrollmentListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/NewEnrollmentListener.php',
         'Masteriyo\\Listeners\\Webhook\\NewInstructorRegistrationListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/NewInstructorRegistrationListener.php',
+        'Masteriyo\\Listeners\\Webhook\\NewOrderListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/NewOrderListener.php',
         'Masteriyo\\Listeners\\Webhook\\NewStudentRegistrationListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/NewStudentRegistrationListener.php',
         'Masteriyo\\Listeners\\Webhook\\QuizAttemptStatusChangeListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/QuizAttemptStatusChangeListener.php',
         'Masteriyo\\Listeners\\Webhook\\QuizCompletedListener' => __DIR__ . '/../..' . '/includes/Listeners/Webhook/QuizCompletedListener.php',

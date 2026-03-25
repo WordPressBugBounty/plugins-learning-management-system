@@ -665,6 +665,7 @@ return array(
     'Masteriyo\\Listeners\\Webhook\\NewCourseReviewListener' => $baseDir . '/includes/Listeners/Webhook/NewCourseReviewListener.php',
     'Masteriyo\\Listeners\\Webhook\\NewEnrollmentListener' => $baseDir . '/includes/Listeners/Webhook/NewEnrollmentListener.php',
     'Masteriyo\\Listeners\\Webhook\\NewInstructorRegistrationListener' => $baseDir . '/includes/Listeners/Webhook/NewInstructorRegistrationListener.php',
+    'Masteriyo\\Listeners\\Webhook\\NewOrderListener' => $baseDir . '/includes/Listeners/Webhook/NewOrderListener.php',
     'Masteriyo\\Listeners\\Webhook\\NewStudentRegistrationListener' => $baseDir . '/includes/Listeners/Webhook/NewStudentRegistrationListener.php',
     'Masteriyo\\Listeners\\Webhook\\QuizAttemptStatusChangeListener' => $baseDir . '/includes/Listeners/Webhook/QuizAttemptStatusChangeListener.php',
     'Masteriyo\\Listeners\\Webhook\\QuizCompletedListener' => $baseDir . '/includes/Listeners/Webhook/QuizCompletedListener.php',

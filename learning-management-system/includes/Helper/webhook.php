@@ -26,6 +26,8 @@ use Masteriyo\Listeners\Webhook\NewStudentRegistrationListener;
 use Masteriyo\Listeners\Webhook\NewInstructorRegistrationListener;
 use Masteriyo\Listeners\Webhook\QuizAttemptStatusChangeListener;
 use Masteriyo\Listeners\Webhook\QuizCompletedListener;
+use Masteriyo\Listeners\Webhook\NewOrderListener;
+
 
 /**
  * Get webhook.
@@ -53,7 +55,7 @@ function masteriyo_get_webhook( $webhook ) {
 		$webhook_obj->set_id( $id );
 		$webhook_store->read( $webhook_obj );
 	} catch ( \Exception $e ) {
-		return null;
+		$webhook_obj = null;
 	}
 
 	/**
@@ -99,6 +101,7 @@ function masteriyo_get_webhook_listeners() {
 				NewCourseReviewListener::class,
 				NewCourseQuestionListener::class,
 				NewCourseQuestionReplyListener::class,
+				NewOrderListener::class,
 			)
 		)
 	);
@@ -106,7 +109,17 @@ function masteriyo_get_webhook_listeners() {
 	$listeners = array_filter(
 		$listeners,
 		function( $listener ) {
-			return class_exists( $listener ) && is_subclass_of( $listener, Listener::class );
+			$valid = class_exists( $listener ) && is_subclass_of( $listener, Listener::class );
+			if ( ! $valid ) {
+				masteriyo_get_logger()->warning(
+					sprintf(
+						'Webhook listener skipped: class "%s" does not exist or does not extend Listener.',
+						$listener
+					),
+					array( 'source' => 'webhooks-delivery' )
+				);
+			}
+			return $valid;
 		}
 	);
 
@@ -248,11 +261,26 @@ function masteriyo_send_webhook( $event_name, $webhook, $payload ) {
 		throw new Exception( __( 'Delivery URL not specified', 'learning-management-system' ) );
 	}
 	if ( ! wp_http_validate_url( $delivery_url ) ) {
-
 		throw new Exception( __( 'Invalid Delivery URL', 'learning-management-system' ) );
 	}
 
 	$response = wp_safe_remote_request( $delivery_url, $http_args );
+
+	// Log the HTTP response for every delivery attempt.
+	if ( is_wp_error( $response ) ) {
+		masteriyo_get_logger()->error(
+			'Webhook HTTP request failed: event=' . print_r( $event_name, true ) . ', url=' . print_r( $delivery_url, true ) . ', error_code=' . print_r( $response->get_error_code(), true ) . ', error=' . print_r( $response->get_error_message(), true ),
+			array( 'source' => 'webhooks-delivery' )
+		);
+	} else {
+		$response_code    = wp_remote_retrieve_response_code( $response );
+		$response_message = wp_remote_retrieve_response_message( $response );
+		$log_level        = ( $response_code >= 200 && $response_code < 300 ) ? 'info' : 'warning';
+		masteriyo_get_logger()->$log_level(
+			'Webhook HTTP response: event=' . print_r( $event_name, true ) . ', url=' . print_r( $delivery_url, true ) . ', http_code=' . print_r( $response_code, true ) . ', message=' . print_r( $response_message, true ),
+			array( 'source' => 'webhooks-delivery' )
+		);
+	}
 
 	/**
 	 * Fires after webhook is delivered.

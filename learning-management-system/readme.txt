@@ -4,7 +4,7 @@ Tags: LMS, eLearning, education, course, Learning Management System 
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.1.6
+Stable tag: 2.1.7
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -285,6 +285,16 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.1.7 - 25-03-2026 =
+- Enhancement - Improve webhook delivery reliability, expand lesson completion tracking coverage, and add observability.
+- Enhancement - Extend Two-Factor Authentication OTP support to WordPress admin login popup. [PRO]
+- Enhancement - Add PDF download enable/disable toggle option for PDF lessons. [PRO]
+- Fix - Enhance security.
+- Fix - Fix log file download and incorrect filename issues in the logs tool.
+- Fix - Make the course name a clickable link on the account page.
+- Fix - Exclude deleted users from course analytics student count. [PRO]
+- Fix - Prevent duplicate contact errors in HubSpot integration during user registration. [PRO]
+
 = 2.1.6 - 11-03-2026 =
 - Fix - Security issue related to Stripe addon.
 - Fix - Course archive page default layout Elementor template not importing.

@@ -53,7 +53,15 @@ class LessonCompletedListener extends Listener {
 		add_action(
 			'masteriyo_new_course_progress_item',
 			function( $id, $progress_item ) use ( $deliver_callback, $webhook ) {
-				if ( 'lesson' !== $progress_item->get_item_type() || ! $this->can_deliver( $webhook, $progress_item->get_course_id() ) ) {
+				if ( 'lesson' !== $progress_item->get_item_type() ) {
+					return;
+				}
+
+				if ( ! $progress_item->get_completed() ) {
+					return;
+				}
+
+				if ( ! $this->can_deliver( $webhook, $progress_item->get_course_id() ) ) {
 					return;
 				}
 
@@ -67,6 +75,33 @@ class LessonCompletedListener extends Listener {
 			},
 			10,
 			2
+		);
+
+		add_action(
+			'masteriyo_course_progress_item_completion_status_changed',
+			function( $progress_item, $old_status, $new_status ) use ( $deliver_callback, $webhook ) {
+				if ( 'lesson' !== $progress_item->get_item_type() ) {
+					return;
+				}
+
+				if ( 'completed' !== $new_status ) {
+					return;
+				}
+
+				if ( ! $this->can_deliver( $webhook, $progress_item->get_course_id() ) ) {
+					return;
+				}
+
+				call_user_func_array(
+					$deliver_callback,
+					array(
+						WebhookResource::to_array( $webhook ),
+						$this->get_payload( $progress_item, $webhook ),
+					)
+				);
+			},
+			10,
+			3
 		);
 	}
 

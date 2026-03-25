@@ -191,6 +191,33 @@ class InstructorsController extends UsersController {
 		return $data;
 	}
 
+
+	/**
+	 * Check if a given request has access to update an item.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function update_item_permissions_check( $request ) {
+		$result = parent::update_item_permissions_check( $request );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( isset( $request['roles'] ) && ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to change roles.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
 	/**
 	 * Prepare a single user object for create or update.
 	 *
@@ -302,9 +329,10 @@ class InstructorsController extends UsersController {
 		}
 
 		// User's role.
-		if ( isset( $request['roles'] ) ) {
+			if ( isset( $request['roles'] ) && current_user_can( 'manage_options' ) ) {
 			$instructor->set_roles( $request['roles'] );
 		}
+
 
 		// User's instructor_apply_status.
 		if ( isset( $request['instructor_apply_status'] ) ) {

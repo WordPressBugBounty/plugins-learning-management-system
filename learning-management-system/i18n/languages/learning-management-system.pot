@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 2.1.6\n"
+"Project-Id-Version: Masteriyo LMS 2.1.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-11T07:03:35+00:00\n"
+"POT-Creation-Date: 2026-03-25T05:39:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -1379,7 +1379,7 @@ msgid "Your password has been reset successfully."
 msgstr ""
 
 #: includes/FormHandler/PasswordResetFormHandler.php:60
-#: includes/RestApi/Controllers/Version1/UsersController.php:1867
+#: includes/RestApi/Controllers/Version1/UsersController.php:1875
 msgid "New password cannot be the same as the old password."
 msgstr ""
 
@@ -2883,11 +2883,11 @@ msgctxt "User Course status"
 msgid "Active"
 msgstr ""
 
-#: includes/Helper/webhook.php:248
+#: includes/Helper/webhook.php:261
 msgid "Delivery URL not specified"
 msgstr ""
 
-#: includes/Helper/webhook.php:252
+#: includes/Helper/webhook.php:264
 msgid "Invalid Delivery URL"
 msgstr ""
 
@@ -5691,6 +5691,11 @@ msgstr ""
 msgid "Instructor approved."
 msgstr ""
 
+#: includes/RestApi/Controllers/Version1/InstructorsController.php:213
+#: includes/RestApi/Controllers/Version1/UsersController.php:1776
+msgid "Sorry, you are not allowed to change roles."
+msgstr ""
+
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:447
 msgid "Limit result set to lesson reviews assigned to specific lesson IDs."
 msgstr ""
@@ -7839,32 +7844,32 @@ msgstr ""
 msgid "Sorry, invalid old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1830
+#: includes/RestApi/Controllers/Version1/UsersController.php:1838
 msgid "Confirm Your Email Change"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:1834
+#: includes/RestApi/Controllers/Version1/UsersController.php:1842
 #, php-format
 msgid "You requested to change your email to <strong>%s</strong>. Please confirm this change by clicking the link below:"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:1846
+#: includes/RestApi/Controllers/Version1/UsersController.php:1854
 #, php-format
 msgid "Your email address has not been updated yet. Please check your inbox at %s for a confirmation email."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1856
+#: includes/RestApi/Controllers/Version1/UsersController.php:1864
 msgid "There was an error sending the confirmation email. Please try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1877
-#: includes/RestApi/Controllers/Version1/UsersController.php:1887
+#: includes/RestApi/Controllers/Version1/UsersController.php:1885
+#: includes/RestApi/Controllers/Version1/UsersController.php:1895
 msgid "Old password does not match. Please verify your current password and try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1920
+#: includes/RestApi/Controllers/Version1/UsersController.php:1928
 msgid "No QR code available. Please generate one first."
 msgstr ""
 

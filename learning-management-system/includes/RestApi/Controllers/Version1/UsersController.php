@@ -1770,6 +1770,14 @@ class UsersController extends CrudController {
 			);
 		}
 
+		   if ( isset( $request['roles'] ) && ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to change roles.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
