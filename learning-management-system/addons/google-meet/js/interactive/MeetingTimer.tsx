@@ -71,7 +71,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 					{days > 0 && (
 						<>
 							<VStack>
-								<HStack spacing={1}>
+								<HStack spacing={1} dir="ltr">
 									<Box {...timeBoxStyles}>
 										{days.toString().padStart(2, '0')[0]}
 									</Box>
@@ -100,7 +100,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 						</>
 					)}
 					<VStack>
-						<HStack spacing={1}>
+						<HStack spacing={1} dir="ltr">
 							<Box {...timeBoxStyles}>
 								{hours.toString().padStart(2, '0')[0]}
 							</Box>
@@ -125,7 +125,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 						:
 					</Text>
 					<VStack>
-						<HStack spacing={1}>
+						<HStack spacing={1} dir="ltr">
 							<Box {...timeBoxStyles}>
 								{minutes.toString().padStart(2, '0')[0]}
 							</Box>
@@ -150,7 +150,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 						:
 					</Text>
 					<VStack>
-						<HStack spacing={1}>
+						<HStack spacing={1} dir="ltr">
 							<Box {...timeBoxStyles}>
 								{seconds.toString().padStart(2, '0')[0]}
 							</Box>

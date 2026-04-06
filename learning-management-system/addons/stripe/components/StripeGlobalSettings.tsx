@@ -397,7 +397,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 				<InputGroup>
 					<Input
 						type={show.webhookKey ? 'text' : 'password'}
-						placeholder="Optional"
+						placeholder="Enter webhook secret key (required for Stripe order updates)"
 						fontSize={'16px !important'}
 						fontWeight={'normal !important'}
 						pl={'4 !important'}

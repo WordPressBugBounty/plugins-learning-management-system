@@ -1,4 +1,9 @@
 == Changelog ==
+= 2.1.8 - 06-04-2026 =
+- Enhancement – Made the Stripe webhook secret mandatory to improve security.
+- Fix – Enhance security.
+- Fix – Resolved RTL issues in the quiz timer and Masteriyo player.
+
 = 2.1.7 - 25-03-2026 =
 - Enhancement - Improve webhook delivery reliability, expand lesson completion tracking coverage, and add observability.
 - Enhancement - Extend Two-Factor Authentication OTP support to WordPress admin login popup. [PRO]

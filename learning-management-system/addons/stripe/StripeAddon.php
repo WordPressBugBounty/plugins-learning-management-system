@@ -109,6 +109,7 @@ class StripeAddon {
 
 		add_action( 'wp_ajax_masteriyo_stripe_connect', array( $this, 'stripe_connect' ) );
 		add_action( 'admin_head', array( $this, 'save_stripe_account' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'show_webhook_secret_notice' ) );
 		add_filter( 'masteriyo_migrations_paths', array( $this, 'append_migrations' ) );
 	}
 
@@ -565,84 +566,71 @@ class StripeAddon {
 		try {
 			masteriyo_get_logger()->info( 'Stripe webhook triggered.', array( 'source' => 'payment-stripe' ) );
 
-			$sig_header     = isset( $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : null;
-			$payload        = @file_get_contents( 'php://input' ); // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
-			$event          = null;
-			$order          = null;
-			$webhook_secret = Setting::get_webhook_secret();
+			// Validate and parse webhook request.
+			$sig_header = $this->get_stripe_signature_header();
+			$payload    = $this->get_webhook_payload();
 
-			if ( empty( $payload ) ) {
-				masteriyo_get_logger()->error( 'Stripe webhook payload is empty.', array( 'source' => 'payment-stripe' ) );
-				throw new Exception( esc_html__( 'Payload is empty.', 'learning-management-system' ), 400 );
-			}
+			// Verify webhook signature and construct event.
+			$event = $this->construct_and_verify_webhook_event( $payload, $sig_header );
 
-			if ( ! empty( $webhook_secret ) ) {
-				if ( empty( $sig_header ) ) {
-					masteriyo_get_logger()->error( 'Stripe webhook: Stripe-Signature header is missing.', array( 'source' => 'payment-stripe' ) );
-					throw new Exception( esc_html__( 'Stripe-Signature header is missing.', 'learning-management-system' ), 400 );
-				}
+			// Process webhook event.
+			$result = $this->process_webhook_event( $event );
 
-				/**
-				 * Filters whether to validate the webhook secret or not.
-				 *
-				 * @since 1.14.0
-				 */
-				if ( apply_filters( 'masteriyo_stripe_validate_webhook', true ) ) {
-					$event = Webhook::constructEvent( $payload, $sig_header, $webhook_secret );
-				} else {
-					$event = \Stripe\Event::constructFrom( json_decode( $payload, true ) );
-				}
-			} else {
-				masteriyo_get_logger()->warning( 'Stripe webhook: no webhook secret configured, skipping signature verification.', array( 'source' => 'payment-stripe' ) );
-				$event = \Stripe\Event::constructFrom( json_decode( $payload, true ) );
-			}
-
-			if ( ! $event ) {
-				masteriyo_get_logger()->error( 'Stripe webhook event is null.', array( 'source' => 'payment-stripe' ) );
-				throw new Exception( esc_html__( 'Event is null.', 'learning-management-system' ), 400 );
-			}
-
-			$result = array();
-			if ( masteriyo_starts_with( $event->type, 'payment_intent' ) ) {
-				$payment_intent = $event->data->object;
-
-				if ( ! $payment_intent ) {
-					masteriyo_get_logger()->error( 'Stripe webhook payment intent is null.', array( 'source' => 'payment-stripe' ) );
-					throw new Exception( esc_html__( 'Payment intent is null.', 'learning-management-system' ), 400 );
-				}
-
-				if ( isset( $payment_intent->metadata->order_id ) ) {
-					$order_id = $payment_intent->metadata->order_id;
-					$order    = masteriyo_get_order( $order_id );
-					$result   = $this->handle_payment_intent_webhook( $event, $order );
-				}
-			}
-			masteriyo_get_logger()->info( 'Stripe webhook completed.', array( 'source' => 'payment-stripe' ) );
+			masteriyo_get_logger()->info( 'Stripe webhook completed successfully.', array( 'source' => 'payment-stripe' ) );
 			wp_send_json_success( $result );
 		} catch ( UnexpectedValueException $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
-			if ( $order ) {
-				$order->add_order_note(
-					esc_html__( 'Stripe invalid event type.', 'learning-management-system' )
-				);
-			}
-
-			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
+			wp_send_json_error( array( 'message' => $e->getMessage() ), 400 );
 		} catch ( SignatureVerificationException $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
-			if ( $order ) {
-				$order->add_order_note(
-					esc_html__( 'Stripe webhook signature verification failed.', 'learning-management-system' )
-				);
-			}
-
-			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
+			wp_send_json_error( array( 'message' => $e->getMessage() ), 403 );
 		} catch ( Exception $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-stripe' ) );
-			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
+			$http_code = in_array( $e->getCode(), array( 400, 403, 404, 500 ), true ) ? $e->getCode() : 400;
+			wp_send_json_error( array( 'message' => $e->getMessage() ), $http_code );
 		}
+	}
 
-		exit();
+	/**
+	 * Verify a payment intent against the live Stripe API.
+	 *
+	 * Retrieves the payment intent directly from Stripe to confirm it exists
+	 * and its status matches the webhook event, preventing forged payloads
+	 * from completing orders even if signature verification is somehow bypassed.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param string $payment_intent_id The Stripe payment intent ID.
+	 * @throws Exception If the payment intent cannot be verified.
+	 */
+	protected function verify_payment_intent_with_stripe( $payment_intent_id ) {
+		masteriyo_get_logger()->info( 'Verifying payment intent with Stripe API: ' . $payment_intent_id, array( 'source' => 'payment-stripe' ) );
+
+		try {
+			if ( Helper::use_platform() ) {
+				$response = StripeClient::create()->retrieve_payment_intent( $payment_intent_id );
+				if ( is_wp_error( $response ) ) {
+					throw new Exception( $response->get_error_message() );
+				}
+				$pi_status = isset( $response['data']['status'] ) ? $response['data']['status'] : '';
+			} else {
+				$live_intent = \Stripe\PaymentIntent::retrieve( $payment_intent_id, Helper::get_stripe_options() );
+				$pi_status   = $live_intent->status;
+			}
+
+			if ( 'succeeded' !== $pi_status ) {
+				masteriyo_get_logger()->error(
+					'Stripe webhook: payment intent ' . $payment_intent_id . ' has status "' . $pi_status . '" in Stripe, not "succeeded".',
+					array( 'source' => 'payment-stripe' )
+				);
+				throw new Exception( esc_html__( 'Payment intent verification failed: status mismatch.', 'learning-management-system' ), 400 );
+			}
+
+			masteriyo_get_logger()->info( 'Payment intent verified with Stripe API.', array( 'source' => 'payment-stripe' ) );
+		} catch ( Exception $e ) {
+			masteriyo_get_logger()->error( 'Stripe webhook: failed to verify payment intent: ' . $e->getMessage(), array( 'source' => 'payment-stripe' ) );
+			throw $e;
+		}
 	}
 
 	/**
@@ -663,6 +651,12 @@ class StripeAddon {
 		}
 
 		$payment_intent = $event->data->object;
+
+		// For order-completing events, verify the payment intent actually
+		// exists in Stripe and has the expected status before trusting the webhook payload.
+		if ( 'payment_intent.succeeded' === $event->type ) {
+			$this->verify_payment_intent_with_stripe( $payment_intent->id );
+		}
 
 		if ( 'payment_intent.succeeded' === $event->type && ! empty( $order->get_billing_email() ) ) {
 			try {
@@ -719,7 +713,7 @@ class StripeAddon {
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
 	protected function save_stripe_data( $event, $order ) {
-		masteriyo_get_logger()->info( 'Save stripe data method triggered: ' . print_r( $event, true ) );
+
 		if ( isset( $event->type ) ) {
 			update_post_meta( $order->get_id(), '_stripe_event_type', $event->type );
 		}
@@ -800,7 +794,7 @@ class StripeAddon {
 		if ( in_array( $currency_code, $this->get_zero_decimal_currencies(), true ) ) {
 			$new_total_amount = absint( $total_amount );
 		} else {
-			$new_total_amount = (int)  masteriyo_round( $total_amount, 2 ) * 100;
+			$new_total_amount = (int) masteriyo_round( $total_amount, 2 ) * 100;
 		}
 
 		return $new_total_amount;
@@ -831,6 +825,192 @@ class StripeAddon {
 			'XAF',
 			'XOF',
 			'XPF',
+		);
+	}
+
+	/**
+	 * Get Stripe signature header from request.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @throws Exception If signature header is missing.
+	 * @return string
+	 */
+	private function get_stripe_signature_header() {
+		// phpcs:disable WordPress.Security.ValidatedInput.InputNotSanitized
+		$sig_header = isset( $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : null;
+		// phpcs:enable WordPress.Security.ValidatedInput.InputNotSanitized
+
+		if ( empty( $sig_header ) ) {
+			masteriyo_get_logger()->error( 'Stripe webhook: Stripe-Signature header is missing.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Stripe-Signature header is missing.', 'learning-management-system' ), 400 );
+		}
+
+		return $sig_header;
+	}
+
+	/**
+	 * Get webhook payload from request body.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @throws Exception If payload is empty.
+	 * @return string
+	 */
+	private function get_webhook_payload() {
+		$payload = file_get_contents( 'php://input' );
+
+		if ( false === $payload ) {
+			masteriyo_get_logger()->error( 'Stripe webhook: failed to read payload from input stream.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Failed to read webhook payload.', 'learning-management-system' ), 400 );
+		}
+
+		if ( empty( $payload ) ) {
+			masteriyo_get_logger()->error( 'Stripe webhook payload is empty.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Payload is empty.', 'learning-management-system' ), 400 );
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Construct and verify webhook event from payload.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param string $payload Raw webhook payload.
+	 * @param string $sig_header Stripe signature header.
+	 *
+	 * @throws Exception If webhook secret is not configured.
+	 * @throws Exception If event cannot be constructed.
+	 * @return \Stripe\Event
+	 */
+	private function construct_and_verify_webhook_event( $payload, $sig_header ) {
+		$webhook_secret = Setting::get_webhook_secret();
+
+		if ( empty( $webhook_secret ) ) {
+			masteriyo_get_logger()->error( 'Stripe webhook: webhook secret is not configured.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception(
+				esc_html__( 'Webhook secret is not configured. Please configure the webhook secret in Stripe settings.', 'learning-management-system' ),
+				400
+			);
+		}
+
+		$event = Webhook::constructEvent( $payload, $sig_header, $webhook_secret );
+
+		if ( ! $event ) {
+			masteriyo_get_logger()->error( 'Stripe webhook event could not be constructed from the payload.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Stripe webhook event could not be constructed.', 'learning-management-system' ), 400 );
+		}
+
+		return $event;
+	}
+
+	/**
+	 * Process webhook event and dispatch to appropriate handler.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param \Stripe\Event $event Stripe event object.
+	 *
+	 * @throws Exception If event type is not supported.
+	 * @return array
+	 */
+	private function process_webhook_event( $event ) {
+		if ( masteriyo_starts_with( $event->type, 'payment_intent' ) ) {
+			return $this->process_payment_intent_event( $event );
+		}
+
+		// Log unhandled event types but don't error
+		masteriyo_get_logger()->info(
+			'Stripe webhook event type not handled: ' . $event->type,
+			array( 'source' => 'payment-stripe' )
+		);
+
+		return array( 'status' => 'ignored' );
+	}
+
+	/**
+	 * Process payment intent webhook event.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @param \Stripe\Event $event Stripe event object.
+	 *
+	 * @throws Exception If order cannot be found or validated.
+	 * @return array
+	 */
+	private function process_payment_intent_event( $event ) {
+		$payment_intent = $event->data->object;
+
+		if ( ! $payment_intent ) {
+			masteriyo_get_logger()->error( 'Stripe webhook payment intent is null.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Payment intent is null.', 'learning-management-system' ), 400 );
+		}
+
+		// Check if metadata contains order_id
+		if ( ! isset( $payment_intent->metadata->order_id ) ) {
+			masteriyo_get_logger()->warning(
+				'Stripe webhook: payment intent ' . $payment_intent->id . ' has no order_id in metadata.',
+				array( 'source' => 'payment-stripe' )
+			);
+			return array( 'status' => 'skipped', 'reason' => 'no_order_id' );
+		}
+
+		$order_id = absint( $payment_intent->metadata->order_id );
+		$order    = masteriyo_get_order( $order_id );
+
+		if ( ! $order ) {
+			masteriyo_get_logger()->error(
+				'Stripe webhook: order not found for order_id: ' . $order_id,
+				array( 'source' => 'payment-stripe' )
+			);
+			throw new Exception( esc_html__( 'Order not found.', 'learning-management-system' ), 404 );
+		}
+
+		if ( 'stripe' !== $order->get_payment_method() ) {
+			masteriyo_get_logger()->error( 'Stripe webhook: order payment method is not Stripe.', array( 'source' => 'payment-stripe' ) );
+			throw new Exception( esc_html__( 'Invalid payment method for order.', 'learning-management-system' ), 400 );
+		}
+
+		$stored_payment_intent_id = $order->get_transaction_id();
+		if ( empty( $stored_payment_intent_id ) || $stored_payment_intent_id !== $payment_intent->id ) {
+			masteriyo_get_logger()->error(
+				'Stripe webhook: payment intent ID does not match stored transaction ID for order ' . $order_id,
+				array( 'source' => 'payment-stripe' )
+			);
+			throw new Exception( esc_html__( 'Payment intent ID mismatch.', 'learning-management-system' ), 400 );
+		}
+
+		return $this->handle_payment_intent_webhook( $event, $order );
+	}
+
+	/**
+	 * Show admin notice if Stripe is enabled but webhook secret is not configured.
+	 *
+	 * @since x.x.x
+	 */
+	public function show_webhook_secret_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! Setting::is_enable() ) {
+			return;
+		}
+
+		if ( ! empty( Setting::get_webhook_secret() ) ) {
+			return;
+		}
+
+		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
+
+		printf(
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a>.</p></div>',
+			esc_html__( 'Masteriyo Stripe:', 'learning-management-system' ),
+			esc_html__( 'Stripe webhook verification is now required (v2.1.8+). Add your webhook secret to ensure payments process correctly.', 'learning-management-system' ),
+			esc_url( $settings_url ),
+			esc_html__( 'Configure it in Stripe settings', 'learning-management-system' )
 		);
 	}
 }
