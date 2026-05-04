@@ -85,10 +85,248 @@ class ScriptStyle {
 
 		// Remove third party scripts from admin page.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'remove_scripts_from_admin_page' ), 9999 );
+
+		// Register the _masteriyo_has_content meta key so it is typed, sanitized,
+		// and discoverable via WP core APIs (REST schema, meta query, etc.).
+		add_action( 'init', array( __CLASS__, 'register_masteriyo_has_content_meta' ) );
+
+		// Persist whether a post contains Masteriyo content at save time.
+		// This drives the zero-cost Tier-2 check in masteriyo_is_masteriyo_public_page().
+		add_action( 'save_post', array( __CLASS__, 'mark_page_masteriyo_content' ), 10, 2 );
+
+		// Elementor saves documents via its own AJAX (not save_post), so update the
+		// _masteriyo_has_content meta explicitly after each Elementor document save.
+		add_action( 'elementor/document/after_save', array( __CLASS__, 'mark_elementor_document_content' ), 10, 2 );
+
+		// Beaver Builder saves layouts via its own AJAX and fires this action.
+		// save_post also fires for Beaver, but this makes the dependency explicit.
+		add_action( 'fl_builder_after_save_layout', array( __CLASS__, 'mark_beaver_layout_content' ), 10, 3 );
+
+		// JIT late-enqueue catch-all for FSE and Widgets
+		add_filter( 'render_block', array( __CLASS__, 'late_enqueue_for_blocks' ), 10, 2 );
+		add_filter( 'pre_do_shortcode_tag', array( __CLASS__, 'late_enqueue_for_shortcodes' ), 10, 2 );
 	}
 
+	/**
+	 * Register the _masteriyo_has_content post meta key with WordPress core.
+	 *
+	 * Typed registration ensures the value is sanitized to '0'/'1' by core,
+	 * makes the key discoverable via WP_Meta_Query and REST schema introspection,
+	 * and prevents arbitrary values being stored through the meta update path.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	public static function register_masteriyo_has_content_meta() {
+		// Registered without 'object_subtype' intentionally: Masteriyo shortcodes
+		// and blocks can appear on any post type (pages, posts, WooCommerce products,
+		// third-party CPTs), so the meta key and its sanitize callback must apply
+		// globally. Scoping to a single subtype would leave other post types
+		// unprotected and bypass the sanitizer on update_post_meta() calls.
+		register_meta(
+			'post',
+			'_masteriyo_has_content',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_has_content_meta' ),
+				'auth_callback'     => '__return_false',
+				'show_in_rest'      => false,
+			)
+		);
+	}
 
+	/**
+	 * Sanitize callback for the _masteriyo_has_content post meta.
+	 *
+	 * Named method (not a closure) so it is introspectable via get_registered_meta_keys()
+	 * and removable by other code via remove_filter().
+	 *
+	 * @since x.x.x
+	 *
+	 * @param mixed $value Raw meta value.
+	 *
+	 * @return string '1' if truthy, '0' otherwise.
+	 */
+	public static function sanitize_has_content_meta( $value ) {
+		return '1' === (string) $value ? '1' : '0';
+	}
 
+	/**
+	 * Persist whether a post contains Masteriyo content at save time.
+	 *
+	 * Stores '_masteriyo_has_content' post meta ('1' or '0') so that the frontend
+	 * enqueue check (masteriyo_is_masteriyo_public_page) can be a zero-cost
+	 * object-cache hit instead of scanning post_content on every page load.
+	 *
+	 * Skips autosaves and revisions — they don't affect the published page.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 *
+	 * @return void
+	 */
+	public static function mark_page_masteriyo_content( $post_id, \WP_Post $post ) {
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		$has = \masteriyo_post_has_masteriyo_content( $post );
+		update_post_meta( $post_id, '_masteriyo_has_content', $has ? '1' : '0' );
+	}
+
+	/**
+	 * Update _masteriyo_has_content after an Elementor document is saved.
+	 *
+	 * Elementor saves documents via its own AJAX (elementor/document/after_save),
+	 * which does not always trigger save_post, so we update the meta flag explicitly.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Elementor\Core\Base\Document $document The saved document.
+	 * @param array                         $data     The data that was saved.
+	 *
+	 * @return void
+	 */
+	public static function mark_elementor_document_content( $document, $data ) {
+		$post_id = $document->get_main_id();
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return;
+		}
+		$has = \masteriyo_post_has_masteriyo_content( $post );
+		update_post_meta( $post_id, '_masteriyo_has_content', $has ? '1' : '0' );
+	}
+
+	/**
+	 * Update _masteriyo_has_content after a Beaver Builder layout is saved.
+	 *
+	 * Beaver Builder saves layouts via its own AJAX and fires fl_builder_after_save_layout.
+	 * save_post also fires, but this hook makes the dependency on Beaver's save explicit.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int   $post_id The post ID of the saved layout.
+	 * @param bool  $publish Whether the layout was published.
+	 * @param array $data    The layout node data.
+	 *
+	 * @return void
+	 */
+	public static function mark_beaver_layout_content( $post_id, $publish, $data ) {
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return;
+		}
+		$has = \masteriyo_post_has_masteriyo_content( $post );
+		update_post_meta( $post_id, '_masteriyo_has_content', $has ? '1' : '0' );
+	}
+
+	/**
+	 * Late enqueue assets if Masteriyo blocks render in FSE or Widget contexts.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $block_content The block content about to be printed.
+	 * @param array  $block         The parsed block structure including name and attributes.
+	 *
+	 * @return string The unmodified block content.
+	 */
+	public static function late_enqueue_for_blocks( $block_content, $block ) {
+		if ( isset( $block['blockName'] ) && 0 === strpos( $block['blockName'], 'masteriyo/' ) ) {
+			self::force_enqueue_public_assets();
+			// Self-unhook: once assets are enqueued there is no reason to run on
+			// every subsequent block render — remove both catch-all filters.
+			remove_filter( 'render_block', array( __CLASS__, 'late_enqueue_for_blocks' ), 10 );
+			remove_filter( 'pre_do_shortcode_tag', array( __CLASS__, 'late_enqueue_for_shortcodes' ), 10 );
+		}
+		return $block_content;
+	}
+
+	/**
+	 * Late enqueue assets if Masteriyo shortcodes process out of typical bounds.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param false|string $return Shortcode output. False if not processed.
+	 * @param string       $tag    The shortcode tag name.
+	 *
+	 * @return false|string The unmodified shortcode return output.
+	 */
+	public static function late_enqueue_for_shortcodes( $return, $tag ) {
+		if ( 0 === strpos( $tag, 'masteriyo_' ) ) {
+			self::force_enqueue_public_assets();
+			// Self-unhook: once assets are enqueued remove both catch-all filters.
+			remove_filter( 'render_block', array( __CLASS__, 'late_enqueue_for_blocks' ), 10 );
+			remove_filter( 'pre_do_shortcode_tag', array( __CLASS__, 'late_enqueue_for_shortcodes' ), 10 );
+		}
+		return $return;
+	}
+
+	/**
+	 * Dynamically force loads the main public stylesheets.
+	 *
+	 * Used as a fallback during edge-case rendering cycles (like FSE template parts)
+	 * to ensure styles are injected into the markup before the document body closes.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	public static function force_enqueue_public_assets() {
+		static $forced = false;
+		if ( $forced ) {
+			return;
+		}
+		$forced = true;
+
+		$public_style = self::get_styles( 'public' )['public'] ?? null;
+		if ( ! $public_style ) {
+			return;
+		}
+
+		self::enqueue_style(
+			'public',
+			$public_style['src'],
+			$public_style['deps'] ?? array(),
+			$public_style['version'] ?? false,
+			$public_style['media'] ?? 'all',
+			$public_style['has_rtl']
+		);
+		self::load_custom_inline_styles();
+
+		// render_block and pre_do_shortcode_tag fire during the_content(), which is
+		// after wp_head() has already printed the <head>. A wp_enqueue_style() call
+		// at this point queues the style but never outputs the <link> tag. Print to
+		// wp_footer instead so the stylesheet still reaches the browser.
+		// NOTE: This intentionally causes a brief FOUC (flash of unstyled content)
+		// because the stylesheet arrives at </body> rather than in <head>. This is
+		// an accepted tradeoff for the late-detect fallback path. The normal path
+		// (Tiers 0-2 in masteriyo_is_masteriyo_public_page) enqueues in <head> and
+		// has no FOUC. Sites that regularly hit this path should re-save their pages
+		// so the _masteriyo_has_content meta is populated (Tier 2 fast-path).
+		if ( did_action( 'wp_head' ) ) {
+			add_action(
+				'wp_footer',
+				static function () {
+					wp_print_styles( 'masteriyo-public' );
+				},
+				0
+			);
+		}
+	}
 
 	/**
 	 * load editor styles for blocks
@@ -100,7 +338,14 @@ class ScriptStyle {
 		if ( ! $public_style ) {
 			return;
 		}
-		self::enqueue_style( 'public', $public_style['src'], $public_style['deps'], $public_style['version'], $public_style['media'], $public_style['has_rtl'] );
+		self::enqueue_style(
+			'public',
+			$public_style['src'],
+			$public_style['deps'] ?? array(),
+			$public_style['version'] ?? false,
+			$public_style['media'] ?? 'all',
+			$public_style['has_rtl']
+		);
 
 		self::load_custom_inline_styles();
 	}
@@ -253,7 +498,8 @@ class ScriptStyle {
 					'context'  => array( 'admin', 'public' ),
 					'type'     => 'module',
 					'callback' => function () {
-						return ( masteriyo_is_courses_page() || masteriyo_is_learn_page() || ( isset( $_GET['page'] ) && $_GET['page'] === 'masteriyo' ) );},
+						return ( masteriyo_is_courses_page() || masteriyo_is_learn_page() || ( isset( $_GET['page'] ) && 'masteriyo' === $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					},
 				),
 				'masteriyo-language-hash-preserver' => array(
 					'src'      => $language_hash_preserve_src,
@@ -265,7 +511,7 @@ class ScriptStyle {
 							( function_exists( 'masteriyo_is_courses_page' ) && masteriyo_is_courses_page() ) ||
 							( function_exists( 'masteriyo_is_learn_page' ) && masteriyo_is_learn_page() ) ||
 							( function_exists( 'masteriyo_is_account_page' ) && masteriyo_is_account_page() ) ||
-							( isset( $_GET['page'] ) && $_GET['page'] === 'trp-edit-translation=true' );
+							( isset( $_GET['page'] ) && 'trp-edit-translation=true' === $_GET['page'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 						$is_translatepress_active = defined( 'TRP_PLUGIN_VERSION' );
 
@@ -417,9 +663,10 @@ class ScriptStyle {
 			'masteriyo_enqueue_styles',
 			array(
 				'public'             => array(
-					'src'     => self::get_asset_url( '/assets/css/public.css' ),
-					'has_rtl' => false,
-					'context' => 'public',
+					'src'      => self::get_asset_url( '/assets/css/public.css' ),
+					'has_rtl'  => false,
+					'context'  => 'public',
+					'callback' => 'masteriyo_is_masteriyo_public_page',
 				),
 				'dependencies'       => array(
 					'src'      => self::get_asset_url( '/assets/js/build/masteriyo-dependencies.css' ),

@@ -91,6 +91,7 @@ class FrontendQuery {
 			add_action( 'parse_request', array( $this, 'parse_request' ), 0 );
 			add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ), PHP_INT_MAX - 10 );
 			add_filter( 'get_pagenum_link', array( $this, 'remove_add_to_cart_pagination' ), 10, 1 );
+			add_action( 'masteriyo_after_archive_header', 'masteriyo_display_all_notices', 5 );
 		}
 
 		$this->init_query_vars();
@@ -103,10 +104,28 @@ class FrontendQuery {
 	 */
 	public function get_errors() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$error = ! empty( $_GET['masteriyo_error'] ) ? sanitize_text_field( wp_unslash( $_GET['masteriyo_error'] ) ) : '';
+		$error_code = ! empty( $_GET['masteriyo_error'] ) ? sanitize_text_field( wp_unslash( $_GET['masteriyo_error'] ) ) : '';
 
-		if ( $error && ! masteriyo_notice_exists( $error, 'error' ) ) {
-			masteriyo_add_notice( $error, Notice::ERROR );
+		if ( ! $error_code ) {
+			return;
+		}
+
+		$error_messages = array(
+			'course_not_found' => __( 'Course not found.', 'learning-management-system' ),
+			'not_enrolled'     => __( 'Please enroll to access this course.', 'learning-management-system' ),
+			'access_denied'    => __( 'You do not have permission to access this course.', 'learning-management-system' ),
+			'empty_cart'       => __( 'Your cart is empty. Please add a course before proceeding to checkout.', 'learning-management-system' ),
+		);
+
+		$message = isset( $error_messages[ $error_code ] ) ? $error_messages[ $error_code ] : '';
+
+		if ( ! $message ) {
+			return;
+		}
+
+		$existing = wp_list_pluck( masteriyo( 'session' )->get( 'notices', array() ), 'message' );
+		if ( ! in_array( $message, $existing, true ) ) {
+			masteriyo_add_notice( $message, Notice::ERROR );
 		}
 	}
 

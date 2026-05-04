@@ -9,7 +9,7 @@
 
 namespace Masteriyo\Addons\BricksIntegration;
 
-use \Bricks\Templates as Templates;
+use Bricks\Templates;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -72,7 +72,8 @@ class BricksIntegrationAddon {
 			return;
 		}
 
-		echo ( new Templates() )->render_shortcode( array( 'id' => $template_id ) );
+		masteriyo_display_all_notices();
+		echo ( new Templates() )->render_shortcode( array( 'id' => $template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		do_action( 'masteriyo_course_archive_after_template_content_bricks' );
 	}
 	/**
@@ -119,7 +120,8 @@ class BricksIntegrationAddon {
 		if ( 'bricks' !== $template_source ) {
 			return;
 		}
-		echo ( new Templates() )->render_shortcode( array( 'id' => $template_id ) );
+		masteriyo_display_all_notices();
+		echo ( new Templates() )->render_shortcode( array( 'id' => $template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		do_action( 'masteriyo_single_course_after_template_content_bricks' );
 	}
 
@@ -182,5 +184,4 @@ class BricksIntegrationAddon {
 		}
 
 	}
-
 }

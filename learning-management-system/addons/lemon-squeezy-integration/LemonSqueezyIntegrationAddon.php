@@ -107,6 +107,7 @@ class LemonSqueezyIntegrationAddon {
 		add_action( 'wp_ajax_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
 		add_action( 'wp_ajax_nopriv_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
 		add_filter( 'masteriyo_checkout_available_gateways', array( $this, 'remove_lemon_squeezy_gateway' ) );
+		add_action( 'masteriyo_admin_notices', array( $this, 'show_webhook_secret_notice' ) );
 	}
 
 	/**
@@ -318,6 +319,35 @@ class LemonSqueezyIntegrationAddon {
 	}
 
 	/**
+	 * Show admin notice if Lemon Squeezy is enabled but webhook secret is not configured.
+	 *
+	 * @since x.x.x
+	 */
+	public function show_webhook_secret_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! Setting::is_enable() ) {
+			return;
+		}
+
+		if ( ! empty( Setting::get_webhook_secret() ) ) {
+			return;
+		}
+
+		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
+
+		printf(
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a>.</p></div>',
+			esc_html__( 'Masteriyo Lemon Squeezy:', 'learning-management-system' ),
+			esc_html__( 'Lemon Squeezy webhook verification is required (v2.1.9+). Add your webhook secret to ensure payments process correctly.', 'learning-management-system' ),
+			esc_url( $settings_url ),
+			esc_html__( 'Configure it in Lemon Squeezy settings', 'learning-management-system' )
+		);
+	}
+
+	/**
 	 * Handles the incoming webhook requests from Lemon Squeezy.
 	 *
 	 * Processes incoming webhook requests from Lemon Squeezy, verifying the request integrity, and routing the request to the appropriate handler.
@@ -343,9 +373,21 @@ class LemonSqueezyIntegrationAddon {
 				throw new Exception( 'Event is null.', 400 );
 			}
 
+			if ( empty( $signature ) ) {
+				masteriyo_get_logger()->error( 'Missing signature header', array( 'source' => 'payment-lemon-squeezy' ) );
+				throw new Exception( 'Missing signature.', 403 );
+			}
+
 			// Verify signature.
 			$secret = Setting::get_webhook_secret();
-			$hash   = hash_hmac( 'sha256', $payload, $secret );
+
+			// Reject when no secret is configured — an empty key lets anyone forge a valid HMAC.
+			if ( empty( $secret ) ) {
+				masteriyo_get_logger()->error( 'Webhook secret is not configured', array( 'source' => 'payment-lemon-squeezy' ) );
+				throw new Exception( 'Webhook secret is not configured.', 403 );
+			}
+
+			$hash = hash_hmac( 'sha256', $payload, $secret );
 			if ( ! hash_equals( $hash, $signature ) ) {
 				masteriyo_get_logger()->error( 'Invalid signature', array( 'source' => 'payment-lemon-squeezy' ) );
 				throw new Exception( 'Invalid signature.', 403 );

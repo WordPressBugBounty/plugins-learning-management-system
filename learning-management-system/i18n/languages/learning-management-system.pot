@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 2.1.8\n"
+"Project-Id-Version: Masteriyo LMS 2.1.9\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-06T04:33:08+00:00\n"
+"POT-Creation-Date: 2026-05-04T16:34:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -232,11 +232,11 @@ msgstr ""
 msgid "Metadata file for %s block does not exist."
 msgstr ""
 
-#: includes/Abstracts/CachePluginCompatibility.php:112
-#: includes/Abstracts/CachePluginCompatibility.php:121
-#: includes/Abstracts/CachePluginCompatibility.php:163
-#: includes/Abstracts/CachePluginCompatibility.php:202
-#: includes/Abstracts/CachePluginCompatibility.php:289
+#: includes/Abstracts/CachePluginCompatibility.php:120
+#: includes/Abstracts/CachePluginCompatibility.php:129
+#: includes/Abstracts/CachePluginCompatibility.php:171
+#: includes/Abstracts/CachePluginCompatibility.php:210
+#: includes/Abstracts/CachePluginCompatibility.php:297
 msgid "Dismiss this notice."
 msgstr ""
 
@@ -340,7 +340,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:161
 #: includes/AdminMenu.php:162
-#: includes/FrontendQuery.php:232
+#: includes/FrontendQuery.php:251
 #: includes/PostType/Order.php:37
 #: includes/PostType/Order.php:65
 msgid "Orders"
@@ -520,7 +520,7 @@ msgid "No pages specified."
 msgstr ""
 
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:80
-#: includes/Helper/core.php:5952
+#: includes/Helper/core.php:5960
 msgid "Pages set up successfully."
 msgstr ""
 
@@ -1403,52 +1403,72 @@ msgstr ""
 msgid "Enter a username or email address."
 msgstr ""
 
-#: includes/FrontendQuery.php:222
+#: includes/FrontendQuery.php:114
+#: assets/js/build/masteriyo-backend.js:38
+#: assets/js/build/masteriyo-backend.js:39
+#: assets/js/build/masteriyo-backend.js:40
+#: assets/js/build/masteriyo-backend.js:43
+msgid "Course not found."
+msgstr ""
+
+#: includes/FrontendQuery.php:115
+msgid "Please enroll to access this course."
+msgstr ""
+
+#: includes/FrontendQuery.php:116
+msgid "You do not have permission to access this course."
+msgstr ""
+
+#: includes/FrontendQuery.php:117
+msgid "Your cart is empty. Please add a course before proceeding to checkout."
+msgstr ""
+
+#: includes/FrontendQuery.php:241
 msgid "Pay for order"
 msgstr ""
 
-#: includes/FrontendQuery.php:225
+#: includes/FrontendQuery.php:244
 msgid "Order received"
 msgstr ""
 
 #. translators: %s: page
-#: includes/FrontendQuery.php:230
+#: includes/FrontendQuery.php:249
 #, php-format
 msgid "Orders (page %d)"
 msgstr ""
 
 #. translators: %s: order number
-#: includes/FrontendQuery.php:240
+#: includes/FrontendQuery.php:259
 #, php-format
 msgctxt "Order title (order number)"
 msgid "Order #%s"
 msgstr ""
 
-#: includes/FrontendQuery.php:251
+#: includes/FrontendQuery.php:270
 msgid "Downloads"
 msgstr ""
 
-#: includes/FrontendQuery.php:254
+#: includes/FrontendQuery.php:273
 msgid "Account details"
 msgstr ""
 
-#: includes/FrontendQuery.php:257
+#: includes/FrontendQuery.php:276
 msgid "Addresses"
 msgstr ""
 
-#: includes/FrontendQuery.php:260
+#: includes/FrontendQuery.php:279
 msgid "Payment methods"
 msgstr ""
 
-#: includes/FrontendQuery.php:263
+#: includes/FrontendQuery.php:282
 msgid "Add payment method"
 msgstr ""
 
-#: includes/FrontendQuery.php:267
+#: includes/FrontendQuery.php:286
 msgid "Set password"
 msgstr ""
 
-#: includes/FrontendQuery.php:269
+#: includes/FrontendQuery.php:288
 msgid "Lost password"
 msgstr ""
 
@@ -2490,12 +2510,12 @@ msgstr ""
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5884
+#: includes/Helper/core.php:5892
 msgid "Masteriyo:"
 msgstr ""
 
 #. translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages
-#: includes/Helper/core.php:5901
+#: includes/Helper/core.php:5909
 #, php-format
 msgid "%1$s %2$d page is missing: %3$s."
 msgid_plural "%1$s %2$d pages are missing: %3$s."
@@ -2503,33 +2523,33 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: "click here" link text
-#: includes/Helper/core.php:5915
+#: includes/Helper/core.php:5923
 #, php-format
 msgid "Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%s</a> to set it up automatically."
 msgstr ""
 
-#: includes/Helper/core.php:5916
-#: includes/Helper/core.php:5926
+#: includes/Helper/core.php:5924
+#: includes/Helper/core.php:5934
 #: assets/js/build/masteriyo-backend.js:32
 msgid "click here"
 msgstr ""
 
 #. translators: 1: Onboarding URL, 2: "click here" link text
-#: includes/Helper/core.php:5921
+#: includes/Helper/core.php:5929
 #, php-format
 msgid "Missing required setup. <a class=\"masteriyo-onboarding-notice-link\" href=\"%1$s\">Complete the onboarding process</a> (recommended) or <a class=\"masteriyo-onboarding-notice-link\" href=\"#\" id=\"masteriyo-setup-pages\">%2$s</a> to automatically create the missing pages."
 msgstr ""
 
-#: includes/Helper/core.php:5950
+#: includes/Helper/core.php:5958
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5951
+#: includes/Helper/core.php:5959
 msgid "Failed to set up. Retry?"
 msgstr ""
 
 #. translators: %1$s: URL, %2$s: onboarding step name.
-#: includes/Helper/core.php:6111
+#: includes/Helper/core.php:6119
 #, php-format
 msgid "Please complete the Masteriyo onboarding process. <a href=\"%1$s\">Continue with %2$s step</a>"
 msgstr ""
@@ -3064,7 +3084,7 @@ msgid "Minimum WordPress version required for Masteriyo to work is v5.0."
 msgstr ""
 
 #. translators: 1: error message 2: file name and path 3: line number
-#: includes/Masteriyo.php:1314
+#: includes/Masteriyo.php:1315
 #, php-format
 msgid "%1$s in %2$s on line %3$s"
 msgstr ""
@@ -7970,7 +7990,7 @@ msgstr ""
 msgid "Masteriyo Student"
 msgstr ""
 
-#: includes/ScriptStyle.php:1196
+#: includes/ScriptStyle.php:1443
 #: assets/js/build/masteriyo-account.js:2
 #: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:29
@@ -7980,35 +8000,35 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: includes/ScriptStyle.php:1197
+#: includes/ScriptStyle.php:1444
 msgid "Saving..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1198
+#: includes/ScriptStyle.php:1445
 msgid "Your profile was updated successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1236
+#: includes/ScriptStyle.php:1483
 #: templates/account/form-login.php:32
 msgid "Sign In"
 msgstr ""
 
-#: includes/ScriptStyle.php:1237
+#: includes/ScriptStyle.php:1484
 msgid "Signing In..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1253
-#: includes/ScriptStyle.php:1299
+#: includes/ScriptStyle.php:1500
+#: includes/ScriptStyle.php:1546
 msgid "Type CONFIRM to proceed."
 msgstr ""
 
-#: includes/ScriptStyle.php:1254
-#: includes/ScriptStyle.php:1300
+#: includes/ScriptStyle.php:1501
+#: includes/ScriptStyle.php:1547
 msgid "Try again"
 msgstr ""
 
-#: includes/ScriptStyle.php:1255
-#: includes/ScriptStyle.php:1301
+#: includes/ScriptStyle.php:1502
+#: includes/ScriptStyle.php:1548
 #: templates/single-course/course-review-form.php:76
 #: templates/single-course/layout-1/review-form.php:89
 #: assets/js/build/masteriyo-account.js:5
@@ -8018,8 +8038,8 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: includes/ScriptStyle.php:1256
-#: includes/ScriptStyle.php:1302
+#: includes/ScriptStyle.php:1503
+#: includes/ScriptStyle.php:1549
 #: assets/js/build/masteriyo-backend.js:4
 #: assets/js/build/masteriyo-backend.js:16
 #: assets/js/build/masteriyo-backend.js:18
@@ -8035,8 +8055,8 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: includes/ScriptStyle.php:1257
-#: includes/ScriptStyle.php:1303
+#: includes/ScriptStyle.php:1504
+#: includes/ScriptStyle.php:1550
 #: templates/single-course/course-review-reply.php:58
 #: templates/single-course/course-review.php:53
 #: templates/single-course/layout-1/course-review-reply.php:55
@@ -8063,69 +8083,69 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: includes/ScriptStyle.php:1258
-#: includes/ScriptStyle.php:1304
+#: includes/ScriptStyle.php:1505
+#: includes/ScriptStyle.php:1551
 msgid "Submitting..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1259
-#: includes/ScriptStyle.php:1305
+#: includes/ScriptStyle.php:1506
+#: includes/ScriptStyle.php:1552
 msgid "Deleting..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1260
-#: includes/ScriptStyle.php:1306
+#: includes/ScriptStyle.php:1507
+#: includes/ScriptStyle.php:1553
 #: assets/js/build/masteriyo-interactive.js:14
 msgid "Reply to"
 msgstr ""
 
-#: includes/ScriptStyle.php:1261
-#: includes/ScriptStyle.php:1307
+#: includes/ScriptStyle.php:1508
+#: includes/ScriptStyle.php:1554
 msgid "Edit reply"
 msgstr ""
 
-#: includes/ScriptStyle.php:1262
-#: includes/ScriptStyle.php:1308
+#: includes/ScriptStyle.php:1509
+#: includes/ScriptStyle.php:1555
 msgid "Edit review"
 msgstr ""
 
-#: includes/ScriptStyle.php:1263
-#: includes/ScriptStyle.php:1309
+#: includes/ScriptStyle.php:1510
+#: includes/ScriptStyle.php:1556
 #: assets/js/build/masteriyo-interactive.js:3
 msgid "Your review has been submitted successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1263
-#: includes/ScriptStyle.php:1309
+#: includes/ScriptStyle.php:1510
+#: includes/ScriptStyle.php:1556
 #: assets/js/build/masteriyo-interactive.js:3
 msgid "Your review has been submitted and is awaiting approval by the instructor."
 msgstr ""
 
-#: includes/ScriptStyle.php:1264
-#: includes/ScriptStyle.php:1310
+#: includes/ScriptStyle.php:1511
+#: includes/ScriptStyle.php:1557
 msgid "Updated successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1265
-#: includes/ScriptStyle.php:1311
+#: includes/ScriptStyle.php:1512
+#: includes/ScriptStyle.php:1558
 msgid "Deleted successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1266
-#: includes/ScriptStyle.php:1312
+#: includes/ScriptStyle.php:1513
+#: includes/ScriptStyle.php:1559
 #: templates/single-course/layout-1/main-content-tab.php:117
 msgid "Expand All"
 msgstr ""
 
-#: includes/ScriptStyle.php:1267
-#: includes/ScriptStyle.php:1313
+#: includes/ScriptStyle.php:1514
+#: includes/ScriptStyle.php:1560
 #: templates/single-course/curriculum.php:84
 #: templates/single-course/layout-1/main-content-tab.php:117
 msgid "Collapse All"
 msgstr ""
 
-#: includes/ScriptStyle.php:1268
-#: includes/ScriptStyle.php:1314
+#: includes/ScriptStyle.php:1515
+#: includes/ScriptStyle.php:1561
 #: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:17
 #: assets/js/build/masteriyo-backend.js:28
@@ -8136,34 +8156,34 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1269
-#: includes/ScriptStyle.php:1315
+#: includes/ScriptStyle.php:1516
+#: includes/ScriptStyle.php:1562
 msgid "Failed to load more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1270
-#: includes/ScriptStyle.php:1316
+#: includes/ScriptStyle.php:1517
+#: includes/ScriptStyle.php:1563
 #: templates/single-course/see-more-reviews-button.php:21
 msgid "See more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1271
-#: includes/ScriptStyle.php:1317
-#: includes/ScriptStyle.php:1385
+#: includes/ScriptStyle.php:1518
+#: includes/ScriptStyle.php:1564
+#: includes/ScriptStyle.php:1632
 msgid "Please enter a password."
 msgstr ""
 
-#: includes/ScriptStyle.php:1272
-#: includes/ScriptStyle.php:1318
+#: includes/ScriptStyle.php:1519
+#: includes/ScriptStyle.php:1565
 msgid "You have already submitted a review for this course. It is currently pending approval."
 msgstr ""
 
-#: includes/ScriptStyle.php:1273
-#: includes/ScriptStyle.php:1319
+#: includes/ScriptStyle.php:1520
+#: includes/ScriptStyle.php:1566
 msgid "You have already submitted a review for this course."
 msgstr ""
 
-#: includes/ScriptStyle.php:1336
+#: includes/ScriptStyle.php:1583
 msgid "Error processing checkout. Please try again."
 msgstr ""
 
@@ -8183,6 +8203,21 @@ msgstr ""
 #: includes/Shortcodes/AccountShortcode.php:101
 #: includes/Shortcodes/InstructorRegistrationShortcode.php:96
 msgid "This key is invalid or has already been used. Please request to reset your password again if needed."
+msgstr ""
+
+#: includes/Shortcodes/CheckoutShortcode.php:42
+#: includes/Shortcodes/CheckoutShortcode.php:104
+msgid "Checkout is currently unavailable. Please try again later."
+msgstr ""
+
+#: includes/Shortcodes/CheckoutShortcode.php:79
+msgid "Browse courses"
+msgstr ""
+
+#. translators: %s: browse courses link
+#: includes/Shortcodes/CheckoutShortcode.php:83
+#, php-format
+msgid "Your cart is empty. %s"
 msgstr ""
 
 #: includes/Shortcodes/RelatedCoursesShortcode.php:56
@@ -16506,6 +16541,18 @@ msgid "A string used by Lemon Squeezy to sign requests for increased security."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
+msgid "Required to verify payments"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Hide webhook secret"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Show webhook secret"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
 msgid "Sandbox"
 msgstr ""
 
@@ -17323,13 +17370,6 @@ msgstr ""
 #: assets/js/build/masteriyo-backend.js:40
 #: assets/js/build/masteriyo-backend.js:43
 msgid "Searching course..."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:38
-#: assets/js/build/masteriyo-backend.js:39
-#: assets/js/build/masteriyo-backend.js:40
-#: assets/js/build/masteriyo-backend.js:43
-msgid "Course not found."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38

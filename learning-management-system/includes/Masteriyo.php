@@ -805,7 +805,7 @@ class Masteriyo {
 	 * @since 1.6.7
 	 */
 	public function display_allow_usage_notice() {
-		if ( masteriyo_show_usage_tracking_notice() ) {
+		if ( masteriyo_show_usage_tracking_notice() ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			// masteriyo_get_template( 'notices/allow-usage-tracking.php' );
 		}
 	}
@@ -1015,7 +1015,7 @@ class Masteriyo {
 			$course_slug = get_query_var( 'course_name', '' );
 
 			if ( empty( $course_slug ) ) {
-				wp_safe_redirect( \masteriyo_get_courses_url(), 307 );
+				wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_courses_url() ), 307 );
 				exit();
 			}
 
@@ -1035,7 +1035,7 @@ class Masteriyo {
 
 		// Bail early if the course doesn't exits.
 		if ( is_null( $course ) ) {
-			wp_safe_redirect( \masteriyo_get_courses_url(), 307 );
+			wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_courses_url() ), 307 );
 			exit();
 		}
 
@@ -1078,7 +1078,8 @@ class Masteriyo {
 				}
 
 				if ( empty( $user_courses ) || ! masteriyo_can_start_course( $course_id, get_current_user_id() ) ) {
-					wp_safe_redirect( \masteriyo_get_courses_url(), 307 );
+					$error = empty( $user_courses ) ? 'not_enrolled' : 'access_denied';
+					wp_safe_redirect( add_query_arg( 'masteriyo_error', $error, \masteriyo_get_courses_url() ), 307 );
 					exit();
 				}
 			}

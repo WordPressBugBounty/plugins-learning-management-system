@@ -509,6 +509,7 @@ class ElementorIntegrationAddon {
 
 		$frontend = new \Elementor\Frontend();
 
+		masteriyo_display_all_notices();
 		printf( '<div class="masteriyo-course-list-display-section">' );
 		echo $frontend->get_builder_content_for_display( $template_id );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		printf( '</div>' );

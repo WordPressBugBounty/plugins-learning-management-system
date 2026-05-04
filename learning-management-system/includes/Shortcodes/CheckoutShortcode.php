@@ -39,7 +39,7 @@ class CheckoutShortcode extends Shortcode {
 
 		// Bail early if the cart is null.
 		if ( is_null( masteriyo( 'cart' ) ) ) {
-			return;
+			return '<div class="masteriyo-notify-message masteriyo-alert masteriyo-danger-msg"><span>' . esc_html__( 'Checkout is currently unavailable. Please try again later.', 'learning-management-system' ) . '</span></div>';
 		}
 
 		// Handle checkout actions.
@@ -76,6 +76,14 @@ class CheckoutShortcode extends Shortcode {
 
 		// Check cart has contents.
 		if ( masteriyo( 'cart' )->is_empty() && ! is_customize_preview() && $redirect_empty_cart ) {
+			$browse_link = '<a href="' . esc_url( masteriyo_get_courses_url() ) . '">' . __( 'Browse courses', 'learning-management-system' ) . '</a>';
+			echo '<div class="masteriyo-notify-message masteriyo-alert masteriyo-info-msg"><span>' . wp_kses_post(
+				sprintf(
+					/* translators: %s: browse courses link */
+					__( 'Your cart is empty. %s', 'learning-management-system' ),
+					$browse_link
+				)
+			) . '</span></div>';
 			return;
 		}
 
@@ -93,6 +101,7 @@ class CheckoutShortcode extends Shortcode {
 		$checkout = masteriyo( 'checkout' );
 
 		if ( is_null( $checkout ) ) {
+			echo '<div class="masteriyo-notify-message masteriyo-alert masteriyo-danger-msg"><span>' . esc_html__( 'Checkout is currently unavailable. Please try again later.', 'learning-management-system' ) . '</span></div>';
 			return;
 		}
 

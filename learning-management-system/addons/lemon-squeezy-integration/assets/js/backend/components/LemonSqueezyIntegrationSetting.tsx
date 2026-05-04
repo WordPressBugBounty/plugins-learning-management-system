@@ -40,7 +40,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 		lemon_squeezy_integration?.webhook_url || '',
 	);
 
-	const [show, setShow] = useState({ apiKey: false });
+	const [show, setShow] = useState({ apiKey: false, webhookSecret: false });
 
 	return (
 		<VStack
@@ -132,23 +132,31 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 				<Controller
 					name="payments.lemon_squeezy_integration.unenrollment_status"
 					control={control}
-					defaultValue={UNENROLLMENT_STATUS_OPTIONS.map((status: any) => {
-						return {
-							value: status.value,
-							label: status.label,
-						};
-					})}
-					render={({ field: { onChange, value } }) => (
-						<Select
-							onChange={onChange}
-							value={value}
-							styles={reactSelectStyles}
-							closeMenuOnSelect={false}
-							isMulti
-							isSearchable={false}
-							options={UNENROLLMENT_STATUS_OPTIONS}
-						/>
-					)}
+					defaultValue={UNENROLLMENT_STATUS_OPTIONS.map((s) => s.value)}
+					render={({ field: { onChange, value } }) => {
+						const selected = Array.isArray(value)
+							? value.map((v: any) =>
+									typeof v === 'string'
+										? (UNENROLLMENT_STATUS_OPTIONS.find(
+												(o) => o.value === v,
+											) ?? { value: v, label: v })
+										: v,
+								)
+							: [];
+						return (
+							<Select
+								onChange={(opts) =>
+									onChange(opts ? opts.map((o: any) => o.value) : [])
+								}
+								value={selected}
+								styles={reactSelectStyles}
+								closeMenuOnSelect={false}
+								isMulti
+								isSearchable={false}
+								options={UNENROLLMENT_STATUS_OPTIONS}
+							/>
+						);
+					}}
 				/>
 			</FormControlTwoCol>
 
@@ -177,7 +185,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel mr={0}>
+				<FormLabel minW="160px">
 					{__('Webhook Secret', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -186,11 +194,35 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 						)}
 					/>
 				</FormLabel>
-
-				<Input
-					defaultValue={lemon_squeezy_integration?.webhook_secret || ''}
-					{...register('payments.lemon_squeezy_integration.webhook_secret')}
-				/>
+				<InputGroup>
+					<Input
+						type={show.webhookSecret ? 'text' : 'password'}
+						placeholder={__(
+							'Required to verify payments',
+							'learning-management-system',
+						)}
+						defaultValue={lemon_squeezy_integration?.webhook_secret || ''}
+						{...register('payments.lemon_squeezy_integration.webhook_secret')}
+					/>
+					<InputRightAddon bg={'gray.100'}>
+						<Icon
+							cursor="pointer"
+							as={!show.webhookSecret ? BiShow : BiHide}
+							onClick={() =>
+								setShow({
+									...show,
+									webhookSecret: Boolean(!show.webhookSecret),
+								})
+							}
+							size="lg"
+							aria-label={
+								!show.webhookSecret
+									? __('Show webhook secret', 'learning-management-system')
+									: __('Hide webhook secret', 'learning-management-system')
+							}
+						/>
+					</InputRightAddon>
+				</InputGroup>
 			</FormControlTwoCol>
 		</VStack>
 	);

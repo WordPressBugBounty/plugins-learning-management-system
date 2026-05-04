@@ -3,9 +3,9 @@
   --masteriyo-color-primary-light: #78a6ff;
   --masteriyo-color-primary-lightest: #f8faff;
   --masteriyo-color-primary-dark: #4c5cc1;
-  --primary-button: #4584ff;
-  --primary-button-hover: #4584ff;
-  --text-color: #383838;
+  --masteriyo-button-primary: #4584ff;
+  --masteriyo-button-primary-hover: #4584ff;
+  --masteriyo-text-color: #383838;
   --masteriyo-color-primary-a10: rgba(69, 132, 255, 0.1);
   --masteriyo-color-primary-a20: rgba(69, 132, 255, 0.2);
   --masteriyo-color-primary-a80: rgba(69, 132, 255, 0.8);
@@ -54,6 +54,7 @@
   --masteriyo-color-info-border: #74c0fc;
   --masteriyo-color-success-border: #8ce99a;
   --masteriyo-color-waring-border: #ffc078;
+  --masteriyo-color-warning-border: #ffc078;
   --masteriyo-color-facebook: #4267b2;
   --masteriyo-color-gmail: #dd4b39;
   --masteriyo-color-twitter: #55acee;
@@ -272,7 +273,7 @@
 }
 
 .masteriyo-show {
-  display: show;
+  display: block;
 }
 
 .masteriyo-flex {
@@ -561,7 +562,8 @@
   color: var(--masteriyo-color-primary-a80);
 }
 
-ul.page-numbers {
+.masteriyo-container ul.page-numbers,
+.masteriyo-course-list-display-section ul.page-numbers {
   display: flex;
   width: -moz-fit-content;
   width: fit-content;
@@ -571,18 +573,23 @@ ul.page-numbers {
   padding: 8px;
   gap: 8px;
 }
-ul.page-numbers .prev,
-ul.page-numbers .next {
+.masteriyo-container ul.page-numbers .prev,
+.masteriyo-container ul.page-numbers .next,
+.masteriyo-course-list-display-section ul.page-numbers .prev,
+.masteriyo-course-list-display-section ul.page-numbers .next {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-ul.page-numbers .prev svg,
-ul.page-numbers .next svg {
+.masteriyo-container ul.page-numbers .prev svg,
+.masteriyo-container ul.page-numbers .next svg,
+.masteriyo-course-list-display-section ul.page-numbers .prev svg,
+.masteriyo-course-list-display-section ul.page-numbers .next svg {
   width: 24px;
   height: 24px;
 }
-ul.page-numbers li {
+.masteriyo-container ul.page-numbers li,
+.masteriyo-course-list-display-section ul.page-numbers li {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -593,10 +600,12 @@ ul.page-numbers li {
   width: 40px;
   height: 38px;
 }
-ul.page-numbers li a:hover {
+.masteriyo-container ul.page-numbers li a:hover,
+.masteriyo-course-list-display-section ul.page-numbers li a:hover {
   color: var(--masteriyo-color-primary);
 }
-ul.page-numbers li span {
+.masteriyo-container ul.page-numbers li span,
+.masteriyo-course-list-display-section ul.page-numbers li span {
   width: 100%;
   height: 100%;
   display: flex;
@@ -604,15 +613,18 @@ ul.page-numbers li span {
   justify-content: center;
   border-radius: 4px;
 }
-ul.page-numbers li span.current {
+.masteriyo-container ul.page-numbers li span.current,
+.masteriyo-course-list-display-section ul.page-numbers li span.current {
   color: var(--masteriyo-color-white);
   background: var(--masteriyo-color-primary);
 }
-ul.page-numbers .prev {
+.masteriyo-container ul.page-numbers .prev,
+.masteriyo-course-list-display-section ul.page-numbers .prev {
   cursor: pointer;
   fill: var(--masteriyo-color-btn-grey);
 }
-ul.page-numbers .prev:hover svg {
+.masteriyo-container ul.page-numbers .prev:hover svg,
+.masteriyo-course-list-display-section ul.page-numbers .prev:hover svg {
   fill: var(--masteriyo-color-primary) !important;
 }
 
@@ -1223,13 +1235,13 @@ ul.page-numbers .prev:hover svg {
   margin-top: 0;
 }
 .masteriyo-courses-filters .masteriyo-filter-section--buttons .masteriyo-apply-filters {
-  background: var(--primary-button);
+  background: var(--masteriyo-button-primary);
   color: var(--masteriyo-color-white);
-  border: 1px solid var(--primary-button);
+  border: 1px solid var(--masteriyo-button-primary);
 }
 .masteriyo-courses-filters .masteriyo-filter-section--buttons .masteriyo-apply-filters:hover {
   background: transparent;
-  color: var(--primary-button);
+  color: var(--masteriyo-button-primary);
 }
 .masteriyo-courses-filters .masteriyo-filter-section--buttons .masteriyo-clear-filters {
   border-color: #d1d5db;
@@ -2376,14 +2388,14 @@ body.masteriyo-courses-page {
   fill: #ffffff;
 }
 
-.toggle-arrow {
+.masteriyo-filter-section .toggle-arrow {
   transition: transform 0.3s ease;
   cursor: pointer;
   width: 20px;
   height: 20px;
 }
 
-.toggle-arrow.rotated {
+.masteriyo-filter-section .toggle-arrow.rotated {
   transform: rotate(360deg) !important;
 }
 

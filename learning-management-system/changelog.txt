@@ -1,4 +1,17 @@
 == Changelog ==
+= 2.1.9 - 04-05-2026 =
+- Enhancement - Load Masteriyo public CSS only on Masteriyo-related content pages.
+- Fix - Enhance security.
+- Fix - Log email delivery failures silently through the Masteriyo logger.
+- Fix - Courses shortcode rendering private courses to non-enrolled users.
+- Fix - Course Bundles shortcode rendering private courses to non-enrolled users. [PRO]
+- Fix - Exclude Learn and Account pages from cache plugins.
+- Fix - Show contextual error notices on Learn page redirects.
+- Fix - Block paid course access for logged-in users without a student role.
+- Fix - Randomize Questions setting not applied on Learn page quiz.
+- Fix - Course featured image missing in Course Bundle editor. [PRO]
+- Fix - Group enrollment course selector not listing courses with tiered pricing. [PRO]
+
 = 2.1.8 - 06-04-2026 =
 - Enhancement – Made the Stripe webhook secret mandatory to improve security.
 - Fix – Enhance security.

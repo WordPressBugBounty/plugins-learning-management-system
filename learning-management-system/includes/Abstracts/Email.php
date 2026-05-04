@@ -176,6 +176,7 @@ abstract class Email {
 		add_filter( 'wp_mail_from', array( $this, 'get_from_address' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'get_from_name' ) );
 		add_filter( 'wp_mail_content_type', array( $this, 'get_content_type' ) );
+		add_action( 'wp_mail_failed', array( $this, 'log_mail_failed' ) );
 
 		/**
 		 * Filters email content.
@@ -212,10 +213,34 @@ abstract class Email {
 		remove_filter( 'wp_mail_from', array( $this, 'get_from_address' ) );
 		remove_filter( 'wp_mail_from_name', array( $this, 'get_from_name' ) );
 		remove_filter( 'wp_mail_content_type', array( $this, 'get_content_type' ) );
+		remove_action( 'wp_mail_failed', array( $this, 'log_mail_failed' ) );
 
 		$this->restore_locale();
 
 		return $return;
+	}
+
+	/**
+	 * Log email delivery failure via the wp_mail_failed action.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_Error $wp_error Error object with failure details (to, subject, reason).
+	 */
+	public function log_mail_failed( $wp_error ) {
+		$data    = $wp_error->get_error_data();
+		$to      = isset( $data['to'] ) ? implode( ', ', (array) $data['to'] ) : '';
+		$subject = isset( $data['subject'] ) ? $data['subject'] : '';
+
+		masteriyo_get_logger()->error(
+			sprintf(
+				'Email delivery failed. Recipient: %s, Subject: %s, Reason: %s',
+				$to,
+				$subject,
+				$wp_error->get_error_message()
+			),
+			array( 'source' => 'masteriyo-email' )
+		);
 	}
 
 	/**
@@ -342,11 +367,11 @@ abstract class Email {
 			foreach ( $nodes as $node ) {
 				$style = $node->getAttribute( 'style' );
 				if ( preg_match( '/display\s*:\s*none/i', $style ) ) {
-					$node->parentNode->removeChild( $node );
+					$node->parentNode->removeChild( $node ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				}
 			}
 
-			$content = $dom->saveHTML( $dom->documentElement );
+			$content = $dom->saveHTML( $dom->documentElement ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$content = "<!DOCTYPE html>\n" . $content;
 
 		} catch ( \Exception $e ) {

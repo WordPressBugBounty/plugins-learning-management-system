@@ -305,7 +305,7 @@ class GoogleMeetController extends PostsController {
 				return true;
 			}
 
-			if ( is_user_logged_in() && masteriyo_is_current_user_student() && ! masteriyo_can_start_course( $course ) ) {
+			if ( is_user_logged_in() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() && ! masteriyo_can_start_course( $course ) ) {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
 					__( 'Sorry, you have not bought the course.', 'learning-management-system' ),
@@ -1511,7 +1511,7 @@ class GoogleMeetController extends PostsController {
 		$is_meeting_update_allowed = false;
 
 		if ( is_user_logged_in() ) {
-			$is_meeting_update_allowed = (int) $author['id'] === (int) get_current_user_id();
+			$is_meeting_update_allowed = (int) get_current_user_id() === (int) $author['id'];
 		}
 
 		$course = masteriyo_get_course( $google_meet->get_course_id( $context ) );

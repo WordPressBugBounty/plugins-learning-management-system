@@ -654,7 +654,7 @@ if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 			return false;
 		}
 
-		if ( current_user_can( 'administrator' ) && masteriyo_is_user_enrolled_in_course( $course_id, $user_id ) ) {
+		if ( current_user_can( 'manage_masteriyo_settings' ) && masteriyo_is_user_enrolled_in_course( $course_id, $user_id ) ) {
 			return true;
 		}
 
@@ -696,7 +696,7 @@ if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 
 		$status = $order->get_status();
 
-		return ( $status === 'completed' );
+		return ( 'completed' === $status );
 	}
 }
 if ( ! function_exists( 'masteriyo_is_current_user_enrolled_in_course' ) ) {
@@ -1435,4 +1435,271 @@ function is_masteriyo_block() {
 	}
 
 	return false;
+}
+
+if ( ! function_exists( 'masteriyo_post_has_masteriyo_content' ) ) {
+	/**
+	 * Check whether a post's content contains any Masteriyo block or shortcode.
+	 *
+	 * Uses two strpos() calls instead of has_block() / has_shortcode() because:
+	 * - has_block() invokes the full Gutenberg block parser (parse_blocks)
+	 * - has_shortcode() runs a preg_match for every registered shortcode
+	 * - strpos() is a single C-level Boyer-Moore search — 10-50x faster
+	 *
+	 * Block storage format:  "<!-- wp:masteriyo/..."
+	 * Shortcode storage format: "[masteriyo_..."
+	 * Both prefixes are unique to Masteriyo and collision-free.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_Post $post The post object to inspect.
+	 *
+	 * @return bool True if the post contains Masteriyo content.
+	 */
+	function masteriyo_post_has_masteriyo_content( \WP_Post $post ): bool {
+		$content = $post->post_content;
+
+		$has_content = false;
+
+		if ( ! empty( $content ) ) {
+			$has_content = (
+				false !== strpos( $content, '<!-- wp:masteriyo/' ) ||
+				false !== strpos( $content, '[masteriyo_' )
+			);
+		}
+
+		// Fallback: Check Page Builder Data where post_content might be bypassed.
+		if ( ! $has_content ) {
+			/**
+			 * Filters the list of post meta keys to check for Masteriyo content.
+			 *
+			 * @since x.x.x
+			 *
+			 * @param array $meta_keys List of meta keys.
+			 */
+			$builder_meta_keys = apply_filters(
+				'masteriyo_post_has_content_meta_keys',
+				array(
+					'_elementor_data',        // Elementor.
+					'_bricks_page_content_2',  // Bricks.
+					'_ct_builder_json',        // Oxygen (JSON).
+					'_ct_builder_shortcodes',  // Oxygen (Shortcodes).
+					'_fl_builder_data',        // Beaver Builder (published).
+					'_fl_builder_draft',       // Beaver Builder (draft/unpublished).
+					'_et_pb_old_content',      // Divi.
+				)
+			);
+
+			foreach ( $builder_meta_keys as $key ) {
+				$data = get_post_meta( $post->ID, $key, true );
+
+				if ( empty( $data ) ) {
+					continue;
+				}
+
+				if ( is_string( $data ) ) {
+					if ( false !== stripos( $data, 'masteriyo' ) ) {
+						$has_content = true;
+						break;
+					}
+				} elseif ( is_array( $data ) || is_object( $data ) ) {
+					// Some builders (e.g. Beaver Builder) return a deserialized PHP object.
+					// wp_json_encode() handles both arrays and objects and is only called
+					// when post_content contains no Masteriyo content.
+					// Guard against wp_json_encode() returning false on corrupt meta (PHP 8 TypeError safety).
+					$encoded = wp_json_encode( $data );
+					if ( false !== $encoded && false !== stripos( $encoded, 'masteriyo' ) ) {
+						$has_content = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return $has_content;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_masteriyo_public_page' ) ) {
+	/**
+	 * Determine whether the current page requires Masteriyo public styles.
+	 *
+	 * Uses a four-tier detection strategy for maximum performance:
+	 *
+	 * Tier 0 — Preview / editor detection (zero DB, pure PHP booleans):
+	 *   Handles WP Customizer preview iframe and native post preview. Note:
+	 *   is_admin() is intentionally absent — wp_enqueue_scripts never fires on
+	 *   admin requests, so that check would be permanently dead code and would
+	 *   return a semantically wrong answer (true = "enqueue public CSS") if this
+	 *   function were ever called directly in an admin context. Page-builder
+	 *   editor contexts (Elementor, Bricks, etc.) are handled explicitly below.
+	 *
+	 * Tier 1 — Static WP conditionals (zero DB, pure PHP):
+	 *   Handles all Masteriyo CPT pages and taxonomy archives.
+	 *
+	 * Tier 2 — Post-meta O(1) lookup (zero extra DB on singular pages):
+	 *   Handles arbitrary pages containing Masteriyo shortcodes or blocks.
+	 *   The meta flag (_masteriyo_has_content) is written once at save_post time
+	 *   via ScriptStyle::mark_page_masteriyo_content(). For posts saved before
+	 *   that hook shipped, a lazy one-time scan runs on first frontend visit and
+	 *   the result is persisted asynchronously on shutdown.
+	 *
+	 * Tier 3 — Extensibility filter:
+	 *   Covers PRO addon pages, headless setups, and any edge case not covered by Tiers 0-2.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return bool True if Masteriyo public styles should be enqueued.
+	 */
+	function masteriyo_is_masteriyo_public_page(): bool {
+
+		// Emergency opt-out: define MASTERIYO_ALWAYS_LOAD_PUBLIC_CSS in wp-config.php
+		// to unconditionally enqueue public styles on every page. Use this on sites
+		// where the tier detection misses a custom setup (headless, heavily customised
+		// FSE template, proprietary page builder, etc.).
+		if ( defined( 'MASTERIYO_ALWAYS_LOAD_PUBLIC_CSS' ) && MASTERIYO_ALWAYS_LOAD_PUBLIC_CSS ) {
+			return true;
+		}
+
+		// ── TIER 0: Editor / preview detection (zero DB) ────────────────────────
+		// WP Customizer preview iframe and native post preview both fire
+		// wp_enqueue_scripts in a frontend context and need public styles.
+		if ( is_customize_preview() || is_preview() ) {
+			return true;
+		}
+
+		// Elementor: ?elementor-preview param identifies the editor's preview iframe.
+		// Kept as a cheap fast-path before the class-based check below.
+		if ( isset( $_GET['elementor-preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// Elementor: official API covers both the editor canvas and the preview iframe.
+		// Null-check $instance first — the class can be auto-loaded before Elementor's
+		// own bootstrap runs, leaving $instance as null and causing a fatal on ->editor.
+		if (
+			class_exists( '\Elementor\Plugin' ) &&
+			null !== \Elementor\Plugin::$instance &&
+			isset( \Elementor\Plugin::$instance->editor ) &&
+			isset( \Elementor\Plugin::$instance->preview ) &&
+			(
+				\Elementor\Plugin::$instance->editor->is_edit_mode() ||
+				\Elementor\Plugin::$instance->preview->is_preview_mode()
+			)
+		) {
+			return true;
+		}
+
+		// Bricks: official bricks_is_builder() covers both editor iframe and preview.
+		if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
+			return true;
+		}
+
+		// Oxygen: SHOW_CT_BUILDER constant is defined by Oxygen when it renders any
+		// editor/iframe request. The GET param covers early-bootstrap requests before
+		// the constant is set.
+		if (
+			defined( 'SHOW_CT_BUILDER' ) ||
+			isset( $_GET['ct_builder'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			return true;
+		}
+
+		// Beaver Builder: FLBuilderModel::is_builder_active() is the official API for
+		// detecting the frontend editor mode (?fl_builder).
+		if ( class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active() ) {
+			return true;
+		}
+
+		// Divi: no official PHP function; $_GET['et_fb'] is the documented signal for
+		// the visual builder being active. Gate on a Divi class so an arbitrary ?et_fb
+		// query string on a non-Divi site cannot force-enqueue styles.
+		if ( isset( $_GET['et_fb'] ) && ( class_exists( 'ET_Builder_Plugin' ) || class_exists( 'ET_Builder_Element' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// ── TIER 1: Static WP conditionals (zero DB, pure PHP booleans) ──────────
+		if (
+			masteriyo_is_single_course_page() ||
+			masteriyo_is_courses_page() ||
+			masteriyo_is_learn_page() ||
+			masteriyo_is_account_page() ||
+			masteriyo_is_checkout_page() ||
+			masteriyo_is_instructor_registration_page() ||
+			is_tax( array( 'course_cat', 'course_tag', 'course_difficulty', 'course_visibility' ) )
+		) {
+			return true;
+		}
+
+		// ── TIER 2 guard: post-meta lookup is only meaningful on singular pages ────
+		// On archives, blog index, search, and 404 pages WordPress populates the
+		// global $post with the first post in the loop as a side-effect, meaning
+		// $post can be non-null even when the current page is not about that post.
+		// Using that incidental $post->ID for a meta lookup would cause a false
+		// positive (public styles enqueued on a blog index just because the first
+		// post happens to contain a Masteriyo shortcode). Guard with is_singular().
+		if ( ! is_singular() ) {
+			return (bool) apply_filters( 'masteriyo_enqueue_public_styles', false );
+		}
+
+		global $post;
+
+		if ( ! $post ) {
+			// is_singular() returned true but $post is null — should not happen in
+			// normal WP execution, but guard defensively.
+			return (bool) apply_filters( 'masteriyo_enqueue_public_styles', false );
+		}
+
+		// ── TIER 2: Post-meta lookup (object-cache hit on singular pages) ────────
+		// On singular pages WP_Query pre-loads all post meta in a single SELECT,
+		// so get_post_meta() never hits the DB here — it's always a cache hit.
+		$meta = get_post_meta( $post->ID, '_masteriyo_has_content', true );
+
+		if ( '1' === $meta ) {
+			return true;
+		}
+
+		// Lazy migration path: post was saved before the save_post hook shipped.
+		// '' means the meta key has never been written (get_post_meta returns '' when
+		// the key does not exist with $single=true).
+		// Scan once now, defer the DB write to shutdown so enqueue is not blocked.
+		// The static map prevents adding duplicate shutdown callbacks if this function
+		// is called more than once per request for the same post.
+		if ( '' === $meta ) {
+			static $shutdown_scheduled = array();
+
+			$has = \masteriyo_post_has_masteriyo_content( $post );
+
+			if ( empty( $shutdown_scheduled[ $post->ID ] ) ) {
+				$shutdown_scheduled[ $post->ID ] = true;
+				add_action(
+					'shutdown',
+					static function () use ( $post, $has ) {
+						if ( $post && $post->ID ) {
+							update_post_meta( $post->ID, '_masteriyo_has_content', $has ? '1' : '0' );
+						}
+					}
+				);
+			}
+
+			if ( $has ) {
+				return true;
+			}
+		}
+
+		// '0' === $meta → explicitly marked at save time as having no Masteriyo content.
+
+		// ── TIER 3: Extensibility filter ─────────────────────────────────────────
+		/**
+		 * Force-enable Masteriyo public styles on the current page.
+		 *
+		 * Use this for: Custom page templates, headless setups, or PRO addon pages
+		 * not covered by Tier 1-2.
+		 *
+		 * @since x.x.x
+		 *
+		 * @param bool $enqueue Whether to enqueue public styles. Default false.
+		 */
+		return (bool) apply_filters( 'masteriyo_enqueue_public_styles', false );
+	}
 }

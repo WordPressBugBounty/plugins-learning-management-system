@@ -76,6 +76,14 @@ abstract class CachePluginCompatibility {
 		if ( masteriyo_is_instructor_registration_page() ) {
 			$this->do_not_cache();
 		}
+
+		if ( masteriyo_is_learn_page() ) {
+			$this->do_not_cache();
+		}
+
+		if ( masteriyo_is_account_page() ) {
+			$this->do_not_cache();
+		}
 	}
 
 	/**

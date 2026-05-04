@@ -60,7 +60,7 @@ function masteriyo_template_redirect() {
 		&& masteriyo( 'cart' )->is_empty() && empty( $wp->query_vars['order-pay'] ) && ! isset( $wp->query_vars['order-received'] )
 		&& ! is_customize_preview() && $redirect_empty_cart
 	) {
-		wp_safe_redirect( masteriyo_get_courses_url() );
+		wp_safe_redirect( add_query_arg( 'masteriyo_error', 'empty_cart', masteriyo_get_courses_url() ), 307 );
 		exit;
 	}
 
@@ -2572,12 +2572,12 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_con
 			$permalink .= '#/course/' . $course->get_id() . '/' . $item->get_object_type() . '/' . $item_id;
 			?>
 		<li class="masteriyo-lesson-item masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?> masteriyo-list__item--accordion">
-				<?php echo $item->get_icon(); ?>
+				<?php echo $item->get_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<a href="<?php echo esc_url( $permalink ); ?>">
 					<?php echo esc_html( $item->get_name() ); ?>
 				</a>
 				<span class="masteriyo-lesson-<?php echo esc_attr( $status_class ); ?> masteriyo-list__item--content--accordion">
-					<?php echo $status_icon; ?>
+					<?php echo $status_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>
 					<?php
 					/**
@@ -3791,7 +3791,7 @@ if ( ! function_exists( 'masteriyo_layout_1_single_course_main_tab_content' ) ) 
 
 		if (
 		( isset( $summary['total']['completed'], $summary['total']['total'] ) &&
-		$summary['total']['completed'] === 0 &&
+		0 === $summary['total']['completed'] &&
 		$summary['total']['total'] > 0 ) ||
 		! is_user_logged_in() ||
 		empty( $progress ) || $progress_pct <= 0

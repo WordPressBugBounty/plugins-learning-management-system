@@ -2403,7 +2403,7 @@ if ( ! function_exists( 'masteriyo_create_new_user' ) ) {
 		$wp_user = get_user_by( 'email', $user->get_email() );
 
 		if ( ! $wp_user ) {
-			throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) );
+			throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		$args['password'] = $password;
@@ -3039,7 +3039,7 @@ function masteriyo_doing_it_wrong( $function, $message, $version ) {
 		do_action( 'doing_it_wrong_run', $function, $message, $version );
 		error_log( "{$function} was called incorrectly. {$message}. This message was added in version {$version}." );
 	} else {
-		_doing_it_wrong( $function, $message, $version );
+		_doing_it_wrong( $function, $message, $version ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 	// phpcs: enable
 }
@@ -5847,6 +5847,14 @@ if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
 	 * @return void
 	 */
 	function masteriyo_notify_pages_missing() {
+		// When Starter Sites & Templates by Neve is active, suppress this notice on non-Masteriyo pages.
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'templates-patterns-collection/templates-patterns-collection.php' ) ) {
+			$page = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( empty( $page ) || strpos( $page, 'masteriyo' ) === false ) {
+				return;
+			}
+		}
+
 		// Define required pages with their setting keys and display names
 		$required_pages = array(
 			'learn'    => array(
@@ -6130,8 +6138,11 @@ if ( ! function_exists( 'masteriyo_show_onboarding_completion_notice' ) ) {
  * If the 'elearning' theme is active, it updates the 'elearning_hide_welcome_notice' option to true,
  * effectively hiding the welcome notice for the theme in the WordPress admin area.
  */
-add_action( 'admin_init', function() {
-    if ( get_template() === 'elearning' ) {
-        update_option( 'elearning_hide_welcome_notice', true );
-    }
-});
+add_action(
+	'admin_init',
+	function() {
+		if ( get_template() === 'elearning' ) {
+			update_option( 'elearning_hide_welcome_notice', true );
+		}
+	}
+);

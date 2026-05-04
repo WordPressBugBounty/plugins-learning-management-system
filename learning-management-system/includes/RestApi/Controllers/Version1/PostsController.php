@@ -71,7 +71,7 @@ abstract class PostsController extends CrudController {
 				return true;
 			}
 
-			if ( is_user_logged_in() && masteriyo_is_current_user_student() && ! masteriyo_can_start_course( $course ) ) {
+			if ( is_user_logged_in() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() && ! masteriyo_can_start_course( $course ) ) {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
 					__( 'Sorry, you have not bought the course.', 'learning-management-system' ),

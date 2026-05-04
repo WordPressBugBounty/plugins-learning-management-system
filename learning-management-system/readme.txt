@@ -1,246 +1,248 @@
- === Masteriyo LMS – Online Course Builder for eLearning, LMS & Education ===
+=== Masteriyo LMS – Online Course Builder for eLearning, LMS & Education ===
 Contributors: Masteriyo, themeisle
-Tags: LMS, eLearning, education, course, Learning Management System 
+Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.1.8
+Stable tag: 2.1.9
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-The complete WordPress LMS plugin for course creation & monetization. Create engaging courses, lessons, quizzes, assignments & certificates.
+The complete WordPress LMS plugin for online courses. Build lessons, quizzes, assignments, and certificates. Sell courses with built-in payments.
 
 == Description ==
 
-### The Best Free WordPress LMS Plugin
+### Free WordPress LMS Plugin: Built-in Payments, Quizzes, and Certificates
 
-Masteriyo is the best WordPress LMS tool to create and sell online courses for free. Designed with both educators and students in mind, Masteriyo makes it easy to create and deliver engaging courses online.
+Masteriyo is a self-hosted LMS plugin and WordPress course plugin built for course creation and monetization: create, manage, and sell online courses without WooCommerce, SaaS fees, or platform commissions. As a self-hosted WordPress LMS, it gives companies, educators, and creators full control over their data and revenue.
 
-Whether you are looking to create a single course or a full-fledged course marketplace, it offers everything you need to create, manage, and monetize an eLearning platform.
+Unlike a hosted LMS or an LMS-as-a-service platform, Masteriyo runs on your own WordPress site, giving you full ownership of your data, students, and revenue. The built-in order system, payment gateways, quizzes, and certificates are all free. No third-party plugins required.
 
-Unlike other LMS plugins requiring premium plans, Masteriyo provides a built-in order system with payment gateways, certificates, and quizzes for free.
+Accept payments via Stripe, PayPal, Razorpay, Mollie, and more. Sell in multiple currencies, share revenue with instructors, and keep 100% of your earnings.
 
-Get started today with all essential LMS features:
+### ⚡ Quick Links
 
-👉 [Check out our Demo](https://masteriyo-site.vertisite.cloud)
-👉 [Give Masteriyo a Try](https://app.instawp.io/launch?t=masteriyo-demo&d=v2)
+- [Live Demo](https://masteriyo-site.vertisite.cloud/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
+- [Masteriyo Pro](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
+- [Free vs Pro](https://masteriyo.com/free-vs-pro/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
+- [Join Community](https://www.facebook.com/groups/masteriyo/)
+- [Documentation](https://docs.masteriyo.com/)
 
-As your course platform grows, you can upgrade to Pro for white-label options, enterprise-level features, and premium support.
 
-👉 [Check out Masteriyo Pro](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=prolink)
+[youtube https://youtu.be/pr1vYXNnaTI?si=OWI3B9rUnTBJOq1P]
 
-Also, join our growing LMS Facebook Community: [Masteriyo LMS Community](https://www.facebook.com/groups/masteriyo/)
+### Who Masteriyo Is For
 
-Watch how Masteriyo simplifies course creation and monetization:
-[youtube https://www.youtube.com/watch?v=pr1vYXNnaTI]
+- **Educators, Schools, and Universities**: An LMS for schools, universities, coaching centers, and institutions with a complete online course platform for student tracking, gradebook, and course management.
 
-### Why Choose Masteriyo?
+- **Tutors and Coaches**: Sell your knowledge as online courses, tutorials, or training modules with no platform commissions and no coding required.
 
-Masteriyo’s user-friendly interface allows you to easily build and sell courses, making it perfect for both beginners and experienced creators. Plus, it’s built to scale as your platform grows.
+- **Academy and Marketplace Builders**: Build an online academy or course marketplace platform like Udemy or Coursera, where instructors can create courses and earn through revenue sharing.
 
-- **Start for Free:** Masteriyo’s free version gives you access to all core LMS features, even more than other plugins.
+- **Corporate and Business Training**: Run an employee training LMS, online education portal, or onboarding platform for teams and companies with support for enterprise learning and business training.
 
-- **Easy to Scale:** From individual tutors to large institutions, Masteriyo grows with you, offering flexibility at every stage.
+- **Content Creators**: Monetize content with a flexible LMS for online courses, grow your online academy, and reach learners worldwide.
 
-- **Built-in eCommerce:** Start selling your courses and manage payments with ease without any third-party plugins.
 
-- **Seamless Integrations:** Extend Masteriyo’s core functionality with 40+ add-ons and 20+ integrations like Elementor, Google Meet, and OpenAI ChatGPT.
-
-### Who is Masteriyo LMS for:
-
-Masteriyo is a **flexible platform** designed to meet the needs of a wide variety of users:
-
-- **Educational Institutions:** Masteriyo enables schools, colleges, and coaching centers to take their learning online, offering tools for course creation, student tracking, and performance evaluation.
-
-- **Individual Trainers, Tutors, and Coaches:** Easily monetize your knowledge, skills, and expertise by selling courses and training modules without any coding required.
-
-- **Course Marketplaces:** Build a platform like Udemy or Coursera where instructors can sign up, create courses, and earn revenue.
-
-- **Corporate Training:** Use Masteriyo for in-house employee training, onboarding, and skills development.
-
-- **Content Creators:** Whether you're a creator or influencer, monetize your content and sell merchandise using WooCommerce integration.
-
-### Masteriyo Features
+### **Masteriyo Features**
 
 ### Course Creation and Management
 
+LMS course builder with drag-and-drop editing, a dedicated course builder for eLearning and online learning courses, lessons, and quizzes.
+
 - Unlimited courses, lessons, chapters, quizzes, certificates, and assignments
-- Drag & Drop Builder for courses, lessons, and quizzes
 - Self-paced and instructor-led course modules
-- Certificate Builder with online verification
-- Zoom/Google Meet Integration for live sessions
-- Content Drip to release content on a schedule
-- Course protection and security measures
-- Interactive lessons with text, video, and live streaming
-- Picture-in-Picture, Subtitles, Timestamp for Video Lessons
-- In-lesson Note Taking
-- Course Attachment and Download Materials
-- SCORM Compliance
-- Manage Course Visibility: Free, Enrolled Users Only, Private Courses
-- Lesson Preview
-- Course Announcement
-- Course FAQs and Course Highlights
-- Course Coming Soon
-- Featured Courses and Course Badges
-- Custom Fields for Courses
-- Distraction-free Learning Page
+- SCORM-compliant LMS with easy import of existing eLearning content
+- H5P support for interactive online learning content and assessments
+- Certificate builder with customizable templates and QR validation
+- Content drip to release lessons on a schedule
+- Interactive lessons with text, video, and live streaming via YouTube Live
+- Picture-in-picture, subtitles, closed captions, and timestamps for video lessons
+- In-lesson note-taking, course attachments, and downloadable materials
+- Course visibility options: open, enrolled users only, or private
+- Course prerequisites, enrollment expiration, retakes, and resume from last chapter
+- Course announcements, FAQ, coming soon mode, featured courses, and badges
+- Distraction-free learning page with lesson preview before enrollment
 
-### Quiz, Assignment, & Assessment
 
-- Unlimited Quizzes and Assignments
-- Gradebook for student evaluation
-- Quiz Review System
-- Question Builder
-- Randomize Questions
-- Quiz Time Limitation
-- Auto-calculate Points
-- Custom Grading
 
-### Student & Instructor Management
+### Quiz, Assignment, and Assessment
+
+- Unlimited quizzes and assignments
+- Question builder with single choice, multiple choice, true/false, and matching types
+- Quiz time limits, randomized questions, auto-calculated points, and custom grading
+- Quiz review system showing students where they went wrong
+- Quiz import and export for reuse across courses
+- Gradebook for student evaluation and performance tracking
+- LMS reporting and analytics with student reports to track results and course progress
+
+
+### Student and Instructor Management
 
 - Unlimited instructors and students
-- Users Import and Export
-- Bulk Students & Instructors Export
-- Student Activity Log
-- Social Login
-- Public Profile
-- Multiple Instructors for Single Course
-- Login Session Management
-- Manual Student Enrollment
-- User Registration Integration
+- Social login (Facebook, Google), public profiles, and manual enrollment
+- Multiple instructors per course
+- User import and export with bulk CSV support for students and instructors
+- Student activity log and login session management
+- Student progress tracking with course reports and a dynamic progress bar
+- Course reviews after completion and vertical course navigation
 
-### Student Progress Tracking
+### Monetization & Payments
 
-- Student Course Progress Reports
-- Course Review after Completion
-- Dynamic Course Progress Bar
-- Vertical Course Navigation Section
-- Course Retake
-- Course End
-- Course Prerequisites
-- Course Enrollment Expiration
-- Open Last Chapter
+Built-in eCommerce with cart, checkout, wishlist, coupons, and payment integrations. No WooCommerce required.
 
-### Monetization and Revenue
+- Payment gateways: Stripe, PayPal, Mollie, Lemon Squeezy, Razorpay, and more
+- Integrations with WooCommerce, SureCart, and Easy Digital Downloads (EDD)
+- Revenue sharing between instructors and administrators
+- One-time course fees or subscription-based pricing models
+- Marked price and sale price with support for course bundles and group courses
+- Multiple currency support for region-based pricing
 
-- Built-in ecommerce with cart, checkout page,  wishlist, coupons, and payment integrations
-- Support Payment Gateways: Stripe, PayPal, Mollie, Razorpay, etc.
-- Revenue sharing options between instructors and administrators
-- One-time course fee or subscription-based business model
-- Marked Price and Sale Price for Courses
-- Sell multiple courses together as Course Bundle
-- Sell a course to an organization with Group Course
-- Integrations with WooCommerce, Lemon Squeezy, SureCart, EDD, etc.
-- Assign region-based pricing with Multiple Currency
+### Security & Access
 
-### Design and Customization Tools
+- Google reCAPTCHA for spam and bot protection
+- Two-factor authentication (2FA) for secure logins
+- Email verification for user account validation
+- Password strength checker to enforce secure credentials
+- Course content and video protection
+- Login session management for enhanced security
 
-- Free Starter Templates by eLearning Theme
-- Global Style Options
-- Course Archive Filter
-- White Label
-- Certificate Builder with pre-built templates
-- QR Validation for Certificates
-- Instructors List Page and Shortcode
+### Admin & Tools
 
-### Page Builder Compatibility
+- Setup wizard with free starter templates for Elementor and Gutenberg
+- Dashboard analytics for quick performance insights
+- LMS reports for tracking courses and student activity
+- Webhooks for automation and third-party integrations
+- White label support (Elite plan)
+- Bulk add-on management
+- Quiz import and export
+- Course archive filter for better navigation
+- Instructors list page
 
-- Elementor
-- WordPress Block Editor (Gutenberg)
-- Divi
-- Oxygen
-- Bricks Builder
-- Beaver Builder
+### Create Courses with AI
 
-### Advanced Integrations
+Masteriyo integrates with OpenAI ChatGPT to automate course creation and reduce manual work.
+- **AI-powered course generation**: Generate full course outlines, sections, and lessons from a topic
+- **Flexible structure**: Define sections, lessons, and key highlights, and let AI fill in the details
+- **AI quiz generation**: Create quiz questions including multiple choice, match-the-following, sortable, and fill-in-the-blank
 
-- WooCommerce
-- Lemon Squeezy
-- SureCart
-- Google Meet
-- Zoom
-- Mailchimp
-- OpenAI ChatGPT
-- GamiPress
-- Paid Membership Pro
-- Bunney.net
-- BuddyPress
-- Restrict Content Pro
+### Already Using a Different LMS?
 
-### Security
+Masteriyo includes a built-in LMS migration tool to transfer courses, quizzes, orders, and student data from **TutorLMS**, **LifterLMS**, **LearnPress**, **LearnDash**, and **MasterStudy**. No manual exports or developers needed.
 
-- Password Strength Checker
-- Google reCAPTCHA
-- Two-Factor Authentication (2FA)
-- Email Verification
-- Course Content/Video Protection
-- Login Session Management
+Switching from **Sensei LMS**, **Kajabi**, **Teachable**, **Thinkific**, or **Podia**? Masteriyo is a self-hosted alternative with no fees or commissions.
 
-### Admin Tools
+### Upgrade to Pro When You are Ready to Scale
 
-- Intuitive Setup Wizard
-- White Label
-- Dashboard Analytics
-- Webhooks
-- Zapier Integration
-- Bulk Activate/Deactivate Add-ons
-- Users Import and Export
-- Bulk Students & Instructors Export to CSV
-- Quizzes Import/Export
+- Prerequisites, assignments, and advanced quiz types
+- Gradebook and student reports
+- Course bundles and subscriptions
+- Coupons and marked/sale pricing
+- Razorpay payment gateway
+- Multiple instructors per course
+- Zoom and Google Meet integration
+- Mailchimp, MailerLite, HubSpot, and Zapier integrations
+- Paid Memberships Pro and Restrict Content Pro support
+- Easy Digital Downloads (EDD) integration
+- Advanced LMS reporting and analytics
+- White label support
+- Priority support
 
-### Hear it from our users:
+[See all Pro features](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=prolink)
+
+### Works Great With
+
+- **Payments and eCommerce**: Stripe, PayPal, Razorpay, Mollie, Lemon Squeezy, WooCommerce, SureCart, and Easy Digital Downloads (EDD)
+
+- **Gamification and community**: GamiPress for gamification features and BuddyPress for social learning
+
+- **Page builders and themes**: Elementor, Divi, Oxygen, Bricks, Beaver Builder, Gutenberg, Neve, Astra, and more
+
+- **Integrations**: Google Meet, Google Classroom, Zoom, Mailchimp, MailerLite, Brevo, Fluent CRM, HubSpot, Bunny.net, OpenAI ChatGPT (Create with AI), Zapier, Paid Memberships Pro, Restrict Content Pro, and more
+
+### What Our Users Say
 
 ⭐⭐⭐⭐⭐
-"I found Masteriyo plugin to be quite effective for setting up and selling my courses. The support is quite prompt and extra-ordinary too. I quite recommend this plugin." — funmiadamo
+
+
+"Masteriyo is a true dark horse, lesser known but just as powerful. Responsive support and impressive update frequency." -- Paul
 
 ⭐⭐⭐⭐⭐
-“Excellent and easy to use plugin with all the nice features. One of the greatest feature about this plugin is its in-built order processing system. I can easily connect Stripe and RazorPay to my site. Community is very active in answering my queries.”
- — Prlpratik
 
-⭐⭐⭐⭐⭐
-“I discovered Masteriyo while researching WordPress LMS plugins, and I’m so glad I did. While most people gravitate toward big names like TutorLMS, LearnDash, or LifterLMS, Masteriyo is a true dark horse — lesser known, but just as powerful (if not more so). The functionality is outstanding, the support team is responsive and helpful, and I’m continually impressed by the frequent updates and active development. It’s clear the team behind Masteriyo is committed to making it a top-tier solution. If you’re looking for an LMS plugin that delivers quality without the bloat, Masteriyo is absolutely worth your attention!” — Paul
 
-“It is really awesome easy to use plugin for LMS administrator. It has all required features and developer support is really excellent.”— almesbarit
+"So many great features on the core version, features you have to pay for elsewhere." -- Simrencoe
 
-“Very good plugin to create courses in your wordpress, easy to use.” — Àlex
-
-"Excellent eLearning product! Easy to install, configure and customize. Awesome support team! Highly recommended!" — kpabya
+[Read all 160+ reviews](https://wordpress.org/support/plugin/learning-management-system/reviews/)
 
 ### Use of 3rd Party Services
 
-To improve the user experience, Masteriyo may use the following 3rd party services if the required feature is enabled:
+Third-party services activate only after opt-in. Personal data is not tracked unless stated.
 
-* Diagnostic & Usage Data – We collect non-sensitive diagnostic and usage data only with user consent to help improve Masteriyo. Masteriyo [TOS](https://masteriyo.com/terms-conditions/) and [Privacy Policy](https://masteriyo.com/terms-conditions/).
+- **Diagnostic data**: Consent only. [Terms of Service](https://masteriyo.com/terms-conditions/) | [Privacy Policy](https://masteriyo.com/terms-conditions/)
 
-* Fonts for Certificates – The Fonts Package is provided solely for use with the Masteriyo. The font package is hosted by Masteriyo via CloudFront and does not collect any personal data directly. CloudFront [AWS Privacy Notice](https://aws.amazon.com/privacy/)
+- **Certificate fonts**: AWS CloudFront, no personal data. [AWS Privacy](https://aws.amazon.com/privacy/)
 
-* Google APIs – Used for Classroom integration and authentication processes. Google [TOS](https://policies.google.com/terms) and [Privacy Policy](https://policies.google.com/privacy)
+- **Google APIs**: Classroom and authentication. [Terms of Service](https://policies.google.com/terms) | [Privacy Policy](https://policies.google.com/privacy)
 
-* Payment Gateways API – Stripe, PayPal, and Mollie APIs are used to process payments securely. Stripe [TOS](https://stripe.com/legal/ssa) and [Privacy Policy](https://stripe.com/privacy), PayPal [TOS](https://www.paypal.com/us/legalhub/paypal/useragreement-full) and [Privacy Policy](https://www.paypal.com/us/legalhub/paypal/privacy-full) and Mollie [TOS](https://www.mollie.com/gb/user-agreement) and [Privacy Policy](https://www.mollie.com/gb/privacy)
+- **Payments**:
+  - **Stripe**: [Terms of Service](https://stripe.com/legal/ssa) | [Privacy Policy](https://stripe.com/privacy)
+  - **PayPal**: [Terms of Service](https://www.paypal.com/us/legalhub/paypal/useragreement-full) | [Privacy Policy](https://www.paypal.com/us/legalhub/paypal/privacy-full)
+  - **Mollie**: [Terms of Service](https://www.mollie.com/gb/user-agreement) | [Privacy Policy](https://www.mollie.com/gb/privacy)
 
-* OpenAI API – Used for certain features that require API key authentication and user-generated responses. OpenAI [Terms of Use](https://openai.com/policies/row-terms-of-use/) and [Policies](https://openai.com/policies/)
+- **OpenAI**: AI features (user API key required). [Terms of Use](https://openai.com/policies/row-terms-of-use/) | [Policies](https://openai.com/policies/)
 
-These services are only activated when the corresponding feature is enabled and do not track personal data unless explicitly stated. Your approval and opt-in are always required.
+
+
+== Installation ==
+
+From your **WordPress Dashboard**
+
+1. Go to **Plugins > Add New**
+2. Search for **Masteriyo**
+3. Click **Install Now** and then **Activate**
+4. Follow the **setup wizard** to configure courses, payments, and pages
+
+From **WordPress.org**
+
+1. **Download Masteriyo**
+2. Upload the `learning-management-system` folder to your **/wp-content/plugins/** directory via **FTP/SFTP**
+3. Activate **Masteriyo** from your **Plugins page**
+4. Follow the **setup wizard** to get started
+
 
 == Screenshots ==
 
-1. Course Builder.
-2. Lesson Builder.
-3. Quiz Builder.
-4. Courses, Single Course and Checkout Page.
-5. Account and Learn page.
+1. Lesson Builder
+2. Course Settings
+3. Quiz Builder
+4. Certificate Builder
+5. Track sales, enrollments, and course performance
+6. Launch with Starter Templates
 
 == Frequently Asked Questions ==
 
 = Do I need to have coding skills to use the Masteriyo LMS Plugin? =
 
-No, you don't need any coding skills. One can click and create courses, lessons and publish.
+No, you don't need any coding skills. One can click and create courses, lessons, and publish.
 
-= Does the plugin work with any WordPress themes?
+= How does Masteriyo compare to LearnDash, TutorLMS, or LifterLMS? =
+
+LearnDash is premium-only from $199/year. TutorLMS restricts its certificate builder to Pro. LifterLMS needs paid add-ons for full payment support. Masteriyo includes payments, certificates, and quizzes for free.
+
+= Does the plugin work with any WordPress themes? =
 
 Yes, Masteriyo LMS is designed to work with any themes that have been coded following WordPress guidelines.
 
-= Do you have a quick get started documentation for Masteriyo LMS?
+= Can I migrate from another LMS? =
+
+Yes. The built-in LMS migration tool transfers courses, quizzes, orders, and student data from LearnDash, TutorLMS, LifterLMS, LearnPress, and MasterStudy in a few clicks.
+
+= Is Masteriyo a self-hosted LMS? =
+
+Yes. No SaaS LMS fees, no per-student costs, and no third-party cuts. Your data stays on your own WordPress site, making it a strong SaaS LMS alternative.
+
+
+= Do you have a quick get started documentation for Masteriyo LMS? =
 
 Yes, we do. Check out this [Getting Started Docs](https://docs.masteriyo.com/)
 
@@ -251,6 +253,10 @@ There are various add-ons available for Masteriyo, such as certificate builder, 
 = Can I get assistance in setting up an online course with Masteriyo? =
 
 Yes, you can get assistance in setting up an online course site. We provide VIP support for a small charge.
+
+= Does Masteriyo work for corporate training, schools, or online academies? =
+
+Yes. It’s used for corporate training, employee onboarding, LMS for schools and universities, and online course marketplaces. A practical course builder for eLearning at any scale, with built-in reports and certificates.
 
 = How can I request a feature that I need for my LMS website? =
 
@@ -282,231 +288,25 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 
 = How can I report security bugs? =
 
-You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/learning-management-system)
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.1.9 - 04-05-2026 =
+- Enhancement - Load Masteriyo public CSS only on Masteriyo-related content pages.
+- Fix - Enhance security.
+- Fix - Log email delivery failures silently through the Masteriyo logger.
+- Fix - Courses shortcode rendering private courses to non-enrolled users.
+- Fix - Course Bundles shortcode rendering private courses to non-enrolled users. [PRO]
+- Fix - Exclude Learn and Account pages from cache plugins.
+- Fix - Show contextual error notices on Learn page redirects.
+- Fix - Block paid course access for logged-in users without a student role.
+- Fix - Randomize Questions setting not applied on Learn page quiz.
+- Fix - Course featured image missing in Course Bundle editor. [PRO]
+- Fix - Group enrollment course selector not listing courses with tiered pricing. [PRO]
+
 = 2.1.8 - 06-04-2026 =
 - Enhancement – Made the Stripe webhook secret mandatory to improve security.
 - Fix – Enhance security.
 - Fix – Resolved RTL issues in the quiz timer and Masteriyo player.
-
-= 2.1.7 - 25-03-2026 =
-- Enhancement - Improve webhook delivery reliability, expand lesson completion tracking coverage, and add observability.
-- Enhancement - Extend Two-Factor Authentication OTP support to WordPress admin login popup. [PRO]
-- Enhancement - Add PDF download enable/disable toggle option for PDF lessons. [PRO]
-- Fix - Enhance security.
-- Fix - Fix log file download and incorrect filename issues in the logs tool.
-- Fix - Make the course name a clickable link on the account page.
-- Fix - Exclude deleted users from course analytics student count. [PRO]
-- Fix - Prevent duplicate contact errors in HubSpot integration during user registration. [PRO]
-
-= 2.1.6 - 11-03-2026 =
-- Fix - Security issue related to Stripe addon.
-- Fix - Course archive page default layout Elementor template not importing.
-
-= 2.1.5 - 26-02-2026 =
-- Enhancement - Added MathJax support in question descriptions.
-- Enhancement - Added option for users to choose whether to start with a starter template.
-- Compatibility - Added Mollie support for Klarna.
-- Refactor - Improved handling of course “Coming Soon” metadata.
-- Update - Added filters for the Start Course button target attribute and Learn page logo URL.
-- Update - Added filters for Facebook and Google redirect URLs. [PRO]
-- Update - Made profile info labels translation-ready.
-- Fix - Resolved issue where quiz attempt user filter was not working.
-- Fix - Fixed course review popup showing even when course reviews are disabled.
-- Fix - Fixed issue where assignment due date could not be left empty. [PRO]
-- Fix - HubSpot integration now fetches all lists using pagination. [PRO]
-- Fix - Resolved Add to Cart AJAX not triggering on course category archive pages.
-- Fix - Fixed Remember Me login not persisting user sessions.
-- Fix - Resolved RTL layout issue on Account page content.
-- Fix - Ensured taxonomies are cloned during post duplication. [PRO]
-
-= 2.1.4 - 08-01-2026 =
-- Enhancement - Admin role support for Two-Factor Authentication OTP email. [PRO]
-- Enhancement - Added filter to support custom redirect URL after user email verification.
-- Update - Support custom admin URLs in Google Meet and Google Classroom setting.
-- Fix - Question description blank issue when updating quiz.
-- Fix - Account page minor UI issue with theme css.
-- Fix - Question and Answer reply of a user is not visible in dark mode.
-- Fix - Disable individual course review option when global review setting is disabled.
-- Fix - Hamburger menu appearing while changing routes and sidebar height fixed to full in the account page.
-- Fix - Course setting tab position for FAQ and Lemon Squeezy. [PRO]
-- Fix - Restore import sample grade button. [PRO]
-
-= 2.1.3 - 30-12-2025 =
-- Enhancement - Improved Account page UI/UX.
-- Fix - Resolved string translation issues.
-- Fix - Prevented the Sell to Groups toggle from resetting after add-on activation.
-- Fix - Prevented a fatal error when creating reviews with an invalid comment ID.
-- Fix - Cast Stripe payment amount to integer to prevent floating-point error.
-- Fix - Improved group buy button compatibility with Course Coming Soon mode.
-- Fix - Resolved password strength string translation issue.
-- Fix - Corrected group pricing logic based on available course seats.
-- Fix - Hide the group buy button when the course enrollment limit is reached.
-- Fix - Fixed spacing issue on the Forgot Password section of the sign-in page.
-- Fix - Resolved issues with adding and removing additional instructors in course settings. [PRO]
-- Fix - Fixed multiple-instructor backend filter issues across courses, quiz attempts, and assignments.
-- Fix - Added a webhook menu for instructors in the backend.
-- Fix - Stripe subscription fails for users created during checkout. [PRO]
-
-= 2.1.2 - 19-12-2025 =
-- Fix - Courses page filter issue.
-- Fix - RTL issue in responsive mode.
-- Fix - Social share icon showing even when social share is disabled. [PRO]
-- Fix - Course update issue when selecting Bunny.net video type.
-- Fix - Cohort course date picker showing current date as placeholder. [PRO]
-- Fix - Checkout UI-related issue.
-- Fix - Learn page sidebar lock icon UI issue.
-- Fix - Course review affecting single course layout 1 UI.
-- Update - Added filter `masteriyo_is_account_page` to check if the current page is a Masteriyo account page.
-
-= 2.1.1 - 16-12-2025 =
-- Fix - Plugin file size issue.
-
-= 2.1.0 - 16-12-2025 =
-- Feature - Cohort-based course feature added. [PRO]
-- Feature - Multi-group pricing options added. [PRO]
-- Update - Improved compatibility with TranslatePress plugin.
-- Update - RTL layout update across frontend pages.
-- Update - Upgrade PHP League Container from v3.4 to v4.2.
-- Compatibility - WordPress v6.9 compatible.
-- Refactor - Migrated selected addons to core (BunnyNet, Event Calendar [PRO], Two-Factor Authentication [PRO], Social Share [PRO], Password Strength, Course Coming Soon).
-- Enhancement - 3 Layout select option added in courses blocks.
-- Enhancement - Overall blocks setting improvement.
-- Enhancement - Added show/hide component options for the single course page.
-- Enhancement - Added Order Summary shortcode ([masteriyo_order_summary]) for post-checkout pages.
-- Enhancement - Learn page UI/UX updated.
-- Enhancement - Single course review section UI updated.
-- Enhancement - Learn page comment section UI updated.
-- Enhancement - Added review courses table in student report. [PRO]
-- Enhancement - Match the Following question type selection UI updated. [PRO]
-- Enhancement - Sample courses updated to match current demo courses.
-- Enhancement - Single course settings rearranged with new Schedule & Access tab and related options moved accordingly.
-- Enhancement - Group pricing single course UI updated.
-- Fix - Aspect ratio issue in video lesson in safari browser.
-- Fix - Accordion section expansion/collapse issue on navigation in learn page.
-- Fix - Update enrollment status logic to keep enrollments active for 'publish' and 'private' courses. [PRO]
-- Fix - Course list page multiple column selection UI issue.
-- Fix - Links not clickable in PDF lesson. [PRO]
-- Fix - Undefined method issue get_display_name().
-- Fix - Fatal error when Google event deleted in Google calender.
-- Fix - Caching issues with Redis in UserCourseRepository.
-- Fix - File parsing error.
-- Fix - 404 on Learn page when navigating from course curriculum.
-- Fix - PHP 8.4 compatibility issues.
-
-= 2.0.4 - 04-11-2025 =
-- Fix - Security related issue.
-- Fix - Fatal error in CourseEnrollButtonWidget during Elementor editing.
-- Fix - Courses filters and sorting disappear issue when search or sorting is disabled.
-- Fix - Masteriyo player full screen issue in small devices, audio boost issue and video stopping randomly issue.
-- Fix - Course contents missing while exporting.
-- Fix - Course retake popup modal not opening on single course modern layout.
-- Fix - Single course and courses minor UI issues.
-- Fix - Single course bundle page UI and tab issues. [PRO]
-
-= 2.0.3 - 16-10-2025 =
-- Fix - Curriculum tab showing only for user who has course progress.
-- Fix - Review visibility control condition sometime not showing review tab.
-
-= 2.0.2 - 15-10-2025 =
-- Enhancement - Added full screen mode in PDF lesson. [PRO]
-- Enhancement - Color palette UI updated and button hover color added.
-- Enhancement - Modern and Overlay courses layout UI and component revamp.
-- Enhancement - Single course and courses page responsiveness.
-- Compatibility - Global color option in Masteriyo styling option for eLearning theme.
-- Fix - "Start Course/Continue" button disappears after starting the course in the modern layout.
-- Fix - Notice related issue.
-- Fix - Required missing pages box not shown initially on home page.
-- Fix - Course filter not working properly in the responsive view.
-- Fix - Payment settings redirection issue fixed in the home page.
-- Fix - Starter template typography and color not being set after importing.
-- Fix - Incorrect license expiration information. [PRO]
-- Fix - Retake course button not showing issue.
-- Fix - Course end date not showing in modern layout.
-- Fix - Lock icon missing for course password access mode.
-- Fix - Group buy button issue in single course modern layout.
-- Fix - Featured video popup modal scrolling issue. [PRO]
-- Fix - Minor UI related issue on single course and courses page.
-- Fix - Quiz setting pass type issue and auto calculate button color. [PRO]
-- Fix - Unlink WooCommerce product from duplicated courses. [PRO]
-- Fix - Course setting data removed issue when updated in course analytics page. [PRO]
-- Fix - Course completion reminder emails goes even after course expiration. [PRO]
-- Fix - Extra box appear even though there is nothing on header in dashboard.
-- Fix - Stripe payment description information changed to course name.
-- Fix - Question/Answer tabs disappear when marking all questions as spam or moving to trash.
-
-= 2.0.1 - 26-09-2025 =
-- Fix - Courses shortcode layout UI issue.
-- Fix - Header UI issue in Masteriyo dashboard.
-- Fix - Empty contents UI in backend pages.
-- Fix - Manual groups enrollment leader change is not reflected in groups page. [PRO]
-- Fix - Deleted manual group enrollment appears in manual enrollment page. [PRO]
-- Fix - Stripe subscription issue on checkout. [PRO]
-- Fix - Group pricing enable issue even when course is free.
-- Fix - Pages not being set in the setting for first installation.
-- Fix - Onboarding user selected data being overwritten when importing starter templates.
-- Fix - Stripe connect not working initially when activated from payment setting.
-- Fix - Starter templates actual typography not showing issue.
-- Fix - Home page UI related issue.
-- Fix - Single course and courses page minor UI issues.
-- Fix - UI issues in Elementor course component widgets.
-- Fix - Course preview not clickable issue. [PRO]
-- Fix - Curriculum content link leads to 404 not found page.
-
-= 2.0.0 - 23-09-2025 =
-- Feature - Manual group enrollment option added. [PRO]
-- Feature - Support for 4 additional AI-generated question types added (Text Answer, Match the Following, Sortable & Fill in the Blanks). [PRO]
-- Feature - Added starter template.
-- Feature - Added a new minimal single layout.
-- Feature - Added 8 new starter templates.
-- Refactor - Eliminated unnecessary PayPal configuration.
-- Refactor - Stripe connect platform.
-- Update - As single course and courses components has been updated, some of the builder [Elementor/Divi and others] elements or widgets might need to be updated.
-- Update - Renamed Courses layout to Default, Modern, and Overlay; renamed Single course layout to Default and Modern.
-- Update - Added external video URL option in Free version.
-- Update - Added course completion reminder email, email from name, and address option in Free version.
-- Update - Added Primary color for learn page and button styling option in Free version.
-- Enhancement - Single course and courses page component UI revamp.
-- Enhancement - Course prerequisites single course page UI update.
-- Enhancement - Course enrollment expiration single course page UI update.
-- Enhancement - Course coming soon single course page UI update.
-- Enhancement - Onboarding page UI/UX revamp.
-- Enhancement - Added Home page, which shows incomplete setup parts.
-- Enhancement - New layout option for courses shortcode ([masteriyo_courses layout="default/layout1/layout2"]) added.
-- Enhancement - Added email notifications for course Q&A.
-- Enhancement - Added reply option for admin & instructors to lessons comment and course review from backend. [PRO]
-- Enhancement - Added maximum attempts limit option for instructor applications.
-- Enhancement - Added license details to the license page and added notice for no license key. [PRO]
-- Enhancement - Bypass drip content in preview mode for admins and course instructors.
-- Enhancement - Plugin rollback option. [PRO]
-- Enhancement - Action buttons label according to specific content in builder header.
-- Enhancement - Empty content info and no result found UI updated.
-- Enhancement - Overall UI/UX update in backend pages.
-- Fix - Show search only if categories exist in course edit page.
-- Fix - Masteriyo conflict with Pressidium Cookie Consent plugin.
-- Fix - Learn page emoji size inconsistent issue.
-- Fix - Prevented Save CSS Block API call when Masteriyo block is absent on pages.
-- Fix - Prevent user_id being set to 0 in user course enrollments.
-- Fix - Download material addon issue.
-- Fix - Save settings not working when WooCommerce addon activated.
-- Fix - Fixed issue where video lesson couldn’t be saved without adding a video (lesson_type meta added).
-- Fix - Woocommerce name null issue.
-
-= 1.20.2 - 22-08-2025 =
-- Fix - Account page user's courses listing in dashboard.
-
-= 1.20.1 - 21-08-2025 =
-- Enhancement - Show titles of timestamped notes. [PRO]
-- Enhancement - Choose Builder added in Stater Templates import.
-- Fix - Draft lesson display bug.  [PRO]
-- Fix - Vimeo unlisted video not working.
-- Fix - "Add to Cart" button shows only if course not purchased.  [PRO]
-- Fix - Correct UserCourseRepository query.
-- Fix - Right-click disabled on lesson links even with Content Protection off.  [PRO]
-- Fix - VAT issue on checkout when only country is selected.  [PRO]
-- Fix - Menu conflict with WooCommerce.
-- Fix - Price not showing with WooCommerce.
-- Fix - Enroll button design issue with elementor.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

@@ -10,6 +10,7 @@
 namespace Masteriyo\Shortcodes;
 
 use Masteriyo\Abstracts\Shortcode;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Query\CourseQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -65,6 +66,7 @@ class CoursesShortcode extends Shortcode {
 			'limit'          => absint( $attr['count'] ),
 			'order'          => sanitize_text_field( $attr['order'] ),
 			'orderby'        => sanitize_text_field( $attr['orderby'] ),
+			'status'         => array( PostStatus::PUBLISH, PostStatus::PVT ),
 			'category'       => $this->parse_values_attribute( $attr['category'], ',', 'trim' ),
 			'include'        => $this->parse_values_attribute( $attr['ids'], ',', 'absint' ),
 			'exclude'        => $this->parse_values_attribute( $attr['exclude_ids'], ',', 'absint' ),
@@ -75,6 +77,19 @@ class CoursesShortcode extends Shortcode {
 		);
 		$course_query = new CourseQuery( $args );
 		$result       = $course_query->get_courses();
+
+		$current_user_id = get_current_user_id();
+		$result->courses = array_values(
+			array_filter(
+				$result->courses,
+				function( $course ) use ( $current_user_id ) {
+					if ( PostStatus::PVT !== $course->get_status() ) {
+						return true;
+					}
+					return $current_user_id && masteriyo_is_user_enrolled_in_course( $current_user_id, $course->get_id() );
+				}
+			)
+		);
 
 		/**
 		 * Filters courses that will be displayed in courses shortcode.
