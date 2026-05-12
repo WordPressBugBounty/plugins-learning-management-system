@@ -292,6 +292,33 @@ class Course extends Model {
 		return apply_filters( 'masteriyo_course_preview_link', $preview_link, $this );
 	}
 
+	/**
+	 * Get the student preview magic link for this course.
+	 * Only meaningful for admins and instructors — returns empty string otherwise.
+	 *
+	 * @since x.x.x
+	 * @param int $target_user_id Optional. Specific user to impersonate. 0 = demo student.
+	 * @return string
+	 */
+	public function get_student_preview_link( int $target_user_id = 0 ): string {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return '';
+		}
+
+		$token        = masteriyo_generate_student_preview_token( $this->get_id(), $user_id, $target_user_id );
+		$preview_link = add_query_arg( 'mto-student-preview', $token, $this->get_permalink() );
+
+		/**
+		 * Filters the student preview magic link for a course.
+		 *
+		 * @since x.x.x
+		 * @param string                   $preview_link The generated URL.
+		 * @param \Masteriyo\Models\Course $course       Course object.
+		 */
+		return apply_filters( 'masteriyo_course_student_preview_link', $preview_link, $this );
+	}
+
 
 	/**
 	 * Get edit post link.

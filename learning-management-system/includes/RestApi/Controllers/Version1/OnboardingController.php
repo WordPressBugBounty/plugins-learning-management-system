@@ -223,6 +223,7 @@ class OnboardingController extends RestController {
 
 		$revenue_setting = new Setting();
 		$stripe_setting  = new StripeSetting();
+		$addons          = new Addons();
 
 		return array(
 			'started' => $saved_data['started'] ?? false,
@@ -253,14 +254,14 @@ class OnboardingController extends RestController {
 							'currency'             => $saved_data['steps']['setup']['options']['payments']['currency'] ?? masteriyo_get_currency(),
 							'offline_payment'      => $saved_data['steps']['setup']['options']['payments']['offline_payment'] ?? masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
 							'paypal'               => $saved_data['steps']['setup']['options']['payments']['paypal'] ?? masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
-							'stripe'               => $saved_data['steps']['setup']['options']['payments']['stripe'] ?? $stripe_setting->get( 'enable' ) ?? false,
+							'stripe'               => $addons->is_active( 'stripe' ),
 							'paypal_email'         => $saved_data['steps']['setup']['options']['payments']['paypal_email'] ?? masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
 							'live_publishable_key' => $saved_data['steps']['setup']['options']['payments']['live_publishable_key'] ?? $stripe_setting->get( 'live_publishable_key' ) ?? '',
 							'live_secret_key'      => $saved_data['steps']['setup']['options']['payments']['live_secret_key'] ?? $stripe_setting->get( 'live_secret_key' ) ?? '',
 							'test_secret_key'      => $saved_data['steps']['setup']['options']['payments']['test_secret_key'] ?? $stripe_setting->get( 'test_secret_key' ) ?? '',
 							'test_publishable_key' => $saved_data['steps']['setup']['options']['payments']['test_publishable_key'] ?? $stripe_setting->get( 'test_publishable_key' ) ?? '',
 							'sandbox'              => $saved_data['steps']['setup']['options']['payments']['sandbox'] ?? $stripe_setting->get( 'sandbox' ) ?? false,
-							'stripe_user_id'       => $saved_data['steps']['setup']['options']['payments']['stripe_user_id'] ?? $stripe_setting::get_stripe_user_id(),
+							'stripe_user_id'       => $stripe_setting::get_stripe_user_id() ?? '',
 						),
 						'revenue_sharing' => array(
 							'commission_rate' => array(
@@ -306,25 +307,25 @@ class OnboardingController extends RestController {
 		 * @since x.x.x
 		 * @return int[] Array of page IDs created by Masteriyo.
 		 */
-		protected function get_masteriyo_page_ids() {
-			$option_keys = array(
-				'masteriyo_courses_page_id',
-				'masteriyo_account_page_id',
-				'masteriyo_checkout_page_id',
-				'masteriyo_learn_page_id',
-			);
+	protected function get_masteriyo_page_ids() {
+		$option_keys = array(
+			'masteriyo_courses_page_id',
+			'masteriyo_account_page_id',
+			'masteriyo_checkout_page_id',
+			'masteriyo_learn_page_id',
+		);
 
-			$page_ids = array();
+		$page_ids = array();
 
-			foreach ( $option_keys as $key ) {
-				$id = (int) get_option( $key, 0 );
-				if ( $id > 0 ) {
-					$page_ids[] = $id;
-				}
+		foreach ( $option_keys as $key ) {
+			$id = (int) get_option( $key, 0 );
+			if ( $id > 0 ) {
+				$page_ids[] = $id;
 			}
-
-			return $page_ids;
 		}
+
+		return $page_ids;
+	}
 
 
 	/**
@@ -344,7 +345,7 @@ class OnboardingController extends RestController {
 		$fresh_site_option = (int) get_option( 'fresh_site' );
 
 		$masteriyo_page_ids = $this->get_masteriyo_page_ids();
-		$pages_query = new \WP_Query(
+		$pages_query        = new \WP_Query(
 			array(
 				'post_type'              => 'page',
 				'post_status'            => 'publish',
@@ -356,13 +357,13 @@ class OnboardingController extends RestController {
 				'post__not_in'           => $masteriyo_page_ids,
 			)
 		);
-		$pages = $pages_query->found_posts;
+		$pages              = $pages_query->found_posts;
 
 		$posts = wp_count_posts( 'post' )->publish ?? 0;
 		$media = wp_count_posts( 'attachment' )->inherit ?? 0;
 		$mods  = array_filter( get_theme_mods() );
 
-		$is_fresh = $fresh_site_option === 1
+		$is_fresh = 1 === $fresh_site_option
 			&& $pages <= 1
 			&& $posts <= 1
 			&& $media <= 2

@@ -25,12 +25,14 @@ interface Props {
 	defaultValue?: string[];
 	maxGroupSize?: number;
 	disabled?: boolean;
+	displayStatus?: 'active' | 'pending' | 'inactive';
 }
 
 const EmailsInput: React.FC<Props> = ({
 	defaultValue = [],
 	maxGroupSize,
 	disabled = false,
+	displayStatus,
 }) => {
 	const {
 		setValue,
@@ -113,13 +115,21 @@ const EmailsInput: React.FC<Props> = ({
 			</FormLabel>
 			<Stack spacing={2}>
 				{disabled && (
-					<Alert status="info" borderRadius="md">
+					<Alert
+						status={displayStatus === 'inactive' ? 'warning' : 'info'}
+						borderRadius="md"
+					>
 						<AlertIcon />
 						<Text fontSize="sm">
-							{__(
-								'Group is pending approval. Members cannot be modified until the group is approved.',
-								'learning-management-system',
-							)}
+							{displayStatus === 'inactive'
+								? __(
+										'This group is inactive. Complete your purchase to manage members.',
+										'learning-management-system',
+									)
+								: __(
+										'Group is pending approval. Members cannot be modified until the group is approved.',
+										'learning-management-system',
+									)}
 						</Text>
 					</Alert>
 				)}

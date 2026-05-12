@@ -4,3 +4,9 @@ export enum GroupStatus {
 	Draft = 'draft',
 	Trash = 'trash',
 }
+
+export enum GroupDisplayStatus {
+	Active = 'active',
+	Pending = 'pending',
+	Inactive = 'inactive',
+}

@@ -22,6 +22,11 @@ use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Emails\Student\OnHoldOrderEmailToStudent;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
 use Masteriyo\Emails\Student\VerificationEmailToStudent;
+use Masteriyo\Emails\Admin\NewLessonCommentEmailToAdmin;
+use Masteriyo\Emails\Admin\NewLessonCommentReplyEmailToAdmin;
+use Masteriyo\Emails\Instructor\NewLessonCommentEmailToInstructor;
+use Masteriyo\Emails\Instructor\NewLessonCommentReplyEmailToInstructor;
+use Masteriyo\Emails\Student\NewLessonCommentReplyEmailToStudent;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,6 +58,13 @@ class EmailScheduleActions {
 		// Q&A notification emails.
 		add_action( 'masteriyo/schedule/email/new-question/to/instructor', array( __CLASS__, 'send_new_question_email_to_instructor' ) );
 		add_action( 'masteriyo/schedule/email/new-question-reply/to/student', array( __CLASS__, 'send_new_question_reply_email_to_student' ) );
+
+		// Lesson Comment notification emails.
+		add_action( 'masteriyo/schedule/email/new-lesson-comment/to/admin', array( __CLASS__, 'send_new_lesson_comment_email_to_admin' ) );
+		add_action( 'masteriyo/schedule/email/new-lesson-comment-reply/to/admin', array( __CLASS__, 'send_new_lesson_comment_reply_email_to_admin' ) );
+		add_action( 'masteriyo/schedule/email/new-lesson-comment/to/instructor', array( __CLASS__, 'send_new_lesson_comment_email_to_instructor' ) );
+		add_action( 'masteriyo/schedule/email/new-lesson-comment-reply/to/instructor', array( __CLASS__, 'send_new_lesson_comment_reply_email_to_instructor' ) );
+		add_action( 'masteriyo/schedule/email/new-lesson-comment-reply/to/student', array( __CLASS__, 'send_new_lesson_comment_reply_email_to_student' ) );
 	}
 
 	/**
@@ -245,6 +257,121 @@ class EmailScheduleActions {
 		}
 
 		$email = new NewQuestionReplyEmailToStudent();
+		$email->trigger( $reply );
+	}
+
+	/**
+	 * Send new lesson comment email to admin.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_lesson_comment_email_to_admin( $args ) {
+		$comment_id = isset( $args['comment_id'] ) ? absint( $args['comment_id'] ) : 0;
+
+		if ( ! $comment_id ) {
+			return;
+		}
+
+		$comment = masteriyo_get_lesson_review( $comment_id );
+		if ( ! $comment ) {
+			return;
+		}
+
+		$email = new NewLessonCommentEmailToAdmin();
+		$email->trigger( $comment );
+	}
+
+	/**
+	 * Send new lesson comment reply email to admin.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_lesson_comment_reply_email_to_admin( $args ) {
+		$reply_id = isset( $args['reply_id'] ) ? absint( $args['reply_id'] ) : 0;
+
+		if ( ! $reply_id ) {
+			return;
+		}
+
+		$reply = masteriyo_get_lesson_review( $reply_id );
+		if ( ! $reply ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToAdmin();
+		$email->trigger( $reply );
+	}
+
+	/**
+	 * Send new lesson comment email to instructor.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_lesson_comment_email_to_instructor( $args ) {
+		$comment_id = isset( $args['comment_id'] ) ? absint( $args['comment_id'] ) : 0;
+
+		if ( ! $comment_id ) {
+			return;
+		}
+
+		$comment = masteriyo_get_lesson_review( $comment_id );
+		if ( ! $comment ) {
+			return;
+		}
+
+		$email = new NewLessonCommentEmailToInstructor();
+		$email->trigger( $comment );
+	}
+
+	/**
+	 * Send new lesson comment reply email to instructor.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_lesson_comment_reply_email_to_instructor( $args ) {
+		$reply_id = isset( $args['reply_id'] ) ? absint( $args['reply_id'] ) : 0;
+
+		if ( ! $reply_id ) {
+			return;
+		}
+
+		$reply = masteriyo_get_lesson_review( $reply_id );
+		if ( ! $reply ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToInstructor();
+		$email->trigger( $reply );
+	}
+
+	/**
+	 * Send new lesson comment reply email to student.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $args Arguments passed from the schedule action.
+	 */
+	public static function send_new_lesson_comment_reply_email_to_student( $args ) {
+		$reply_id = isset( $args['reply_id'] ) ? absint( $args['reply_id'] ) : 0;
+
+		if ( ! $reply_id ) {
+			return;
+		}
+
+		$reply = masteriyo_get_lesson_review( $reply_id );
+		if ( ! $reply ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToStudent();
 		$email->trigger( $reply );
 	}
 }

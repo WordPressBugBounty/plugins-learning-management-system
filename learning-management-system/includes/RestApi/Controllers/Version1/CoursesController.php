@@ -154,6 +154,32 @@ class CoursesController extends PostsController {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/preview-link',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_preview_link' ),
+					'permission_callback' => array( $this, 'get_preview_link_permissions_check' ),
+					'args'                => array(
+						'email' => array(
+							'description' => __( 'Email of the registered user to preview as. Omit to use the demo student.', 'learning-management-system' ),
+							'type'        => 'string',
+							'format'      => 'email',
+							'required'    => false,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/restore',
 			array(
 				'args' => array(
@@ -509,6 +535,12 @@ class CoursesController extends PostsController {
 			'slug'                               => $course->get_slug( $context ),
 			'permalink'                          => $course->get_permalink(),
 			'preview_permalink'                  => $course->get_preview_link(),
+			'student_preview_permalink'          => masteriyo_current_user_can_student_preview()
+				? $course->get_student_preview_link()
+				: '',
+			'student_preview_email'              => masteriyo_current_user_can_student_preview()
+				? masteriyo_get_demo_student_email()
+				: '',
 			'status'                             => $course->get_status( $context ),
 			'description'                        => $this->description_data( $course, $context ),
 			'short_description'                  => $short_description,
@@ -721,6 +753,18 @@ class CoursesController extends PostsController {
 					'description' => __( 'Course Preview URL', 'learning-management-system' ),
 					'type'        => 'string',
 					'format'      => 'uri',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'student_preview_permalink'      => array(
+					'description' => __( 'Student preview magic link (admin/instructor only).', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'student_preview_email'          => array(
+					'description' => __( 'Email of the demo student used for preview (admin/instructor only).', 'learning-management-system' ),
+					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
@@ -1356,6 +1400,60 @@ class CoursesController extends PostsController {
 	 *
 	 * @return WP_Error|WP_REST_Response
 	 */
+	/**
+	 * Check permissions for GET /courses/{id}/preview-link.
+	 *
+	 * @since x.x.x
+	 * @param WP_REST_Request $request
+	 * @return bool
+	 */
+	public function get_preview_link_permissions_check( $request ): bool {
+		if ( ! masteriyo_current_user_can_student_preview() ) {
+			return false;
+		}
+		// Instructors may only preview courses they authored.
+		if ( masteriyo_is_current_user_instructor() && ! masteriyo_is_current_user_admin() ) {
+			$course_id = (int) $request['id'];
+			return (int) get_post_field( 'post_author', $course_id ) === get_current_user_id();
+		}
+		return true;
+	}
+
+	/**
+	 * Generate a preview magic link, optionally for a specific user by email.
+	 *
+	 * GET /masteriyo/v1/courses/{id}/preview-link
+	 * GET /masteriyo/v1/courses/{id}/preview-link?email=someone@example.com
+	 *
+	 * @since x.x.x
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_preview_link( $request ) {
+		$course_id = (int) $request['id'];
+		$admin_id  = get_current_user_id();
+		$email     = sanitize_email( (string) $request->get_param( 'email' ) );
+
+		if ( $email ) {
+			$result = masteriyo_generate_preview_link_for_email( $course_id, $admin_id, $email );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		} else {
+			$course = masteriyo_get_course( $course_id );
+			if ( ! $course ) {
+				return new \WP_Error( 'masteriyo_rest_course_invalid_id', __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
+			}
+			$token  = masteriyo_generate_student_preview_token( $course_id, $admin_id );
+			$result = array(
+				'preview_url'   => add_query_arg( 'mto-student-preview', $token, $course->get_permalink() ),
+				'preview_email' => masteriyo_get_demo_student_email(),
+			);
+		}
+
+		return rest_ensure_response( $result );
+	}
+
 	public function restore_item( $request ) {
 		$object = $this->get_object( (int) $request['id'] );
 

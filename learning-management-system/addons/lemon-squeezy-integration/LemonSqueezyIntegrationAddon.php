@@ -339,7 +339,7 @@ class LemonSqueezyIntegrationAddon {
 		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
 
 		printf(
-			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a>.</p></div>',
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s" class="masteriyo-notice-link">%s</a>.</p></div>',
 			esc_html__( 'Masteriyo Lemon Squeezy:', 'learning-management-system' ),
 			esc_html__( 'Lemon Squeezy webhook verification is required (v2.1.9+). Add your webhook secret to ensure payments process correctly.', 'learning-management-system' ),
 			esc_url( $settings_url ),

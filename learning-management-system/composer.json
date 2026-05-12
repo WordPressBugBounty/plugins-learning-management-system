@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo",
   "description": "An WordPress LMS plugin",
-  "version": "2.1.9",
+  "version": "2.2.0",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -54,6 +54,7 @@
       "includes/Helper/email.php",
       "includes/Helper/export-import.php",
       "includes/Helper/LoginSessionManagement.php",
+      "includes/Helper/student-preview.php",
       "vendor/codeinwp/themeisle-sdk/load.php"
     ],
     "psr-4": {

@@ -1089,7 +1089,13 @@ class GroupCoursesAddon {
 	 */
 	public function get_group_btn_template( $course ) {
 		$user_id = get_current_user_id();
-		if ( ! masteriyo_is_single_course_page() || masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) ) {
+		if (
+		! masteriyo_is_single_course_page()
+		|| (
+			masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id )
+			&& ! $this->user_has_non_active_group_for_this_course( $course->get_id() )
+		)
+		) {
 			return;
 		}
 
@@ -1474,6 +1480,11 @@ class GroupCoursesAddon {
 			return;
 		}
 
+		// Re-link flow: if the user already has a non-active group for this course, reuse it.
+		if ( $this->relink_existing_group_to_order( $order, $course, $user ) ) {
+			return;
+		}
+
 		// Create the group with status based on order status
 		$group = masteriyo_create_group_object();
 		// Set temporary title for creation
@@ -1540,11 +1551,8 @@ class GroupCoursesAddon {
 				}
 			}
 
-			// Store group ID in order meta
+			// Store group ID and remove the creation flag in a single write.
 			$order->update_meta_data( '_created_group_id', $group->get_id() );
-			$order->save_meta_data();
-
-			// Remove the creation flag
 			$order->delete_meta_data( '_create_group_after_completion' );
 			$order->save_meta_data();
 		}
@@ -2241,5 +2249,160 @@ class GroupCoursesAddon {
 
 		$count = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return $count > 0;
+	}
+
+	/**
+	 * Checks if the current user has an inactive group (failed/cancelled/refunded/trashed order)
+	 * for the given course. Returns false for pending/on-hold/processing groups.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $course_id Course ID to check against.
+	 *
+	 * @return bool True if the user owns an inactive group for the given course, false otherwise.
+	 */
+	private function user_has_non_active_group_for_this_course( $course_id ) {
+		if ( ! is_user_logged_in() ) {
+			return false;
+		}
+
+		global $wpdb;
+		$user_id = get_current_user_id();
+
+		$group_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->prepare(
+				"SELECT DISTINCT g.ID
+				FROM {$wpdb->posts} g
+				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
+				WHERE g.post_type = 'mto-group'
+				AND g.post_author = %d
+				AND g.post_status = 'draft'
+				AND gm.meta_value LIKE %s",
+				$user_id,
+				'%:"course_id";i:' . intval( $course_id ) . ';s:%'
+			)
+		);
+
+		if ( empty( $group_ids ) ) {
+			return false;
+		}
+
+		foreach ( $group_ids as $group_id ) {
+			$group = masteriyo_get_group( intval( $group_id ) );
+			if ( ! $group ) {
+				continue;
+			}
+			$state = masteriyo_get_group_display_state( $group );
+			if ( isset( $state['display_status'] ) && 'inactive' === $state['display_status'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * If the user already has a non-active group for this course, re-link it to the new order
+	 * instead of creating a duplicate group. Preserves members, title, and description.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Models\Order\Order  $order  New order.
+	 * @param \Masteriyo\Models\Course       $course Course.
+	 * @param \Masteriyo\Models\User         $user   Purchasing user.
+	 *
+	 * @return bool True if an existing group was re-linked (caller should return early); false if a new group must be created.
+	 */
+	private function relink_existing_group_to_order( $order, $course, $user ) {
+		global $wpdb;
+
+		// Find an existing non-active group for this user+course (draft or trash — not publish).
+		$existing_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT g.ID
+				FROM {$wpdb->posts} g
+				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
+				WHERE g.post_type = 'mto-group'
+				AND g.post_author = %d
+				AND g.post_status IN ('draft', 'trash')
+				AND gm.meta_value LIKE %s
+				LIMIT 1",
+				$user->get_id(),
+				'%"course_id";i:' . intval( $course->get_id() ) . ';%'
+			)
+		);
+
+		if ( empty( $existing_ids ) ) {
+			return false;
+		}
+
+		$group_id = absint( $existing_ids[0] );
+
+		// If the group is trashed, restore it to draft first.
+		$group_post = get_post( $group_id );
+		if ( $group_post && PostStatus::TRASH === $group_post->post_status ) {
+			wp_untrash_post( $group_id );
+			clean_post_cache( $group_id );
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group ) {
+			return false;
+		}
+
+		// Detach the old order from this group so its hooks no longer affect it.
+		$old_course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
+		if ( is_array( $old_course_data ) && ! empty( $old_course_data[0] ) ) {
+			$old_order_id = absint( $old_course_data[0]['order_id'] ?? 0 );
+			if ( $old_order_id && $old_order_id !== $order->get_id() ) {
+				$old_order = masteriyo_get_order( $old_order_id );
+				if ( $old_order ) {
+					$old_order->delete_meta_data( '_created_group_id' );
+					$old_order->save_meta_data();
+				}
+			}
+		}
+
+		// Refresh the course data on the group with the new order.
+		$new_course_data = array(
+			array(
+				'course_id'       => $course->get_id(),
+				'order_id'        => $order->get_id(),
+				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
+			),
+		);
+		update_post_meta( $group_id, 'masteriyo_course_data', $new_course_data );
+
+		// Refresh tier/seat meta from new purchase data.
+		$purchase_data = $order->get_meta( '_group_purchase_data', true );
+		if ( is_array( $purchase_data ) ) {
+			if ( isset( $purchase_data['tier_id'] ) ) {
+				update_post_meta( $group_id, '_group_tier_id', $purchase_data['tier_id'] );
+			}
+			if ( isset( $purchase_data['seats'] ) ) {
+				update_post_meta( $group_id, '_group_seats', intval( $purchase_data['seats'] ) );
+			}
+			if ( isset( $purchase_data['plan_name'] ) ) {
+				update_post_meta( $group_id, '_group_plan_name', $purchase_data['plan_name'] );
+			}
+			if ( isset( $purchase_data['per_seat_price'] ) ) {
+				update_post_meta( $group_id, '_group_per_seat_price', $purchase_data['per_seat_price'] );
+			}
+		}
+
+		// Ensure group status mirrors the new order.
+		$new_group_status = ( OrderStatus::COMPLETED === $order->get_status() ) ? PostStatus::PUBLISH : PostStatus::DRAFT;
+		if ( $new_group_status !== $group->get_status() ) {
+			$group->set_status( $new_group_status );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		}
+
+		// Link new order → group.
+		$order->update_meta_data( '_created_group_id', $group_id );
+		$order->delete_meta_data( '_create_group_after_completion' );
+		$order->save_meta_data();
+
+		return true;
 	}
 }

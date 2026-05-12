@@ -699,12 +699,20 @@ class ScriptStyle {
 						return masteriyo_show_usage_tracking_notice();
 					},
 				),
-				'swiper'             => array(
+				'swiper'                  => array(
 					'src'      => plugins_url( 'libs/swiper/swiper-bundle.min.css', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ),
 					'has_rtl'  => false,
 					'context'  => 'public',
 					'callback' => function () {
 						return masteriyo_is_slider_enabled();
+					},
+				),
+				'student-preview-banner'  => array(
+					'src'      => self::get_asset_url( '/assets/css/student-preview-banner.css' ),
+					'has_rtl'  => false,
+					'context'  => 'public',
+					'callback' => static function () {
+						return masteriyo_validate_preview_originator_cookie() !== null;
 					},
 				),
 			)
@@ -1347,6 +1355,7 @@ class ScriptStyle {
 						'courseArchiveTemplates'    => array(),
 						'onBoardingPageUrl'         => admin_url( 'index.php?page=masteriyo-onboard' ),
 						'isCurrentUserAdmin'        => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
+						'isCurrentUserInstructor'   => masteriyo_bool_to_string( masteriyo_is_current_user_instructor() ),
 						'editorStyles'              => function_exists( 'get_block_editor_theme_styles' ) && masteriyo_is_admin_page() ? get_block_editor_theme_styles() : (object) array(),
 						'editorSettings'            => function_exists( 'get_block_editor_settings' ) && masteriyo_is_admin_page() ? get_block_editor_settings( array(), new \WP_Block_Editor_Context() ) : (object) array(),
 						'defaultEditor'             => masteriyo_get_setting( 'advance.editor.default_editor' ),
@@ -1859,6 +1868,8 @@ class ScriptStyle {
 					'contact-form-7',
 					'query-monitor',
 
+					// Student preview banner.
+					'masteriyo-student-preview-banner',
 					// Rank Math SEO plugin.
 					'rank-math',
 					// Elementor plugin.

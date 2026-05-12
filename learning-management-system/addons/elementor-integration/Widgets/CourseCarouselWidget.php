@@ -623,7 +623,7 @@ class CourseCarouselWidget extends CourseListWidget {
 
 		add_filter( 'masteriyo_is_course_carousel_enabled', '__return_true' );
 
-		printf( '<div class="masteriyo masteriyo-course-carousel" data-settings="%s">', esc_attr( wp_json_encode( $slider_data ) ) );
+		printf( '<div class="masteriyo  masteriyo-container masteriyo-course-carousel" data-settings="%s">', esc_attr( wp_json_encode( $slider_data ) ) );
 		masteriyo_set_loop_prop( 'columns', $columns );
 
 		if ( count( $courses ) > 0 ) {

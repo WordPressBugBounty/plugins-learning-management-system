@@ -88,6 +88,14 @@ class NotificationType {
 	 */
 	const BOTH_ADMIN_AND_ACCOUNT = 'both-admin-account';
 
+	/**
+	 * Notification lesson comment type.
+	 *
+	 * @since x.x.x
+	 * @var string
+	 */
+	const LESSON_COMMENT = 'lesson_comment';
+
 
 	/**
 	 * Return all notification types.
@@ -117,6 +125,7 @@ class NotificationType {
 					self::BOTH_ADMIN,
 					self::BOTH_ADMIN_AND_ACCOUNT,
 					self::BOTH_ADMIN_AND_LEARN,
+					self::LESSON_COMMENT,
 				)
 			)
 		);

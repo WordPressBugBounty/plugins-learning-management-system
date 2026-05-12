@@ -55,7 +55,7 @@ class Rewrite {
 	 * @return array
 	 */
 	public function add_query_vars( $query_vars ) {
-		return array_merge( $query_vars, array( 'mto-preview' ) );
+		return array_merge( $query_vars, array( 'mto-preview', 'mto-student-preview', 'mto-exit-student-preview' ) );
 	}
 
 	/**

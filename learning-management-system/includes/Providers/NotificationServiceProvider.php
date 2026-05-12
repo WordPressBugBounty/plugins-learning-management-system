@@ -34,6 +34,7 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 		add_action( 'masteriyo_order_status_cancelled', array( $this, 'schedule_cancelled_order_notification_to_student' ), 10, 2 );
 		add_action( 'masteriyo_checkout_order_created', array( $this, 'schedule_order_created_notification_to_student' ), 10, 1 );
 		add_action( 'masteriyo_new_course_qa', array( $this, 'schedule_new_course_qa_notification_to_student' ), 10, 2 );
+		add_action( 'masteriyo_new_lesson_review', array( $this, 'schedule_new_lesson_comment_reply_notification_to_student' ), 10, 2 );
 	}
 
 
@@ -262,7 +263,7 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 
 	}
 
-		/**
+	/**
 	 * Schedule course qa notification to student.
 	 *
 	 * @since 1.20.0
@@ -309,6 +310,71 @@ class NotificationServiceProvider extends AbstractServiceProvider implements Boo
 		}
 
 		if ( $course_qa->get_user_id() === $user_course->get_user_id() ) {
+			return;
+		}
+
+		masteriyo_set_notification( $id, $user_course, $result );
+	}
+
+	/**
+	 * Schedule lesson comment reply notification to student.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Lesson comment id.
+	 * @param \Masteriyo\Models\LessonReview $reply The lesson comment object.
+	 */
+	public function schedule_new_lesson_comment_reply_notification_to_student( $id, $reply ) {
+
+		$result = masteriyo_get_setting( 'notification.student.lesson_comment' );
+
+		if ( null === $result ) {
+			$result = array(
+				'enable'  => true,
+				'type'    => 'lesson_comment',
+				'content' => __( 'You have a new reply to your comment.', 'learning-management-system' ),
+			);
+		}
+
+		if ( isset( $result['enable'] ) && ! $result['enable'] ) {
+			return;
+		}
+
+		if ( $reply->get_parent() === 0 ) {
+			return;
+		}
+
+		$parent_comment = masteriyo_get_lesson_review( $reply->get_parent() );
+
+		if ( ! $parent_comment ) {
+			return;
+		}
+
+		$lesson = masteriyo_get_lesson( $parent_comment->get_lesson_id() );
+		if ( ! $lesson ) {
+			return;
+		}
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $lesson->get_course_id(),
+				'user_id'   => $parent_comment->get_author_id(),
+			)
+		);
+
+		$user_courses = $query->get_user_courses();
+
+		if ( empty( $user_courses ) ) {
+			return;
+		}
+
+		$user_course = current( $user_courses );
+
+		if ( ! is_object( $user_course ) ) {
+			return;
+		}
+
+		if ( $reply->get_author_id() === $user_course->get_user_id() ) {
 			return;
 		}
 

@@ -306,6 +306,46 @@ class UsersController extends CrudController {
 		 */
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/preview-link',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_user_preview_link' ),
+					'permission_callback' => array( $this, 'get_user_preview_link_permissions_check' ),
+					'args'                => array(
+						'id' => array(
+							'description'       => __( 'User ID to preview as.', 'learning-management-system' ),
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/start-preview',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'start_preview_as_user' ),
+					'permission_callback' => array( $this, 'get_user_preview_link_permissions_check' ),
+					'args'                => array(
+						'id' => array(
+							'description'       => __( 'Demo student user ID to preview as.', 'learning-management-system' ),
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/session-update',
 			array(
 				array(
@@ -336,6 +376,129 @@ class UsersController extends CrudController {
 					),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Check permissions for GET /users/{id}/preview-link.
+	 *
+	 * @since x.x.x
+	 * @param WP_REST_Request $request
+	 * @return bool
+	 */
+	public function get_user_preview_link_permissions_check( $request ): bool {
+		return masteriyo_current_user_can_student_preview();
+	}
+
+	/**
+	 * Generate a preview link for any registered user by ID.
+	 *
+	 * Returns { preview_url, preview_email } — the frontend opens preview_url in a new tab.
+	 *
+	 * @since x.x.x
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_user_preview_link( $request ) {
+		$target_user_id = (int) $request['id'];
+		$admin_id       = get_current_user_id();
+
+		if ( $target_user_id === $admin_id ) {
+			return new \WP_Error(
+				'masteriyo_preview_self',
+				__( 'Cannot preview as yourself.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$target_user = get_userdata( $target_user_id );
+		if ( ! $target_user ) {
+			return new \WP_Error(
+				'masteriyo_user_not_found',
+				__( 'User not found.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! get_user_meta( $target_user_id, '_masteriyo_is_demo_student', true ) ) {
+			return new \WP_Error(
+				'masteriyo_not_demo_student',
+				__( 'Preview is only available for the demo student.', 'learning-management-system' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$landing_url = masteriyo_get_preview_landing_url();
+		$token       = masteriyo_generate_student_preview_token( 0, $admin_id, $target_user_id );
+		$preview_url = add_query_arg( 'mto-student-preview', $token, $landing_url );
+
+		return rest_ensure_response(
+			array(
+				'preview_url'   => $preview_url,
+				'preview_email' => $target_user->user_email,
+			)
+		);
+	}
+
+	/**
+	 * Initiate a demo-student preview session for the Users list.
+	 *
+	 * Sets the originator + preview cookies on the response and swaps the
+	 * browser's auth to the demo student — no URL token needed, so the client
+	 * can open the returned landing_url directly without an extra redirect.
+	 *
+	 * POST /masteriyo/v1/users/{id}/start-preview
+	 *
+	 * @since x.x.x
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function start_preview_as_user( $request ) {
+		$target_user_id = (int) $request['id'];
+		$admin_id       = get_current_user_id();
+
+		if ( $target_user_id === $admin_id ) {
+			return new \WP_Error(
+				'masteriyo_preview_self',
+				__( 'Cannot preview as yourself.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$target_user = get_userdata( $target_user_id );
+		if ( ! $target_user ) {
+			return new \WP_Error(
+				'masteriyo_user_not_found',
+				__( 'User not found.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! get_user_meta( $target_user_id, '_masteriyo_is_demo_student', true ) ) {
+			return new \WP_Error(
+				'masteriyo_not_demo_student',
+				__( 'Preview is only available for the demo student.', 'learning-management-system' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( headers_sent() ) {
+			return new \WP_Error(
+				'masteriyo_preview_headers_sent',
+				__( 'Cannot initiate preview: response headers already sent.', 'learning-management-system' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Capture originator info, swap auth to demo student, set preview cookie.
+		$session_token = wp_get_session_token();
+		masteriyo_set_preview_originator_cookie( $admin_id, $session_token );
+		wp_clear_auth_cookie();
+		wp_set_auth_cookie( $target_user_id, false, is_ssl() );
+		masteriyo_set_student_preview_cookie( 0, $admin_id, $target_user_id );
+
+		return rest_ensure_response(
+			array( 'landing_url' => masteriyo_get_preview_landing_url() )
 		);
 	}
 
@@ -861,6 +1024,8 @@ class UsersController extends CrudController {
 				'phone'        => $user->get_billing_phone( $context ),
 			),
 			'avatar_url'                      => $user->get_avatar_url(),
+			'is_demo_student'                 => (bool) get_user_meta( $user->get_id(), '_masteriyo_is_demo_student', true ),
+			'auto_created'                    => (bool) get_user_meta( $user->get_id(), '_masteriyo_auto_created', true ),
 			'instructor_apply_status'         => $user->get_instructor_apply_status( $context ),
 			'instructor_application_attempts' => array(
 				'used'      => $user->get_instructor_application_attempts(),
@@ -1270,8 +1435,10 @@ class UsersController extends CrudController {
 			$user->set_nicename( $request['nicename'] );
 		}
 
+		$is_demo_student = (bool) get_user_meta( $user->get_id(), '_masteriyo_is_demo_student', true );
+
 		// User's email.
-		if ( isset( $request['email'] ) ) {
+		if ( isset( $request['email'] ) && ! $is_demo_student ) {
 			$user->set_email( $request['email'] );
 		}
 
@@ -1346,7 +1513,7 @@ class UsersController extends CrudController {
 		}
 
 		// User's role.
-		if ( current_user_can( 'manage_options' ) && isset( $request['roles'] ) ) {
+		if ( current_user_can( 'manage_options' ) && isset( $request['roles'] ) && ! $is_demo_student ) {
 			$user->set_roles( $request['roles'] );
 		}
 

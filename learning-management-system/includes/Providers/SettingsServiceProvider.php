@@ -26,7 +26,8 @@ class SettingsServiceProvider extends AbstractServiceProvider implements Bootabl
 	 */
 	public function register(): void {
 		$this->getContainer()->add( 'setting.store', SettingRepository::class );
-		$this->getContainer()->add( 'setting.rest', SettingsController::class );
+		$this->getContainer()->add( 'setting.rest', SettingsController::class )
+			->addArgument( 'permission' );
 		$this->getContainer()->add( 'setting', Setting::class )
 			->addArgument( 'setting.store' );
 	}

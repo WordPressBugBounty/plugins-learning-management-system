@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
-				</div> rating at WordPress.org. Let us know <a href="https://masteriyo.com/contact/" target="_blank">here</a> if you have any query. - Masteriyo Team
+				</div> rating at WordPress.org. Let us know <a href="https://masteriyo.com/contact/" class="masteriyo-notice-link" target="_blank">here</a> if you have any query. - Masteriyo Team
 			</div>
 		</div>
 		<div class="masteriyo-x-icon-container">

@@ -40,6 +40,9 @@ class Setting {
 			'enroll_btn_label_before' => 'Add to Cart',
 			'enroll_btn_label_after'  => 'Go to Cart',
 		),
+		'auto_redirect'       => array(
+			'enable' => false,
+		),
 	);
 
 	/**

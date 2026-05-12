@@ -114,7 +114,8 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 						<EmailsInput
 							defaultValue={group?.emails || []}
 							maxGroupSize={group?.max_group_size}
-							disabled={group?.status !== 'publish'}
+							disabled={group?.display_status !== 'active'}
+							displayStatus={group?.display_status}
 						/>
 						<LinkedCourses courses={group?.courses || []} />{' '}
 						<ButtonGroup mb={4}>

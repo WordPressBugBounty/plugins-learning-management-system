@@ -74,6 +74,43 @@ class ElementorIntegrationAddon {
 		add_filter( 'post_row_actions', array( $this, 'add_use_template_for_masteriyo_action' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_post_states' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_widget_styles_and_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_custom_template_css' ) );
+	}
+
+	/**
+	 * Enqueue Elementor custom template CSS for Masteriyo pages.
+	 *
+	 * @since x.x.x
+	 */
+	public function enqueue_custom_template_css() {
+		if ( ! class_exists( '\Elementor\Core\Files\CSS\Post' ) ) {
+			return;
+		}
+
+		$template_id = 0;
+
+		if ( masteriyo_is_courses_page() ) {
+			if ( masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.display.template.custom_template.enable' ) ) && 'elementor' === masteriyo_get_setting( 'course_archive.display.template.custom_template.template_source' ) ) {
+				$template_id = masteriyo_get_setting( 'course_archive.display.template.custom_template.template_id' );
+			}
+		} elseif ( masteriyo_is_single_course_page() ) {
+			if ( masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.template.custom_template.enable' ) ) && 'elementor' === masteriyo_get_setting( 'single_course.display.template.custom_template.template_source' ) ) {
+				$template_id = masteriyo_get_setting( 'single_course.display.template.custom_template.template_id' );
+			}
+		}
+
+		if ( $template_id ) {
+			// Force Elementor to recognize that the page contains Elementor content.
+			\Elementor\Plugin::$instance->frontend->has_elementor_in_page( true );
+
+			// Enqueue global Elementor styles first.
+			if ( ! \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
+				\Elementor\Plugin::$instance->frontend->enqueue_styles();
+			}
+
+			$css_file = new \Elementor\Core\Files\CSS\Post( $template_id );
+			$css_file->enqueue();
+		}
 	}
 
 	/**
@@ -510,7 +547,7 @@ class ElementorIntegrationAddon {
 		$frontend = new \Elementor\Frontend();
 
 		masteriyo_display_all_notices();
-		printf( '<div class="masteriyo-course-list-display-section">' );
+		printf( '<div class="masteriyo-course-list-display-section masteriyo-container">' );
 		echo $frontend->get_builder_content_for_display( $template_id );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		printf( '</div>' );
 	}
@@ -532,7 +569,7 @@ class ElementorIntegrationAddon {
 
 		$frontend = new \Elementor\Frontend();
 
-		printf( '<div id="%s" class="masteriyo-single-course">', esc_attr( $course ? 'course-' . $course->get_id() : '' ) );
+		printf( '<div id="%s" class="masteriyo-single-course masteriyo-container">', esc_attr( $course ? 'course-' . $course->get_id() : '' ) );
 		echo $frontend->get_builder_content_for_display( $template_id );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		printf( '</div>' );
 		do_action( 'masteriyo_single_course_after_template_content_elementor' );

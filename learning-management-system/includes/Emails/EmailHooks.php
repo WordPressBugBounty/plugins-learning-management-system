@@ -35,6 +35,11 @@ use Masteriyo\Emails\Instructor\WithdrawRequestRejectedEmailToInstructor;
 use Masteriyo\Emails\Student\AutomaticRegistrationEmailToStudent;
 use Masteriyo\Emails\Student\CourseCompletionEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
+use Masteriyo\Emails\Admin\NewLessonCommentEmailToAdmin;
+use Masteriyo\Emails\Admin\NewLessonCommentReplyEmailToAdmin;
+use Masteriyo\Emails\Instructor\NewLessonCommentEmailToInstructor;
+use Masteriyo\Emails\Instructor\NewLessonCommentReplyEmailToInstructor;
+use Masteriyo\Emails\Student\NewLessonCommentReplyEmailToStudent;
 use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\InstructorApplyStatus;
@@ -104,6 +109,17 @@ class EmailHooks {
 		// Disable WordPress core comment notifications for Q&A.
 		add_filter( 'comment_notification_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_qa' ), 10, 2 );
 		add_filter( 'comment_moderation_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_qa' ), 10, 2 );
+
+		// Lesson Comment notification emails.
+		add_action( 'masteriyo_new_lesson_review', array( __CLASS__, 'schedule_new_lesson_comment_email_to_instructor' ), 10, 2 );
+		add_action( 'masteriyo_new_lesson_review', array( __CLASS__, 'schedule_new_lesson_comment_reply_email_to_student' ), 10, 2 );
+		add_action( 'masteriyo_new_lesson_review', array( __CLASS__, 'schedule_new_lesson_comment_email_to_admin' ), 10, 2 );
+		add_action( 'masteriyo_new_lesson_review', array( __CLASS__, 'schedule_new_lesson_comment_reply_email_to_admin' ), 10, 2 );
+		add_action( 'masteriyo_new_lesson_review', array( __CLASS__, 'schedule_new_lesson_comment_reply_email_to_instructor' ), 10, 2 );
+
+		// Disable WordPress core comment notifications for Lesson Comments.
+		add_filter( 'comment_notification_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_lesson_comment' ), 10, 2 );
+		add_filter( 'comment_moderation_recipients', array( __CLASS__, 'disable_core_comment_notifications_for_lesson_comment' ), 10, 2 );
 	}
 
 	/**
@@ -858,6 +874,147 @@ class EmailHooks {
 
 
 	/**
+	 * Schedule new lesson comment email to instructor.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Comment ID.
+	 * @param \Masteriyo\Models\LessonReview $comment Comment object.
+	 */
+	public static function schedule_new_lesson_comment_email_to_instructor( $id, $comment ) {
+		// Only send email for new comments (not replies)
+		if ( $comment->is_reply() ) {
+			return;
+		}
+
+		$email = new NewLessonCommentEmailToInstructor();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'comment_id' => $comment->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $comment );
+		}
+	}
+
+	/**
+	 * Schedule new lesson comment reply email to student.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Reply ID.
+	 * @param \Masteriyo\Models\LessonReview $reply Reply object.
+	 */
+	public static function schedule_new_lesson_comment_reply_email_to_student( $id, $reply ) {
+		// Only send email for replies (not new comments)
+		if ( ! $reply->is_reply() ) {
+			return;
+		}
+
+		// Don't send email if the replier is the same as the comment author
+		$parent_comment = masteriyo_get_lesson_review( $reply->get_parent() );
+		if ( $parent_comment && (int) $parent_comment->get_author_id() === (int) $reply->get_author_id() ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToStudent();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'reply_id' => $reply->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $reply );
+		}
+	}
+
+	/**
+	 * Schedule new lesson comment email to admin.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Comment ID.
+	 * @param \Masteriyo\Models\LessonReview $comment Comment object.
+	 */
+	public static function schedule_new_lesson_comment_email_to_admin( $id, $comment ) {
+		// Only send email for new comments (not replies)
+		if ( $comment->is_reply() ) {
+			return;
+		}
+
+		$email = new NewLessonCommentEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'comment_id' => $comment->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $comment );
+		}
+	}
+
+	/**
+	 * Schedule new lesson comment reply email to admin.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Reply ID.
+	 * @param \Masteriyo\Models\LessonReview $reply Reply object.
+	 */
+	public static function schedule_new_lesson_comment_reply_email_to_admin( $id, $reply ) {
+		// Only send email for replies (not new comments)
+		if ( ! $reply->is_reply() ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToAdmin();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'reply_id' => $reply->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $reply );
+		}
+	}
+
+	/**
+	 * Schedule new lesson comment reply email to instructor.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id Reply ID.
+	 * @param \Masteriyo\Models\LessonReview $reply Reply object.
+	 */
+	public static function schedule_new_lesson_comment_reply_email_to_instructor( $id, $reply ) {
+		// Only send email for replies (not new comments)
+		if ( ! $reply->is_reply() ) {
+			return;
+		}
+
+		$email = new NewLessonCommentReplyEmailToInstructor();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'reply_id' => $reply->get_id() ), 'learning-management-system' );
+		} else {
+			$email->trigger( $reply );
+		}
+	}
+
+	/**
 	 * Schedule new question email to instructor.
 	 *
 	 * @since 2.0.0
@@ -930,11 +1087,35 @@ class EmailHooks {
 		$comment = get_comment( $comment_id );
 
 		if ( ! $comment ) {
-				return $emails;
+			return $emails;
 		}
 
 		// If this is a Q&A comment type, prevent notifications.
 		if ( 'mto_course_qa' === (string) $comment->comment_type ) {
+			return array(); // empty recipient list disables notifications.
+		}
+
+		return $emails;
+	}
+
+	/**
+	 * Disable WordPress core comment notifications for Lesson Comments.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string[] $emails     List of recipient email addresses.
+	 * @param int      $comment_id Comment ID.
+	 * @return string[]
+	 */
+	public static function disable_core_comment_notifications_for_lesson_comment( $emails, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment ) {
+			return $emails;
+		}
+
+		// If this is a Lesson Comment type, prevent notifications.
+		if ( 'mto_lesson_review' === (string) $comment->comment_type ) {
 			return array(); // empty recipient list disables notifications.
 		}
 

@@ -159,6 +159,71 @@ class LessonsController extends PostsController {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/restore',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'restore_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+					'args'                => array(
+						'context' => $this->get_context_param(
+							array(
+								'default' => 'view',
+							)
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Restore a trashed lesson.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function restore_item( $request ) {
+		$object = $this->get_object( (int) $request['id'] );
+
+		if ( ! $object || 0 === $object->get_id() ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->post_type}_invalid_id",
+				__( 'Invalid ID.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wp_untrash_post( $object->get_id() );
+		$object->set_status( PostStatus::DRAFT );
+		$object->save();
+
+		/**
+		 * Fires after a lesson is restored from trash.
+		 *
+		 * @since x.x.x
+		 *
+		 * @param int                      $id     Lesson ID.
+		 * @param \Masteriyo\Models\Lesson $object Lesson object.
+		 */
+		do_action( 'masteriyo_lesson_restore', $request['id'], $object );
+
+		$object   = $this->get_object( (int) $request['id'] );
+		$data     = $this->prepare_object_for_response( $object, $request );
+		$response = rest_ensure_response( $data );
+
+		return $response;
 	}
 
 	/**

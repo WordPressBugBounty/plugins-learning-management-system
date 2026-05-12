@@ -59,6 +59,15 @@ class ReviewNoticeAjaxHandler extends AjaxHandler {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'You do not have permission to perform this action.', 'learning-management-system' ),
+					),
+					403
+				);
+			}
+
 			$action = isset( $_POST['masteriyo_action'] ) ? sanitize_text_field( $_POST['masteriyo_action'] ) : null;
 
 			$notice = $this->get_notice_setting();

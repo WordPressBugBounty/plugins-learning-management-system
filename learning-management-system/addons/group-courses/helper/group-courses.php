@@ -3,6 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\GroupCourses\Models\Setting;
+use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
 
 if ( ! function_exists( 'masteriyo_create_group_object' ) ) {
@@ -216,9 +217,9 @@ if ( ! function_exists( 'masteriyo_validate_groups_for_course' ) ) {
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object for which groups are being validated.
 	 *                        Expected to at least have a valid ID.
-	 * @param array $group_ids An array of group IDs to validate for the course.
-	 *                         Each ID is checked to ensure the corresponding group is valid
-	 *                         and does not exceed the maximum group size associated with the course.
+	 * @param array                    $group_ids An array of group IDs to validate for the course.
+	 *                                            Each ID is checked to ensure the corresponding group is valid
+	 *                                            and does not exceed the maximum group size associated with the course.
 	 *
 	 * @return array An array of validated group IDs that are not trashed and do not exceed
 	 *               the maximum group size set for the course. If no groups meet the criteria,
@@ -289,13 +290,13 @@ if ( ! function_exists( 'masteriyo_get_members_emails_from_group' ) ) {
 
 if ( ! function_exists( 'masteriyo_fetch_group_member_emails' ) ) {
 		/**
-	 * Fetches the email addresses of all members in the given groups.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param array $group_ids Array of group IDs.
-	 * @return array Array of email addresses.
-	 */
+		 * Fetches the email addresses of all members in the given groups.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param array $group_ids Array of group IDs.
+		 * @return array Array of email addresses.
+		 */
 	function masteriyo_fetch_group_member_emails( $group_ids ) {
 		$emails = array();
 
@@ -316,8 +317,8 @@ if ( ! function_exists( 'masteriyo_update_user_enrollments_status' ) ) {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @param int $group_id Group ID. $name
-	 * @param array $emails User email addresses.
+	 * @param int    $group_id Group ID. $name
+	 * @param array  $emails User email addresses.
 	 * @param string $status New status to apply.
 	 */
 	function masteriyo_update_user_enrollments_status( $group_id, $emails, $status ) {
@@ -389,7 +390,7 @@ if ( ! function_exists( 'masteriyo_get_user_enrollment_status' ) ) {
 	 * @since 1.9.0
 	 *
 	 * @param WP_User $user The user object whose enrollment status is to be retrieved.
-	 * @param int $course_id The ID of the course item for which to retrieve the enrollment status.
+	 * @param int     $course_id The ID of the course item for which to retrieve the enrollment status.
 	 *
 	 * @return string|null The current enrollment status of the user, or null if not found.
 	 */
@@ -440,7 +441,7 @@ if ( ! function_exists( 'masteriyo_get_enrolled_group_user_emails' ) ) {
 	 * @since 1.9.0
 	 *
 	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group The group object.
-	 * @param int $course_id Course ID.
+	 * @param int                                         $course_id Course ID.
 	 *
 	 * @return array An array of user emails not enrolled in the specified course.
 	 */
@@ -457,7 +458,7 @@ if ( ! function_exists( 'masteriyo_get_enrolled_group_user_emails' ) ) {
 
 		$enrolled_emails = array_filter(
 			array_map(
-				function( $email ) use ( $course_id ) {
+				function ( $email ) use ( $course_id ) {
 						$user = get_user_by( 'email', $email );
 
 						return ( $user && masteriyo_is_user_already_enrolled( $user->ID, $course_id ) ) ? $email : null;
@@ -477,7 +478,7 @@ if ( ! function_exists( 'masteriyo_get_active_course_ids_for_group' ) ) {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @param int $group_id The group ID to retrieve course IDs for.
+	 * @param int    $group_id The group ID to retrieve course IDs for.
 	 * @param string $status Optional. The enrollment status to filter by. If empty, all course IDs are returned.
 	 *
 	 * @return array An array of course IDs for the group, optionally filtered by the specified status.
@@ -496,5 +497,147 @@ if ( ! function_exists( 'masteriyo_get_active_course_ids_for_group' ) ) {
 		}
 
 		return $course_ids;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_group_display_state' ) ) {
+	/**
+	 * Compute the frontend display state for a group based on its linked order.
+	 *
+	 * Returns an array with three keys:
+	 *   - display_status  string  'active' | 'pending' | 'inactive'
+	 *   - status_reason   string  Human-readable reason key for 'inactive' (empty otherwise).
+	 *   - repurchase_url  string  Checkout URL with tier/seats pre-filled (for 'inactive' only, empty otherwise).
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group Group model.
+	 *
+	 * @return array{ display_status: string, status_reason: string, repurchase_url: string }
+	 */
+	function masteriyo_get_group_display_state( $group ) {
+		static $cache = array();
+
+		$default = array(
+			'display_status' => 'inactive',
+			'status_reason'  => 'removed',
+			'repurchase_url' => '',
+		);
+
+		if ( ! $group ) {
+			return $default;
+		}
+
+		$group_id = $group->get_id();
+		if ( isset( $cache[ $group_id ] ) ) {
+			return $cache[ $group_id ];
+		}
+
+		$course_data = get_post_meta( $group->get_id(), 'masteriyo_course_data', true );
+		$order_id    = 0;
+		$course_id   = 0;
+
+		if ( is_array( $course_data ) && ! empty( $course_data[0] ) ) {
+			$order_id  = isset( $course_data[0]['order_id'] ) ? absint( $course_data[0]['order_id'] ) : 0;
+			$course_id = isset( $course_data[0]['course_id'] ) ? absint( $course_data[0]['course_id'] ) : 0;
+		}
+
+		if ( ! $order_id ) {
+			$result             = masteriyo_build_inactive_display_state( $group, $course_id, 'removed' );
+			$cache[ $group_id ] = $result;
+			return $result;
+		}
+
+		// Use get_post so we can detect trash (masteriyo_get_order ignores trash).
+		$order_post = get_post( $order_id );
+		if ( ! $order_post || PostStatus::TRASH === $order_post->post_status ) {
+			$result             = masteriyo_build_inactive_display_state( $group, $course_id, 'removed' );
+			$cache[ $group_id ] = $result;
+			return $result;
+		}
+
+		$order = masteriyo_get_order( $order_id );
+		if ( ! $order ) {
+			$result             = masteriyo_build_inactive_display_state( $group, $course_id, 'removed' );
+			$cache[ $group_id ] = $result;
+			return $result;
+		}
+
+		$order_status = $order->get_status();
+
+		if ( OrderStatus::COMPLETED === $order_status ) {
+			$result             = array(
+				'display_status' => 'active',
+				'status_reason'  => '',
+				'repurchase_url' => '',
+			);
+			$cache[ $group_id ] = $result;
+			return $result;
+		}
+
+		if ( in_array( $order_status, array( OrderStatus::PENDING, OrderStatus::ON_HOLD, OrderStatus::PROCESSING ), true ) ) {
+			$result             = array(
+				'display_status' => 'pending',
+				'status_reason'  => '',
+				'repurchase_url' => '',
+			);
+			$cache[ $group_id ] = $result;
+			return $result;
+		}
+
+		// failed / cancelled / refunded.
+		$reason_map = array(
+			OrderStatus::FAILED    => 'failed',
+			OrderStatus::CANCELLED => 'cancelled',
+			OrderStatus::REFUNDED  => 'refunded',
+		);
+		$reason     = isset( $reason_map[ $order_status ] ) ? $reason_map[ $order_status ] : 'removed';
+
+		$result             = masteriyo_build_inactive_display_state( $group, $course_id, $reason );
+		$cache[ $group_id ] = $result;
+		return $result;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_build_inactive_display_state' ) ) {
+	/**
+	 * Build the inactive display state array including the repurchase URL.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group     Group model.
+	 * @param int                                         $course_id Course ID (0 if unknown).
+	 * @param string                                      $reason    Reason key.
+	 *
+	 * @return array
+	 */
+	function masteriyo_build_inactive_display_state( $group, $course_id, $reason ) {
+		$repurchase_url = '';
+
+		if ( $course_id ) {
+			$tier_id = get_post_meta( $group->get_id(), '_group_tier_id', true );
+			$seats   = get_post_meta( $group->get_id(), '_group_seats', true );
+
+			$args = array(
+				'add-to-cart'    => $course_id,
+				'group_purchase' => 'yes',
+			);
+
+			if ( $tier_id ) {
+				$args['group_tier_id'] = $tier_id;
+			}
+
+			if ( $seats ) {
+				$args['group_seats'] = absint( $seats );
+			}
+
+			$repurchase_url = add_query_arg( $args, masteriyo_get_page_permalink( 'checkout' ) );
+		}
+
+		return array(
+			'display_status' => 'inactive',
+			'status_reason'  => $reason,
+			'repurchase_url' => $repurchase_url,
+		);
 	}
 }

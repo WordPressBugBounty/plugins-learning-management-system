@@ -187,6 +187,36 @@ class Lesson extends Model {
 	}
 
 	/**
+	 * Get learn page URL for the lesson.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string
+	 */
+	public function get_learn_url() {
+		$course = masteriyo_get_course( $this->get_course_id() );
+		if ( ! $course ) {
+			return $this->get_permalink();
+		}
+
+		$learn_page_url = masteriyo_get_page_permalink( 'learn' );
+		$url            = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
+
+		if ( '' === get_option( 'permalink_structure' ) ) {
+			$url = add_query_arg(
+				array(
+					'course_name' => $course->get_id(),
+				),
+				$learn_page_url
+			);
+		}
+
+		$url .= '#/course/' . $course->get_id() . '/lesson/' . $this->get_id();
+
+		return apply_filters( 'masteriyo_lesson_learn_url', $url, $this );
+	}
+
+	/**
 	 * Returns the children IDs if applicable. Overridden by child classes.
 	 *
 	 * @since 1.0.0

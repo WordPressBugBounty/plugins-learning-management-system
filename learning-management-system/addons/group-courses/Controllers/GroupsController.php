@@ -606,27 +606,55 @@ class GroupsController extends PostsController {
 	 * @return array|null
 	 */
 	protected function get_group_order_info( $group_id ) {
-		$query = new OrderQuery(
-			array(
-				'meta_query' => array(
-					array(
-						'key'     => '_created_group_id',
-						'value'   => $group_id,
-						'compare' => '=',
+		$course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
+		$order_id    = 0;
+
+		if ( is_array( $course_data ) && ! empty( $course_data[0] ) && isset( $course_data[0]['order_id'] ) ) {
+			$order_id = absint( $course_data[0]['order_id'] );
+		}
+
+		if ( ! $order_id ) {
+			// Fallback: query by _created_group_id meta on orders.
+			$query  = new OrderQuery(
+				array(
+					'meta_query' => array(
+						array(
+							'key'     => '_created_group_id',
+							'value'   => $group_id,
+							'compare' => '=',
+						),
 					),
-				),
-				'limit'      => 1,
-			)
-		);
-
-		$orders = $query->get_orders();
-
-		if ( empty( $orders ) ) {
+					'limit'      => 1,
+				)
+			);
+			$orders = $query->get_orders();
+			if ( ! empty( $orders ) ) {
+				$order = current( $orders );
+				if ( $order ) {
+					return array(
+						'id'     => $order->get_id(),
+						'status' => $order->get_status(),
+					);
+				}
+			}
 			return null;
 		}
 
-		$order = current( $orders );
+		// Use get_post so trashed orders are also visible.
+		$order_post = get_post( $order_id );
+		if ( ! $order_post ) {
+			return null;
+		}
 
+		// Surface the real post_status including 'trash'.
+		if ( 'trash' === $order_post->post_status ) {
+			return array(
+				'id'     => $order_id,
+				'status' => 'trash',
+			);
+		}
+
+		$order = masteriyo_get_order( $order_id );
 		if ( ! $order ) {
 			return null;
 		}
@@ -703,12 +731,16 @@ class GroupsController extends PostsController {
 
 		$max_group_size = masteriyo_get_group_max_size( $group->get_id() );
 
-		$order_info = $this->get_group_order_info( $group->get_id() );
+		$order_info    = $this->get_group_order_info( $group->get_id() );
+		$display_state = masteriyo_get_group_display_state( $group );
 
 		$data = array(
 			'id'             => $group->get_id(),
 			'title'          => wp_specialchars_decode( $group->get_title( $context ) ),
 			'status'         => $group->get_status( $context ),
+			'display_status' => $display_state['display_status'],
+			'status_reason'  => $display_state['status_reason'],
+			'repurchase_url' => $display_state['repurchase_url'],
 			'description'    => $this->description_data( $group, $context ),
 			'date_created'   => masteriyo_rest_prepare_date_response( $group->get_date_created( $context ) ),
 			'date_modified'  => masteriyo_rest_prepare_date_response( $group->get_date_modified( $context ) ),
@@ -750,6 +782,14 @@ class GroupsController extends PostsController {
 			$args['author'] = $request['author_id'];
 		} elseif ( ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) ) {
 			$args['author'] = get_current_user_id();
+			// Never surface trashed groups in a customer's own-list.
+			if ( 'any' === $args['post_status'] || ( is_array( $args['post_status'] ) && in_array( 'any', $args['post_status'], true ) ) ) {
+				$args['post_status'] = array( 'publish', 'draft', 'pending', 'private' );
+			} elseif ( is_array( $args['post_status'] ) ) {
+				$args['post_status'] = array_diff( $args['post_status'], array( 'trash' ) );
+			} elseif ( 'trash' === $args['post_status'] ) {
+				$args['post_status'] = array( 'publish' );
+			}
 		}
 
 		return $args;
@@ -768,46 +808,46 @@ class GroupsController extends PostsController {
 			'title'      => $this->object_type,
 			'type'       => 'object',
 			'properties' => array(
-				'id'            => array(
+				'id'             => array(
 					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'title'         => array(
+				'title'          => array(
 					'description' => __( 'Group name', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_created'  => array(
+				'date_created'   => array(
 					'description' => __( "The date the group was created, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_modified' => array(
+				'date_modified'  => array(
 					'description' => __( "The date the group was last modified, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'status'        => array(
+				'status'         => array(
 					'description' => __( 'Group status (post status).', 'learning-management-system' ),
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
-				'description'   => array(
+				'description'    => array(
 					'description' => __( 'Group description', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'menu_order'    => array(
+				'menu_order'     => array(
 					'description' => __( 'Menu order, used to custom sort groups.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'emails'        => array(
+				'emails'         => array(
 					'description' => __( 'A list of the emails for the group.', 'learning-management-system' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
@@ -815,12 +855,12 @@ class GroupsController extends PostsController {
 						'type' => 'string',
 					),
 				),
-				'author_id'     => array(
+				'author_id'      => array(
 					'description' => __( 'Group author ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'author'        => array(
+				'author'         => array(
 					'description' => __( 'Group author', 'learning-management-system' ),
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -846,7 +886,7 @@ class GroupsController extends PostsController {
 						),
 					),
 				),
-				'order'         => array(
+				'order'          => array(
 					'description' => __( 'Associated order information', 'learning-management-system' ),
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -866,7 +906,26 @@ class GroupsController extends PostsController {
 						),
 					),
 				),
-				'meta_data'     => array(
+				'display_status' => array(
+					'description' => __( 'Frontend display status derived from linked order.', 'learning-management-system' ),
+					'type'        => 'string',
+					'enum'        => array( 'active', 'pending', 'inactive' ),
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'status_reason'  => array(
+					'description' => __( 'Reason key for inactive display status.', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'repurchase_url' => array(
+					'description' => __( 'Checkout URL to retry this group purchase (only set when display_status is inactive).', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'meta_data'      => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),

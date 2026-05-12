@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\Stripe\Client\StripeClient;
 use Masteriyo\Addons\Stripe\Setting as StripeSetting;
+use Masteriyo\Pro\Addons;
 
 class Onboard {
 
@@ -96,7 +97,7 @@ class Onboard {
 			array(
 				'rootApiUrl'              => esc_url_raw( untrailingslashit( rest_url() ) ),
 				'nonce'                   => wp_create_nonce( 'wp_rest' ),
-				'stripe_nonce'            => wp_create_nonce( 'masteriyo_stripe_connect' ),
+				'stripe_nonce'            => wp_create_nonce( 'masteriyo_stripe_nonce' ),
 				'adminURL'                => esc_url( admin_url() ),
 				'siteURL'                 => esc_url( home_url( '/' ) ),
 				'pluginUrl'               => esc_url( plugin_dir_url( MASTERIYO_PLUGIN_FILE ) ),
@@ -110,6 +111,7 @@ class Onboard {
 				),
 				'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
 				'ajaxNonce'               => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
+				'is_stripe_addon_active'  => masteriyo_bool_to_string( ( new Addons() )->is_active( 'stripe' ) ),
 				'allowUsage'              => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.allow_usage' ) ),
 				'subscribeUpdates'        => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.subscribe_updates' ) ),
 				'subscriptionEmail'       => masteriyo_get_setting( 'advance.tracking.email' ),
@@ -141,7 +143,7 @@ class Onboard {
 		! isset( $_GET['page'] ) ||
 		$this->page_name !== $_GET['page'] ||
 		! isset( $_GET['nonce'] ) ||
-		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_connect' ) ||
+		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_stripe_nonce' ) ||
 		! current_user_can( 'manage_options' )
 		) {
 			return;
@@ -208,15 +210,9 @@ class Onboard {
 			$stripe_setting->save();
 		}
 
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'step'  => 'payment',
-					'error' => $error ? 'true' : null,
-				),
-				remove_query_arg( array( 'action', 'nonce', 'accountId', 'mode', 'return_url' ) )
-			)
-		);
+		$base_url = remove_query_arg( array( 'action', 'nonce', 'accountId', 'mode', 'return_url', 'step' ) );
+		$hash     = $error ? '#/?step=setup&stripe_error=true' : '#/?step=setup';
+		wp_safe_redirect( $base_url . $hash );
 		exit;
 	}
 

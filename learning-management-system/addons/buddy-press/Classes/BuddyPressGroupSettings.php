@@ -79,11 +79,11 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 					<?php
 					foreach ( $courses as $course ) {
 						$group_attached = get_post_meta( $course->ID, 'bp_course_group', true );
-						if ( ! empty( $group_attached ) && ( '-1' != $group_attached ) && $course->ID != $group_status ) {
+						if ( ! empty( $group_attached ) && ( '-1' !== $group_attached ) && $course->ID !== (int) $group_status ) {
 							continue;
 						}
 						?>
-						<option value="<?php echo esc_html( $course->ID ); ?>" <?php echo esc_html( ( $course->ID == $group_status ) ) ? 'selected' : ''; ?>><?php echo esc_html( $course->post_title ); ?></option>
+						<option value="<?php echo esc_html( $course->ID ); ?>" <?php echo esc_html( ( $course->ID === (int) $group_status ) ) ? 'selected' : ''; ?>><?php echo esc_html( $course->post_title ); ?></option>
 						<?php
 					}
 					?>
@@ -158,26 +158,28 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	 */
 	public function settings_screen_save( $group_id = null ) {
 
-		$tutor_bp_course_activities = isset( $_POST['masteriyo_bp_group_activities'] ) ? $_POST['masteriyo_bp_group_activities'] : array();
+		$raw_activities             = isset( $_POST['masteriyo_bp_group_activities'] ) && is_array( $_POST['masteriyo_bp_group_activities'] ) ? $_POST['masteriyo_bp_group_activities'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$tutor_bp_course_activities = array_map( 'sanitize_text_field', $raw_activities );
 
 		groups_update_groupmeta( $group_id, '_masteriyo_bp_group_activities', $tutor_bp_course_activities );
 
-		$old_course_id = groups_get_groupmeta( $group_id, 'bp_course_attached', true );
+		$old_course_id = (int) groups_get_groupmeta( $group_id, 'bp_course_attached', true );
+		$new_course_id = isset( $_POST['bp_group_course'] ) ? absint( $_POST['bp_group_course'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-		if ( isset( $_POST['bp_group_course'] ) && ( $_POST['bp_group_course'] ) != '-1' ) {
+		if ( $new_course_id > 0 ) {
 
-			if ( ! empty( $old_course_id ) && $old_course_id != $_POST['bp_group_course'] ) {
+			if ( ! empty( $old_course_id ) && $old_course_id !== $new_course_id ) {
 				delete_post_meta( $old_course_id, 'bp_course_group' );
 				groups_delete_groupmeta( $group_id, 'bp_course_attached' );
 				Helper::bp_masteriyo_remove_members_group( $old_course_id, $group_id );
 			}
 
-			update_post_meta( $_POST['bp_group_course'], 'bp_course_group', $group_id );
-			groups_add_groupmeta( $group_id, 'bp_course_attached', $_POST['bp_group_course'] );
+			update_post_meta( $new_course_id, 'bp_course_group', $group_id );
+			groups_add_groupmeta( $group_id, 'bp_course_attached', $new_course_id );
 
-			Helper::bp_masteriyo_add_members_group( $_POST['bp_group_course'], $group_id );
+			Helper::bp_masteriyo_add_members_group( $new_course_id, $group_id );
 
-			Helper::bp_masteriyo_course_teacher_group_admin( $_POST['bp_group_course'], $group_id );
+			Helper::bp_masteriyo_course_teacher_group_admin( $new_course_id, $group_id );
 		} else {
 			delete_post_meta( $old_course_id, 'bp_course_group' );
 			groups_delete_groupmeta( $group_id, 'bp_course_attached' );
@@ -194,9 +196,9 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	 *
 	 * Checked based on given value
 	 */
-	public function is_checked( $value, $array ) {
+	public function is_checked( $value, $items ) {
 		$checked = '';
-		if ( is_array( $array ) && array_key_exists( $value, $array ) ) {
+		if ( is_array( $items ) && array_key_exists( $value, $items ) ) {
 			$checked = 'checked';
 		}
 		return $checked;

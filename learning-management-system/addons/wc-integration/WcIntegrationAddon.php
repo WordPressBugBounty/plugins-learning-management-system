@@ -124,6 +124,8 @@ class WcIntegrationAddon {
 
 		add_action( 'profile_update', array( $this, 'add_student_role_to_wc_customer' ) );
 		add_action( 'user_register', array( $this, 'add_student_role_to_wc_customer' ) );
+		add_filter( 'woocommerce_order_item_needs_processing', array( $this, 'course_order_item_needs_processing' ), 10, 3 );
+		add_action( 'woocommerce_thankyou', array( $this, 'maybe_redirect_to_enrolled_course' ), 1 );
 
 		if ( Helper::is_wc_subscriptions_active() ) {
 			add_action( 'woocommerce_mto_course_recurring_add_to_cart', array( $this, 'use_simple_add_to_cart_template' ) );
@@ -811,6 +813,10 @@ class WcIntegrationAddon {
 
 		$wc_order = wc_get_order( $wc_order_id );
 
+		if ( ! $wc_order || ! absint( $wc_order->get_customer_id() ) ) {
+			return;
+		}
+
 		// Return only WC_Order_Item_Product.
 		$order_items = array_filter(
 			$wc_order->get_items(),
@@ -1121,5 +1127,96 @@ class WcIntegrationAddon {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Tell WooCommerce that Masteriyo course products don't need manual processing.
+	 * When all items in an order return false, WooCommerce natively auto-completes
+	 * the order via maybe_complete_order() — no direct status manipulation needed.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param bool        $needs_processing Whether the item needs processing.
+	 * @param \WC_Product $product          Product object.
+	 * @param int         $order_id         WooCommerce order ID.
+	 * @return bool
+	 */
+	public function course_order_item_needs_processing( $needs_processing, $product, $order_id ) {
+		if ( ! $this->setting->get( 'auto_redirect.enable', false ) ) {
+			return $needs_processing;
+		}
+
+		$course_product_types = array(
+			'mto_course',
+			'mto_course_recurring',
+		);
+
+		if ( in_array( $product->get_type(), $course_product_types, true ) ) {
+			return false;
+		}
+
+		return $needs_processing;
+	}
+
+	/**
+	 * Redirect the student to their enrolled courses page after WooCommerce checkout.
+	 *
+	 * Fires on woocommerce_thankyou (inside the order-received template). WordPress
+	 * output buffering keeps headers available here, so wp_safe_redirect() works.
+	 * Only redirects when order is completed (enrollment is active).
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $order_id WooCommerce order ID.
+	 */
+	public function maybe_redirect_to_enrolled_course( $order_id ) {
+		if ( ! $this->setting->get( 'auto_redirect.enable', false ) || ! is_user_logged_in() ) {
+			return;
+		}
+
+		$order = wc_get_order( $order_id );
+		if ( ! $order || ! $order->has_status( OrderStatus::COMPLETED ) ) {
+			return;
+		}
+
+		$course_ids = $this->get_course_ids_from_order( $order );
+		if ( empty( $course_ids ) ) {
+			return;
+		}
+
+		wp_safe_redirect( trailingslashit( masteriyo_get_account_url() ) . '#/courses' );
+		exit;
+	}
+
+	/**
+	 * Extract all Masteriyo course IDs from a WooCommerce order.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WC_Order $order WooCommerce order object.
+	 * @return int[]
+	 */
+	private function get_course_ids_from_order( $order ) {
+		$course_ids = array();
+
+		foreach ( $order->get_items() as $item ) {
+			if ( ! is_a( $item, 'WC_Order_Item_Product' ) ) {
+				continue;
+			}
+
+			$product = wc_get_product( $item->get_product_id() );
+			if ( ! $product ) {
+				continue;
+			}
+
+			if ( in_array( $product->get_type(), array( 'mto_course', 'mto_course_recurring' ), true ) ) {
+				$course_id = absint( $product->get_meta( '_masteriyo_course_id', true ) );
+				if ( $course_id ) {
+					$course_ids[] = $course_id;
+				}
+			}
+		}
+
+		return array_unique( array_filter( $course_ids ) );
 	}
 }

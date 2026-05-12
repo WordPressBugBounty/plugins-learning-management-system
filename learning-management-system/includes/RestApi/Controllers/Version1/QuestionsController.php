@@ -395,7 +395,7 @@ class QuestionsController extends PostsController {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 
 		// Show correct answer if current user is admin or post author while request from question bank for builder.
-		if ( isset( $request['selected_quiz_id'] ) && masteriyo_is_current_user_admin() || masteriyo_is_current_user_post_author( $object->get_course_id() ) ) {
+		if ( ( isset( $request['selected_quiz_id'] ) && masteriyo_is_current_user_admin() ) || masteriyo_is_current_user_post_author( $object->get_course_id() ) ) {
 			$request['show_correct_answer'] = true;
 		}
 
@@ -1137,6 +1137,18 @@ class QuestionsController extends PostsController {
 		$course    = masteriyo_get_course( $course_id );
 
 		if ( $course && CourseAccessMode::OPEN === $course->get_access_mode() ) {
+			return true;
+		}
+
+		// Fallback for question bank questions: their _course_id may be empty or wrong.
+		// Check the parent quiz's course instead (passed as ?parent= in the request).
+		$request        = masteriyo_current_http_request();
+		$parent         = $request ? $request->get_param( 'parent' ) : null;
+		$parent_id      = absint( is_array( $parent ) ? current( $parent ) : $parent );
+		$quiz_course_id = $parent_id ? get_post_meta( $parent_id, '_course_id', true ) : 0;
+		$quiz_course    = $quiz_course_id ? masteriyo_get_course( $quiz_course_id ) : null;
+
+		if ( $quiz_course && CourseAccessMode::OPEN === $quiz_course->get_access_mode() ) {
 			return true;
 		}
 

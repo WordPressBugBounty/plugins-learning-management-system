@@ -67,6 +67,8 @@ class UserResource {
 				'phone'        => $user->get_billing_phone( $context ),
 			),
 			'avatar_url'           => $user->get_avatar_url(),
+			'is_demo_student'      => (bool) get_user_meta( $user->get_id(), '_masteriyo_is_demo_student', true ),
+			'auto_created'         => (bool) get_user_meta( $user->get_id(), '_masteriyo_auto_created', true ),
 		);
 
 		/**

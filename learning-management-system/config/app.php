@@ -21,6 +21,7 @@ use Masteriyo\Providers\NotificationServiceProvider;
 use Masteriyo\Providers\TrackingServiceProvider;
 use Masteriyo\Providers\FormbricksServiceProvider;
 use Masteriyo\Providers\StarterTemplateServiceProvider;
+use Masteriyo\Abilities\Providers\AbilitiesServiceProvider;
 
 
 return array_unique(
@@ -89,6 +90,7 @@ return array_unique(
 			TrackingServiceProvider::class,
 			FormbricksServiceProvider::class,
 			StarterTemplateServiceProvider::class,
+			AbilitiesServiceProvider::class,
 
 			// Pro Service Providers.
 			ProServiceProvider::class,

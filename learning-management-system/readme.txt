@@ -1,10 +1,10 @@
 === Masteriyo LMS – LMS Course Builder, Quizzes & Certificates ===
 Contributors: Masteriyo, themeisle
 Tags: lms, learning management system, elearning, online courses, course builder
-Requires at least: 6.5
+Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.1.9
+Stable tag: 2.2.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,6 +295,31 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.2.0 - 12-05-2026 =
+- Feature - Added 'View as Student' option for admins and instructors to preview the student experience.
+- Feature - Exposed full CRUD abilities for Course, Section, Lesson, Quiz, Question, Enrollment, Order, User, and Settings via the WP Abilities API.
+- Enhancement - Added email settings and notifications for lesson comments/replies and Q&A.
+- Enhancement - Synced group status with different order statuses.
+- Enhancement - Added 'Auto Redirect to Courses' option in WooCommerce integration settings.
+- Enhancement - Improved UX for chat input fields by replacing text input with textarea and enhancing message formatting.
+- Security - Added authorization check for Invoice PDF access.
+- Security - Added capability checks to AJAX notice handlers.
+- Security - Improved BuddyPress integration security.
+- Fix - Enqueued public.css on course bundle and public profile pages. [PRO]
+- Fix - Fixed missing Elementor CSS and body classes with block themes.
+- Fix - Added masteriyo-notice-link class to admin notice links.
+- Fix - Fixed review replies not appearing in user details edit review. [PRO]
+- Fix - Scoped gradebook queries to current user and guarded against bulk deletion. [PRO]
+- Fix - Resolved stale cache served after AJAX login on account page with LiteSpeed Cache.
+- Fix - Fixed search by username or email for quiz attempts and assignments. [PRO]
+- Fix - Fixed students being unable to post reviews on private courses and lessons. [PRO]
+- Fix - Fixed invalid interval format sent to Mollie subscription API.
+- Fix - Fixed WooCommerce order with no customer ID overwriting wcorder_id on wrong user enrollment.
+- Fix - Fixed URL status param not syncing to filterParams on backend page reload.
+- Fix - Fixed user being unable to reply to reviews after submitting their own review.
+- Fix - Fixed quiz questions not loading for guest users on open access courses.
+- Fix - Fixed incorrect redirect to first step after Stripe Connect on onboarding.
+
 = 2.1.9 - 04-05-2026 =
 - Enhancement - Load Masteriyo public CSS only on Masteriyo-related content pages.
 - Fix - Enhance security.
@@ -307,10 +332,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Randomize Questions setting not applied on Learn page quiz.
 - Fix - Course featured image missing in Course Bundle editor. [PRO]
 - Fix - Group enrollment course selector not listing courses with tiered pricing. [PRO]
-
-= 2.1.8 - 06-04-2026 =
-- Enhancement – Made the Stripe webhook secret mandatory to improve security.
-- Fix – Enhance security.
-- Fix – Resolved RTL issues in the quiz timer and Masteriyo player.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

@@ -954,7 +954,10 @@ class StripeAddon {
 				'Stripe webhook: payment intent ' . $payment_intent->id . ' has no order_id in metadata.',
 				array( 'source' => 'payment-stripe' )
 			);
-			return array( 'status' => 'skipped', 'reason' => 'no_order_id' );
+			return array(
+				'status' => 'skipped',
+				'reason' => 'no_order_id',
+			);
 		}
 
 		$order_id = absint( $payment_intent->metadata->order_id );
@@ -1006,7 +1009,7 @@ class StripeAddon {
 		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
 
 		printf(
-			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a>.</p></div>',
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s" class="masteriyo-notice-link">%s</a>.</p></div>',
 			esc_html__( 'Masteriyo Stripe:', 'learning-management-system' ),
 			esc_html__( 'Stripe webhook verification is now required (v2.1.8+). Add your webhook secret to ensure payments process correctly.', 'learning-management-system' ),
 			esc_url( $settings_url ),

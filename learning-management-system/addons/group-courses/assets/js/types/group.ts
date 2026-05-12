@@ -3,6 +3,9 @@ export type GroupSchema = {
 	title: string;
 	description: string;
 	status: string;
+	display_status: 'active' | 'pending' | 'inactive';
+	status_reason?: string;
+	repurchase_url?: string;
 	author: {
 		id: number;
 		display_name: string;

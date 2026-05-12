@@ -3489,6 +3489,10 @@ if ( ! function_exists( 'masteriyo_session_info_update' ) ) {
 		$sessions     = WP_Session_Tokens::get_instance( masteriyo_get_current_user_id() );
 		$session_info = $sessions->get( $token );
 
+		if ( ! $session_info || ! isset( $session_info['login'] ) ) {
+			return;
+		}
+
 		if ( ! get_user_meta( masteriyo_get_current_user_id(), masteriyo_get_current_user_id() . '_session_' . $session_info['login'], true ) ) {
 			update_user_meta( masteriyo_get_current_user_id(), masteriyo_get_current_user_id() . '_session_' . $session_info['login'], masteriyo_session_information() );
 		}

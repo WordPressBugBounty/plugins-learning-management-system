@@ -29,10 +29,10 @@ use Masteriyo\Enums\UserStatus;
 use Masteriyo\Exporter\CourseExporter;
 use Masteriyo\Exporter\QuizExporter;
 use Masteriyo\FileRestrictions\FileRestrictions;
-use Masteriyo\ShowHideComponents\ShowHideArchiveCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideCategoryCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideInstructorCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideSingleCourseComponents;
+use Masteriyo\Roles;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -134,6 +134,8 @@ class Masteriyo {
 	 */
 	protected function init_hooks() {
 		add_action( 'init', array( $this, 'after_wp_init' ), 0 );
+		add_action( 'init', 'masteriyo_handle_student_preview_token', 5 );
+		add_action( 'wp_footer', array( $this, 'render_student_preview_banner' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_courses_page_link' ), 35 );
 		add_action( 'masteriyo_admin_notices', array( $this, 'masteriyo_display_compatibility_notice' ) );
 
@@ -996,6 +998,53 @@ class Masteriyo {
 			default:
 				return $allowed_tags;
 		}
+	}
+
+	/**
+	 * Render the floating preview pill on every frontend page via wp_footer.
+	 *
+	 * @since x.x.x
+	 */
+	public function render_student_preview_banner(): void {
+		if ( masteriyo_validate_preview_originator_cookie() === null ) {
+			return;
+		}
+		masteriyo_get_template( 'student-preview-frontend-banner.php', $this->get_student_preview_banner_args() );
+	}
+
+	/**
+	 * Build the template args for the frontend preview banner.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return array{exit_url: string, switcher_label: string, button_color: string, button_hover_color: string}
+	 */
+	private function get_student_preview_banner_args(): array {
+		$originator  = masteriyo_validate_preview_originator_cookie();
+		$admin_id    = $originator ? $originator['admin_id'] : 0;
+		$admin_user  = $admin_id ? get_userdata( $admin_id ) : null;
+		$admin_roles = $admin_user ? (array) $admin_user->roles : array();
+
+		$switcher_label = in_array( Roles::INSTRUCTOR, $admin_roles, true )
+			? __( 'Switch to Instructor', 'learning-management-system' )
+			: __( 'Switch to Admin', 'learning-management-system' );
+
+		$button_color = (string) masteriyo_get_setting( 'general.styling.button_color' );
+		if ( '' === trim( $button_color ) ) {
+			$button_color = '#4584FF';
+		}
+
+		$button_hover_color = (string) masteriyo_get_setting( 'general.styling.button_hover_color' );
+		if ( '' === trim( $button_hover_color ) ) {
+			$button_hover_color = '#2B6CB0';
+		}
+
+		return array(
+			'exit_url'           => add_query_arg( 'mto-exit-student-preview', '1', home_url( '/' ) ),
+			'switcher_label'     => $switcher_label,
+			'button_color'       => $button_color,
+			'button_hover_color' => $button_hover_color,
+		);
 	}
 
 	/**

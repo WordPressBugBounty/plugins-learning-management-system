@@ -53,6 +53,12 @@ class CourseResource {
 			'slug'                           => $course->get_slug( $context ),
 			'permalink'                      => $course->get_permalink(),
 			'preview_permalink'              => $course->get_preview_link(),
+			'student_preview_permalink'      => masteriyo_current_user_can_student_preview()
+				? $course->get_student_preview_link()
+				: '',
+			'student_preview_email'          => masteriyo_current_user_can_student_preview()
+				? masteriyo_get_demo_student_email()
+				: '',
 			'status'                         => $course->get_status( $context ),
 			'description'                    => 'view' === $context ? wpautop( do_shortcode( $course->get_description() ) ) : $course->get_description( $context ),
 			'short_description'              => $short_description,

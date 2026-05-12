@@ -28,7 +28,7 @@ import {
 } from '../../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../../assets/js/back-end/utils/api';
 import { urls } from '../../constants/urls';
-import { GroupStatus } from '../../enums/Enum';
+import { GroupDisplayStatus } from '../../enums/Enum';
 import { GroupSchema } from '../../types/group';
 
 interface GroupProps {
@@ -75,7 +75,22 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 		},
 	});
 
-	const isPublished = group.status === GroupStatus.Publish;
+	const displayStatus = group.display_status ?? GroupDisplayStatus.Inactive;
+	const isPending = displayStatus === GroupDisplayStatus.Pending;
+	const isInactive = displayStatus === GroupDisplayStatus.Inactive;
+
+	const statusReasonLabel: Record<string, string> = {
+		failed: __('Your last order failed.', 'learning-management-system'),
+		cancelled: __(
+			'Your last order was cancelled.',
+			'learning-management-system',
+		),
+		refunded: __('Your last order was refunded.', 'learning-management-system'),
+		removed: __('Your last order was removed.', 'learning-management-system'),
+	};
+	const inactiveTooltip =
+		statusReasonLabel[group.status_reason ?? ''] ??
+		__('Payment incomplete.', 'learning-management-system');
 
 	return (
 		<>
@@ -126,16 +141,17 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 					px={3}
 					flexWrap={'wrap'}
 				>
-					<Text
-						cursor="pointer"
-						onClick={() => onExpandedGroupsChange?.(group.id)}
-						color={'oxford-night'}
-						fontWeight={'semibold'}
-					>
-						{group.title}
-						{!isPublished && (
+					<Flex alignItems="center" gap={2} flexWrap="wrap">
+						<Text
+							cursor="pointer"
+							onClick={() => onExpandedGroupsChange?.(group.id)}
+							color={'oxford-night'}
+							fontWeight={'semibold'}
+						>
+							{group.title}
+						</Text>
+						{isPending && (
 							<Badge
-								ml={3}
 								color="yellow.500"
 								p={1}
 								borderRadius="base"
@@ -144,7 +160,20 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								{__('Pending', 'learning-management-system')}
 							</Badge>
 						)}
-					</Text>
+						{isInactive && (
+							<Tooltip label={inactiveTooltip}>
+								<Badge
+									color="gray.500"
+									p={1}
+									borderRadius="base"
+									variant={'link'}
+									cursor="default"
+								>
+									{__('Inactive', 'learning-management-system')}
+								</Badge>
+							</Tooltip>
+						)}
+					</Flex>
 					<ButtonGroup
 						color="gray.600"
 						size="xs"
@@ -172,7 +201,7 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 								_hover={{ color: 'primary.500', background: 'none' }}
 								onClick={() => onExpandedGroupsChange?.(group.id)}
 								variant="unstyled"
-								cursor={'pointer'}
+								cursor="pointer"
 								icon={<Icon fontSize="lg" as={EditIcon} />}
 								aria-label={__('Edit', 'learning-management-system')}
 								mt={1}

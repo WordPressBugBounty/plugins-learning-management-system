@@ -136,7 +136,7 @@ if ( ! function_exists( 'masteriyo_session_information' ) ) {
 		$session_info              = $sessions->get( $token );
 		$current_user_session_info = array();
 		$date_format               = 'F j,Y H:i a';
-		$current_user_session_info['human_readable_date'] = $session_info['login'] ? date_i18n( $date_format, $session_info['login'] ) : null;
+		$current_user_session_info['human_readable_date'] = ( $session_info && isset( $session_info['login'] ) && $session_info['login'] ) ? date_i18n( $date_format, $session_info['login'] ) : null;
 		$current_user_session_info['device_info']         = masteriyo_get_current_device_info();
 		$current_user_session_info['token']               = $token;
 

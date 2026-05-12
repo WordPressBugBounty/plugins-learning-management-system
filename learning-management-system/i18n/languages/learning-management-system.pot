@@ -2,20 +2,21 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 2.1.9\n"
+"Project-Id-Version: Masteriyo LMS 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-04T16:34:54+00:00\n"
+"POT-Creation-Date: 2026-05-12T08:34:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
 
 #. Plugin Name of the plugin
 #: lms.php
+#: includes/Abilities/Registry/AbilityRegistrar.php:69
 #: includes/Providers/BlocksServiceProvider.php:151
 msgid "Masteriyo LMS"
 msgstr ""
@@ -76,7 +77,7 @@ msgid "Import"
 msgstr ""
 
 #: addons/google-classroom-integration/templates/google-classroom.php:33
-#: includes/Helper/core.php:5488
+#: includes/Helper/core.php:5497
 #: assets/js/build/masteriyo-backend.js:4
 msgid "Google Classroom"
 msgstr ""
@@ -186,7 +187,7 @@ msgid "Download Certificate"
 msgstr ""
 
 #: addons/scorm/templates/scorm-header.php:32
-#: includes/Models/Course.php:2055
+#: includes/Models/Course.php:2082
 #: templates/single-course/course-progress.php:93
 #: assets/js/build/masteriyo-account.js:14
 #: assets/js/build/masteriyo-account.js:19
@@ -220,6 +221,811 @@ msgstr ""
 #: addons/sure-cart-integration/templates/add-to-cart-modal.php:59
 #: addons/sure-cart-integration/templates/add-to-cart-modal.php:63
 msgid "Fetch Prices"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/CreateCourseAbility.php:58
+msgid "Create Course"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/CreateCourseAbility.php:65
+msgid "Create a new course with title, description, pricing, access mode, and category assignments."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/DeleteCourseAbility.php:58
+msgid "Delete Course"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/DeleteCourseAbility.php:65
+msgid "Move a course to trash. Use force=true to permanently delete."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/GetCourseAbility.php:57
+msgid "Get Course"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/GetCourseAbility.php:64
+msgid "Retrieve a single course by ID, including all its metadata and settings."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/GetCourseChildrenAbility.php:67
+msgid "Course ID to retrieve children for."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/GetCourseChildrenAbility.php:88
+msgid "Get Course Children"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/GetCourseChildrenAbility.php:95
+msgid "Retrieve all content items (sections, lessons, quizzes) belonging to a course."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/ListCoursesAbility.php:57
+msgid "List Courses"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/ListCoursesAbility.php:64
+msgid "Retrieve a paginated list of courses. Supports filtering by status, category, instructor, and search term."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/RestoreCourseAbility.php:58
+msgid "Restore Course"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/RestoreCourseAbility.php:65
+msgid "Restore a trashed course back to its previous published or draft state."
+msgstr ""
+
+#: includes/Abilities/Domains/Course/UpdateCourseAbility.php:57
+#: includes/PostType/Course.php:49
+#: assets/js/build/masteriyo-backend.js:4
+msgid "Update Course"
+msgstr ""
+
+#: includes/Abilities/Domains/Course/UpdateCourseAbility.php:64
+msgid "Update an existing course. Supply only the fields to change; others remain unchanged."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/GetCourseBuilderAbility.php:57
+msgid "Get Course Builder"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/GetCourseBuilderAbility.php:64
+msgid "Retrieve the full course structure tree: all sections with their lessons and quizzes in order."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/SaveCourseBuilderAbility.php:74
+msgid "Set to true to confirm that you intend to overwrite a published course. Required when the course status is \"publish\"."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/SaveCourseBuilderAbility.php:97
+msgid "This course is published with enrolled students. Set confirm_published_overwrite=true to proceed."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/SaveCourseBuilderAbility.php:119
+msgid "Save Course Builder"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseBuilder/SaveCourseBuilderAbility.php:126
+msgid "Atomically save the entire course structure (sections, lessons, quizzes). Replaces the existing structure — provide the full desired tree."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/CreateCourseCategoryAbility.php:58
+msgid "Create Course Category"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/CreateCourseCategoryAbility.php:65
+msgid "Create a new course category. Requires name. Optionally accepts slug, description, and parent (ID of a parent category for hierarchical nesting). Returns the created category with its ID and course count."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/DeleteCourseCategoryAbility.php:58
+msgid "Delete Course Category"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/DeleteCourseCategoryAbility.php:65
+msgid "Permanently delete a course category. Requires id (category ID). Taxonomy terms have no trash state — deletion is immediate and irreversible. Returns the deleted category object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/GetCourseCategoryAbility.php:56
+msgid "Get Course Category"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/GetCourseCategoryAbility.php:63
+msgid "Retrieve a single course category by its ID. Requires id (category ID). Returns the category object including name, slug, description, parent ID, and course count."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/ListCourseCategoriesAbility.php:57
+msgid "List Course Categories"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/ListCourseCategoriesAbility.php:64
+msgid "Retrieve a paginated list of course categories. Optionally filter by search term or parent ID. Returns data array with name, slug, description, parent, and course count per category, plus pagination metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/UpdateCourseCategoryAbility.php:58
+#: includes/Taxonomy/Course/Category.php:73
+msgid "Update Course Category"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseCategory/UpdateCourseCategoryAbility.php:65
+msgid "Update an existing course category. Requires id (category ID). Optionally accepts name, slug, description, or parent. Returns the updated category object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/CreateCourseDifficultyAbility.php:58
+msgid "Create Course Difficulty"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/CreateCourseDifficultyAbility.php:65
+msgid "Create a new course difficulty level (e.g. Beginner, Intermediate, Advanced). Requires name. Optionally accepts slug and description. Returns the created difficulty object with its ID."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/DeleteCourseDifficultyAbility.php:58
+msgid "Delete Course Difficulty"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/DeleteCourseDifficultyAbility.php:65
+msgid "Permanently delete a course difficulty level. Requires id (difficulty ID). Deletion is immediate and irreversible. Returns the deleted difficulty object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/GetCourseDifficultyAbility.php:56
+msgid "Get Course Difficulty"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/GetCourseDifficultyAbility.php:63
+msgid "Retrieve a single course difficulty level by its ID. Requires id (difficulty ID). Returns the difficulty object including name, slug, description, and course count."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/ListCourseDifficultiesAbility.php:57
+msgid "List Course Difficulties"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/ListCourseDifficultiesAbility.php:64
+msgid "Retrieve a paginated list of course difficulty levels. Optionally filter by search term. Returns data array with name, slug, description, and course count per difficulty, plus pagination metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/UpdateCourseDifficultyAbility.php:58
+#: includes/Taxonomy/Course/Difficulty.php:74
+msgid "Update Course Difficulty"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseDifficulty/UpdateCourseDifficultyAbility.php:65
+msgid "Update an existing course difficulty level. Requires id (difficulty ID). Optionally accepts name, slug, or description. Returns the updated difficulty object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseProgress/GetCourseProgressAbility.php:44
+msgid "Get Course Progress"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseProgress/GetCourseProgressAbility.php:49
+msgid "Retrieve a course progress record by its ID. Requires id (progress ID). Returns the progress object including user_id, course_id, status (started, progress, completed), and completion percentage."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseProgress/UpdateCourseProgressAbility.php:44
+msgid "Update Course Progress"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseProgress/UpdateCourseProgressAbility.php:49
+msgid "Update a student's course progress record. Requires id (progress ID). Accepts status (started, progress, completed). Returns the updated progress object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/CreateCourseQAAbility.php:59
+msgid "Create Course Q&A"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/CreateCourseQAAbility.php:66
+msgid "Post a new question or answer in a course Q&A thread. Requires course_id and content. Omit parent to create a top-level question; set parent to a question ID to post an answer. Returns the created entry with its ID and status."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/DeleteCourseQAAbility.php:57
+msgid "Delete Course Q&A"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/DeleteCourseQAAbility.php:64
+msgid "Move a course Q&A entry to trash. Requires id (Q&A entry ID). Trashed entries can be recovered with masteriyo/course-qa-restore. Use force=true to permanently delete. Returns the deleted entry."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/GetCourseQAAbility.php:58
+msgid "Get Course Q&A"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/GetCourseQAAbility.php:65
+msgid "Retrieve a single course Q&A entry by its ID. Requires id (Q&A entry ID). Returns the entry including content, author, status, course_id, and parent (set when the entry is an answer to another question)."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/ListCourseQAsAbility.php:58
+msgid "List Course Q&As"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/ListCourseQAsAbility.php:65
+msgid "Retrieve a paginated list of course Q&A entries. Optionally filter by course_id or status (approved, hold, spam). Returns data array of Q&A entries with content, author, and course context, plus pagination metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/RestoreCourseQAAbility.php:58
+msgid "Restore Course Q&A"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/RestoreCourseQAAbility.php:65
+msgid "Restore a trashed course Q&A entry to its previous status. Requires id (Q&A entry ID). Only applies to entries currently in the trash. Returns the restored entry object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/UpdateCourseQAAbility.php:58
+msgid "Update Course Q&A"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseQA/UpdateCourseQAAbility.php:65
+msgid "Update an existing Q&A entry content."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/CreateCourseReviewAbility.php:58
+msgid "Create Course Review"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/CreateCourseReviewAbility.php:65
+msgid "Submit a new course review with rating and comment."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/DeleteCourseReviewAbility.php:57
+msgid "Delete Course Review"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/DeleteCourseReviewAbility.php:64
+msgid "Delete a course review permanently."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/GetCourseReviewAbility.php:56
+msgid "Get Course Review"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/GetCourseReviewAbility.php:63
+msgid "Retrieve a single course review by its ID. Requires id (review ID). Returns the review including reviewer name, rating (1–5), comment body, status (approved, hold, spam), and course_id."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/ListCourseReviewsAbility.php:57
+msgid "List Course Reviews"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/ListCourseReviewsAbility.php:64
+msgid "Retrieve a paginated list of course reviews, optionally filtered by course or status."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/UpdateCourseReviewAbility.php:58
+msgid "Update Course Review"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseReview/UpdateCourseReviewAbility.php:65
+msgid "Update an existing course review (approve, reject, or edit content)."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/CreateCourseTagAbility.php:58
+msgid "Create Course Tag"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/CreateCourseTagAbility.php:65
+msgid "Create a new course tag. Tags are flat (no hierarchy). Requires name. Optionally accepts slug and description. Returns the created tag object with its ID."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/DeleteCourseTagAbility.php:58
+msgid "Delete Course Tag"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/DeleteCourseTagAbility.php:65
+msgid "Permanently delete a course tag. Requires id (tag ID). Deletion is immediate and irreversible. Returns the deleted tag object."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/GetCourseTagAbility.php:56
+msgid "Get Course Tag"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/GetCourseTagAbility.php:63
+msgid "Retrieve a single course tag by its ID. Requires id (tag ID). Returns the tag object including name, slug, description, and course count."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/ListCourseTagsAbility.php:57
+msgid "List Course Tags"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/ListCourseTagsAbility.php:64
+msgid "Retrieve a paginated list of course tags. Optionally filter by search term. Returns data array with name, slug, description, and course count per tag, plus pagination metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/UpdateCourseTagAbility.php:58
+#: includes/Taxonomy/Course/Tag.php:73
+msgid "Update Course Tag"
+msgstr ""
+
+#: includes/Abilities/Domains/CourseTag/UpdateCourseTagAbility.php:65
+msgid "Update an existing course tag. Requires id (tag ID). Optionally accepts name, slug, or description. Returns the updated tag object."
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/CreateEnrollmentAbility.php:44
+msgid "Create Enrollment"
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/CreateEnrollmentAbility.php:49
+msgid "Enroll a student in a course. Requires course_id and user_id. Optionally accepts status (active, inactive). Returns the created enrollment object with its ID."
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/DeleteEnrollmentAbility.php:56
+msgid "Delete Enrollment"
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/DeleteEnrollmentAbility.php:61
+msgid "Unenroll a student from a course. Requires id (enrollment ID). Optionally accepts force (boolean, permanently removes the record when true). Returns the deleted enrollment object."
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/GetEnrollmentAbility.php:44
+msgid "Get Enrollment"
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/GetEnrollmentAbility.php:49
+msgid "Retrieve a single course enrollment record by its ID. Requires id (enrollment ID). Returns the enrollment object including user_id, course_id, status, and date_start."
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/ListEnrollmentsAbility.php:44
+msgid "List Enrollments"
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/ListEnrollmentsAbility.php:49
+msgid "Retrieve a paginated list of course enrollments. Optionally filter by course_id, user_id, or status. Returns data array and pagination metadata (total, total_pages, page, per_page)."
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/UpdateEnrollmentAbility.php:44
+msgid "Update Enrollment"
+msgstr ""
+
+#: includes/Abilities/Domains/Enrollment/UpdateEnrollmentAbility.php:49
+msgid "Update an existing course enrollment. Requires id (enrollment ID). Optionally accepts status (active, inactive). Returns the updated enrollment object."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/CloneLessonAbility.php:58
+msgid "Clone Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/CloneLessonAbility.php:65
+msgid "Duplicate a lesson, including its content, into the same section."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/CreateLessonAbility.php:58
+msgid "Create Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/CreateLessonAbility.php:65
+msgid "Create a new lesson inside a section."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/DeleteLessonAbility.php:58
+#: assets/js/build/masteriyo-backend.js:38
+msgid "Delete Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/DeleteLessonAbility.php:65
+msgid "Move a lesson to trash (use force=true to permanently delete)."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/GetLessonAbility.php:57
+msgid "Get Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/GetLessonAbility.php:64
+msgid "Retrieve a single lesson by ID including content and video settings."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/ListLessonsAbility.php:57
+msgid "List Lessons"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/ListLessonsAbility.php:64
+msgid "Retrieve a paginated list of lessons, optionally filtered by course or section."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/RestoreLessonAbility.php:58
+msgid "Restore Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/RestoreLessonAbility.php:65
+msgid "Restore a trashed lesson back to draft state. Requires id (lesson ID). Only applies to lessons currently in the trash. Returns the restored lesson object."
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/UpdateLessonAbility.php:57
+#: includes/PostType/Lesson.php:38
+#: assets/js/build/masteriyo-backend.js:35
+msgid "Update Lesson"
+msgstr ""
+
+#: includes/Abilities/Domains/Lesson/UpdateLessonAbility.php:64
+msgid "Update an existing lesson content, title, or video URL."
+msgstr ""
+
+#: includes/Abilities/Domains/Order/CreateOrderAbility.php:44
+#: assets/js/build/masteriyo-backend.js:38
+msgid "Create Order"
+msgstr ""
+
+#: includes/Abilities/Domains/Order/CreateOrderAbility.php:49
+msgid "Create a new course purchase order. Requires customer_id and course_ids (array of course IDs). Optionally accepts payment_method and coupon_code. Returns the created order object with its ID and total."
+msgstr ""
+
+#: includes/Abilities/Domains/Order/DeleteOrderAbility.php:56
+#: assets/js/build/masteriyo-backend.js:38
+msgid "Delete Order"
+msgstr ""
+
+#: includes/Abilities/Domains/Order/DeleteOrderAbility.php:61
+msgid "Delete an order. Requires id (order ID). Optionally accepts force (boolean, permanently removes the order when true). Returns the deleted order object."
+msgstr ""
+
+#: includes/Abilities/Domains/Order/GetOrderAbility.php:44
+msgid "Get Order"
+msgstr ""
+
+#: includes/Abilities/Domains/Order/GetOrderAbility.php:49
+msgid "Retrieve a single order by its ID. Requires id (order ID). Returns the full order object including status, total, customer details, and line items."
+msgstr ""
+
+#: includes/Abilities/Domains/Order/ListOrdersAbility.php:44
+msgid "List Orders"
+msgstr ""
+
+#: includes/Abilities/Domains/Order/ListOrdersAbility.php:49
+msgid "Retrieve a paginated list of course orders. Optionally filter by status, customer_id, or date range. Returns data array and pagination metadata (total, total_pages, page, per_page)."
+msgstr ""
+
+#: includes/Abilities/Domains/Order/UpdateOrderAbility.php:44
+#: includes/PostType/Order.php:47
+#: assets/js/build/masteriyo-backend.js:38
+msgid "Update Order"
+msgstr ""
+
+#: includes/Abilities/Domains/Order/UpdateOrderAbility.php:49
+msgid "Update an existing order. Requires id (order ID). Optionally accepts status (pending, completed, cancelled, refunded). Returns the updated order object."
+msgstr ""
+
+#: includes/Abilities/Domains/Question/CreateQuestionAbility.php:59
+msgid "Create Question"
+msgstr ""
+
+#: includes/Abilities/Domains/Question/CreateQuestionAbility.php:66
+msgid "Create a new question for a quiz with type, answers, and correct answer settings."
+msgstr ""
+
+#: includes/Abilities/Domains/Question/DeleteQuestionAbility.php:58
+msgid "Delete Question"
+msgstr ""
+
+#: includes/Abilities/Domains/Question/DeleteQuestionAbility.php:65
+msgid "Permanently delete a question from a quiz."
+msgstr ""
+
+#: includes/Abilities/Domains/Question/GetQuestionAbility.php:57
+msgid "Get Question"
+msgstr ""
+
+#: includes/Abilities/Domains/Question/GetQuestionAbility.php:64
+msgid "Retrieve a single question by ID including answer choices."
+msgstr ""
+
+#: includes/Abilities/Domains/Question/ListQuestionsAbility.php:57
+msgid "List Questions"
+msgstr ""
+
+#: includes/Abilities/Domains/Question/ListQuestionsAbility.php:64
+msgid "Retrieve a paginated list of questions, optionally filtered by quiz."
+msgstr ""
+
+#: includes/Abilities/Domains/Question/UpdateQuestionAbility.php:57
+#: includes/PostType/Question.php:42
+#: assets/js/build/masteriyo-backend.js:43
+msgid "Update Question"
+msgstr ""
+
+#: includes/Abilities/Domains/Question/UpdateQuestionAbility.php:64
+msgid "Update an existing question text, type, or answer choices."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/CloneQuizAbility.php:59
+msgid "Clone Quiz"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/CloneQuizAbility.php:66
+msgid "Duplicate a quiz including its questions into the same section."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/CreateQuizAbility.php:60
+msgid "Create Quiz"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/CreateQuizAbility.php:67
+msgid "Create a new quiz inside a section."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/DeleteQuizAbility.php:59
+msgid "Delete Quiz"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/DeleteQuizAbility.php:66
+msgid "Move a quiz to trash (use force=true to permanently delete)."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/GetQuizAbility.php:58
+msgid "Get Quiz"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/GetQuizAbility.php:65
+msgid "Retrieve a single quiz by ID including pass mark and time limit settings."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/ListQuizzesAbility.php:58
+msgid "List Quizzes"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/ListQuizzesAbility.php:65
+msgid "Retrieve a paginated list of quizzes, optionally filtered by course or section."
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/UpdateQuizAbility.php:58
+#: includes/PostType/Quiz.php:50
+#: assets/js/build/masteriyo-backend.js:43
+msgid "Update Quiz"
+msgstr ""
+
+#: includes/Abilities/Domains/Quiz/UpdateQuizAbility.php:65
+msgid "Update an existing quiz settings, title, or pass mark."
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/GetQuizBuilderAbility.php:57
+msgid "Get Quiz Builder"
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/GetQuizBuilderAbility.php:64
+msgid "Retrieve the full question list for a quiz in builder format."
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/SaveQuizBuilderAbility.php:59
+msgid "Set to true to confirm that you intend to overwrite a quiz in a published course. Required when the parent course status is \"publish\"."
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/SaveQuizBuilderAbility.php:84
+msgid "This quiz belongs to a published course with enrolled students. Set confirm_published_overwrite=true to proceed."
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/SaveQuizBuilderAbility.php:107
+msgid "Save Quiz Builder"
+msgstr ""
+
+#: includes/Abilities/Domains/QuizBuilder/SaveQuizBuilderAbility.php:114
+msgid "Save the ordered list of questions for a quiz. Provide the complete desired question structure."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/CreateSectionAbility.php:58
+msgid "Create Section"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/CreateSectionAbility.php:65
+msgid "Create a new section inside a course."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/DeleteSectionAbility.php:58
+msgid "Delete Section"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/DeleteSectionAbility.php:65
+msgid "Move a section to trash (use force=true to permanently delete)."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/GetSectionAbility.php:57
+msgid "Get Section"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/GetSectionAbility.php:64
+msgid "Retrieve a single section by ID."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/GetSectionChildrenAbility.php:67
+msgid "Section ID to retrieve children for."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/GetSectionChildrenAbility.php:88
+msgid "Get Section Children"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/GetSectionChildrenAbility.php:95
+msgid "Retrieve all lessons and quizzes belonging to a section."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/ListSectionsAbility.php:56
+msgid "List Sections"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/ListSectionsAbility.php:63
+msgid "Retrieve a paginated list of sections, optionally filtered by course."
+msgstr ""
+
+#: includes/Abilities/Domains/Section/UpdateSectionAbility.php:57
+#: includes/PostType/Section.php:48
+msgid "Update Section"
+msgstr ""
+
+#: includes/Abilities/Domains/Section/UpdateSectionAbility.php:64
+msgid "Update an existing section title or order."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/GetSettingsAbility.php:44
+msgid "Get Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/GetSettingsAbility.php:49
+msgid "Read all Masteriyo LMS settings. Accepts no required input. Returns the full settings object including general, payments, emails, course, quiz, and advanced configuration groups."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateAdvanceSettingsAbility.php:57
+msgid "Update Advanced Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateAdvanceSettingsAbility.php:62
+msgid "Write Masteriyo advanced settings (debug, cache, performance flags). Requires administrator privileges. Accepts a partial advance settings object; only provided keys are updated."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateEmailSettingsAbility.php:57
+msgid "Update Email Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateEmailSettingsAbility.php:62
+msgid "Write Masteriyo email notification settings. Requires administrator privileges. Accepts a partial emails settings object; only provided keys are updated."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateGeneralSettingsAbility.php:32
+msgid "Update General Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateGeneralSettingsAbility.php:37
+msgid "Write Masteriyo general settings (styling, pages, course listing options). Accepts a partial general settings object; only provided keys are updated."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdatePaymentSettingsAbility.php:57
+msgid "Update Payment Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdatePaymentSettingsAbility.php:62
+msgid "Write Masteriyo payment gateway settings. Requires administrator privileges. Accepts a partial payments settings object; only provided keys are updated."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateQuizSettingsAbility.php:32
+msgid "Update Quiz Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateQuizSettingsAbility.php:37
+msgid "Write Masteriyo quiz settings (questions per page, passing grade, attempt limits, review visibility). Accepts a partial quiz settings object; only provided keys are updated."
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateSettingsAbility.php:49
+msgid "Update Settings"
+msgstr ""
+
+#: includes/Abilities/Domains/Setting/UpdateSettingsAbility.php:54
+msgid "Write Masteriyo LMS settings. Accepts a partial or full settings object. Only provided keys are updated; omitted keys retain their current values. Returns the updated settings object."
+msgstr ""
+
+#: includes/Abilities/Domains/User/CreateUserAbility.php:44
+#: includes/Checkout.php:398
+#: templates/checkout/fields/create-user.php:31
+msgid "Create User"
+msgstr ""
+
+#: includes/Abilities/Domains/User/CreateUserAbility.php:49
+msgid "Register a new user account. Requires username, email, and password. Optionally accepts display_name and roles. Returns the created user object with its ID."
+msgstr ""
+
+#: includes/Abilities/Domains/User/DeleteUserAbility.php:56
+#: assets/js/build/masteriyo-backend.js:41
+msgid "Delete User"
+msgstr ""
+
+#: includes/Abilities/Domains/User/DeleteUserAbility.php:61
+msgid "Delete a user account from the LMS. Requires id (user ID). Optionally accepts force (boolean). Returns the deleted user object."
+msgstr ""
+
+#: includes/Abilities/Domains/User/GetUserAbility.php:44
+msgid "Get User"
+msgstr ""
+
+#: includes/Abilities/Domains/User/GetUserAbility.php:49
+msgid "Retrieve a single user profile by their ID. Requires id (user ID). Returns the user object including display_name, email, roles, and profile metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/User/ListUsersAbility.php:44
+msgid "List Users"
+msgstr ""
+
+#: includes/Abilities/Domains/User/ListUsersAbility.php:49
+msgid "Retrieve a paginated list of Masteriyo users (students and instructors). Optionally filter by role, search term, or enrollment status. Returns data array and pagination metadata."
+msgstr ""
+
+#: includes/Abilities/Domains/User/UpdateUserAbility.php:44
+msgid "Update User"
+msgstr ""
+
+#: includes/Abilities/Domains/User/UpdateUserAbility.php:49
+msgid "Update an existing user's profile. Requires id (user ID). Optionally accepts display_name, email, or profile fields. Returns the updated user object."
+msgstr ""
+
+#: includes/Abilities/Registry/AbilityRegistrar.php:70
+msgid "Abilities for Masteriyo LMS course authoring and management."
+msgstr ""
+
+#: includes/Abilities/Support/RestProxyAbility.php:221
+msgid "REST request failed."
+msgstr ""
+
+#: includes/Abilities/Support/SchemaTranslator.php:243
+#: includes/Abilities/Support/SchemaTranslator.php:297
+#: includes/Abilities/Support/SchemaTranslator.php:318
+#: includes/RestApi/Controllers/Store/CartItemsController.php:89
+#: includes/RestApi/Controllers/Store/CartItemsController.php:369
+#: includes/RestApi/Controllers/Store/CheckoutController.php:89
+#: includes/RestApi/Controllers/Store/CheckoutController.php:367
+#: includes/RestApi/Controllers/Version1/AddonsController.php:153
+#: includes/RestApi/Controllers/Version1/BlocksController.php:85
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:101
+#: includes/RestApi/Controllers/Version1/CourseCategoriesController.php:71
+#: includes/RestApi/Controllers/Version1/CourseDifficultiesController.php:77
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:122
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:153
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:655
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:101
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:392
+#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:111
+#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:160
+#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:432
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:104
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:156
+#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:476
+#: includes/RestApi/Controllers/Version1/CoursesController.php:112
+#: includes/RestApi/Controllers/Version1/CoursesController.php:161
+#: includes/RestApi/Controllers/Version1/CoursesController.php:187
+#: includes/RestApi/Controllers/Version1/CoursesController.php:730
+#: includes/RestApi/Controllers/Version1/CourseTagsController.php:77
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:117
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:169
+#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:686
+#: includes/RestApi/Controllers/Version1/LessonsController.php:106
+#: includes/RestApi/Controllers/Version1/LessonsController.php:151
+#: includes/RestApi/Controllers/Version1/LessonsController.php:169
+#: includes/RestApi/Controllers/Version1/LessonsController.php:538
+#: includes/RestApi/Controllers/Version1/LogsController.php:125
+#: includes/RestApi/Controllers/Version1/NotificationsController.php:92
+#: includes/RestApi/Controllers/Version1/NotificationsController.php:268
+#: includes/RestApi/Controllers/Version1/OrderItemsController.php:103
+#: includes/RestApi/Controllers/Version1/OrderItemsController.php:298
+#: includes/RestApi/Controllers/Version1/OrdersController.php:118
+#: includes/RestApi/Controllers/Version1/OrdersController.php:162
+#: includes/RestApi/Controllers/Version1/OrdersController.php:531
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:130
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:627
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:100
+#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:254
+#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:98
+#: includes/RestApi/Controllers/Version1/QuizesController.php:118
+#: includes/RestApi/Controllers/Version1/QuizesController.php:167
+#: includes/RestApi/Controllers/Version1/QuizesController.php:186
+#: includes/RestApi/Controllers/Version1/QuizesController.php:211
+#: includes/RestApi/Controllers/Version1/QuizesController.php:1051
+#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:105
+#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:154
+#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:478
+#: includes/RestApi/Controllers/Version1/RestTermsController.php:91
+#: includes/RestApi/Controllers/Version1/SectionsController.php:110
+#: includes/RestApi/Controllers/Version1/SectionsController.php:320
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:125
+#: includes/RestApi/Controllers/Version1/UserCoursesController.php:488
+#: includes/RestApi/Controllers/Version1/UsersController.php:143
+#: includes/RestApi/Controllers/Version1/UsersController.php:1153
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:106
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:150
+#: includes/RestApi/Controllers/Version1/WebhooksController.php:385
+msgid "Unique identifier for the resource."
+msgstr ""
+
+#: includes/Abilities/Support/SchemaTranslator.php:323
+msgid "Whether to permanently delete rather than trash."
 msgstr ""
 
 #: includes/Abstracts/BlockHandler.php:84
@@ -318,7 +1124,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:147
 #: includes/AdminMenu.php:148
-#: includes/Masteriyo.php:333
+#: includes/Masteriyo.php:335
 #: includes/PostType/Course.php:39
 #: includes/PostType/Course.php:67
 #: templates/checkout/order-summary.php:20
@@ -372,7 +1178,7 @@ msgstr ""
 
 #: includes/AdminMenu.php:184
 #: includes/AdminMenu.php:185
-#: includes/Masteriyo.php:397
+#: includes/Masteriyo.php:399
 #: assets/js/build/blocks.js:281
 #: assets/js/build/masteriyo-backend.js:1
 #: assets/js/build/masteriyo-backend.js:3
@@ -438,7 +1244,7 @@ msgid "Invalid nonce. Maybe you should reload the page."
 msgstr ""
 
 #: includes/AjaxHandlers/CoursePasswordProtectionHandler.php:71
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1405
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1503
 msgid "Invalid Course ID."
 msgstr ""
 
@@ -483,7 +1289,7 @@ msgid "Invalid course ID."
 msgstr ""
 
 #: includes/AjaxHandlers/DeactivationFeedbackAjaxHandler.php:73
-#: includes/AjaxHandlers/ReviewNoticeAjaxHandler.php:74
+#: includes/AjaxHandlers/ReviewNoticeAjaxHandler.php:83
 msgid "Invalid action name!"
 msgstr ""
 
@@ -507,6 +1313,11 @@ msgstr ""
 msgid "Password cannot be empty."
 msgstr ""
 
+#: includes/AjaxHandlers/ReviewNoticeAjaxHandler.php:65
+#: includes/AjaxHandlers/UsageTrackingNoticeHandler.php:66
+msgid "You do not have permission to perform this action."
+msgstr ""
+
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:51
 msgid "Invalid nonce."
 msgstr ""
@@ -520,11 +1331,11 @@ msgid "No pages specified."
 msgstr ""
 
 #: includes/AjaxHandlers/SetupPagesAjaxHandler.php:80
-#: includes/Helper/core.php:5960
+#: includes/Helper/core.php:5969
 msgid "Pages set up successfully."
 msgstr ""
 
-#: includes/AjaxHandlers/UsageTrackingNoticeHandler.php:76
+#: includes/AjaxHandlers/UsageTrackingNoticeHandler.php:85
 msgid "Invalid action."
 msgstr ""
 
@@ -652,11 +1463,6 @@ msgstr ""
 msgid "Upload Attachment"
 msgstr ""
 
-#: includes/Checkout.php:398
-#: templates/checkout/fields/create-user.php:31
-msgid "Create User"
-msgstr ""
-
 #: includes/Checkout.php:407
 #: assets/js/build/masteriyo-backend.js:31
 #: assets/js/build/masteriyo-backend.js:32
@@ -673,7 +1479,7 @@ msgstr ""
 #: includes/Checkout.php:499
 #: includes/FormHandler/InstructorRegistrationFormHandler.php:132
 #: includes/FormHandler/RegistrationFormHandler.php:129
-#: includes/Masteriyo.php:633
+#: includes/Masteriyo.php:635
 msgid "An email has been sent to your inbox. Please confirm your email before logging in."
 msgstr ""
 
@@ -1379,7 +2185,7 @@ msgid "Your password has been reset successfully."
 msgstr ""
 
 #: includes/FormHandler/PasswordResetFormHandler.php:60
-#: includes/RestApi/Controllers/Version1/UsersController.php:1875
+#: includes/RestApi/Controllers/Version1/UsersController.php:2051
 msgid "New password cannot be the same as the old password."
 msgstr ""
 
@@ -1404,6 +2210,7 @@ msgid "Enter a username or email address."
 msgstr ""
 
 #: includes/FrontendQuery.php:114
+#: includes/Helper/student-preview.php:318
 #: assets/js/build/masteriyo-backend.js:38
 #: assets/js/build/masteriyo-backend.js:39
 #: assets/js/build/masteriyo-backend.js:40
@@ -2474,17 +3281,17 @@ msgid "External"
 msgstr ""
 
 #. translators: %s: Class
-#: includes/Helper/core.php:5315
+#: includes/Helper/core.php:5324
 #, php-format
 msgid "The class <code>%s</code> provided by masteriyo_logging_class filter must implement <code>Logger</code>."
 msgstr ""
 
-#: includes/Helper/core.php:5482
+#: includes/Helper/core.php:5491
 #: assets/js/build/masteriyo-interactive.js:2
 msgid "Announcements"
 msgstr ""
 
-#: includes/Helper/core.php:5494
+#: includes/Helper/core.php:5503
 #: assets/js/build/masteriyo-account.js:9
 #: assets/js/build/masteriyo-account.js:12
 #: assets/js/build/masteriyo-backend.js:4
@@ -2493,29 +3300,29 @@ msgstr ""
 msgid "Google Meet"
 msgstr ""
 
-#: includes/Helper/core.php:5500
+#: includes/Helper/core.php:5509
 #: assets/js/build/masteriyo-account.js:9
 msgid "Groups"
 msgstr ""
 
-#: includes/Helper/core.php:5506
+#: includes/Helper/core.php:5515
 msgid "Currencies"
 msgstr ""
 
-#: includes/Helper/core.php:5512
+#: includes/Helper/core.php:5521
 msgid "Certificates"
 msgstr ""
 
-#: includes/Helper/core.php:5521
+#: includes/Helper/core.php:5530
 msgid "Withdraws"
 msgstr ""
 
-#: includes/Helper/core.php:5892
+#: includes/Helper/core.php:5901
 msgid "Masteriyo:"
 msgstr ""
 
 #. translators: 1: Notice title, 2: Number of missing pages, 3: List of missing pages
-#: includes/Helper/core.php:5909
+#: includes/Helper/core.php:5918
 #, php-format
 msgid "%1$s %2$d page is missing: %3$s."
 msgid_plural "%1$s %2$d pages are missing: %3$s."
@@ -2523,33 +3330,33 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: "click here" link text
-#: includes/Helper/core.php:5923
+#: includes/Helper/core.php:5932
 #, php-format
-msgid "Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\">%s</a> to set it up automatically."
+msgid "Please configure it, or <a href=\"#\" id=\"masteriyo-setup-pages\" class=\"masteriyo-notice-link\">%s</a> to set it up automatically."
 msgstr ""
 
-#: includes/Helper/core.php:5924
-#: includes/Helper/core.php:5934
+#: includes/Helper/core.php:5933
+#: includes/Helper/core.php:5943
 #: assets/js/build/masteriyo-backend.js:32
 msgid "click here"
 msgstr ""
 
 #. translators: 1: Onboarding URL, 2: "click here" link text
-#: includes/Helper/core.php:5929
+#: includes/Helper/core.php:5938
 #, php-format
 msgid "Missing required setup. <a class=\"masteriyo-onboarding-notice-link\" href=\"%1$s\">Complete the onboarding process</a> (recommended) or <a class=\"masteriyo-onboarding-notice-link\" href=\"#\" id=\"masteriyo-setup-pages\">%2$s</a> to automatically create the missing pages."
 msgstr ""
 
-#: includes/Helper/core.php:5958
+#: includes/Helper/core.php:5967
 msgid "Setting up..."
 msgstr ""
 
-#: includes/Helper/core.php:5959
+#: includes/Helper/core.php:5968
 msgid "Failed to set up. Retry?"
 msgstr ""
 
 #. translators: %1$s: URL, %2$s: onboarding step name.
-#: includes/Helper/core.php:6119
+#: includes/Helper/core.php:6128
 #, php-format
 msgid "Please complete the Masteriyo onboarding process. <a href=\"%1$s\">Continue with %2$s step</a>"
 msgstr ""
@@ -2774,6 +3581,26 @@ msgstr ""
 #: assets/js/build/masteriyo-interactive.js:14
 #: assets/js/build/masteriyo-interactive.js:17
 msgid "Cancel"
+msgstr ""
+
+#: includes/Helper/student-preview.php:230
+msgid "System account"
+msgstr ""
+
+#: includes/Helper/student-preview.php:231
+msgid "Demo"
+msgstr ""
+
+#: includes/Helper/student-preview.php:232
+msgid "Student"
+msgstr ""
+
+#: includes/Helper/student-preview.php:309
+msgid "No registered user found with that email address."
+msgstr ""
+
+#: includes/Helper/student-preview.php:705
+msgid "This account cannot be accessed directly."
 msgstr ""
 
 #. translators: %s: Author
@@ -3046,95 +3873,104 @@ msgstr ""
 msgid "This method should not be called before plugins_loaded."
 msgstr ""
 
-#: includes/Masteriyo.php:357
+#: includes/Masteriyo.php:359
 #: assets/js/build/masteriyo-backend.js:28
 msgid "Docs"
 msgstr ""
 
-#: includes/Masteriyo.php:358
+#: includes/Masteriyo.php:360
 msgid "View Masteriyo documentation"
 msgstr ""
 
-#: includes/Masteriyo.php:362
+#: includes/Masteriyo.php:364
 msgid "Community Support"
 msgstr ""
 
-#: includes/Masteriyo.php:363
+#: includes/Masteriyo.php:365
 msgid "Visit community forums"
 msgstr ""
 
-#: includes/Masteriyo.php:367
+#: includes/Masteriyo.php:369
 msgid "Rate the plugin ★★★★★"
 msgstr ""
 
-#: includes/Masteriyo.php:368
+#: includes/Masteriyo.php:370
 msgid "Rate the plugin."
 msgstr ""
 
-#: includes/Masteriyo.php:398
+#: includes/Masteriyo.php:400
 msgid "View Masteriyo settings"
 msgstr ""
 
-#: includes/Masteriyo.php:492
+#: includes/Masteriyo.php:494
 msgid "This password reset key is for a different user account. Please log out and try again."
 msgstr ""
 
-#: includes/Masteriyo.php:785
+#: includes/Masteriyo.php:787
 msgid "Minimum WordPress version required for Masteriyo to work is v5.0."
 msgstr ""
 
+#: includes/Masteriyo.php:1029
+msgid "Switch to Instructor"
+msgstr ""
+
+#: includes/Masteriyo.php:1030
+#: templates/student-preview-frontend-banner.php:24
+msgid "Switch to Admin"
+msgstr ""
+
 #. translators: 1: error message 2: file name and path 3: line number
-#: includes/Masteriyo.php:1315
+#: includes/Masteriyo.php:1364
 #, php-format
 msgid "%1$s in %2$s on line %3$s"
 msgstr ""
 
-#: includes/Models/Course.php:1944
-#: includes/Models/Course.php:2202
+#: includes/Models/Course.php:1971
+#: includes/Models/Course.php:2229
 msgid "Buy Now"
 msgstr ""
 
-#: includes/Models/Course.php:1947
+#: includes/Models/Course.php:1974
 msgid "Need Registration"
 msgstr ""
 
-#: includes/Models/Course.php:1977
+#: includes/Models/Course.php:2004
 #: assets/js/build/masteriyo-account.js:14
 #: assets/js/build/masteriyo-backend.js:32
 msgid "Start Course"
 msgstr ""
 
-#: includes/Models/Course.php:1996
+#: includes/Models/Course.php:2023
 #: assets/js/build/masteriyo-account.js:14
 msgid "Retake"
 msgstr ""
 
-#: includes/Models/Course.php:2015
+#: includes/Models/Course.php:2042
 #: assets/js/build/masteriyo-account.js:14
 #: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Continue"
 msgstr ""
 
-#: includes/Models/Course.php:2034
+#: includes/Models/Course.php:2061
 msgid "Continue Quiz"
 msgstr ""
 
-#: includes/Models/Course.php:2199
+#: includes/Models/Course.php:2226
 msgid "Read more"
 msgstr ""
 
-#: includes/Models/Course.php:2206
+#: includes/Models/Course.php:2233
 msgid "Register Now"
 msgstr ""
 
 #. translators: %s: Course title
-#: includes/Models/Course.php:2238
+#: includes/Models/Course.php:2265
 #, php-format
 msgid "Read more about &ldquo;%s&rdquo;"
 msgstr ""
 
 #. translators: %s: Course title
-#: includes/Models/Course.php:2242
+#: includes/Models/Course.php:2269
 #, php-format
 msgid "Enroll &ldquo;%s&rdquo; course"
 msgstr ""
@@ -3177,7 +4013,7 @@ msgstr ""
 
 #: includes/Models/Order/OrderItemCourse.php:186
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:818
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1028
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1093
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:973
 #: includes/RestApi/Controllers/Version1/QuizesController.php:264
 #: includes/RestApi/Controllers/Version1/SectionsController.php:534
@@ -3263,11 +4099,6 @@ msgstr ""
 
 #: includes/PostType/Course.php:48
 msgid "Edit Course"
-msgstr ""
-
-#: includes/PostType/Course.php:49
-#: assets/js/build/masteriyo-backend.js:4
-msgid "Update Course"
 msgstr ""
 
 #: includes/PostType/Course.php:50
@@ -3421,11 +4252,6 @@ msgstr ""
 msgid "Edit Lesson"
 msgstr ""
 
-#: includes/PostType/Lesson.php:38
-#: assets/js/build/masteriyo-backend.js:35
-msgid "Update Lesson"
-msgstr ""
-
 #: includes/PostType/Lesson.php:39
 msgid "View Lesson"
 msgstr ""
@@ -3492,11 +4318,6 @@ msgstr ""
 #: includes/PostType/Order.php:46
 #: assets/js/build/masteriyo-backend.js:38
 msgid "Edit Order"
-msgstr ""
-
-#: includes/PostType/Order.php:47
-#: assets/js/build/masteriyo-backend.js:38
-msgid "Update Order"
 msgstr ""
 
 #: includes/PostType/Order.php:48
@@ -3581,11 +4402,6 @@ msgstr ""
 
 #: includes/PostType/Question.php:41
 msgid "Edit Question"
-msgstr ""
-
-#: includes/PostType/Question.php:42
-#: assets/js/build/masteriyo-backend.js:43
-msgid "Update Question"
 msgstr ""
 
 #: includes/PostType/Question.php:43
@@ -3682,11 +4498,6 @@ msgstr ""
 msgid "Edit Quiz"
 msgstr ""
 
-#: includes/PostType/Quiz.php:50
-#: assets/js/build/masteriyo-backend.js:43
-msgid "Update Quiz"
-msgstr ""
-
 #: includes/PostType/Quiz.php:51
 msgid "View Quiz"
 msgstr ""
@@ -3764,10 +4575,6 @@ msgstr ""
 
 #: includes/PostType/Section.php:47
 msgid "Edit Section"
-msgstr ""
-
-#: includes/PostType/Section.php:48
-msgid "Update Section"
 msgstr ""
 
 #: includes/PostType/Section.php:49
@@ -3888,6 +4695,10 @@ msgstr ""
 
 #: includes/Providers/BlocksServiceProvider.php:143
 msgid "Masteriyo LMS Single Course"
+msgstr ""
+
+#: includes/Providers/NotificationServiceProvider.php:335
+msgid "You have a new reply to your comment."
 msgstr ""
 
 #: includes/Providers/OrderServiceProvider.php:190
@@ -4021,70 +4832,6 @@ msgstr ""
 msgid "Invalid webhook."
 msgstr ""
 
-#: includes/RestApi/Controllers/Store/CartItemsController.php:89
-#: includes/RestApi/Controllers/Store/CartItemsController.php:369
-#: includes/RestApi/Controllers/Store/CheckoutController.php:89
-#: includes/RestApi/Controllers/Store/CheckoutController.php:367
-#: includes/RestApi/Controllers/Version1/AddonsController.php:153
-#: includes/RestApi/Controllers/Version1/BlocksController.php:85
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:101
-#: includes/RestApi/Controllers/Version1/CourseCategoriesController.php:71
-#: includes/RestApi/Controllers/Version1/CourseDifficultiesController.php:77
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:122
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:153
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:655
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:101
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:392
-#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:111
-#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:160
-#: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:432
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:104
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:156
-#: includes/RestApi/Controllers/Version1/CourseReviewsController.php:476
-#: includes/RestApi/Controllers/Version1/CoursesController.php:112
-#: includes/RestApi/Controllers/Version1/CoursesController.php:161
-#: includes/RestApi/Controllers/Version1/CoursesController.php:698
-#: includes/RestApi/Controllers/Version1/CourseTagsController.php:77
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:117
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:169
-#: includes/RestApi/Controllers/Version1/LessonReviewsController.php:686
-#: includes/RestApi/Controllers/Version1/LessonsController.php:106
-#: includes/RestApi/Controllers/Version1/LessonsController.php:151
-#: includes/RestApi/Controllers/Version1/LessonsController.php:473
-#: includes/RestApi/Controllers/Version1/LogsController.php:125
-#: includes/RestApi/Controllers/Version1/NotificationsController.php:92
-#: includes/RestApi/Controllers/Version1/NotificationsController.php:268
-#: includes/RestApi/Controllers/Version1/OrderItemsController.php:103
-#: includes/RestApi/Controllers/Version1/OrderItemsController.php:298
-#: includes/RestApi/Controllers/Version1/OrdersController.php:118
-#: includes/RestApi/Controllers/Version1/OrdersController.php:162
-#: includes/RestApi/Controllers/Version1/OrdersController.php:531
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:130
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:627
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:100
-#: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:254
-#: includes/RestApi/Controllers/Version1/QuizBuilderController.php:98
-#: includes/RestApi/Controllers/Version1/QuizesController.php:118
-#: includes/RestApi/Controllers/Version1/QuizesController.php:167
-#: includes/RestApi/Controllers/Version1/QuizesController.php:186
-#: includes/RestApi/Controllers/Version1/QuizesController.php:211
-#: includes/RestApi/Controllers/Version1/QuizesController.php:1051
-#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:105
-#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:154
-#: includes/RestApi/Controllers/Version1/QuizReviewsController.php:478
-#: includes/RestApi/Controllers/Version1/RestTermsController.php:91
-#: includes/RestApi/Controllers/Version1/SectionsController.php:110
-#: includes/RestApi/Controllers/Version1/SectionsController.php:320
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:125
-#: includes/RestApi/Controllers/Version1/UserCoursesController.php:488
-#: includes/RestApi/Controllers/Version1/UsersController.php:143
-#: includes/RestApi/Controllers/Version1/UsersController.php:978
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:106
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:150
-#: includes/RestApi/Controllers/Version1/WebhooksController.php:385
-msgid "Unique identifier for the resource."
-msgstr ""
-
 #: includes/RestApi/Controllers/Store/CartItemsController.php:118
 #: includes/RestApi/Controllers/Store/CheckoutController.php:118
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:182
@@ -4093,7 +4840,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:132
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:191
 #: includes/RestApi/Controllers/Version1/CoursesController.php:141
-#: includes/RestApi/Controllers/Version1/CoursesController.php:196
+#: includes/RestApi/Controllers/Version1/CoursesController.php:222
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:145
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:204
 #: includes/RestApi/Controllers/Version1/LessonsController.php:135
@@ -4111,79 +4858,79 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:139
 #: includes/RestApi/Controllers/Store/CheckoutController.php:139
-#: includes/RestApi/Controllers/Version1/LessonsController.php:185
+#: includes/RestApi/Controllers/Version1/LessonsController.php:250
 msgid "Limit result set to lessons with a specific slug."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:145
 #: includes/RestApi/Controllers/Store/CheckoutController.php:145
-#: includes/RestApi/Controllers/Version1/LessonsController.php:191
+#: includes/RestApi/Controllers/Version1/LessonsController.php:256
 msgid "Limit result set to lessons assigned a specific status."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:152
 #: includes/RestApi/Controllers/Store/CheckoutController.php:152
-#: includes/RestApi/Controllers/Version1/LessonsController.php:198
+#: includes/RestApi/Controllers/Version1/LessonsController.php:263
 msgid "Limit result set to lessons assigned a specific category ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:158
 #: includes/RestApi/Controllers/Store/CheckoutController.php:158
-#: includes/RestApi/Controllers/Version1/LessonsController.php:204
+#: includes/RestApi/Controllers/Version1/LessonsController.php:269
 msgid "Limit result set to lessons assigned a specific tag ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:164
 #: includes/RestApi/Controllers/Store/CheckoutController.php:164
-#: includes/RestApi/Controllers/Version1/LessonsController.php:210
+#: includes/RestApi/Controllers/Version1/LessonsController.php:275
 msgid "Limit result set to lessons assigned a specific difficulty ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:375
-#: includes/RestApi/Controllers/Version1/LessonsController.php:479
+#: includes/RestApi/Controllers/Version1/LessonsController.php:544
 msgid "Lesson name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:380
 #: includes/RestApi/Controllers/Store/CheckoutController.php:378
-#: includes/RestApi/Controllers/Version1/LessonsController.php:484
+#: includes/RestApi/Controllers/Version1/LessonsController.php:549
 msgid "Lesson slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:385
 #: includes/RestApi/Controllers/Store/CheckoutController.php:383
-#: includes/RestApi/Controllers/Version1/LessonsController.php:489
+#: includes/RestApi/Controllers/Version1/LessonsController.php:554
 msgid "Lesson URL"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:392
 #: includes/RestApi/Controllers/Store/CheckoutController.php:390
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:718
-#: includes/RestApi/Controllers/Version1/LessonsController.php:496
+#: includes/RestApi/Controllers/Version1/LessonsController.php:561
 msgid "The date the lesson was created, in the site's timezone."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:397
 #: includes/RestApi/Controllers/Store/CheckoutController.php:395
-#: includes/RestApi/Controllers/Version1/LessonsController.php:501
+#: includes/RestApi/Controllers/Version1/LessonsController.php:566
 msgid "The date the lesson was created, as GMT."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:402
 #: includes/RestApi/Controllers/Store/CheckoutController.php:400
-#: includes/RestApi/Controllers/Version1/LessonsController.php:506
+#: includes/RestApi/Controllers/Version1/LessonsController.php:571
 msgid "The date the lesson was last modified, in the site's timezone."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:408
 #: includes/RestApi/Controllers/Store/CheckoutController.php:406
-#: includes/RestApi/Controllers/Version1/LessonsController.php:512
+#: includes/RestApi/Controllers/Version1/LessonsController.php:577
 msgid "The date the lesson was last modified, as GMT."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:414
 #: includes/RestApi/Controllers/Store/CheckoutController.php:412
-#: includes/RestApi/Controllers/Version1/LessonsController.php:518
+#: includes/RestApi/Controllers/Version1/LessonsController.php:583
 msgid "Lesson status (post status)."
 msgstr ""
 
@@ -4194,136 +4941,136 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:427
 #: includes/RestApi/Controllers/Store/CheckoutController.php:425
-#: includes/RestApi/Controllers/Version1/CoursesController.php:763
-#: includes/RestApi/Controllers/Version1/LessonsController.php:525
+#: includes/RestApi/Controllers/Version1/CoursesController.php:807
+#: includes/RestApi/Controllers/Version1/LessonsController.php:590
 msgid "Catalog visibility"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:434
 #: includes/RestApi/Controllers/Store/CheckoutController.php:432
-#: includes/RestApi/Controllers/Version1/LessonsController.php:532
+#: includes/RestApi/Controllers/Version1/LessonsController.php:597
 msgid "Lesson description"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:439
 #: includes/RestApi/Controllers/Store/CheckoutController.php:437
-#: includes/RestApi/Controllers/Version1/LessonsController.php:537
+#: includes/RestApi/Controllers/Version1/LessonsController.php:602
 msgid "Lesson short description"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:444
 #: includes/RestApi/Controllers/Store/CheckoutController.php:442
-#: includes/RestApi/Controllers/Version1/CoursesController.php:802
-#: includes/RestApi/Controllers/Version1/LessonsController.php:542
+#: includes/RestApi/Controllers/Version1/CoursesController.php:846
+#: includes/RestApi/Controllers/Version1/LessonsController.php:607
 msgid "Allow reviews."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:450
 #: includes/RestApi/Controllers/Store/CheckoutController.php:448
-#: includes/RestApi/Controllers/Version1/CoursesController.php:808
-#: includes/RestApi/Controllers/Version1/LessonsController.php:548
+#: includes/RestApi/Controllers/Version1/CoursesController.php:852
+#: includes/RestApi/Controllers/Version1/LessonsController.php:613
 msgid "Reviews average rating."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:456
 #: includes/RestApi/Controllers/Store/CheckoutController.php:454
-#: includes/RestApi/Controllers/Version1/LessonsController.php:554
+#: includes/RestApi/Controllers/Version1/LessonsController.php:619
 msgid "Amount of reviews that the lesson has."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:462
 #: includes/RestApi/Controllers/Store/CheckoutController.php:460
-#: includes/RestApi/Controllers/Version1/LessonsController.php:560
+#: includes/RestApi/Controllers/Version1/LessonsController.php:625
 msgid "Lesson parent ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:467
 #: includes/RestApi/Controllers/Store/CheckoutController.php:465
-#: includes/RestApi/Controllers/Version1/CoursesController.php:832
+#: includes/RestApi/Controllers/Version1/CoursesController.php:876
 msgid "List of categories."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:474
 #: includes/RestApi/Controllers/Store/CheckoutController.php:472
-#: includes/RestApi/Controllers/Version1/CoursesController.php:839
+#: includes/RestApi/Controllers/Version1/CoursesController.php:883
 msgid "Category ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:479
 #: includes/RestApi/Controllers/Store/CheckoutController.php:477
 #: includes/RestApi/Controllers/Version1/CourseCategoriesController.php:77
-#: includes/RestApi/Controllers/Version1/CoursesController.php:844
+#: includes/RestApi/Controllers/Version1/CoursesController.php:888
 msgid "Category name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:485
 #: includes/RestApi/Controllers/Store/CheckoutController.php:483
-#: includes/RestApi/Controllers/Version1/CoursesController.php:850
+#: includes/RestApi/Controllers/Version1/CoursesController.php:894
 msgid "Category slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:494
 #: includes/RestApi/Controllers/Store/CheckoutController.php:492
-#: includes/RestApi/Controllers/Version1/CoursesController.php:859
+#: includes/RestApi/Controllers/Version1/CoursesController.php:903
 msgid "List of tags"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:501
 #: includes/RestApi/Controllers/Store/CheckoutController.php:499
-#: includes/RestApi/Controllers/Version1/CoursesController.php:866
+#: includes/RestApi/Controllers/Version1/CoursesController.php:910
 msgid "Tag ID"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:506
 #: includes/RestApi/Controllers/Store/CheckoutController.php:504
-#: includes/RestApi/Controllers/Version1/CoursesController.php:871
+#: includes/RestApi/Controllers/Version1/CoursesController.php:915
 #: includes/RestApi/Controllers/Version1/CourseTagsController.php:83
 msgid "Tag name"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:512
 #: includes/RestApi/Controllers/Store/CheckoutController.php:510
-#: includes/RestApi/Controllers/Version1/CoursesController.php:877
+#: includes/RestApi/Controllers/Version1/CoursesController.php:921
 msgid "Tag slug"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:521
 #: includes/RestApi/Controllers/Store/CheckoutController.php:519
-#: includes/RestApi/Controllers/Version1/LessonsController.php:578
+#: includes/RestApi/Controllers/Version1/LessonsController.php:643
 msgid "Menu order, used to custom sort lessons."
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:526
 #: includes/RestApi/Controllers/Store/CheckoutController.php:524
-#: includes/RestApi/Controllers/Version1/LessonsController.php:588
+#: includes/RestApi/Controllers/Version1/LessonsController.php:653
 msgid "Video source"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:531
 #: includes/RestApi/Controllers/Store/CheckoutController.php:529
-#: includes/RestApi/Controllers/Version1/LessonsController.php:595
+#: includes/RestApi/Controllers/Version1/LessonsController.php:660
 msgid "Video source URL"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:536
 #: includes/RestApi/Controllers/Store/CheckoutController.php:534
-#: includes/RestApi/Controllers/Version1/LessonsController.php:600
+#: includes/RestApi/Controllers/Version1/LessonsController.php:665
 msgid "Video playback time"
 msgstr ""
 
 #: includes/RestApi/Controllers/Store/CartItemsController.php:541
 #: includes/RestApi/Controllers/Store/CheckoutController.php:539
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:562
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1000
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1044
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:761
-#: includes/RestApi/Controllers/Version1/LessonsController.php:710
+#: includes/RestApi/Controllers/Version1/LessonsController.php:775
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:794
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:743
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1172
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:563
 #: includes/RestApi/Controllers/Version1/SectionsController.php:381
-#: includes/RestApi/Controllers/Version1/UsersController.php:1205
+#: includes/RestApi/Controllers/Version1/UsersController.php:1380
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:469
 msgid "Meta data"
 msgstr ""
@@ -4331,16 +5078,16 @@ msgstr ""
 #: includes/RestApi/Controllers/Store/CartItemsController.php:548
 #: includes/RestApi/Controllers/Store/CheckoutController.php:546
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:569
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1007
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1051
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:768
-#: includes/RestApi/Controllers/Version1/LessonsController.php:717
+#: includes/RestApi/Controllers/Version1/LessonsController.php:782
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:801
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:750
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1179
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:570
 #: includes/RestApi/Controllers/Version1/SectionsController.php:388
-#: includes/RestApi/Controllers/Version1/UsersController.php:1212
+#: includes/RestApi/Controllers/Version1/UsersController.php:1387
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:476
 msgid "Meta ID"
 msgstr ""
@@ -4348,16 +5095,16 @@ msgstr ""
 #: includes/RestApi/Controllers/Store/CartItemsController.php:554
 #: includes/RestApi/Controllers/Store/CheckoutController.php:552
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:575
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1013
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1057
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:774
-#: includes/RestApi/Controllers/Version1/LessonsController.php:723
+#: includes/RestApi/Controllers/Version1/LessonsController.php:788
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:807
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:756
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1185
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:576
 #: includes/RestApi/Controllers/Version1/SectionsController.php:394
-#: includes/RestApi/Controllers/Version1/UsersController.php:1218
+#: includes/RestApi/Controllers/Version1/UsersController.php:1393
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:482
 msgid "Meta key"
 msgstr ""
@@ -4365,16 +5112,16 @@ msgstr ""
 #: includes/RestApi/Controllers/Store/CartItemsController.php:559
 #: includes/RestApi/Controllers/Store/CheckoutController.php:557
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:580
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1018
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1062
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:779
-#: includes/RestApi/Controllers/Version1/LessonsController.php:728
+#: includes/RestApi/Controllers/Version1/LessonsController.php:793
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:812
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:761
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1190
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:581
 #: includes/RestApi/Controllers/Version1/SectionsController.php:399
-#: includes/RestApi/Controllers/Version1/UsersController.php:1223
+#: includes/RestApi/Controllers/Version1/UsersController.php:1398
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:487
 msgid "Meta value"
 msgstr ""
@@ -4454,7 +5201,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:809
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:962
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1021
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1396
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1494
 #: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:389
 #: includes/RestApi/Controllers/Version1/ErrorReportsController.php:93
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:943
@@ -4463,9 +5210,9 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1037
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1132
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1192
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1004
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1050
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1096
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1069
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1115
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1161
 #: includes/RestApi/Controllers/Version1/LogsController.php:164
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:652
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:685
@@ -4496,7 +5243,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:995
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1041
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1085
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1168
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1180
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1072
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:137
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:453
@@ -4520,12 +5267,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:679
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:708
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:739
-#: includes/RestApi/Controllers/Version1/UsersController.php:1450
-#: includes/RestApi/Controllers/Version1/UsersController.php:1493
-#: includes/RestApi/Controllers/Version1/UsersController.php:1533
-#: includes/RestApi/Controllers/Version1/UsersController.php:1573
-#: includes/RestApi/Controllers/Version1/UsersController.php:1623
-#: includes/RestApi/Controllers/Version1/UsersController.php:1737
+#: includes/RestApi/Controllers/Version1/UsersController.php:1626
+#: includes/RestApi/Controllers/Version1/UsersController.php:1669
+#: includes/RestApi/Controllers/Version1/UsersController.php:1709
+#: includes/RestApi/Controllers/Version1/UsersController.php:1749
+#: includes/RestApi/Controllers/Version1/UsersController.php:1799
+#: includes/RestApi/Controllers/Version1/UsersController.php:1913
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:179
 #: includes/RestApi/Controllers/Version1/UtilitiesController.php:88
 msgid "Sorry, the permission object for this resource is null."
@@ -4608,7 +5355,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:210
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:200
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:230
-#: includes/RestApi/Controllers/Version1/UsersController.php:369
+#: includes/RestApi/Controllers/Version1/UsersController.php:543
 msgid "Sort collection by object attribute."
 msgstr ""
 
@@ -4637,8 +5384,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:860
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:676
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:787
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1415
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1429
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1513
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1527
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1015
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:537
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1018
@@ -4647,8 +5394,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:98
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:250
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:767
-#: includes/RestApi/Controllers/Version1/UsersController.php:1457
-#: includes/RestApi/Controllers/Version1/UsersController.php:1470
+#: includes/RestApi/Controllers/Version1/UsersController.php:1633
+#: includes/RestApi/Controllers/Version1/UsersController.php:1646
 msgid "Sorry, you are not allowed to read resources."
 msgstr ""
 
@@ -4668,15 +5415,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:657
-#: includes/RestApi/Controllers/Version1/UsersController.php:1500
-#: includes/RestApi/Controllers/Version1/UsersController.php:1510
+#: includes/RestApi/Controllers/Version1/UsersController.php:1676
+#: includes/RestApi/Controllers/Version1/UsersController.php:1686
 msgid "Sorry, you cannot list resources."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CommentsController.php:275
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:894
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:709
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1015
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1080
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:663
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:626
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1112
@@ -4686,8 +5433,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:686
-#: includes/RestApi/Controllers/Version1/UsersController.php:1540
-#: includes/RestApi/Controllers/Version1/UsersController.php:1550
+#: includes/RestApi/Controllers/Version1/UsersController.php:1716
+#: includes/RestApi/Controllers/Version1/UsersController.php:1726
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:186
 msgid "Sorry, you are not allowed to create resources."
 msgstr ""
@@ -4697,7 +5444,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:764
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:999
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1170
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1074
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1139
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:678
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1145
 #: includes/RestApi/Controllers/Version1/PostsController.php:209
@@ -4706,8 +5453,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:906
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:748
-#: includes/RestApi/Controllers/Version1/UsersController.php:1601
-#: includes/RestApi/Controllers/Version1/UsersController.php:1640
+#: includes/RestApi/Controllers/Version1/UsersController.php:1777
+#: includes/RestApi/Controllers/Version1/UsersController.php:1816
 msgid "Sorry, you are not allowed to delete resources."
 msgstr ""
 
@@ -4716,19 +5463,19 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:805
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1068
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1233
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1120
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1185
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:740
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1191
 #: includes/RestApi/Controllers/Version1/PostsController.php:292
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1065
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1203
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1215
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1239
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1227
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1251
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:973
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:717
-#: includes/RestApi/Controllers/Version1/UsersController.php:1744
-#: includes/RestApi/Controllers/Version1/UsersController.php:1756
+#: includes/RestApi/Controllers/Version1/UsersController.php:1920
+#: includes/RestApi/Controllers/Version1/UsersController.php:1932
 msgid "Sorry, you are not allowed to update resources."
 msgstr ""
 
@@ -4746,8 +5493,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CrudController.php:589
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1146
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1201
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1064
-#: includes/RestApi/Controllers/Version1/LessonsController.php:1110
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1129
+#: includes/RestApi/Controllers/Version1/LessonsController.php:1175
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:698
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:742
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:829
@@ -4759,8 +5506,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:273
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1009
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:1055
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1229
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1314
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1241
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1326
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:852
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:862
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:899
@@ -4787,7 +5534,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:823
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1121
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:341
-#: includes/RestApi/Controllers/Version1/UsersController.php:1705
+#: includes/RestApi/Controllers/Version1/UsersController.php:1881
 #, php-format
 msgid "The %s cannot be bulk deleted."
 msgstr ""
@@ -4795,8 +5542,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:822
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1592
 #: includes/RestApi/Controllers/Version1/PostsController.php:249
-#: includes/RestApi/Controllers/Version1/UsersController.php:1589
-#: includes/RestApi/Controllers/Version1/UsersController.php:1630
+#: includes/RestApi/Controllers/Version1/UsersController.php:1765
+#: includes/RestApi/Controllers/Version1/UsersController.php:1806
 msgid "Sorry, you are not allowed to delete resources"
 msgstr ""
 
@@ -4898,7 +5645,7 @@ msgid "Limit result set to resources assigned to a specific course."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseDifficultiesController.php:83
-#: includes/RestApi/Controllers/Version1/CoursesController.php:898
+#: includes/RestApi/Controllers/Version1/CoursesController.php:942
 msgid "Difficulty name."
 msgstr ""
 
@@ -4957,7 +5704,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:666
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:438
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:482
-#: includes/RestApi/Controllers/Version1/LessonsController.php:566
+#: includes/RestApi/Controllers/Version1/LessonsController.php:631
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:685
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:260
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1073
@@ -5128,7 +5875,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:464
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:508
-#: includes/RestApi/Controllers/Version1/CoursesController.php:728
+#: includes/RestApi/Controllers/Version1/CoursesController.php:772
 msgid "The date the course was created, in the site's timezone."
 msgstr ""
 
@@ -5170,8 +5917,10 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:845
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1118
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1363
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1445
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1461
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1268
+#: includes/RestApi/Controllers/Version1/LessonsController.php:203
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1475
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:1023
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:583
@@ -5322,208 +6071,220 @@ msgid "Sorry, you cannot move a review to another course."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:146
-#: includes/RestApi/Controllers/Version1/CoursesController.php:201
+#: includes/RestApi/Controllers/Version1/CoursesController.php:227
 msgid "Whether to delete the children(sections, lessons, quizzes and questions) under the course."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:191
+#: includes/RestApi/Controllers/Version1/CoursesController.php:171
+msgid "Email of the registered user to preview as. Omit to use the demo student."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/CoursesController.php:217
 msgid "Course IDs."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:220
+#: includes/RestApi/Controllers/Version1/CoursesController.php:246
 msgid "Course Ids"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:295
+#: includes/RestApi/Controllers/Version1/CoursesController.php:321
 msgid "Limit result set to courses with a specific slug."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:302
+#: includes/RestApi/Controllers/Version1/CoursesController.php:328
 msgid "Limit result set to courses assigned a specific status."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:310
+#: includes/RestApi/Controllers/Version1/CoursesController.php:336
 msgid "Limit result set to featured courses."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:317
+#: includes/RestApi/Controllers/Version1/CoursesController.php:343
 msgid "List courses with specific price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:323
+#: includes/RestApi/Controllers/Version1/CoursesController.php:349
 msgid "List courses with specific price type (free or paid)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:330
+#: includes/RestApi/Controllers/Version1/CoursesController.php:356
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:330
 msgid "Limit result set to courses assigned a specific category ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:337
+#: includes/RestApi/Controllers/Version1/CoursesController.php:363
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:336
 msgid "Limit result set to courses assigned a specific tag ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:344
+#: includes/RestApi/Controllers/Version1/CoursesController.php:370
 msgid "Limit result set to courses assigned a specific difficulty ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:704
-#: includes/RestApi/Controllers/Version1/LessonsController.php:572
+#: includes/RestApi/Controllers/Version1/CoursesController.php:736
+#: includes/RestApi/Controllers/Version1/LessonsController.php:637
 #: includes/RestApi/Controllers/Version1/OrdersController.php:764
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1079
 #: includes/RestApi/Controllers/Version1/SectionsController.php:370
 msgid "Course name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:709
+#: includes/RestApi/Controllers/Version1/CoursesController.php:741
 msgid "Course slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:714
+#: includes/RestApi/Controllers/Version1/CoursesController.php:746
 msgid "Course URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:721
+#: includes/RestApi/Controllers/Version1/CoursesController.php:753
 msgid "Course Preview URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:733
+#: includes/RestApi/Controllers/Version1/CoursesController.php:760
+msgid "Student preview magic link (admin/instructor only)."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/CoursesController.php:766
+msgid "Email of the demo student used for preview (admin/instructor only)."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/CoursesController.php:777
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:458
 msgid "The date the course was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:738
+#: includes/RestApi/Controllers/Version1/CoursesController.php:782
 msgid "The date the course was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:744
+#: includes/RestApi/Controllers/Version1/CoursesController.php:788
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:463
 msgid "The date the course was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:750
+#: includes/RestApi/Controllers/Version1/CoursesController.php:794
 msgid "Course status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:757
+#: includes/RestApi/Controllers/Version1/CoursesController.php:801
 msgid "Featured course."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:770
+#: includes/RestApi/Controllers/Version1/CoursesController.php:814
 msgid "Course description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:775
+#: includes/RestApi/Controllers/Version1/CoursesController.php:819
 msgid "Course short description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:780
+#: includes/RestApi/Controllers/Version1/CoursesController.php:824
 msgid "Current course price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:786
+#: includes/RestApi/Controllers/Version1/CoursesController.php:830
 msgid "Course regular price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:791
+#: includes/RestApi/Controllers/Version1/CoursesController.php:835
 msgid "Course sale price."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:796
+#: includes/RestApi/Controllers/Version1/CoursesController.php:840
 msgid "Course price type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:814
+#: includes/RestApi/Controllers/Version1/CoursesController.php:858
 msgid "Amount of reviews that the course have."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:820
+#: includes/RestApi/Controllers/Version1/CoursesController.php:864
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:679
 msgid "Course parent ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:825
-#: includes/RestApi/Controllers/Version1/LessonsController.php:583
+#: includes/RestApi/Controllers/Version1/CoursesController.php:869
+#: includes/RestApi/Controllers/Version1/LessonsController.php:648
 msgid "Course featured image."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:886
+#: includes/RestApi/Controllers/Version1/CoursesController.php:930
 msgid "Course difficulty"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:893
+#: includes/RestApi/Controllers/Version1/CoursesController.php:937
 msgid "Difficulty ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:904
+#: includes/RestApi/Controllers/Version1/CoursesController.php:948
 msgid "Difficulty slug."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:913
+#: includes/RestApi/Controllers/Version1/CoursesController.php:957
 msgid "Menu order, used to custom sort courses."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:918
+#: includes/RestApi/Controllers/Version1/CoursesController.php:962
 msgid "Course enrollment limit. Default unlimited."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:924
+#: includes/RestApi/Controllers/Version1/CoursesController.php:968
 msgid "Course duration (minutes)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:930
+#: includes/RestApi/Controllers/Version1/CoursesController.php:974
 msgid "Course access mode"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:937
+#: includes/RestApi/Controllers/Version1/CoursesController.php:981
 msgid "Course billing cycle (1d, 2w, 3m, 4y)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:942
+#: includes/RestApi/Controllers/Version1/CoursesController.php:986
 msgid "Course show curriculum. ( True = Visible to all, False = Visible to only enrollees)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:949
+#: includes/RestApi/Controllers/Version1/CoursesController.php:993
 msgid "Course review after completion. ( True = Visible for user to review, False =Invisible for user to review)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:955
+#: includes/RestApi/Controllers/Version1/CoursesController.php:999
 msgid "Course highlights"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:960
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1004
 msgid "Course WordPress edit link."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:966
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1010
 msgid "Enrolled students count"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:972
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1016
 msgid "Course end date"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:977
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1021
 #: assets/js/build/masteriyo-backend.js:30
 #: assets/js/build/masteriyo-backend.js:32
 msgid "Course Badge"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:981
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1025
 msgid "Fake enrolled Count. Default zero."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:987
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1031
 msgid "Course flow"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:994
-#: includes/RestApi/Controllers/Version1/LessonsController.php:736
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1038
+#: includes/RestApi/Controllers/Version1/LessonsController.php:801
 msgid "Custom fields"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesController.php:1026
+#: includes/RestApi/Controllers/Version1/CoursesController.php:1070
 msgid "Whether the current user is the course author"
 msgstr ""
 
@@ -5583,7 +6344,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:197
 #: includes/RestApi/Controllers/Version1/PostsController.php:239
 #: includes/RestApi/Controllers/Version1/PostsController.php:280
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1176
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1188
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:839
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1080
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:220
@@ -5713,7 +6474,7 @@ msgid "Instructor approved."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/InstructorsController.php:213
-#: includes/RestApi/Controllers/Version1/UsersController.php:1776
+#: includes/RestApi/Controllers/Version1/UsersController.php:1952
 msgid "Sorry, you are not allowed to change roles."
 msgstr ""
 
@@ -5789,75 +6550,75 @@ msgstr ""
 msgid "Sorry, you cannot move a review to another lesson."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:179
+#: includes/RestApi/Controllers/Version1/LessonsController.php:244
 msgid "Limit lessons by course id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:605
+#: includes/RestApi/Controllers/Version1/LessonsController.php:670
 msgid "download_materials"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:612
+#: includes/RestApi/Controllers/Version1/LessonsController.php:677
 msgid "Download material ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:618
+#: includes/RestApi/Controllers/Version1/LessonsController.php:683
 msgid "Download material title"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:624
+#: includes/RestApi/Controllers/Version1/LessonsController.php:689
 msgid "Download material URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:631
+#: includes/RestApi/Controllers/Version1/LessonsController.php:696
 msgid "Download material mime type"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:637
+#: includes/RestApi/Controllers/Version1/LessonsController.php:702
 msgid "Download material file size"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:643
+#: includes/RestApi/Controllers/Version1/LessonsController.php:708
 msgid "Download material formatted file size"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:649
+#: includes/RestApi/Controllers/Version1/LessonsController.php:714
 msgid "Download material creation/upload date."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:659
+#: includes/RestApi/Controllers/Version1/LessonsController.php:724
 msgid "Video metadata"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:666
+#: includes/RestApi/Controllers/Version1/LessonsController.php:731
 msgid "Whether to share the video."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:672
+#: includes/RestApi/Controllers/Version1/LessonsController.php:737
 msgid "Whether user is allowed to right click on video."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:678
+#: includes/RestApi/Controllers/Version1/LessonsController.php:743
 msgid "Array of timestamps."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:682
+#: includes/RestApi/Controllers/Version1/LessonsController.php:747
 msgid "Start time in seconds."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:688
+#: includes/RestApi/Controllers/Version1/LessonsController.php:753
 msgid "End time in seconds."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:694
+#: includes/RestApi/Controllers/Version1/LessonsController.php:759
 msgid "Label for the timestamp."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:699
+#: includes/RestApi/Controllers/Version1/LessonsController.php:764
 msgid "Timestamp ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/LessonsController.php:742
+#: includes/RestApi/Controllers/Version1/LessonsController.php:807
 msgid "Lesson Type"
 msgstr ""
 
@@ -6431,22 +7192,22 @@ msgstr ""
 msgid "Whether to enable question description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1158
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1170
 #: assets/js/build/masteriyo-backend.js:19
 #: assets/js/build/masteriyo-backend.js:21
 msgid "Invalid request"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1193
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1205
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:832
 msgid "Invalid quiz ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1362
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1374
 msgid "Invalid question IDs or quiz ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1387
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1399
 msgid "No valid questions were updated."
 msgstr ""
 
@@ -7682,215 +8443,242 @@ msgstr ""
 msgid "User IDs."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:322
+#: includes/RestApi/Controllers/Version1/UsersController.php:317
+msgid "User ID to preview as."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:337
+msgid "Demo student user ID to preview as."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:362
 msgid "meta id for user meta information about device information."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:327
-#: includes/RestApi/Controllers/Version1/UsersController.php:332
+#: includes/RestApi/Controllers/Version1/UsersController.php:367
+#: includes/RestApi/Controllers/Version1/UsersController.php:372
 msgid "Token for users session that is used to delete the user information."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:386
+#: includes/RestApi/Controllers/Version1/UsersController.php:409
+#: includes/RestApi/Controllers/Version1/UsersController.php:474
+msgid "Cannot preview as yourself."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:418
+#: includes/RestApi/Controllers/Version1/UsersController.php:483
+msgid "User not found."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:426
+#: includes/RestApi/Controllers/Version1/UsersController.php:491
+msgid "Preview is only available for the demo student."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:499
+msgid "Cannot initiate preview: response headers already sent."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:560
 msgid "Limit result set to users matching at least one specific role provided. Accepts CSV list or single role."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:397
+#: includes/RestApi/Controllers/Version1/UsersController.php:571
 msgid "Whether the student has applied or not for the instructor."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:984
+#: includes/RestApi/Controllers/Version1/UsersController.php:1159
 msgid "User login username."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:990
+#: includes/RestApi/Controllers/Version1/UsersController.php:1165
 msgid "User login old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:995
+#: includes/RestApi/Controllers/Version1/UsersController.php:1170
 msgid "User login password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1000
-#: includes/RestApi/Controllers/Version1/UsersController.php:1038
+#: includes/RestApi/Controllers/Version1/UsersController.php:1175
+#: includes/RestApi/Controllers/Version1/UsersController.php:1213
 msgid "User nickname"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1005
+#: includes/RestApi/Controllers/Version1/UsersController.php:1180
 msgid "User email"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1010
+#: includes/RestApi/Controllers/Version1/UsersController.php:1185
 msgid "Site url of the user."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1015
+#: includes/RestApi/Controllers/Version1/UsersController.php:1190
 msgid "User date created"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1021
+#: includes/RestApi/Controllers/Version1/UsersController.php:1196
 msgid "User activation key."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1027
+#: includes/RestApi/Controllers/Version1/UsersController.php:1202
 msgid "User status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1033
+#: includes/RestApi/Controllers/Version1/UsersController.php:1208
 msgid "Display name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1043
+#: includes/RestApi/Controllers/Version1/UsersController.php:1218
 msgid "User first name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1048
+#: includes/RestApi/Controllers/Version1/UsersController.php:1223
 msgid "User last name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1053
+#: includes/RestApi/Controllers/Version1/UsersController.php:1228
 msgid "User description"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1058
+#: includes/RestApi/Controllers/Version1/UsersController.php:1233
 msgid "Enable rich editing."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1064
+#: includes/RestApi/Controllers/Version1/UsersController.php:1239
 msgid "Enable syntax highlighting."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1070
+#: includes/RestApi/Controllers/Version1/UsersController.php:1245
 msgid "Enable comment shortcuts."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1076
+#: includes/RestApi/Controllers/Version1/UsersController.php:1251
 msgid "Mark the user as spam. Multi site only."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1082
+#: includes/RestApi/Controllers/Version1/UsersController.php:1257
 msgid "Use SSL."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1088
+#: includes/RestApi/Controllers/Version1/UsersController.php:1263
 msgid "Whether to show the admin bar on the frontend."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1094
+#: includes/RestApi/Controllers/Version1/UsersController.php:1269
 msgid "User specific locale"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1099
+#: includes/RestApi/Controllers/Version1/UsersController.php:1274
 msgid "User role"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1104
+#: includes/RestApi/Controllers/Version1/UsersController.php:1279
 msgid "User profile image"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1109
+#: includes/RestApi/Controllers/Version1/UsersController.php:1284
 msgid "Instructor Apply Status"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1115
+#: includes/RestApi/Controllers/Version1/UsersController.php:1290
 msgid "User billing details."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1121
+#: includes/RestApi/Controllers/Version1/UsersController.php:1296
 msgid "User billing first name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1126
+#: includes/RestApi/Controllers/Version1/UsersController.php:1301
 msgid "User billing last name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1131
+#: includes/RestApi/Controllers/Version1/UsersController.php:1306
 msgid "User billing company name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1136
+#: includes/RestApi/Controllers/Version1/UsersController.php:1311
 msgid "User billing company id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1141
-#: includes/RestApi/Controllers/Version1/UsersController.php:1146
+#: includes/RestApi/Controllers/Version1/UsersController.php:1316
+#: includes/RestApi/Controllers/Version1/UsersController.php:1321
 msgid "User billing address 1."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1151
+#: includes/RestApi/Controllers/Version1/UsersController.php:1326
 msgid "User billing address 2."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1156
+#: includes/RestApi/Controllers/Version1/UsersController.php:1331
 msgid "User billing city."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1161
+#: includes/RestApi/Controllers/Version1/UsersController.php:1336
 msgid "User billing post code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1166
+#: includes/RestApi/Controllers/Version1/UsersController.php:1341
 msgid "User billing country code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1171
+#: includes/RestApi/Controllers/Version1/UsersController.php:1346
 msgid "User billing state code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1176
+#: includes/RestApi/Controllers/Version1/UsersController.php:1351
 msgid "Formatted User billing country."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1182
+#: includes/RestApi/Controllers/Version1/UsersController.php:1357
 msgid "Formatted User billing state."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1188
+#: includes/RestApi/Controllers/Version1/UsersController.php:1363
 msgid "User billing email address."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1193
+#: includes/RestApi/Controllers/Version1/UsersController.php:1368
 msgid "User billing phone number."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1200
+#: includes/RestApi/Controllers/Version1/UsersController.php:1375
 msgid "How the user was created."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1582
+#: includes/RestApi/Controllers/Version1/UsersController.php:1758
 msgid "Sorry, you cannot delete yourself."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1766
+#: includes/RestApi/Controllers/Version1/UsersController.php:1942
 msgid "Sorry, invalid old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1838
+#: includes/RestApi/Controllers/Version1/UsersController.php:2014
 msgid "Confirm Your Email Change"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:1842
+#: includes/RestApi/Controllers/Version1/UsersController.php:2018
 #, php-format
 msgid "You requested to change your email to <strong>%s</strong>. Please confirm this change by clicking the link below:"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:1854
+#: includes/RestApi/Controllers/Version1/UsersController.php:2030
 #, php-format
 msgid "Your email address has not been updated yet. Please check your inbox at %s for a confirmation email."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1864
+#: includes/RestApi/Controllers/Version1/UsersController.php:2040
 msgid "There was an error sending the confirmation email. Please try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1885
-#: includes/RestApi/Controllers/Version1/UsersController.php:1895
+#: includes/RestApi/Controllers/Version1/UsersController.php:2061
+#: includes/RestApi/Controllers/Version1/UsersController.php:2071
 msgid "Old password does not match. Please verify your current password and try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1928
+#: includes/RestApi/Controllers/Version1/UsersController.php:2104
 msgid "No QR code available. Please generate one first."
 msgstr ""
 
@@ -7990,7 +8778,7 @@ msgstr ""
 msgid "Masteriyo Student"
 msgstr ""
 
-#: includes/ScriptStyle.php:1443
+#: includes/ScriptStyle.php:1452
 #: assets/js/build/masteriyo-account.js:2
 #: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:29
@@ -8000,35 +8788,35 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: includes/ScriptStyle.php:1444
+#: includes/ScriptStyle.php:1453
 msgid "Saving..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1445
+#: includes/ScriptStyle.php:1454
 msgid "Your profile was updated successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1483
+#: includes/ScriptStyle.php:1492
 #: templates/account/form-login.php:32
 msgid "Sign In"
 msgstr ""
 
-#: includes/ScriptStyle.php:1484
+#: includes/ScriptStyle.php:1493
 msgid "Signing In..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1500
-#: includes/ScriptStyle.php:1546
+#: includes/ScriptStyle.php:1509
+#: includes/ScriptStyle.php:1555
 msgid "Type CONFIRM to proceed."
 msgstr ""
 
-#: includes/ScriptStyle.php:1501
-#: includes/ScriptStyle.php:1547
+#: includes/ScriptStyle.php:1510
+#: includes/ScriptStyle.php:1556
 msgid "Try again"
 msgstr ""
 
-#: includes/ScriptStyle.php:1502
-#: includes/ScriptStyle.php:1548
+#: includes/ScriptStyle.php:1511
+#: includes/ScriptStyle.php:1557
 #: templates/single-course/course-review-form.php:76
 #: templates/single-course/layout-1/review-form.php:89
 #: assets/js/build/masteriyo-account.js:5
@@ -8038,8 +8826,8 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: includes/ScriptStyle.php:1503
-#: includes/ScriptStyle.php:1549
+#: includes/ScriptStyle.php:1512
+#: includes/ScriptStyle.php:1558
 #: assets/js/build/masteriyo-backend.js:4
 #: assets/js/build/masteriyo-backend.js:16
 #: assets/js/build/masteriyo-backend.js:18
@@ -8055,8 +8843,8 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: includes/ScriptStyle.php:1504
-#: includes/ScriptStyle.php:1550
+#: includes/ScriptStyle.php:1513
+#: includes/ScriptStyle.php:1559
 #: templates/single-course/course-review-reply.php:58
 #: templates/single-course/course-review.php:53
 #: templates/single-course/layout-1/course-review-reply.php:55
@@ -8083,69 +8871,69 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: includes/ScriptStyle.php:1505
-#: includes/ScriptStyle.php:1551
+#: includes/ScriptStyle.php:1514
+#: includes/ScriptStyle.php:1560
 msgid "Submitting..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1506
-#: includes/ScriptStyle.php:1552
+#: includes/ScriptStyle.php:1515
+#: includes/ScriptStyle.php:1561
 msgid "Deleting..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1507
-#: includes/ScriptStyle.php:1553
+#: includes/ScriptStyle.php:1516
+#: includes/ScriptStyle.php:1562
 #: assets/js/build/masteriyo-interactive.js:14
 msgid "Reply to"
 msgstr ""
 
-#: includes/ScriptStyle.php:1508
-#: includes/ScriptStyle.php:1554
+#: includes/ScriptStyle.php:1517
+#: includes/ScriptStyle.php:1563
 msgid "Edit reply"
 msgstr ""
 
-#: includes/ScriptStyle.php:1509
-#: includes/ScriptStyle.php:1555
+#: includes/ScriptStyle.php:1518
+#: includes/ScriptStyle.php:1564
 msgid "Edit review"
 msgstr ""
 
-#: includes/ScriptStyle.php:1510
-#: includes/ScriptStyle.php:1556
+#: includes/ScriptStyle.php:1519
+#: includes/ScriptStyle.php:1565
 #: assets/js/build/masteriyo-interactive.js:3
 msgid "Your review has been submitted successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1510
-#: includes/ScriptStyle.php:1556
+#: includes/ScriptStyle.php:1519
+#: includes/ScriptStyle.php:1565
 #: assets/js/build/masteriyo-interactive.js:3
 msgid "Your review has been submitted and is awaiting approval by the instructor."
 msgstr ""
 
-#: includes/ScriptStyle.php:1511
-#: includes/ScriptStyle.php:1557
+#: includes/ScriptStyle.php:1520
+#: includes/ScriptStyle.php:1566
 msgid "Updated successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1512
-#: includes/ScriptStyle.php:1558
+#: includes/ScriptStyle.php:1521
+#: includes/ScriptStyle.php:1567
 msgid "Deleted successfully."
 msgstr ""
 
-#: includes/ScriptStyle.php:1513
-#: includes/ScriptStyle.php:1559
+#: includes/ScriptStyle.php:1522
+#: includes/ScriptStyle.php:1568
 #: templates/single-course/layout-1/main-content-tab.php:117
 msgid "Expand All"
 msgstr ""
 
-#: includes/ScriptStyle.php:1514
-#: includes/ScriptStyle.php:1560
+#: includes/ScriptStyle.php:1523
+#: includes/ScriptStyle.php:1569
 #: templates/single-course/curriculum.php:84
 #: templates/single-course/layout-1/main-content-tab.php:117
 msgid "Collapse All"
 msgstr ""
 
-#: includes/ScriptStyle.php:1515
-#: includes/ScriptStyle.php:1561
+#: includes/ScriptStyle.php:1524
+#: includes/ScriptStyle.php:1570
 #: assets/js/build/masteriyo-account.js:19
 #: assets/js/build/masteriyo-backend.js:17
 #: assets/js/build/masteriyo-backend.js:28
@@ -8156,34 +8944,34 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: includes/ScriptStyle.php:1516
-#: includes/ScriptStyle.php:1562
+#: includes/ScriptStyle.php:1525
+#: includes/ScriptStyle.php:1571
 msgid "Failed to load more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1517
-#: includes/ScriptStyle.php:1563
+#: includes/ScriptStyle.php:1526
+#: includes/ScriptStyle.php:1572
 #: templates/single-course/see-more-reviews-button.php:21
 msgid "See more reviews"
 msgstr ""
 
-#: includes/ScriptStyle.php:1518
-#: includes/ScriptStyle.php:1564
-#: includes/ScriptStyle.php:1632
+#: includes/ScriptStyle.php:1527
+#: includes/ScriptStyle.php:1573
+#: includes/ScriptStyle.php:1641
 msgid "Please enter a password."
 msgstr ""
 
-#: includes/ScriptStyle.php:1519
-#: includes/ScriptStyle.php:1565
+#: includes/ScriptStyle.php:1528
+#: includes/ScriptStyle.php:1574
 msgid "You have already submitted a review for this course. It is currently pending approval."
 msgstr ""
 
-#: includes/ScriptStyle.php:1520
-#: includes/ScriptStyle.php:1566
+#: includes/ScriptStyle.php:1529
+#: includes/ScriptStyle.php:1575
 msgid "You have already submitted a review for this course."
 msgstr ""
 
-#: includes/ScriptStyle.php:1583
+#: includes/ScriptStyle.php:1592
 msgid "Error processing checkout. Please try again."
 msgstr ""
 
@@ -8191,7 +8979,7 @@ msgstr ""
 msgid "Masteriyo Onboard"
 msgstr ""
 
-#: includes/Setup/Onboard.php:236
+#: includes/Setup/Onboard.php:230
 msgid "Masteriyo LMS - Onboarding"
 msgstr ""
 
@@ -8424,10 +9212,6 @@ msgstr ""
 msgid "Edit Course Category"
 msgstr ""
 
-#: includes/Taxonomy/Course/Category.php:73
-msgid "Update Course Category"
-msgstr ""
-
 #: includes/Taxonomy/Course/Category.php:74
 msgid "View Course Category"
 msgstr ""
@@ -8518,10 +9302,6 @@ msgstr ""
 msgid "Edit Course Difficulty"
 msgstr ""
 
-#: includes/Taxonomy/Course/Difficulty.php:74
-msgid "Update Course Difficulty"
-msgstr ""
-
 #: includes/Taxonomy/Course/Difficulty.php:75
 msgid "View Course Difficulty"
 msgstr ""
@@ -8590,10 +9370,6 @@ msgstr ""
 
 #: includes/Taxonomy/Course/Tag.php:72
 msgid "Edit Course Tag"
-msgstr ""
-
-#: includes/Taxonomy/Course/Tag.php:73
-msgid "Update Course Tag"
 msgstr ""
 
 #: includes/Taxonomy/Course/Tag.php:74
@@ -9631,6 +10407,10 @@ msgstr ""
 
 #: templates/single-course/tab-handles.php:87
 msgid "Curriculum"
+msgstr ""
+
+#: templates/student-preview-frontend-banner.php:29
+msgid "Viewing as Demo Student"
 msgstr ""
 
 #: assets/js/build/blocks.js:281
@@ -11023,6 +11803,10 @@ msgid "Unlimited"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:2
+msgid "This group is inactive. Complete your purchase to manage members."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
 msgid "Group is pending approval. Members cannot be modified until the group is approved."
 msgstr ""
 
@@ -11095,12 +11879,39 @@ msgid "An error occurred."
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:2
+msgid "Your last order failed."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
+msgid "Your last order was cancelled."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
+msgid "Your last order was refunded."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
+msgid "Your last order was removed."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
+msgid "Payment incomplete."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
 #: assets/js/build/masteriyo-backend.js:17
 msgid "Deleting Group"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:2
 msgid "Are you sure? You can’t undo this action afterwards."
+msgstr ""
+
+#: assets/js/build/masteriyo-account.js:2
+#: assets/js/build/masteriyo-backend.js:19
+#: assets/js/build/masteriyo-backend.js:28
+#: assets/js/build/masteriyo-backend.js:43
+msgid "Inactive"
 msgstr ""
 
 #: assets/js/build/masteriyo-account.js:2
@@ -12698,6 +13509,15 @@ msgctxt "Content visibility action label"
 msgid "Save %s to Private"
 msgstr ""
 
+#: assets/js/build/masteriyo-backend.js:10
+#: assets/js/build/masteriyo-backend.js:11
+msgid "Demo Student Preview"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:11
+msgid "Open preview menu"
+msgstr ""
+
 #: assets/js/build/masteriyo-backend.js:13
 msgid "Open actions menu"
 msgstr ""
@@ -13109,12 +13929,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:19
 msgid "All Pricing Zones"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:19
-#: assets/js/build/masteriyo-backend.js:28
-#: assets/js/build/masteriyo-backend.js:43
-msgid "Inactive"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:19
@@ -15709,6 +16523,22 @@ msgid "Assignment Submission"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
+msgid "New Lesson Comment"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Email sent to site admin when a student posts a new lesson comment."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "New Lesson Comment Reply"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Email sent to site admin when someone replies to a lesson comment."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
 msgid "Password Reset"
 msgstr ""
 
@@ -15758,6 +16588,14 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
 msgid "Email sent to instructor when a student asks a question about their course."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Email sent to instructor when a student posts a new lesson comment."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Email sent to instructor when someone replies to a lesson comment."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
@@ -15850,6 +16688,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
 msgid "Email sent to student when someone answers their course question."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "Email sent to student when someone replies to their lesson comment."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
@@ -16371,6 +17213,14 @@ msgid "Label (After Adding to Cart)"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
+msgid "Auto Redirect to Courses"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
+msgid "When enabled, redirects logged-in users to their enrolled courses once their WooCommerce order is completed."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:32
 msgid "Streamline your customer engagement with HubSpot integration, allowing you to effortlessly manage leads, automate workflows, and enhance communication with your audience."
 msgstr ""
 
@@ -16574,6 +17424,7 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:32
 #: assets/js/build/masteriyo-backend.js:41
+#: assets/js/build/masteriyo-gettingStarted.js:1
 msgid "Connection Status"
 msgstr ""
 
@@ -17278,10 +18129,6 @@ msgid " has been updated."
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38
-msgid "Delete Lesson"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:38
 msgid "Billing details"
 msgstr ""
 
@@ -17347,10 +18194,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38
 msgid "New Order Added."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:38
-msgid "Create Order"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38
@@ -17422,10 +18265,6 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38
 msgid "No attachment found."
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:38
-msgid "Delete Order"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:38
@@ -18227,10 +19066,6 @@ msgid "Instructors Per Page:"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:41
-msgid "Delete User"
-msgstr ""
-
-#: assets/js/build/masteriyo-backend.js:41
 msgid "Delete Users"
 msgstr ""
 
@@ -18287,7 +19122,23 @@ msgid "Add Student"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:41
+msgid "Could not generate preview link."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:41
 msgid "Applied for Instructor status. Please edit student for approval."
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:41
+msgid "Demo purpose only"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:41
+msgid "Auto-created"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:41
+msgid "Switch to"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:41
@@ -19695,6 +20546,10 @@ msgid "%d Answer"
 msgid_plural "%d Answers"
 msgstr[0] ""
 msgstr[1] ""
+
+#: assets/js/build/masteriyo-interactive.js:10
+msgid "Write a reply..."
+msgstr ""
 
 #: assets/js/build/masteriyo-interactive.js:10
 msgid "Question submitted."

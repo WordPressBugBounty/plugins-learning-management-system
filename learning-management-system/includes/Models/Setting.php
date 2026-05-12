@@ -285,10 +285,16 @@ class Setting extends Model {
 				'from_email' => 'sanitize_email',
 			),
 			'admin'      => array(
-				'new_order'        => array(
+				'new_order'                => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
-				'instructor_apply' => array(
+				'instructor_apply'         => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_lesson_comment'       => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_lesson_comment_reply' => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
 			),
@@ -300,6 +306,12 @@ class Setting extends Model {
 					'enable' => 'masteriyo_string_to_bool',
 				),
 				'new_question'              => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_lesson_comment'        => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_lesson_comment_reply'  => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
 			),
@@ -335,6 +347,9 @@ class Setting extends Model {
 					'enable' => 'masteriyo_string_to_bool',
 				),
 				'new_question_reply'        => array(
+					'enable' => 'masteriyo_string_to_bool',
+				),
+				'new_lesson_comment_reply'  => array(
 					'enable' => 'masteriyo_string_to_bool',
 				),
 			),
@@ -405,36 +420,40 @@ class Setting extends Model {
 					'enable'  => 'masteriyo_string_to_bool',
 					'content' => 'wp_kses_post',
 				),
+				'lesson_comment'  => array(
+					'enable'  => 'masteriyo_string_to_bool',
+					'content' => 'wp_kses_post',
+				),
 			),
 		),
 	);
 
-	/**
-	 * The posted settings data. When empty, $_POST data will be used.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var array
-	 */
-	public $data = array();
-	/**
-	 * Get the setting if ID
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param SettingRepository $setting_repository Setting Repository,
-	 */
+		/**
+		 * The posted settings data. When empty, $_POST data will be used.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @var array
+		 */
+		public $data = array();
+		/**
+		 * Get the setting if ID
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param SettingRepository $setting_repository Setting Repository,
+		 */
 	public function __construct( SettingRepository $setting_repository ) {
 		$this->data       = masteriyo_get_default_settings();
 		$this->repository = $setting_repository;
 		$this->set_default_values();
 	}
 
-	/**
-	 * Set default values.
-	 *
-	 * @since 1.3.4
-	 */
+		/**
+		 * Set default values.
+		 *
+		 * @since 1.3.4
+		 */
 	protected function set_default_values() {
 		if ( empty( trim( strval( $this->get( 'emails.general.from_email' ) ) ) ) ) {
 			$this->set( 'emails.general.from_email', get_bloginfo( 'admin_email' ) );
@@ -457,24 +476,24 @@ class Setting extends Model {
 		}
 	}
 
-	/**
-	 * Get data.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return array
-	 */
+		/**
+		 * Get data.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @return array
+		 */
 	public function get_data() {
 		return $this->data;
 	}
 
-	/**
-	 * Set data.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $data
-	 */
+		/**
+		 * Set data.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $data
+		 */
 	public function set_data( $data ) {
 		$data_dot_arr = masteriyo_array_dot( $data );
 
@@ -485,24 +504,24 @@ class Setting extends Model {
 		$this->set_default_values();
 	}
 
-	/**
-	 * Sanitize the settings
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $prop    Name of prop to set.
-	 * @param mixed  $value   Value of the prop.
-	 *
-	 * @return mixed
-	 */
+		/**
+		 * Sanitize the settings
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $prop    Name of prop to set.
+		 * @param mixed  $value   Value of the prop.
+		 *
+		 * @return mixed
+		 */
 	public function sanitize( $prop, $value ) {
-			$callback = masteriyo_array_get( $this->sanitize_callbacks, $prop );
+		$callback = masteriyo_array_get( $this->sanitize_callbacks, $prop );
 
 		if ( is_callable( $callback ) ) {
 			$value = call_user_func_array( $callback, array( $value ) );
 		}
 
-			return $value;
+		return $value;
 	}
 
 		/**

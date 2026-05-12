@@ -53,10 +53,19 @@ class UsageTrackingNoticeHandler extends AjaxHandler {
 		}
 
 		// Verify nonce for security.
-		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'])), 'masteriyo_allow_usage_notice_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'] ) ), 'masteriyo_allow_usage_notice_nonce' ) ) {
 			wp_send_json_error(
 				__( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ),
 				400
+			);
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to perform this action.', 'learning-management-system' ),
+				),
+				403
 			);
 		}
 

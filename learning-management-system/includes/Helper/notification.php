@@ -100,6 +100,18 @@ function masteriyo_set_notification( $id = null, $user_course = null, $result = 
 					$notification_obj->set_topic_url( home_url( '/account/#/assignments/' . $id ) );
 				}
 				break;
+
+			case 'lesson_comment':
+				if ( $id ) {
+					$comment = masteriyo_get_lesson_review( $id );
+					if ( $comment ) {
+						$lesson = masteriyo_get_lesson( $comment->get_lesson_id() );
+						if ( $lesson ) {
+							$notification_obj->set_topic_url( $lesson->get_learn_url() );
+						}
+					}
+				}
+				break;
 			default:
 				$notification_obj->set_topic_url( get_permalink( $course->get_id() ) );
 				break;
@@ -107,8 +119,6 @@ function masteriyo_set_notification( $id = null, $user_course = null, $result = 
 
 			$notification_obj->set_post_id( $course->get_id() );
 			$notification_obj->save();
-
-		$notification_obj->save();
 
 	} catch ( \Exception $e ) {
 		$notification_obj = null;

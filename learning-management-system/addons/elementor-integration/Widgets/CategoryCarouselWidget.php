@@ -438,7 +438,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 			),
 		);
 
-		printf( '<div class="masteriyo masteriyo-category-carousel" data-settings="%s">', esc_attr( wp_json_encode( $slider_data ) ) );
+		printf( '<div class="masteriyo masteriyo-container masteriyo-category-carousel" data-settings="%s">', esc_attr( wp_json_encode( $slider_data ) ) );
 		masteriyo_get_template( 'shortcodes/course-categories/list.php', $attrs );
 
 		if ( $show_carousel_scrollbar ) :

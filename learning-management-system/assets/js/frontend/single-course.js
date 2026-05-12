@@ -433,7 +433,11 @@
 				// Only hide review form if user has already reviewed.
 				if ('yes' === mto_data.user_already_reviewed) {
 					$('.masteriyo-submit-container').hide();
-					$('.masteriyo-single-body__main--review-form').hide();
+					// Exclude reply form wrappers — they share the same class but must remain functional.
+					var $mainReviewForm = $('.masteriyo-single-body__main--review-form').not(
+						'.masteriyo-reply-form .masteriyo-single-body__main--review-form'
+					);
+					$mainReviewForm.hide();
 
 					// Show message based on review status.
 					var message = '';
@@ -453,8 +457,8 @@
 							'</span></div>';
 
 						// Add message after the hidden form.
-						if ($('.masteriyo-single-body__main--review-form').length) {
-							$('.masteriyo-single-body__main--review-form').after(messageHtml);
+						if ($mainReviewForm.length) {
+							$mainReviewForm.after(messageHtml);
 						} else if ($('.masteriyo-submit-container').length) {
 							$('.masteriyo-submit-container').after(messageHtml);
 						}

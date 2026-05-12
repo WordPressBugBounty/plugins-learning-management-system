@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 				<?php
 				printf(
 					wp_kses_post( 'Help us improve the plugin\'s features by sharing %s non-sensitive plugin data %s with us. - %s Team', 'learning-management-system' ),
-					'<a href="https://docs.masteriyo.com/getting-started/allow-usage-tracking" target="_blank">',
+					'<a href="https://docs.masteriyo.com/getting-started/allow-usage-tracking" class="masteriyo-notice-link" target="_blank">',
 					'</a>',
 					'Masteriyo'
 				);

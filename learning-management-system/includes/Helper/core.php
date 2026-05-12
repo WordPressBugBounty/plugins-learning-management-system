@@ -3895,14 +3895,16 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 			),
 			'emails'         => array(
 				'admin'      => array(
-					'new_order'               => masteriyo_get_default_email_contents()['admin']['new_order'],
-					'instructor_apply'        => masteriyo_get_default_email_contents()['admin']['instructor_apply'],
-					'new_withdraw_request'    => masteriyo_get_default_email_contents()['admin']['new_withdraw_request'],
-					'instructor_registration' => masteriyo_get_default_email_contents()['admin']['instructor_registration'],
-					'student_registration'    => masteriyo_get_default_email_contents()['admin']['student_registration'],
-					'course_start'            => masteriyo_get_default_email_contents()['admin']['course_start'],
-					'course_completion'       => masteriyo_get_default_email_contents()['admin']['course_completion'],
-					'new_quiz_attempt'        => masteriyo_get_default_email_contents()['admin']['new_quiz_attempt'],
+					'new_order'                => masteriyo_get_default_email_contents()['admin']['new_order'],
+					'instructor_apply'         => masteriyo_get_default_email_contents()['admin']['instructor_apply'],
+					'new_withdraw_request'     => masteriyo_get_default_email_contents()['admin']['new_withdraw_request'],
+					'instructor_registration'  => masteriyo_get_default_email_contents()['admin']['instructor_registration'],
+					'student_registration'     => masteriyo_get_default_email_contents()['admin']['student_registration'],
+					'course_start'             => masteriyo_get_default_email_contents()['admin']['course_start'],
+					'course_completion'        => masteriyo_get_default_email_contents()['admin']['course_completion'],
+					'new_quiz_attempt'         => masteriyo_get_default_email_contents()['admin']['new_quiz_attempt'],
+					'new_lesson_comment'       => masteriyo_get_default_email_contents()['admin']['new_lesson_comment'],
+					'new_lesson_comment_reply' => masteriyo_get_default_email_contents()['admin']['new_lesson_comment_reply'],
 				),
 				'instructor' => array(
 					'instructor_registration'   => masteriyo_get_default_email_contents()['instructor']['instructor_registration'],
@@ -3914,6 +3916,8 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'withdraw_request_rejected' => masteriyo_get_default_email_contents()['instructor']['withdraw_request_rejected'],
 					'new_quiz_attempt'          => masteriyo_get_default_email_contents()['instructor']['new_quiz_attempt'],
 					'new_question'              => masteriyo_get_default_email_contents()['instructor']['new_question'],
+					'new_lesson_comment'        => masteriyo_get_default_email_contents()['instructor']['new_lesson_comment'],
+					'new_lesson_comment_reply'  => masteriyo_get_default_email_contents()['instructor']['new_lesson_comment_reply'],
 				),
 				'student'    => array(
 					'student_registration'       => masteriyo_get_default_email_contents()['student']['student_registration'],
@@ -3928,6 +3932,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'group_joining'              => masteriyo_get_default_email_contents()['student']['group_joining'],
 					'group_published'            => masteriyo_get_default_email_contents()['student']['group_published'],
 					'new_question_reply'         => masteriyo_get_default_email_contents()['student']['new_question_reply'],
+					'new_lesson_comment_reply'   => masteriyo_get_default_email_contents()['student']['new_lesson_comment_reply'],
 				),
 				'everyone'   => array(
 					'password_reset'     => masteriyo_get_default_email_contents()['everyone']['password_reset'],
@@ -3959,6 +3964,10 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'cancelled_order' => array(
 						'type'    => 'cancelled_order',
 						'content' => 'Your order is cancelled.',
+					),
+					'lesson_comment'  => array(
+						'type'    => 'lesson_comment',
+						'content' => 'You have a new reply to your comment.',
 					),
 				),
 			),
@@ -5920,7 +5929,7 @@ if ( ! function_exists( 'masteriyo_notify_pages_missing' ) ) {
 						if ( $onboarding_started ) {
 							$notice_message .= ' ' . sprintf(
 							/* translators: %s: "click here" link text */
-								__( 'Please configure it, or <a href="#" id="masteriyo-setup-pages">%s</a> to set it up automatically.', 'learning-management-system' ),
+								__( 'Please configure it, or <a href="#" id="masteriyo-setup-pages" class="masteriyo-notice-link">%s</a> to set it up automatically.', 'learning-management-system' ),
 								esc_html__( 'click here', 'learning-management-system' )
 							);
 						} else {
