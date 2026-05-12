@@ -1,4 +1,4 @@
-=== Masteriyo LMS – Online Course Builder for eLearning, LMS & Education ===
+=== Masteriyo LMS – LMS Course Builder, Quizzes & Certificates ===
 Contributors: Masteriyo, themeisle
 Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.5
@@ -8,7 +8,7 @@ Stable tag: 2.1.9
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-The complete WordPress LMS plugin for online courses. Build lessons, quizzes, assignments, and certificates. Sell courses with built-in payments.
+Complete WordPress LMS plugin. Build & sell online courses with quizzes, certificates, and built-in payments. The all-in-one LMS for course creators.
 
 == Description ==
 
@@ -22,6 +22,7 @@ Accept payments via Stripe, PayPal, Razorpay, Mollie, and more. Sell in multiple
 
 ### ⚡ Quick Links
 
+- [Try Masteriyo](https://app.instawp.io/launch?t=masteriyo-demo&d=v2)
 - [Live Demo](https://masteriyo-site.vertisite.cloud/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
 - [Masteriyo Pro](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
 - [Free vs Pro](https://masteriyo.com/free-vs-pro/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
@@ -218,6 +219,9 @@ From **WordPress.org**
 4. Certificate Builder
 5. Track sales, enrollments, and course performance
 6. Launch with Starter Templates
+7. Course Builder
+8. Integrations
+9. Student Learning Experience
 
 == Frequently Asked Questions ==
 
