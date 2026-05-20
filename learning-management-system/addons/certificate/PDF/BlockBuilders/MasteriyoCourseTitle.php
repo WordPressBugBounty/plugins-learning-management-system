@@ -29,6 +29,16 @@ class MasteriyoCourseTitle extends BlockBuilder {
 			$course_title = $course->get_title();
 		}
 
+		/**
+		 * Filters the course title before using in certificate.
+		 *
+		 * @since x.x.x
+		 *
+		 * @param string $course_title Course title.
+		 * @param \Masteriyo\Models\Course|null $course Course object.
+		 */
+		$course_title = apply_filters( 'masteriyo_certificate_course_title', $course_title, $course );
+
 		$html  = $block_data['innerHTML'];
 		$html  = str_replace( '{{masteriyo_course_title}}', $course_title, $html );
 		$html .= '<style>' . masteriyo_array_get( $block_data, 'attrs.blockCSS', '' ) . '</style>';

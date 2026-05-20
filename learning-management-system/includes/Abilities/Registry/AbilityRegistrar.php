@@ -13,7 +13,6 @@ namespace Masteriyo\Abilities\Registry;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Abilities\Contracts\AbilityInterface;
 
 /**
  * Orchestrates ability category and ability registration with WordPress.
@@ -59,10 +58,6 @@ class AbilityRegistrar {
 	 * @return void
 	 */
 	public function register_category(): void {
-		if ( ! function_exists( 'wp_register_ability_category' ) ) {
-			return;
-		}
-
 		wp_register_ability_category(
 			'masteriyo-lms',
 			array(
@@ -84,10 +79,6 @@ class AbilityRegistrar {
 	 * @return void
 	 */
 	public function register_all(): void {
-		if ( ! function_exists( 'wp_register_ability' ) ) {
-			return;
-		}
-
 		/**
 		 * Action: let addons append abilities before the registry is frozen.
 		 *

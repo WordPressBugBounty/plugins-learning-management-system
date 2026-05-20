@@ -198,11 +198,15 @@ class AbilitiesServiceProvider extends AbstractServiceProvider implements Bootab
 	 *
 	 * Ability objects are instantiated lazily inside the wp_abilities_api_init
 	 * hook (priority 5) so they are only allocated on sites that have the
-	 * Abilities API plugin installed. The registrar fires at priority 10.
+	 * Abilities API available (WordPress 6.9+). The registrar fires at priority 10.
 	 *
 	 * @since x.x.x
 	 */
 	public function boot(): void {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
+
 		$this->register();
 
 		$container = $this->getContainer();

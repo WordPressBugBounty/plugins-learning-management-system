@@ -1580,9 +1580,16 @@ class UsersController extends CrudController {
 			$user->set_auto_create_user( true );
 		}
 
-		// Allow set meta_data.
+		// Allow set meta_data, but block privileged keys for non-admins (defense-in-depth against privilege escalation).
 		if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
+			$privileged_meta_keys = $this->get_privileged_meta_keys();
 			foreach ( $request['meta_data'] as $meta ) {
+				if ( ! isset( $meta['key'] ) ) {
+					continue;
+				}
+				if ( in_array( sanitize_key( $meta['key'] ), $privileged_meta_keys, true ) && ! current_user_can( 'manage_options' ) ) {
+					continue;
+				}
 				$user->update_meta_data( $meta['key'], $meta['value'], isset( $meta['id'] ) ? $meta['id'] : '' );
 			}
 		}
@@ -2068,10 +2075,24 @@ class UsersController extends CrudController {
 
 		$request->set_param( 'id', $user->ID );
 
-		// It denies the updating of the role of from account profile update page (frontend).
+		// Deny role changes and privilege-escalation via meta_data for non-admins.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			$request->offsetUnset( 'role' );
 			$request->offsetUnset( 'roles' );
+
+			// Strip privileged keys from meta_data to prevent escalation via the meta_data bypass.
+			if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
+				$privileged_meta_keys = $this->get_privileged_meta_keys();
+				$filtered_meta        = array_values(
+					array_filter(
+						$request['meta_data'],
+						function ( $meta ) use ( $privileged_meta_keys ) {
+							return isset( $meta['key'] ) && ! in_array( sanitize_key( $meta['key'] ), $privileged_meta_keys, true );
+						}
+					)
+				);
+				$request->set_param( 'meta_data', $filtered_meta );
+			}
 		}
 
 		return $this->update_item( $request );
@@ -2159,6 +2180,34 @@ class UsersController extends CrudController {
 		} else {
 			return new WP_Error( 'deletion_failed', 'Failed to delete QR login link.', array( 'status' => 500 ) );
 		}
+	}
+
+	/**
+	 * Returns the list of user meta keys that non-admins must not write via meta_data.
+	 *
+	 * Blocks both the Masteriyo internal setter path (roles → set_roles()) and
+	 * the raw WordPress capability keys written directly to the user meta table, including
+	 * multisite table-prefixed variants. session_tokens is included to prevent
+	 * session fixation attacks via the meta_data parameter.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string[]
+	 */
+	protected function get_privileged_meta_keys() {
+		global $wpdb;
+		$prefix = $wpdb->get_blog_prefix();
+		return array(
+			'roles',
+			'role',
+			'capabilities',
+			'user_level',
+			'session_tokens',
+			'wp_capabilities',
+			'wp_user_level',
+			$prefix . 'capabilities',
+			$prefix . 'user_level',
+		);
 	}
 
 	/**

@@ -278,8 +278,6 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 			 */
 			do_action( 'masteriyo_delete_course_progress', $course_progress_item->get_id() );
 
-			$course_progress_item->set_status( 'trash' );
-
 			$this->clear_cache( $course_progress_item );
 		}
 	}

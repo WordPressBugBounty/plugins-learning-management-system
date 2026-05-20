@@ -6,7 +6,9 @@
  * @package Masteriyo\Helper
  */
 
-defined( 'ABSPATH' ) || exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 /**
  * Build the raw pipe-delimited payload string for token signing.
@@ -55,7 +57,7 @@ function masteriyo_generate_student_preview_token( int $course_id, int $user_id,
  * @return bool
  */
 function masteriyo_validate_student_preview_token( string $token, int $course_id ): bool {
-	$decoded = base64_decode( str_pad( $token, strlen( $token ) + ( 4 - strlen( $token ) % 4 ) % 4, "=" ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+	$decoded = base64_decode( str_pad( $token, strlen( $token ) + ( 4 - strlen( $token ) % 4 ) % 4, '=' ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 	if ( false === $decoded ) {
 		return false;
 	}
@@ -77,7 +79,7 @@ function masteriyo_validate_student_preview_token( string $token, int $course_id
 	if ( (int) $token_course_id !== $course_id ) {
 		return false;
 	}
-	if ( (int) $user_id !== get_current_user_id() ) {
+	if ( get_current_user_id() !== (int) $user_id ) {
 		return false;
 	}
 	if ( time() > (int) $expiry ) {
@@ -529,10 +531,10 @@ function masteriyo_handle_student_preview_token(): void {
 			// Mint fresh auth cookies for the original admin (original session stays
 			// valid for other devices; this creates an additional session).
 			wp_set_auth_cookie( $admin_id, false, is_ssl() );
-			wp_safe_redirect( $return_url ?: admin_url() );
+			wp_safe_redirect( $return_url ? $return_url : admin_url() );
 		} else {
 			// Admin session was destroyed — redirect to login, pre-filling the return URL.
-			wp_safe_redirect( wp_login_url( $return_url ?: admin_url() ) );
+			wp_safe_redirect( wp_login_url( $return_url ? $return_url : admin_url() ) );
 		}
 		exit;
 	}
@@ -672,7 +674,7 @@ add_filter(
 			$course_ids
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$demo_count = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_user_items
@@ -682,6 +684,7 @@ add_filter(
 				...$args
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return max( 0, $count - $demo_count );
 	},

@@ -2,9 +2,9 @@
 Contributors: Masteriyo, themeisle
 Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,6 +295,14 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.2.1 - 20-05-2026 =
+- Compatibility - WordPress v7.0 compatible.
+- Update - Added filters for certificate course title and completion date smart tags.
+- Update - Upgraded Isolated block editor version to v2.30.0.
+- Fix - Enhance security for user course progress and user role.
+- Fix - Skip abilities layer below WordPress v6.9.
+- Fix - Allow admin with instructor role to list all course Q&A.
+
 = 2.2.0 - 12-05-2026 =
 - Feature - Added 'View as Student' option for admins and instructors to preview the student experience.
 - Feature - Exposed full CRUD abilities for Course, Section, Lesson, Quiz, Question, Enrollment, Order, User, and Settings via the WP Abilities API.
@@ -319,18 +327,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Fixed user being unable to reply to reviews after submitting their own review.
 - Fix - Fixed quiz questions not loading for guest users on open access courses.
 - Fix - Fixed incorrect redirect to first step after Stripe Connect on onboarding.
-
-= 2.1.9 - 04-05-2026 =
-- Enhancement - Load Masteriyo public CSS only on Masteriyo-related content pages.
-- Fix - Enhance security.
-- Fix - Log email delivery failures silently through the Masteriyo logger.
-- Fix - Courses shortcode rendering private courses to non-enrolled users.
-- Fix - Course Bundles shortcode rendering private courses to non-enrolled users. [PRO]
-- Fix - Exclude Learn and Account pages from cache plugins.
-- Fix - Show contextual error notices on Learn page redirects.
-- Fix - Block paid course access for logged-in users without a student role.
-- Fix - Randomize Questions setting not applied on Learn page quiz.
-- Fix - Course featured image missing in Course Bundle editor. [PRO]
-- Fix - Group enrollment course selector not listing courses with tiered pricing. [PRO]
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

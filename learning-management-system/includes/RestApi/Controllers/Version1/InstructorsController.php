@@ -384,9 +384,16 @@ class InstructorsController extends UsersController {
 			$instructor->set_billing_phone( $request['billing']['phone'] );
 		}
 
-		// Allow set meta_data.
+		// Allow set meta_data, but block privileged keys for non-admins (defense-in-depth against privilege escalation).
 		if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
+			$privileged_meta_keys = $this->get_privileged_meta_keys();
 			foreach ( $request['meta_data'] as $meta ) {
+				if ( ! isset( $meta['key'] ) ) {
+					continue;
+				}
+				if ( in_array( sanitize_key( $meta['key'] ), $privileged_meta_keys, true ) && ! current_user_can( 'manage_options' ) ) {
+					continue;
+				}
 				$instructor->update_meta_data( $meta['key'], $meta['value'], isset( $meta['id'] ) ? $meta['id'] : '' );
 			}
 		}

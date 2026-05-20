@@ -1,4 +1,12 @@
 == Changelog ==
+= 2.2.1 - 20-05-2026 =
+- Compatibility - WordPress v7.0 compatible.
+- Update - Added filters for certificate course title and completion date smart tags.
+- Update - Upgraded Isolated block editor version to v2.30.0.
+- Fix - Enhance security for user course progress and user role.
+- Fix - Skip abilities layer below WordPress v6.9.
+- Fix - Allow admin with instructor role to list all course Q&A.
+
 = 2.2.0 - 12-05-2026 =
 - Feature - Added 'View as Student' option for admins and instructors to preview the student experience.
 - Feature - Exposed full CRUD abilities for Course, Section, Lesson, Quiz, Question, Enrollment, Order, User, and Settings via the WP Abilities API.

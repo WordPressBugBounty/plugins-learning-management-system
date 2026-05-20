@@ -286,7 +286,7 @@ class CourseQuestionAnswersController extends CommentsController {
 		$request   = masteriyo_current_http_request();
 		$course_id = isset( $request['course_id'] ) ? $request['course_id'] : 0;
 
-		if ( masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
 			$course_ids             = masteriyo_get_instructor_course_ids();
 			$course_ids             = empty( $course_ids ) ? array( 0 ) : $course_ids;
 			$query_args['post__in'] = $course_ids;
@@ -874,7 +874,7 @@ class CourseQuestionAnswersController extends CommentsController {
 		$course_id  = isset( $request['course_id'] ) ? $request['course_id'] : 0;
 		$course_ids = array();
 
-		if ( masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
 			$course_ids = masteriyo_get_instructor_course_ids();
 			$course_ids = empty( $course_ids ) ? array( 0 ) : $course_ids;
 		}

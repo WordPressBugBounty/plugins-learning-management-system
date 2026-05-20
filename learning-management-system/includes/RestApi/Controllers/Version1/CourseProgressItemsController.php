@@ -11,6 +11,7 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\CourseProgressItemType;
 use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\ModelException;
@@ -698,6 +699,7 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to read item.
 	 *
 	 * @since 1.0.0
+	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -714,6 +716,32 @@ class CourseProgressItemsController extends CrudController {
 			return true;
 		}
 
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		$item = masteriyo_get_course_progress_item( absint( $request['id'] ) );
+
+		if ( ! is_object( $item ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_id',
+				__( 'Invalid ID.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( get_current_user_id() !== $item->get_user_id() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -721,6 +749,7 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to read items.
 	 *
 	 * @since 1.0.0
+	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -737,6 +766,14 @@ class CourseProgressItemsController extends CrudController {
 			return true;
 		}
 
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -744,6 +781,7 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to create an item.
 	 *
 	 * @since 1.0.0
+	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -760,6 +798,20 @@ class CourseProgressItemsController extends CrudController {
 			return true;
 		}
 
+		$course = masteriyo_get_course( absint( $request['course_id'] ) );
+
+		if ( $course && CourseAccessMode::OPEN === $course->get_access_mode() ) {
+			return true;
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_create',
+				__( 'Sorry, you are not allowed to create resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -767,6 +819,7 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to create/update an item.
 	 *
 	 * @since 1.0.0
+	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -783,6 +836,24 @@ class CourseProgressItemsController extends CrudController {
 			return true;
 		}
 
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		$item = masteriyo_get_course_progress_item( absint( $request['id'] ) );
+
+		if ( is_object( $item ) && get_current_user_id() !== $item->get_user_id() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -790,6 +861,7 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to delete an item.
 	 *
 	 * @since 1.0.0
+	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -799,6 +871,28 @@ class CourseProgressItemsController extends CrudController {
 			return new \WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+			);
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_delete',
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		$item = masteriyo_get_course_progress_item( absint( $request['id'] ) );
+
+		if ( is_object( $item ) && get_current_user_id() !== $item->get_user_id() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_delete',
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 

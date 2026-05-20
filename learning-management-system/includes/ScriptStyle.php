@@ -76,7 +76,6 @@ class ScriptStyle {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'load_admin_scripts_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'load_public_localized_scripts' ), PHP_INT_MAX - 9 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'load_admin_localized_scripts' ) );
-		add_action( 'current_screen', array( __CLASS__, 'override_wp_private_apis_script' ) );
 
 		// Remove third party styles from learn page.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_styles_from_learn_page' ), PHP_INT_MAX );
@@ -348,19 +347,6 @@ class ScriptStyle {
 		);
 
 		self::load_custom_inline_styles();
-	}
-
-	/**
-	 * Override wp private apis script.
-	 *
-	 * @since 1.7.3
-	 */
-	public static function override_wp_private_apis_script() {
-		if ( 'toplevel_page_masteriyo' === get_current_screen()->id && ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) || version_compare( get_bloginfo( 'version' ), '6.6', '>=' ) ) ) {
-			$suffix = SCRIPT_DEBUG ? '.js' : '.min.js';
-			wp_deregister_script( 'wp-private-apis' );
-			wp_register_script( 'wp-private-apis', plugins_url( 'libs/private-apis' . $suffix, MASTERIYO_PLUGIN_FILE ), array(), MASTERIYO_VERSION, true );
-		}
 	}
 
 	/**

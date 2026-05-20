@@ -51,6 +51,18 @@ class MasteriyoCourseCompletionDate extends BlockBuilder {
 			}
 		}
 
+		/**
+		 * Filters the course completion date before using in certificate.
+		 *
+		 * @since x.x.x
+		 *
+		 * @param string $completion_date Formatted completion date.
+		 * @param string $date_format Date format string.
+		 * @param int $student_id Student user ID.
+		 * @param int $course_id Course ID.
+		 */
+		$completion_date = apply_filters( 'masteriyo_certificate_course_completion_date', $completion_date, $date_format, $student_id, $course_id );
+
 		$html  = str_replace( '{{masteriyo_course_completion_date}}', $completion_date, $block_data['innerHTML'] );
 		$html .= '<style>' . masteriyo_array_get( $block_data, 'attrs.blockCSS', '' ) . '</style>';
 		return $html;
