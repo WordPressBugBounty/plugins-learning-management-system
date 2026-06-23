@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseOverviewWidget extends WidgetBase {
+class CourseOverviewWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -122,8 +122,15 @@ class CourseOverviewWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
-		masteriyo_single_course_overview( $course );
+
+		$this->render_buffered_or_notice(
+			function () use ( $course ) {
+				masteriyo_single_course_overview( $course );
+			},
+			__( 'Course overview will display here when a description is added to the course.', 'learning-management-system' )
+		);
 	}
 }

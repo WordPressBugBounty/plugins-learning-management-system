@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CategoriesOfCourseWidget extends WidgetBase {
+class CategoriesOfCourseWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -191,7 +191,14 @@ class CategoriesOfCourseWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( $course ) {
-			masteriyo_single_course_categories( $course );
+			$this->render_buffered_or_notice(
+				function () use ( $course ) {
+					masteriyo_single_course_categories( $course );
+				},
+				__( 'Course categories will display here when categories are assigned to the course.', 'learning-management-system' )
+			);
+		} else {
+			$this->render_no_course_notice();
 		}
 	}
 }

@@ -48,6 +48,15 @@ class CertificatesController extends PostsController {
 	protected $post_type = 'mto-certificate';
 
 	/**
+	 * Content format to scope the current collection query and counts by.
+	 *
+	 * @since x.x.x
+	 *
+	 * @var string
+	 */
+	protected $content_format_filter = '';
+
+	/**
 	 * If object is hierarchical.
 	 *
 	 * @var bool
@@ -263,6 +272,49 @@ class CertificatesController extends PostsController {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/pdfdraft-preview-data',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Certificate ID.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_pdfdraft_preview_data' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/pdfdraft-preview',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Certificate ID.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_pdfdraft_preview' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+					'args'                => array(
+						'rendered_html' => array(
+							'description' => __( 'Rendered HTML snapshot from the designer canvas.', 'learning-management-system' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/samples',
 			array(
 				array(
@@ -319,6 +371,49 @@ class CertificatesController extends PostsController {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/pdfdraft-inline-images',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'inline_pdfdraft_images_for_preview' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Return the design with remote image URLs inlined as base64 data URIs, so the
+	 * editor's client-side Preview/Export (PDFExporter) renders cross-origin/CDN
+	 * images without canvas tainting.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function inline_pdfdraft_images_for_preview( $request ) {
+		$params   = $request->get_json_params();
+		$pages    = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : array();
+		$settings = isset( $params['settings'] ) && is_array( $params['settings'] ) ? $params['settings'] : array();
+
+		$certificate_pdf = new \Masteriyo\Addons\Certificate\PDF\CertificatePDF( 0, get_current_user_id(), '' );
+		$design          = $certificate_pdf->inline_pdfdraft_remote_images(
+			array(
+				'pages'    => $pages,
+				'settings' => $settings,
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'pages'    => isset( $design['pages'] ) ? $design['pages'] : $pages,
+				'settings' => isset( $design['settings'] ) ? $design['settings'] : $settings,
+			)
+		);
 	}
 
 	/**
@@ -372,6 +467,109 @@ class CertificatesController extends PostsController {
 	}
 
 	/**
+	 * Return resolved field values for the PDFDraft certificate preview.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function get_pdfdraft_preview_data( $request ) {
+		$certificate_id = absint( $request['id'] );
+		$date_format    = get_option( 'date_format', 'F j, Y' );
+		$time_format    = get_option( 'time_format', 'g:i a' );
+
+		$data = array(
+			'site_name'         => get_bloginfo( 'name' ),
+			'current_date'      => date_i18n( $date_format ),
+			'current_time'      => date_i18n( $time_format ),
+			'current_timestamp' => date_i18n( $date_format . ' ' . $time_format ),
+			'course_title'      => '',
+			'instructor_name'   => '',
+			'course_duration'   => '',
+			'date_format'       => $date_format,
+			'time_format'       => $time_format,
+		);
+
+		// Find the course that has this certificate assigned.
+		$course_posts = get_posts(
+			array(
+				'post_type'      => 'mto-course',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => '_masteriyo_certificate_id',
+						'value'   => $certificate_id,
+						'compare' => '=',
+					),
+				),
+			)
+		);
+
+		if ( ! empty( $course_posts ) ) {
+			$course = masteriyo_get_course( $course_posts[0] );
+
+			if ( $course && ! is_wp_error( $course ) ) {
+				$data['course_title']    = $course->get_name();
+				$data['course_duration'] = masteriyo_minutes_to_time_length_string( $course->get_duration() );
+
+				$instructor = masteriyo_get_user( $course->get_author_id() );
+				if ( $instructor && ! is_wp_error( $instructor ) ) {
+					$data['instructor_name'] = $instructor->get_display_name();
+				}
+			}
+		}
+
+		// Fall back to the current admin user as instructor.
+		if ( empty( $data['instructor_name'] ) ) {
+			$current_user            = wp_get_current_user();
+			$data['instructor_name'] = $current_user->display_name ? $current_user->display_name : '';
+		}
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Generate a temporary preview URL for a pdfdraft certificate.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function create_pdfdraft_preview( $request ) {
+		$certificate_id = absint( $request['id'] );
+		$rendered_html  = $request->get_param( 'rendered_html' );
+
+		if ( empty( $rendered_html ) ) {
+			return new \WP_Error(
+				'masteriyo_empty_rendered_html',
+				__( 'rendered_html is required.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$token = wp_generate_uuid4();
+		set_transient(
+			'masteriyo_pdfdraft_preview_' . $token,
+			array(
+				'certificate_id' => $certificate_id,
+				'rendered_html'  => $rendered_html,
+			),
+			15 * MINUTE_IN_SECONDS
+		);
+
+		$preview_url = add_query_arg(
+			array( 'masteriyo_pdfdraft_preview' => $token ),
+			get_home_url()
+		);
+
+		return rest_ensure_response( array( 'url' => $preview_url ) );
+	}
+
+	/**
 	 * Get the query params for collections of download_materials.
 	 *
 	 * @since 1.13.0
@@ -391,6 +589,13 @@ class CertificatesController extends PostsController {
 			'description'       => __( 'Limit result set to certificates assigned a specific status.', 'learning-management-system' ),
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future', 'trash' ), array_keys( get_post_statuses() ) ),
+			'sanitize_callback' => 'sanitize_key',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$params['content_format'] = array(
+			'description'       => __( 'Limit result set to certificates with a specific content format.', 'learning-management-system' ),
+			'type'              => 'string',
+			'enum'              => array( 'gutenberg', 'pdfdraft' ),
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
@@ -490,11 +695,13 @@ class CertificatesController extends PostsController {
 			'preview_link'   => $certificate->get_post_preview_link(),
 			'edit_post_link' => $certificate->get_edit_post_link(),
 			'status'         => $certificate->get_status( $context ),
-			'html_content'   => 'view' === $context ? wpautop( do_shortcode( $certificate->get_html_content() ) ) : $certificate->get_html_content( $context ),
+			'html_content'   => ( 'view' === $context && 'pdfdraft' !== $certificate->get_content_format() ) ? wpautop( do_shortcode( $certificate->get_html_content() ) ) : $certificate->get_html_content( $context ),
 			'parent_id'      => $certificate->get_parent_id( $context ),
 			'author'         => $author,
 			'date_created'   => masteriyo_rest_prepare_date_response( $certificate->get_date_created( $context ) ),
 			'date_modified'  => masteriyo_rest_prepare_date_response( $certificate->get_date_modified( $context ) ),
+			'content_format' => $certificate->get_content_format( $context ),
+			'rendered_html'  => $certificate->get_rendered_html( $context ),
 		);
 
 		return $data;
@@ -519,7 +726,49 @@ class CertificatesController extends PostsController {
 			$args['author__in'] = array( 'author' => get_current_user_id() );
 		}
 
+		if ( ! empty( $request['content_format'] ) ) {
+			$this->content_format_filter = sanitize_key( $request['content_format'] );
+			$args['meta_query']          = $this->get_content_format_meta_query( $this->content_format_filter ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
 		return $args;
+	}
+
+	/**
+	 * Build the meta query that scopes certificates to a content format.
+	 *
+	 * Legacy certificates created before the pdfdraft builder may not have the
+	 * `_masteriyo_content_format` meta set, so the gutenberg filter also matches
+	 * certificates where that meta is missing.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $content_format 'gutenberg' or 'pdfdraft'.
+	 *
+	 * @return array
+	 */
+	protected function get_content_format_meta_query( $content_format ) {
+		if ( 'pdfdraft' === $content_format ) {
+			return array(
+				array(
+					'key'   => '_masteriyo_content_format',
+					'value' => 'pdfdraft',
+				),
+			);
+		}
+
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_masteriyo_content_format',
+				'value'   => 'pdfdraft',
+				'compare' => '!=',
+			),
+			array(
+				'key'     => '_masteriyo_content_format',
+				'compare' => 'NOT EXISTS',
+			),
+		);
 	}
 
 	/**
@@ -592,6 +841,18 @@ class CertificatesController extends PostsController {
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
+				'content_format'    => array(
+					'description' => __( 'Certificate content format (gutenberg or pdfdraft).', 'learning-management-system' ),
+					'type'        => 'string',
+					'default'     => 'gutenberg',
+					'enum'        => array( 'gutenberg', 'pdfdraft' ),
+					'context'     => array( 'view', 'edit' ),
+				),
+				'rendered_html'     => array(
+					'description' => __( 'Rendered HTML snapshot for pdfdraft certificates.', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
 				'parent_id'         => array(
 					'description' => __( 'Certificate parent ID', 'learning-management-system' ),
 					'type'        => 'integer',
@@ -650,11 +911,19 @@ class CertificatesController extends PostsController {
 			$certificate_repo->read( $certificate );
 		}
 
-		$count_posts = wp_count_posts( $this->post_type );
-		$status      = get_post_status( $id );
+		$status = get_post_status( $id );
+
+		$content_format = 'gutenberg';
+		if ( 0 !== $id ) {
+			$content_format = $certificate->get_content_format() ?: 'gutenberg';
+		}
+		if ( isset( $request['content_format'] ) ) {
+			$content_format = sanitize_key( $request['content_format'] );
+		}
+		$published_count = $this->count_published_by_format( $content_format );
 
 		if ( PostStatus::PUBLISH !== $status ) {
-			if ( ! $id && isset( $count_posts->publish ) && 2 <= $count_posts->publish && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] ) {
+			if ( ! $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && 2 <= $published_count ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_upgrade_required",
 					__( 'You cannot create more than two published templates in the free version. Please upgrade to Pro.', 'learning-management-system' ),
@@ -662,7 +931,7 @@ class CertificatesController extends PostsController {
 				);
 			}
 
-			if ( $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && isset( $count_posts->publish ) && 2 <= $count_posts->publish ) {
+			if ( $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && 2 <= $published_count ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_upgrade_required",
 					__( 'You cannot have more than two published templates in the free version. Please upgrade to Pro.', 'learning-management-system' ),
@@ -699,6 +968,16 @@ class CertificatesController extends PostsController {
 		// Certificate author ID.
 		if ( isset( $request['author_id'] ) ) {
 			$certificate->set_author_id( $request['author_id'] );
+		}
+
+		// Content format (gutenberg or pdfdraft).
+		if ( isset( $request['content_format'] ) ) {
+			$certificate->set_content_format( $request['content_format'] );
+		}
+
+		// Rendered HTML snapshot for pdfdraft certificates.
+		if ( isset( $request['rendered_html'] ) ) {
+			$certificate->set_rendered_html( $request['rendered_html'] );
 		}
 
 		// Allow set meta_data.
@@ -768,7 +1047,7 @@ class CertificatesController extends PostsController {
 	 * @return array
 	 */
 	protected function get_posts_count() {
-		$post_count        = parent::get_posts_count();
+		$post_count        = empty( $this->content_format_filter ) ? parent::get_posts_count() : $this->get_content_format_posts_count( $this->content_format_filter );
 		$post_count['any'] = array_sum( array( $post_count[ PostStatus::PUBLISH ], $post_count[ PostStatus::DRAFT ] ) );
 
 		/**
@@ -780,6 +1059,97 @@ class CertificatesController extends PostsController {
 		 * @param \Masteriyo\RestApi\Controllers\Version1\PostsController $controller Posts Controller.
 		 */
 		return apply_filters( "masteriyo_rest_{$this->object_type}_count", $post_count, $this );
+	}
+
+	/**
+	 * Count certificates per post status, scoped to a content format.
+	 *
+	 * Mirrors the status keys returned by wp_count_posts() so callers can treat
+	 * the result identically. Non-admins/non-managers are limited to their own
+	 * certificates, matching the parent count behaviour.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $content_format 'gutenberg' or 'pdfdraft'.
+	 *
+	 * @return array
+	 */
+	protected function get_content_format_posts_count( $content_format ) {
+		global $wpdb;
+
+		// Seed every known status with zero so missing rows don't trigger notices.
+		$counts = array();
+		foreach ( get_post_stati() as $status ) {
+			$counts[ $status ] = 0;
+		}
+
+		$author_where = '';
+		$author_args  = array();
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			$author_where = ' AND p.post_author = %d';
+			$author_args  = array( get_current_user_id() );
+		}
+
+		if ( 'pdfdraft' === $content_format ) {
+			$sql  = "SELECT p.post_status, COUNT( * ) AS num_posts
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON ( p.ID = pm.post_id AND pm.meta_key = %s AND pm.meta_value = %s )
+				WHERE p.post_type = %s{$author_where}
+				GROUP BY p.post_status";
+			$args = array_merge( array( '_masteriyo_content_format', 'pdfdraft', $this->post_type ), $author_args );
+		} else {
+			$sql  = "SELECT p.post_status, COUNT( * ) AS num_posts
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm ON ( p.ID = pm.post_id AND pm.meta_key = %s )
+				WHERE p.post_type = %s AND ( pm.meta_value IS NULL OR pm.meta_value <> %s ){$author_where}
+				GROUP BY p.post_status";
+			$args = array_merge( array( '_masteriyo_content_format', $this->post_type, 'pdfdraft' ), $author_args );
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results = $wpdb->get_results( $wpdb->prepare( $sql, $args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		foreach ( (array) $results as $row ) {
+			$counts[ $row->post_status ] = absint( $row->num_posts );
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Count published certificates of a specific content format.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $format 'pdfdraft' or 'gutenberg'.
+	 * @return int
+	 */
+	protected function count_published_by_format( $format ) {
+		global $wpdb;
+
+		if ( 'pdfdraft' === $format ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			return (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format' AND pm.meta_value = %s
+					WHERE p.post_type = %s AND p.post_status = 'publish'",
+					'pdfdraft',
+					$this->post_type
+				)
+			);
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format'
+				WHERE p.post_type = %s AND p.post_status = 'publish'
+				AND ( pm.meta_value IS NULL OR pm.meta_value != 'pdfdraft' )",
+				$this->post_type
+			)
+		);
 	}
 
 	/**
@@ -800,6 +1170,35 @@ class CertificatesController extends PostsController {
 		}
 
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Clone a certificate post.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int   $post_id Source post ID.
+	 * @param array $args    Override args for the new post.
+	 * @return \WP_Post|null
+	 */
+	public function clone( $post_id, $args = '' ) {
+		global $wpdb;
+
+		$content_format   = get_post_meta( absint( $post_id ), '_masteriyo_content_format', true );
+		$original_content = get_post_field( 'post_content', absint( $post_id ), 'raw' );
+
+		$new_post = parent::clone( $post_id, $args );
+
+		if ( $new_post && 'pdfdraft' === $content_format ) {
+			$wpdb->update(
+				$wpdb->posts,
+				array( 'post_content' => $original_content ),
+				array( 'ID' => $new_post->ID )
+			);
+			clean_post_cache( $new_post->ID );
+		}
+
+		return $new_post;
 	}
 
 	/**

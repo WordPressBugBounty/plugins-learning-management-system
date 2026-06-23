@@ -262,8 +262,9 @@ class OrderItemRepository extends AbstractRepository {
 	 * @return Masteriyo\Models\Order\OrderItem
 	 */
 	public function get_order_item_object( $item ) {
-		$type = trim( $item->order_item_type );
-		$type = empty( $type ) ? 'course' : $type;
+		$type     = trim( $item->order_item_type );
+		$type     = empty( $type ) ? 'course' : $type;
+		$item_obj = null;
 
 		try {
 			$item_obj = masteriyo( "order-item.{$type}" );

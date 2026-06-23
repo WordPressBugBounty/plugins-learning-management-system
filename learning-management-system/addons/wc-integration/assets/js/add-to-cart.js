@@ -79,7 +79,7 @@
 			var productID = url.searchParams.get('add-to-cart');
 
 			if (!productID) {
-				console.warn('Product ID is missing.');
+				window.location.href = $button.attr('href');
 				return;
 			}
 
@@ -107,8 +107,18 @@
 					}
 				},
 				error: function (jqXHR) {
-					console.error('AJAX error:', jqXHR);
 					$button.text(masteriyoData.addToCartText);
+					// Redirect to login when guest checkout is disabled (401).
+					if (
+						jqXHR.status === 401 &&
+						jqXHR.responseJSON &&
+						jqXHR.responseJSON.data &&
+						jqXHR.responseJSON.data.redirect
+					) {
+						window.location.href = jqXHR.responseJSON.data.redirect;
+						return;
+					}
+					console.warn( 'Masteriyo add-to-cart error', jqXHR.status, jqXHR.responseJSON );
 				},
 				complete: function () {
 					$button.prop('disabled', false);

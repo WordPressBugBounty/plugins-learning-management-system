@@ -24,7 +24,10 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	 *
 	 * @var array
 	 */
-	protected $internal_meta_keys = array();
+	protected $internal_meta_keys = array(
+		'content_format' => '_masteriyo_content_format',
+		'rendered_html'  => '_masteriyo_rendered_html',
+	);
 
 	/**
 	 * Create a certificate in the database.
@@ -50,7 +53,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 					'post_status'   => $certificate->get_status() ? $certificate->get_status() : PostStatus::PUBLISH,
 					'post_author'   => $certificate->get_author_id(),
 					'post_title'    => $certificate->get_name() ? $certificate->get_name() : __( 'Certificate', 'learning-management-system' ),
-					'post_content'  => $certificate->get_html_content(),
+					'post_content'  => wp_slash( $certificate->get_html_content() ),
 					'post_parent'   => $certificate->get_parent_id(),
 					'ping_status'   => 'closed',
 					'post_date'     => gmdate( 'Y-m-d H:i:s', $certificate->get_date_created( 'edit' )->getOffsetTimestamp() ),
@@ -94,7 +97,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 		$certificate_post = get_post( $certificate->get_id() );
 
 		if ( ! $certificate->get_id() || ! $certificate_post || 'mto-certificate' !== $certificate_post->post_type ) {
-			throw new \Exception( __( 'Invalid certificate.', 'learning-management-system' ) );
+			throw new \Exception( __( 'Invalid certificate.', 'learning-management-system' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		$certificate->set_props(
@@ -165,7 +168,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			 * This ensures hooks are fired by either WP itself (admin screen save),
 			 * or an update purely from CRUD.
 			 */
-			if ( doing_action( 'save_post' ) ) {
+			if ( doing_action( 'save_post' ) || 'pdfdraft' === $certificate->get_content_format() ) {
 				// TODO Abstract the $wpdb WordPress class.
 				$GLOBALS['wpdb']->update( $GLOBALS['wpdb']->posts, $post_data, array( 'ID' => $certificate->get_id() ) );
 				clean_post_cache( $certificate->get_id() );
@@ -298,6 +301,9 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
 			$set_props[ $prop ] = maybe_unserialize( $meta_value ); // get_post_meta only unserializes single values.
 		}
+
+		$set_props['content_format'] = $set_props['content_format'] ?? 'gutenberg';
+		$set_props['rendered_html']  = $set_props['rendered_html'] ?? '';
 
 		$certificate->set_props( $set_props );
 	}

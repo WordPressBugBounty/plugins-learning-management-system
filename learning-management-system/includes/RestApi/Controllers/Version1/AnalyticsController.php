@@ -60,6 +60,22 @@ class AnalyticsController extends CrudController {
 		add_action( 'masteriyo_new_user_course', array( $this, 'delete_user_courses_related_cache_keys' ), 10, 2 );
 		add_action( 'masteriyo_update_user_course', array( $this, 'delete_user_courses_related_cache_keys' ), 10, 2 );
 		add_action( 'masteriyo_delete_user_course', array( $this, 'delete_user_courses_related_cache_keys' ), 10, 2 );
+
+		add_action( 'masteriyo_new_course', array( $this, 'delete_courses_list_cache' ), 10 );
+		add_action( 'masteriyo_update_course', array( $this, 'delete_courses_list_cache' ), 10 );
+		add_action( 'masteriyo_trash_course', array( $this, 'delete_courses_list_cache' ), 10 );
+	}
+
+	/**
+	 * Clears the cached course ID list used by analytics queries.
+	 * Fires when any course is created, updated, or trashed.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	public function delete_courses_list_cache() {
+		masteriyo_transient_cache()->clear_caches( 'analytics_courses_list_group' );
 	}
 
 	/**
@@ -152,23 +168,28 @@ class AnalyticsController extends CrudController {
 	 * @return \WP_REST_Response
 	 */
 	protected function prepare_items_for_response( \WP_REST_Request $request ) {
-		$start_date = $request->get_param( 'start_date' );
-		$end_date   = $request->get_param( 'end_date' );
+		$start_date = masteriyo_analytics_normalize_datetime( $request->get_param( 'start_date' ), 'start' );
+		$end_date   = masteriyo_analytics_normalize_datetime( $request->get_param( 'end_date' ), 'end' );
 		$items      = array();
 
-		$courses_data = $this->get_courses_data();
-		$course_ids   = $courses_data['ids'];
+		$courses_data    = $this->get_courses_data();
+		$course_ids      = $courses_data['ids'];
+		$course_id_param = absint( $request->get_param( 'course_id' ) );
+
+		if ( $course_id_param && in_array( $course_id_param, $course_ids, true ) ) {
+			$course_ids = array( $course_id_param );
+		}
 
 		$items['courses'] = array(
-			'total' => $courses_data['total'],
+			'total' => $this->get_courses_count( $course_ids, $start_date, $end_date ),
 		);
 
-		$items['lessons']           = $this->get_lessons_data( $course_ids );
-		$items['quizzes']           = $this->get_quizzes_data( $course_ids );
-		$items['questions']         = $this->get_questions_data( $course_ids );
-		$items['questions_answers'] = $this->get_questions_answers_data( $course_ids );
-		$items['reviews']           = $this->get_reviews_data( $course_ids );
-		$items['instructors']       = $this->get_instructors_data();
+		$items['lessons']           = $this->get_lessons_data( $course_ids, $start_date, $end_date );
+		$items['quizzes']           = $this->get_quizzes_data( $course_ids, $start_date, $end_date );
+		$items['questions']         = $this->get_questions_data( $course_ids, $start_date, $end_date );
+		$items['questions_answers'] = $this->get_questions_answers_data( $course_ids, $start_date, $end_date );
+		$items['reviews']           = $this->get_reviews_data( $course_ids, $start_date, $end_date );
+		$items['instructors']       = $this->get_instructors_data( $start_date, $end_date );
 		$items['user_courses']      = $this->get_enrolled_courses_data( $course_ids, $start_date, $end_date );
 
 		/**
@@ -190,20 +211,33 @@ class AnalyticsController extends CrudController {
 	 * @return array
 	 */
 	protected function get_courses_data() {
+		$is_admin_or_manager = masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager();
+		$cache_key           = 'analytics_course_ids_' . ( $is_admin_or_manager ? 'all' : get_current_user_id() );
+		$cache               = masteriyo_transient_cache();
+		$cached              = $cache->get_cache( $cache_key, 'analytics_courses_list_group' );
+
+		if ( ! is_null( $cached ) ) {
+			return $cached;
+		}
+
 		$query = new \WP_Query(
 			array(
 				'post_status'    => PostStatus::PUBLISH,
 				'post_type'      => PostType::COURSE,
 				'posts_per_page' => -1,
-				'author'         => masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ? null : get_current_user_id(),
+				'author'         => $is_admin_or_manager ? null : get_current_user_id(),
 				'fields'         => 'ids',
 			)
 		);
 
-		return array(
+		$result = array(
 			'ids'   => $query->posts,
 			'total' => $query->post_count,
 		);
+
+		$cache->set_cache( $cache_key, $result, DAY_IN_SECONDS, 'analytics_courses_list_group' );
+
+		return $result;
 	}
 
 	/**
@@ -215,7 +249,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_lessons_data( $course_ids ) {
+	protected function get_lessons_data( $course_ids, $start_date = null, $end_date = null ) {
 		$data = array(
 			'total' => 0,
 		);
@@ -233,6 +267,7 @@ class AnalyticsController extends CrudController {
 							'compare' => 'IN',
 						),
 					),
+					'date_query'     => $this->analytics_date_query( $start_date, $end_date ),
 					'fields'         => 'ids',
 				)
 			);
@@ -251,7 +286,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_quizzes_data( $course_ids ) {
+	protected function get_quizzes_data( $course_ids, $start_date = null, $end_date = null ) {
 		$data = array(
 			'total' => 0,
 		);
@@ -269,6 +304,7 @@ class AnalyticsController extends CrudController {
 							'compare' => 'IN',
 						),
 					),
+					'date_query'     => $this->analytics_date_query( $start_date, $end_date ),
 					'fields'         => 'ids',
 				)
 			);
@@ -287,7 +323,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_questions_data( $course_ids ) {
+	protected function get_questions_data( $course_ids, $start_date = null, $end_date = null ) {
 		$data = array(
 			'total' => 0,
 		);
@@ -305,6 +341,7 @@ class AnalyticsController extends CrudController {
 							'compare' => 'IN',
 						),
 					),
+					'date_query'     => $this->analytics_date_query( $start_date, $end_date ),
 					'fields'         => 'ids',
 				)
 			);
@@ -323,19 +360,35 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_instructors_data() {
+	protected function get_instructors_data( $start_date = null, $end_date = null ) {
+		$cache     = masteriyo_transient_cache();
+		$range_key = ( $start_date && $end_date )
+			? gmdate( 'Y-m-d', strtotime( $start_date ) ) . '_' . gmdate( 'Y-m-d', strtotime( $end_date ) )
+			: 'all';
+		$cache_key = 'analytics_instructors_count_' . $range_key;
+		$cached    = $cache->get_cache( $cache_key, 'analytics_user_courses_group' );
+
+		if ( ! is_null( $cached ) ) {
+			return $cached;
+		}
+
 		$query = new \WP_User_Query(
 			array(
 				'role'        => Roles::INSTRUCTOR,
 				'number'      => 1,
 				'fields'      => 'ids',
 				'count_total' => true,
+				'date_query'  => $this->analytics_date_query( $start_date, $end_date, 'user_registered' ),
 			)
 		);
 
-		return array(
+		$result = array(
 			'total' => $query->get_total(),
 		);
+
+		$cache->set_cache( $cache_key, $result, HOUR_IN_SECONDS, 'analytics_user_courses_group' );
+
+		return $result;
 	}
 
 
@@ -348,7 +401,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_reviews_data( $course_ids ) {
+	protected function get_reviews_data( $course_ids, $start_date = null, $end_date = null ) {
 		$data = array(
 			'total' => 0,
 		);
@@ -356,11 +409,12 @@ class AnalyticsController extends CrudController {
 		if ( $course_ids ) {
 			$query         = new \WP_Comment_Query(
 				array(
-					'type'     => CommentType::COURSE_REVIEW,
-					'status'   => CommentStatus::APPROVE_STR,
-					'post__in' => $course_ids,
-					'count'    => true,
-					'number'   => 1,
+					'type'       => CommentType::COURSE_REVIEW,
+					'status'     => CommentStatus::APPROVE_STR,
+					'post__in'   => $course_ids,
+					'count'      => true,
+					'number'     => 1,
+					'date_query' => $this->analytics_date_query( $start_date, $end_date ),
 				)
 			);
 			$data['total'] = $query->get_comments();
@@ -379,7 +433,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @since 1.13.0
 	 *
-	 * @param mixed $id The ID of the user courses related cache key.
+	 * @param mixed                        $id          The ID of the user courses related cache key.
 	 * @param \Masteriyo\Models\UserCourse $user_course An instance of the \Masteriyo\Models\UserCourse class.
 	 *
 	 * @return void
@@ -397,21 +451,88 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @since 1.13.0
 	 *
-	 * @param int|null $user_id The ID of the user (default: null)
+	 * @param int|null    $user_id    The ID of the user (default: null)
 	 * @param string|null $start_date The start date for the analytics data (default: null)
-	 * @param string|null $end_date The end date for the analytics data (default: null)
+	 * @param string|null $end_date   The end date for the analytics data (default: null)
+	 * @param array       $course_ids The course IDs the data is scoped to (default: empty).
 	 *
 	 * @return array An array of cache keys for analytics data
 	 */
-	private function analytics_cache_keys( $user_id = null, $start_date = null, $end_date = null ) {
+	private function analytics_cache_keys( $user_id = null, $start_date = null, $end_date = null, $course_ids = array() ) {
 		$is_admin_or_manager  = masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager();
 		$current_user_id      = $user_id ? $user_id : get_current_user_id();
 		$start_date_formatted = $start_date ? gmdate( 'Y-m-d', strtotime( $start_date ) ) : 'no_start_date';
 		$end_date_formatted   = $end_date ? gmdate( 'Y-m-d', strtotime( $end_date ) ) : 'no_end_date';
+		$course_key           = empty( $course_ids ) ? 'all' : md5( implode( ',', array_map( 'absint', (array) $course_ids ) ) );
 
 		return array(
-			'enrolled_courses_data' => 'analytics_enrolled_courses_data_' . ( $is_admin_or_manager ? 'all_' : $current_user_id . '_' ) . $start_date_formatted . '_' . $end_date_formatted,
+			'enrolled_courses_data' => 'analytics_enrolled_courses_data_' . ( $is_admin_or_manager ? 'all_' : $current_user_id . '_' ) . $start_date_formatted . '_' . $end_date_formatted . '_' . $course_key,
 		);
+	}
+
+	/**
+	 * Build a WP date_query clause for the given range, or empty when no range is set.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string|null $start  Normalized start date ('Y-m-d H:i:s') or null.
+	 * @param string|null $end    Normalized end date ('Y-m-d H:i:s') or null.
+	 * @param string      $column Optional date column to filter on (e.g. 'user_registered').
+	 *
+	 * @return array
+	 */
+	private function analytics_date_query( $start, $end, $column = '' ) {
+		if ( ! $start || ! $end ) {
+			return array();
+		}
+
+		$clause = array(
+			'after'     => $start,
+			'before'    => $end,
+			'inclusive' => true,
+		);
+
+		if ( $column ) {
+			$clause['column'] = $column;
+		}
+
+		return array( $clause );
+	}
+
+	/**
+	 * Count courses created within the date range, scoped to the given course IDs.
+	 *
+	 * Falls back to the full count of $course_ids when no date range is supplied.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array       $course_ids Course IDs that form the filter base.
+	 * @param string|null $start_date Normalized start date ('Y-m-d H:i:s') or null.
+	 * @param string|null $end_date   Normalized end date ('Y-m-d H:i:s') or null.
+	 *
+	 * @return int
+	 */
+	private function get_courses_count( $course_ids, $start_date = null, $end_date = null ) {
+		if ( empty( $course_ids ) ) {
+			return 0;
+		}
+
+		if ( ! $start_date || ! $end_date ) {
+			return count( $course_ids );
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_status'    => PostStatus::PUBLISH,
+				'post_type'      => PostType::COURSE,
+				'post__in'       => $course_ids,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'date_query'     => $this->analytics_date_query( $start_date, $end_date ),
+			)
+		);
+
+		return (int) $query->found_posts;
 	}
 
 	/**
@@ -423,7 +544,7 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @return array
 	 */
-	protected function get_questions_answers_data( $course_ids ) {
+	protected function get_questions_answers_data( $course_ids, $start_date = null, $end_date = null ) {
 		$data = array(
 			'total' => 0,
 		);
@@ -431,11 +552,12 @@ class AnalyticsController extends CrudController {
 		if ( $course_ids ) {
 			$query         = new \WP_Comment_Query(
 				array(
-					'type'     => CommentType::COURSE_QA,
-					'status'   => CommentStatus::APPROVE_STR,
-					'count'    => true,
-					'post__in' => $course_ids,
-					'number'   => 1,
+					'type'       => CommentType::COURSE_QA,
+					'status'     => CommentStatus::APPROVE_STR,
+					'count'      => true,
+					'post__in'   => $course_ids,
+					'number'     => 1,
+					'date_query' => $this->analytics_date_query( $start_date, $end_date ),
 				)
 			);
 			$data['total'] = $query->get_comments();
@@ -449,12 +571,12 @@ class AnalyticsController extends CrudController {
 	 *
 	 * @since 1.6.7
 	 *
-	 * @param \WP_REST_Request $request Request.
+	 * @param  \WP_REST_Request $request Request.
 	 * @return array
 	 */
 	protected function get_enrolled_courses_data( $course_ids, $start_date, $end_date ) {
 		$cache     = masteriyo_transient_cache();
-		$cache_key = $this->analytics_cache_keys( null, $start_date, $end_date )['enrolled_courses_data'];
+		$cache_key = $this->analytics_cache_keys( null, $start_date, $end_date, $course_ids )['enrolled_courses_data'];
 		$data      = $cache->get_cache( $cache_key, 'analytics_user_courses_group' );
 
 		if ( ! is_null( $data ) ) {
@@ -465,29 +587,46 @@ class AnalyticsController extends CrudController {
 
 		$data = array();
 
-		$data['total']    = masteriyo_get_user_courses_count_by_course( $course_ids );
-		$data['students'] = masteriyo_count_enrolled_users( $course_ids );
+		$data['total']    = masteriyo_get_user_courses_count_by_course( $course_ids, $start_date, $end_date );
+		$data['students'] = masteriyo_count_enrolled_users( $course_ids, $start_date, $end_date );
 
 		if ( $course_ids ) {
 			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+			$placeholders = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
+
+			// Clamp the series start to the first enrollment so very wide ranges
+			// (e.g. "All Time" starting in 2000) don't crush recent data into an
+			// invisible sliver — only kicks in when the requested start predates
+			// any enrollment, leaving normal ranges untouched.
+			$earliest = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT MIN(date_start)
+					FROM {$wpdb->prefix}masteriyo_user_items
+					WHERE item_id IN ($placeholders) AND status = %s",
+					array_merge( $course_ids, array( UserCourseStatus::ACTIVE ) )
+				)
+			);
+
+			if ( $earliest && strtotime( $earliest ) > strtotime( $start_date ) ) {
+				$start_date = gmdate( 'Y-m-d 00:00:00', strtotime( $earliest ) );
+			}
+
 			$data['data'] = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT DATE(date_start) as date, COUNT(*) as count
 					FROM {$wpdb->prefix}masteriyo_user_items
-					WHERE item_id IN (" . implode( ',', $course_ids ) . ')
+					WHERE item_id IN ($placeholders)
 					AND status = %s
 					AND DATE(date_start) >= %s AND DATE(date_start) <= %s
-					GROUP BY DATE(date_start)',
-					UserCourseStatus::ACTIVE,
-					$start_date,
-					$end_date
+					GROUP BY DATE(date_start)",
+					array_merge( $course_ids, array( UserCourseStatus::ACTIVE, $start_date, $end_date ) )
 				),
 				ARRAY_A
 			);
-			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 		}
 
-		$data['data'] = $this->format_series_data( $data['data'] ?? array(), $start_date, $end_date, '1 day' );
+		$data['data'] = $this->format_series_data( $data['data'] ?? array(), $start_date, $end_date );
 
 		$cache->set_cache( $cache_key, $data, DAY_IN_SECONDS, 'analytics_user_courses_group' );
 
@@ -495,44 +634,123 @@ class AnalyticsController extends CrudController {
 	}
 
 	/**
-	 * Format series data.
+	 * Format series data with automatic bucket coarsening.
 	 *
-	 * Prefills empty data with 0.
+	 * Folds sparse daily SQL rows into day/week/month buckets so large ranges
+	 * (e.g. "All Time") stay bounded to a few hundred points instead of one per day.
 	 *
 	 * @since 1.6.7
 	 *
-	 * @param array $data Table name.
-	 * @param DateTime $start Start date.
-	 * @param DateTime $end End date.
-	 * @param string $interval Interval.
+	 * @param array  $data  Rows with 'date' and 'count' keys.
+	 * @param string $start Start date string.
+	 * @param string $end   End date string.
+	 *
+	 * @return array
 	 */
-	protected function format_series_data( $data, $start, $end, $interval ) {
-		$start = new \DateTime( $start );
-		$end   = new \DateTime( $end );
+	protected function format_series_data( $data, $start, $end ) {
+		$bucket = $this->get_analytics_bucket_interval( $start, $end );
 
-		$end->modify( '+1 day' );
-
-		$interval       = \DateInterval::createFromDateString( $interval );
-		$period         = new \DatePeriod( $start, $interval, $end );
-		$formatted_data = array();
-
-		foreach ( $period as $date ) {
-			$date  = $date->format( 'Y-m-d' );
-			$found = array_search( $date, array_column( $data, 'date' ), true );
-
-			if ( false !== $found ) {
-				$data[ $found ]['count'] = absint( $data[ $found ]['count'] );
+		$acc = array();
+		foreach ( $data as $row ) {
+			if ( ! isset( $row['date'] ) ) {
+				continue;
 			}
+			$key = $this->get_analytics_bucket_key( new \DateTime( $row['date'] ), $bucket );
+			if ( ! isset( $acc[ $key ] ) ) {
+				$acc[ $key ] = 0;
+			}
+			$acc[ $key ] += (int) ( $row['count'] ?? 0 );
+		}
 
-			$formatted_data[] = wp_parse_args(
-				false !== $found ? $data[ $found ] : array(),
-				array(
-					'date'  => $date,
-					'count' => 0,
-				)
+		$formatted_data = array();
+		foreach ( $this->get_analytics_bucket_dates( $start, $end, $bucket ) as $key ) {
+			$formatted_data[] = array(
+				'date'  => $key,
+				'count' => $acc[ $key ] ?? 0,
 			);
 		}
 
 		return $formatted_data;
+	}
+
+	/**
+	 * Pick the time-series bucket size for a date range so large ranges stay bounded.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $start Start date.
+	 * @param string $end   End date.
+	 *
+	 * @return string One of 'day', 'week', 'month'.
+	 */
+	private function get_analytics_bucket_interval( $start, $end ) {
+		$s    = new \DateTime( gmdate( 'Y-m-d', strtotime( $start ) ) );
+		$e    = new \DateTime( gmdate( 'Y-m-d', strtotime( $end ) ) );
+		$days = (int) $s->diff( $e )->days + 1;
+
+		if ( $days <= 92 ) {
+			return 'day';
+		}
+		if ( $days <= 731 ) {
+			return 'week';
+		}
+		return 'month';
+	}
+
+	/**
+	 * Map a date to its bucket-start key for the given interval.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \DateTime $date     Date to map.
+	 * @param string    $interval 'day', 'week' or 'month'.
+	 *
+	 * @return string Y-m-d bucket-start key.
+	 */
+	private function get_analytics_bucket_key( \DateTime $date, $interval ) {
+		if ( 'month' === $interval ) {
+			return $date->format( 'Y-m-01' );
+		}
+		if ( 'week' === $interval ) {
+			$week = clone $date;
+			$week->modify( 'monday this week' );
+			return $week->format( 'Y-m-d' );
+		}
+		return $date->format( 'Y-m-d' );
+	}
+
+	/**
+	 * Ordered list of bucket-start keys spanning a range at the given interval.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $start    Start date.
+	 * @param string $end      End date.
+	 * @param string $interval 'day', 'week' or 'month'.
+	 *
+	 * @return string[] Y-m-d bucket-start keys.
+	 */
+	private function get_analytics_bucket_dates( $start, $end, $interval ) {
+		$cursor = new \DateTime( gmdate( 'Y-m-d', strtotime( $start ) ) );
+		$end_dt = new \DateTime( gmdate( 'Y-m-d', strtotime( $end ) ) );
+		$end_dt->modify( '+1 day' );
+
+		if ( 'month' === $interval ) {
+			$cursor->modify( 'first day of this month' );
+			$step = new \DateInterval( 'P1M' );
+		} elseif ( 'week' === $interval ) {
+			$cursor->modify( 'monday this week' );
+			$step = new \DateInterval( 'P1W' );
+		} else {
+			$step = new \DateInterval( 'P1D' );
+		}
+
+		$dates = array();
+		while ( $cursor < $end_dt ) {
+			$dates[] = $this->get_analytics_bucket_key( $cursor, $interval );
+			$cursor->add( $step );
+		}
+
+		return $dates;
 	}
 }

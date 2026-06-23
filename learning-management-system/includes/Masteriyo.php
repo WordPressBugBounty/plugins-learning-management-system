@@ -196,6 +196,8 @@ class Masteriyo {
 
 		// Check for first time course start.
 		add_action( 'masteriyo_after_learn_page_process', array( $this, 'check_for_first_time_course_start' ), 999, 1 );
+
+		add_action( 'customize_changeset_save_data', array( $this, 'sync_theme_global_colors' ) );
 	}
 
 	/**
@@ -1418,5 +1420,107 @@ class Masteriyo {
 
 		$is_trigger_for_masteriyo = '_load_textdomain_just_in_time' === $function_name && strpos( $message, '<code>learning-management-system' ) !== false;
 		return $is_trigger_for_masteriyo ? false : $trigger;
+	}
+
+	/**
+	 * Sync global colors from the active theme to Masteriyo settings.
+	 *
+	 * Dispatches to a theme-specific color extractor based on the active theme
+	 * slug, then applies the resolved primary/secondary colors to Masteriyo.
+	 *
+	 * @since x.x.x [Free]
+	 *
+	 * @param array $data The customizer changeset save data.
+	 *
+	 * @return void
+	 */
+	public function sync_theme_global_colors( $data ) {
+		$theme = wp_get_theme();
+
+		if ( ! $theme ) {
+			return;
+		}
+
+		$slug = $theme->get_template();
+
+		$colors = array();
+
+		if ( 'elearning' === $slug ) {
+			$colors = $this->extract_elearning_colors( $data );
+		} elseif ( 'neve' === $slug ) {
+			$colors = $this->extract_neve_colors( $data );
+		}
+
+		if ( empty( $colors['primary'] ) && empty( $colors['secondary'] ) ) {
+			return;
+		}
+
+		if ( ! empty( $colors['primary'] ) ) {
+			masteriyo_set_setting( 'general.styling.primary_color', $colors['primary'] );
+			masteriyo_set_setting( 'general.styling.primary_color_for_learn_page', $colors['primary'] );
+			masteriyo_set_setting( 'general.styling.button_color', $colors['primary'] );
+		}
+
+		if ( ! empty( $colors['secondary'] ) ) {
+			masteriyo_set_setting( 'general.styling.button_hover_color', $colors['secondary'] );
+		}
+	}
+
+	/**
+	 * Extract primary and secondary colors from the Elearning theme changeset.
+	 *
+	 * @since x.x.x [Free]
+	 *
+	 * @param array $data The customizer changeset save data.
+	 *
+	 * @return array { primary: string|null, secondary: string|null }
+	 */
+	private function extract_elearning_colors( $data ) {
+		$palette = isset( $data['elearning::elearning_color_palette'] ) && is_array( $data['elearning::elearning_color_palette'] )
+			? $data['elearning::elearning_color_palette']
+			: array();
+
+		$colors = isset( $palette['value']['colors'] ) && is_array( $palette['value']['colors'] )
+			? $palette['value']['colors']
+			: array();
+
+		return array(
+			'primary'   => isset( $colors['elearning-color-1'] ) ? $colors['elearning-color-1'] : null,
+			'secondary' => isset( $colors['elearning-color-2'] ) ? $colors['elearning-color-2'] : null,
+		);
+	}
+
+	/**
+	 * Extract primary and secondary colors from the Neve theme changeset.
+	 *
+	 * @since x.x.x [Free]
+	 *
+	 * @param array $data The customizer changeset save data.
+	 *
+	 * @return array { primary: string|null, secondary: string|null }
+	 */
+	private function extract_neve_colors( $data ) {
+		$setting = isset( $data['neve::neve_global_colors'] ) && is_array( $data['neve::neve_global_colors'] )
+			? $data['neve::neve_global_colors']
+			: array();
+
+		$palettes = isset( $setting['value']['palettes'] ) && is_array( $setting['value']['palettes'] )
+			? $setting['value']['palettes']
+			: array();
+
+		if ( empty( $palettes ) ) {
+			return array();
+		}
+
+		$active = isset( $setting['value']['activePalette'] ) ? $setting['value']['activePalette'] : 'base';
+
+		$colors = isset( $palettes[ $active ]['colors'] ) && is_array( $palettes[ $active ]['colors'] )
+			? $palettes[ $active ]['colors']
+			: array();
+
+		return array(
+			'primary'   => isset( $colors['nv-primary-accent'] ) ? $colors['nv-primary-accent'] : null,
+			'secondary' => isset( $colors['nv-secondary-accent'] ) ? $colors['nv-secondary-accent'] : null,
+		);
 	}
 }

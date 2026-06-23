@@ -50,8 +50,8 @@ $show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id(
 if (
 	! is_user_logged_in() ||
 	empty( $progress ) ||
-	$completed === 0 ||
-	$total === 0
+	0 === $completed ||
+	0 === $total
 ) {
 	$show_overview_active = true;
 }
@@ -62,7 +62,15 @@ $course_values = is_array( $course_values ) ? $course_values : array();
 ?>
 
 <div class="tab-content course-overview <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
-	<?php echo do_shortcode( wp_kses_post( $course->get_description() ) ); ?>
+	<?php
+	$description    = $course->get_description();
+	$default_editor = masteriyo_get_setting( 'advance.editor.default_editor' );
+	if ( 'block_editor' === $default_editor && has_blocks( $description ) ) {
+		echo wp_kses_post( do_blocks( do_shortcode( $description ) ) );
+	} else {
+		echo do_shortcode( wp_kses_post( $description ) );
+	}
+	?>
 
 	<?php if ( ! empty( $course_values ) ) : ?>
 		<div id="masteriyo-custom-fields">

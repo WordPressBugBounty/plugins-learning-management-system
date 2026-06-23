@@ -1,6 +1,7 @@
 import {
 	Box,
 	ButtonGroup,
+	Center,
 	Container,
 	IconButton,
 	Link,
@@ -8,15 +9,21 @@ import {
 	MenuButton,
 	MenuItem,
 	MenuList,
+	Spinner,
 	Stack,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiBook, BiDotsHorizontalRounded } from 'react-icons/bi';
-import { NavLink, Link as RouterLink, useParams } from 'react-router-dom';
+import {
+	NavLink,
+	Link as RouterLink,
+	useLocation,
+	useParams,
+} from 'react-router-dom';
 import BackButton from '../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
@@ -37,7 +44,9 @@ import {
 	navActiveStyles,
 } from '../../../../../assets/js/back-end/config/styles';
 import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
+import MasteriyoLogo from '../../../../../assets/img/logo.png';
 import API from '../../../../../assets/js/back-end/utils/api';
+import localized from '../../../../../assets/js/back-end/utils/global';
 import {
 	addOperationInCache,
 	deepClean,
@@ -49,6 +58,7 @@ import CertificateSkeleton from '../components/CertificateSkeleton';
 import Name from '../components/Name';
 import { certificateBackendRoutes } from '../utils/routes';
 import { certificateAddonUrls } from '../utils/urls';
+import EditCertificatePDFDraft from './EditCertificatePDFDraft';
 
 interface CertificateDataMap extends Certificate {
 	_links: {
@@ -64,19 +74,29 @@ interface CertificateDataMap extends Certificate {
 		];
 	};
 	html_content: string;
+	rendered_html?: string;
+	content_format?: 'gutenberg' | 'pdfdraft';
 }
 
-const EditCertificate: React.FC = () => {
+const EditCertificateInner: React.FC = () => {
 	const { certificateId }: any = useParams();
+	const location = useLocation();
 	const methods = useForm();
 	const certificateAPI = new API(certificateAddonUrls.certificates);
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const [fullscreenMode, setFullscreenMode] = useState(false);
+	const [guessedFormat] = useState<string | null>(() =>
+		localStorage.getItem(`mto_cert_fmt_${certificateId}`),
+	);
+
+	const stateData = (location.state as any)?.certificate ?? undefined;
 
 	const certificateQuery = useQuery({
 		queryKey: [`certificate${certificateId}`, certificateId],
 		queryFn: () => certificateAPI.get(`${certificateId}?context=edit`),
+		initialData: stateData,
+		staleTime: stateData ? Infinity : 0,
 	});
 
 	const updateCertificate = useMutation({
@@ -134,8 +154,19 @@ const EditCertificate: React.FC = () => {
 					isClosable: true,
 				});
 				queryClient.invalidateQueries({ queryKey: [`certificate${data.id}`] });
+				queryClient.invalidateQueries({ queryKey: ['certificatesV2List'] });
 			},
 			onError: (error: any) => {
+				const isLimit =
+					String(error?.code ?? '').endsWith('upgrade_required') ||
+					/more than two published/i.test(error?.message ?? '');
+				const isPdfdraft =
+					(certificateQuery.data as CertificateDataMap)?.content_format ===
+					'pdfdraft';
+				if (isLimit && isPdfdraft) {
+					return;
+				}
+
 				const message =
 					error?.message ||
 					error?.data?.message ||
@@ -171,20 +202,10 @@ const EditCertificate: React.FC = () => {
 					],
 					data,
 				);
-				toast({
-					title: sprintf(
-						/* translators: %s: Certificate name */
-						_x(
-							'%s drafted',
-							'Content drafted status message',
-							'learning-management-system',
-						),
-						data.name,
-					),
-					status: 'success',
-					isClosable: true,
-				});
+				// Draft/auto-saves are silent — the in-editor save-status badge
+				// communicates state instead. Only explicit Publish toasts.
 				queryClient.invalidateQueries({ queryKey: [`certificate${data.id}`] });
+				queryClient.invalidateQueries({ queryKey: ['certificatesV2List'] });
 			},
 			onError: (err: any) => {
 				toast({
@@ -201,6 +222,48 @@ const EditCertificate: React.FC = () => {
 	const isPublished = () => certificateQuery?.data?.status === 'publish';
 
 	const isDrafted = () => certificateQuery?.data?.status === 'draft';
+
+	const isPDFDraftFormat = () =>
+		(certificateQuery.data as CertificateDataMap)?.content_format ===
+		'pdfdraft';
+
+	const onPDFDraftSave = async (
+		json: string,
+		renderedHtml: string,
+		status: string,
+	): Promise<void> => {
+		let designName: string | undefined;
+		try {
+			const parsed = JSON.parse(json);
+			if (parsed?.settings?.name) designName = parsed.settings.name;
+		} catch {}
+
+		const payload: Partial<CertificateDataMap> = {
+			status: status as any,
+			html_content: json,
+			content_format: 'pdfdraft',
+			...(designName ? { name: designName } : {}),
+		};
+		if (renderedHtml) {
+			payload.rendered_html = renderedHtml;
+		}
+		let saved: CertificateDataMap;
+		if (status === 'publish') {
+			saved = await updateCertificate.mutateAsync(
+				payload as CertificateDataMap,
+			);
+		} else {
+			saved = (await draftCertificate.mutateAsync(
+				payload,
+			)) as CertificateDataMap;
+		}
+		if (saved) {
+			queryClient.setQueryData(
+				[`certificate${certificateId}`, certificateId],
+				saved,
+			);
+		}
+	};
 
 	const onSubmit = (data: any, status: string = 'publish') => {
 		const newData = {
@@ -249,6 +312,63 @@ const EditCertificate: React.FC = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [certificateQuery?.data]);
+
+	useEffect(() => {
+		if (certificateQuery.isSuccess) {
+			const fmt =
+				(certificateQuery.data as CertificateDataMap)?.content_format ??
+				'gutenberg';
+			localStorage.setItem(`mto_cert_fmt_${certificateId}`, fmt);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [certificateQuery.isSuccess]);
+
+	if (!certificateQuery.isSuccess) {
+		if (guessedFormat === 'pdfdraft') {
+			return (
+				<Center
+					position="fixed"
+					inset={0}
+					bg="white"
+					zIndex={99999}
+					flexDirection="column"
+					gap={4}
+				>
+					<img
+						src={localized.logo || MasteriyoLogo}
+						alt="Masteriyo"
+						style={{ width: 56, height: 56, objectFit: 'contain' }}
+					/>
+					<Spinner size="lg" color="blue.500" thickness="3px" />
+				</Center>
+			);
+		}
+		if (guessedFormat === 'gutenberg') {
+			return (
+				<Stack direction="column" spacing="8" align="center" mt={8}>
+					<CertificateSkeleton />
+				</Stack>
+			);
+		}
+		return (
+			<Center position="fixed" inset={0} bg="white" zIndex={99999}>
+				<Spinner size="xl" color="blue.500" thickness="3px" />
+			</Center>
+		);
+	}
+
+	if (isPDFDraftFormat()) {
+		return (
+			<EditCertificatePDFDraft
+				certificate={certificateQuery.data as CertificateDataMap}
+				onSave={onPDFDraftSave}
+				isSaving={updateCertificate.isPending || draftCertificate.isPending}
+				onBack={() => {
+					window.location.hash = `#${certificateBackendRoutes.certificate.certificatesV2}`;
+				}}
+			/>
+		);
+	}
 
 	return (
 		<Stack direction="column" spacing="8" align="center">
@@ -339,39 +459,48 @@ const EditCertificate: React.FC = () => {
 							<BackButton />
 						</RouterLink>
 					</ButtonGroup>
-					{certificateQuery.isSuccess ? (
-						<Box
-							flex="1"
-							bg="white"
-							p={['4', null, '10']}
-							shadow="box"
-							display="flex"
-							flexDirection="column"
-							justifyContent="space-between"
-						>
-							<Stack direction="column" spacing="2">
-								<FormProvider {...methods}>
-									<form method="post" onSubmit={(e) => e.preventDefault()}>
-										<Stack direction="column" spacing="6">
-											<Name defaultValue={certificateQuery?.data?.name} />
-											<BlockEditor
-												defaultValue={certificateQuery?.data?.html_content}
-												actions={actions as any}
-												fullscreenMode={fullscreenMode}
-												setFullscreenMode={setFullscreenMode}
-											/>
-										</Stack>
-									</form>
-								</FormProvider>
-							</Stack>
-						</Box>
-					) : (
-						<CertificateSkeleton />
-					)}
+					<Box
+						flex="1"
+						bg="white"
+						p={['4', null, '10']}
+						shadow="box"
+						display="flex"
+						flexDirection="column"
+						justifyContent="space-between"
+					>
+						<Stack direction="column" spacing="2">
+							<FormProvider {...methods}>
+								<form method="post" onSubmit={(e) => e.preventDefault()}>
+									<Stack direction="column" spacing="6">
+										<Name defaultValue={certificateQuery?.data?.name} />
+										<BlockEditor
+											defaultValue={certificateQuery?.data?.html_content}
+											actions={actions as any}
+											fullscreenMode={fullscreenMode}
+											setFullscreenMode={setFullscreenMode}
+										/>
+									</Stack>
+								</form>
+							</FormProvider>
+						</Stack>
+					</Box>
 				</Stack>
 			</Container>
 		</Stack>
 	);
+};
+
+/**
+ * Remount the editor whenever the certificate id changes so the previous
+ * editor (Gutenberg block editor or the PDFDraft designer) fully unmounts
+ * before the next one mounts. This prevents two react-dnd HTML5 backends
+ * from being active at once ("Cannot have two HTML5 backends at the same
+ * time") when navigating between certificates of different formats.
+ */
+const EditCertificate: React.FC = () => {
+	const { certificateId }: any = useParams();
+
+	return <EditCertificateInner key={certificateId} />;
 };
 
 export default EditCertificate;

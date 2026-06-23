@@ -67,6 +67,13 @@ abstract class PostsController extends CrudController {
 				);
 			}
 
+			// Restrict access to other course content while a quiz attempt is in progress.
+			// Placed before the open-access/instructor/preview short-circuits so it always applies.
+			$restriction = masteriyo_check_content_restriction_during_quiz( $course, $post );
+			if ( is_wp_error( $restriction ) ) {
+				return $restriction;
+			}
+
 			if ( CourseAccessMode::OPEN === $course->get_access_mode() && ! post_password_required( get_post( $course->get_id() ) ) ) {
 				return true;
 			}
@@ -103,6 +110,33 @@ abstract class PostsController extends CrudController {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get a single item.
+	 *
+	 * Course content (lessons, quizzes, questions, sections) is per-user learning material and must
+	 * never be stored by page/REST caches — otherwise a cached response could be replayed to another
+	 * tab/user and bypass access checks such as "Restrict Content During Quiz". Force no-cache headers
+	 * on these responses as defense-in-depth so the permission gate always runs against fresh state.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function get_item( $request ) {
+		$response = parent::get_item( $request );
+
+		if (
+			! is_wp_error( $response ) &&
+			in_array( $this->post_type, array_merge( CourseChildrenPostType::all(), array( PostType::QUESTION ) ), true )
+		) {
+			nocache_headers();
+			$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+		}
+
+		return $response;
 	}
 
 	/**

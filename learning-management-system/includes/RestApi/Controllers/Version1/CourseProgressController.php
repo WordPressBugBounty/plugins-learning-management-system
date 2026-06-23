@@ -560,6 +560,15 @@ class CourseProgressController extends CrudController {
 			$data['retake_url'] = $course->get_retake_url();
 			if ( ( new Addons() )->is_active( MASTERIYO_CERTIFICATE_ADDON_SLUG ) ) {
 				$data['certificate_download_url'] = masteriyo_generate_certificate_download_url( $course );
+
+				$certificate_id = masteriyo_get_course_certificate_id( $course->get_id() );
+				if ( $certificate_id ) {
+					$certificate = masteriyo_get_certificate( $certificate_id );
+					if ( $certificate && ! is_wp_error( $certificate ) ) {
+						$data['certificate_content_format'] = $certificate->get_content_format();
+						$data['certificate_email_enabled']  = (bool) get_post_meta( $course->get_id(), '_certificate_email_enabled', true );
+					}
+				}
 			}
 		}
 
@@ -577,7 +586,12 @@ class CourseProgressController extends CrudController {
 				update_user_meta( $course_progress->get_user_id(), 'has_user_redirected_' . $course_progress->get_course_id(), true );
 			}
 
-			$course_progress->set_status( CourseProgressStatus::COMPLETED );
+			// Persist completion so the PHP template reflects the correct button state.
+			if ( CourseProgressStatus::COMPLETED !== $course_progress->get_status( 'edit' ) ) {
+				$course_progress->set_status( CourseProgressStatus::COMPLETED );
+				$course_progress->save();
+			}
+
 			$data['status'] = $course_progress->get_status();
 		}
 		/**
@@ -1012,7 +1026,7 @@ class CourseProgressController extends CrudController {
 		if ( is_user_logged_in() && ! $user ) {
 			throw new RestException(
 				'masteriyo_rest_invalid_user_id',
-				__( 'User ID is invalid.', 'learning-management-system' ),
+				__( 'User ID is invalid.', 'learning-management-system' ), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				400
 			);
 		}
@@ -1022,7 +1036,7 @@ class CourseProgressController extends CrudController {
 		if ( masteriyo_is_current_user_student() && get_current_user_id() !== $user_id ) {
 			throw new RestException(
 				'masteriyo_rest_access_denied_course_progress',
-				__( 'Student cannot access other\'s course progress.', 'learning-management-system' ),
+				__( 'Student cannot access other\'s course progress.', 'learning-management-system' ), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				400
 			);
 		}
@@ -1052,7 +1066,7 @@ class CourseProgressController extends CrudController {
 			if ( ! $course_post || 'mto-course' !== $course_post->post_type ) {
 				throw new RestException(
 					'masteriyo_rest_invalid_course_id',
-					__( 'Course ID is invalid.', 'learning-management-system' ),
+					__( 'Course ID is invalid.', 'learning-management-system' ), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 					400
 				);
 			}
@@ -1206,24 +1220,27 @@ class CourseProgressController extends CrudController {
 	 * @return array
 	 */
 	protected function get_course_progress_item_data( $course_progress_item, $context = 'view' ) {
-		$video            = '';
-		$video_source     = '';
-		$video_source_url = '';
+		$video               = '';
+		$video_source        = '';
+		$video_source_url    = '';
+		$video_playback_time = '';
 
 		if ( 'lesson' === $course_progress_item->get_item_type() ) {
-			$video            = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
-			$video_source     = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source', true );
-			$video_source_url = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
+			$video               = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
+			$video_source        = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source', true );
+			$video_source_url    = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
+			$video_playback_time = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_playback_time', true );
 		}
 
 		$data = array(
-			'item_id'          => $course_progress_item->get_item_id( $context ),
-			'item_title'       => wp_specialchars_decode( $course_progress_item->get_item_title( $context ) ),
-			'item_type'        => $course_progress_item->get_item_type( $context ),
-			'completed'        => $course_progress_item->get_completed( $context ),
-			'video'            => ! empty( trim( $video ) ),
-			'video_source'     => $video_source,
-			'video_source_url' => $video_source_url,
+			'item_id'             => $course_progress_item->get_item_id( $context ),
+			'item_title'          => wp_specialchars_decode( $course_progress_item->get_item_title( $context ) ),
+			'item_type'           => $course_progress_item->get_item_type( $context ),
+			'completed'           => $course_progress_item->get_completed( $context ),
+			'video'               => ! empty( trim( $video ) ),
+			'video_source'        => $video_source,
+			'video_source_url'    => $video_source_url,
+			'video_playback_time' => (int) $video_playback_time,
 		);
 
 		if ( 'quiz' === $course_progress_item->get_item_type() ) {

@@ -11,6 +11,7 @@ namespace Masteriyo\Addons\MigrationTool;
 defined( 'ABSPATH' ) || exit;
 
 
+use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Roles;
@@ -149,19 +150,33 @@ class Helper {
 	 *
 	 * @return void This function does not return anything. It operates by side effect, updating the course taxonomy.
 	 */
-	public static function migrate_course_categories_from_to_masteriyo( $course_id, $taxonomy = 'course_category' ) {
+	public static function migrate_course_categories_from_to_masteriyo( $course_id, $taxonomy = 'course_category', $target_taxonomy = 'course_cat' ) {
+		// Static cache keyed by target taxonomy: term name → Masteriyo term_id.
+		// Persists for the lifetime of the AS job (reset on next job invocation), eliminating
+		// repeated term_exists() DB queries when many courses share the same categories.
+		static $masteriyo_cat_cache = array();
+
 		$categories = wp_get_post_terms( $course_id, $taxonomy, array( 'fields' => 'ids' ) );
 
 		if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
+			$masteriyo_categories = array();
+
 			foreach ( $categories as $cat_id ) {
 				$cat = get_term( $cat_id, $taxonomy );
 
 				if ( ! is_wp_error( $cat ) ) {
-					// Check if the term exists in the 'course_cat' taxonomy.
-					$masteriyo_cat_id = term_exists( $cat->name, 'course_cat' );
+					$cache_key = $target_taxonomy . ':' . $cat->name;
+
+					if ( isset( $masteriyo_cat_cache[ $cache_key ] ) ) {
+						$masteriyo_categories[] = $masteriyo_cat_cache[ $cache_key ];
+						continue;
+					}
+
+					// Check if the term exists in the target taxonomy.
+					$masteriyo_cat_id = term_exists( $cat->name, $target_taxonomy );
 
 					if ( 0 === $masteriyo_cat_id || null === $masteriyo_cat_id ) {
-						$masteriyo_cat = wp_insert_term( $cat->name, 'course_cat' );
+						$masteriyo_cat = wp_insert_term( $cat->name, $target_taxonomy );
 
 						if ( ! is_wp_error( $masteriyo_cat ) ) {
 							$masteriyo_cat_id = $masteriyo_cat['term_id'];
@@ -170,23 +185,17 @@ class Helper {
 						$masteriyo_cat_id = $masteriyo_cat_id['term_id'];
 					}
 
-					$masteriyo_categories[] = (int) $masteriyo_cat_id;
+					if ( $masteriyo_cat_id ) {
+						$masteriyo_cat_cache[ $cache_key ] = (int) $masteriyo_cat_id;
+						$masteriyo_categories[]            = (int) $masteriyo_cat_id;
+					}
 				}
 			}
 
 			if ( ! empty( $masteriyo_categories ) ) {
-				wp_set_object_terms( $course_id, $masteriyo_categories, 'course_cat', false );
+				wp_set_object_terms( $course_id, $masteriyo_categories, $target_taxonomy, false );
 			}
 		}
-	}
-
-	/**
-	 * Deletes remaining migrated items after all items have been migrated.
-	 *
-	 * @since 1.16.0
-	 */
-	public static function delete_remaining_migrated_items() {
-		delete_option( 'masteriyo_remaining_migrated_items' );
 	}
 
 	/**
@@ -204,5 +213,316 @@ class Helper {
 		}
 
 		Helper::update_user_role( $post_author, Roles::INSTRUCTOR );
+	}
+
+	/**
+	 * Insert a user course enrollment into masteriyo_user_items and optionally write order meta.
+	 *
+	 * Shared by all migrators. Inserts the enrollment row, assigns the student role,
+	 * and writes _order_id / _price to masteriyo_user_itemmeta when provided.
+	 * Returns the new user_item_id on success, null on failure (caller decides how to handle).
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int         $user_id       WordPress user ID.
+	 * @param int         $course_id     Masteriyo course post ID.
+	 * @param string      $date_start    Enrollment start date (MySQL datetime, UTC).
+	 * @param string|null $date_end      Completion/expiry date, or null if not yet complete.
+	 * @param string      $status        UserCourseStatus value (default 'active').
+	 * @param int|null    $order_id      Masteriyo order ID to store in itemmeta, or null.
+	 * @param float|null  $price         Order price to store in itemmeta, or null.
+	 * @param string|null $date_modified Last-modified date override (MySQL datetime, UTC); defaults to $date_start.
+	 * @return int|null New user_item_id, or null if the insert failed.
+	 */
+	public static function enroll_user(
+		int $user_id,
+		int $course_id,
+		string $date_start,
+		?string $date_end = null,
+		string $status = 'active',
+		?int $order_id = null,
+		?float $price = null,
+		?string $date_modified = null
+	): ?int {
+		global $wpdb;
+
+		$data    = array(
+			'item_id'       => $course_id,
+			'user_id'       => $user_id,
+			'item_type'     => 'user_course',
+			'date_start'    => $date_start,
+			'date_modified' => $date_modified ?? $date_start,
+			'date_end'      => $date_end,
+			'parent_id'     => 0,
+			'status'        => $status,
+		);
+		$formats = array( '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%s' );
+
+		$inserted = $wpdb->insert( $wpdb->prefix . 'masteriyo_user_items', $data, $formats );
+
+		if ( false === $inserted ) {
+			return null;
+		}
+
+		$user_item_id = (int) $wpdb->insert_id;
+
+		static::update_user_role( $user_id, Roles::STUDENT );
+
+		if ( $order_id ) {
+			$wpdb->insert(
+				$wpdb->prefix . 'masteriyo_user_itemmeta',
+				array(
+					'user_item_id' => $user_item_id,
+					'meta_key'     => '_order_id',
+					'meta_value'   => $order_id,
+				)
+			);
+		}
+
+		if ( null !== $price ) {
+			$wpdb->insert(
+				$wpdb->prefix . 'masteriyo_user_itemmeta',
+				array(
+					'user_item_id' => $user_item_id,
+					'meta_key'     => '_price',
+					'meta_value'   => $price,
+				)
+			);
+		}
+
+		return $user_item_id;
+	}
+
+	/**
+	 * Find or create the course_progress parent activity row in masteriyo_user_activities.
+	 *
+	 * Shared by all migrators. Returns the existing row ID if found; otherwise inserts
+	 * a new 'started' course_progress row and returns its ID.
+	 * Fixes TutorLMS bug: uses CourseProgressStatus::STARTED constant and null for
+	 * completed_at (correct for an in-progress course) instead of a zero-date string.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int    $user_id    WordPress user ID.
+	 * @param int    $course_id  Masteriyo course post ID.
+	 * @param string $created_at Row creation timestamp (MySQL datetime, UTC).
+	 * @return int Progress activity ID, or 0 if the insert failed.
+	 */
+	public static function get_or_create_course_progress( int $user_id, int $course_id, string $created_at ): int {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'masteriyo_user_activities';
+
+		$progress_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$table} WHERE user_id = %d AND item_id = %d AND activity_type = 'course_progress' LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$user_id,
+				$course_id
+			)
+		);
+
+		if ( ! $progress_id ) {
+			$wpdb->insert(
+				$table,
+				array(
+					'user_id'         => $user_id,
+					'item_id'         => $course_id,
+					'activity_type'   => 'course_progress',
+					'activity_status' => CourseProgressStatus::STARTED,
+					'parent_id'       => 0,
+					'created_at'      => $created_at,
+					'modified_at'     => $created_at,
+					'completed_at'    => null,
+				),
+				array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+			);
+			$progress_id = (int) $wpdb->insert_id;
+		}
+
+		return $progress_id;
+	}
+
+	/**
+	 * Resolve (or create) a course_difficulty term and set it on the course.
+	 *
+	 * Shared by all migrators. Looks up the term by slug; inserts it if missing.
+	 * Writes _difficulty_id post meta and sets the taxonomy term on the course.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int    $course_id Masteriyo course post ID.
+	 * @param string $slug      Difficulty slug (e.g. 'beginner'). Empty string is a no-op.
+	 * @return void
+	 */
+	public static function set_course_difficulty( int $course_id, string $slug ): void {
+		if ( ! $slug ) {
+			update_post_meta( $course_id, '_difficulty_id', 0 );
+			return;
+		}
+
+		$term = get_term_by( 'slug', $slug, 'course_difficulty' );
+
+		if ( ! $term || is_wp_error( $term ) ) {
+			$inserted = wp_insert_term( ucfirst( $slug ), 'course_difficulty', array( 'slug' => $slug ) );
+
+			if ( is_wp_error( $inserted ) ) {
+				update_post_meta( $course_id, '_difficulty_id', 0 );
+				return;
+			}
+
+			$term_id = $inserted['term_id'];
+		} else {
+			$term_id = $term->term_id;
+		}
+
+		update_post_meta( $course_id, '_difficulty_id', $term_id );
+		wp_set_object_terms( $course_id, $term_id, 'course_difficulty', false );
+	}
+
+	/**
+	 * Create and assign a Masteriyo certificate template to a course.
+	 *
+	 * Called during the courses migration step for any source LMS that stored a certificate
+	 * reference on the course. The source LMS certificate design cannot be converted, so
+	 * Certificate Sample 1 is auto-assigned (falls back to the blank template if CDN is
+	 * unreachable). Writes `_certificate_id` and `_certificate_enabled = yes` on the course.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $course_id  Masteriyo mto-course post ID.
+	 * @param int $author_id  Post author user ID (used for the certificate post).
+	 * @return void
+	 */
+	public static function assign_certificate_template( int $course_id, int $author_id ): void {
+		// Idempotency: skip if this course already has a valid certificate assigned.
+		$existing_cert_id = (int) get_post_meta( $course_id, '_certificate_id', true );
+		if ( $existing_cert_id && 'mto-certificate' === get_post_type( $existing_cert_id ) ) {
+			return;
+		}
+
+		$shared_cert_id = static::get_or_create_migration_certificate( $author_id );
+
+		if ( $shared_cert_id ) {
+			update_post_meta( $course_id, '_certificate_id', $shared_cert_id );
+			update_post_meta( $course_id, '_certificate_enabled', 'yes' );
+		} else {
+			// Fallback: at minimum mark enabled so the course isn't left broken.
+			update_post_meta( $course_id, '_certificate_enabled', 'yes' );
+		}
+	}
+
+	/**
+	 * Return the ID of the shared migration certificate post, creating it on first call.
+	 *
+	 * One `mto-certificate` post is created for the entire migration run and flagged with
+	 * `_masteriyo_migration_certificate = 1`. All migrated courses point to this single
+	 * post via `_certificate_id`, avoiding one certificate post per course. The ID is
+	 * cached in a static variable so only one DB lookup occurs per request.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $author_id Post author user ID (used only on first creation).
+	 * @return int Certificate post ID, or 0 on failure.
+	 */
+	public static function get_or_create_migration_certificate( int $author_id ): int {
+		static $cert_id = null;
+
+		if ( null !== $cert_id ) {
+			return $cert_id;
+		}
+
+		// Check if a shared migration certificate was already created in a previous run.
+		$existing = get_posts(
+			array(
+				'post_type'      => 'mto-certificate',
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'meta_key'       => '_masteriyo_migration_certificate', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => '1',                                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( ! empty( $existing ) ) {
+			$cert_id = (int) reset( $existing );
+			return $cert_id;
+		}
+
+		// Build certificate HTML — try CDN Sample 1 first, fall back to blank template.
+		$cert_html = '';
+
+		if ( function_exists( 'masteriyo_get_certificate_templates' ) ) {
+			$templates = masteriyo_get_certificate_templates();
+			if ( is_array( $templates ) && ! empty( $templates ) ) {
+				$first_template = reset( $templates );
+				if ( ! empty( $first_template['content'] ) ) {
+					$cert_html = function_exists( 'masteriyo_process_content_for_import' )
+						? masteriyo_process_content_for_import( $first_template['content'] )
+						: $first_template['content'];
+				}
+			}
+		}
+
+		if ( '' === $cert_html && function_exists( 'masteriyo_get_blank_certificate_template' ) ) {
+			$cert_html = masteriyo_get_blank_certificate_template();
+		}
+
+		if ( '' === $cert_html ) {
+			$cert_id = 0;
+			return $cert_id;
+		}
+
+		$new_id = wp_insert_post(
+			array(
+				'post_type'    => 'mto-certificate',
+				'post_status'  => 'publish',
+				'post_title'   => __( 'Migration Certificate', 'learning-management-system' ),
+				'post_content' => $cert_html,
+				'post_author'  => $author_id,
+			)
+		);
+
+		if ( ! $new_id || is_wp_error( $new_id ) ) {
+			masteriyo_get_logger()->warning(
+				'Could not create shared migration certificate post.',
+				array( 'source' => 'migration-tool' )
+			);
+			$cert_id = 0;
+			return $cert_id;
+		}
+
+		// Flag so it can be found and reused across migration runs.
+		update_post_meta( $new_id, '_masteriyo_migration_certificate', '1' );
+
+		masteriyo_get_logger()->info(
+			sprintf(
+				'Shared migration certificate created (ID %d). Original LMS certificate designs cannot be converted — customize this template at Masteriyo > Certificates.',
+				$new_id
+			),
+			array( 'source' => 'migration-tool' )
+		);
+
+		$cert_id = $new_id;
+		return $cert_id;
+	}
+
+	/**
+	 * Preserve a TutorLMS field that has no direct Masteriyo equivalent.
+	 *
+	 * Data is stored under _migrated_{key} so it can be referenced by Pro add-ons
+	 * or cleaned up in bulk after migration.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int    $post_id Target Masteriyo post ID.
+	 * @param string $key     Original field name (leading underscores are stripped).
+	 * @param mixed  $value   Value to store. Empty values are not written.
+	 * @return void
+	 */
+	public static function store_unmigrated_meta( int $post_id, string $key, $value ): void {
+		if ( '' === $value || null === $value || array() === $value ) {
+			return;
+		}
+		update_post_meta( $post_id, '_migrated_' . ltrim( $key, '_' ), $value );
 	}
 }

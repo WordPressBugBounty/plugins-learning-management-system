@@ -8,6 +8,7 @@ export const certificateBackendRoutes = {
 		add: '/certificates/new',
 		edit: '/certificates/:certificateId/edit',
 		settings: '/certificates-settings',
+		certificatesV2: '/certificates-v2',
 	},
 };
 

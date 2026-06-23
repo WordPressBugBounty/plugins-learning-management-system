@@ -12,6 +12,30 @@ import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
 import { getAllCertificates } from '../utils/certificates';
 import { CertificateStatus } from '../utils/enums';
 
+function groupCertificateOptions(certs: any[]) {
+	const builder = certs.filter((c) => c.content_format === 'pdfdraft');
+	const classic = certs.filter(
+		(c) => !c.content_format || c.content_format === 'gutenberg',
+	);
+	const groups: any[] = [];
+	if (builder.length) {
+		groups.push({
+			label: __('Certificate V2', 'learning-management-system'),
+			options: builder.map((c) => ({ value: c.id, label: c.name })),
+		});
+	}
+	if (classic.length) {
+		groups.push({
+			label: __('Classic Certificates', 'learning-management-system'),
+			options: classic.map((c) => ({ value: c.id, label: c.name })),
+		});
+	}
+	if (groups.length === 1) {
+		return groups[0].options;
+	}
+	return groups;
+}
+
 interface Props {
 	courseData?: CourseDataMap;
 }
@@ -114,10 +138,9 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 										onChange={onChange}
 										defaultOptions={
 											certificatesQuery.isSuccess
-												? certificatesQuery?.data?.data?.map((certificate) => ({
-														value: certificate.id,
-														label: certificate.name,
-													}))
+												? groupCertificateOptions(
+														certificatesQuery.data?.data ?? [],
+													)
 												: []
 										}
 										loadOptions={(searchValue, callback) => {
@@ -131,12 +154,7 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 												status: CertificateStatus.Publish,
 												per_page: -1,
 											}).then((data) => {
-												callback(
-													data?.data?.map((certificate) => ({
-														value: certificate.id,
-														label: certificate.name,
-													})),
-												);
+												callback(groupCertificateOptions(data.data));
 											});
 										}}
 									/>

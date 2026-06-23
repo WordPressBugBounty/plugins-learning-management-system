@@ -101,7 +101,7 @@ class GroupCoursesAddon {
 		// Initialize email schedule actions.
 		EmailScheduleActions::init();
 
-		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_group_course_content_to_cart_contents' ), 10, 1 );
+		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_group_course_content_to_cart_contents' ), 20, 1 );
 		add_filter( 'masteriyo_add_cart_item_data', array( $this, 'append_group_course_data_in_cart_item' ), 10, 1 );
 
 		add_action( 'masteriyo_after_trash_order', array( $this, 'update_enrollments_status_for_orders_deletion' ), 10, 2 );
@@ -169,9 +169,11 @@ class GroupCoursesAddon {
 			if ( $group_price && function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
 				list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
 
-				if ( ! empty( $currency ) ) {
-					$modified_group_price = masteriyo_get_country_based_group_course_price( $course->get_id(), $group_price, $pricing_zone );
-					$group_price          = $modified_group_price ? $modified_group_price : $group_price;
+				if ( ! empty( $currency ) && ! empty( $pricing_zone ) && method_exists( $pricing_zone, 'get_exchange_rate' ) ) {
+					$exchange_rate = floatval( $pricing_zone->get_exchange_rate() );
+					if ( $exchange_rate > 0 ) {
+						$group_price = floatval( $group_price ) * $exchange_rate;
+					}
 				}
 			}
 
@@ -494,9 +496,11 @@ class GroupCoursesAddon {
 						if ( $group_price && function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
 							list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
 
-							if ( ! empty( $currency ) ) {
-								$modified_group_price = masteriyo_get_country_based_group_course_price( $course->get_id(), $group_price, $pricing_zone );
-								$group_price          = $modified_group_price ? $modified_group_price : $group_price;
+							if ( ! empty( $currency ) && ! empty( $pricing_zone ) && method_exists( $pricing_zone, 'get_exchange_rate' ) ) {
+								$exchange_rate = floatval( $pricing_zone->get_exchange_rate() );
+								if ( $exchange_rate > 0 ) {
+									$group_price = floatval( $group_price ) * $exchange_rate;
+								}
 							}
 						}
 
@@ -716,13 +720,11 @@ class GroupCoursesAddon {
 	 * @return array The modified scripts array with added dependencies for the account page, if applicable.
 	 */
 	public function add_group_courses_dependencies_to_account_page( $scripts ) {
-		if ( masteriyo_is_account_page() ) {
-			if ( ! isset( $scripts['account'] ) || ! isset( $scripts['account']['deps'] ) ) {
-				return $scripts;
-			}
-
-			$scripts['account']['deps'] = array_merge( $scripts['account']['deps'], array( 'wp-editor' ) );
+		if ( ! isset( $scripts['account'] ) || ! isset( $scripts['account']['deps'] ) ) {
+			return $scripts;
 		}
+
+		$scripts['account']['deps'] = array_merge( $scripts['account']['deps'], array( 'wp-editor' ) );
 
 		return $scripts;
 	}
@@ -1158,7 +1160,30 @@ class GroupCoursesAddon {
 		$currency = '';
 
 		if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
-			list( $currency,  ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
+			list( $currency, $pricing_zone ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course->get_id() );
+		}
+
+		if ( ! empty( $currency ) && ! empty( $pricing_zone ) && method_exists( $pricing_zone, 'get_exchange_rate' ) ) {
+			$exchange_rate = floatval( $pricing_zone->get_exchange_rate() );
+
+			foreach ( $pricing_tiers as $key => $tier ) {
+				// Base prices
+				if ( isset( $tier['regular_price'] ) && is_numeric( $tier['regular_price'] ) ) {
+					$pricing_tiers[ $key ]['regular_price'] = floatval( $tier['regular_price'] ) * $exchange_rate;
+				}
+				if ( isset( $tier['sale_price'] ) && is_numeric( $tier['sale_price'] ) ) {
+					$pricing_tiers[ $key ]['sale_price'] = floatval( $tier['sale_price'] ) * $exchange_rate;
+				}
+
+				// Variable/Tiered Pricing
+				if ( isset( $tier['tiers'] ) && is_array( $tier['tiers'] ) ) {
+					foreach ( $tier['tiers'] as $sub_key => $sub_tier ) {
+						if ( isset( $sub_tier['per_seat_price'] ) && is_numeric( $sub_tier['per_seat_price'] ) ) {
+							$pricing_tiers[ $key ]['tiers'][ $sub_key ]['per_seat_price'] = floatval( $sub_tier['per_seat_price'] ) * $exchange_rate;
+						}
+					}
+				}
+			}
 		}
 
 		$max_group_size = absint( get_post_meta( $course->get_id(), '_group_courses_max_group_size', true ) );

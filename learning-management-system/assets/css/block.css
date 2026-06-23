@@ -565,6 +565,7 @@
 .masteriyo-container ul.page-numbers,
 .masteriyo-course-list-display-section ul.page-numbers {
   display: flex;
+  list-style: none;
   width: -moz-fit-content;
   width: fit-content;
   border-radius: 4px;
@@ -626,6 +627,11 @@
 .masteriyo-container ul.page-numbers .prev:hover svg,
 .masteriyo-course-list-display-section ul.page-numbers .prev:hover svg {
   fill: var(--masteriyo-color-primary) !important;
+}
+
+.masteriyo-course-list-display-section ul.page-numbers {
+  width: 100%;
+  justify-content: center;
 }
 
 .masteriyo-badge {
@@ -1654,6 +1660,7 @@
 
 .masteriyo-course-list-display-section {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
 }
 .masteriyo-course-list-display-section .masteriyo-courses-wrapper,
@@ -2386,6 +2393,19 @@ body.masteriyo-courses-page {
 }
 .masteriyo-courses-view-mode-section .masteriyo-courses-view-mode-item-lists .masteriyo-courses-view-mode-item:hover button svg path, .masteriyo-courses-view-mode-section .masteriyo-courses-view-mode-item-lists .masteriyo-courses-view-mode-item.active button svg path {
   fill: #ffffff;
+}
+
+.masteriyo-course-carousel .masteriyo-single-course-stats,
+.masteriyo-course-carousel .masteriyo-course-progress-bar {
+  display: none !important;
+}
+.masteriyo-course-carousel .masteriyo-archive-cards.swiper,
+.masteriyo-course-carousel .masteriyo-course-cards.swiper {
+  display: block !important;
+}
+.masteriyo-course-carousel .masteriyo-archive-cards .swiper-wrapper,
+.masteriyo-course-carousel .masteriyo-course-cards .swiper-wrapper {
+  display: flex !important;
 }
 
 .masteriyo-filter-section .toggle-arrow {

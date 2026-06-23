@@ -71,40 +71,81 @@ class CourseCompletionEmailToStudent extends Email {
 		$this->set( 'course', $course );
 
 		$certificate_email_enabled = get_post_meta( $course->get_id(), '_certificate_email_enabled', true );
+		$pdf_path                  = null;
 
 		if ( $certificate_email_enabled ) {
-			add_filter(
-				'masteriyo_email_attachments',
-				function( $id ) use ( $course_progress ) {
-					$course_id  = $course_progress->get_course_id();
-					$student_id = $course_progress->get_user_id();
+			$certificate_id = masteriyo_get_course_certificate_id( $course->get_id() );
+			$certificate    = $certificate_id ? masteriyo_get_certificate( $certificate_id ) : null;
 
-					$certificate_id = masteriyo_get_course_certificate_id( $course_id );
+			if ( $certificate && ! is_wp_error( $certificate ) && 'pdfdraft' === $certificate->get_content_format() ) {
+				$transient_key = 'masteriyo_pdfdraft_cert_email_' . $course->get_id() . '_' . $student->get_id();
+				$pending       = get_transient( $transient_key );
 
-					if ( ! $certificate_id ) {
-						return;
+				if ( is_array( $pending ) && ! empty( $pending['pdf_path'] ) && file_exists( $pending['pdf_path'] ) ) {
+					// Browser uploaded the PDF — attach it to the email.
+					$pdf_path = $pending['pdf_path'];
+					delete_transient( $transient_key );
+					add_filter(
+						'masteriyo_email_attachments',
+						function() use ( $pdf_path ) {
+							return $pdf_path;
+						}
+					);
+				} elseif ( apply_filters( 'masteriyo_defer_pdfdraft_cert_email', true, $course_progress ) ) {
+					// Defer: store a pending flag and wait for client-side PDF upload.
+					set_transient(
+						$transient_key,
+						array(
+							'course_id' => $course->get_id(),
+							'user_id'   => $student->get_id(),
+						),
+						HOUR_IN_SECONDS
+					);
+					if ( ! wp_next_scheduled( 'masteriyo_pdfdraft_cert_email_fallback', array( $course->get_id(), $student->get_id() ) ) ) {
+						wp_schedule_single_event(
+							time() + 30 * MINUTE_IN_SECONDS,
+							'masteriyo_pdfdraft_cert_email_fallback',
+							array( $course->get_id(), $student->get_id() )
+						);
 					}
-
-					$certificate = masteriyo_get_certificate( $certificate_id );
-
-					if ( ! $certificate || is_wp_error( $certificate ) ) {
-						return;
-					}
-
-					$certificate_html_content = $certificate->get_html_content();
-
-					$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content );
-
-					$temp = tempnam( sys_get_temp_dir(), 'certificate' );
-					$temp = "$temp.pdf";
-
-					$certificate_pdf->prepare_pdf( false );
-
-					$certificate_pdf->mpdf->Output( $temp, Destination::FILE );
-
-					return $temp;
+					return;
 				}
-			);
+				// else: defer=false (fallback cron path) — send email without PDF attachment.
+			} else {
+				// Non-PDFDraft: attach via mPDF as before.
+				add_filter(
+					'masteriyo_email_attachments',
+					function( $id ) use ( $course_progress ) {
+						$course_id  = $course_progress->get_course_id();
+						$student_id = $course_progress->get_user_id();
+
+						$certificate_id = masteriyo_get_course_certificate_id( $course_id );
+
+						if ( ! $certificate_id ) {
+							return;
+						}
+
+						$certificate = masteriyo_get_certificate( $certificate_id );
+
+						if ( ! $certificate || is_wp_error( $certificate ) ) {
+							return;
+						}
+
+						$certificate_html_content = $certificate->get_html_content();
+
+						$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content );
+
+						$temp = tempnam( sys_get_temp_dir(), 'certificate' );
+						$temp = "$temp.pdf";
+
+						$certificate_pdf->prepare_pdf( false );
+
+						$certificate_pdf->mpdf->Output( $temp, Destination::FILE );
+
+						return $temp;
+					}
+				);
+			}
 		}
 
 		$this->send(

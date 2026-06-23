@@ -128,6 +128,90 @@ class CourseListWidget extends WidgetBase {
 		);
 
 		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'learning-management-system' ),
+				'type'    => Controls_Manager::SELECT,
+				'options' => array(
+					'default' => __( 'Default', 'learning-management-system' ),
+					'layout1' => __( 'Modern', 'learning-management-system' ),
+					'layout2' => __( 'Overlay', 'learning-management-system' ),
+				),
+				'default' => 'default',
+			)
+		);
+
+		$this->add_on_off_switch_control(
+			'show_filter',
+			__( 'Filter', 'learning-management-system' ),
+			array(
+				'default'   => '',
+				'condition' => array(
+					'source!' => 'related',
+				),
+			),
+			array(
+				'{{WRAPPER}} .masteriyo-courses-filters' => 'display: none !important;',
+			)
+		);
+
+		// Which filters appear in the sidebar; applies to this widget only.
+		$filter_options = array(
+			'filter_category'   => __( 'Category', 'learning-management-system' ),
+			'filter_difficulty' => __( 'Difficulty Level', 'learning-management-system' ),
+			'filter_price_type' => __( 'Price Type', 'learning-management-system' ),
+			'filter_price'      => __( 'Price', 'learning-management-system' ),
+			'filter_rating'     => __( 'Rating', 'learning-management-system' ),
+		);
+
+		foreach ( $filter_options as $control_name => $label ) {
+			$this->add_control(
+				$control_name,
+				array(
+					'label'        => $label,
+					'type'         => Controls_Manager::SWITCHER,
+					'label_on'     => __( 'Show', 'learning-management-system' ),
+					'label_off'    => __( 'Hide', 'learning-management-system' ),
+					'return_value' => 'yes',
+					'default'      => 'yes',
+					'condition'    => array(
+						'show_filter' => 'yes',
+						'source!'     => 'related',
+					),
+				)
+			);
+		}
+
+		$this->add_on_off_switch_control(
+			'show_pagination',
+			__( 'Pagination', 'learning-management-system' ),
+			array(
+				'default'   => 'yes',
+				'condition' => array(
+					'source!' => 'related',
+				),
+			),
+			array(
+				'{{WRAPPER}} .page-numbers' => 'display: none !important;',
+			)
+		);
+
+		$this->add_control(
+			'divider_components',
+			array(
+				'type' => Controls_Manager::DIVIDER,
+			)
+		);
+
+		$this->add_control(
+			'components_heading',
+			array(
+				'label' => __( 'Components', 'learning-management-system' ),
+				'type'  => Controls_Manager::HEADING,
+			)
+		);
+
+		$this->add_control(
 			'divider_1',
 			array(
 				'type' => Controls_Manager::DIVIDER,
@@ -140,6 +224,8 @@ class CourseListWidget extends WidgetBase {
 			array(),
 			array(
 				'{{WRAPPER}} .masteriyo-course--img-wrap' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__image' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__thumbnail-image' => 'display: none !important;',
 			)
 		);
 
@@ -159,9 +245,26 @@ class CourseListWidget extends WidgetBase {
 		$this->add_on_off_switch_control(
 			'show_categories',
 			__( 'Categories', 'learning-management-system' ),
-			array(),
+			array(
+				'conditions' => array(
+					'relation' => 'or',
+					'terms'    => array(
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'default',
+						),
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'layout1',
+						),
+					),
+				),
+			),
 			array(
 				'{{WRAPPER}} .masteriyo-course--content__category' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-category' => 'display: none !important;',
 			)
 		);
 
@@ -170,16 +273,35 @@ class CourseListWidget extends WidgetBase {
 			__( 'Course Title', 'learning-management-system' ),
 			array(),
 			array(
-				'{{WRAPPER}} .masteriyo-course--content__title a' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course--content__title a'              => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__content--course-title'   => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__content--course-title'    => 'display: none !important;',
 			)
 		);
 
 		$this->add_on_off_switch_control(
 			'show_author',
 			__( 'Author', 'learning-management-system' ),
-			array(),
+			array(
+				'conditions' => array(
+					'relation' => 'or',
+					'terms'    => array(
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'default',
+						),
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'layout1',
+						),
+					),
+				),
+			),
 			array(
 				'{{WRAPPER}} .masteriyo-course-author' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-author-image'  => 'display: none !important;',
 			)
 		);
 
@@ -187,12 +309,35 @@ class CourseListWidget extends WidgetBase {
 			'show_author_avatar',
 			__( 'Avatar of Author', 'learning-management-system' ),
 			array(
-				'condition' => array(
-					'show_author' => 'yes',
+				'conditions' => array(
+					'relation' => 'and',
+					'terms'    => array(
+						array(
+							'name'     => 'show_author',
+							'operator' => '===',
+							'value'    => 'yes',
+						),
+						array(
+							'relation' => 'or',
+							'terms'    => array(
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'default',
+								),
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'layout1',
+								),
+							),
+						),
+					),
 				),
 			),
 			array(
 				'{{WRAPPER}} .masteriyo-course-author img' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-author-image'      => 'display: none !important;',
 			)
 		);
 
@@ -202,6 +347,7 @@ class CourseListWidget extends WidgetBase {
 			array(
 				'condition' => array(
 					'show_author' => 'yes',
+					'layout'      => 'default',
 				),
 			),
 			array(
@@ -215,15 +361,22 @@ class CourseListWidget extends WidgetBase {
 			array(),
 			array(
 				'{{WRAPPER}} .masteriyo-rating' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__content--rating' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__content--rating' => 'display: none !important;',
 			)
 		);
 
 		$this->add_on_off_switch_control(
 			'show_course_description',
 			__( 'Highlights / Description', 'learning-management-system' ),
-			array(),
 			array(
-				'{{WRAPPER}} .masteriyo-course--content__description' => 'display: none !important;',
+				'condition' => array(
+					'layout' => 'default',
+				),
+			),
+			array(
+				'{{WRAPPER}} .masteriyo-course--content__description'  => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__content--desc'    => 'display: none !important;',
 			)
 		);
 
@@ -232,6 +385,9 @@ class CourseListWidget extends WidgetBase {
 			__( 'Meta Data', 'learning-management-system' ),
 			array(
 				'description' => __( 'Show/hide the section containing information on number of students, course hours etc.', 'learning-management-system' ),
+				'condition'   => array(
+					'layout' => 'default',
+				),
 			),
 			array(
 				'{{WRAPPER}} .masteriyo-course--content__stats' => 'display: none !important;',
@@ -244,6 +400,7 @@ class CourseListWidget extends WidgetBase {
 			array(
 				'condition' => array(
 					'show_metadata' => 'yes',
+					'layout'        => 'default',
 				),
 			),
 			array(
@@ -257,6 +414,7 @@ class CourseListWidget extends WidgetBase {
 			array(
 				'condition' => array(
 					'show_metadata' => 'yes',
+					'layout'        => 'default',
 				),
 			),
 			array(
@@ -270,6 +428,7 @@ class CourseListWidget extends WidgetBase {
 			array(
 				'condition' => array(
 					'show_metadata' => 'yes',
+					'layout'        => 'default',
 				),
 			),
 			array(
@@ -280,9 +439,26 @@ class CourseListWidget extends WidgetBase {
 		$this->add_on_off_switch_control(
 			'show_card_footer',
 			__( 'Footer', 'learning-management-system' ),
-			array(),
 			array(
-				'{{WRAPPER}} .masteriyo-course-card-footer' => 'display: none !important;',
+				'conditions' => array(
+					'relation' => 'or',
+					'terms'    => array(
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'default',
+						),
+						array(
+							'name'     => 'layout',
+							'operator' => '===',
+							'value'    => 'layout1',
+						),
+					),
+				),
+			),
+			array(
+				'{{WRAPPER}} .masteriyo-course-card-footer'    => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-archive--aside' => 'display: none !important;',
 			)
 		);
 
@@ -290,12 +466,49 @@ class CourseListWidget extends WidgetBase {
 			'show_price',
 			__( 'Price', 'learning-management-system' ),
 			array(
-				'condition' => array(
-					'show_card_footer' => 'yes',
+				'conditions' => array(
+					'relation' => 'and',
+					'terms'    => array(
+						array(
+							'name'     => 'show_card_footer',
+							'operator' => '===',
+							'value'    => 'yes',
+						),
+						array(
+							'relation' => 'or',
+							'terms'    => array(
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'default',
+								),
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'layout1',
+								),
+							),
+						),
+					),
 				),
 			),
 			array(
 				'{{WRAPPER}} .masteriyo-course-price' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__content--rating-amount' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__content--amount' => 'display: none !important;',
+			)
+		);
+
+		$this->add_on_off_switch_control(
+			'show_price_layout2',
+			__( 'Price', 'learning-management-system' ),
+			array(
+				'condition' => array(
+					'layout' => 'layout2',
+				),
+			),
+			array(
+				'{{WRAPPER}} .masteriyo-course-card__content--amount' => 'display: none !important;',
 			)
 		);
 
@@ -303,12 +516,35 @@ class CourseListWidget extends WidgetBase {
 			'show_enroll_button',
 			__( 'Enroll Button', 'learning-management-system' ),
 			array(
-				'condition' => array(
-					'show_card_footer' => 'yes',
+				'conditions' => array(
+					'relation' => 'and',
+					'terms'    => array(
+						array(
+							'name'     => 'show_card_footer',
+							'operator' => '===',
+							'value'    => 'yes',
+						),
+						array(
+							'relation' => 'or',
+							'terms'    => array(
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'default',
+								),
+								array(
+									'name'     => 'layout',
+									'operator' => '===',
+									'value'    => 'layout1',
+								),
+							),
+						),
+					),
 				),
 			),
 			array(
-				'{{WRAPPER}} .masteriyo-enroll-btn' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-enroll-btn'        => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-btn-enroll-course' => 'display: none !important;',
 			)
 		);
 
@@ -476,7 +712,7 @@ class CourseListWidget extends WidgetBase {
 	 */
 	protected function register_layout_style_section() {
 		$this->start_controls_section(
-			'layout',
+			'layout_style',
 			array(
 				'label' => __( 'Layout', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
@@ -2352,6 +2588,7 @@ class CourseListWidget extends WidgetBase {
 			'post_type'      => PostType::COURSE,
 			'status'         => array( PostStatus::PUBLISH ),
 			'posts_per_page' => $limit,
+			'paged'          => $is_related_course_query ? 1 : max( 1, get_query_var( 'paged' ), get_query_var( 'page' ) ),
 			'order'          => 'DESC',
 			'orderby'        => 'date',
 			'tax_query'      => $tax_query,
@@ -2366,9 +2603,9 @@ class CourseListWidget extends WidgetBase {
 			$args['author__not_in'] = $settings['exclude_instructors'];
 		}
 
-		$order = strtoupper( $settings['sorting_order'] );
+		$order = strtoupper( isset( $settings['sorting_order'] ) ? $settings['sorting_order'] : 'DESC' );
 
-		switch ( $settings['order_by'] ) {
+		switch ( isset( $settings['order_by'] ) ? $settings['order_by'] : 'date' ) {
 			case 'date':
 				$args['orderby'] = 'date';
 				$args['order']   = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
@@ -2397,11 +2634,75 @@ class CourseListWidget extends WidgetBase {
 				break;
 		}
 
-		$courses_query               = new \WP_Query( $args );
-		$GLOBALS['mto_course_query'] = $courses_query;
-		$courses                     = array_filter( array_map( 'masteriyo_get_course', $courses_query->posts ) );
+		$courses_query = new \WP_Query( $args );
 
-		printf( '<div class="masteriyo">' );
+		// Deliberately left set after render: the Course Archive Pagination widget
+		// renders later on the page and paginates against this query.
+		$GLOBALS['mto_course_query'] = $courses_query;
+
+		$courses = array_filter( array_map( 'masteriyo_get_course', $courses_query->posts ) );
+
+		// Expose this widget's filter toggles to the archive templates (overrides
+		// globals, scoped to this render). Related-courses lists never show filters.
+		$filters_enabled = ! $is_related_course_query && masteriyo_string_to_bool( $settings['show_filter'] ?? '' );
+
+		$GLOBALS['masteriyo_elementor_filters'] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			'enabled'    => $filters_enabled,
+			'category'   => $filters_enabled && masteriyo_string_to_bool( $settings['filter_category'] ?? 'yes' ),
+			'difficulty' => $filters_enabled && masteriyo_string_to_bool( $settings['filter_difficulty'] ?? 'yes' ),
+			'price_type' => $filters_enabled && masteriyo_string_to_bool( $settings['filter_price_type'] ?? 'yes' ),
+			'price'      => $filters_enabled && masteriyo_string_to_bool( $settings['filter_price'] ?? 'yes' ),
+			'rating'     => $filters_enabled && masteriyo_string_to_bool( $settings['filter_rating'] ?? 'yes' ),
+		);
+
+		$layout = isset( $settings['layout'] ) ? $settings['layout'] : 'default';
+
+		// Expose this widget's component toggles to the card templates (overrides
+		// globals, scoped to this render). Layout 2 has its own Price toggle.
+		$show = function ( $control_name ) use ( $settings ) {
+			return masteriyo_string_to_bool( $settings[ $control_name ] ?? 'yes' );
+		};
+
+		$GLOBALS['masteriyo_elementor_display_options'] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			'showThumbnail'         => $show( 'show_thumbnail' ),
+			'showDifficultyBadge'   => $show( 'show_difficulty_badge' ),
+			'showCategories'        => $show( 'show_categories' ),
+			'showCourseTitle'       => $show( 'show_course_title' ),
+			'showAuthor'            => $show( 'show_author' ),
+			'showAuthorAvatar'      => $show( 'show_author_avatar' ),
+			'showAuthorName'        => $show( 'show_author_name' ),
+			'showRating'            => $show( 'show_rating' ),
+			'showCourseDescription' => $show( 'show_course_description' ),
+			'showMetadata'          => $show( 'show_metadata' ),
+			'showCourseDuration'    => $show( 'show_course_duration' ),
+			'showStudentsCount'     => $show( 'show_students_count' ),
+			'showLessonsCount'      => $show( 'show_lessons_count' ),
+			'showCardFooter'        => $show( 'show_card_footer' ),
+			'showPrice'             => 'layout2' === $layout ? $show( 'show_price_layout2' ) : $show( 'show_price' ),
+			'showEnrollButton'      => $show( 'show_enroll_button' ),
+		);
+
+		$layout_template_map = array(
+			'layout1' => 'content-course-1.php',
+			'layout2' => 'content-course-2.php',
+		);
+		$card_template       = isset( $layout_template_map[ $layout ] ) ? $layout_template_map[ $layout ] : 'content-course.php';
+
+		$original_block_template             = isset( $GLOBALS['masteriyo_block_template'] ) ? $GLOBALS['masteriyo_block_template'] : null;
+		$GLOBALS['masteriyo_block_template'] = ( 'default' !== $layout ) ? $layout : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$layout_attr_map = array(
+			'layout1' => 'layout_1',
+			'layout2' => 'layout_2',
+		);
+		$data_layout     = isset( $layout_attr_map[ $layout ] ) ? $layout_attr_map[ $layout ] : '';
+		$layout_class    = $data_layout ? ' ' . $data_layout : '';
+		printf(
+			'<div class="masteriyo masteriyo-course-list-display-section%s"%s>',
+			esc_attr( $layout_class ),
+			$data_layout ? ' data-layout="' . esc_attr( $data_layout ) . '"' : ''
+		);
+		do_action( 'masteriyo_before_course_archive_loop' );
 		masteriyo_set_loop_prop( 'columns', $columns );
 
 		if ( count( $courses ) > 0 ) {
@@ -2414,7 +2715,7 @@ class CourseListWidget extends WidgetBase {
 				$card_class        = empty( $settings['card_hover_animation'] ) ? '' : sprintf( 'elementor-animation-%s', $settings['card_hover_animation'] );
 
 				masteriyo_get_template(
-					'content-course.php',
+					$card_template,
 					array(
 						'card_class' => $card_class,
 					)
@@ -2425,7 +2726,33 @@ class CourseListWidget extends WidgetBase {
 
 			masteriyo_course_loop_end();
 			masteriyo_reset_loop();
+		} elseif ( Helper::is_elementor_editor() || Helper::is_elementor_preview() ) {
+			if ( $is_related_course_query ) {
+				$this->render_feature_disabled_notice( __( 'Related courses will display here when there are other courses in the same category.', 'learning-management-system' ) );
+			} else {
+				$this->render_feature_disabled_notice( __( 'No courses found.', 'learning-management-system' ) );
+			}
 		}
+
+		if ( ! $is_related_course_query && masteriyo_string_to_bool( $settings['show_pagination'] ?? 'yes' ) ) {
+			$pagination_links = masteriyo_paginate_links(
+				array(
+					'type'      => 'list',
+					'prev_text' => masteriyo_get_svg( 'left-arrow' ),
+					'next_text' => masteriyo_get_svg( 'right-arrow' ),
+				),
+				$courses_query
+			);
+
+			if ( ! empty( $pagination_links ) ) {
+				echo wp_kses( $pagination_links, 'masteriyo_pagination' );
+			}
+		}
+
 		echo '</div>';
+
+		// Restore globals so nothing leaks past this widget's render.
+		unset( $GLOBALS['masteriyo_elementor_filters'], $GLOBALS['masteriyo_elementor_display_options'] );
+		$GLOBALS['masteriyo_block_template'] = $original_block_template; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 }

@@ -2,7 +2,9 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
+	Button,
 	Collapse,
+	Flex,
 	FormLabel,
 	HStack,
 	IconButton,
@@ -14,6 +16,7 @@ import {
 	Switch,
 	Text,
 	Textarea,
+	useClipboard,
 	VStack,
 } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
@@ -35,6 +38,7 @@ interface MolliePaymentsSettingsMap extends PaymentsSettingsMap {
 		live_publishable_key: string;
 		live_api_key: string;
 		webhook_secret: string;
+		webhook_url?: string;
 		error_message?: string;
 	};
 }
@@ -51,6 +55,10 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 		liveSandboxKey: false,
 		webhookKey: false,
 	});
+	const { onCopy, hasCopied } = useClipboard(
+		paymentsData?.mollie?.webhook_url ?? '',
+		2000,
+	);
 
 	const showMollieSandBoxOptions = useWatch({
 		name: 'payments.mollie.sandbox',
@@ -189,6 +197,32 @@ const MollieGlobalSettings: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 				</Stack>
 			</Collapse>
+
+			{paymentsData?.mollie?.webhook_url && (
+				<FormControlTwoCol>
+					<FormLabel m={0} minW="160px">
+						{__('Webhook URL', 'learning-management-system')}
+						<ToolTip
+							label={__(
+								'The URL Mollie calls to notify your site about payments. Copy it into your Mollie dashboard if you configure webhooks manually.',
+								'learning-management-system',
+							)}
+						/>
+					</FormLabel>
+					<Flex mb={2}>
+						<Input
+							type="text"
+							isReadOnly
+							value={paymentsData?.mollie?.webhook_url}
+						/>
+						<Button colorScheme="blue" onClick={onCopy} ms={2} flexShrink={0}>
+							{hasCopied
+								? __('Copied', 'learning-management-system')
+								: __('Copy', 'learning-management-system')}
+						</Button>
+					</Flex>
+				</FormControlTwoCol>
+			)}
 
 			{paymentsData?.mollie?.error_message && (
 				<Alert status="error">

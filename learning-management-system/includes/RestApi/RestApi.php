@@ -49,6 +49,7 @@ use Masteriyo\RestApi\Controllers\Version1\RolesController;
 use Masteriyo\RestApi\Controllers\Version1\WebhooksController;
 use Masteriyo\RestApi\Controllers\Version1\OpenAIController;
 use Masteriyo\RestApi\Controllers\Version1\UsersImportExportController;
+use Masteriyo\RestApi\Controllers\Version1\NavMenuController;
 use Masteriyo\RestApi\Controllers\Version1\UtilitiesController;
 use Masteriyo\RestApi\Controllers\Version1\LogsController;
 use Masteriyo\RestApi\Controllers\Version1\OnboardingController;
@@ -163,6 +164,7 @@ class RestApi {
 			'openai'                => OpenAIController::class,
 			'users.import-export'   => UsersImportExportController::class,
 			'quizzes.import-export' => QuizzesImportExportController::class,
+			'nav-menu-notice'       => NavMenuController::class,
 			'tools.utilities'       => UtilitiesController::class,
 			'changelog'             => ChangelogController::class,
 			'logger'                => LogsController::class,

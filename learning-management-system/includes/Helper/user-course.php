@@ -108,12 +108,15 @@ function masteriyo_get_user_course_statuses() {
  *
  * @since 1.0.0
  * @since 1.6.7 Argument $course supports array.
+ * @since x.x.x Added optional $start_date and $end_date to scope the count by enrollment date.
  *
  * @param int|int[] $course Course Id or Course IDS
+ * @param string|null $start_date Optional. Lower bound (inclusive) for date_start, as 'Y-m-d H:i:s'.
+ * @param string|null $end_date Optional. Upper bound (inclusive) for date_start, as 'Y-m-d H:i:s'.
  *
  * @return integer
  */
-function masteriyo_count_enrolled_users( $course ) {
+function masteriyo_count_enrolled_users( $course, $start_date = null, $end_date = null ) {
 	global $wpdb;
 
 	$count = 0;
@@ -149,6 +152,10 @@ function masteriyo_count_enrolled_users( $course ) {
 			$sql         .= $wpdb->prepare( ' AND item_id IN (' . implode( ',', $placeholders ) . ')', $course ); //phpcs:ignore
 		} else {
 			$sql .= $wpdb->prepare( ' AND item_id = %d', $course );
+		}
+
+		if ( $start_date && $end_date ) {
+			$sql .= $wpdb->prepare( ' AND date_start >= %s AND date_start <= %s', $start_date, $end_date );
 		}
 
 		$count = $wpdb->get_var( $sql ); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -258,11 +265,15 @@ function masteriyo_get_active_courses_count( $user ) {
  *
  * @since 1.0.0
  * @since 1.6.7 Argument $course supports array.
+ * @since x.x.x Added optional $start_date and $end_date to scope the count by enrollment date.
+ *
  * @param int|int[] $course Course id or array of course ids.
+ * @param string|null $start_date Optional. Lower bound (inclusive) for date_start, as 'Y-m-d H:i:s'.
+ * @param string|null $end_date Optional. Upper bound (inclusive) for date_start, as 'Y-m-d H:i:s'.
  *
  * @return int
  */
-function masteriyo_get_user_courses_count_by_course( $course ) {
+function masteriyo_get_user_courses_count_by_course( $course, $start_date = null, $end_date = null ) {
 	global $wpdb;
 
 	$count = 0;
@@ -279,6 +290,10 @@ function masteriyo_get_user_courses_count_by_course( $course ) {
 			$sql         .= $wpdb->prepare( 'AND item_id IN (' . implode( ',', $placeholders ) . ')', $course ); // phpcs:ignore
 		} else {
 			$sql .= $wpdb->prepare( 'AND item_id = %d', $course );
+		}
+
+		if ( $start_date && $end_date ) {
+			$sql .= $wpdb->prepare( ' AND date_start >= %s AND date_start <= %s', $start_date, $end_date );
 		}
 
 		$count = $wpdb->get_var( $sql ); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

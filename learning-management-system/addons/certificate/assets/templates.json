@@ -1,0 +1,5708 @@
+[
+  {
+    "id": "course-completion-certificate",
+    "name": "Course Completion Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "status": "draft",
+      "versionHistory": [],
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "cmOKZWGS9ZURNf04",
+              "type": "shape",
+              "style": {
+                "width": "16px",
+                "height": "794px",
+                "transform": "translate(1008.7716366px, 9.9px) rotate(0deg) scale(1, 1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#0a4655"
+                }
+              }
+            },
+            {
+              "id": "O-ERKHKbwdq4LgRX",
+              "type": "shape",
+              "style": {
+                "width": "4px",
+                "height": "794px",
+                "transform": "translate(1028.6050593999998px, 9.9px) rotate(0deg) scale(1, 1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#0a4655"
+                }
+              }
+            },
+            {
+              "id": "h07NCvb6g70Rkqir",
+              "type": "shape",
+              "style": {
+                "width": "4px",
+                "height": "794px",
+                "transform": "translate(1000.6050594000001px, 10px) rotate(0deg) scale(1, 1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#0a4655"
+                }
+              }
+            },
+            {
+              "id": "cD6Pm530kP-GMaqR",
+              "type": "text",
+              "style": {
+                "width": "561px",
+                "height": "95px",
+                "transform": "translate(281.4px,87.089px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">CERTIFICATE</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CERTIFICATE"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontSize": 68,
+                  "fontFamily": "Playfair Display",
+                  "fontWeight": "700",
+                  "color": "#0a4655"
+                }
+              }
+            },
+            {
+              "id": "f8zAbX5uCEXfiTLJ",
+              "type": "text",
+              "style": {
+                "width": "387px",
+                "height": "45px",
+                "transform": "translate(368.4px,175.105px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">OF COMPLETION</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "OF COMPLETION"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontSize": 28,
+                  "fontWeight": "700",
+                  "color": "#011029",
+                  "fontFamily": "Red Hat Display"
+                }
+              }
+            },
+            {
+              "id": "-o2dPcyRSaX0gXzn",
+              "type": "text",
+              "style": {
+                "width": "580px",
+                "height": "29px",
+                "transform": "translate(271.6px,250.053px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">THIS CERTIFICATE IS PROUDLY PRESENTED TO</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "THIS CERTIFICATE IS PROUDLY PRESENTED TO"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontWeight": "600",
+                  "fontSize": 20,
+                  "color": "#383838"
+                }
+              }
+            },
+            {
+              "id": "YwQlox8ay56KyMmV",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "391.1000000000001px",
+                "height": "13.100000000000023px",
+                "transform": "translate(366.1px,355.122px) rotate(0deg) scale(1,1)"
+              },
+              "children": [
+                {
+                  "id": "fOWIIemkcmpZ9RJ3",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(-20.950001999999984px, -19.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "FtYlWXC3Sl2Tm6Bk",
+                  "type": "divider",
+                  "style": {
+                    "width": "363px",
+                    "height": 3,
+                    "transform": "translate(14.000072800000055px, 6.000595800000042px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "2px solid #0a4655",
+                    "color": "#0a4655"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 2,
+                    "style": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "DdgRs4WAueYBzE5k",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(358.049996px, -20.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "jo5gnc8xEANJXaUf",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "391.1000000000001px",
+                "height": "13.100000000000023px",
+                "transform": "translate(148.9857848px, 640.8660405px) rotate(0deg) scale(0.4682462691772785, 0.46824626917727935)"
+              },
+              "children": [
+                {
+                  "id": "4CAgp7J0TJBRGEZC",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(-20.950001999999984px, -19.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "vs7YafdBLjKvXbs_",
+                  "type": "divider",
+                  "style": {
+                    "width": "363px",
+                    "height": 3,
+                    "transform": "translate(14.000072800000055px, 6.000595800000042px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "2px solid #0a4655",
+                    "color": "#0a4655"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 2,
+                    "style": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "gtphdbmp_9RNhFMj",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(358.049996px, -20.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "LdGY-3HKPLmUYzvS",
+              "type": "text",
+              "style": {
+                "width": "157px",
+                "height": "29px",
+                "transform": "translate(266px, 659.1881053px) rotate(0deg) scale(1, 1)"
+              },
+              "content": "<div style=\"text-align: center;\">COURSE INSTRUCTOR</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontSize": 14,
+                  "color": "#383838",
+                  "fontWeight": "700"
+                }
+              }
+            },
+            {
+              "id": "bfSxf7i0X9kgra68",
+              "type": "text",
+              "style": {
+                "width": "323px",
+                "height": "27px",
+                "transform": "translate(400.4px,393.057px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">For successfully completing the course</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "color": "#4e4e4e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For successfully completing the course"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "q3XwVoP3ekqnfezB",
+              "type": "text",
+              "style": {
+                "width": "94px",
+                "height": "24px",
+                "transform": "translate(385.6px,499.4px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">DURATION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "color": "#6b7591"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "DURATION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "uM-layELJSWVh_iR",
+              "type": "image",
+              "style": {
+                "width": "122px",
+                "height": "156px",
+                "transform": "translate(956.471px,111.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalHeight": 157
+              }
+            },
+            {
+              "id": "qjcv4RFcarRVyUlv",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "230px",
+                "height": "32px",
+                "transform": "translate(51px,50px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Inter",
+                "fontWeight": "600",
+                "fontSize": "18px",
+                "color": "#0a4655"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "ADwV3UyS8R0dRgv3",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "494px",
+                "height": "54px",
+                "transform": "translate(314.6px,302px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "34px",
+                "color": "#c9952a",
+                "textAlign": "center"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "LUOmzG-dSdNqfhta",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "576px",
+                "height": "39px",
+                "transform": "translate(273.6px,424px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Red Hat Display",
+                "fontWeight": "600",
+                "fontSize": "24px",
+                "color": "#4e4e4e",
+                "textAlign": "center"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "\"{ Course Title }\""
+              }
+            },
+            {
+              "id": "QRWJkwa2_gVHtYRI",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "200px",
+                "height": "26px",
+                "transform": "translate(332px,521px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Red Hat Display",
+                "fontWeight": "600",
+                "fontSize": "15px",
+                "color": "#0f1e3d",
+                "textAlign": "center"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "1K93j5i87oal_QLR",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "196px",
+                "height": "26px",
+                "transform": "translate(694px,614px) rotate(0deg) scale(1,1)",
+                "textAlign": "center",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "18px",
+                "color": "#383838"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "gOKDuq6tNjaXPuPB",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "236px",
+                "height": "28px",
+                "transform": "translate(225px,613px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "18px",
+                "color": "#383838",
+                "textAlign": "center"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "NZF7kUlz5oOzL5dd",
+              "type": "text",
+              "style": {
+                "width": "133px",
+                "height": "24px",
+                "transform": "translate(625.3px,499px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COURSE STARTED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "color": "#6b7591"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE STARTED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "jue4zpjjh6q_4UBE",
+              "type": "masteriyo__start_date",
+              "name": "Start Date",
+              "style": {
+                "width": 200,
+                "height": 30,
+                "transform": "translate(591.2px,523.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Red Hat Display",
+                "fontWeight": "600",
+                "fontSize": "15px",
+                "color": "#0f1e3d",
+                "textAlign": "center"
+              },
+              "content": "{ Start Date }",
+              "props": {
+                "field": "masteriyo:start_date",
+                "content": "{ Start Date }"
+              }
+            },
+            {
+              "id": "LcULQdy_kzIXiCI2",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "390.992125984252px",
+                "height": "13.100000000000023px",
+                "transform": "translate(596.476px,640.8517318px) rotate(0deg) scale(0.44493922190705254,0.44493922190705215)"
+              },
+              "children": [
+                {
+                  "id": "H3LOZlOTR8SE8sPN",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(-20.950001999999984px, -19.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "979z-7GQ6lFSUGjb",
+                  "type": "divider",
+                  "style": {
+                    "width": "363px",
+                    "height": 3,
+                    "transform": "translate(14.000072800000055px, 6.000595800000042px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "2px solid #0a4655",
+                    "color": "#0a4655"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 2,
+                    "style": {
+                      "color": "#0a4655"
+                    }
+                  }
+                },
+                {
+                  "id": "Rlj4eOfviaPZXWcV",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(358.049996px, -20.950001999999984px) rotate(0deg) scale(0.22407407407407398, 0.22407407407407398)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 508,
+                    "background": {
+                      "color": "#0a4655"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "bMNExeBTEd7fnS4W",
+              "type": "text",
+              "style": {
+                "width": "157px",
+                "height": "29px",
+                "transform": "translate(717px,659.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COURSE COMPLETED</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE COMPLETED"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "Red Hat Display",
+                  "fontSize": 14,
+                  "color": "#383838",
+                  "fontWeight": "700"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "settings": {
+        "name": "Course Completion Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "color": "#0a45540d"
+        }
+      },
+      "fonts": [
+        [
+          "playfair-display",
+          {
+            "id": "playfair-display",
+            "family": "Playfair Display",
+            "url": "https://fonts.googleapis.com/css2?family=Playfair%20Display:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "red-hat-display",
+          {
+            "id": "red-hat-display",
+            "family": "Red Hat Display",
+            "url": "https://fonts.googleapis.com/css2?family=Red%20Hat%20Display:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "dm-serif-display",
+          {
+            "id": "dm-serif-display",
+            "family": "DM Serif Display",
+            "url": "https://fonts.googleapis.com/css2?family=DM%20Serif%20Display:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "inter",
+          {
+            "id": "inter",
+            "family": "Inter",
+            "url": "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "id": "certificate-of-excellence",
+    "name": "Certificate of Excellence",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "amrzUujKcKgAKV2J",
+              "type": "shape",
+              "style": {
+                "width": "1123px",
+                "height": "179px",
+                "transform": "translate(0px,0px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#f4f6ff"
+                }
+              }
+            },
+            {
+              "id": "AgUIBpWneav2AFsb",
+              "type": "shape",
+              "style": {
+                "width": "77px",
+                "height": "179px",
+                "transform": "translate(0px,0px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#2246dc"
+                }
+              }
+            },
+            {
+              "id": "4sucy3Lhyzqd9tTn",
+              "type": "text",
+              "style": {
+                "width": "160px",
+                "height": "24px",
+                "transform": "translate(110.463px,45.0168px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>CERTIFICATE OF COMPLETION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 10,
+                  "fontWeight": "400",
+                  "color": "#2246dc"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CERTIFICATE OF COMPLETION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "G9XN5oqXpILnrLSv",
+              "type": "text",
+              "style": {
+                "width": "242px",
+                "height": "50px",
+                "transform": "translate(110px,61.1px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Academic</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 36,
+                  "fontWeight": "800",
+                  "color": "#111118"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Academic"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "6us7LAJRUJ3JZq1h",
+              "type": "text",
+              "style": {
+                "width": "235px",
+                "height": "50px",
+                "transform": "translate(109.919px,95.029px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Excellence</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 36,
+                  "fontWeight": "800",
+                  "color": "#2246dc"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Excellence"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "vuQ-TEkoELVYWso6",
+              "type": "divider",
+              "style": {
+                "width": "1123px",
+                "height": 0,
+                "transform": "translate(0px,675.7894737px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #e8eaef",
+                "color": "#e8eaef"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#e8eaef"
+                }
+              }
+            },
+            {
+              "id": "ebicCVg1uLR1ZKjr",
+              "type": "text",
+              "style": {
+                "width": "405px",
+                "height": "24px",
+                "transform": "translate(110px,263.279px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>THIS CERTIFICATE IS PROUDLY AWARDED TO</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#8b90a4"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "THIS CERTIFICATE IS PROUDLY AWARDED TO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "1y1LadTFx6SM7eMG",
+              "type": "divider",
+              "style": {
+                "width": "625px",
+                "height": 0,
+                "transform": "translate(110px,343.526px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #2246dc",
+                "color": "#2246dc"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#2246dc"
+                }
+              }
+            },
+            {
+              "id": "hYFB34ox5LLNHvEx",
+              "type": "text",
+              "style": {
+                "width": "381px",
+                "height": "24px",
+                "transform": "translate(110px,381.973px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>FOR SUCCESSFULLY COMPLETING THE COURSE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#8b90a4"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "FOR SUCCESSFULLY COMPLETING THE COURSE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "aNEtfGCAV7wXipMM",
+              "type": "text",
+              "style": {
+                "width": "115px",
+                "height": "24px",
+                "transform": "translate(106px,626.119px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>COMPLETION DATE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 10,
+                  "fontWeight": "400",
+                  "color": "#8b90a4"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETION DATE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "rS0A_jiihE96OcKj",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(106px,614.41px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #e8eaef",
+                "color": "#e8eaef"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#e8eaef"
+                }
+              }
+            },
+            {
+              "id": "5LfOQiVv8BVC857Q",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(457.6px,613.4px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #e8eaef",
+                "color": "#e8eaef"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#e8eaef"
+                }
+              }
+            },
+            {
+              "id": "puHrnMLBXHo6o303",
+              "type": "text",
+              "style": {
+                "width": "115px",
+                "height": "24px",
+                "transform": "translate(457.6px,626.091px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>DURATION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 10,
+                  "fontWeight": "400",
+                  "color": "#8b90a4"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "DURATION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "7I5ZQxS09Y_ZQ9HN",
+              "type": "text",
+              "style": {
+                "width": "115px",
+                "height": "24px",
+                "transform": "translate(109.9px,748.882px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>COURSE INSTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Sora",
+                  "fontSize": 10,
+                  "fontWeight": "400",
+                  "color": "#8b90a4"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "VNkDi77A--w_OzOk",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(110px,738.41px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #e8eaef",
+                "color": "#e8eaef"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#e8eaef"
+                }
+              }
+            },
+            {
+              "id": "rQWWbY1tbzJQhZlK",
+              "type": "image",
+              "style": {
+                "width": "151px",
+                "height": "195px",
+                "transform": "translate(909.834px,39.0229px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalHeight": 157
+              }
+            },
+            {
+              "id": "qVshBL15lZqnPc7i",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "151px",
+                "height": "20px",
+                "transform": "translate(-36px,82px) rotate(-90deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "400",
+                "fontSize": "12px",
+                "textAlign": "center",
+                "color": "#ffffff"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "JEHBW4RrftfoOVFy",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "624px",
+                "height": "53px",
+                "transform": "translate(110px,291px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "700",
+                "fontSize": "36px",
+                "color": "#121111"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "HH1OFgMO4TTPVCUB",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "913px",
+                "height": "55px",
+                "transform": "translate(110px,407px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "600",
+                "fontSize": "20px",
+                "color": "#111118"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "SibxCdUu7D9hUDPa",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "200px",
+                "height": "23px",
+                "transform": "translate(106px,586px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "500",
+                "fontSize": "14px"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "03xWFzPsZAHZvmRE",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "202px",
+                "height": "24px",
+                "transform": "translate(458px,585px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "500",
+                "fontSize": "14px"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "_q5gz49L79T5H5Yw",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "229px",
+                "height": "21px",
+                "transform": "translate(110px,713px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Sora",
+                "fontWeight": "500",
+                "fontSize": "14px"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "IRxTNl54LZex7bvm",
+              "type": "masteriyo__current_timestamp",
+              "name": "Timestamp",
+              "style": {
+                "width": "181px",
+                "height": "21px",
+                "transform": "translate(842.4px,723.5px) rotate(0deg) scale(1,1)",
+                "textAlign": "right",
+                "fontFamily": "Sora",
+                "fontWeight": "500",
+                "fontSize": "14px",
+                "color": "#8b90a4"
+              },
+              "content": "{ Timestamp }",
+              "props": {
+                "field": "masteriyo:current_timestamp",
+                "content": "{ Timestamp }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Certificate of Excellence",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  },
+  {
+    "id": "academic-excellence-certificate",
+    "name": "Academic Excellence Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "cTUaDDDhNk2XsVFf",
+              "type": "image",
+              "style": {
+                "width": "123px",
+                "height": "155px",
+                "transform": "translate(500px,0px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalHeight": 157
+              }
+            },
+            {
+              "id": "1xtmPfT8ce7aro7v",
+              "type": "text",
+              "style": {
+                "width": "407px",
+                "height": "168px",
+                "transform": "translate(358px,193.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">CERTIFICATE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 60,
+                  "fontWeight": "700",
+                  "color": "#151515"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CERTIFICATE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "LZ73GYpP91M29zJg",
+              "type": "text",
+              "style": {
+                "width": "251px",
+                "height": "39px",
+                "transform": "translate(436px,269.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">OF ACHIEVEMENT</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 28,
+                  "fontWeight": "500",
+                  "color": "#3e3e3e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "OF ACHIEVEMENT"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "lFmallM-rxXc211t",
+              "type": "text",
+              "style": {
+                "width": "180px",
+                "height": "30px",
+                "transform": "translate(471.5px,328.3px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">This is to certify that</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 18,
+                  "fontWeight": "300",
+                  "color": "#4e4e4e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "This is to certify that"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "xtWNdF3icFojrkqK",
+              "type": "image",
+              "style": {
+                "width": "331px",
+                "height": "26px",
+                "transform": "translate(396.1px,414.4px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalHeight": 808
+              }
+            },
+            {
+              "id": "FudCicl_-j8RJooU",
+              "type": "text",
+              "style": {
+                "width": "587px",
+                "height": "29px",
+                "transform": "translate(268.1px,457.879px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">in recognition of the successful completion of the course</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 18,
+                  "fontWeight": "300",
+                  "color": "#4e4e4e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "in recognition of the successful completion of the course"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "Fuj_OzG_AEG4Cq9G",
+              "type": "divider",
+              "style": {
+                "width": "233px",
+                "height": 1,
+                "transform": "translate(203px,710.7053158px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #1f5b52",
+                "color": "#1f5b52"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#1f5b52"
+                }
+              }
+            },
+            {
+              "id": "mdF8s-vO5ygEvecn",
+              "type": "text",
+              "style": {
+                "width": "191px",
+                "height": "26px",
+                "transform": "translate(224px,721.8225263px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COURSE INSTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#272727"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "RvqrVKOE2WP7Q-8v",
+              "type": "divider",
+              "style": {
+                "width": "233px",
+                "height": 1,
+                "transform": "translate(689.6px,710.705px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #1f5b52",
+                "color": "#1f5b52"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#1f5b52"
+                }
+              }
+            },
+            {
+              "id": "b_O0TBzhjrBO6tGM",
+              "type": "text",
+              "style": {
+                "width": "191px",
+                "height": "26px",
+                "transform": "translate(710.6px,721.823px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">INSTITUITION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#272727"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "INSTITUITION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "X5vnWU30V5VXAGiL",
+              "type": "text",
+              "style": {
+                "width": "119px",
+                "height": "24px",
+                "transform": "translate(515.954px,571.675px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Course Started</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "color": "#272727"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Course Started"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "R9vBSjcxJkTjugH-",
+              "type": "text",
+              "style": {
+                "width": "119px",
+                "height": "24px",
+                "transform": "translate(800px,570.05px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Completed On</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "color": "#272727"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Completed On"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "I0-ZalIFb2Faicdg",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "624px",
+                "height": "51px",
+                "transform": "translate(249.6px,362px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "34px",
+                "color": "#c3a95b",
+                "textAlign": "center"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "QVHxIcUAdGr_xcZY",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "450px",
+                "height": "37px",
+                "transform": "translate(336.6px,493.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "24px",
+                "color": "#1f5b52",
+                "textAlign": "center"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "\"{ Course Title }\""
+              }
+            },
+            {
+              "id": "UZaMERw6OFhWcicB",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "163px",
+                "height": "26px",
+                "transform": "translate(801px,594.55px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "400",
+                "fontSize": "15px",
+                "color": "#777777"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "XSFPSsoGsbjmraSD",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "238px",
+                "height": "23px",
+                "transform": "translate(198.5px,684.7px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "15px",
+                "color": "#3e3e3e",
+                "textAlign": "center"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "Q61u96dHgG6FbRe3",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "222px",
+                "height": "26px",
+                "transform": "translate(695.6px,684.7px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "15px",
+                "color": "#3e3e3e",
+                "textAlign": "center"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "QfkqKdnbLSrEdgBt",
+              "type": "text",
+              "style": {
+                "width": "119px",
+                "height": "24px",
+                "transform": "translate(210.954px,570.65px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Course Duration</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "color": "#272727"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Course Duration"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "LrcqBTalMrWCVco6",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": 200,
+                "height": 30,
+                "transform": "translate(211px,595.15px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "400",
+                "fontSize": "15px",
+                "color": "#777777"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "XCUQtqeAks-hH9eC",
+              "type": "masteriyo__start_date",
+              "name": "Start Date",
+              "style": {
+                "width": "132px",
+                "height": "20px",
+                "transform": "translate(516px,596.925px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "400",
+                "fontSize": "15px",
+                "color": "#777777"
+              },
+              "content": "{ Start Date }",
+              "props": {
+                "field": "masteriyo:start_date",
+                "content": "{ Start Date }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Academic Excellence Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "image": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:f8c17996ac796f9436e266d581a8c833/directUpload/certificate-background-pattern-1.png",
+          "imageProps": {
+            "id": "SuRgmwNAt68zmHcy",
+            "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:f8c17996ac796f9436e266d581a8c833/directUpload/certificate-background-pattern-1.png",
+            "croppedAreaPixels": {
+              "width": 2244,
+              "height": 1590,
+              "x": 4,
+              "y": 0
+            },
+            "modifiedAt": 1781768409919,
+            "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:f8c17996ac796f9436e266d581a8c833/directUpload/certificate-background-pattern-1.png",
+            "crop": {
+              "x": -0.8008180451585645,
+              "y": 0.3964004784155577
+            },
+            "zoom": 1.0012452533460938,
+            "rotation": 0
+          },
+          "color": "#fbfbfb"
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  },
+  {
+    "id": "deep-blue-appreciation-certificate",
+    "name": "Deep Blue Appreciation Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "L5sg0Msg87Y1A0dK",
+              "type": "text",
+              "style": {
+                "width": "388px",
+                "height": "73px",
+                "transform": "translate(80.2467px,80.2477px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>CERTIFICATE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fraunces",
+                  "fontSize": 52,
+                  "fontWeight": "600",
+                  "color": "#14324e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CERTIFICATE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "XVIauzfjVJJ7OHff",
+              "type": "text",
+              "style": {
+                "width": "379px",
+                "height": "48px",
+                "transform": "translate(80.2px,149.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>OF APPRECIATION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fraunces",
+                  "fontSize": 34,
+                  "fontWeight": "400",
+                  "color": "#233f5a"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "OF APPRECIATION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "u2YLUqp5pCprRb5U",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(80.2px,241.0507895px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>AWARDED TO</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "AWARDED TO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "2Q9bpSB-CMIqK9cJ",
+              "type": "text",
+              "style": {
+                "width": "583px",
+                "height": "60px",
+                "transform": "translate(80.2px,354.854px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>has successfully completed the following course on Masteriyo, demonstrating dedication, skill, and mastery of the material.</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "has successfully completed the following course on Masteriyo, demonstrating dedication, skill, and mastery of the material."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "pzmcy3TieizSLj18",
+              "type": "shape",
+              "style": {
+                "width": "396px",
+                "height": "54px",
+                "transform": "translate(80.1866px,433.063px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#f4f2ee"
+                },
+                "borderRadius": 13
+              }
+            },
+            {
+              "id": "XAfAKJiLqPiAi2jz",
+              "type": "text",
+              "style": {
+                "width": "72px",
+                "height": "24px",
+                "transform": "translate(80.2px,526.771px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>DURATION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "DURATION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "cfBgRIknwZYVAzLW",
+              "type": "text",
+              "style": {
+                "width": "72px",
+                "height": "24px",
+                "transform": "translate(80.3px,583.6736549px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>STARTED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "STARTED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "HeG1wNZ_caB29VTb",
+              "type": "text",
+              "style": {
+                "width": "127px",
+                "height": "24px",
+                "transform": "translate(416.4px,526.703px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>COMPLETED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "LFOmBZEexsKUxgm5",
+              "type": "divider",
+              "style": {
+                "width": "185px",
+                "height": 10,
+                "transform": "translate(81.3px,719.8px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #3a6ca5",
+                "color": "#3a6ca5"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#3a6ca5"
+                }
+              }
+            },
+            {
+              "id": "Ws2wqaCnyez9tzlZ",
+              "type": "text",
+              "style": {
+                "width": "185px",
+                "height": "24px",
+                "transform": "translate(81.3px,731.674px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>COURSE INSTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "color": "#8b91a8"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "QPywszOwTENErtCe",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "617px",
+                "height": "57px",
+                "transform": "translate(80px,277px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "40px",
+                "color": "#c79b47"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "sBH8cerIS8HqUkQ2",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "356px",
+                "height": "30px",
+                "transform": "translate(102px,447px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "18px",
+                "color": "#373737"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "_oCaaM0kkQIb87__",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "142px",
+                "height": "22px",
+                "transform": "translate(80px,545.3px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "13px",
+                "color": "#0f1430"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "7wUkBeG1A7cxWTpI",
+              "type": "masteriyo__start_date",
+              "name": "Start Date",
+              "style": {
+                "width": "125px",
+                "height": "21px",
+                "transform": "translate(80px,603px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "13px",
+                "color": "#0f1430"
+              },
+              "content": "{ Start Date }",
+              "props": {
+                "field": "masteriyo:start_date",
+                "content": "{ Start Date }"
+              }
+            },
+            {
+              "id": "T9LexH3On3bax5AJ",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "150px",
+                "height": "20px",
+                "transform": "translate(417.5px,546px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "13px",
+                "color": "#0f1430"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "m_Fxabq89iX8QbOe",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "200px",
+                "height": "19px",
+                "transform": "translate(80px,697.8px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Gabriela",
+                "fontWeight": "400",
+                "fontSize": "13px",
+                "color": "#0f1430"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "mL6qkiMjQMAzP7hK",
+              "type": "image",
+              "name": "Image",
+              "style": {
+                "width": "183px",
+                "height": "234px",
+                "transform": "translate(895.016px,114.804px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:769de5ba2d7f02003ebc1b02fc3975e8/directUpload/t-1.webp",
+                "originalHeight": 157
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Deep Blue Appreciation Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "imageProps": {
+            "id": "Lc2UKPCt4mtTZ-_u",
+            "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e892cf8bed164c90e43a74b2a1d37f4/directUpload/certificate-background-pattern-2.png",
+            "croppedAreaPixels": {
+              "width": 2244,
+              "height": 1590,
+              "x": 0,
+              "y": 0
+            },
+            "modifiedAt": 1781768549232,
+            "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e892cf8bed164c90e43a74b2a1d37f4/directUpload/certificate-background-pattern-2.png",
+            "crop": {
+              "x": 0.8008180451585645,
+              "y": 0.3964004784155577
+            },
+            "zoom": 1.0012452533460938,
+            "rotation": 0
+          },
+          "image": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e892cf8bed164c90e43a74b2a1d37f4/directUpload/certificate-background-pattern-2.png"
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  },
+  {
+    "id": "recognition-certificate",
+    "name": "Recognition Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "ttVGalLJCS_tcViR",
+              "type": "shape",
+              "style": {
+                "width": "300px",
+                "height": "797px",
+                "transform": "translate(0px,-0.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#610f1f"
+                }
+              }
+            },
+            {
+              "id": "syyHf6qOEKdBNZdf",
+              "type": "shape",
+              "style": {
+                "width": "74px",
+                "height": "74px",
+                "transform": "translate(113px,78.3px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "borderRadius": 310,
+                "background": {
+                  "color": "#84213d"
+                }
+              }
+            },
+            {
+              "id": "oPpPjXD89ywW8c0w",
+              "type": "shape",
+              "style": {
+                "width": "16px",
+                "height": "16px",
+                "transform": "translate(141.999636px,107.3px) rotate(-45deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#dfc077"
+                }
+              }
+            },
+            {
+              "id": "9ts4FdtB9Vz-InUX",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "239px",
+                "height": "15.627399999999994px",
+                "transform": "translate(30.5px,254.1741006px) rotate(0deg) scale(1,1)"
+              },
+              "children": [
+                {
+                  "id": "u9EVi0bApJKAjQq9",
+                  "type": "divider",
+                  "style": {
+                    "width": "99px",
+                    "height": 1,
+                    "transform": "translate(0.00004020000000082291px, 6.774800400000004px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "1px solid rgba(184,134,11,1)",
+                    "color": "rgba(184,134,11,1)"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 1,
+                    "style": {
+                      "color": "#b8860b"
+                    }
+                  }
+                },
+                {
+                  "id": "2Ivtt2G9XrY8XFGk",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(93.5026642px, -19.181708000000015px) rotate(-45deg) scale(0.20463409844842126, 0.2046340984484213)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "background": {
+                      "color": "#c9980a"
+                    }
+                  }
+                },
+                {
+                  "id": "xmpwVUemz2BjST6C",
+                  "type": "divider",
+                  "style": {
+                    "width": "96px",
+                    "height": 1,
+                    "transform": "translate(142.9996402px, 6.213800399999997px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "1px solid rgba(184,134,11,1)",
+                    "color": "rgba(184,134,11,1)"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 1,
+                    "style": {
+                      "color": "#b8860b"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "AhYbAL0gT0AWb7ch",
+              "type": "divider",
+              "style": {
+                "width": "240px",
+                "height": 10,
+                "transform": "translate(30.5004px,700.6614211px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid rgba(200,152,10,0.2)",
+                "color": "rgba(200,152,10,0.2)"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "rgba(200, 152, 10, 0.2)"
+                }
+              }
+            },
+            {
+              "id": "U6q3vvkq18vlDUsO",
+              "type": "divider",
+              "style": {
+                "width": "823px",
+                "height": 10,
+                "transform": "translate(300.2px,0px) rotate(0deg) scale(1,1)",
+                "borderBottom": "10px solid #cc9b26",
+                "color": "#cc9b26"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 10,
+                "style": {
+                  "color": "#cc9b26"
+                }
+              }
+            },
+            {
+              "id": "6thhhIskeVdpQIVT",
+              "type": "text",
+              "style": {
+                "width": "306px",
+                "height": "24px",
+                "transform": "translate(345.636px,48.0183px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>CERTIFICATE OF COMPLETION</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CERTIFICATE OF COMPLETION"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontSize": 14,
+                  "color": "#c9980a",
+                  "fontWeight": "500"
+                }
+              }
+            },
+            {
+              "id": "_ZVCXps8j2_Wdnp5",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "560.5px",
+                "height": "86.25000000000001px",
+                "transform": "translate(345.65px,58.0176px) rotate(0deg) scale(1,1)"
+              },
+              "children": [
+                {
+                  "id": "xbOUrn6PKtpYjDda",
+                  "type": "text",
+                  "style": {
+                    "width": "236px",
+                    "height": "85px",
+                    "transform": "translate(0px, 0px) rotate(0deg) scale(1, 1)"
+                  },
+                  "content": "<div>Honor &amp;</div>",
+                  "props": {
+                    "json": {
+                      "type": "doc",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "attrs": {
+                            "textAlign": null
+                          },
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Honor &"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "globalStyle": {
+                      "fontFamily": "DM Serif Display",
+                      "fontSize": 60,
+                      "color": "#1c0e08"
+                    }
+                  }
+                },
+                {
+                  "id": "6XdRU9gA12v0AkfY",
+                  "type": "text",
+                  "style": {
+                    "width": "325px",
+                    "height": "85px",
+                    "transform": "translate(235.5px, 1.2499999999999858px) rotate(0deg) scale(1, 1)"
+                  },
+                  "content": "<div>Recognition</div>",
+                  "props": {
+                    "json": {
+                      "type": "doc",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "attrs": {
+                            "textAlign": null
+                          },
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Recognition"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "globalStyle": {
+                      "fontFamily": "DM Serif Display",
+                      "fontSize": 60,
+                      "color": "#6b1020"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "GqKjNPwP15-YlCJN",
+              "type": "text",
+              "style": {
+                "width": "649px",
+                "height": "27px",
+                "transform": "translate(345.65px,139.8px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Awarded in acknowledgment of exceptional achievement and dedication</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Awarded in acknowledgment of exceptional achievement and dedication"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "color": "#6b4c38",
+                  "fontSize": 16
+                }
+              }
+            },
+            {
+              "id": "wGU-TDvVD_qv30_I",
+              "name": "Group",
+              "type": "group",
+              "style": {
+                "width": "726.0000000000001px",
+                "height": "15.63560000000001px",
+                "transform": "translate(345.6px,188.0822px) rotate(0deg) scale(1,1)"
+              },
+              "children": [
+                {
+                  "id": "_4hsoQBdmHYoM-_x",
+                  "type": "divider",
+                  "style": {
+                    "width": "60px",
+                    "height": 1,
+                    "transform": "translate(0.00044020000001410153px, 7.365108399999997px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "1px solid #b8860b",
+                    "color": "#b8860b"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 1,
+                    "style": {
+                      "color": "#b8860b"
+                    }
+                  }
+                },
+                {
+                  "id": "VZuJHGBTaUWwpNwp",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(52.682626200000016px, -19.177783300000016px) rotate(-45deg) scale(0.2047407407407407, 0.2047407407407407)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "background": {
+                      "color": "#c9980a"
+                    }
+                  }
+                },
+                {
+                  "id": "Nr1GGJqRf1JIRiZf",
+                  "type": "shape",
+                  "style": {
+                    "width": 54,
+                    "height": 54,
+                    "transform": "translate(73.0000066px, -19.177904000000012px) rotate(-45deg) scale(0.12572889275425497, 0.12572889275425495)"
+                  },
+                  "content": "",
+                  "props": {
+                    "viewBox": [
+                      200,
+                      200
+                    ],
+                    "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                    "borderRadius": 20,
+                    "background": {
+                      "color": "#6b1020"
+                    }
+                  }
+                },
+                {
+                  "id": "5XewLhqvMKO6qg7f",
+                  "type": "divider",
+                  "style": {
+                    "width": "611px",
+                    "height": 1,
+                    "transform": "translate(115.00044020000001px, 7.365108399999997px) rotate(0deg) scale(1, 1)",
+                    "borderBottom": "1px solid #b8860b",
+                    "color": "#b8860b"
+                  },
+                  "content": "",
+                  "props": {
+                    "lineWeight": 1,
+                    "style": {
+                      "color": "#b8860b"
+                    }
+                  }
+                }
+              ],
+              "props": {}
+            },
+            {
+              "id": "piQXocBi0zd29bgb",
+              "type": "text",
+              "style": {
+                "width": 241,
+                "height": 24,
+                "transform": "translate(345.6px,234.5817184px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>PRESENTED TO</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "PRESENTED TO"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontSize": 16,
+                  "color": "#6b4c38",
+                  "fontWeight": "500"
+                }
+              }
+            },
+            {
+              "id": "hOKhIpNnPs0Rxn1J",
+              "type": "text",
+              "style": {
+                "width": "703px",
+                "height": "72px",
+                "transform": "translate(346.6px,362.4px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>This is to certify that the above-named individual has successfully fulfilled all requirements and demonstrated outstanding dedication and proficiency in the completion of the following course or program:</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "This is to certify that the above-named individual has successfully fulfilled all requirements and demonstrated outstanding dedication and proficiency in the completion of the following course or program:"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "color": "#3d2218",
+                  "fontWeight": "400",
+                  "fontSize": 16
+                }
+              }
+            },
+            {
+              "id": "fIDB5x0-ZG6Z5b-x",
+              "type": "shape",
+              "style": {
+                "width": "486px",
+                "height": "138px",
+                "transform": "translate(345.6px,457.45px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#efe5c8"
+                }
+              }
+            },
+            {
+              "id": "zYhX4lRfi1yud8LW",
+              "type": "shape",
+              "style": {
+                "width": "487px",
+                "height": "135px",
+                "transform": "translate(355.6px,468.95px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#f8f0dc"
+                }
+              }
+            },
+            {
+              "id": "QB9WcsmB_AarYm9p",
+              "type": "divider",
+              "style": {
+                "width": "243px",
+                "height": 1,
+                "transform": "translate(345.6px,739.964px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #b8860b",
+                "color": "#b8860b"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#b8860b"
+                }
+              }
+            },
+            {
+              "id": "vxq4Ns7uib3NcOJz",
+              "type": "text",
+              "style": {
+                "width": "233px",
+                "height": "24px",
+                "transform": "translate(345.6px,750.05px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: left;\">COURSE INSTRUCTOR</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontWeight": "500",
+                  "color": "#c9980a",
+                  "fontSize": 14
+                }
+              }
+            },
+            {
+              "id": "K2A3_iTkk7P5nrD-",
+              "type": "text",
+              "style": {
+                "width": "160px",
+                "height": "24px",
+                "transform": "translate(70px,728.6px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COMPLETED DATE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "color": "#c9980a"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETED DATE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "L2RxRLSdrJMxCtcm",
+              "type": "text",
+              "style": {
+                "width": "131px",
+                "height": "24px",
+                "transform": "translate(375.60485050000005px, 486.2028647px) rotate(0deg) scale(1, 1)"
+              },
+              "content": "<div>COURSE / PROGRAM</div>",
+              "props": {
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE / PROGRAM"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontSize": 12,
+                  "color": "#c9980a",
+                  "fontWeight": "600"
+                }
+              }
+            },
+            {
+              "id": "wLIvBBt9CbjQTh2s",
+              "type": "image",
+              "style": {
+                "width": "159px",
+                "height": "201px",
+                "transform": "translate(70.5px,313.269px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://img.masteriyo.com/w:auto/h:auto/q:auto/id:58df51ea9881d940d9eafc66b33cd681/directUpload/certificate-ribbon-black-red.png\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:58df51ea9881d940d9eafc66b33cd681/directUpload/certificate-ribbon-black-red.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:58df51ea9881d940d9eafc66b33cd681/directUpload/certificate-ribbon-black-red.png",
+                "originalHeight": 958
+              }
+            },
+            {
+              "id": "88sE1qN9CnlQqj0A",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "200px",
+                "height": "27px",
+                "transform": "translate(50px,181px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Sans",
+                "fontWeight": "600",
+                "fontSize": "16px",
+                "color": "#e8b84b",
+                "textAlign": "center"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "8CKK7YrPFECaUqpn",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "200px",
+                "height": "21px",
+                "transform": "translate(50px,748px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#f5edd5",
+                "textAlign": "center"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "4qk1eDl3DaG7ot6L",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "715px",
+                "height": "73px",
+                "transform": "translate(347px,262px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "48px",
+                "color": "#5a0e1c"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "jmrKPSuFUWD5WT98",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "449px",
+                "height": "53px",
+                "transform": "translate(375px,507px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "22px",
+                "color": "#1c0e08"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "hkXgQRpQ2QEkU_f3",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "140px",
+                "height": "17px",
+                "transform": "translate(429px,577px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Sans",
+                "fontWeight": "400",
+                "fontSize": "12px",
+                "color": "#6b4c38"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "BuVU-y4HfhDKOZX6",
+              "type": "text",
+              "name": "Text",
+              "style": {
+                "width": "53px",
+                "height": "24px",
+                "transform": "translate(376.5px,577.5px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Duration:</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "DM Sans",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#6b4c38"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Duration:"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "vEPoGJH6t1dBpNg1",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "242px",
+                "height": "30px",
+                "transform": "translate(346px,707px) rotate(0deg) scale(1,1)",
+                "fontFamily": "DM Serif Display",
+                "fontWeight": "400",
+                "fontSize": "18px",
+                "color": "#1c0e08"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Recognition Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "image": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:bec77fa4c12f9ca045573153e4d124a3/directUpload/certificate-bg-new.png",
+          "imageProps": {
+            "id": "vQY7LoDzicYti1sl",
+            "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:bec77fa4c12f9ca045573153e4d124a3/directUpload/certificate-bg-new.png",
+            "croppedAreaPixels": {
+              "width": 2546,
+              "height": 1806,
+              "x": 0,
+              "y": 0
+            },
+            "modifiedAt": 1781769467525,
+            "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:bec77fa4c12f9ca045573153e4d124a3/directUpload/certificate-bg-new.png",
+            "crop": {
+              "x": 3.005672576783354,
+              "y": 0
+            },
+            "zoom": 1,
+            "rotation": 0
+          }
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  },
+  {
+    "id": "academic-diploma-certificate",
+    "name": "Academic Diploma Certificate",
+    "orientation": "portrait",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "status": "draft",
+      "versionHistory": [],
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "EOwCfsXAxO_Bv0ap",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "230px",
+                "height": "30px",
+                "transform": "translate(522.9px,970.7px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Libre Baskerville",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#2c1a00",
+                "textAlign": "center"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "lQzqSH0umIgJR9Aj",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "226px",
+                "height": "30px",
+                "transform": "translate(49.9px,970.7px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Libre Baskerville",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#2c1a00",
+                "textAlign": "center"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "Y8_DgXqWm1tnhPVq",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "489px",
+                "height": "30px",
+                "transform": "translate(153.9px,665px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Libre Baskerville",
+                "fontWeight": "700",
+                "fontSize": "18px",
+                "color": "#6a5030",
+                "textAlign": "center"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "jvKjvZS1UddlajUP",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "479px",
+                "height": "54px",
+                "transform": "translate(158.9px,534.6px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Playfair Display",
+                "fontWeight": "800",
+                "fontSize": "32px",
+                "color": "#2c1a00",
+                "textAlign": "center"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "nl7cLMOBvMn4OwFN",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "255px",
+                "height": "30px",
+                "transform": "translate(270.9px,79.7px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Playfair Display",
+                "fontWeight": "600",
+                "fontSize": "16px",
+                "color": "#5c4010",
+                "textAlign": "center"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "xScYwgTsDtoDa8Uh",
+              "type": "shape",
+              "style": {
+                "width": "9px",
+                "height": "9px",
+                "transform": "translate(375.201px,437.84px) rotate(-45deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#c9b587"
+                }
+              }
+            },
+            {
+              "id": "-cQZgx7_N0fU8NGW",
+              "type": "shape",
+              "style": {
+                "width": "9px",
+                "height": "9px",
+                "transform": "translate(412.413px,437.768px) rotate(-45deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#c9b587"
+                }
+              }
+            },
+            {
+              "id": "erHYfQBzlzLcxOdc",
+              "type": "shape",
+              "style": {
+                "width": "9px",
+                "height": "9px",
+                "transform": "translate(394.313px,437.805px) rotate(-45deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "background": {
+                  "color": "#8b6914"
+                }
+              }
+            },
+            {
+              "id": "U12xetE6H_-6ZPg9",
+              "type": "image",
+              "style": {
+                "width": "109px",
+                "height": "109px",
+                "transform": "translate(343.9px,125.455px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:f437425a67920ca476f26e70611cb435/directUpload/logo-concept.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:f437425a67920ca476f26e70611cb435/directUpload/logo-concept.png",
+                "originalHeight": 360
+              }
+            },
+            {
+              "id": "BMf4KElI7xSfuZoJ",
+              "type": "image",
+              "style": {
+                "width": "86px",
+                "height": "77px",
+                "transform": "translate(355.4px,959.2335263px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:742cae1893a9c2b5206e953d9d451c31/directUpload/officel-seal.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:742cae1893a9c2b5206e953d9d451c31/directUpload/officel-seal.png",
+                "originalHeight": 344
+              }
+            },
+            {
+              "id": "x-GTahQMXByV5kqH",
+              "type": "text",
+              "style": {
+                "width": "138px",
+                "height": "24px",
+                "transform": "translate(566.4px,1006.3px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COMPLETED DATE</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#8b7040"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETED DATE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "p0Xm2T3Fsn4rkliB",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(534.4px,997.667px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #8b6914",
+                "color": "#8b6914"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#8b6914"
+                }
+              }
+            },
+            {
+              "id": "-1siHtIinvqkkVhc",
+              "type": "text",
+              "style": {
+                "width": "122px",
+                "height": "24px",
+                "transform": "translate(96.9051903px,1006.3002655px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">INSTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#8b7040"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "tka94Jdc120tiob3",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(62.4px,997.07px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #8b6914",
+                "color": "#8b6914"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#8b6914"
+                }
+              }
+            },
+            {
+              "id": "4mcLoVSwxIil31Ex",
+              "type": "text",
+              "style": {
+                "width": "563px",
+                "height": "39px",
+                "transform": "translate(116.9px,699.826px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">having demonstrated the knowledge, dedication, and academic proficiency required by the faculty of this institution</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#6a5030"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "having demonstrated the knowledge, dedication, and academic proficiency required by the faculty of this institution"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "rD4kqTKEB4odI7ZZ",
+              "type": "text",
+              "style": {
+                "width": "420px",
+                "height": "24px",
+                "transform": "translate(188.4px,636.3113158px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">for the successful completion of all required studies in</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#6a5030"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "for the successful completion of all required studies in"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "_y7bqugQ_H43LcIo",
+              "type": "divider",
+              "style": {
+                "width": "342px",
+                "height": 10,
+                "transform": "translate(227.4px,588.1px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #8b6914",
+                "color": "#8b6914"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#8b6914"
+                }
+              }
+            },
+            {
+              "id": "N5f9HgTl07RKgcai",
+              "type": "image",
+              "style": {
+                "width": "239px",
+                "height": "20px",
+                "transform": "translate(280.6px,1079.12px) rotate(180deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalHeight": 808
+              }
+            },
+            {
+              "id": "sVA-f9Elhco6Zg9C",
+              "type": "image",
+              "style": {
+                "width": "239px",
+                "height": "20px",
+                "transform": "translate(278.9px,23.8579px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:c57508d6f7ce9760f77805d654a4fbfc/directUpload/divider-certificate.png",
+                "originalHeight": 808
+              }
+            },
+            {
+              "id": "cv6yPtzzbYcPfHYO",
+              "type": "text",
+              "style": {
+                "width": "272px",
+                "height": "25px",
+                "transform": "translate(262.4px,495.2795789px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\"><em>This diploma is hereby awarded to</em></div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#6a5030"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "marks": [
+                            {
+                              "type": "italic"
+                            }
+                          ],
+                          "text": "This diploma is hereby awarded to"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "j2gasTEvZy9oEQd6",
+              "type": "text",
+              "style": {
+                "width": "201px",
+                "height": "70px",
+                "transform": "translate(297.9px,343.6px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\"><em>Diploma</em></div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 50,
+                  "fontWeight": "400",
+                  "color": "#2c1a00"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "marks": [
+                            {
+                              "type": "italic"
+                            }
+                          ],
+                          "text": "Diploma"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "1m5_YnzF_1esmU3E",
+              "type": "text",
+              "style": {
+                "width": "296px",
+                "height": "84px",
+                "transform": "translate(250.4px,271.605px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">Academic</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 60,
+                  "fontWeight": "700",
+                  "color": "#2c1a00"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Academic"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "mUT0D3rrrDX_EeWb",
+              "type": "text",
+              "style": {
+                "width": "309px",
+                "height": "27px",
+                "transform": "translate(243.9px,259.554px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">CONFERRING THE DEGREE OF</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Libre Baskerville",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#8b7040"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CONFERRING THE DEGREE OF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "settings": {
+        "name": "Academic Diploma Certificate",
+        "layout": {
+          "width": 8.3,
+          "height": 11.7,
+          "unit": "in",
+          "orientation": "portrait"
+        },
+        "background": {
+          "color": "#fbf4e4"
+        }
+      },
+      "fonts": [
+        [
+          "libre-baskerville",
+          {
+            "id": "libre-baskerville",
+            "family": "Libre Baskerville",
+            "url": "https://fonts.googleapis.com/css2?family=Libre%20Baskerville:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "playfair-display",
+          {
+            "id": "playfair-display",
+            "family": "Playfair Display",
+            "url": "https://fonts.googleapis.com/css2?family=Playfair%20Display:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ]
+      ]
+    },
+    "locked": true
+  },
+  {
+    "id": "achievement-certificate",
+    "name": "Achievement Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "4nHNci9tjU_VjRFs",
+              "type": "text",
+              "style": {
+                "width": "187px",
+                "height": "24px",
+                "transform": "translate(570.051px,91.81145px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>INSTITUTE OF LEARNING</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "INSTITUTE OF LEARNING"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "gdA3mWtSTVvZaI_J",
+              "type": "divider",
+              "style": {
+                "width": "16px",
+                "height": 1,
+                "transform": "translate(545.568px,101.8px) rotate(90deg) scale(1,1)",
+                "borderBottom": "1px solid #5aaa80",
+                "color": "#5aaa80"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#5aaa80"
+                }
+              }
+            },
+            {
+              "id": "C2KlAhPr1koh9_S4",
+              "type": "text",
+              "style": {
+                "width": "326px",
+                "height": "67px",
+                "transform": "translate(398.6px,145.95px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">Certificate of</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 48,
+                  "fontWeight": "700",
+                  "color": "#0d2e1c"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Certificate of"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "wRaAu1h7B9vupY_S",
+              "type": "text",
+              "style": {
+                "width": "308px",
+                "height": "64px",
+                "transform": "translate(407.8px,206.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">Achievement</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 44,
+                  "fontWeight": "600",
+                  "color": "#1e7850"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Achievement"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "BOwB77h1O8-we-tk",
+              "type": "text",
+              "style": {
+                "width": "292px",
+                "height": "24px",
+                "transform": "translate(415.8px,291.332px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">THIS CERTIFICATE IS PROUDLY PRESENTED TO</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "THIS CERTIFICATE IS PROUDLY PRESENTED TO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "pfjpjtWNy5LrXDMB",
+              "type": "text",
+              "style": {
+                "width": "259px",
+                "height": "26px",
+                "transform": "translate(432.1px,391.861px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">for the successful completion of</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "color": "#2e5040"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "for the successful completion of"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "gihF8gvQ-bJKd2k7",
+              "type": "text",
+              "style": {
+                "width": "570px",
+                "height": "28px",
+                "transform": "translate(276.6px,472.883px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">demonstrating commitment, dedication, and mastery of the subject matter.</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Bricolage Grotesque",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "color": "#2e5040"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "demonstrating commitment, dedication, and mastery of the subject matter."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "vG6qqEKBTIl9JrIg",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(196.8px,573.6px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">ENROLLED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "ENROLLED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "-8fc9QjLenVvKi7X",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(489.4px,573.6px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COMPLETED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "l9_rTe5P4Qx2YSqT",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(788.753px,573.6px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">TOTAL HOURS</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "TOTAL HOURS"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "v-m1hrmir_JzeaZr",
+              "type": "divider",
+              "style": {
+                "width": "261px",
+                "height": 10,
+                "transform": "translate(154.1px,692.4px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #a0c8b0",
+                "color": "#a0c8b0"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#a0c8b0"
+                }
+              }
+            },
+            {
+              "id": "PyCa08S_KNwHn6xz",
+              "type": "text",
+              "style": {
+                "width": "195px",
+                "height": "26px",
+                "transform": "translate(186.335px,708.184px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">COURSE INTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COURSE INTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "oR4h4oi74pcVjzZy",
+              "type": "text",
+              "style": {
+                "width": "195px",
+                "height": "26px",
+                "transform": "translate(683.235px,708.2px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">DIRECTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Gabriela",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "color": "#5aaa80"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "DIRECTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "yTqcfiVNQbDetdrC",
+              "type": "divider",
+              "style": {
+                "width": "261px",
+                "height": 10,
+                "transform": "translate(651.5px,693.9104538px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #a0c8b0",
+                "color": "#a0c8b0"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#a0c8b0"
+                }
+              }
+            },
+            {
+              "id": "g0ghYN_qqa0vNer0",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "200px",
+                "height": "24px",
+                "transform": "translate(335px,90.8px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "15px",
+                "color": "#1e7850",
+                "textAlign": "right"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "jCc7WZTTRoNABKZ3",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "644px",
+                "height": "59px",
+                "transform": "translate(239.8px,319px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "700",
+                "fontSize": "40px",
+                "color": "#0d2e1c",
+                "textAlign": "center"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "vdg1OMCG1XojA1QV",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "336px",
+                "height": "30px",
+                "transform": "translate(393.8px,426.9px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "20px",
+                "color": "#0d2e1c",
+                "textAlign": "center"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "XT2qJGQKm7zIeAGB",
+              "type": "masteriyo__start_date",
+              "name": "Start Date",
+              "style": {
+                "width": 200,
+                "height": 30,
+                "transform": "translate(157.7px,538.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "18px",
+                "color": "#1e7850",
+                "textAlign": "center"
+              },
+              "content": "{ Start Date }",
+              "props": {
+                "field": "masteriyo:start_date",
+                "content": "{ Start Date }"
+              }
+            },
+            {
+              "id": "YMGX_1EDOrTPve3s",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "232px",
+                "height": "30px",
+                "transform": "translate(434.7px,538.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "18px",
+                "color": "#1e7850",
+                "textAlign": "center"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "FO6qqY6NFDwd-JQS",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "228px",
+                "height": "30px",
+                "transform": "translate(737.5px,538.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "18px",
+                "color": "#1e7850",
+                "textAlign": "center"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "7FTNk42bDnhAqtOf",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "225px",
+                "height": "30px",
+                "transform": "translate(171.3px,662.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "16px",
+                "color": "#1e7850",
+                "textAlign": "center"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "sv6xjJVqTsOSUwUa",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "260px",
+                "height": "33px",
+                "transform": "translate(653px,662.4px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Bricolage Grotesque",
+                "fontWeight": "600",
+                "fontSize": "16px",
+                "color": "#1e7850",
+                "textAlign": "center"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Achievement Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "imageProps": {
+            "id": "Z6uPZ36qfjLBnELG",
+            "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:9e68ad421fc5fa34b4043807d6b6faff/directUpload/certificate-background-pattern-4.png",
+            "croppedAreaPixels": {
+              "width": 2549,
+              "height": 1808,
+              "x": 0,
+              "y": 0
+            },
+            "modifiedAt": 1781769031926,
+            "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:9e68ad421fc5fa34b4043807d6b6faff/directUpload/certificate-background-pattern-4.png",
+            "crop": {
+              "x": 1.4096916299559439,
+              "y": 0
+            },
+            "zoom": 1,
+            "rotation": 0
+          },
+          "image": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:9e68ad421fc5fa34b4043807d6b6faff/directUpload/certificate-background-pattern-4.png"
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  },
+  {
+    "id": "kids-certificate",
+    "name": "Kids Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "status": "draft",
+      "versionHistory": [],
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "Uz7UbvRmKFw_3qai",
+              "type": "text",
+              "style": {
+                "width": "78px",
+                "height": "74px",
+                "transform": "translate(339.823px,134.804px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>🎓</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Inter",
+                  "fontSize": 52,
+                  "fontWeight": "400"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "🎓"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "pUdgu8TQJsahyJCW",
+              "type": "shape",
+              "style": {
+                "width": "272px",
+                "height": "42px",
+                "transform": "translate(423.8px,147.8px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "borderRadius": 70,
+                "background": {
+                  "color": "#ff6b98"
+                }
+              }
+            },
+            {
+              "id": "psHdG3iWKXyNvV3p",
+              "type": "text",
+              "style": {
+                "width": "65px",
+                "height": "73px",
+                "transform": "translate(704.504px,133.8px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>🏆</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Inter",
+                  "fontSize": 52,
+                  "fontWeight": "400"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "🏆"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "zLnCQotUIV1o1flZ",
+              "type": "text",
+              "style": {
+                "width": "343px",
+                "height": "95px",
+                "transform": "translate(393.1px,204.8px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Way to Go!</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 64,
+                  "fontWeight": "600",
+                  "color": "rgba(255, 107, 152, 0.2)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Way to Go!"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "SLN5xOHVyx6rMDRa",
+              "type": "text",
+              "style": {
+                "width": "343px",
+                "height": "95px",
+                "transform": "translate(390.1px,201.82799999999997px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Way to Go!</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Fredoka",
+                  "fontSize": 64,
+                  "fontWeight": "600",
+                  "color": "#ff6b98"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Way to Go!"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "OwKsKJKoxQzHqJBb",
+              "type": "text",
+              "style": {
+                "width": "287px",
+                "height": "29px",
+                "transform": "translate(419.7px,296.8px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">Certificate of Completion 🎉</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Nunito",
+                  "fontSize": 18,
+                  "fontWeight": "700",
+                  "color": "#4d96ff"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Certificate of Completion 🎉"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "ET9E1XmUF0AdQLm7",
+              "type": "text",
+              "style": {
+                "width": "375px",
+                "height": "25px",
+                "transform": "translate(374.1px,358.131px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">THIS AWESOME CERTIFICATE BELONGS TO</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Nunito",
+                  "fontSize": 16,
+                  "fontWeight": "700",
+                  "color": "#9b8ea6"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "THIS AWESOME CERTIFICATE BELONGS TO"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "uuGrkBboqxArZzH5",
+              "type": "text",
+              "style": {
+                "width": "375px",
+                "height": "25px",
+                "transform": "translate(374.1px,460.881px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">for completing</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Nunito",
+                  "fontSize": 16,
+                  "fontWeight": "700",
+                  "color": "#9b8ea6"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "for completing"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "8Ti3GKC8F-4ZsRlN",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(121.337px,693.677px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #ffb347",
+                "color": "#ffb347"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#ffb347"
+                }
+              }
+            },
+            {
+              "id": "ivI6SdzFXj7utoAY",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(158.3px,704.444px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">INSTRUCTOR</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Nunito",
+                  "fontSize": 12,
+                  "fontWeight": "600",
+                  "color": "#9b8ea6"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "INSTRUCTOR"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "iDZX27vB_QeutKqI",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(785px,695.2px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid #ffb347",
+                "color": "#ffb347"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "#ffb347"
+                }
+              }
+            },
+            {
+              "id": "cOJ-W8QM_8RofanT",
+              "type": "text",
+              "style": {
+                "width": 122,
+                "height": 24,
+                "transform": "translate(831.458px,704.4px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">Earned this day!</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Nunito",
+                  "fontSize": 12,
+                  "fontWeight": "600",
+                  "color": "#9b8ea6"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Earned this day!"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "OY9LqTEoYEfEcmHe",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": 200,
+                "height": 30,
+                "transform": "translate(462px,154.8px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "600",
+                "fontSize": "18px",
+                "color": "#ffffff",
+                "textAlign": "center"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "5jTPDGxoVghAEZhX",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "716px",
+                "height": "67px",
+                "transform": "translate(205.2px,384px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "600",
+                "fontSize": "44px",
+                "color": "#2d2d5b",
+                "textAlign": "center"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "OIlU63dgFG3Ou0d7",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "689px",
+                "height": "33px",
+                "transform": "translate(218.7px,497.1px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Fredoka",
+                "fontWeight": "600",
+                "fontSize": "22px",
+                "color": "#50c37f",
+                "textAlign": "center"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "uGCSnkbXxDbQY4vi",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "208px",
+                "height": "23px",
+                "transform": "translate(114.7px,668.6px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Nunito",
+                "fontWeight": "600",
+                "fontSize": "15px",
+                "color": "#2d2d5b",
+                "textAlign": "center"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "IZQH8jgVKuO_RFEZ",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "200px",
+                "height": "26px",
+                "transform": "translate(788px,669.6px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Nunito",
+                "fontWeight": "600",
+                "fontSize": "15px",
+                "color": "#2d2d5b",
+                "textAlign": "center"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "settings": {
+        "name": "Kids Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "imageProps": {
+            "id": "yYQUloPKrHH69Rli",
+            "originalSrc": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e968cd7577202b78a1dfba50ec3f703/directUpload/kids-new-bg-scaled.png",
+            "croppedAreaPixels": {
+              "width": 2245,
+              "height": 1593,
+              "x": 76,
+              "y": 0
+            },
+            "modifiedAt": 1781768837490,
+            "src": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e968cd7577202b78a1dfba50ec3f703/directUpload/kids-new-bg-scaled.png",
+            "crop": {
+              "x": 39.290739594411264,
+              "y": 32.741801220985735
+            },
+            "zoom": 1.08628725814496,
+            "rotation": 0
+          },
+          "image": "https://img.masteriyo.com/w:auto/h:auto/q:auto/id:0e968cd7577202b78a1dfba50ec3f703/directUpload/kids-new-bg-scaled.png"
+        }
+      },
+      "fonts": [
+        [
+          "inter",
+          {
+            "id": "inter",
+            "family": "Inter",
+            "url": "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "fredoka",
+          {
+            "id": "fredoka",
+            "family": "Fredoka",
+            "url": "https://fonts.googleapis.com/css2?family=Fredoka:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ],
+        [
+          "nunito",
+          {
+            "id": "nunito",
+            "family": "Nunito",
+            "url": "https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          }
+        ]
+      ]
+    },
+    "locked": true
+  },
+  {
+    "id": "workshop-bootcamp-certificate",
+    "name": "Workshop Bootcamp Certificate",
+    "orientation": "landscape",
+    "json": {
+      "id": 0,
+      "slug": "",
+      "pages": {
+        "page-1": {
+          "name": "",
+          "children": [
+            {
+              "id": "tAA4ZOz7cdodGTrp",
+              "type": "shape",
+              "style": {
+                "width": "503px",
+                "height": "726px",
+                "transform": "translate(699.036px,-144.6px) rotate(18deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "borderRadius": 50,
+                "background": {
+                  "color": "#ff2e9d12"
+                }
+              }
+            },
+            {
+              "id": "ClS87fGwUQ2V5VG7",
+              "type": "divider",
+              "style": {
+                "width": "1124px",
+                "height": 10,
+                "transform": "translate(0px,0px) rotate(0deg) scale(1,1)",
+                "color": "#8c2ef2",
+                "borderBottom": "10px solid #8c2ef2"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 10,
+                "style": {
+                  "color": "#8c2ef2"
+                }
+              }
+            },
+            {
+              "id": "aTlWN7CiAxhLTPqM",
+              "type": "shape",
+              "style": {
+                "width": "180px",
+                "height": "32px",
+                "transform": "translate(887.141px,59.5px) rotate(0deg) scale(1,1)"
+              },
+              "content": "",
+              "props": {
+                "viewBox": [
+                  200,
+                  200
+                ],
+                "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+                "stroke": {
+                  "style": "solid",
+                  "width": 1,
+                  "color": "rgba(255, 45, 158, 0.3)"
+                },
+                "background": {
+                  "color": "#ffffff00"
+                }
+              }
+            },
+            {
+              "id": "5Qm8d5WzlGDY9y1d",
+              "type": "text",
+              "style": {
+                "width": "172px",
+                "height": "24px",
+                "transform": "translate(891.306px,67px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div style=\"text-align: center;\">BOOTCAMP . WORKSHOP</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Mono",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "#ff2d9e"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": "center"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "BOOTCAMP . WORKSHOP"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "fxLWco3aLL4_7e1m",
+              "type": "image",
+              "style": {
+                "width": "68px",
+                "height": "47px",
+                "transform": "translate(56.4px,233.255px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<img src=\"https://pdfdraftmaster-q0m2.1wp.site/wp-content/uploads/2026/06/tick-new-icon.png\" alt=\"No alt\" style=\"width:100%;height:100%;object-fit:cover;\" />",
+              "props": {
+                "src": "https://pdfdraftmaster-q0m2.1wp.site/wp-content/uploads/2026/06/tick-new-icon.png",
+                "originalSrc": "https://pdfdraftmaster-q0m2.1wp.site/wp-content/uploads/2026/06/tick-new-icon.png",
+                "originalHeight": 80
+              }
+            },
+            {
+              "id": "9L28cpgoW_QC-boS",
+              "type": "text",
+              "style": {
+                "width": "268px",
+                "height": "103px",
+                "transform": "translate(159.693px,205.22500000000002px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Workshop</div><div>Completion</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 36,
+                  "fontWeight": "600",
+                  "color": "#ffffff"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Workshop"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Completion"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "K3w58-_2LfL7h9GO",
+              "type": "text",
+              "style": {
+                "width": "258px",
+                "height": "24px",
+                "transform": "translate(159.666px,313.4px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Intensive Programme Certificate</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 14,
+                  "fontWeight": "300",
+                  "color": "rgba(255, 255, 255, 0.4)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Intensive Programme Certificate"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "hQrBnpGxt6dCq5Vw",
+              "type": "text",
+              "style": {
+                "width": "118px",
+                "height": "26px",
+                "transform": "translate(56.4px,389.874px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>ATTENDED BY →</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 13,
+                  "fontWeight": "300",
+                  "color": "rgba(255, 255, 255, 0.3)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "ATTENDED BY →"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "Mg20HEpj8sfmr2Fk",
+              "type": "text",
+              "style": {
+                "width": "118px",
+                "height": "26px",
+                "transform": "translate(56.4px,470.34799999999996px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>PROGRAMME</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "300",
+                  "color": "rgba(255, 255, 255, 0.3)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "PROGRAMME"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "Q_zsIo5HQtxPTiVM",
+              "type": "text",
+              "style": {
+                "width": "118px",
+                "height": "26px",
+                "transform": "translate(317.7px,470.29999999999995px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>DURATION</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "300",
+                  "color": "rgba(255, 255, 255, 0.3)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "DURATION"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "m1_E_AvUR-ggwwdP",
+              "type": "text",
+              "style": {
+                "width": "118px",
+                "height": "26px",
+                "transform": "translate(610.4px,470.29999999999995px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>COMPLETED</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "300",
+                  "color": "rgba(255, 255, 255, 0.3)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "COMPLETED"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "wihyWHrJL6j8P0aH",
+              "type": "divider",
+              "style": {
+                "width": "1012px",
+                "height": 10,
+                "transform": "translate(56.4px,638.588px) rotate(0deg) scale(1,1)",
+                "borderBottom": "1px solid rgba(255, 255, 255, 0.07)",
+                "color": "rgba(255, 255, 255, 0.07)"
+              },
+              "content": "",
+              "props": {
+                "lineWeight": 1,
+                "style": {
+                  "color": "rgba(255, 255, 255, 0.07)"
+                }
+              }
+            },
+            {
+              "id": "-ZdsJIyNOo_VZCiP",
+              "type": "text",
+              "style": {
+                "width": "126px",
+                "height": "24px",
+                "transform": "translate(56.4px,736.862823px) rotate(0deg) scale(1,1)"
+              },
+              "content": "<div>Lead Instructor</div>",
+              "props": {
+                "globalStyle": {
+                  "fontFamily": "Space Mono",
+                  "fontSize": 12,
+                  "fontWeight": "400",
+                  "color": "rgba(255, 255, 255, 0.3)"
+                },
+                "json": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Lead Instructor"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "_RsJy7_CkfdEmM-R",
+              "type": "divider",
+              "style": {
+                "width": 200,
+                "height": 0,
+                "transform": "translate(56.4px,726.919px) rotate(0deg) scale(1,1)",
+                "color": "rgba(255, 255, 255, 0.2)",
+                "borderBottom": "1px solid rgba(255, 255, 255, 0.2)"
+              },
+              "content": "",
+              "props": {
+                "style": {
+                  "color": "rgba(255, 255, 255, 0.2)"
+                },
+                "lineWeight": 1
+              }
+            },
+            {
+              "id": "LGXlTO7BnVP-J-ey",
+              "type": "masteriyo__site_name",
+              "name": "Site Name",
+              "style": {
+                "width": "303px",
+                "height": "23px",
+                "transform": "translate(56px,64px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "500",
+                "fontSize": "14px",
+                "color": "#ffffff80"
+              },
+              "content": "{ Site Name }",
+              "props": {
+                "field": "masteriyo:site_name",
+                "content": "{ Site Name }"
+              }
+            },
+            {
+              "id": "JWAsTh-HqxmTseAK",
+              "type": "masteriyo__student_name_full",
+              "name": "Student Name",
+              "style": {
+                "width": "558px",
+                "height": "51px",
+                "transform": "translate(186px,371px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "600",
+                "fontSize": "34px",
+                "color": "#ffffff"
+              },
+              "content": "{ Student Name }",
+              "props": {
+                "field": "masteriyo:student_name_full",
+                "content": "{ Student Name }"
+              }
+            },
+            {
+              "id": "Vu31B6Zgzl1nsqcn",
+              "type": "masteriyo__course_title",
+              "name": "Course Title",
+              "style": {
+                "width": "192px",
+                "height": "20px",
+                "transform": "translate(56.4px,491px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#ffffffcc"
+              },
+              "content": "{ Course Title }",
+              "props": {
+                "field": "masteriyo:course_title",
+                "content": "{ Course Title }"
+              }
+            },
+            {
+              "id": "oXisMY5MiVEsKJbn",
+              "type": "masteriyo__course_duration",
+              "name": "Course Duration",
+              "style": {
+                "width": "200px",
+                "height": "24px",
+                "transform": "translate(318px,491px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#ffffffcc"
+              },
+              "content": "{ Course Duration }",
+              "props": {
+                "field": "masteriyo:course_duration",
+                "content": "{ Course Duration }"
+              }
+            },
+            {
+              "id": "graqUfy1-baxWHir",
+              "type": "masteriyo__completion_date",
+              "name": "Completion Date",
+              "style": {
+                "width": "200px",
+                "height": "25px",
+                "transform": "translate(612px,491px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#ffffffcc"
+              },
+              "content": "{ Completion Date }",
+              "props": {
+                "field": "masteriyo:completion_date",
+                "content": "{ Completion Date }"
+              }
+            },
+            {
+              "id": "HRs-MGKzDFAv_y1H",
+              "type": "masteriyo__instructor_name",
+              "name": "Instructor Name",
+              "style": {
+                "width": "207px",
+                "height": "22px",
+                "transform": "translate(56.4px,700.5px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "500",
+                "fontSize": "13px",
+                "color": "#ffffffb3"
+              },
+              "content": "{ Instructor Name }",
+              "props": {
+                "field": "masteriyo:instructor_name",
+                "content": "{ Instructor Name }"
+              }
+            },
+            {
+              "id": "Pn5AfMbqCWzqfAZN",
+              "type": "masteriyo__current_timestamp",
+              "name": "Timestamp",
+              "style": {
+                "width": "200px",
+                "height": "26px",
+                "transform": "translate(864px,715.5px) rotate(0deg) scale(1,1)",
+                "fontFamily": "Space Grotesk",
+                "fontWeight": "400",
+                "fontSize": "14px",
+                "color": "#ffffff73",
+                "textAlign": "right"
+              },
+              "content": "{ Timestamp }",
+              "props": {
+                "field": "masteriyo:current_timestamp",
+                "content": "{ Timestamp }"
+              }
+            }
+          ]
+        }
+      },
+      "pagesOrder": [
+        "page-1"
+      ],
+      "currentPageId": "page-1",
+      "selectedElementIds": [],
+      "settings": {
+        "name": "Workshop Bootcamp Certificate",
+        "layout": {
+          "width": 11.7,
+          "height": 8.3,
+          "unit": "in",
+          "orientation": "landscape"
+        },
+        "background": {
+          "color": "#111111"
+        }
+      },
+      "fonts": {},
+      "status": "publish",
+      "versionHistory": []
+    },
+    "locked": true
+  }
+]

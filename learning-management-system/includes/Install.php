@@ -53,7 +53,29 @@ class Install {
 			update_option( 'masteriyo_install_date', current_time( 'mysql', true ) );
 		}
 
+		self::maybe_create_roles();
+
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Recreate the Masteriyo roles if they have gone missing.
+	 *
+	 * Deactivating one plugin in dual-active mode (Free + Pro) removes the
+	 * shared roles; the surviving plugin restores them here so user
+	 * registration never throws an "Invalid roles" fatal. Cheap in-memory
+	 * check — safe to run on every load.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	private static function maybe_create_roles() {
+		if ( null !== get_role( Roles::STUDENT ) && null !== get_role( Roles::INSTRUCTOR ) ) {
+			return;
+		}
+
+		Roles::create();
 	}
 
 	/**

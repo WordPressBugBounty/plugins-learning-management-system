@@ -115,6 +115,53 @@ class Helper {
 	}
 
 	/**
+	 * Checks whether at least one WooCommerce order item is linked to a Masteriyo course or bundle.
+	 *
+	 * Result is cached in a transient for 1 hour to avoid a DB hit on every page load.
+	 * The transient is cleared when the first qualifying order item is saved so the notice
+	 * appears immediately after the first WC-based enrolment.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return bool
+	 */
+	public static function has_wc_orders_for_masteriyo_courses() {
+		$transient_key = 'masteriyo_wc_orders_exist';
+		$cached        = get_transient( $transient_key );
+
+		if ( false !== $cached ) {
+			return (bool) $cached;
+		}
+
+		global $wpdb;
+
+		// Order item meta is stored in woocommerce_order_itemmeta regardless of HPOS mode.
+		$exists = (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 1
+				 FROM {$wpdb->prefix}woocommerce_order_itemmeta
+				 WHERE meta_key = %s
+				 LIMIT 1",
+				'_masteriyo_course_id'
+			)
+		);
+
+		set_transient( $transient_key, $exists ? '1' : '0', HOUR_IN_SECONDS );
+
+		return $exists;
+	}
+
+	/**
+	 * Clears the cached WC-orders-exist flag so the orders-page notice appears immediately
+	 * after the first Masteriyo course item is added to a WooCommerce order.
+	 *
+	 * @since x.x.x
+	 */
+	public static function clear_wc_orders_cache() {
+		delete_transient( 'masteriyo_wc_orders_exist' );
+	}
+
+	/**
 	 * Gets the label for the "Add to Cart" button after the course adding to the cart.
 	 *
 	 * @since 1.11.3
@@ -126,6 +173,6 @@ class Helper {
 
 		$label = $setting->get( 'add_to_cart.enroll_btn_label_after' );
 
-		return $label ? $label : __( 'Go to Cart', 'learning-management-system' );
+		return $label ? $label : __( 'View Cart', 'learning-management-system' );
 	}
 }

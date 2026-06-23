@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseHighlightsWidget extends WidgetBase {
+class CourseHighlightsWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -168,7 +168,7 @@ class CourseHighlightsWidget extends WidgetBase {
 			return;
 		}
 
-		masteriyo_single_course_highlights( $course );
+		$this->render_highlights( $course );
 	}
 
 	/**
@@ -180,7 +180,33 @@ class CourseHighlightsWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( $course ) {
-			masteriyo_single_course_highlights( $course );
+			$this->render_highlights( $course );
+		} else {
+			$this->render_no_course_notice();
 		}
+	}
+
+	/**
+	 * Render highlights, suppressing the social-share output core adds after them.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Models\Course $course
+	 */
+	private function render_highlights( $course ) {
+		$removed = $this->suppress_hook_callbacks_by_method(
+			array(
+				'masteriyo_after_single_course_highlights' => array( 'render_social_shares_in_single_course_page' ),
+			)
+		);
+
+		$this->render_buffered_or_notice(
+			function () use ( $course ) {
+				masteriyo_single_course_highlights( $course );
+			},
+			__( 'Course highlights will display here when highlights are added to the course.', 'learning-management-system' )
+		);
+
+		$this->restore_hook_callbacks( $removed );
 	}
 }

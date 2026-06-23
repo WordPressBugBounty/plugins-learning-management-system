@@ -612,7 +612,18 @@ function masteriyo_handle_student_preview_token(): void {
 	}
 
 	// Capture originator info before clearing admin auth.
+	// wp_get_session_token() reads from the logged_in cookie; it returns '' when
+	// the request uses non-cookie auth (application passwords, REST Basic Auth).
+	// An empty token would produce a broken originator cookie that always fails
+	// verification on exit, locking the admin out. Abort early instead.
 	$session_token = wp_get_session_token();
+	if ( empty( $session_token ) ) {
+		masteriyo_get_logger()->warning(
+			'Student preview aborted: wp_get_session_token() returned empty — session-based auth required.',
+			array( 'source' => 'student-preview' )
+		);
+		return;
+	}
 	masteriyo_set_preview_originator_cookie( $admin_id, $session_token );
 
 	// Swap to demo student: clear admin auth, issue demo student auth cookies.
@@ -635,6 +646,112 @@ function masteriyo_handle_student_preview_token(): void {
 function masteriyo_current_user_can_student_preview(): bool {
 	return masteriyo_is_current_user_admin() || masteriyo_is_current_user_instructor();
 }
+
+/**
+ * Force wp-auth-check:false in every Heartbeat response while a student preview
+ * session is active. WordPress core's wp_auth_check() is hooked to heartbeat_send
+ * at priority 10 and unconditionally sets wp-auth-check to is_user_logged_in().
+ * We override it at priority 11 on the same hook so our value wins.
+ *
+ * Must use heartbeat_send (not heartbeat_received): heartbeat_send always fires,
+ * whereas heartbeat_received only fires when the client sends non-empty $data.
+ *
+ * The client JS (wp-auth-check.js) listens to heartbeat-tick and calls show()
+ * when it sees wp-auth-check:false, which opens the "session expired" overlay.
+ *
+ * @since x.x.x
+ */
+add_filter(
+	'heartbeat_send',
+	static function ( array $response, $_screen_id ): array {
+		if ( masteriyo_is_student_preview_mode() ) {
+			$response['wp-auth-check'] = false;
+		}
+		return $response;
+	},
+	11,
+	2
+);
+
+/**
+ * Admin pages: clear any stale localStorage preview signal on load, then attach
+ * a cross-tab listener. When the frontend preview page writes a new timestamp to
+ * localStorage, the 'storage' event fires here immediately (sub-millisecond) and
+ * we directly trigger the 'heartbeat-tick' jQuery event that wp-auth-check.js
+ * listens to, which shows the "Your session has expired" overlay instantly.
+ *
+ * removeItem() runs on every admin page load so the key is always absent — this
+ * ensures the next setItem() from the frontend is always a value change, which
+ * is required for the browser to actually fire the storage event.
+ *
+ * @since x.x.x
+ */
+add_action(
+	'admin_footer',
+	static function (): void {
+		?>
+		<script>
+		( function () {
+			try { localStorage.removeItem( 'mto_preview_active' ); } catch ( e ) {}
+			window.addEventListener( 'storage', function ( e ) {
+				if ( e.key === 'mto_preview_active' && e.newValue ) {
+					// Directly fire the heartbeat-tick event that wp-auth-check.js listens for.
+					// This avoids the Heartbeat AJAX round-trip and works even when the tab
+					// is in the background (where wp.heartbeat may be suspended).
+					if ( typeof jQuery !== 'undefined' ) {
+						jQuery( document ).trigger( 'heartbeat-tick', [ { 'wp-auth-check': false } ] );
+					}
+				}
+			} );
+		}() );
+		</script>
+		<?php
+	}
+);
+
+/**
+ * Frontend preview page: write a timestamp to localStorage so any open admin
+ * tab detects the switch instantly via the 'storage' event (fires cross-tab in
+ * the same browser with no polling needed).
+ *
+ * Date.now() guarantees the value always changes, which is required for the
+ * browser to fire the storage event — a repeated identical value is a no-op.
+ *
+ * Priority 20 runs after the preview banner at default priority 10.
+ *
+ * @since x.x.x
+ */
+add_action(
+	'wp_footer',
+	static function (): void {
+		if ( masteriyo_is_student_preview_mode() ) {
+			?>
+			<script>try { localStorage.setItem( 'mto_preview_active', String( Date.now() ) ); } catch ( e ) {}</script>
+			<?php
+		}
+	},
+	20
+);
+
+/**
+ * Replace the generic "Your session has expired" message in the interim-login
+ * overlay with a context-aware message when a student preview session is active.
+ *
+ * The message comes from wp-login.php as a 'message'-severity WP_Error entry
+ * and is assembled into HTML before login_messages fires (line ~300 of wp-login.php).
+ * wp-login.php loads all plugins via wp-load.php, so this filter is available.
+ *
+ * @since x.x.x
+ */
+add_filter(
+	'login_messages',
+	static function ( string $messages ): string {
+		if ( isset( $_GET['interim-login'] ) && masteriyo_is_student_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return '<p>' . esc_html__( 'You are currently previewing the site as a student. Please log back in as admin to return to the dashboard.', 'learning-management-system' ) . '</p>';
+		}
+		return $messages;
+	}
+);
 
 /**
  * Exclude demo/preview students from enrolled-user counts so they do not

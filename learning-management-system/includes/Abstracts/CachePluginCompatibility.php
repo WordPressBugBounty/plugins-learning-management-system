@@ -57,33 +57,37 @@ abstract class CachePluginCompatibility {
 			return;
 		}
 
-		if ( masteriyo_is_checkout_page() ) {
-			$this->do_not_cache();
+		$is_no_cache_page = (
+			masteriyo_is_checkout_page() ||
+			masteriyo_is_lost_password_page() ||
+			masteriyo_is_signin_page() ||
+			masteriyo_is_signup_page() ||
+			masteriyo_is_instructor_registration_page() ||
+			masteriyo_is_learn_page() ||
+			masteriyo_is_account_page()
+		);
+
+		if ( ! $is_no_cache_page ) {
+			return;
 		}
 
-		if ( masteriyo_is_lost_password_page() ) {
-			$this->do_not_cache();
-		}
+		$this->do_not_cache();
 
-		if ( masteriyo_is_signin_page() ) {
-			$this->do_not_cache();
-		}
-
-		if ( masteriyo_is_signup_page() ) {
-			$this->do_not_cache();
-		}
-
-		if ( masteriyo_is_instructor_registration_page() ) {
-			$this->do_not_cache();
-		}
-
-		if ( masteriyo_is_learn_page() ) {
-			$this->do_not_cache();
-		}
-
-		if ( masteriyo_is_account_page() ) {
-			$this->do_not_cache();
-		}
+		/**
+		 * Send no-cache HTTP headers so browsers and intermediary proxies do not cache
+		 * these dynamic, nonce-bearing pages.
+		 *
+		 * Some cache plugins (e.g. Hummingbird) only honor DONOTCACHEPAGE for their own
+		 * server-side page cache but still emit a cacheable `Cache-Control` header. A
+		 * browser/proxy then caches the logged-out account page along with its embedded
+		 * nonce; after the user logs in, that stale nonce is rejected with
+		 * `rest_cookie_invalid_nonce` ("Cookie check failed"), which surfaces as an
+		 * "invalid nonce / unable to login" error. Sending nocache headers here prevents
+		 * the stale page (and nonce) from being served.
+		 *
+		 * @since x.x.x
+		 */
+		masteriyo_nocache_headers();
 	}
 
 	/**

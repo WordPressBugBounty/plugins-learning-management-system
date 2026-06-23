@@ -20,15 +20,18 @@ use Masteriyo\Addons\ElementorIntegration\Widgets\CourseCategoriesWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseContentsWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseCurriculumWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseEnrollButtonWidget;
+use Masteriyo\Addons\ElementorIntegration\Widgets\CourseExpirationInfoWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseFeaturedImageWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseHighlightsWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseListWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseOverviewWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CoursePriceWidget;
+use Masteriyo\Addons\ElementorIntegration\Widgets\CourseProgressWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseRatingWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseRetakeWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseReviewsWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseSearchFormWidget;
+use Masteriyo\Addons\ElementorIntegration\Widgets\CoursesToolbarWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseStatsWidget;
 use Masteriyo\Addons\ElementorIntegration\Widgets\CourseTitleWidget;
 use Masteriyo\Constants;
@@ -73,8 +76,33 @@ class ElementorIntegrationAddon {
 		add_action( 'masteriyo_single_course_page_custom_template_render', array( $this, 'render_single_course_page_template' ), 10, 2 );
 		add_filter( 'post_row_actions', array( $this, 'add_use_template_for_masteriyo_action' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_post_states' ), 10, 2 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'register_widget_styles_and_scripts' ) );
+		add_action( 'elementor/elements/categories_registered', array( $this, 'reorder_category_to_top' ), PHP_INT_MAX );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_template_library_admin_scripts' ) );
+		// Runs after ScriptStyle enqueues 'masteriyo-public' (PHP_INT_MAX - 10).
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_widget_styles_and_scripts' ), PHP_INT_MAX - 9 );
+		add_action( 'wp', array( $this, 'set_course_list_layout_context' ) );
+		add_action( 'wp_footer', array( $this, 'clear_course_list_layout_context' ), PHP_INT_MAX );
+		add_filter( 'body_class', array( $this, 'add_layout_body_class' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_custom_template_css' ) );
+		add_action( 'elementor/preview/enqueue_styles', array( $this, 'enqueue_preview_styles' ) );
+	}
+
+	/**
+	 * Enqueue styles for the Elementor editor preview iframe.
+	 *
+	 * Hides the view-mode switcher in real time when a Course List widget on the
+	 * canvas uses a non-default layout. CSS handles this because the layout can
+	 * change live in the editor, where server-side rendering would be stale.
+	 *
+	 * @since x.x.x
+	 */
+	public function enqueue_preview_styles() {
+		wp_register_style( 'masteriyo-elementor-preview', false, array(), Constants::get( 'MASTERIYO_VERSION' ) );
+		wp_enqueue_style( 'masteriyo-elementor-preview' );
+		wp_add_inline_style(
+			'masteriyo-elementor-preview',
+			'body:has(.masteriyo-course-list-display-section[data-layout]) .masteriyo-courses-view-mode-section{display:none !important;}'
+		);
 	}
 
 	/**
@@ -114,7 +142,8 @@ class ElementorIntegrationAddon {
 	}
 
 	/**
-	 * Registers scripts and styles needed for carousel widgets.
+	 * Registers scripts and styles needed for carousel widgets, and enqueues the
+	 * frontend widget-override stylesheet.
 	 *
 	 * @since 1.13.0
 	 */
@@ -124,7 +153,17 @@ class ElementorIntegrationAddon {
 		wp_register_script( 'masteriyo-widget-swiper', plugins_url( 'libs/swiper/swiper-bundle.min.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), array( 'jquery' ), Constants::get( 'MASTERIYO_VERSION' ), true );
 
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		wp_register_script( 'masteriyo-widget-carousel', plugins_url( '/addons/elementor-integration/js/carousel' . $suffix . '.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), array( 'masteriyo-widget-swiper' ), Constants::get( 'MASTERIYO_VERSION' ), true );
+		wp_register_script( 'masteriyo-widget-carousel', MASTERIYO_ELEMENTOR_INTEGRATION_URL . 'js/carousel' . $suffix . '.js', array( 'masteriyo-widget-swiper' ), Constants::get( 'MASTERIYO_VERSION' ), true );
+
+		// Load the widget overrides only where the main stylesheet is present.
+		if ( wp_style_is( 'masteriyo-public', 'enqueued' ) ) {
+			wp_enqueue_style(
+				'masteriyo-elementor-widget-overrides',
+				MASTERIYO_ELEMENTOR_INTEGRATION_URL . 'css/widget-overrides.css',
+				array( 'masteriyo-public' ),
+				Constants::get( 'MASTERIYO_VERSION' )
+			);
+		}
 	}
 
 	/**
@@ -139,6 +178,13 @@ class ElementorIntegrationAddon {
 			'masteriyo',
 			array(
 				'title' => __( 'Masteriyo LMS', 'learning-management-system' ),
+			)
+		);
+		$elements_manager->add_category(
+			'masteriyo-single-course',
+			array(
+				'title' => __( 'Masteriyo - Single Course', 'learning-management-system' ),
+				'icon'  => 'eicon-library-open',
 			)
 		);
 	}
@@ -159,6 +205,7 @@ class ElementorIntegrationAddon {
 			new CourseFeaturedImageWidget(),
 			new CourseEnrollButtonWidget(),
 			new CourseStatsWidget(),
+			new CourseProgressWidget(),
 			new CourseHighlightsWidget(),
 			new CategoriesOfCourseWidget(),
 			new CourseAuthorWidget(),
@@ -168,9 +215,11 @@ class ElementorIntegrationAddon {
 			new CourseCurriculumWidget(),
 			new CourseReviewsWidget(),
 			new CourseArchivePaginationWidget(),
-			new CourseSearchFormWidget(),
+			new CourseSearchFormWidget(), // Hidden from panel; kept for existing pages.
+			new CoursesToolbarWidget(),
 			new CourseArchiveViewModeWidget(),
 			new CourseRetakeWidget(),
+			new CourseExpirationInfoWidget(),
 			new CourseCarouselWidget(),
 			new CategoryCarouselWidget(),
 		);
@@ -319,9 +368,21 @@ class ElementorIntegrationAddon {
 			),
 			array_merge(
 				array(
+					'class' => 'masteriyo-courses-toolbar-widget-icon',
+				),
+				Helper::get_widget_icon_urls( 'courses-toolbar-widget-icon' )
+			),
+			array_merge(
+				array(
 					'class' => 'masteriyo-course-stats-widget-icon',
 				),
 				Helper::get_widget_icon_urls( 'course-stats-widget-icon' )
+			),
+			array_merge(
+				array(
+					'class' => 'masteriyo-course-progress-widget-icon',
+				),
+				Helper::get_widget_icon_urls( 'course-progress-widget-icon' )
 			),
 			array_merge(
 				array(
@@ -365,7 +426,7 @@ class ElementorIntegrationAddon {
 		$icons = apply_filters( 'masteriyo_elementor_widgets_svg_icons_data', $icons );
 
 		foreach ( $icons as $icon_data ) {
-			$class                        = $icon_data['class'];
+			$class                        = sanitize_html_class( $icon_data['class'] );
 			$normal_state_icon            = $icon_data['normal_state_icon'];
 			$hover_state_icon             = $icon_data['hover_state_icon'];
 			$normal_state_dark_theme_icon = $icon_data['normal_state_dark_theme_icon'];
@@ -431,6 +492,19 @@ class ElementorIntegrationAddon {
 				'show_price',
 				'show_enroll_button',
 
+				// Course List widget — filter components.
+				'filter_category',
+				'filter_difficulty',
+				'filter_price_type',
+				'filter_price',
+				'filter_rating',
+
+				// Courses Toolbar widget — sort options.
+				'sort_by_date',
+				'sort_by_price',
+				'sort_by_rating',
+				'sort_by_title',
+
 				// Course Categories widget.
 				'show_category_title',
 				'show_courses_count',
@@ -485,7 +559,7 @@ class ElementorIntegrationAddon {
 
 		wp_enqueue_script(
 			'masteriyo-elementor-editor',
-			plugins_url( '/addons/elementor-integration/js/elementor-editor' . $suffix . '.js', MASTERIYO_PLUGIN_FILE ),
+			MASTERIYO_ELEMENTOR_INTEGRATION_URL . 'js/elementor-editor' . $suffix . '.js',
 			array(
 				'elementor-common',
 			),
@@ -497,12 +571,34 @@ class ElementorIntegrationAddon {
 			'masteriyo-elementor-editor',
 			'_MASTERIYO_ELEMENTOR_EDITOR_',
 			array(
-				'page_templates'        => array(
-					'single_course_page'  => Helper::get_single_course_page_default_layout_elementor_template(),
-					'course_archive_page' => Helper::get_course_archive_page_default_layout_elementor_template(),
+				'page_templates'               => array(
+					'single_course_page'          => Helper::get_single_course_page_default_layout_elementor_template(),
+					'single_course_page_layout1'  => Helper::get_single_course_page_layout1_elementor_template(),
+					'single_course_page_minimal'  => Helper::get_single_course_page_minimal_elementor_template(),
+					'course_archive_page'         => Helper::get_course_archive_page_default_layout_elementor_template(),
+					'course_archive_page_layout1' => Helper::get_course_archive_page_layout1_elementor_template(),
+					'course_archive_page_layout2' => Helper::get_course_archive_page_layout2_elementor_template(),
 				),
-				'library_btn_template'  => Helper::get_library_modal_open_btn_template(),
-				'is_elementor_template' => get_post_type() === 'elementor_library',
+				'single_course_layout_images'  => array(
+					'default' => masteriyo_get_plugin_url() . '/assets/img/single-course-default-layout.png',
+					'layout1' => masteriyo_get_plugin_url() . '/assets/img/single-course-layout1-layout.png',
+					'minimal' => masteriyo_get_plugin_url() . '/assets/img/single-course-minimal-layout.png',
+				),
+				'course_archive_layout_images' => array(
+					'default' => masteriyo_get_plugin_url() . '/assets/img/course-default-layout.png',
+					'layout1' => masteriyo_get_plugin_url() . '/assets/img/course-layout1-layout.png',
+					'layout2' => masteriyo_get_plugin_url() . '/assets/img/course-layout2-layout.png',
+				),
+				'course_archive_active_layout' => masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default',
+				'library_btn_template'         => Helper::get_library_modal_open_btn_template(),
+				'is_elementor_template'        => get_post_type() === 'elementor_library',
+				'rest_url'                     => rest_url(),
+				'nonce'                        => wp_create_nonce( 'wp_rest' ),
+				'i18n'                         => array(
+					'set_as_single_course_template'  => __( 'Set as active Single Course Page template', 'learning-management-system' ),
+					'set_as_course_archive_template' => __( 'Set as active Course Archive Page template', 'learning-management-system' ),
+					'template_activated'             => __( 'Template set as active in Masteriyo settings.', 'learning-management-system' ),
+				),
 			)
 		);
 	}
@@ -544,7 +640,7 @@ class ElementorIntegrationAddon {
 			return;
 		}
 
-		$frontend = new \Elementor\Frontend();
+		$frontend = \Elementor\Plugin::$instance->frontend;
 
 		masteriyo_display_all_notices();
 		printf( '<div class="masteriyo-course-list-display-section masteriyo-container">' );
@@ -567,7 +663,7 @@ class ElementorIntegrationAddon {
 
 		global $course;
 
-		$frontend = new \Elementor\Frontend();
+		$frontend = \Elementor\Plugin::$instance->frontend;
 
 		printf( '<div id="%s" class="masteriyo-single-course masteriyo-container">', esc_attr( $course ? 'course-' . $course->get_id() : '' ) );
 		echo $frontend->get_builder_content_for_display( $template_id );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -679,5 +775,242 @@ class ElementorIntegrationAddon {
 		}
 
 		return $post_states;
+	}
+
+	/**
+	 * Move the Masteriyo categories to the top of the Elementor widget panel.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Elementor\Elements_Manager $elements_manager
+	 */
+	public function reorder_category_to_top( $elements_manager ) {
+		$categories = $elements_manager->get_categories();
+
+		if ( ! isset( $categories['masteriyo'] ) ) {
+			return;
+		}
+
+		$masteriyo_cats = array();
+		foreach ( array( 'masteriyo', 'masteriyo-single-course' ) as $key ) {
+			if ( isset( $categories[ $key ] ) ) {
+				$masteriyo_cats[ $key ] = $categories[ $key ];
+				unset( $categories[ $key ] );
+			}
+		}
+
+		$reordered = array_merge( $masteriyo_cats, $categories );
+
+		// No public API to reorder categories; write the private property, guarded
+		// so a future Elementor change degrades gracefully instead of a fatal error.
+		try {
+			$reflection = new \ReflectionClass( $elements_manager );
+
+			if ( ! $reflection->hasProperty( 'categories' ) ) {
+				return;
+			}
+
+			$property = $reflection->getProperty( 'categories' );
+			$property->setAccessible( true );
+			$property->setValue( $elements_manager, $reordered );
+		} catch ( \ReflectionException $e ) {
+			masteriyo_get_logger()->warning(
+				'Unable to reorder Elementor widget categories: ' . $e->getMessage(),
+				array( 'source' => 'elementor-integration' )
+			);
+		}
+	}
+
+	/**
+	 * Set the Elementor Course List widget layout as a global so the view mode switcher
+	 * is hidden for non-default layouts even when rendered by a separate Search Form widget.
+	 *
+	 * @since x.x.x
+	 */
+	public function set_course_list_layout_context() {
+		if ( \Elementor\Plugin::$instance->preview->is_preview_mode() || \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			return;
+		}
+
+		$settings = $this->get_course_list_settings();
+		if ( null === $settings ) {
+			return;
+		}
+
+		$layout = isset( $settings['layout'] ) ? $settings['layout'] : 'default';
+		if ( $layout ) {
+			$GLOBALS['masteriyo_elementor_course_list_layout'] = $layout; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Clear the course-list layout global after the page body has rendered.
+	 *
+	 * @since x.x.x
+	 */
+	public function clear_course_list_layout_context() {
+		unset( $GLOBALS['masteriyo_elementor_course_list_layout'] );
+	}
+
+	/**
+	 * Add a body class indicating the active Elementor course list layout so CSS
+	 * can hide the view-mode switcher for non-default layouts.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string[] $classes
+	 * @return string[]
+	 */
+	public function add_layout_body_class( $classes ) {
+		// Skip in the editor preview where the saved layout may not match the live
+		// canvas. The preview stylesheet handles layout-based hiding there instead.
+		if ( class_exists( '\Elementor\Plugin' )
+			&& ( \Elementor\Plugin::$instance->preview->is_preview_mode() || \Elementor\Plugin::$instance->editor->is_edit_mode() ) ) {
+			return $classes;
+		}
+
+		$layout = $this->get_course_list_layout();
+		if ( $layout && 'default' !== $layout ) {
+			$classes[] = 'masteriyo-elementor-course-layout-' . sanitize_html_class( $layout );
+		}
+		return $classes;
+	}
+
+	/**
+	 * Get the course-list widget layout for the current page.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string|null 'default', 'layout1', 'layout2', or null if not found.
+	 */
+	private function get_course_list_layout() {
+		$settings = $this->get_course_list_settings();
+
+		if ( null === $settings ) {
+			return null;
+		}
+
+		return isset( $settings['layout'] ) ? $settings['layout'] : 'default';
+	}
+
+	/**
+	 * Get the first course-list widget's settings on the current page (memoized).
+	 *
+	 * @since x.x.x
+	 *
+	 * @return array|null Widget settings, or null if no course-list widget is found.
+	 */
+	private function get_course_list_settings() {
+		static $cached = false;
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$cached = $this->resolve_course_list_settings();
+
+		return $cached;
+	}
+
+	/**
+	 * Resolve the masteriyo-course-list widget settings from the relevant Elementor data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return array|null
+	 */
+	private function resolve_course_list_settings() {
+		// When a Masteriyo custom Elementor template is active for the course archive,
+		// read from that template post rather than the queried page.
+		if ( masteriyo_is_courses_page() ) {
+			$enable = masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.display.template.custom_template.enable' ) );
+			$source = masteriyo_get_setting( 'course_archive.display.template.custom_template.template_source' );
+			if ( $enable && 'elementor' === $source ) {
+				$template_id = (int) masteriyo_get_setting( 'course_archive.display.template.custom_template.template_id' );
+				if ( $template_id ) {
+					$data = json_decode( get_post_meta( $template_id, '_elementor_data', true ), true );
+					if ( is_array( $data ) ) {
+						return self::find_course_list_settings( $data );
+					}
+				}
+			}
+		}
+
+		$post_id = get_queried_object_id();
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$elementor_data = get_post_meta( $post_id, '_elementor_data', true );
+
+		if ( empty( $elementor_data ) ) {
+			return null;
+		}
+
+		$data = json_decode( $elementor_data, true );
+
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+
+		return self::find_course_list_settings( $data );
+	}
+
+	/**
+	 * Recursively search Elementor data for the first course-list widget's settings.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $elements
+	 * @return array|null
+	 */
+	public static function find_course_list_settings( array $elements ) {
+		foreach ( $elements as $element ) {
+			if ( isset( $element['widgetType'] ) && 'masteriyo-course-list' === $element['widgetType'] ) {
+				return isset( $element['settings'] ) && is_array( $element['settings'] ) ? $element['settings'] : array();
+			}
+			if ( ! empty( $element['elements'] ) ) {
+				$result = self::find_course_list_settings( $element['elements'] );
+				if ( null !== $result ) {
+					return $result;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Enqueue script for the Elementor template library admin page.
+	 *
+	 * @since x.x.x
+	 */
+	public function enqueue_template_library_admin_scripts() {
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'elementor_library' !== $screen->post_type || 'edit' !== $screen->base ) {
+			return;
+		}
+
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		wp_enqueue_script(
+			'masteriyo-elementor-new-template',
+			MASTERIYO_ELEMENTOR_INTEGRATION_URL . 'js/elementor-new-template' . $suffix . '.js',
+			array( 'jquery' ),
+			MASTERIYO_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'masteriyo-elementor-new-template',
+			'_MASTERIYO_ELEMENTOR_NEW_TEMPLATE_',
+			array(
+				'i18n' => array(
+					'set_as_single_course_template'  => __( 'Set as active Single Course Page template', 'learning-management-system' ),
+					'set_as_course_archive_template' => __( 'Set as active Course Archive Page template', 'learning-management-system' ),
+				),
+			)
+		);
 	}
 }

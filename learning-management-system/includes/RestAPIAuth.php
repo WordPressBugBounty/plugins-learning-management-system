@@ -103,7 +103,13 @@ class RestAPIAuth {
 			return $record['user_id'];
 		}
 
-		$this->set_error( new WP_Error( 'masteriyo_rest_authentication_error', __( 'Consumer secret is invalid.', 'learning-management-system' ), array( 'status' => 401 ) ) );
+		// Only report an auth error when the API key was recognised but the secret
+		// was wrong (false).  When the key is not found at all (null) the supplied
+		// credentials are not intended for Masteriyo – they may belong to a
+		// site-wide HTTP Basic Auth layer – so we leave WordPress auth untouched.
+		if ( false === $record ) {
+			$this->set_error( new WP_Error( 'masteriyo_rest_authentication_error', 'Consumer secret is invalid.', array( 'status' => 401 ) ) );
+		}
 
 		return $user_id;
 	}

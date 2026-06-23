@@ -2093,6 +2093,10 @@ class Course extends Model {
 	 * @return string
 	 */
 	public function start_course_url( $append_first_lesson_or_quiz = true ) {
+		if ( masteriyo_get_page_id( 'learn' ) <= 0 ) {
+			return apply_filters( 'masteriyo_start_course_url', add_query_arg( 'masteriyo_error', 'learn_page_not_found', masteriyo_get_courses_url() ), $this, $append_first_lesson_or_quiz );
+		}
+
 		$lesson_or_quiz = $this->get_first_lesson_or_quiz();
 		$learn_page_url = masteriyo_get_page_permalink( 'learn' );
 		$url            = trailingslashit( $learn_page_url ) . 'course/' . $this->get_slug();
@@ -2153,6 +2157,11 @@ class Course extends Model {
 				}
 			)
 		);
+
+		// All items completed — fall back to start URL.
+		if ( ! $first_course_progress_item ) {
+			return apply_filters( 'masteriyo_continue_course_url', $this->start_course_url( true ), $this, $course_progress );
+		}
 
 		list (
 			'item_type' => $item_type,

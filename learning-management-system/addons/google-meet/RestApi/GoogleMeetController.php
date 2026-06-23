@@ -301,6 +301,14 @@ class GoogleMeetController extends PostsController {
 				);
 			}
 
+			// Restrict access to other course content while a quiz attempt is in progress.
+			if ( function_exists( 'masteriyo_check_content_restriction_during_quiz' ) ) {
+				$restriction = masteriyo_check_content_restriction_during_quiz( $course, $post );
+				if ( is_wp_error( $restriction ) ) {
+					return $restriction;
+				}
+			}
+
 			if ( CourseAccessMode::OPEN === $course->get_access_mode() && ! post_password_required( get_post( $course->get_id() ) ) ) {
 				return true;
 			}

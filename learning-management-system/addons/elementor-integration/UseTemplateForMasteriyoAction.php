@@ -77,7 +77,8 @@ class UseTemplateForMasteriyoAction {
 			wp_die( esc_html__( 'Invalid template type!', 'learning-management-system' ) );
 		}
 
-		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		$referer = wp_get_referer();
+		wp_safe_redirect( $referer ? $referer : admin_url( 'edit.php?post_type=elementor_library' ) );
 		exit;
 	}
 

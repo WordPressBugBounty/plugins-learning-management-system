@@ -21,6 +21,7 @@ use Masteriyo\Pro\Addons;
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_DIR', __DIR__ );
+define( 'MASTERIYO_ELEMENTOR_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'MASTERIYO_ELEMENTOR_INTEGRATION_SLUG', 'elementor-integration' );
 
 if ( ( new Addons() )->is_active( MASTERIYO_ELEMENTOR_INTEGRATION_SLUG ) && ! Helper::is_elementor_active() ) {

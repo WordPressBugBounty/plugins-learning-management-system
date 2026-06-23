@@ -7,8 +7,6 @@
 
 namespace Masteriyo\Addons\MigrationTool;
 
-use Masteriyo\Addons\MigrationTool\Controllers\LMSMigrationController;
-
 /**
  * Migration Tool Addon main class for Masteriyo.
  *
@@ -44,7 +42,7 @@ class MigrationToolAddon {
 	 * @return array Modified REST namespaces including migration tool endpoints.
 	 */
 	public function register_rest_namespaces( $namespaces ) {
-		$namespaces['masteriyo/v1']['migration-tool'] = LMSMigrationController::class;
+		$namespaces['masteriyo/v1']['migration-tool'] = 'migration-tool.rest';
 		return $namespaces;
 	}
 }

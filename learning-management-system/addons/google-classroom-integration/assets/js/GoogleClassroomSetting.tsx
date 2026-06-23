@@ -299,6 +299,7 @@ const GoogleClassroomSetting = () => {
 					<ClassroomErrorConsentScreen
 						onResetCredentialsModalChange={onResetCredentialsModalChange}
 						onHandleConsentScreen={onHandleConsentScreen}
+						settingsQuery={googleClassroomSettingQuery}
 					/>
 				) : (
 					<Row align={'center'}>

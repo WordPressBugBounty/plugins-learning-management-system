@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CoursePriceWidget extends WidgetBase {
+class CoursePriceWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -66,6 +66,14 @@ class CoursePriceWidget extends WidgetBase {
 	 */
 	public function get_keywords() {
 		return array( 'price' );
+	}
+
+	/**
+	 * @since x.x.x
+	 * @return bool
+	 */
+	public function show_in_panel() {
+		return false;
 	}
 
 	/**
@@ -129,9 +137,9 @@ class CoursePriceWidget extends WidgetBase {
 		$course = apply_filters( 'masteriyo_setup_course_data', $course );
 
 		?>
-		<!-- <div class="masteriyo-course-price">
-			<span class="current-amount"><?php //echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
-		</div> -->
+		<div class="masteriyo-course-price">
+			<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+		</div>
 		<?php
 	}
 
@@ -153,10 +161,12 @@ class CoursePriceWidget extends WidgetBase {
 			 */
 			$course = apply_filters( 'masteriyo_setup_course_data', $course );
 			?>
-			<!-- <div class="masteriyo-course-price">
-				<span class="current-amount"><?php //echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
-			</div> -->
+			<div class="masteriyo-course-price">
+				<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+			</div>
 			<?php
+		} else {
+			$this->render_no_course_notice();
 		}
 	}
 }

@@ -29,5 +29,6 @@ class LiteSpeed extends CachePluginCompatibility {
 	 */
 	public function do_not_cache() {
 		masteriyo_maybe_define_constant( 'DONOTCACHEPAGE', true );
+		// Note: browser/proxy no-cache headers are sent by the parent do_not_cache_page().
 	}
 }

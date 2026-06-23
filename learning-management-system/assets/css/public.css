@@ -827,6 +827,7 @@
 .masteriyo-container ul.page-numbers,
 .masteriyo-course-list-display-section ul.page-numbers {
   display: flex;
+  list-style: none;
   width: -moz-fit-content;
   width: fit-content;
   border-radius: 4px;
@@ -888,6 +889,11 @@
 .masteriyo-container ul.page-numbers .prev:hover svg,
 .masteriyo-course-list-display-section ul.page-numbers .prev:hover svg {
   fill: var(--masteriyo-color-primary) !important;
+}
+
+.masteriyo-course-list-display-section ul.page-numbers {
+  width: 100%;
+  justify-content: center;
 }
 
 .masteriyo-badge {
@@ -5448,6 +5454,7 @@ body.masteriyo #masteriyo-checkout .masteriyo-container .masteriyo-checkout-main
 
 .masteriyo-course-list-display-section {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
 }
 .masteriyo-course-list-display-section .masteriyo-courses-wrapper,
@@ -6180,6 +6187,19 @@ body.masteriyo-courses-page {
 }
 .masteriyo-courses-view-mode-section .masteriyo-courses-view-mode-item-lists .masteriyo-courses-view-mode-item:hover button svg path, .masteriyo-courses-view-mode-section .masteriyo-courses-view-mode-item-lists .masteriyo-courses-view-mode-item.active button svg path {
   fill: #ffffff;
+}
+
+.masteriyo-course-carousel .masteriyo-single-course-stats,
+.masteriyo-course-carousel .masteriyo-course-progress-bar {
+  display: none !important;
+}
+.masteriyo-course-carousel .masteriyo-archive-cards.swiper,
+.masteriyo-course-carousel .masteriyo-course-cards.swiper {
+  display: block !important;
+}
+.masteriyo-course-carousel .masteriyo-archive-cards .swiper-wrapper,
+.masteriyo-course-carousel .masteriyo-course-cards .swiper-wrapper {
+  display: flex !important;
 }
 
 .masteriyo-filter-section .toggle-arrow {
@@ -10796,6 +10816,35 @@ body.theme-twentytwentyfive .masteriyo-instructors-list {
 body.theme-twentytwentyfive .masteriyo-courses-view-mode-section button {
   border: 0;
   cursor: pointer;
+}
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h1,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h2,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h3,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h4,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h5,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview h6,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview .wp-block-heading,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h1,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h2,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h3,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h4,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h5,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum h6,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum .wp-block-heading {
+  font-weight: 700;
+  font-style: normal;
+}
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview strong,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview b,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum strong,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum b {
+  font-weight: 700;
+}
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview em,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-overview i,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum em,
+body.theme-twentytwentyfive .masteriyo-single-course--main__content .tab-content.course-curriculum i {
+  font-style: italic;
 }
 
 .theme-elearning #masteriyo-account-page p {

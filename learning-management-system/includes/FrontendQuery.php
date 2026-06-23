@@ -110,11 +110,29 @@ class FrontendQuery {
 			return;
 		}
 
+		$is_admin     = current_user_can( 'manage_masteriyo_settings' );
+		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=general&second=pages' );
+
 		$error_messages = array(
-			'course_not_found' => __( 'Course not found.', 'learning-management-system' ),
-			'not_enrolled'     => __( 'Please enroll to access this course.', 'learning-management-system' ),
-			'access_denied'    => __( 'You do not have permission to access this course.', 'learning-management-system' ),
-			'empty_cart'       => __( 'Your cart is empty. Please add a course before proceeding to checkout.', 'learning-management-system' ),
+			'course_not_found'        => __( 'Course not found.', 'learning-management-system' ),
+			'not_enrolled'            => __( 'Please enroll to access this course.', 'learning-management-system' ),
+			'access_denied'           => __( 'You do not have permission to access this course.', 'learning-management-system' ),
+			'empty_cart'              => __( 'Your cart is empty. Please add a course before proceeding to checkout.', 'learning-management-system' ),
+			'learn_page_not_found'    => $is_admin ? sprintf(
+				/* translators: %s: HTML link to Masteriyo Settings page */
+				__( 'The Learn page is not configured. Please set it up in %s.', 'learning-management-system' ),
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+			) : '',
+			'account_page_not_found'  => $is_admin ? sprintf(
+				/* translators: %s: HTML link to Masteriyo Settings page */
+				__( 'The Account page is not configured. Please set it up in %s.', 'learning-management-system' ),
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+			) : '',
+			'checkout_page_not_found' => $is_admin ? sprintf(
+				/* translators: %s: HTML link to Masteriyo Settings page */
+				__( 'The Checkout page is not configured. Please set it up in %s.', 'learning-management-system' ),
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+			) : '',
 		);
 
 		$message = isset( $error_messages[ $error_code ] ) ? $error_messages[ $error_code ] : '';
@@ -178,6 +196,9 @@ class FrontendQuery {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Map query vars to their keys, or get them if endpoints are not supported.
 		foreach ( $this->get_query_vars() as $key => $var ) {
+			if ( empty( $var ) ) {
+				continue;
+			}
 			if ( isset( $_GET[ $var ] ) ) {
 				$wp->query_vars[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $var ] ) );
 			} elseif ( isset( $wp->query_vars[ $var ] ) ) {

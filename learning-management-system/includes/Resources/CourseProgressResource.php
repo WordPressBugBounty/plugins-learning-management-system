@@ -299,7 +299,8 @@ class CourseProgressResource {
 			)
 		);
 
-		return $lessons_quizzes;
+		// Reindex so dropped items don't leave key gaps that JSON-encode as an object.
+		return array_values( $lessons_quizzes );
 	}
 
 	/**

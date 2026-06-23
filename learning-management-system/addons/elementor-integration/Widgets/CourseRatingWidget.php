@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseRatingWidget extends WidgetBase {
+class CourseRatingWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -66,6 +66,14 @@ class CourseRatingWidget extends WidgetBase {
 	 */
 	public function get_keywords() {
 		return array( 'rating', 'reviews' );
+	}
+
+	/**
+	 * @since x.x.x
+	 * @return bool
+	 */
+	public function show_in_panel() {
+		return false;
 	}
 
 	/**
@@ -302,6 +310,7 @@ class CourseRatingWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 

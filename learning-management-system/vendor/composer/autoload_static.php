@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
+class ComposerStaticInit486875cb728b297044c75e4ee86482ff
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -99,6 +99,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
             'Masteriyo\\Addons\\Mollie\\' => 24,
             'Masteriyo\\Addons\\MigrationTool\\' => 31,
             'Masteriyo\\Addons\\LemonSqueezyIntegration\\' => 41,
+            'Masteriyo\\Addons\\H5P\\' => 21,
             'Masteriyo\\Addons\\GroupCourses\\' => 30,
             'Masteriyo\\Addons\\GoogleMeet\\' => 28,
             'Masteriyo\\Addons\\GoogleClassroomIntegration\\' => 44,
@@ -277,6 +278,10 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\' =>
         array (
             0 => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration',
+        ),
+        'Masteriyo\\Addons\\H5P\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/addons/h5p',
         ),
         'Masteriyo\\Addons\\GroupCourses\\' =>
         array (
@@ -696,6 +701,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Abstracts\\Session' => __DIR__ . '/../..' . '/includes/Abstracts/Session.php',
         'Masteriyo\\Abstracts\\Shortcode' => __DIR__ . '/../..' . '/includes/Abstracts/Shortcode.php',
         'Masteriyo\\Abstracts\\ShowHideCourseComponents' => __DIR__ . '/../..' . '/includes/Abstracts/ShowHideCourseComponents.php',
+        'Masteriyo\\Account\\SidebarLinkRegistry' => __DIR__ . '/../..' . '/includes/Account/SidebarLinkRegistry.php',
         'Masteriyo\\Activation' => __DIR__ . '/../..' . '/includes/Activation.php',
         'Masteriyo\\Addons\\BeaverIntegration\\BeaverIntegrationAddon' => __DIR__ . '/../..' . '/addons/beaver-integration/BeaverIntegrationAddon.php',
         'Masteriyo\\Addons\\BeaverIntegration\\CoursesCategories\\CoursesCategoriesModule' => __DIR__ . '/../..' . '/addons/beaver-integration/CoursesCategories/CoursesCategoriesModule.php',
@@ -771,6 +777,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Addons\\ElementorIntegration\\ElementorIntegrationAddon' => __DIR__ . '/../..' . '/addons/elementor-integration/ElementorIntegrationAddon.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Helper' => __DIR__ . '/../..' . '/addons/elementor-integration/Helper.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Providers\\ElementorIntegrationServiceProvider' => __DIR__ . '/../..' . '/addons/elementor-integration/Providers/ElementorIntegrationServiceProvider.php',
+        'Masteriyo\\Addons\\ElementorIntegration\\SingleCourseWidgetBase' => __DIR__ . '/../..' . '/addons/elementor-integration/SingleCourseWidgetBase.php',
         'Masteriyo\\Addons\\ElementorIntegration\\UseTemplateForMasteriyoAction' => __DIR__ . '/../..' . '/addons/elementor-integration/UseTemplateForMasteriyoAction.php',
         'Masteriyo\\Addons\\ElementorIntegration\\WidgetBase' => __DIR__ . '/../..' . '/addons/elementor-integration/WidgetBase.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CategoriesOfCourseWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CategoriesOfCourseWidget.php',
@@ -783,17 +790,20 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseContentsWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseContentsWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseCurriculumWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseCurriculumWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseEnrollButtonWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseEnrollButtonWidget.php',
+        'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseExpirationInfoWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseExpirationInfoWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseFeaturedImageWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseFeaturedImageWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseHighlightsWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseHighlightsWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseListWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseListWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseOverviewWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseOverviewWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CoursePriceWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CoursePriceWidget.php',
+        'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseProgressWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseProgressWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseRatingWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseRatingWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseRetakeWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseRetakeWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseReviewsWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseReviewsWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseSearchFormWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseSearchFormWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseStatsWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseStatsWidget.php',
         'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CourseTitleWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CourseTitleWidget.php',
+        'Masteriyo\\Addons\\ElementorIntegration\\Widgets\\CoursesToolbarWidget' => __DIR__ . '/../..' . '/addons/elementor-integration/Widgets/CoursesToolbarWidget.php',
         'Masteriyo\\Addons\\FluentCRM\\AutomationConditions' => __DIR__ . '/../..' . '/addons/fluent-crm/AutomationConditions.php',
         'Masteriyo\\Addons\\FluentCRM\\FluentCrmAddon' => __DIR__ . '/../..' . '/addons/fluent-crm/FluentCrmAddon.php',
         'Masteriyo\\Addons\\FluentCRM\\Helper' => __DIR__ . '/../..' . '/addons/fluent-crm/Helper.php',
@@ -848,20 +858,33 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Addons\\GroupCourses\\PostType\\Group' => __DIR__ . '/../..' . '/addons/group-courses/PostType/Group.php',
         'Masteriyo\\Addons\\GroupCourses\\Providers\\GroupCoursesServiceProvider' => __DIR__ . '/../..' . '/addons/group-courses/Providers/GroupCoursesServiceProvider.php',
         'Masteriyo\\Addons\\GroupCourses\\Repository\\GroupRepository' => __DIR__ . '/../..' . '/addons/group-courses/Repository/GroupRepository.php',
+        'Masteriyo\\Addons\\H5P\\Compatibility\\H5PRenderer' => __DIR__ . '/../..' . '/addons/h5p/Compatibility/H5PRenderer.php',
+        'Masteriyo\\Addons\\H5P\\H5PAddon' => __DIR__ . '/../..' . '/addons/h5p/H5PAddon.php',
+        'Masteriyo\\Addons\\H5P\\Providers\\H5PServiceProvider' => __DIR__ . '/../..' . '/addons/h5p/Providers/H5PServiceProvider.php',
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\Helper' => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration/Helper.php',
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\LemonSqueezy' => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration/LemonSqueezy.php',
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\LemonSqueezyIntegrationAddon' => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration/LemonSqueezyIntegrationAddon.php',
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\Request' => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration/Request.php',
         'Masteriyo\\Addons\\LemonSqueezyIntegration\\Setting' => __DIR__ . '/../..' . '/addons/lemon-squeezy-integration/Setting.php',
+        'Masteriyo\\Addons\\MigrationTool\\Contracts\\MigratorInterface' => __DIR__ . '/../..' . '/addons/migration-tool/Contracts/MigratorInterface.php',
         'Masteriyo\\Addons\\MigrationTool\\Controllers\\LMSMigrationController' => __DIR__ . '/../..' . '/addons/migration-tool/Controllers/LMSMigrationController.php',
         'Masteriyo\\Addons\\MigrationTool\\Helper' => __DIR__ . '/../..' . '/addons/migration-tool/Helper.php',
-        'Masteriyo\\Addons\\MigrationTool\\LearnDash' => __DIR__ . '/../..' . '/addons/migration-tool/LearnDash.php',
-        'Masteriyo\\Addons\\MigrationTool\\LearnPress' => __DIR__ . '/../..' . '/addons/migration-tool/LearnPress.php',
-        'Masteriyo\\Addons\\MigrationTool\\LifterLMS' => __DIR__ . '/../..' . '/addons/migration-tool/LifterLMS.php',
-        'Masteriyo\\Addons\\MigrationTool\\MasterStudy' => __DIR__ . '/../..' . '/addons/migration-tool/MasterStudy.php',
+        'Masteriyo\\Addons\\MigrationTool\\Jobs\\MigrationProcessJob' => __DIR__ . '/../..' . '/addons/migration-tool/Jobs/MigrationProcessJob.php',
+        'Masteriyo\\Addons\\MigrationTool\\LMS\\LearnDash' => __DIR__ . '/../..' . '/addons/migration-tool/LMS/LearnDash.php',
+        'Masteriyo\\Addons\\MigrationTool\\LMS\\LearnPress' => __DIR__ . '/../..' . '/addons/migration-tool/LMS/LearnPress.php',
+        'Masteriyo\\Addons\\MigrationTool\\LMS\\LifterLMS' => __DIR__ . '/../..' . '/addons/migration-tool/LMS/LifterLMS.php',
+        'Masteriyo\\Addons\\MigrationTool\\LMS\\MasterStudy' => __DIR__ . '/../..' . '/addons/migration-tool/LMS/MasterStudy.php',
+        'Masteriyo\\Addons\\MigrationTool\\LMS\\TutorLMS' => __DIR__ . '/../..' . '/addons/migration-tool/LMS/TutorLMS.php',
+        'Masteriyo\\Addons\\MigrationTool\\MigrationSession' => __DIR__ . '/../..' . '/addons/migration-tool/MigrationSession.php',
         'Masteriyo\\Addons\\MigrationTool\\MigrationToolAddon' => __DIR__ . '/../..' . '/addons/migration-tool/MigrationToolAddon.php',
+        'Masteriyo\\Addons\\MigrationTool\\MigratorRegistry' => __DIR__ . '/../..' . '/addons/migration-tool/MigratorRegistry.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\AbstractLMSMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/AbstractLMSMigrator.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\LearnDashMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/LearnDashMigrator.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\LearnPressMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/LearnPressMigrator.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\LifterLMSMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/LifterLMSMigrator.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\MasterStudyMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/MasterStudyMigrator.php',
+        'Masteriyo\\Addons\\MigrationTool\\Migrators\\TutorLMSMigrator' => __DIR__ . '/../..' . '/addons/migration-tool/Migrators/TutorLMSMigrator.php',
         'Masteriyo\\Addons\\MigrationTool\\Providers\\MigrationToolServiceProvider' => __DIR__ . '/../..' . '/addons/migration-tool/Providers/MigrationToolServiceProvider.php',
-        'Masteriyo\\Addons\\MigrationTool\\TutorLMS' => __DIR__ . '/../..' . '/addons/migration-tool/TutorLMS.php',
         'Masteriyo\\Addons\\Mollie\\Mollie' => __DIR__ . '/../..' . '/addons/mollie/Mollie.php',
         'Masteriyo\\Addons\\Mollie\\MollieAddon' => __DIR__ . '/../..' . '/addons/mollie/MollieAddon.php',
         'Masteriyo\\Addons\\Mollie\\Setting' => __DIR__ . '/../..' . '/addons/mollie/Setting.php',
@@ -928,6 +951,8 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Addons\\WcIntegration\\AddToCartAjaxHandler' => __DIR__ . '/../..' . '/addons/wc-integration/AddToCartAjaxHandler.php',
         'Masteriyo\\Addons\\WcIntegration\\CourseProduct' => __DIR__ . '/../..' . '/addons/wc-integration/CourseProduct.php',
         'Masteriyo\\Addons\\WcIntegration\\CourseRecurringProduct' => __DIR__ . '/../..' . '/addons/wc-integration/CourseRecurringProduct.php',
+        'Masteriyo\\Addons\\WcIntegration\\Emails\\WcEnrollmentEmailToStudent' => __DIR__ . '/../..' . '/addons/wc-integration/Emails/WcEnrollmentEmailToStudent.php',
+        'Masteriyo\\Addons\\WcIntegration\\Enums\\WcCourseProductType' => __DIR__ . '/../..' . '/addons/wc-integration/Enums/WcCourseProductType.php',
         'Masteriyo\\Addons\\WcIntegration\\Helper' => __DIR__ . '/../..' . '/addons/wc-integration/Helper.php',
         'Masteriyo\\Addons\\WcIntegration\\ListCoursesAjaxHandler' => __DIR__ . '/../..' . '/addons/wc-integration/ListCoursesAjaxHandler.php',
         'Masteriyo\\Addons\\WcIntegration\\Setting' => __DIR__ . '/../..' . '/addons/wc-integration/Setting.php',
@@ -1172,6 +1197,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Models\\User' => __DIR__ . '/../..' . '/includes/Models/User.php',
         'Masteriyo\\Models\\UserCourse' => __DIR__ . '/../..' . '/includes/Models/UserCourse.php',
         'Masteriyo\\Models\\Webhook' => __DIR__ . '/../..' . '/includes/Models/Webhook.php',
+        'Masteriyo\\NavMenu\\NavMenu' => __DIR__ . '/../..' . '/includes/NavMenu/NavMenu.php',
         'Masteriyo\\Notice' => __DIR__ . '/../..' . '/includes/Notice.php',
         'Masteriyo\\PDF\\Order\\OrderPDF' => __DIR__ . '/../..' . '/includes/PDF/Order/OrderPDF.php',
         'Masteriyo\\PaymentGateways' => __DIR__ . '/../..' . '/includes/PaymentGateways.php',
@@ -1212,6 +1238,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\Providers\\LessonReviewServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/LessonReviewServiceProvider.php',
         'Masteriyo\\Providers\\LessonServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/LessonServiceProvider.php',
         'Masteriyo\\Providers\\MigratorServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/MigratorServiceProvider.php',
+        'Masteriyo\\Providers\\NavMenuServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/NavMenuServiceProvider.php',
         'Masteriyo\\Providers\\NoticeServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/NoticeServiceProvider.php',
         'Masteriyo\\Providers\\NotificationServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/NotificationServiceProvider.php',
         'Masteriyo\\Providers\\OpenAIServiceProvider' => __DIR__ . '/../..' . '/includes/Providers/OpenAIServiceProvider.php',
@@ -1325,6 +1352,7 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
         'Masteriyo\\RestApi\\Controllers\\Version1\\LessonReviewsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LessonReviewsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\LessonsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LessonsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\LogsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/LogsController.php',
+        'Masteriyo\\RestApi\\Controllers\\Version1\\NavMenuController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/NavMenuController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\NotificationsController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/NotificationsController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\OnboardingController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OnboardingController.php',
         'Masteriyo\\RestApi\\Controllers\\Version1\\OpenAIController' => __DIR__ . '/../..' . '/includes/RestApi/Controllers/Version1/OpenAIController.php',
@@ -2327,9 +2355,9 @@ class ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInita10a619a11aab1b38a4bc44c1a8381a4::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit486875cb728b297044c75e4ee86482ff::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit486875cb728b297044c75e4ee86482ff::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit486875cb728b297044c75e4ee86482ff::$classMap;
 
         }, null, ClassLoader::class);
     }

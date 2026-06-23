@@ -4,30 +4,20 @@ import React, { useMemo } from 'react';
 import { IoIosLink } from 'react-icons/io';
 import { RiRestartLine } from 'react-icons/ri';
 // import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup.tsx';
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup';
-import API from '../../../../assets/js/back-end/utils/api';
-import GoogleMeetUrls from '../../constants/urls';
 
 interface Props {
 	onResetCredentialsModalChange: (value: boolean) => void;
 	onHandleConsentScreen: any;
+	settingQuery?: UseQueryResult<any, unknown>;
 }
 
 const MeetingErrorConsentScreen: React.FC<Props> = ({
 	onResetCredentialsModalChange,
 	onHandleConsentScreen,
+	settingQuery,
 }) => {
-	const GoogleMeetAPI = new API(GoogleMeetUrls.settings);
-
-	const settingQuery = useQuery({
-		queryKey: ['googleMeetSettings'],
-		queryFn: () => GoogleMeetAPI.list(),
-		...{
-			keepPreviousData: true,
-		},
-	});
-
 	const consentScreenButtons = useMemo(() => {
 		return [
 			{

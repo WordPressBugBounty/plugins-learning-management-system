@@ -592,10 +592,17 @@ class CourseAnnouncementController extends PostsController {
 	/**
 	 * Prepare a single course announcement for create or update.
 	 *
-	 * @since 1.6.16
+	 * Content fields (title, description, status, slug, menu_order, course_id, meta_data)
+	 * are written only when the caller is an admin, manager, or the announcement's own
+	 * author. All other authenticated users (enrolled students, non-author instructors)
+	 * may only update the has_read user-meta flag. Authorization is never derived from
+	 * client-supplied fields such as request_from. See MAS-3642.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @param bool            $creating If is creating a new object.
+	 * @since 1.6.16
+	 * @since x.x.x Replaced request_from gate with server-side role/ownership check (MAS-3642).
+	 *
+	 * @param WP_REST_Request $request  Request object.
+	 * @param bool            $creating True when creating a new object.
 	 *
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
@@ -610,58 +617,66 @@ class CourseAnnouncementController extends PostsController {
 			$course_announcement_repo->read( $course_announcement );
 		}
 
-		// Post title.
-		if ( isset( $request['title'] ) ) {
-			$course_announcement->set_title( sanitize_text_field( $request['title'] ) );
-		}
+		// Only admins, managers, and the post's own author may write content fields; $creating is pre-authorized by create_item_permissions_check.
+		$can_edit_content = masteriyo_is_current_user_admin()
+			|| masteriyo_is_current_user_manager()
+			|| $creating
+			|| ( $id && (int) $course_announcement->get_author_id() === get_current_user_id() );
 
-		// Post content.
-		if ( isset( $request['description'] ) ) {
-			$course_announcement->set_description( wp_slash( $request['description'] ) );
-		}
+		if ( $can_edit_content ) {
+			// Post title.
+			if ( isset( $request['title'] ) ) {
+				$course_announcement->set_title( sanitize_text_field( $request['title'] ) );
+			}
 
-		// Post status.
-		if ( isset( $request['status'] ) ) {
-			$course_announcement->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : 'draft' );
-		}
+			// Post content.
+			if ( isset( $request['description'] ) ) {
+				$course_announcement->set_description( wp_slash( $request['description'] ) );
+			}
 
-		// Post slug.
-		if ( isset( $request['slug'] ) ) {
-			$course_announcement->set_slug( $request['slug'] );
-		}
+			// Post status.
+			if ( isset( $request['status'] ) ) {
+				$course_announcement->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : 'draft' );
+			}
 
-		// Menu order.
-		if ( isset( $request['menu_order'] ) ) {
-			$course_announcement->set_menu_order( $request['menu_order'] );
-		}
+			// Post slug.
+			if ( isset( $request['slug'] ) ) {
+				$course_announcement->set_slug( $request['slug'] );
+			}
 
-		// Automatically set the menu order if it's not set and the operation is POST.
-		if ( ! isset( $request['menu_order'] ) && $creating ) {
-			$query = new \WP_Query(
-				array(
-					'post_type'      => PostType::COURSEANNOUNCEMENT,
-					'post_status'    => PostStatus::all(),
-					'posts_per_page' => 1,
-				)
-			);
+			// Menu order.
+			if ( isset( $request['menu_order'] ) ) {
+				$course_announcement->set_menu_order( $request['menu_order'] );
+			}
 
-			$course_announcement->set_menu_order( $query->found_posts );
-		}
+			// Automatically set the menu order if it's not set and the operation is POST.
+			if ( ! isset( $request['menu_order'] ) && $creating ) {
+				$query = new \WP_Query(
+					array(
+						'post_type'      => PostType::COURSEANNOUNCEMENT,
+						'post_status'    => PostStatus::all(),
+						'posts_per_page' => 1,
+					)
+				);
 
-		// Course ID.
-		if ( isset( $request['course_id'] ) ) {
-			$course_announcement->set_course_id( $request['course_id'] );
-		}
+				$course_announcement->set_menu_order( $query->found_posts );
+			}
 
-		// Allow set meta_data.
-		if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
-			foreach ( $request['meta_data'] as $meta ) {
-				$course_announcement->update_meta_data( $meta['key'], $meta['value'], isset( $meta['id'] ) ? $meta['id'] : '' );
+			// Course ID.
+			if ( isset( $request['course_id'] ) ) {
+				$course_announcement->set_course_id( $request['course_id'] );
+			}
+
+			// Allow set meta_data.
+			if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
+				foreach ( $request['meta_data'] as $meta ) {
+					$course_announcement->update_meta_data( $meta['key'], $meta['value'], isset( $meta['id'] ) ? $meta['id'] : '' );
+				}
 			}
 		}
 
-		// Update user read.
-		if ( isset( $request['has_read'] ) ) {
+		// Mark as read — only for an existing announcement the caller is enrolled to access.
+		if ( isset( $request['has_read'] ) && $id && masteriyo_can_start_course( $course_announcement->get_course_id() ) ) {
 			update_user_meta( get_current_user_id(), 'has_user_read_' . $id, true );
 		}
 
@@ -762,7 +777,13 @@ class CourseAnnouncementController extends PostsController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
+	 * Admins and managers always pass. The announcement's own author (instructor)
+	 * may edit content. Users enrolled in the related course may only set has_read
+	 * (content edits are then blocked in prepare_object_for_database). All other
+	 * users are denied. Authorization is never based on client-supplied fields.
+	 *
 	 * @since 1.6.16
+	 * @since x.x.x Replaced request_from-based check with server-side role/ownership/enrollment check (MAS-3642).
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -779,12 +800,6 @@ class CourseAnnouncementController extends PostsController {
 			return true;
 		}
 
-		if ( 'learn' === $request['request_from'] ) {
-			if ( masteriyo_is_current_user_student() || masteriyo_is_current_user_instructor() ) {
-				return true;
-			}
-		}
-
 		$id                  = absint( $request['id'] );
 		$course_announcement = masteriyo_get_course_announcement( $id );
 
@@ -798,17 +813,23 @@ class CourseAnnouncementController extends PostsController {
 			);
 		}
 
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'update', $id ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_update',
-				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
+		// The announcement's own author may edit its content.
+		if ( (int) $course_announcement->get_author_id() === get_current_user_id() ) {
+			return true;
 		}
 
-		return true;
+		// Enrolled users pass only to set has_read — content edits are blocked in prepare_object_for_database.
+		if ( masteriyo_can_start_course( $course_announcement->get_course_id() ) ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'masteriyo_rest_cannot_update',
+			__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+			array(
+				'status' => rest_authorization_required_code(),
+			)
+		);
 	}
 
 
@@ -842,6 +863,4 @@ class CourseAnnouncementController extends PostsController {
 
 		return $response;
 	}
-
-
 }

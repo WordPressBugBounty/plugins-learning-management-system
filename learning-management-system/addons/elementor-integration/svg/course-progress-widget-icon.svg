@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background ring: full donut (evenodd = ring shape) -->
+  <path fill="#000" fill-opacity="0.2" fill-rule="evenodd"
+    d="M256 48a208 208 0 1 0 0.001 0z M256 112a144 144 0 1 1-0.001 0z"/>
+  <!-- 75% progress arc donut: 270° CW from top (256,48) to left (48,256) -->
+  <path fill="#000"
+    d="M256 48 A208 208 0 1 1 48 256 L112 256 A144 144 0 1 0 256 112 Z"/>
+  <!-- Center dot -->
+  <circle fill="#000" cx="256" cy="256" r="40"/>
+</svg>

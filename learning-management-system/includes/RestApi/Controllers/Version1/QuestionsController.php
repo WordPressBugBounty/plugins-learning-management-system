@@ -794,12 +794,14 @@ class QuestionsController extends PostsController {
 
 		// Post title.
 		if ( isset( $request['name'] ) ) {
-			$question->set_name( wp_filter_post_kses( $request['name'] ) );
+			// Slash after sanitizing so wp_insert_post/wp_update_post (which unslash)
+			// preserve literal backslashes, e.g. LaTeX math like \frac and \int.
+			$question->set_name( wp_slash( wp_kses_post( $request['name'] ) ) );
 		}
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$question->set_description( wp_filter_post_kses( $request['description'] ) );
+			$question->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		// Course ID.

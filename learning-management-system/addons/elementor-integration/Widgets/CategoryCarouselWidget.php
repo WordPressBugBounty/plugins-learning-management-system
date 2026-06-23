@@ -11,7 +11,6 @@
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
-use Masteriyo\Constants;
 use Masteriyo\Taxonomy\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
@@ -44,7 +43,8 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	 * @return array
 	 */
 	public function get_style_depends() {
-		return array( 'masteriyo-widget-swiper' );
+		// 'e-swiper' keeps the frontend arrow/dot styling consistent with the editor preview.
+		return array( 'masteriyo-widget-swiper', 'e-swiper' );
 	}
 
 	/**
@@ -285,7 +285,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 		$this->add_control(
 			'category_carousel_reverse_direction',
 			array(
-				'label'        => __( 'Reserve Direction', 'learning-management-system' ),
+				'label'        => __( 'Reverse Direction', 'learning-management-system' ),
 				'type'         => Controls_Manager::SWITCHER,
 				'label_on'     => __( 'Yes', 'learning-management-system' ),
 				'label_off'    => __( 'No', 'learning-management-system' ),
@@ -336,26 +336,30 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 		$this->add_responsive_control(
 			'slides_per_view',
 			array(
-				'label'   => __( 'Slides Per View', 'learning-management-system' ),
-				'type'    => Controls_Manager::SELECT,
-				'options' => array(
+				'label'          => __( 'Slides Per View', 'learning-management-system' ),
+				'type'           => Controls_Manager::SELECT,
+				'options'        => array(
 					'1' => '1',
 					'2' => '2',
 					'3' => '3',
 				),
-				'min'     => 1,
-				'max'     => 3,
-				'step'    => 1,
-				'default' => 3,
+				'min'            => 1,
+				'max'            => 3,
+				'step'           => 1,
+				'default'        => '3',
+				'tablet_default' => '2',
+				'mobile_default' => '1',
 			)
 		);
 
 		$this->add_responsive_control(
 			'space_between',
 			array(
-				'label'   => __( 'Space Between Slides', 'learning-management-system' ),
-				'type'    => Controls_Manager::NUMBER,
-				'default' => 0,
+				'label'          => __( 'Space Between Slides', 'learning-management-system' ),
+				'type'           => Controls_Manager::NUMBER,
+				'default'        => 30,
+				'tablet_default' => 20,
+				'mobile_default' => 10,
 			)
 		);
 
@@ -408,14 +412,15 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 
 		$attrs['swiper_enabled'] = true;
 
+		// Numeric fallbacks mirror the control defaults shown in the editor panel.
 		$slider_data = array(
 			'columns'           => $columns,
-			'space_between'     => isset( $settings['space_between'] ) ? absint( $settings['space_between'] ) : 0,
-			'reverse_direction' => 'yes' === $settings['category_carousel_reverse_direction'],
-			'delay'             => $settings['category_carousel_autoplay_speed'],
+			'space_between'     => $this->get_numeric_setting( $settings, 'space_between', 30 ),
+			'reverse_direction' => 'yes' === ( isset( $settings['category_carousel_reverse_direction'] ) ? $settings['category_carousel_reverse_direction'] : '' ),
+			'delay'             => $this->get_numeric_setting( $settings, 'category_carousel_autoplay_speed', 2500 ),
 			'infinite_loop'     => 'yes' === $settings['category_carousel_infinite_loop'],
 			'autoplay'          => 'yes' === $settings['category_carousel_autoplay'],
-			'speed'             => $settings['category_carousel_transition'],
+			'speed'             => $this->get_numeric_setting( $settings, 'category_carousel_transition', 600 ),
 			'navigation'        => 'yes' === $settings['category_carousel_arrows'],
 			'pagination'        => 'yes' === $settings['category_carousel_dots'],
 			'centeredSlides'    => 'yes' === $settings['category_carousel_center_slides'],
@@ -424,16 +429,16 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 			'rewind'            => 'yes' === $settings['category_carousel_rewind'],
 			'breakpoints'       => array(
 				320  => array(
-					'slidesPerView' => isset( $settings['slides_per_view_mobile'] ) ? absint( $settings['slides_per_view_mobile'] ) : 1,
-					'spaceBetween'  => isset( $settings['space_between_mobile'] ) ? absint( $settings['space_between_mobile'] ) : 0,
+					'slidesPerView' => $this->get_numeric_setting( $settings, 'slides_per_view_mobile', 1 ),
+					'spaceBetween'  => $this->get_numeric_setting( $settings, 'space_between_mobile', 10 ),
 				),
 				768  => array(
-					'slidesPerView' => isset( $settings['slides_per_view_tablet'] ) ? absint( $settings['slides_per_view_tablet'] ) : 2,
-					'spaceBetween'  => isset( $settings['space_between_tablet'] ) ? absint( $settings['space_between_tablet'] ) : 0,
+					'slidesPerView' => $this->get_numeric_setting( $settings, 'slides_per_view_tablet', 2 ),
+					'spaceBetween'  => $this->get_numeric_setting( $settings, 'space_between_tablet', 20 ),
 				),
 				1024 => array(
-					'slidesPerView' => isset( $settings['slides_per_view'] ) ? absint( $settings['slides_per_view'] ) : 3,
-					'spaceBetween'  => isset( $settings['space_between'] ) ? absint( $settings['space_between'] ) : 0,
+					'slidesPerView' => $this->get_numeric_setting( $settings, 'slides_per_view', 3 ),
+					'spaceBetween'  => $this->get_numeric_setting( $settings, 'space_between', 30 ),
 				),
 			),
 		);

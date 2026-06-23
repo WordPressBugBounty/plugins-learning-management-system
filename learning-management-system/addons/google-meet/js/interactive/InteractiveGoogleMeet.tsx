@@ -102,6 +102,11 @@ const InteractiveGoogleMeet = () => {
 				item_id: googleMeetId,
 				courseId: courseId,
 			}),
+		// Logged-in only; guests 401 here.
+		...{
+			enabled: Boolean(localized.isUserLoggedIn),
+			retry: false,
+		},
 	});
 
 	const completeMutation = useMutation({

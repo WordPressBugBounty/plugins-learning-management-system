@@ -1,0 +1,165 @@
+/**
+ * Styles for the "Convert to Masteriyo Course" confirmation modal
+ * on the WooCommerce products list screen.
+ *
+ * Masteriyo's main CSS bundle is only loaded on Masteriyo admin pages, not on the
+ * WooCommerce products list (edit.php?post_type=product). All structural styles and
+ * CSS custom properties are therefore scoped inside .masteriyo-convert-course-modal
+ * so the modal is self-contained on this page.
+ *
+ * @since x.x.x
+ */
+/* Margin/Padding */
+.masteriyo-convert-course-modal {
+  --masteriyo-color-primary: #4584ff;
+  --masteriyo-color-primary-a10: rgba(69, 132, 255, 0.1);
+  --masteriyo-color-text: #4a5568;
+  --masteriyo-color-text-light: #718096;
+  --masteriyo-color-heading: #1a202c;
+  --masteriyo-color-border: #e2e8f0;
+  --masteriyo-button-primary: #4584ff;
+}
+.masteriyo-convert-course-modal.masteriyo-hidden {
+  display: none;
+}
+.masteriyo-convert-course-modal .masteriyo-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999;
+}
+.masteriyo-convert-course-modal .masteriyo--modal {
+  max-width: 500px;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+  border-radius: 8px;
+}
+.masteriyo-convert-course-modal .masteriyo--title {
+  padding: 24px 24px 0 24px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--masteriyo-color-heading);
+}
+.masteriyo-convert-course-modal .masteriyo--content {
+  padding: 14px 24px;
+}
+.masteriyo-convert-course-modal .masteriyo--content p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 6px;
+  margin-bottom: 0;
+  color: var(--masteriyo-color-text);
+}
+.masteriyo-convert-course-modal .masteriyo-actions {
+  padding: 12px 24px 24px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.masteriyo-convert-course-modal .masteriyo-btn {
+  max-width: 100%;
+  min-height: 40px;
+  line-height: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  padding: 0 20px;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  box-shadow: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.masteriyo-convert-course-modal .masteriyo-btn.masteriyo-btn-primary {
+  background: var(--masteriyo-button-primary);
+  color: #fff;
+  border: 0;
+}
+.masteriyo-convert-course-modal .masteriyo-btn.masteriyo-btn-primary:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+.masteriyo-convert-course-modal .masteriyo-btn.masteriyo-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.masteriyo-convert-course-modal .masteriyo-btn.masteriyo-btn-outline {
+  background: transparent;
+  color: var(--masteriyo-color-text);
+  border: 1px solid var(--masteriyo-color-border);
+}
+.masteriyo-convert-course-modal .masteriyo-btn.masteriyo-btn-outline:hover {
+  border-color: var(--masteriyo-color-text-light);
+  color: var(--masteriyo-color-heading);
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-title-row .masteriyo-convert-modal-icon.dashicons {
+  color: var(--masteriyo-color-primary);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-highlight {
+  background: #fff;
+  border: 1px solid var(--masteriyo-color-border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  margin-bottom: 14px;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-highlight .masteriyo-product-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--masteriyo-color-heading);
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-highlight .masteriyo-type-change {
+  font-size: 12px;
+  color: var(--masteriyo-color-text-light);
+  margin-top: 6px;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-highlight .masteriyo-type-change span:last-child {
+  color: var(--masteriyo-color-primary);
+  font-weight: 500;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: normal;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+.masteriyo-convert-course-modal .masteriyo-convert-modal-check-label input[type=checkbox] {
+  accent-color: var(--masteriyo-color-primary);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}

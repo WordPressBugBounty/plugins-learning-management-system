@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\GoogleClassroomIntegration;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 use Masteriyo\Pro\Addons;
 
 defined( 'ABSPATH' ) || exit;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.11.0
  */
-class CourseGoogleClassroomMetaWidget extends WidgetBase {
+class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -153,10 +153,18 @@ class CourseGoogleClassroomMetaWidget extends WidgetBase {
 	protected function render() {
 		$course = $this->get_course_to_render();
 		if ( ! ( new Addons() )->is_active( MASTERIYO_GOOGLE_CLASSROOM_INTEGRATION_SLUG ) ) {
+			$this->render_feature_disabled_notice( __( 'Google Classroom data will display here when the Google Classroom Integration addon is active.', 'learning-management-system' ) );
 			return;
 		}
 		if ( $course ) {
-			do_action( 'masteriyo_elementor_classroom_widget', $course );
+			$this->render_buffered_or_notice(
+				function () use ( $course ) {
+					do_action( 'masteriyo_elementor_classroom_widget', $course );
+				},
+				__( 'Google Classroom data will display here when the course is linked to a Google Classroom.', 'learning-management-system' )
+			);
+		} else {
+			$this->render_no_course_notice();
 		}
 	}
 }

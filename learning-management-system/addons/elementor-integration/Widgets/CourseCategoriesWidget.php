@@ -770,7 +770,7 @@ class CourseCategoriesWidget extends WidgetBase {
 		$columns                = max( absint( $settings['columns_per_row'] ), 1 );
 		$attrs                  = array();
 		$include_sub_categories = masteriyo_string_to_bool( $settings['include_sub_categories'] );
-		$hide_courses_count     = ! masteriyo_string_to_bool( $settings['show_courses_count'] );
+		$hide_courses_count     = ! masteriyo_string_to_bool( isset( $settings['show_courses_count'] ) ? $settings['show_courses_count'] : true );
 		$args                   = array(
 			'taxonomy'   => Taxonomy::COURSE_CATEGORY,
 			'order'      => masteriyo_array_get( $settings, 'order', 'ASC' ),

@@ -38,7 +38,7 @@ class Setting {
 		'add_to_cart'         => array(
 			'enable'                  => false,
 			'enroll_btn_label_before' => 'Add to Cart',
-			'enroll_btn_label_after'  => 'Go to Cart',
+			'enroll_btn_label_after'  => 'View Cart',
 		),
 		'auto_redirect'       => array(
 			'enable' => false,

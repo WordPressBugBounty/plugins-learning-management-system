@@ -4034,6 +4034,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'enable_edit_profile'     => true,
 					'enable_google_meet'      => false,
 					'enable_certificate_page' => true,
+					'enable_session_information' => true,
 					'layout'                  => array(
 						'enable_header_footer' => true,
 					),
@@ -4148,12 +4149,26 @@ function masteriyo_get_allowed_svg_elements() {
 				'width'           => true,
 				'height'          => true,
 				'viewbox'         => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
 			),
-			'g'     => array( 'fill' => true ),
+			'g'     => array(
+				'fill'   => true,
+				'stroke' => true,
+			),
 			'title' => array( 'title' => true ),
 			'path'  => array(
-				'd'    => true,
-				'fill' => true,
+				'd'               => true,
+				'fill'            => true,
+				'fill-rule'       => true,
+				'clip-rule'       => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
 			),
 		)
 	);
@@ -5517,7 +5532,7 @@ if ( ! function_exists( 'masteriyo_addon_menu_slugs' ) ) {
 
 			),
 			'certificate'                  => array(
-				'menu_slug'  => 'certificates',
+				'menu_slug'  => 'certificates-v2',
 				'menu_title' => __( 'Certificates', 'learning-management-system' ),
 				'position'   => 40,
 			),
@@ -6139,6 +6154,39 @@ if ( ! function_exists( 'masteriyo_show_onboarding_completion_notice' ) ) {
 				}
 			}
 		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_analytics_normalize_datetime' ) ) {
+	/**
+	 * Normalise a user-supplied date string for use in analytics queries.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string|null $date     Raw date string from a REST request parameter.
+	 * @param string      $boundary 'start' or 'end' — controls the time component appended to plain dates.
+	 *
+	 * @return string|null Y-m-d H:i:s on success, or null on invalid / unparseable input.
+	 */
+	function masteriyo_analytics_normalize_datetime( $date, $boundary = 'start' ) {
+		if ( ! $date ) {
+			return null;
+		}
+
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
+			return 'end' === $boundary ? $date . ' 23:59:59' : $date . ' 00:00:00';
+		}
+
+		$timestamp = strtotime( $date );
+
+		if ( ! $timestamp ) {
+			return null;
+		}
+
+		// Snap to the site-local calendar day so the boundary is always midnight/end-of-day.
+		// Without this, "Today" with UTC+5:45 turns the window into [05:45, 05:45] — empty.
+		$day = wp_date( 'Y-m-d', $timestamp );
+		return 'end' === $boundary ? $day . ' 23:59:59' : $day . ' 00:00:00';
 	}
 }
 

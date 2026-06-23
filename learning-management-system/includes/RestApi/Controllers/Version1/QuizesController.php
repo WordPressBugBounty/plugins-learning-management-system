@@ -528,12 +528,15 @@ class QuizesController extends PostsController {
 			'total_attempts'           => count( $attempts ) + 1,
 			'total_answered_questions' => 0,
 			'attempt_status'           => 'attempt_started',
-			'attempt_started_at'       => current_time( 'mysql', true ),
+			'attempt_started_at'       => gmdate( 'Y-m-d\TH:i:s\Z' ),
 		);
 
 		$all_attempts[ $quiz->get_id() ][] = $attempt_data;
 
 		$session->put( 'quiz_attempts', $all_attempts );
+
+		// Force cookie so the guest's session persists; otherwise has_cookie stays false and save_data() skips the DB write, losing the attempt on the next request.
+		$session->set_user_session_cookie( true );
 
 		return $attempt_data;
 	}
@@ -1029,6 +1032,25 @@ class QuizesController extends PostsController {
 				'terms'    => 'featured',
 				'operator' => true === $request['featured'] ? 'IN' : 'NOT IN',
 			);
+		}
+
+		// For students, restrict the quiz list to quizzes they have attempted.
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! masteriyo_is_current_user_instructor() ) {
+			global $wpdb;
+
+			$user_id = get_current_user_id();
+
+			if ( $user_id ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$attempted_quiz_ids = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT DISTINCT quiz_id FROM {$wpdb->prefix}masteriyo_quiz_attempts WHERE user_id = %d",
+						$user_id
+					)
+				);
+
+				$args['post__in'] = empty( $attempted_quiz_ids ) ? array( 0 ) : array_map( 'absint', $attempted_quiz_ids );
+			}
 		}
 
 		return $args;

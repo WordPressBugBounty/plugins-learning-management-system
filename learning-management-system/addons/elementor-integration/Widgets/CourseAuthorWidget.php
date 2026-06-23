@@ -12,7 +12,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseAuthorWidget extends WidgetBase {
+class CourseAuthorWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -66,7 +66,7 @@ class CourseAuthorWidget extends WidgetBase {
 	 * @return string[]
 	 */
 	public function get_keywords() {
-		return array( 'author', 'instructor' );
+		return array( 'author', 'instructor', 'rating' );
 	}
 
 	/**
@@ -98,6 +98,15 @@ class CourseAuthorWidget extends WidgetBase {
 			array(),
 			array(
 				'{{WRAPPER}} .masteriyo-course-author .masteriyo-course-author--name' => 'display: none !important;',
+			)
+		);
+
+		$this->add_on_off_switch_control(
+			'show_rating',
+			__( 'Rating', 'learning-management-system' ),
+			array(),
+			array(
+				'{{WRAPPER}} .masteriyo-rating' => 'display: none !important;',
 			)
 		);
 
@@ -359,16 +368,11 @@ class CourseAuthorWidget extends WidgetBase {
 		$author = masteriyo_get_user( $course->get_author_id() );
 
 		if ( ! $author ) {
+			$this->render_feature_disabled_notice( __( 'Author and rating will display here dynamically for each course.', 'learning-management-system' ) );
 			return;
 		}
 
-		masteriyo_get_template(
-			'single-course/author-and-rating.php',
-			array(
-				'course' => $course,
-				'author' => masteriyo_get_user( $course->get_author_id() ),
-			)
-		);
+		$this->render_author_and_rating( $course, $author );
 	}
 
 	/**
@@ -380,20 +384,56 @@ class CourseAuthorWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 
 		$author = masteriyo_get_user( $course->get_author_id() );
 
 		if ( ! $author ) {
+			$this->render_feature_disabled_notice( __( 'Author and rating will display here dynamically for each course.', 'learning-management-system' ) );
 			return;
 		}
-			masteriyo_get_template(
-				'single-course/author-and-rating.php',
-				array(
-					'course' => $course,
-					'author' => masteriyo_get_user( $course->get_author_id() ),
-				)
-			);
+
+		$this->render_author_and_rating( $course, $author );
+	}
+
+	/**
+	 * Render author-and-rating template.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Models\Course $course
+	 * @param \Masteriyo\Models\User   $author
+	 */
+	private function render_author_and_rating( $course, $author ) {
+		ob_start();
+		masteriyo_get_template(
+			'single-course/author-and-rating.php',
+			array(
+				'course'     => $course,
+				'author'     => $author,
+				'attributes' => array(
+					'enableRating'        => true,
+					'enableAuthorsAvatar' => true,
+					'enableAuthorsName'   => true,
+				),
+			)
+		);
+		$output = ob_get_clean();
+
+		if ( false === strpos( $output, 'masteriyo-rating' ) && ( Helper::is_elementor_editor() || Helper::is_elementor_preview() ) ) {
+			$placeholder = '<span class="masteriyo-rating masteriyo-rating--placeholder" style="opacity:0.4;font-size:13px;display:inline-flex;align-items:center;gap:4px;">'
+				. '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"/></svg>'
+				. esc_html__( 'Rating will appear here', 'learning-management-system' )
+				. '</span>';
+			$pos         = strrpos( $output, '</div>' );
+
+			if ( false !== $pos ) {
+				$output = substr_replace( $output, $placeholder, $pos, 0 );
+			}
+		}
+
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

@@ -11,7 +11,7 @@ namespace Masteriyo\CoreFeatures\CourseComingSoon;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 use Masteriyo\Pro\Addons;
 
 defined( 'ABSPATH' ) || exit;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.13.2 [free]
  */
-class CourseComingSoonMetaWidget extends WidgetBase {
+class CourseComingSoonMetaWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -173,11 +173,24 @@ class CourseComingSoonMetaWidget extends WidgetBase {
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();
-		if ( ! ( new Addons() )->is_active( MASTERIYO_COURSE_COMING_SOON_SLUG ) ) {
+
+		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
-		if ( $course ) {
-			do_action( 'masteriyo_elementor_course_coming_soon_widget', $course );
+
+		$is_enabled = masteriyo_string_to_bool( get_post_meta( $course->get_id(), '_course_coming_soon_enable', true ) );
+
+		if ( ! $is_enabled ) {
+			$this->render_feature_disabled_notice( __( 'Coming soon details will display here when the coming soon feature is enabled for the course.', 'learning-management-system' ) );
+			return;
 		}
+
+		$this->render_buffered_or_notice(
+			function () use ( $course ) {
+				do_action( 'masteriyo_elementor_course_coming_soon_widget', $course );
+			},
+			__( 'Coming soon details will display here when the coming soon feature is enabled for the course.', 'learning-management-system' )
+		);
 	}
 }

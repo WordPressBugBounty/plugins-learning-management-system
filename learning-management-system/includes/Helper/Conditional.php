@@ -1120,12 +1120,15 @@ function masteriyo_is_account_page( $page_id = null ) {
 		$is_account_page = true;
 	}
 
-	if ( isset( $post->ID ) && $post->ID === $account_page_id ) {
-		$is_account_page = true;
-	}
+	// Avoid checking post context in wp-admin to prevent block editor crashes.
+	if ( is_null( $page_id ) && ! is_admin() && did_action( 'wp' ) && is_page() && is_singular() ) {
+		if ( isset( $post->ID ) && $post->ID === $account_page_id ) {
+			$is_account_page = true;
+		}
 
-	if ( isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_account' ) ) {
-		$is_account_page = true;
+		if ( isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_account' ) ) {
+			$is_account_page = true;
+		}
 	}
 
 	/**

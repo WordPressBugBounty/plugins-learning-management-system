@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'masteriyo/masteriyo',
-        'pretty_version' => '2.2.1',
-        'version' => '2.2.1.0',
+        'pretty_version' => '2.3.0',
+        'version' => '2.3.0.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -110,8 +110,8 @@
             'dev_requirement' => false,
         ),
         'masteriyo/masteriyo' => array(
-            'pretty_version' => '2.2.1',
-            'version' => '2.2.1.0',
+            'pretty_version' => '2.3.0',
+            'version' => '2.3.0.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
@@ -329,9 +329,9 @@
             'dev_requirement' => false,
         ),
         'tijsverkoyen/css-to-inline-styles' => array(
-            'pretty_version' => 'v2.3.0',
-            'version' => '2.3.0.0',
-            'reference' => '0d72ac1c00084279c1816675284073c5a337c20d',
+            'pretty_version' => 'v2.4.0',
+            'version' => '2.4.0.0',
+            'reference' => 'f0292ccf0ec75843d65027214426b6b163b48b41',
             'type' => 'library',
             'install_path' => __DIR__ . '/../tijsverkoyen/css-to-inline-styles',
             'aliases' => array(),

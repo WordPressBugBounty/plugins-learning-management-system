@@ -43,6 +43,11 @@
 		}
 	});
 
+	// Keep the sidebar highlight in sync when the route changes without a full
+	// reload (e.g. opening a section via the Addons gear icon, or any in-app
+	// navigation that only updates the URL hash).
+	window.addEventListener('hashchange', makeCurrentSubmenuActive);
+
 	// Handle when user clicks on admin menu.
 	$topLevelMenu.on('click', '.wp-submenu li', function (e) {
 		$topLevelMenu.find('li').removeClass('current');

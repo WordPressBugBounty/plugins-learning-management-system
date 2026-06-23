@@ -575,6 +575,20 @@ if ( ! function_exists( 'masteriyo_get_courses_view_mode' ) ) {
 	 * @return string The view mode for courses ('grid' or the user's preference).
 	 */
 	function masteriyo_get_courses_view_mode() {
+		// View modes exist only on the default layout. Ignore any saved preference
+		// on other layouts, since the list-view class breaks their card markup.
+		if ( isset( $GLOBALS['masteriyo_block_template'] ) && $GLOBALS['masteriyo_block_template'] ) {
+			$layout = $GLOBALS['masteriyo_block_template'];
+		} elseif ( isset( $GLOBALS['masteriyo_elementor_course_list_layout'] ) ) {
+			$layout = $GLOBALS['masteriyo_elementor_course_list_layout'];
+		} else {
+			$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
+		}
+
+		if ( $layout && 'default' !== $layout ) {
+			return 'grid-view';
+		}
+
 		global $course_archive_view;
 		if ( isset( $course_archive_view ) && in_array( $course_archive_view, array( 'grid-view', 'list-view' ), true ) ) {
 			return sanitize_text_field( $course_archive_view );

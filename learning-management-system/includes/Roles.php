@@ -119,6 +119,24 @@ class Roles {
 	}
 
 	/**
+	 * Register the Masteriyo roles if they don't already exist.
+	 *
+	 * Idempotent - safe to call on every request. Used on activation and by the
+	 * runtime self-heal in Install when roles go missing.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	public static function create() {
+		foreach ( self::get_all() as $role_slug => $role ) {
+			if ( null === get_role( $role_slug ) ) {
+				add_role( $role_slug, $role['display_name'], $role['capabilities'] );
+			}
+		}
+	}
+
+	/**
 	 * Remove all roles.
 	 *
 	 * @since 1.5.37

@@ -11,19 +11,18 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Addons\GroupCourses\Models\Setting;
 
 // Determine if we're using new multi-tier pricing or legacy single-tier
-$has_pricing_tiers  = ! empty( $pricing_tiers ) && is_array( $pricing_tiers );
-$use_legacy_display = ! $has_pricing_tiers && ! empty( $group_price );
-$is_coming_soon     = isset( $is_coming_soon ) ? $is_coming_soon : false;
+$has_pricing_tiers = ! empty( $pricing_tiers ) && is_array( $pricing_tiers );
+$is_coming_soon    = isset( $is_coming_soon ) ? $is_coming_soon : false;
 
-// Calculate available seats (used for both early return check and tier filtering)
+// Calculate available seats for filtering group pricing tiers.
 $available_seats = 0;
 if ( 0 !== $course->get_enrollment_limit() ) {
 	$available_seats = $course->get_enrollment_limit() - masteriyo_count_enrolled_users( $course->get_id() );
-}
 
-// Check if seats are available.
-if ( 0 !== $course->get_enrollment_limit() && 0 >= $available_seats ) {
-	return;
+	// Return early if no seats are available.
+	if ( $available_seats <= 0 ) {
+		return;
+	}
 }
 
 ?>
@@ -168,57 +167,6 @@ if ( 0 !== $course->get_enrollment_limit() && 0 >= $available_seats ) {
 			<?php echo esc_html( $multi_tier_button_text ); ?>
 		</button>
 	</div>
-
-	<?php elseif ( $use_legacy_display ) : ?>
-		<!-- Legacy Single-Tier Display (Backward Compatibility) -->
-		<?php
-		$button_text_template = Setting::get( 'group_buy_button_text' ) ? Setting::get( 'group_buy_button_text' ) : __( 'Buy for Group', 'learning-management-system' );
-		$helper_text_template = Setting::get( 'group_buy_helper_text' ) ? Setting::get( 'group_buy_helper_text' ) : __( 'Perfect for teams up to {group_size} members', 'learning-management-system' );
-
-		// Migration: Remove obsolete {group_price} placeholder if it exists in saved settings
-		// This handles cases where users have old saved values like "Buy for a Group at {group_price}"
-		if ( strpos( $button_text_template, '{group_price}' ) !== false ) {
-			// Replace the old template with the new default
-			$button_text_template = __( 'Buy for Group', 'learning-management-system' );
-		} else {
-			// Keep existing custom text if it doesn't use the obsolete placeholder
-			$button_text = str_replace( '{group_price}', $group_price, $button_text_template );
-		}
-
-		$button_text = $button_text_template;
-		$helper_text = '';
-		if ( ! empty( $helper_text_template ) ) {
-			$group_size_display = ( empty( $max_group_size ) || 0 === $max_group_size ) ? __( 'unlimited', 'learning-management-system' ) : $max_group_size;
-			$helper_text        = str_replace( '{group_size}', $group_size_display, $helper_text_template );
-		}
-		$button_text  = apply_filters( 'masteriyo_group_buy_btn_text', $button_text );
-		$checkout_url = masteriyo_get_page_permalink( 'checkout' );
-		$checkout_url = add_query_arg(
-			array(
-				'add-to-cart'    => $course->get_id(),
-				'group_purchase' => 'yes',
-			),
-			$checkout_url
-		);
-		?>
-		<?php
-		$legacy_btn_classes = 'masteriyo-btn masteriyo-btn-secondary';
-		if ( $is_coming_soon ) {
-			$legacy_btn_classes .= ' masteriyo-btn-disabled masteriyo-single-course--course-coming-soon-btn';
-			$button_text         = __( 'Coming Soon', 'learning-management-system' );
-			$checkout_url        = '#';
-		} else {
-			$legacy_btn_classes .= ' masteriyo-group-course__buy-now-button';
-		}
-		?>
-		<a href="<?php echo esc_url( $checkout_url ); ?>" class="<?php echo esc_attr( $legacy_btn_classes ); ?>" <?php echo $is_coming_soon ? 'style="pointer-events: none;"' : ''; ?>>
-			<?php echo wp_kses_post( $button_text ); ?>
-		</a>
-		<?php if ( ! empty( $helper_text ) ) : ?>
-			<p class="masteriyo-group-course__helper-text">
-				<?php echo esc_html( $helper_text ); ?>
-			</p>
-		<?php endif; ?>
 	<?php endif; ?>
 
 	<?php

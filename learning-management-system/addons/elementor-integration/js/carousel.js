@@ -64,20 +64,20 @@
 
 		var swiperConfig = {
 			direction: 'horizontal',
-			slidesPerView: parseInt(data.columns, 10),
-			spaceBetween: parseInt(data.space_between, 10),
+			slidesPerView: parseInt(data.columns, 10) || defaultData.columns,
+			spaceBetween: parseInt(data.space_between, 10) || 0,
 			centeredSlides: !!data.centeredSlides,
 			breakpoints: data.breakpoints,
 			autoplay: !!data.autoplay
 				? {
-						delay: parseInt(data.delay, 10),
+						delay: parseInt(data.delay, 10) || defaultData.delay,
 						reverseDirection: !!data.reverse_direction,
 						pauseOnMouseEnter: !!data.pauseOnHover,
 						disableOnInteraction: false,
 					}
 				: false,
 			loop: !!data.infinite_loop,
-			speed: parseInt(data.speed, 10),
+			speed: parseInt(data.speed, 10) || defaultData.speed,
 			navigation: !!data.navigation
 				? {
 						nextEl: element.find('.swiper-button-next')[0],
@@ -96,7 +96,8 @@
 						hide: false,
 					}
 				: false,
-			rewind: !!data.rewind,
+			// Swiper does not support rewind and loop together.
+			rewind: !!data.infinite_loop ? false : !!data.rewind,
 		};
 
 		new Swiper(`.${swiperClass}.swiper-${widgetId}`, swiperConfig);
@@ -118,15 +119,17 @@
 					return;
 				}
 
-				var swiperElement = $(this).find('.masteriyo-courses-wrapper');
+				// data-settings lives on the carousel container, not the widget root.
+				var carouselElement = $(this).find('.masteriyo-course-carousel');
+				var swiperElement = carouselElement.find('.masteriyo-courses-wrapper');
 
-				if (0 === swiperElement.length) {
+				if (0 === carouselElement.length || 0 === swiperElement.length) {
 					return;
 				}
 
 				swiperElement.addClass(`swiper-${widgetId}`);
 
-				initializeSwiper($(this), 'masteriyo-courses-wrapper', widgetId);
+				initializeSwiper(carouselElement, 'masteriyo-courses-wrapper', widgetId);
 			},
 		);
 
@@ -138,15 +141,16 @@
 					return;
 				}
 
-				var swiperElement = $(this).find('.masteriyo-course-categories');
+				var carouselElement = $(this).find('.masteriyo-category-carousel');
+				var swiperElement = carouselElement.find('.masteriyo-course-categories');
 
-				if (0 === swiperElement.length) {
+				if (0 === carouselElement.length || 0 === swiperElement.length) {
 					return;
 				}
 
 				swiperElement.addClass(`swiper-${widgetId}`);
 
-				initializeSwiper($(this), 'masteriyo-course-categories', widgetId);
+				initializeSwiper(carouselElement, 'masteriyo-course-categories', widgetId);
 			},
 		);
 	}

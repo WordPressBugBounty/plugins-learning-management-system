@@ -70,6 +70,12 @@ class AddToCartFormHandler {
 				wp_safe_redirect( $url );
 				exit;
 			} elseif ( masteriyo_cart_redirect_after_add() ) {
+				// When checkout page is not configured, redirect to courses page with error.
+				if ( masteriyo_get_page_id( 'checkout' ) <= 0 ) {
+					wp_safe_redirect( add_query_arg( 'masteriyo_error', 'checkout_page_not_found', masteriyo_get_courses_url() ), 307 );
+					exit;
+				}
+
 				/**
 				 * Redirection URL after adding course to cart.
 				 *

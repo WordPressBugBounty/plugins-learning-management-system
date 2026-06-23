@@ -60,6 +60,20 @@ class CourseArchivePaginationWidget extends WidgetBase {
 	}
 
 	/**
+	 * Hide widget from the Elementor panel.
+	 *
+	 * Pagination is now built into the Course List widget. This widget remains
+	 * registered so existing layouts continue to work.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return bool
+	 */
+	public function show_in_panel() {
+		return false;
+	}
+
+	/**
 	 * Get widget keywords.
 	 *
 	 * @since 1.6.12

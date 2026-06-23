@@ -495,6 +495,9 @@ class AdminMenu {
 					'#/courses/categories',
 					'#/course-bundles',
 				],
+				'certificates': [
+					'#/certificates-v2',
+				],
 				'orders': [
 					'#/subscriptions',
 					'#/withdraws',

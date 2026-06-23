@@ -4,30 +4,20 @@ import React, { useMemo } from 'react';
 import { IoIosLink } from 'react-icons/io';
 import { RiRestartLine } from 'react-icons/ri';
 // import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup.tsx';
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 import ButtonsGroup from '../../../../../assets/js/back-end/components/common/ButtonsGroup';
-import API from '../../../../../assets/js/back-end/utils/api';
-import googleClassroomUrls from '../../../constants/urls';
 
 interface Props {
 	onResetCredentialsModalChange: (value: boolean) => void;
 	onHandleConsentScreen: any;
+	settingsQuery: UseQueryResult<any, unknown>;
 }
 
 const ClassroomErrorConsentScreen: React.FC<Props> = ({
 	onResetCredentialsModalChange,
 	onHandleConsentScreen,
+	settingsQuery,
 }) => {
-	const GoogleClassroomAPI = new API(googleClassroomUrls.settings);
-
-	const settingQuery = useQuery({
-		queryKey: ['googleClassroomSettings'],
-		queryFn: () => GoogleClassroomAPI.list(),
-		...{
-			keepPreviousData: true,
-		},
-	});
-
 	const consentScreenButtons = useMemo(() => {
 		return [
 			{
@@ -39,7 +29,7 @@ const ClassroomErrorConsentScreen: React.FC<Props> = ({
 			{
 				title: `Go To Google's Consent Screen`,
 				Icon: IoIosLink,
-				onClick: () => onHandleConsentScreen(settingQuery?.data),
+				onClick: () => onHandleConsentScreen(settingsQuery?.data),
 				variant: 'outline',
 			},
 		];

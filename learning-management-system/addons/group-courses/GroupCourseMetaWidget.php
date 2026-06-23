@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\GroupCourses;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 use Masteriyo\Addons\GroupCourses\Models\Group;
 use Masteriyo\Pro\Addons;
 
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.12.2
  */
-class GroupCourseMetaWidget extends WidgetBase {
+class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -175,11 +175,18 @@ class GroupCourseMetaWidget extends WidgetBase {
 	protected function render() {
 		$course = $this->get_course_to_render();
 		if ( ! ( new Addons() )->is_active( MASTERIYO_GROUP_COURSES_ADDON_SLUG ) ) {
+			$this->render_feature_disabled_notice( __( 'Group buy button will display here when the Group Courses addon is active.', 'learning-management-system' ) );
 			return;
 		}
 		if ( $course ) {
-			$now = new GroupCoursesAddon();
-			$now->masteriyo_template_group_buy_button( $course );
+			$this->render_buffered_or_notice(
+				function () use ( $course ) {
+					( new GroupCoursesAddon() )->masteriyo_template_group_buy_button( $course );
+				},
+				__( 'Group buy button will display here when group purchasing is enabled for the course.', 'learning-management-system' )
+			);
+		} else {
+			$this->render_no_course_notice();
 		}
 	}
 }

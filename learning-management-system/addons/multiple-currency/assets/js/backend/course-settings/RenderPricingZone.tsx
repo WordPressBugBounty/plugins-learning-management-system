@@ -188,22 +188,6 @@ const PricingZonesData: React.FC<Props> = ({
 												</FormControl>
 											)}
 
-											{isAddonActive('group-courses') && (
-												<FormControl>
-													<FormLabel>
-														{__('Group Price', 'learning-management-system')}
-													</FormLabel>
-													<Controller
-														name={`multiple_currency.${zoneId}_key.group_price`}
-														defaultValue={zone.group_price || ''}
-														render={({ field }) => (
-															<NumberInput {...field} min={0}>
-																<NumberInputField />
-															</NumberInput>
-														)}
-													/>
-												</FormControl>
-											)}
 										</SimpleGrid>
 									);
 								})()}

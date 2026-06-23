@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseStatsWidget extends WidgetBase {
+class CourseStatsWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -248,8 +248,16 @@ class CourseStatsWidget extends WidgetBase {
 	protected function render() {
 		$course = $this->get_course_to_render();
 
-		if ( $course ) {
-			masteriyo_single_course_stats( $course );
+		if ( ! $course ) {
+			$this->render_no_course_notice();
+			return;
 		}
+
+		$this->render_buffered_or_notice(
+			function () use ( $course ) {
+				masteriyo_single_course_stats( $course );
+			},
+			__( 'Course stats will display here dynamically for each course.', 'learning-management-system' )
+		);
 	}
 }

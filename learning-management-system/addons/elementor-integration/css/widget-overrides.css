@@ -1,0 +1,60 @@
+/**
+ * Frontend overrides for Masteriyo Elementor widgets.
+ *
+ * @since x.x.x
+ */
+
+/* Enroll button widget: strip the card shell (border/shadow/bg) and put price + button in one row */
+.elementor-widget-masteriyo-course-enroll-button .masteriyo-single-body__aside--price.masteriyo-course-pricing--wrapper {
+	padding: 0;
+	margin: 0;
+	border: none;
+	box-shadow: none;
+	background: transparent;
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 12px !important;
+	flex-wrap: wrap !important;
+}
+.elementor-widget-masteriyo-course-enroll-button .masteriyo-single-body__aside--price.masteriyo-course-pricing--wrapper .masteriyo-single-body__aside--price-wrapper {
+	margin-bottom: 0;
+}
+.elementor-widget-masteriyo-course-enroll-button .masteriyo-single-body__aside--enroll {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 10px;
+	flex: 1;
+	min-width: 0;
+}
+
+/* Prerequisites highlight animation */
+.elementor-widget-masteriyo-course-prerequisites-code .masteriyo-single-course--prerequisites.prerequisites-required {
+	outline: 1.5px dashed var(--masteriyo-color-primary, #4584ff);
+	outline-offset: 6px;
+	border-radius: 4px;
+}
+.elementor-widget-masteriyo-course-prerequisites-code .masteriyo-single-course--prerequisites--required {
+	animation: vibrateCard 0.4s 0.1s linear;
+}
+
+/* Related-courses heading */
+.elementor-widget-masteriyo-course-list .masteriyo-related-post__title {
+	font-size: 16px !important;
+	font-weight: 600;
+	margin: 0 0 12px;
+}
+
+/* Course list widget: hide group-buy button, OR separator, and enrolled-progress bar */
+.elementor-widget-masteriyo-course-list[data-widget_type="masteriyo-course-list.default"] .masteriyo-group-course__group-button,
+.elementor-widget-masteriyo-course-list[data-widget_type="masteriyo-course-list.default"] .masteriyo-group-course__seperator,
+.elementor-widget-masteriyo-course-list[data-widget_type="masteriyo-course-list.default"] .masteriyo-course-progress-bar {
+	display: none !important;
+}
+
+/* Hide the Select View switcher for Modern and Overlay layouts — it only applies to the Default layout. */
+.masteriyo-elementor-course-layout-layout1 .masteriyo-courses-view-mode-section,
+.masteriyo-elementor-course-layout-layout2 .masteriyo-courses-view-mode-section {
+	display: none !important;
+}

@@ -36,3 +36,19 @@ if ( ! function_exists( 'masteriyo_mollie_test_mode_enabled' ) ) {
 		return masteriyo_string_to_bool( Setting::get( 'sandbox' ) );
 	}
 }
+
+if ( ! function_exists( 'masteriyo_mollie_get_webhook_url' ) ) {
+	/**
+	 * Build the Mollie webhook URL.
+	 *
+	 * Centralises the webhook URL used for both one-time and subscription
+	 * payment creation so it stays consistent across the addon.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string Webhook URL.
+	 */
+	function masteriyo_mollie_get_webhook_url() {
+		return admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' );
+	}
+}

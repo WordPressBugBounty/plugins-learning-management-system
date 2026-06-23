@@ -40,6 +40,7 @@ return array(
     'Masteriyo\\Addons\\Mollie\\' => array($baseDir . '/addons/mollie'),
     'Masteriyo\\Addons\\MigrationTool\\' => array($baseDir . '/addons/migration-tool'),
     'Masteriyo\\Addons\\LemonSqueezyIntegration\\' => array($baseDir . '/addons/lemon-squeezy-integration'),
+    'Masteriyo\\Addons\\H5P\\' => array($baseDir . '/addons/h5p'),
     'Masteriyo\\Addons\\GroupCourses\\' => array($baseDir . '/addons/group-courses'),
     'Masteriyo\\Addons\\GoogleMeet\\' => array($baseDir . '/addons/google-meet'),
     'Masteriyo\\Addons\\GoogleClassroomIntegration\\' => array($baseDir . '/addons/google-classroom-integration'),

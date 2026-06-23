@@ -45,6 +45,18 @@ function masteriyo_template_redirect() {
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+	// When learn page is not configured but user tries to access the course player endpoint.
+	if ( masteriyo_get_page_id( 'learn' ) <= 0 && '' !== get_query_var( 'course_name' ) ) {
+		wp_safe_redirect( add_query_arg( 'masteriyo_error', 'learn_page_not_found', masteriyo_get_courses_url() ), 307 );
+		exit;
+	}
+
+	// When account page is not configured but user tries to access the account page.
+	if ( masteriyo_get_page_id( 'account' ) <= 0 && masteriyo_is_account_page() ) {
+		wp_safe_redirect( add_query_arg( 'masteriyo_error', 'account_page_not_found', masteriyo_get_courses_url() ), 307 );
+		exit;
+	}
+
 	/**
 	 * Filters boolean: true if it should be redirected to a different page if cart is empty.
 	 *
@@ -1602,12 +1614,15 @@ if ( ! function_exists( 'masteriyo_course_search_form' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's showSearch attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'search', 'enabled' );
+
+		if ( null !== $elementor_flag ) {
+			$show_search_box = $elementor_flag;
+		} elseif ( $is_block_rendering ) {
 			$show_search_box = isset( $block_attrs['showSearch'] ) && $block_attrs['showSearch'];
 		} else {
-			$show_search_box = masteriyo_get_setting( 'course_archive.display.enable_search' );
+			$show_search_box = masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.display.enable_search' ) );
 		}
 
 		printf( '<div class="masteriyo-search-section">' );
@@ -1645,9 +1660,16 @@ if ( ! function_exists( 'masteriyo_courses_view_mode' ) ) {
 	 * @since 1.6.7
 	 */
 	function masteriyo_courses_view_mode() {
+		// Elementor Courses Toolbar widget can hide the view mode (scoped to that render).
+		if ( isset( $GLOBALS['masteriyo_elementor_show_view_mode'] ) && ! $GLOBALS['masteriyo_elementor_show_view_mode'] ) {
+			return;
+		}
+
 		// Check if this is being called from a block context
 		if ( isset( $GLOBALS['masteriyo_block_template'] ) ) {
 			$layout = $GLOBALS['masteriyo_block_template'];
+		} elseif ( isset( $GLOBALS['masteriyo_elementor_course_list_layout'] ) ) {
+			$layout = $GLOBALS['masteriyo_elementor_course_list_layout'];
 		} else {
 			$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
 		}
@@ -2631,9 +2653,19 @@ if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		$sorting_enabled = $is_block_rendering
-		? ( isset( $block_attrs['enableSorting'] ) && $block_attrs['enableSorting'] )
-		: masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_sorting' ) );
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$resolve = function ( $el_key, $block_key, $setting_key ) use ( $is_block_rendering, $block_attrs ) {
+			$el = masteriyo_elementor_archive_flag( 'sorting', $el_key );
+			if ( null !== $el ) {
+				return $el;
+			}
+			if ( $is_block_rendering ) {
+				return isset( $block_attrs[ $block_key ] ) && $block_attrs[ $block_key ];
+			}
+			return masteriyo_string_to_bool( masteriyo_get_setting( $setting_key ) );
+		};
+
+		$sorting_enabled = $resolve( 'enabled', 'enableSorting', 'course_archive.filters_and_sorting.enable_sorting' );
 
 		if ( ! $sorting_enabled ) {
 			if ( function_exists( 'masteriyo_template_course_filter_sidebar_toggle' ) ) {
@@ -2644,9 +2676,7 @@ if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
 
 		$options = array();
 
-		$enable_date_sorting = $is_block_rendering
-		? ( isset( $block_attrs['enableSortByDate'] ) && $block_attrs['enableSortByDate'] )
-		: masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_date_sorting' ) );
+		$enable_date_sorting = $resolve( 'date', 'enableSortByDate', 'course_archive.filters_and_sorting.enable_date_sorting' );
 
 		if ( $enable_date_sorting ) {
 			$options[] = array(
@@ -2661,9 +2691,7 @@ if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
 			);
 		}
 
-		$enable_price_sorting = $is_block_rendering
-		? ( isset( $block_attrs['enableSortByPrice'] ) && $block_attrs['enableSortByPrice'] )
-		: masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_price_sorting' ) );
+		$enable_price_sorting = $resolve( 'price', 'enableSortByPrice', 'course_archive.filters_and_sorting.enable_price_sorting' );
 
 		if ( $enable_price_sorting ) {
 			$options[] = array(
@@ -2678,9 +2706,7 @@ if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
 			);
 		}
 
-		$enable_rating_sorting = $is_block_rendering
-		? ( isset( $block_attrs['enableSortByRating'] ) && $block_attrs['enableSortByRating'] )
-		: masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_rating_sorting' ) );
+		$enable_rating_sorting = $resolve( 'rating', 'enableSortByRating', 'course_archive.filters_and_sorting.enable_rating_sorting' );
 
 		if ( $enable_rating_sorting ) {
 			$options[] = array(
@@ -2695,9 +2721,7 @@ if ( ! function_exists( 'masteriyo_template_courses_sorting_input' ) ) {
 			);
 		}
 
-		$enable_title_sorting = $is_block_rendering
-		? ( isset( $block_attrs['enableSortByTitle'] ) && $block_attrs['enableSortByTitle'] )
-		: masteriyo_string_to_bool( masteriyo_get_setting( 'course_archive.filters_and_sorting.enable_course_title_sorting' ) );
+		$enable_title_sorting = $resolve( 'title', 'enableSortByTitle', 'course_archive.filters_and_sorting.enable_course_title_sorting' );
 
 		if ( $enable_title_sorting ) {
 			$options[] = array(
@@ -2742,6 +2766,27 @@ if ( ! function_exists( 'masteriyo_render_course_filter_and_sorting_nonce_field'
 	}
 }
 
+if ( ! function_exists( 'masteriyo_elementor_archive_flag' ) ) {
+	/**
+	 * Resolve a filter/sort visibility flag set by the Elementor archive widgets.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $group 'filters' or 'sorting'.
+	 * @param string $key   Component key within the group.
+	 * @return bool|null Boolean in Elementor context, null otherwise.
+	 */
+	function masteriyo_elementor_archive_flag( $group, $key ) {
+		$var = 'masteriyo_elementor_' . $group;
+
+		if ( ! isset( $GLOBALS[ $var ] ) || ! is_array( $GLOBALS[ $var ] ) ) {
+			return null;
+		}
+
+		return ! empty( $GLOBALS[ $var ][ $key ] );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_template_course_filters' ) ) {
 	/**
 	 * Display course filters section.
@@ -2753,9 +2798,14 @@ if ( ! function_exists( 'masteriyo_template_course_filters' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enableCourseFilters attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'enabled' );
+
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enableCourseFilters'] ) || ! $block_attrs['enableCourseFilters'] ) {
 				return;
 			}
@@ -2795,9 +2845,13 @@ if ( ! function_exists( 'masteriyo_template_course_categories_filter' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enableCategoryFilter attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'category' );
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enableCategoryFilter'] ) || ! $block_attrs['enableCategoryFilter'] ) {
 				return;
 			}
@@ -2846,9 +2900,13 @@ if ( ! function_exists( 'masteriyo_template_course_difficulties_filter' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enableDifficultyLevelFilter attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'difficulty' );
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enableDifficultyLevelFilter'] ) || ! $block_attrs['enableDifficultyLevelFilter'] ) {
 				return;
 			}
@@ -2890,9 +2948,13 @@ if ( ! function_exists( 'masteriyo_template_course_price_type_filter' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enablePriceTypeFilter attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'price_type' );
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enablePriceTypeFilter'] ) || ! $block_attrs['enablePriceTypeFilter'] ) {
 				return;
 			}
@@ -2922,9 +2984,13 @@ if ( ! function_exists( 'masteriyo_template_course_price_filter' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enablePriceFilter attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'price' );
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enablePriceFilter'] ) || ! $block_attrs['enablePriceFilter'] ) {
 				return;
 			}
@@ -2956,9 +3022,13 @@ if ( ! function_exists( 'masteriyo_template_course_rating_filter' ) ) {
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$block_attrs        = isset( $GLOBALS['masteriyo_block_filter_attrs'] ) ? $GLOBALS['masteriyo_block_filter_attrs'] : array();
 
-		// For block context, check block's enableRatingFilter attribute
-		// For page context, check global setting
-		if ( $is_block_rendering ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		$elementor_flag = masteriyo_elementor_archive_flag( 'filters', 'rating' );
+		if ( null !== $elementor_flag ) {
+			if ( ! $elementor_flag ) {
+				return;
+			}
+		} elseif ( $is_block_rendering ) {
 			if ( ! isset( $block_attrs['enableRatingFilter'] ) || ! $block_attrs['enableRatingFilter'] ) {
 				return;
 			}
@@ -3016,6 +3086,13 @@ if ( ! function_exists( 'masteriyo_should_show_component' ) ) {
 	 * @return bool True if component should be shown.
 	 */
 	function masteriyo_should_show_component( $component, $global_setting_key = '' ) {
+		// Widget settings while an Elementor widget renders, block attributes while a block renders, global setting otherwise.
+		if ( isset( $GLOBALS['masteriyo_elementor_display_options'] ) && is_array( $GLOBALS['masteriyo_elementor_display_options'] ) ) {
+			$display_options = $GLOBALS['masteriyo_elementor_display_options'];
+
+			return isset( $display_options[ $component ] ) ? $display_options[ $component ] : true;
+		}
+
 		// Check if we're in block rendering context
 		$is_block_rendering = isset( $GLOBALS['masteriyo_is_block_rendering'] ) && $GLOBALS['masteriyo_is_block_rendering'];
 		$display_options    = isset( $GLOBALS['masteriyo_block_display_options'] ) ? $GLOBALS['masteriyo_block_display_options'] : array();

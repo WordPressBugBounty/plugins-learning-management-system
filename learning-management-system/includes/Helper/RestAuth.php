@@ -105,12 +105,12 @@ class RestAuth {
 	 * @param string $api_secret  The API secret to validate.
 	 * @param bool   $return_result If true, returns the record from the user meta table, false otherwise.
 	 *
-	 * @return bool|array True if the API key and secret are valid, the record from the user meta table if $return_result is true, false otherwise.
+	 * @return bool|array|null True if valid, the record array if $return_result is true, false if the key matched but secret was wrong, null if the key was not found.
 	 */
 	public static function validate_api_key_secret( $api_key, $api_secret, $return_result = false ) {
 		global $wpdb;
 
-		$valid = false;
+		$valid = null;
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -131,13 +131,17 @@ class RestAuth {
 				continue;
 			}
 
-			if ( $item['apiKey'] === $api_key && $item['secret'] === $api_secret ) {
-				$valid = true;
+			if ( $item['apiKey'] === $api_key ) {
+				if ( hash_equals( $item['secret'], $api_secret ) ) {
+					$valid = true;
 
-				$item['user_id'] = $result['user_id'];
+					$item['user_id'] = $result['user_id'];
 
-				if ( $return_result ) {
-					$valid = $item;
+					if ( $return_result ) {
+						$valid = $item;
+					}
+				} else {
+					$valid = false;
 				}
 
 				break;

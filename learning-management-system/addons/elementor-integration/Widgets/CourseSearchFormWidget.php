@@ -68,6 +68,18 @@ class CourseSearchFormWidget extends WidgetBase {
 	}
 
 	/**
+	 * Hide from the widget panel — superseded by the Courses Toolbar widget.
+	 * Existing pages using this widget keep rendering as before.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return bool
+	 */
+	public function show_in_panel() {
+		return false;
+	}
+
+	/**
 	 * Register controls configuring widget content.
 	 *
 	 * @since 1.6.12

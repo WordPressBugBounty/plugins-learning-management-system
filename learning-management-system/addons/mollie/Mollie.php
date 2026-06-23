@@ -161,70 +161,86 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 			$receipt_id  = $order->get_billing_email();
 			$order_items = $order->get_items();
 
-			$order_lines = array();
-			foreach ( $order_items as $order_item ) {
-				$item_name     = '';
-				$item_quantity = 1;
-				$item_price    = 0;
-
-				$course = $order_item->get_course();
-				if ( $course ) {
-					$item_name  = $course->get_name();
-					$item_price = $order_item->get_total();
-				}
-
-				$order_lines[] = array(
-					'type'        => 'digital',
-					'description' => $item_name ? $item_name : __( 'Course', 'learning-management-system' ),
-					'quantity'    => $item_quantity,
-					'unitPrice'   => array(
-						'currency' => $order->get_currency() ?? 'EUR',
-						'value'    => number_format( (float) $item_price, 2, '.', '' ),
-					),
-					'totalAmount' => array(
-						'currency' => $order->get_currency() ?? 'EUR',
-						'value'    => number_format( (float) $item_price * $item_quantity, 2, '.', '' ),
-					),
-					'vatRate'     => '0.00',
-					'vatAmount'   => array(
-						'currency' => $order->get_currency() ?? 'EUR',
-						'value'    => '0.00',
-					),
-				);
-			}
-
 			$street_and_number = trim( $order->get_billing_address_1() . ' ' . $order->get_billing_address_2() );
-			$billing_address   = array(
-				'givenName'       => $order->get_billing_first_name() ? $order->get_billing_first_name() : '',
-				'familyName'      => $order->get_billing_last_name() ? $order->get_billing_last_name() : '',
-				'streetAndNumber' => $street_and_number ? $street_and_number : '',
-				'postalCode'      => $order->get_billing_postcode() ? $order->get_billing_postcode() : '',
-				'city'            => $order->get_billing_city() ? $order->get_billing_city() : '',
-				'country'         => $order->get_billing_country() ? $order->get_billing_country() : '',
-				'email'           => $order->get_billing_email() ? $order->get_billing_email() : '',
-			);
+			$billing_country   = $order->get_billing_country();
+			$billing_postcode  = $order->get_billing_postcode();
+			$billing_city      = $order->get_billing_city();
+
+			$has_full_billing_address = ! empty( $billing_country )
+				&& ! empty( $street_and_number )
+				&& ! empty( $billing_postcode )
+				&& ! empty( $billing_city );
 
 			$payment_data = array(
-				'amount'         => array(
+				'amount'      => array(
 					'currency' => $order->get_currency() ?? 'EUR',
 					'value'    => number_format( $order->get_total(), 2, '.', '' ),
 				),
-				'description'    => sprintf(
+				'description' => sprintf(
 				/* translators: %s: order number */
 					_x( 'Order #%s', 'Payment description (order number)', 'learning-management-system' ),
 					$order_id
 				),
-				'redirectUrl'    => $this->get_return_url( $order ),
-				'webhookUrl'     => admin_url( 'admin-ajax.php?action=masteriyo_mollie_webhook' ),
-				'billingAddress' => $billing_address,
-				'lines'          => $order_lines,
-				'metadata'       => array(
+				'redirectUrl' => $this->get_return_url( $order ),
+				'webhookUrl'  => masteriyo_mollie_get_webhook_url(),
+				'metadata'    => array(
 					'order_id'     => $order_id,
 					'payment_type' => $payment_type,
 					'course_id'    => $first_course->get_id(),
 					'receipt'      => $receipt_id,
 				),
 			);
+
+			/**
+			 * Mollie treats `lines` + `billingAddress` as address-based methods (Klarna,
+			 * Riverty, Afterpay), which require a complete billing address. Sending them
+			 * with empty country/street causes "422 No suitable payment methods found",
+			 * blocking simpler methods (card, iDEAL) that don't need an address.
+			 */
+			if ( $has_full_billing_address ) {
+				$order_lines = array();
+				foreach ( $order_items as $order_item ) {
+					$item_name     = '';
+					$item_quantity = 1;
+					$item_price    = 0;
+
+					$course = $order_item->get_course();
+					if ( $course ) {
+						$item_name  = $course->get_name();
+						$item_price = $order_item->get_total();
+					}
+
+					$order_lines[] = array(
+						'type'        => 'digital',
+						'description' => $item_name ? $item_name : __( 'Course', 'learning-management-system' ),
+						'quantity'    => $item_quantity,
+						'unitPrice'   => array(
+							'currency' => $order->get_currency() ?? 'EUR',
+							'value'    => number_format( (float) $item_price, 2, '.', '' ),
+						),
+						'totalAmount' => array(
+							'currency' => $order->get_currency() ?? 'EUR',
+							'value'    => number_format( (float) $item_price * $item_quantity, 2, '.', '' ),
+						),
+						'vatRate'     => '0.00',
+						'vatAmount'   => array(
+							'currency' => $order->get_currency() ?? 'EUR',
+							'value'    => '0.00',
+						),
+					);
+				}
+
+				$payment_data['billingAddress'] = array(
+					'givenName'       => $order->get_billing_first_name() ? $order->get_billing_first_name() : '',
+					'familyName'      => $order->get_billing_last_name() ? $order->get_billing_last_name() : '',
+					'streetAndNumber' => $street_and_number,
+					'postalCode'      => $billing_postcode,
+					'city'            => $billing_city,
+					'country'         => $billing_country,
+					'email'           => $order->get_billing_email() ? $order->get_billing_email() : '',
+				);
+				$payment_data['lines']          = $order_lines;
+			}
 
 			$payment = $mollie->payments->create( $payment_data );
 

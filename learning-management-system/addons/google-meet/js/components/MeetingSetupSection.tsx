@@ -160,6 +160,7 @@ const MeetingSetupSection: React.FC<Props> = () => {
 				<MeetingErrorConsentScreen
 					onResetCredentialsModalChange={onResetCredentialsModalChange}
 					onHandleConsentScreen={onHandleConsentScreen}
+					settingQuery={settingQuery}
 				/>
 			) : (
 				<Row align={'center'}>

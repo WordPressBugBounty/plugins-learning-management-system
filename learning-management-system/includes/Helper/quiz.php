@@ -112,6 +112,123 @@ function masteriyo_is_course_quiz_started( $course_id, $quiz_id = 0 ) {
 }
 
 /**
+ * Get the ID of the quiz the current user (or guest) currently has an in-progress attempt for, in a
+ * given course. Logged-in attempts are read from the database; guest attempts from the session.
+ *
+ * @since x.x.x
+ *
+ * @param int $course_id The course ID.
+ *
+ * @return int The active (started) quiz ID, or 0 if there is no in-progress attempt.
+ */
+function masteriyo_get_started_quiz_id_for_course( $course_id ) {
+	$course_id = (int) $course_id;
+
+	if ( is_user_logged_in() ) {
+		$started_attempt = masteriyo_is_course_quiz_started( $course_id );
+
+		return $started_attempt ? (int) $started_attempt->get_quiz_id() : 0;
+	}
+
+	// Guests: in-progress attempts are kept in the session, keyed by quiz ID.
+	$session = masteriyo( 'session' );
+
+	if ( ! $session ) {
+		return 0;
+	}
+
+	$all_attempts = $session->get( 'quiz_attempts', array() );
+
+	if ( empty( $all_attempts ) || ! is_array( $all_attempts ) ) {
+		return 0;
+	}
+
+	foreach ( $all_attempts as $attempts ) {
+		if ( ! is_array( $attempts ) ) {
+			continue;
+		}
+
+		foreach ( $attempts as $attempt ) {
+			if (
+				isset( $attempt['attempt_status'], $attempt['course_id'], $attempt['quiz_id'] ) &&
+				QuizAttemptStatus::STARTED === $attempt['attempt_status'] &&
+				(int) $attempt['course_id'] === $course_id
+			) {
+				return (int) $attempt['quiz_id'];
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Check whether the current user is blocked from reading a piece of course content because the
+ * course restricts content during quizzes ("Restrict Content During Quiz" / `disable_course_content`)
+ * and the user has a quiz attempt in progress.
+ *
+ * Only the quiz being attempted (and its own questions) stays accessible; every other content item
+ * is blocked. Admins, instructors and users who can edit the course are exempt. This is enforced from
+ * the REST permission checks so it applies to every request, including content opened in a new tab.
+ * Both logged-in and guest (session-based) quiz attempts are covered.
+ *
+ * @since x.x.x
+ *
+ * @param \Masteriyo\Models\Course $course The course the content belongs to.
+ * @param int|\WP_Post             $post   The content post (or its ID) being accessed.
+ *
+ * @return \WP_Error|null WP_Error when access should be denied, null otherwise.
+ */
+function masteriyo_check_content_restriction_during_quiz( $course, $post ) {
+	if ( ! $course || ! $course->get_disable_course_content() ) {
+		return null;
+	}
+
+	// Admins, instructors and course editors are exempt.
+	if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_instructor() ) {
+		return null;
+	}
+
+	if ( is_user_logged_in() && user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
+		return null;
+	}
+
+	$active_quiz_id = masteriyo_get_started_quiz_id_for_course( $course->get_id() );
+
+	if ( ! $active_quiz_id ) {
+		return null;
+	}
+
+	$post = get_post( $post );
+
+	if ( ! $post ) {
+		return null;
+	}
+
+	// Only the quiz being attempted (and its own questions) stays accessible — the learner must be
+	// able to reach the quiz they are taking. Every other content item, including other quizzes and
+	// their questions, is blocked, since that is the study material the restriction locks during a
+	// quiz. A question's parent quiz is stored as its post_parent.
+	if ( PostType::QUIZ === $post->post_type && (int) $post->ID === $active_quiz_id ) {
+		return null;
+	}
+
+	if ( PostType::QUESTION === $post->post_type && (int) $post->post_parent === $active_quiz_id ) {
+		return null;
+	}
+
+	return new \WP_Error(
+		'masteriyo_rest_content_restricted_during_quiz',
+		__( 'Sorry, you cannot access other course content while a quiz attempt is in progress.', 'learning-management-system' ),
+		array(
+			'status'    => rest_authorization_required_code(),
+			'quiz_id'   => $active_quiz_id,
+			'course_id' => (int) $course->get_id(),
+		)
+	);
+}
+
+/**
  * Get quiz attempt data according to attempt id and after attempt ended.
  *
  * @since 1.0.0

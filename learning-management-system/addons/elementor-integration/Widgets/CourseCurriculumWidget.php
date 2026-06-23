@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseCurriculumWidget extends WidgetBase {
+class CourseCurriculumWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -145,7 +145,6 @@ class CourseCurriculumWidget extends WidgetBase {
 			'.course-curriculum .masteriyo-stab--shortinfo .masteriyo-shortinfo-wrap',
 			array(
 				'disable_align' => true,
-				array(),
 			)
 		);
 		$this->end_controls_section();
@@ -223,6 +222,7 @@ class CourseCurriculumWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 
@@ -237,6 +237,8 @@ class CourseCurriculumWidget extends WidgetBase {
 					'is_hidden' => false,
 				)
 			);
+		} else {
+			$this->render_feature_disabled_notice( __( 'Curriculum will display here when it is enabled for the course.', 'learning-management-system' ) );
 		}
 	}
 }

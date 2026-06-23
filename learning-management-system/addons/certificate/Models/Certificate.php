@@ -49,14 +49,16 @@ class Certificate extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'name'          => '',
-		'slug'          => '',
-		'date_created'  => null,
-		'date_modified' => null,
-		'status'        => 'draft',
-		'html_content'  => '',
-		'parent_id'     => 0,
-		'author_id'     => 0,
+		'name'           => '',
+		'slug'           => '',
+		'date_created'   => null,
+		'date_modified'  => null,
+		'status'         => 'draft',
+		'html_content'   => '',
+		'parent_id'      => 0,
+		'author_id'      => 0,
+		'content_format' => 'gutenberg',
+		'rendered_html'  => '',
 	);
 
 	/**
@@ -377,5 +379,52 @@ class Certificate extends Model {
 	 */
 	public function set_author_id( $author_id ) {
 		$this->set_prop( 'author_id', absint( $author_id ) );
+	}
+
+	/**
+	 * Get content format ('gutenberg' or 'pdfdraft').
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $context
+	 * @return string
+	 */
+	public function get_content_format( $context = 'view' ) {
+		return $this->get_prop( 'content_format', $context );
+	}
+
+	/**
+	 * Set content format.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $format 'gutenberg' or 'pdfdraft'.
+	 */
+	public function set_content_format( $format ) {
+		$allowed = array( 'gutenberg', 'pdfdraft' );
+		$this->set_prop( 'content_format', in_array( $format, $allowed, true ) ? $format : 'gutenberg' );
+	}
+
+	/**
+	 * Get rendered HTML snapshot (used for PDF generation in pdfdraft format).
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $context
+	 * @return string
+	 */
+	public function get_rendered_html( $context = 'view' ) {
+		return $this->get_prop( 'rendered_html', $context );
+	}
+
+	/**
+	 * Set rendered HTML snapshot.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $rendered_html
+	 */
+	public function set_rendered_html( $rendered_html ) {
+		$this->set_prop( 'rendered_html', $rendered_html );
 	}
 }

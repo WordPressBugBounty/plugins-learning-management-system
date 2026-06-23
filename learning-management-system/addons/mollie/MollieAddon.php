@@ -102,8 +102,7 @@ class MollieAddon {
 
 			if ( ! isset( $data['id'] ) ) {
 				masteriyo_get_logger()->error( 'Missing payment ID in payload', array( 'source' => 'payment-mollie' ) );
-				http_response_code( 400 );
-				exit;
+				throw new Exception( 'Missing payment ID in payload.', 400 );
 			}
 
 			$api_key = masteriyo_mollie_get_api_key();
@@ -143,11 +142,15 @@ class MollieAddon {
 			$payment_type = $payment->metadata->payment_type ?? 'one-time';
 
 			if ( 'one-time' === $payment_type ) {
+				$stored_transaction_id = $order->get_transaction_id();
+				if ( ! empty( $stored_transaction_id ) && $stored_transaction_id !== $payment->id ) {
+					throw new Exception( __( 'Payment ID does not match the stored transaction.', 'learning-management-system' ) );
+				}
 				$this->process_one_time_payment( $order, $payment );
 			}
 
 			masteriyo_get_logger()->info( 'Mollie webhook processing completed', array( 'source' => 'payment-mollie' ) );
-			http_response_code( 200 );
+			wp_send_json_success();
 		} catch ( Exception $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-mollie' ) );
 			wp_send_json_error( array( 'message' => $e->getMessage() ), $e->getCode() );
@@ -222,6 +225,10 @@ class MollieAddon {
 	 */
 	public function append_setting_in_response( $data, $setting, $context, $controller ) {
 		$data['payments']['mollie'] = Setting::all();
+
+		// Expose the webhook URL so admins can view/copy it for manual
+		// configuration in the Mollie dashboard.
+		$data['payments']['mollie']['webhook_url'] = masteriyo_mollie_get_webhook_url();
 
 		return $data;
 	}

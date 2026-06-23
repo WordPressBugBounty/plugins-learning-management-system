@@ -42,6 +42,29 @@ abstract class WidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Get a numeric setting value with a fallback for unset or empty values.
+	 *
+	 * Elementor stores an empty string for untouched number controls (including
+	 * responsive device values), so plain absint() would turn declared control
+	 * defaults into 0.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array  $settings Widget settings.
+	 * @param string $key      Setting key.
+	 * @param int    $fallback Value to use when the setting is unset or empty.
+	 *
+	 * @return int
+	 */
+	protected function get_numeric_setting( $settings, $key, $fallback ) {
+		if ( ! isset( $settings[ $key ] ) || '' === $settings[ $key ] ) {
+			return $fallback;
+		}
+
+		return absint( $settings[ $key ] );
+	}
+
+	/**
 	 * Overriding default function to add custom html class.
 	 *
 	 * @since 1.6.12
@@ -225,6 +248,174 @@ abstract class WidgetBase extends Widget_Base {
 			$course = Helper::get_elementor_preview_course();
 		}
 		return $course;
+	}
+
+	/**
+	 * Render a notice in the Elementor editor when no preview course is available.
+	 * Does nothing on the frontend.
+	 *
+	 * @since x.x.x
+	 */
+	protected function render_no_course_notice() {
+		if ( ! Helper::is_elementor_editor() && ! Helper::is_elementor_preview() ) {
+			return;
+		}
+
+		static $style_printed = false;
+		if ( ! $style_printed ) {
+			$style_printed = true;
+			?>
+			<style>
+				.masteriyo-elementor-no-course-notice {
+					display: inline-flex;
+					align-items: center;
+					gap: 8px;
+					padding: 10px 14px;
+					background: #eef4ff;
+					border: 1px solid #c3d9ff;
+					border-left: 3px solid #4a90e2;
+					border-radius: 4px;
+					font-size: 12px;
+					line-height: 1.5;
+					color: #2c5282;
+					max-width: 100%;
+					box-sizing: border-box;
+				}
+				.masteriyo-elementor-no-course-notice svg {
+					flex-shrink: 0;
+					width: 14px;
+					height: 14px;
+				}
+				.masteriyo-elementor-no-course-notice p {
+					margin: 0;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.masteriyo-elementor-no-course-notice a {
+					color: #2b6cb0;
+					font-size: 12px;
+					font-weight: 400;
+					text-decoration: none;
+					border-bottom: 1px solid currentColor;
+				}
+				.masteriyo-elementor-no-course-notice a:hover {
+					color: #1a4a8a;
+				}
+			</style>
+			<?php
+		}
+
+		$new_course_url = admin_url( 'admin.php?page=masteriyo#/courses/add-new-course' );
+		?>
+		<div class="masteriyo-elementor-no-course-notice">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a4a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: link to create a new course */
+					esc_html__( 'No published course found. %s to preview this widget.', 'learning-management-system' ),
+					sprintf( '<a href="%s">%s</a>', esc_url( $new_course_url ), esc_html__( 'Create a course', 'learning-management-system' ) )
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render a notice in the editor when a widget feature is disabled for the course.
+	 * Only visible in the Elementor editor/preview — silent on the frontend.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $message Human-readable explanation, e.g. "Course retake is disabled for this course."
+	 */
+	protected function render_feature_disabled_notice( $message ) {
+		if ( ! Helper::is_elementor_editor() && ! Helper::is_elementor_preview() ) {
+			return;
+		}
+		echo '<span style="display:inline-flex;align-items:center;opacity:0.5;font-size:13px;border:1px dashed currentColor;border-radius:4px;padding:6px 10px;">'
+			. esc_html( $message )
+			. '</span>';
+	}
+
+	/**
+	 * Echo a render callback's output, or show a notice when it produces nothing.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param callable $render        Callback that echoes the widget markup.
+	 * @param string   $empty_message Notice shown when the output is empty.
+	 */
+	protected function render_buffered_or_notice( $render, $empty_message ) {
+		ob_start();
+		$render();
+		$output = ob_get_clean();
+
+		if ( '' === trim( $output ) ) {
+			$this->render_feature_disabled_notice( $empty_message );
+			return;
+		}
+
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Remove object-method callbacks from the given hooks, matching by method
+	 * name within the Masteriyo namespace. Priority and accepted-args are kept
+	 * for restoring later.
+	 *
+	 * Only callbacks whose object class starts with 'Masteriyo\' are considered,
+	 * preventing accidental removal of third-party callbacks that share a method name.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array<string,string[]> $map Hook name => method names to suppress.
+	 * @return array<int,array> Removed callbacks as [ hook, callback, priority, accepted_args ].
+	 */
+	protected function suppress_hook_callbacks_by_method( array $map ) {
+		global $wp_filter;
+
+		$removed = array();
+
+		foreach ( $map as $hook_name => $method_names ) {
+			if ( ! isset( $wp_filter[ $hook_name ] ) ) {
+				continue;
+			}
+
+			foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {
+				foreach ( $callbacks as $hook ) {
+					$cb = $hook['function'];
+
+					if ( ! is_array( $cb ) || ! is_object( $cb[0] ) || ! isset( $cb[1] ) ) {
+						continue;
+					}
+
+					if ( in_array( $cb[1], $method_names, true )
+						&& 0 === strpos( get_class( $cb[0] ), 'Masteriyo\\' ) ) {
+						remove_action( $hook_name, $cb, $priority );
+						$removed[] = array( $hook_name, $cb, $priority, $hook['accepted_args'] );
+					}
+				}
+			}
+		}
+
+		return $removed;
+	}
+
+	/**
+	 * Re-add callbacks removed by suppress_hook_callbacks_by_method().
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array<int,array> $removed Removed callbacks to restore.
+	 */
+	protected function restore_hook_callbacks( $removed ) {
+		foreach ( $removed as $item ) {
+			list( $hook_name, $cb, $priority, $accepted_args ) = $item;
+			add_action( $hook_name, $cb, $priority, $accepted_args );
+		}
 	}
 
 	/**
@@ -620,7 +811,7 @@ abstract class WidgetBase extends Widget_Base {
 				array(
 					'name'     => $name_prefix . 'hover_box_shadow',
 					'label'    => __( 'Box Shadow', 'learning-management-system' ),
-					'selector' => $custom_selectors['box_shadow'],
+					'selector' => $custom_selectors['hover_box_shadow'],
 				)
 			);
 		}

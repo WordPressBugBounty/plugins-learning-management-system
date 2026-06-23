@@ -84,9 +84,13 @@
 			this.viewModeItems = $('.masteriyo-courses-view-mode-item');
 			this.bindUIActions();
 
+			// Apply the saved view mode only when the switcher exists on the page
+			// (Default layout only). Other layouts render their final class
+			// server-side and must not be overridden by a stale cookie.
 			if (
-				'grid-view' === this.currentViewMode ||
-				'list-view' === this.currentViewMode
+				this.viewModeItems.length &&
+				('grid-view' === this.currentViewMode ||
+					'list-view' === this.currentViewMode)
 			) {
 				this.setViewMode(this.currentViewMode);
 			}

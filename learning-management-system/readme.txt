@@ -4,7 +4,7 @@ Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,6 +295,50 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.3.0 - 23-06-2026 =
+- Feature - Certificate Builder v2.
+- eature - H5P integration addon with H5P shortcode support [Free] and H5P quiz [PRO].
+- Revamp - Analytics UI/UX.
+- Compatibility - PHP v8.5 compatible.
+- Enhancement - Added Simple, Modern, Overlay, and Custom layout support for course archive and single course page templates.
+- Enhancement - Updated Migration Tool to display real-time migration progress and support migrating LMS data to Masteriyo.
+- Enhancement - Added login/logout navigation menu link panel.
+- Enhancement - Overhauled Course List widget with built-in pagination, filter controls, and renamed layout options to match the Carousel widget.
+- Enhancement - Added three new Elementor widgets for the Single Course page: Course Progress Bar, Course Cohort, and Course Enrollment Expiration. - [PRO]
+- Enhancement - Hidden the legacy Course Archive Pagination widget from the Elementor panel since pagination is now built into the Course List widget.
+- Enhancement - Improved single course page templates with editor fallback notices, Wishlist icon support, and a "Set as active template" option.
+- Enhancement - Added option to hide calendar and session information tab from the account sidebar.
+- Enhancement - Added global eLearning and Neve theme color sync.
+- Enhancement - Added auto-navigation to error tab and focus on invalid fields in course settings on save.
+- Enhancement - Added easy switching between block and classic editor with source code support and additional default blocks.
+- Enhancement - Added course creation button in WooCommerce product for one-click course creation.
+- Enhancement - Added link product option in individual course WooCommerce settings to directly link a Woo product.
+- Enhancement - Added guest checkout support for WooCommerce.
+- Enhancement - Added auto-detection of video duration in video lessons.
+- Enhancement - Added customizable color options for email templates. - [PRO]
+- Enhancement - Added option to require attempting all quiz questions before submission.
+- Enhancement - Added course bundle support for Stripe/PayPal recurring payments. - [PRO]
+- Enhancement - Added support for custom sidebar buttons on the Account page via filter hook. - [PRO]
+- Enhancement - Added automated job to check and revoke expired course enrollments. - [PRO]
+- Enhancement - Implemented protected material downloads with enrollment verification. - [PRO]
+- Fix - Removed unnecessary API calls on backend pages.
+- Fix - Resolved multiple issues with view-mode switcher, courses JS not loading on Elementor pages, WP dependency notice, and pagination display.
+- Fix - Fixed Wishlist support for the Course Carousel Elementor widget.
+- Fix - Fixed incorrect purchase button display for SureCart courses on course archive and single course pages.
+- Fix - Fixed group pricing multiple currency conversion, formatting, and checkout calculation issues.
+- Fix - Fixed session-expired overlay not showing on admin pages when switching to student preview.
+- Fix - Fixed OTP email not being sent after enabling 2FA. - [PRO]
+- Fix - Fixed Mollie "No suitable payment methods found" error on default checkout.
+- Fix - Fixed guest redirect to login on WooCommerce addon when guest checkout is disabled.
+- Fix - Fixed minor course bundle issues related to the WooCommerce addon. - [PRO]
+- Fix - Enhanced security for the Mollie payment addon.
+- Fix - Fixed checkout not redirecting after applying a 100% discount coupon. - [PRO]
+- Fix - Fixed single course page showing wrong course for additional instructors. - [PRO]
+- Fix - Fixed course content not being restricted during quiz even when the option is enabled.
+- Fix - Enhanced security for the course announcement addon.
+- Fix - Fixed PDF viewer overlapping off-canvas menu and failing to load on the learn page. - [PRO]
+- Fix - Fixed blank block editor on pages assigned as the Masteriyo account page.
+
 = 2.2.1 - 20-05-2026 =
 - Compatibility - WordPress v7.0 compatible.
 - Update - Added filters for certificate course title and completion date smart tags.
@@ -302,30 +346,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Enhance security for user course progress and user role.
 - Fix - Skip abilities layer below WordPress v6.9.
 - Fix - Allow admin with instructor role to list all course Q&A.
-
-= 2.2.0 - 12-05-2026 =
-- Feature - Added 'View as Student' option for admins and instructors to preview the student experience.
-- Feature - Exposed full CRUD abilities for Course, Section, Lesson, Quiz, Question, Enrollment, Order, User, and Settings via the WP Abilities API.
-- Enhancement - Added email settings and notifications for lesson comments/replies and Q&A.
-- Enhancement - Synced group status with different order statuses.
-- Enhancement - Added 'Auto Redirect to Courses' option in WooCommerce integration settings.
-- Enhancement - Improved UX for chat input fields by replacing text input with textarea and enhancing message formatting.
-- Security - Added authorization check for Invoice PDF access.
-- Security - Added capability checks to AJAX notice handlers.
-- Security - Improved BuddyPress integration security.
-- Fix - Enqueued public.css on course bundle and public profile pages. [PRO]
-- Fix - Fixed missing Elementor CSS and body classes with block themes.
-- Fix - Added masteriyo-notice-link class to admin notice links.
-- Fix - Fixed review replies not appearing in user details edit review. [PRO]
-- Fix - Scoped gradebook queries to current user and guarded against bulk deletion. [PRO]
-- Fix - Resolved stale cache served after AJAX login on account page with LiteSpeed Cache.
-- Fix - Fixed search by username or email for quiz attempts and assignments. [PRO]
-- Fix - Fixed students being unable to post reviews on private courses and lessons. [PRO]
-- Fix - Fixed invalid interval format sent to Mollie subscription API.
-- Fix - Fixed WooCommerce order with no customer ID overwriting wcorder_id on wrong user enrollment.
-- Fix - Fixed URL status param not syncing to filterParams on backend page reload.
-- Fix - Fixed user being unable to reply to reviews after submitting their own review.
-- Fix - Fixed quiz questions not loading for guest users on open access courses.
-- Fix - Fixed incorrect redirect to first step after Stripe Connect on onboarding.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

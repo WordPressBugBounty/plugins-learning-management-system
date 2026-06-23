@@ -110,6 +110,8 @@ class CertificateAddon {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'add_submenus' ) );
+		add_action( 'masteriyo_activation', array( $this, 'clear_gutenberg_certs_cache' ) );
+		add_action( 'save_post_mto-certificate', array( $this, 'clear_gutenberg_certs_cache' ) );
 
 		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_certificate_share_for_single_course_page' ) );
 		add_action( 'masteriyo_template_course_inside_progress', array( $this, 'render_certificate_share_for_single_course_page' ), 1, 1 );
@@ -121,6 +123,7 @@ class CertificateAddon {
 
 		add_filter( 'query_vars', array( $this, 'add_certificate_share_query_vars' ) );
 		add_action( 'template_redirect', array( $this, 'handle_certificate_share_preview' ), 10 );
+		add_action( 'masteriyo_pdfdraft_cert_email_fallback', array( $this, 'handle_pdfdraft_cert_email_fallback' ), 10, 2 );
 	}
 
 	/**
@@ -178,6 +181,11 @@ class CertificateAddon {
 				return;
 			}
 
+			if ( 'pdfdraft' === $certificate->get_content_format() ) {
+				$this->serve_pdfdraft_share_preview( $certificate, $course_id, $user_id );
+				return;
+			}
+
 			$certificate_pdf = new CertificatePDF( $course_id, $user_id, $certificate_html_content );
 
 			if ( ! $certificate_pdf || is_wp_error( $certificate_pdf ) ) {
@@ -186,6 +194,114 @@ class CertificateAddon {
 
 			$certificate_pdf->serve_preview();
 		}
+	}
+
+	/**
+	 * Serve a PDFDraft certificate share preview as an HTML page.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
+	 * @param int $course_id
+	 * @param int $user_id
+	 */
+	protected function serve_pdfdraft_share_preview( $certificate, $course_id, $user_id ) {
+		$rendered_html = $certificate->get_rendered_html( 'edit' );
+
+		if ( empty( $rendered_html ) ) {
+			wp_die( esc_html__( 'This certificate has not been published yet. Please contact the site administrator.', 'learning-management-system' ) );
+		}
+
+		$certificate_pdf = new CertificatePDF( $course_id, $user_id, '', $certificate->get_id() );
+		$html            = preg_replace( '/<script\b[^>]*>[\s\S]*?<\/script>/i', '', $certificate_pdf->process_html_for_download( $rendered_html ) );
+
+		$json   = json_decode( $certificate->get_html_content(), true );
+		$layout = isset( $json['settings']['layout'] ) ? $json['settings']['layout'] : array();
+
+		$width_in  = (float) ( $layout['width'] ?? 11 );
+		$height_in = (float) ( $layout['height'] ?? 8.5 );
+		$unit      = $layout['unit'] ?? 'in';
+		$dpi       = 96;
+		$to_px     = array(
+			'in' => $dpi,
+			'cm' => $dpi / 2.54,
+			'mm' => $dpi / 25.4,
+			'px' => 1,
+		);
+		$mult      = $to_px[ $unit ] ?? $dpi;
+		$canvas_w  = round( $width_in * $mult );
+		$canvas_h  = round( $height_in * $mult );
+
+		$preview_font_links = '';
+		if ( isset( $json['pages'] ) ) {
+			$generic_fonts = array( 'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'inherit', 'initial', 'unset', 'inter' );
+			$families      = array();
+			array_walk_recursive(
+				$json['pages'],
+				function( $value, $key ) use ( &$families, $generic_fonts ) {
+					if ( 'fontFamily' === $key && is_string( $value ) && ! empty( $value ) ) {
+						$clean = trim( $value, " \"'\t" );
+						if ( ! in_array( strtolower( $clean ), $generic_fonts, true ) ) {
+							$families[ $clean ] = true;
+						}
+					}
+				}
+			);
+			foreach ( array_keys( $families ) as $family ) {
+				$encoded             = rawurlencode( $family );
+				$preview_font_links .= '<link href="https://fonts.googleapis.com/css2?family=' . esc_attr( $encoded ) . ':wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">' . "\n\t\t\t"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
+			}
+		}
+
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
+
+		header( 'Content-Type: text/html; charset=utf-8' );
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+		<!DOCTYPE html>
+		<html lang="<?php echo esc_attr( get_locale() ); ?>">
+		<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<title><?php esc_html_e( 'Certificate Preview', 'learning-management-system' ); ?></title>
+			<link rel="preconnect" href="https://fonts.googleapis.com">
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"> <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- standalone HTML page, wp_enqueue_style() not applicable. ?>
+			<?php echo $preview_font_links; ?>
+			<style>
+				<?php echo $certificate_pdf->prepare_pdfdraft_css(); ?>
+				* { box-sizing: border-box; }
+				html, body {
+					margin: 0; padding: 0;
+					width: 100%; height: 100%;
+					overflow: auto;
+					background: #525659;
+					display: flex;
+					align-items: flex-start;
+					justify-content: center;
+					padding: 16px;
+				}
+				.masteriyo-cert-wrap {
+					width: <?php echo (int) $canvas_w; ?>px;
+					height: <?php echo (int) $canvas_h; ?>px;
+					flex-shrink: 0;
+					box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+				}
+				.masteriyo-cert-wrap > * {
+					width: 100% !important;
+					height: 100% !important;
+				}
+			</style>
+		</head>
+		<body>
+			<div class="masteriyo-cert-wrap"><?php echo $html; ?></div>
+		</body>
+		</html>
+		<?php
+		// phpcs:enable
+		die();
 	}
 
 	/**
@@ -393,9 +509,84 @@ class CertificateAddon {
 				wp_die( esc_html__( 'Please complete the course to download the certificate.', 'learning-management-system' ) );
 			}
 
+			// PDFDraft certificates: generate PDF in the browser using PDFExporter.
+			if ( 'pdfdraft' === $certificate->get_content_format() ) {
+				$this->serve_pdfdraft_client_download( $certificate, $course );
+				return;
+			}
+
 			$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), $certificate->get_html_content() );
 			$certificate_pdf->serve_download();
 		}
+	}
+
+	/**
+	 * Serve a pdfdraft certificate download page that generates the PDF client-side.
+	 *
+	 * PHP resolves all merge tags in the certificate JSON. The bundled
+	 * masteriyo-pdfdraftCertDownload.js passes the resolved JSON to PDFExporter
+	 * to produce the PDF in the student's browser.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
+	 * @param \Masteriyo\Models\Course $course
+	 */
+	protected function serve_pdfdraft_client_download( $certificate, $course ) {
+		$json = json_decode( $certificate->get_html_content(), true );
+
+		if ( empty( $json ) || ! isset( $json['pages'] ) ) {
+			wp_die( esc_html__( 'This certificate has not been published yet. Please contact the site administrator.', 'learning-management-system' ) );
+		}
+
+		$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), '', $certificate->get_id() );
+		$resolved_json   = $certificate_pdf->resolve_pdfdraft_json_for_download( $json );
+
+		$student  = masteriyo_get_user( get_current_user_id() );
+		$filename = sanitize_file_name(
+			sprintf(
+				'%s-%s-certificate.pdf',
+				$student && ! is_wp_error( $student ) ? $student->get_display_name() : 'student',
+				$course->get_name()
+			)
+		);
+
+		$script_url = masteriyo_is_production()
+			? plugins_url( 'assets/js/build/masteriyo-pdfdraftCertDownload.js', MASTERIYO_PLUGIN_FILE )
+			: 'http://localhost:3000/dist/masteriyo-pdfdraftCertDownload.js';
+
+		$cert_data = array(
+			'filename' => $filename,
+			'json'     => $resolved_json,
+		);
+
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
+
+		header( 'Content-Type: text/html; charset=utf-8' );
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+		<!DOCTYPE html>
+		<html lang="<?php echo esc_attr( get_locale() ); ?>">
+		<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<title><?php echo esc_html( $course->get_name() ); ?> — <?php esc_html_e( 'Certificate', 'learning-management-system' ); ?></title>
+			<style>
+				body { margin: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
+				#masteriyo-cert-status { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.1); padding: 32px 48px; text-align: center; color: #333; font-size: 16px; max-width: 480px; }
+			</style>
+		</head>
+		<body>
+			<div id="masteriyo-cert-status"><?php esc_html_e( 'Generating your certificate, please wait…', 'learning-management-system' ); ?></div>
+			<script>window.masteriyo_cert_download = <?php echo wp_json_encode( $cert_data ); ?>;</script>
+			<script src="<?php echo esc_url( $script_url ); ?>"></script> <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- standalone HTML page, wp_enqueue_script() not applicable. ?>
+		</body>
+		</html>
+		<?php
+		// phpcs:enable
+		die();
 	}
 
 	/**
@@ -568,7 +759,7 @@ class CertificateAddon {
 			array(
 				'backend' => array(
 					'data' => array(
-						'allowedBlockTypes'   => array(
+						'allowedBlockTypes'        => array(
 							'core/paragraph',
 							'core/image',
 							'core/heading',
@@ -592,9 +783,11 @@ class CertificateAddon {
 							'masteriyo/student-name',
 							'masteriyo/course-completion-date',
 						),
-						'editorStyles'        => function_exists( 'get_block_editor_theme_styles' ) ? get_block_editor_theme_styles() : (object) array(),
-						'editorSettings'      => $editor_settings,
-						'certificate_samples' => masteriyo_get_certificate_templates(),
+						'editorStyles'             => function_exists( 'get_block_editor_theme_styles' ) ? get_block_editor_theme_styles() : (object) array(),
+						'editorSettings'           => $editor_settings,
+						'certificate_samples'      => masteriyo_get_certificate_templates(),
+						'pdfdraft_assets_base_url' => plugins_url( 'addons/certificate/assets/', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ),
+						'hasGutenbergCerts'        => $this->has_gutenberg_certificates(),
 					),
 				),
 			)
@@ -754,6 +947,214 @@ class CertificateAddon {
 		if ( $controller ) {
 			$controller->register_routes();
 		}
+
+		register_rest_route(
+			'masteriyo/pro/v1',
+			'/certificate-pdf-data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'rest_get_certificate_pdf_data' ),
+				'permission_callback' => function() {
+					return is_user_logged_in();
+				},
+				'args'                => array(
+					'course_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'masteriyo/pro/v1',
+			'/certificate-pdf-email',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'rest_upload_certificate_pdf_email' ),
+				'permission_callback' => function() {
+					return is_user_logged_in();
+				},
+				'args'                => array(
+					'course_id'  => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'pdf_base64' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * REST handler: return the resolved PDFDraft certificate JSON for client-side PDF generation.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function rest_get_certificate_pdf_data( \WP_REST_Request $request ) {
+		$course_id = (int) $request->get_param( 'course_id' );
+		$user_id   = get_current_user_id();
+
+		$certificate_id = masteriyo_get_course_certificate_id( $course_id );
+		if ( ! $certificate_id ) {
+			return new \WP_Error( 'no_certificate', __( 'No certificate for this course.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		$certificate = masteriyo_get_certificate( $certificate_id );
+		if ( ! $certificate || is_wp_error( $certificate ) || 'pdfdraft' !== $certificate->get_content_format() ) {
+			return new \WP_Error( 'not_pdfdraft', __( 'Certificate is not a PDFDraft certificate.', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+
+		$course = masteriyo_get_course( $course_id );
+		if ( ! $course ) {
+			return new \WP_Error( 'no_course', __( 'Course not found.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() ) {
+			if ( ! masteriyo_user_has_completed_course( $course, $user_id ) ) {
+				return new \WP_Error( 'not_completed', __( 'You must complete the course to download its certificate.', 'learning-management-system' ), array( 'status' => 403 ) );
+			}
+		}
+
+		$raw_json = json_decode( $certificate->get_html_content(), true );
+		if ( empty( $raw_json ) || ! isset( $raw_json['pages'] ) ) {
+			return new \WP_Error( 'invalid_json', __( 'Certificate JSON could not be resolved.', 'learning-management-system' ), array( 'status' => 500 ) );
+		}
+
+		$pdf  = new CertificatePDF( $course_id, $user_id, '', $certificate_id );
+		$json = $pdf->resolve_pdfdraft_json_for_download( $raw_json );
+
+		$student   = masteriyo_get_user( $user_id );
+		$full_name = $student ? trim( $student->get_first_name() . ' ' . $student->get_last_name() ) : '';
+		if ( ! $full_name && $student ) {
+			$full_name = $student->get_display_name();
+		}
+		$filename = sanitize_file_name(
+			sprintf( '%s - %s.pdf', $course->get_name(), $full_name ? $full_name : __( 'Certificate', 'learning-management-system' ) )
+		);
+
+		return rest_ensure_response(
+			array(
+				'filename' => $filename,
+				'json'     => $json,
+			)
+		);
+	}
+
+	/**
+	 * REST handler: receive base64-encoded PDF from browser, store it, and send the completion email with attachment.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function rest_upload_certificate_pdf_email( \WP_REST_Request $request ) {
+		$course_id = (int) $request->get_param( 'course_id' );
+		$user_id   = get_current_user_id();
+
+		$transient_key = 'masteriyo_pdfdraft_cert_email_' . $course_id . '_' . $user_id;
+		$pending       = get_transient( $transient_key );
+
+		if ( ! is_array( $pending ) ) {
+			return new \WP_Error( 'no_pending_email', __( 'No pending certificate email for this course.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		$pdf_data = base64_decode( $request->get_param( 'pdf_base64' ), true );
+		if ( ! $pdf_data ) {
+			return new \WP_Error( 'invalid_pdf', __( 'Invalid PDF data.', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+
+		if ( 0 !== strncmp( $pdf_data, '%PDF-', 5 ) ) {
+			return new \WP_Error( 'invalid_pdf', __( 'Uploaded file is not a valid PDF.', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+		if ( strlen( $pdf_data ) > 20 * MB_IN_BYTES ) {
+			return new \WP_Error( 'pdf_too_large', __( 'The certificate PDF exceeds the maximum allowed size.', 'learning-management-system' ), array( 'status' => 400 ) );
+		}
+
+		$upload_dir = wp_upload_dir();
+		$cert_dir   = trailingslashit( $upload_dir['basedir'] ) . 'masteriyo/temp-certs/';
+		wp_mkdir_p( $cert_dir );
+
+		$pdf_path = $cert_dir . 'cert-' . $course_id . '-' . $user_id . '-' . time() . '-' . wp_generate_password( 8, false ) . '.pdf';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false === file_put_contents( $pdf_path, $pdf_data ) ) {
+			return new \WP_Error( 'save_failed', __( 'Could not save PDF file.', 'learning-management-system' ), array( 'status' => 500 ) );
+		}
+
+		// Update transient with the PDF path so trigger() can find it.
+		set_transient( $transient_key, array_merge( $pending, array( 'pdf_path' => $pdf_path ) ), 10 * MINUTE_IN_SECONDS );
+
+		// Cancel the fallback cron — the PDF is ready.
+		$scheduled = wp_next_scheduled( 'masteriyo_pdfdraft_cert_email_fallback', array( $course_id, $user_id ) );
+		if ( $scheduled ) {
+			wp_unschedule_event( $scheduled, 'masteriyo_pdfdraft_cert_email_fallback', array( $course_id, $user_id ) );
+		}
+
+		// Re-trigger the completion email — trigger() will find the PDF path in the transient.
+		$course_progress = masteriyo_get_course_progress_by_user_and_course( $user_id, $course_id );
+		if ( ! $course_progress ) {
+			delete_transient( $transient_key );
+			@unlink( $pdf_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return new \WP_Error( 'no_progress', __( 'Course progress not found.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		$email = new \Masteriyo\Emails\Student\CourseCompletionEmailToStudent();
+		if ( $email->is_enabled() ) {
+			$email->trigger( $course_progress );
+		}
+
+		// Safety: clean up temp file if trigger() did not delete it.
+		if ( file_exists( $pdf_path ) ) {
+			@unlink( $pdf_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Fallback cron: send the completion email without a PDF attachment if the browser
+	 * never uploaded the PDF within the deferred window.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   Student user ID.
+	 */
+	public function handle_pdfdraft_cert_email_fallback( $course_id, $user_id ) {
+		$transient_key = 'masteriyo_pdfdraft_cert_email_' . $course_id . '_' . $user_id;
+
+		if ( ! get_transient( $transient_key ) ) {
+			return; // Email already sent by the browser-upload path.
+		}
+
+		delete_transient( $transient_key );
+
+		$course_progress = masteriyo_get_course_progress_by_user_and_course( $user_id, $course_id );
+		if ( ! $course_progress ) {
+			return;
+		}
+
+		$email = new \Masteriyo\Emails\Student\CourseCompletionEmailToStudent();
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		// Send without deferring again — bypasses the defer logic.
+		add_filter( 'masteriyo_defer_pdfdraft_cert_email', '__return_false' );
+		$email->trigger( $course_progress );
+		remove_filter( 'masteriyo_defer_pdfdraft_cert_email', '__return_false' );
 	}
 
 	/**
@@ -781,10 +1182,31 @@ class CertificateAddon {
 	 * @return array
 	 */
 	public function add_submenus( $submenus ) {
+		if ( $this->has_gutenberg_certificates() ) {
+			return masteriyo_parse_args(
+				$submenus,
+				array(
+					'certificates'    => array(
+						'page_title' => esc_html__( 'Certificates', 'learning-management-system' ),
+						'menu_title' => esc_html__( 'Certificates', 'learning-management-system' ),
+						'position'   => 40,
+						'capability' => 'edit_certificates',
+					),
+					'certificates-v2' => array(
+						'page_title' => esc_html__( 'Certificate V2', 'learning-management-system' ),
+						'menu_title' => '↳ ' . esc_html__( 'Certificate V2', 'learning-management-system' ),
+						'position'   => 41,
+						'capability' => 'edit_certificates',
+						'hide'       => true,
+					),
+				)
+			);
+		}
+
 		return masteriyo_parse_args(
 			$submenus,
 			array(
-				'certificates' => array(
+				'certificates-v2' => array(
 					'page_title' => esc_html__( 'Certificates', 'learning-management-system' ),
 					'menu_title' => esc_html__( 'Certificates', 'learning-management-system' ),
 					'position'   => 40,
@@ -792,5 +1214,55 @@ class CertificateAddon {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Invalidate the cached Gutenberg-certificate flag.
+	 *
+	 * @since x.x.x
+	 */
+	public function clear_gutenberg_certs_cache() {
+		delete_transient( 'masteriyo_has_gutenberg_certs' );
+	}
+
+	/**
+	 * Check whether any certificate uses the old Gutenberg format.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return bool
+	 */
+	private function has_gutenberg_certificates() {
+		$cached = get_transient( 'masteriyo_has_gutenberg_certs' );
+
+		if ( false !== $cached ) {
+			return (bool) $cached;
+		}
+
+		$posts = get_posts(
+			array(
+				'post_type'      => 'mto-certificate',
+				'post_status'    => array( 'publish', 'draft' ),
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'relation' => 'OR',
+					array(
+						'key'     => '_masteriyo_content_format',
+						'value'   => 'gutenberg',
+						'compare' => '=',
+					),
+					array(
+						'key'     => '_masteriyo_content_format',
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		$result = ! empty( $posts );
+		set_transient( 'masteriyo_has_gutenberg_certs', $result ? 1 : 0, HOUR_IN_SECONDS );
+
+		return $result;
 	}
 }

@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseReviewsWidget extends WidgetBase {
+class CourseReviewsWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -286,6 +286,7 @@ class CourseReviewsWidget extends WidgetBase {
 		$course = $this->get_course_to_render();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 
@@ -301,6 +302,8 @@ class CourseReviewsWidget extends WidgetBase {
 					'is_hidden'      => false,
 				)
 			);
+		} else {
+			$this->render_feature_disabled_notice( __( 'Reviews will display here when reviews are enabled for the course.', 'learning-management-system' ) );
 		}
 	}
 }

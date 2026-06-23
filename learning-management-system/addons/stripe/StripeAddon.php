@@ -156,6 +156,7 @@ class StripeAddon {
 			)
 		);
 		Setting::save();
+		delete_transient( 'masteriyo_stripe_account_cache' );
 		update_option( '_masteriyo_stripe_integration_method', 'connect' );
 		$url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
 		echo '<script>window.location.href = "' . esc_url_raw( html_entity_decode( $url, ENT_QUOTES, 'UTF-8' ) ) . '";</script>';
@@ -261,6 +262,7 @@ class StripeAddon {
 			)
 		);
 		Setting::save();
+		delete_transient( 'masteriyo_stripe_account_cache' );
 	}
 
 	/**
@@ -336,6 +338,8 @@ class StripeAddon {
 		if ( isset( $request['payments']['stripe']['webhook_secret'] ) ) {
 			Setting::set( 'webhook_secret', sanitize_textarea_field( $request['payments']['stripe']['webhook_secret'] ) );
 		}
+
+		delete_transient( 'masteriyo_stripe_account_cache' );
 	}
 
 	/**
@@ -350,15 +354,23 @@ class StripeAddon {
 	 */
 	public function append_setting_in_response( $data, $object, $request, $controller ) {
 		$stripe_account = null;
+		$cache_key      = 'masteriyo_stripe_account_cache';
+		$cached         = get_transient( $cache_key );
 
-		if ( Helper::use_platform() ) {
+		if ( false !== $cached ) {
+			$stripe_account = $cached ? $cached : null;
+		} elseif ( Helper::use_platform() ) {
 			$account_response = StripeClient::create()->get_account_details();
 			$stripe_account   = ( ! is_wp_error( $account_response ) ) ? ( $account_response['data'] ?? null ) : null;
+			set_transient( $cache_key, $stripe_account ? $stripe_account : '', HOUR_IN_SECONDS );
 		} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 			if ( ! empty( Setting::get_stripe_user_id() ) && ! empty( Setting::get_secret_key() ) ) {
 				try {
 					$stripe_account = Account::retrieve( null, Setting::get_secret_key() );
-				} catch ( \Exception $e ) {} // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace, Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					set_transient( $cache_key, $stripe_account ? $stripe_account : '', HOUR_IN_SECONDS );
+				} catch ( \Exception $e ) { // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace, Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					set_transient( $cache_key, '', MINUTE_IN_SECONDS * 5 );
+				}
 			}
 		}
 

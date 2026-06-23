@@ -12,7 +12,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.12
  */
-class CourseFeaturedImageWidget extends WidgetBase {
+class CourseFeaturedImageWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -286,6 +286,8 @@ class CourseFeaturedImageWidget extends WidgetBase {
 					'difficulty' => $course->get_difficulty(),
 				)
 			);
+		} else {
+			$this->render_no_course_notice();
 		}
 	}
 }

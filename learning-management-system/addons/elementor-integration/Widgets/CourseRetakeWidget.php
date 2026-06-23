@@ -11,7 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Addons\ElementorIntegration\WidgetBase;
+use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.11.0
  */
-class CourseRetakeWidget extends WidgetBase {
+class CourseRetakeWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
@@ -190,6 +190,7 @@ class CourseRetakeWidget extends WidgetBase {
 		$course = Helper::get_elementor_preview_course();
 
 		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 
@@ -208,14 +209,30 @@ class CourseRetakeWidget extends WidgetBase {
 	protected function render() {
 		$course = $this->get_course_to_render();
 
-		if ( ! $course || ! $course->get_enable_course_retake() ) {
+		if ( ! $course ) {
+			$this->render_no_course_notice();
 			return;
 		}
 
-		?>
-		<span class="masteriyo-time-btn masteriyo-retake-btn">
-			<?php	masteriyo_template_course_retake_button( $course ); ?>
-		</span>
-		<?php
+		if ( ! $course->get_enable_course_retake() ) {
+			$this->render_feature_disabled_notice( __( 'Course retake is disabled for this course.', 'learning-management-system' ) );
+			return;
+		}
+
+		$this->render_buffered_or_notice(
+			function () use ( $course ) {
+				ob_start();
+				masteriyo_template_course_retake_button( $course );
+				$button = ob_get_clean();
+
+				if ( '' === trim( $button ) ) {
+					return;
+				}
+				?>
+				<span class="masteriyo-time-btn masteriyo-retake-btn"><?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+				<?php
+			},
+			__( 'Course retake button will display here once the student has completed the course.', 'learning-management-system' )
+		);
 	}
 }

@@ -68,6 +68,23 @@ class AddToCartAjaxHandler extends AjaxHandler {
 				throw new \Exception( __( 'Product ID is not valid.', 'learning-management-system' ) );
 			}
 
+			if ( ! is_user_logged_in() ) {
+				$wc_guest_disabled       = 'yes' !== get_option( 'woocommerce_enable_guest_checkout' );
+				$masteriyo_guest_enabled = function_exists( 'masteriyo_is_guest_checkout_enabled' ) && masteriyo_is_guest_checkout_enabled();
+				$wc_signup_disabled      = $masteriyo_guest_enabled && 'yes' !== get_option( 'woocommerce_enable_signup_and_login_from_checkout' );
+
+				if ( $wc_guest_disabled || $wc_signup_disabled ) {
+					wp_send_json_error(
+						array(
+							'redirect' => masteriyo_get_account_url() . '/#/sign-in',
+							'message'  => __( 'Please log in to add this course to your cart.', 'learning-management-system' ),
+						),
+						401
+					);
+					return;
+				}
+			}
+
 			$is_already_added = false;
 
 			foreach ( \WC()->cart->get_cart() as $cart_item ) {

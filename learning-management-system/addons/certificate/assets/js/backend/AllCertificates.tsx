@@ -1,5 +1,10 @@
 import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
 	Box,
+	Button,
 	Checkbox,
 	Container,
 	Stack,
@@ -13,9 +18,8 @@ import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
-import IndividualSectionSettingsWrapper from '../../../../../assets/js/back-end/components/IndividualSectionSettingsWrapper';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../../../assets/js/back-end/components/common/EmptyInfo';
 import FilterTabs from '../../../../../assets/js/back-end/components/common/FilterTabs';
@@ -36,6 +40,7 @@ import {
 import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import Sorting from '../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../assets/js/back-end/utils/api';
+import localized from '../../../../../assets/js/back-end/utils/global';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
 import { CertificatesListSkeleton } from '../components/skeletons';
 import {
@@ -109,11 +114,6 @@ const AllCertificates: React.FC = () => {
 		certificateAddonUrls.certificatesSetting,
 	);
 
-	const certificatesSettingQuery = useQuery({
-		queryKey: ['certificatesSetting', { ...filterParams, status: 'all' }],
-		queryFn: () => certificatesSettingAPI.get(),
-	});
-
 	const updateCertificateSettingsMutation = useMutation({
 		mutationFn: (data: CertificateSettingsSchema) =>
 			certificatesSettingAPI.store(data),
@@ -153,11 +153,13 @@ const AllCertificates: React.FC = () => {
 		queryFn: () =>
 			getAllCertificates({
 				...filterParams,
+				content_format: 'gutenberg',
 				status:
 					filterParams.status === 'settings' ? 'any' : filterParams.status,
 			}),
 		...{
 			keepPreviousData: true,
+			enabled: active !== 'settings',
 		},
 	});
 
@@ -313,12 +315,14 @@ const AllCertificates: React.FC = () => {
 
 	useWarnUnsavedChanges(methods?.formState?.isDirty);
 
-	useEffect(() => {
-		if (certificatesSettingQuery?.data && certificatesSettingQuery?.isSuccess) {
-			methods.reset(methods.getValues());
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [certificatesSettingQuery?.data]);
+	if (localized.hasGutenbergCerts === false) {
+		return (
+			<Navigate
+				replace
+				to={certificateBackendRoutes.certificate.certificatesV2}
+			/>
+		);
+	}
 
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">
@@ -348,20 +352,46 @@ const AllCertificates: React.FC = () => {
 			</Header>
 
 			<Container maxW="container.xl">
+				<Alert
+					status="info"
+					variant="left-accent"
+					borderRadius="md"
+					mb={6}
+					alignItems="center"
+				>
+					<AlertIcon />
+					<Box flex="1">
+						<AlertTitle fontSize="sm">
+							Meet Certificate Builder V2 — Now with drag-and-drop design
+						</AlertTitle>
+						<AlertDescription display="block" fontSize="sm" color="gray.600">
+							The new V2 builder is faster, more flexible, and replaces the
+							classic builder. We recommend switching now — the classic version
+							will be deprecated in a future release.
+						</AlertDescription>
+					</Box>
+					<Button
+						size="sm"
+						colorScheme="primary"
+						ms={4}
+						flexShrink={0}
+						onClick={() =>
+							navigate(certificateBackendRoutes.certificate.certificatesV2)
+						}
+					>
+						Try Certificate Builder V2
+					</Button>
+				</Alert>
 				<Box bg="white" py={{ base: 6, md: 12 }} shadow="box" mx="auto">
 					{active === 'settings' ? (
 						<FormProvider {...methods}>
 							<form onSubmit={methods.handleSubmit(onSettingSubmit)}>
-								<IndividualSectionSettingsWrapper
-									isSaveActionPending={
+								<CertificateSetting
+									filterParams={filterParams}
+									updateCertificatesPending={
 										updateCertificateSettingsMutation.isPending
 									}
-									isLoading={certificatesSettingQuery.isLoading}
-								>
-									<CertificateSetting
-										certificateSetting={certificatesSettingQuery?.data}
-									/>
-								</IndividualSectionSettingsWrapper>
+								/>
 							</form>
 						</FormProvider>
 					) : (
