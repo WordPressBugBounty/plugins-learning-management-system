@@ -4,7 +4,7 @@ Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,9 +295,24 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
+= 2.3.1 - 02-07-2026 =
+- Enhancement - Improve Mollie subscription billing reliability. [PRO]
+- Fix - Google reCAPTCHA validation failing on account login.
+- Fix - Certificate not showing when viewed from the public profile page. [PRO]
+- Fix - TypeError when _elementor_data meta returns PHP array instead of JSON string.
+- Fix - TranslatePress translation editor only works on first lesson. [PRO]
+- Fix - Security hardening for user session handling.
+- Fix - Security hardening for course review field validation.
+- Fix - WooCommerce product edit link returning 404 error.
+- Fix - YouTube lesson fullscreen button not showing on iPhone.
+- Fix - Draft course items counted in course progress. [PRO]
+- Fix - Bricks builder Masteriyo templates not rendering properly on the frontend.
+- Fix - Analytics composite indexes migration query crash on shared hosting sites. [PRO]
+- Fix - Certificate download link not generated in course completion email.
+
 = 2.3.0 - 23-06-2026 =
 - Feature - Certificate Builder v2.
-- eature - H5P integration addon with H5P shortcode support [Free] and H5P quiz [PRO].
+- Feature - H5P integration addon with H5P shortcode support [Free] and H5P quiz [PRO].
 - Revamp - Analytics UI/UX.
 - Compatibility - PHP v8.5 compatible.
 - Enhancement - Added Simple, Modern, Overlay, and Custom layout support for course archive and single course page templates.
@@ -338,13 +353,5 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Fix - Enhanced security for the course announcement addon.
 - Fix - Fixed PDF viewer overlapping off-canvas menu and failing to load on the learn page. - [PRO]
 - Fix - Fixed blank block editor on pages assigned as the Masteriyo account page.
-
-= 2.2.1 - 20-05-2026 =
-- Compatibility - WordPress v7.0 compatible.
-- Update - Added filters for certificate course title and completion date smart tags.
-- Update - Upgraded Isolated block editor version to v2.30.0.
-- Fix - Enhance security for user course progress and user role.
-- Fix - Skip abilities layer below WordPress v6.9.
-- Fix - Allow admin with instructor role to list all course Q&A.
 
 You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).

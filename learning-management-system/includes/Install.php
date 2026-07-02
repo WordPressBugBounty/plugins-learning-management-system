@@ -32,6 +32,14 @@ class Install {
 	public static function install() {
 		$masteriyo_version = get_option( 'masteriyo_plugin_version' );
 
+		// Roles must be verified on every load; it's a cheap in-memory check.
+		self::maybe_create_roles();
+
+		// Skip expensive DB writes and rewrite flush when version hasn't changed.
+		if ( MASTERIYO_VERSION === $masteriyo_version ) {
+			return;
+		}
+
 		if ( empty( $masteriyo_version ) ) {
 			/**
 			 * Filters boolean value to enable/disable setup wizard. True for enable.
@@ -42,18 +50,17 @@ class Install {
 			 */
 			$enable_setup_wizard = apply_filters( 'masteriyo_free_enable_setup_wizard', true );
 
-			if ( empty( $masteriyo_version ) && $enable_setup_wizard ) {
+			if ( $enable_setup_wizard ) {
 				set_transient( '_masteriyo_activation_redirect', 1, 30 );
 			}
 		}
+
 		update_option( 'masteriyo_plugin_version', MASTERIYO_VERSION );
 
 		// Save the install date.
 		if ( false === get_option( 'masteriyo_install_date' ) ) {
 			update_option( 'masteriyo_install_date', current_time( 'mysql', true ) );
 		}
-
-		self::maybe_create_roles();
 
 		flush_rewrite_rules();
 	}

@@ -80,7 +80,7 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 				</svg>
 				<?php
 				/* translators: %s: Review author name */
-				printf( __( '<strong>Reply to %s</strong>', 'learning-management-system' ), $course_review->get_author_name() );
+				printf( wp_kses_post( __( '<strong>Reply to %s</strong>', 'learning-management-system' ) ), esc_html( $course_review->get_author_name() ) );
 				?>
 			</div>
 			<div class="masteriyo-single-body__main--review-form">

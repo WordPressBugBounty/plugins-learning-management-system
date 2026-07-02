@@ -34,6 +34,9 @@ class Activation {
 		self::attach_placeholder_image();
 		self::create_log_files();
 
+		// Flag a flush since post types aren't registered yet; masteriyo_maybe_flush_rewrite() runs it on the next 'init'.
+		update_option( 'masteriyo_flush_rewrite_rules', 'yes' );
+
 		/**
 		 * Fire after masteriyo is activated.
 		 *

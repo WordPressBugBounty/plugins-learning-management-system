@@ -307,6 +307,10 @@ class CourseCompletionEmailToStudent extends Email {
 
 		$certificate = $this->get( 'certificate_download_url' );
 
+		if ( empty( $certificate ) && $course && function_exists( 'masteriyo_generate_certificate_download_url' ) && masteriyo_get_course_certificate_id( $course->get_id() ) ) {
+			$certificate = masteriyo_generate_certificate_download_url( $course->get_id() );
+		}
+
 		if ( $student ) {
 			$placeholders = $placeholders + array(
 				'{student_display_name}'                => $student->get_display_name(),
@@ -330,11 +334,11 @@ class CourseCompletionEmailToStudent extends Email {
 				'{course_url}'  => $course->get_permalink(),
 			);
 		}
-		if ( $certificate ) {
-			$placeholders = $placeholders + array(
-				'{certificate_download_url}' => $certificate,
-			);
-		}
+		$placeholders = $placeholders + array(
+			'{certificate_download_url}' => $certificate ? wp_kses_post(
+				'<a href="' . esc_url( $certificate ) . '" style="text-decoration: none;">' . __( 'Download Certificate', 'learning-management-system' ) . '</a>'
+			) : '',
+		);
 
 		return $placeholders;
 	}

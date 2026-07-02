@@ -459,7 +459,8 @@ class CoursesToolbarWidget extends WidgetBase {
 			$post_id = get_queried_object_id();
 
 			if ( $post_id ) {
-				$data = json_decode( get_post_meta( $post_id, '_elementor_data', true ), true );
+				$raw  = get_post_meta( $post_id, '_elementor_data', true );
+				$data = is_array( $raw ) ? $raw : json_decode( $raw, true );
 			}
 		}
 

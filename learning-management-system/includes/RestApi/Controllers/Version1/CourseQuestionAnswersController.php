@@ -492,6 +492,27 @@ class CourseQuestionAnswersController extends CommentsController {
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
+				'user_name'       => array(
+					'description'       => __( 'Question answerer display name.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'sanitize_text_field',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
+				'user_email'      => array(
+					'description'       => __( 'Question answerer email address.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'sanitize_email',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
+				'user_url'        => array(
+					'description'       => __( 'Question answerer URL.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'esc_url_raw',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
 				'by_current_user' => array(
 					'description' => __( 'True if this course qa belongs to the current user.', 'learning-management-system' ),
 					'type'        => 'integer',

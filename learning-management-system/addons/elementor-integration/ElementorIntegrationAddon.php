@@ -928,7 +928,8 @@ class ElementorIntegrationAddon {
 			if ( $enable && 'elementor' === $source ) {
 				$template_id = (int) masteriyo_get_setting( 'course_archive.display.template.custom_template.template_id' );
 				if ( $template_id ) {
-					$data = json_decode( get_post_meta( $template_id, '_elementor_data', true ), true );
+					$raw  = get_post_meta( $template_id, '_elementor_data', true );
+					$data = is_array( $raw ) ? $raw : json_decode( $raw, true );
 					if ( is_array( $data ) ) {
 						return self::find_course_list_settings( $data );
 					}
@@ -948,7 +949,7 @@ class ElementorIntegrationAddon {
 			return null;
 		}
 
-		$data = json_decode( $elementor_data, true );
+		$data = is_array( $elementor_data ) ? $elementor_data : json_decode( $elementor_data, true );
 
 		if ( ! is_array( $data ) ) {
 			return null;

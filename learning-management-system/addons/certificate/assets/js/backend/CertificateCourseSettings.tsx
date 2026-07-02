@@ -5,6 +5,7 @@ import React from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelect from '../../../../../assets/js/back-end/components/common/AsyncSelect';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
+import { ProCheckboxForSettings } from '../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
 import { reactSelectStyles } from '../../../../../assets/js/back-end/config/styles';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../assets/js/back-end/types/course';
@@ -161,6 +162,13 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 								)}
 							/>
 						</FormControlTwoCol>
+
+						<ProCheckboxForSettings
+							label={__(
+								'Send Certificate via Email',
+								'learning-management-system',
+							)}
+						/>
 
 						<FormControlTwoCol>
 							<Stack direction="row">

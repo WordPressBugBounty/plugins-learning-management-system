@@ -36,6 +36,7 @@
 					window.location.replace(res.data.redirect);
 				} else {
 					$('#masteriyo-login-error-msg').show().html(res.data.message);
+					$(document.body).trigger('masteriyo_recaptcha_refresh');
 				}
 			},
 			error: function (xhr, status, error) {
@@ -43,6 +44,7 @@
 					? xhr.responseJSON.message
 					: error;
 				$('#masteriyo-login-error-msg').show().html(message);
+				$(document.body).trigger('masteriyo_recaptcha_refresh');
 			},
 			complete: function () {
 				$form.find('button[type=submit]').text(_MASTERIYO_.labels.sign_in);

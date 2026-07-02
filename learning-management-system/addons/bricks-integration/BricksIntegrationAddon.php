@@ -57,6 +57,39 @@ class BricksIntegrationAddon {
 		add_action( 'masteriyo_course_archive_page_custom_template_render', array( $this, 'render_course_archive_page_template' ), 10, 2 );
 		add_action( 'masteriyo_single_course_after_template_content_bricks', 'masteriyo_single_course_modals', 10 );
 		add_action( 'masteriyo_course_archive_after_template_content_bricks', 'masteriyo_single_course_modals', 10 );
+		add_filter( 'masteriyo_enqueue_public_styles', array( $this, 'enqueue_public_styles_on_bricks_preview' ) );
+	}
+
+	/**
+	 * Ensure Masteriyo public styles load while Bricks renders a template preview.
+	 *
+	 * The core detector (masteriyo_is_masteriyo_public_page) only recognises the
+	 * Bricks builder (?bricks=run), not the frontend preview (?bricks_preview=)
+	 * or a rendered Bricks template. Masteriyo Bricks elements are saved by name
+	 * (e.g. "courses"), so the content scan can't detect them either, leaving the
+	 * course cards unstyled in preview. This hooks the extensibility filter to
+	 * enqueue public.css in those Bricks preview contexts.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param bool $enqueue Whether to enqueue Masteriyo public styles.
+	 *
+	 * @return bool
+	 */
+	public function enqueue_public_styles_on_bricks_preview( $enqueue ) {
+		if ( $enqueue ) {
+			return $enqueue;
+		}
+
+		if ( isset( $_GET['bricks_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		if ( class_exists( '\Bricks\Helpers' ) && \Bricks\Helpers::is_bricks_preview() ) {
+			return true;
+		}
+
+		return $enqueue;
 	}
 
 		/**

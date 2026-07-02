@@ -199,6 +199,7 @@
   flex: unset;
   max-width: 100%;
   width: 100%;
+  min-width: 0;
 }
 @media screen and (max-width: 992px) {
   .masteriyo .columns-4:not(.list-view) .masteriyo-col,

@@ -757,6 +757,27 @@ class LessonReviewsController extends CourseReviewsController {
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
+				'author_name'  => array(
+					'description'       => __( 'Lesson reviewer display name.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'sanitize_text_field',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
+				'author_email' => array(
+					'description'       => __( 'Lesson reviewer email address.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'sanitize_email',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
+				'author_url'   => array(
+					'description'       => __( 'Lesson reviewer URL.', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'esc_url_raw',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
 				'meta_data'    => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
@@ -871,11 +892,9 @@ class LessonReviewsController extends CourseReviewsController {
 				$status = CommentStatus::HOLD_STR;
 				$lesson_review->set_is_new( true );
 			}
-		} else {
+		} elseif ( isset( $request['status'] ) ) {
 			// Lesson Review Approved.
-			if ( isset( $request['status'] ) ) {
-				$status = sanitize_text_field( $request['status'] );
-			}
+			$status = sanitize_text_field( $request['status'] );
 		}
 
 		$lesson_review->set_status( $status );
@@ -1312,4 +1331,3 @@ class LessonReviewsController extends CourseReviewsController {
 		);
 	}
 }
-

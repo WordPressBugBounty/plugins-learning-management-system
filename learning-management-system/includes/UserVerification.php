@@ -87,10 +87,20 @@ class UserVerification {
 	 *
 	 * @since 1.9.3
 	 *
-	 * @param WP_User|mixed $user The user object or original input.
-	 *
+	 * @param \WP_User|mixed $user     The user object or original input.
+	 * @param string         $password The password used for authentication.
+	 * @return \WP_User|\WP_Error
 	 */
-	public static function masteriyo_custom_session_limit_check_filter( $user ) {
+	public static function masteriyo_custom_session_limit_check_filter( $user, $password ) {
+		if ( ! $user instanceof \WP_User ) {
+			return $user;
+		}
+
+		// Avoid limit check if password authentication fails to prevent unauthenticated enumeration.
+		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+			return $user;
+		}
+
 		$session = masteriyo_check_user_session( $user );
 		if ( is_wp_error( $session ) ) {
 			return $session;

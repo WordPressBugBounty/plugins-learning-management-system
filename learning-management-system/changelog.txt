@@ -1,7 +1,22 @@
 == Changelog ==
+= 2.3.1 - 02-07-2026 =
+- Enhancement - Improve Mollie subscription billing reliability. [PRO]
+- Fix - Google reCAPTCHA validation failing on account login.
+- Fix - Certificate not showing when viewed from the public profile page. [PRO]
+- Fix - TypeError when _elementor_data meta returns PHP array instead of JSON string.
+- Fix - TranslatePress translation editor only works on first lesson. [PRO]
+- Fix - Security hardening for user session handling.
+- Fix - Security hardening for course review field validation.
+- Fix - WooCommerce product edit link returning 404 error.
+- Fix - YouTube lesson fullscreen button not showing on iPhone.
+- Fix - Draft course items counted in course progress. [PRO]
+- Fix - Bricks builder Masteriyo templates not rendering properly on the frontend.
+- Fix - Analytics composite indexes migration query crash on shared hosting sites. [PRO]
+- Fix - Certificate download link not generated in course completion email.
+
 = 2.3.0 - 23-06-2026 =
 - Feature - Certificate Builder v2.
-- eature - H5P integration addon with H5P shortcode support [Free] and H5P quiz [PRO].
+- Feature - H5P integration addon with H5P shortcode support [Free] and H5P quiz [PRO].
 - Revamp - Analytics UI/UX.
 - Compatibility - PHP v8.5 compatible.
 - Enhancement - Added Simple, Modern, Overlay, and Custom layout support for course archive and single course page templates.

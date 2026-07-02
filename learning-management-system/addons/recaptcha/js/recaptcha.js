@@ -23,26 +23,47 @@
 		}
 	};
 
-	// Usage
-	grecaptcha.ready(function () {
-		if ('v3' === _MASTERIYO_RECAPTCHA_.version) {
-			grecaptcha
-				.execute(_MASTERIYO_RECAPTCHA_.siteKey, { action: 'submit' })
-				.then(function (token) {
-					// Add your logic to submit to your backend server here.
-					console.log(token);
+	// v2 widget id, kept so the widget can be reset after a failed submission.
+	let widgetId = null;
+
+	// Fetch a fresh single-use v3 token and (re)write it to the hidden field.
+	function refreshV3Token() {
+		grecaptcha
+			.execute(_MASTERIYO_RECAPTCHA_.siteKey, { action: 'submit' })
+			.then(function (token) {
+				const $input = $('input[name="g-recaptcha-response"]');
+
+				if ($input.length) {
+					$input.val(token);
+				} else {
 					$('#masteriyo-recaptcha').after(
 						'<input type="hidden" name="g-recaptcha-response" value="' +
 							token +
 							'">'
 					);
-				});
+				}
+			});
+	}
+
+	// Usage
+	grecaptcha.ready(function () {
+		if ('v3' === _MASTERIYO_RECAPTCHA_.version) {
+			refreshV3Token();
 		} else {
-			grecaptcha.render('masteriyo-recaptcha', {
+			widgetId = grecaptcha.render('masteriyo-recaptcha', {
 				sitekey: _MASTERIYO_RECAPTCHA_.siteKey,
 				theme: _MASTERIYO_RECAPTCHA_.theme,
 				size: _MASTERIYO_RECAPTCHA_.size,
 			});
+		}
+	});
+
+	// Discard the spent single-use token on failure so a retry isn't rejected.
+	$(document.body).on('masteriyo_recaptcha_refresh', function () {
+		if ('v3' === _MASTERIYO_RECAPTCHA_.version) {
+			refreshV3Token();
+		} else if (null !== widgetId && 'function' === typeof grecaptcha.reset) {
+			grecaptcha.reset(widgetId);
 		}
 	});
 })(jQuery);

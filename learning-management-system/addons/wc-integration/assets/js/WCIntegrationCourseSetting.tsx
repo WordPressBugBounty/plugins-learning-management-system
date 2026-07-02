@@ -5,6 +5,7 @@ import {
 	Checkbox,
 	Flex,
 	FormLabel,
+	Icon,
 	Link,
 	Modal,
 	ModalBody,
@@ -21,6 +22,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
+import { BiLinkExternal } from 'react-icons/bi';
 import AsyncSelect from '../../../../assets/js/back-end/components/common/AsyncSelect';
 import FormControlTwoCol from '../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
@@ -184,6 +186,7 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 	const linkedProductId = WCIntegrationData?.linked_product_id;
 	const linkedProductName = WCIntegrationData?.linked_product_name;
 	const linkedProductPrice = WCIntegrationData?.linked_product_price;
+	const linkedProductEditUrl = WCIntegrationData?.linked_product_edit_url || '';
 
 	const showLinkSection = !isFree && !hasExistingProduct && !linkedProductId;
 
@@ -289,18 +292,20 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 								gap={1}
 							>
 								{linkedProductName}
-								<Link
-									href={`${wcIntegrationData?.adminUrl}post.php?post=${linkedProductId}&action=edit`}
-									isExternal
-									color="primary.500"
-									fontSize="xs"
-									aria-label={__(
-										'Edit in WooCommerce',
-										'learning-management-system',
-									)}
-								>
-									↗
-								</Link>
+								{linkedProductEditUrl && (
+									<Link
+										href={linkedProductEditUrl}
+										isExternal
+										color="primary.500"
+										fontSize="xs"
+										aria-label={__(
+											'Edit in WooCommerce',
+											'learning-management-system',
+										)}
+									>
+										<Icon as={BiLinkExternal} ml="1" fontSize="xs" />
+									</Link>
+								)}
 							</Text>
 							{linkedProductPrice && (
 								<Text fontSize="xs" color="gray.500">

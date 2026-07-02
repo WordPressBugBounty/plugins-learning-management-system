@@ -878,7 +878,13 @@ class ScriptStyle {
 			return $has_widget;
 		}
 
-		$has_widget = false !== strpos( $elementor_data, 'masteriyo-course-list' );
+		$data = is_array( $elementor_data ) ? $elementor_data : json_decode( $elementor_data, true );
+
+		if ( ! is_array( $data ) ) {
+			return $has_widget;
+		}
+
+		$has_widget = self::elementor_elements_contain_widget( $data, 'masteriyo-course-list' );
 
 		return $has_widget;
 	}
@@ -1933,5 +1939,26 @@ class ScriptStyle {
 				)
 			)
 		);
+	}
+
+	/**
+	 * Recursively check whether any element in Elementor data uses the given widget type.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array  $elements    Decoded Elementor elements array.
+	 * @param string $widget_type Widget type slug to search for.
+	 * @return bool
+	 */
+	private static function elementor_elements_contain_widget( array $elements, string $widget_type ): bool {
+		foreach ( $elements as $element ) {
+			if ( isset( $element['widgetType'] ) && $widget_type === $element['widgetType'] ) {
+				return true;
+			}
+			if ( ! empty( $element['elements'] ) && self::elementor_elements_contain_widget( $element['elements'], $widget_type ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

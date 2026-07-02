@@ -1286,11 +1286,12 @@ class WcIntegrationAddon {
 		}
 
 		$data['wc_integration'] = array(
-			'course_id'            => $course->get_id(),
-			'product_create'       => $product_exists,
-			'linked_product_id'    => $linked_product_id,
-			'linked_product_name'  => $linked_product_name,
-			'linked_product_price' => $linked_product_price,
+			'course_id'               => $course->get_id(),
+			'product_create'          => $product_exists,
+			'linked_product_id'       => $linked_product_id,
+			'linked_product_name'     => $linked_product_name,
+			'linked_product_price'    => $linked_product_price,
+			'linked_product_edit_url' => $linked_product_id ? admin_url( 'post.php?post=' . $linked_product_id . '&action=edit' ) : '',
 		);
 
 		return $data;
