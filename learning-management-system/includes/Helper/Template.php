@@ -1320,23 +1320,29 @@ if ( ! function_exists( 'masteriyo_single_course_curriculum' ) ) {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Masteriyo\Models\Course $course Course object.
+	 * @param \Masteriyo\Models\Course $course    Course object.
+	 * @param bool|null                $is_hidden Optional. Force the curriculum visible/hidden regardless of
+	 *                                            enrollment/progress. Used by standalone renderers (Elementor,
+	 *                                            Bricks, blocks) that have no tab navigation to toggle it.
+	 *                                            Null (default) keeps the enrollment-based tab behavior. @since x.x.x
 	 */
-	function masteriyo_single_course_curriculum( $course ) {
+	function masteriyo_single_course_curriculum( $course, $is_hidden = null ) {
 
 		$show_curriculum = masteriyo_should_show_curriculum( $course );
 		if ( $show_curriculum ) {
 			if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
 				$sections = masteriyo_get_course_structure( $course->get_id() );
 
-				masteriyo_get_template(
-					'single-course/curriculum.php',
-					array(
-						'course'    => $course,
-						'sections'  => $sections,
-						'is_hidden' => false,
-					)
+				$args = array(
+					'course'   => $course,
+					'sections' => $sections,
 				);
+
+				if ( null !== $is_hidden ) {
+					$args['is_hidden'] = $is_hidden;
+				}
+
+				masteriyo_get_template( 'single-course/curriculum.php', $args );
 			}
 		}
 	}

@@ -197,7 +197,7 @@ class Masteriyo {
 		// Check for first time course start.
 		add_action( 'masteriyo_after_learn_page_process', array( $this, 'check_for_first_time_course_start' ), 999, 1 );
 
-		add_action( 'customize_changeset_save_data', array( $this, 'sync_theme_global_colors' ) );
+		add_filter( 'customize_changeset_save_data', array( $this, 'sync_theme_global_colors' ) );
 	}
 
 	/**
@@ -1423,7 +1423,7 @@ class Masteriyo {
 	}
 
 	/**
-	 * Sync global colors from the active theme to Masteriyo settings.
+	 * Synchronizes the theme's global colors with Masteriyo.
 	 *
 	 * Dispatches to a theme-specific color extractor based on the active theme
 	 * slug, then applies the resolved primary/secondary colors to Masteriyo.
@@ -1432,13 +1432,13 @@ class Masteriyo {
 	 *
 	 * @param array $data The customizer changeset save data.
 	 *
-	 * @return void
+	 * @return array The customizer changeset save data.
 	 */
 	public function sync_theme_global_colors( $data ) {
 		$theme = wp_get_theme();
 
 		if ( ! $theme ) {
-			return;
+			return $data;
 		}
 
 		$slug = $theme->get_template();
@@ -1452,7 +1452,7 @@ class Masteriyo {
 		}
 
 		if ( empty( $colors['primary'] ) && empty( $colors['secondary'] ) ) {
-			return;
+			return $data;
 		}
 
 		if ( ! empty( $colors['primary'] ) ) {
@@ -1464,6 +1464,8 @@ class Masteriyo {
 		if ( ! empty( $colors['secondary'] ) ) {
 			masteriyo_set_setting( 'general.styling.button_hover_color', $colors['secondary'] );
 		}
+
+		return $data;
 	}
 
 	/**

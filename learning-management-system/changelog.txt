@@ -1,4 +1,17 @@
 == Changelog ==
+= 2.3.2 - 17-07-206 =
+- Fix - Enhanced security for Webhooks.
+- Fix - Customizer settings and Additional CSS not persisting when Masteriyo is active.
+- Fix - Auto order completion not working for iDEAL payments via Stripe.
+- Fix - Course Curriculum widget rendering blank on Single Course Elementor template.
+- Fix - Critical error on content drip x-days for assignments. [PRO]
+- Fix - Guest requests marking free course progress as completed in the database.
+- Fix - Font color changes not reflected on Masteriyo course and single course pages in Bricks builder.
+- Fix - Style controls having no effect on several Masteriyo elements in Bricks builder.
+- Fix - Retake Course button not working on Bricks/Elementor pages.
+- Fix - Gradebook results inaccessible to administrators due to permission revoke. [PRO]
+- Fix - Gradebook data wiped for all students on course unenrollment or progress reset. [PRO]
+
 = 2.3.1 - 02-07-2026 =
 - Enhancement - Improve Mollie subscription billing reliability. [PRO]
 - Fix - Google reCAPTCHA validation failing on account login.

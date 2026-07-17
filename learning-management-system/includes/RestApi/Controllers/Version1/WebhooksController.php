@@ -230,6 +230,55 @@ class WebhooksController extends PostsController {
 	}
 
 	/**
+	 * Checks if a given request has access to get a specific webhook.
+	 *
+	 * The `read` capability used by the base permissions check is WordPress's generic
+	 * primitive capability (held by every logged-in user, including Subscribers) and is
+	 * never mapped against post ownership, so it must not be relied on here. Only admins,
+	 * managers, and the webhook's own author may read a webhook, since the response
+	 * includes the HMAC signing secret and delivery URL.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return boolean|WP_Error True if the request has read access for the item, WP_Error object otherwise.
+	 */
+	public function get_item_permissions_check( $request ) {
+		if ( is_null( $this->permission ) ) {
+			return new \WP_Error(
+				'masteriyo_null_permission',
+				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+			);
+		}
+
+		$post = get_post( (int) $request['id'] );
+
+		if ( ! $post || $this->post_type !== $post->post_type ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->post_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		if ( get_current_user_id() === (int) $post->post_author ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'masteriyo_rest_cannot_read',
+			__( 'Sorry, you are not allowed to read this resource.', 'learning-management-system' ),
+			array(
+				'status' => rest_authorization_required_code(),
+			)
+		);
+	}
+
+	/**
 	 * Get webhook description data
 	 *
 	 * @since 1.7.3

@@ -587,7 +587,8 @@ class CourseProgressController extends CrudController {
 			}
 
 			// Persist completion so the PHP template reflects the correct button state.
-			if ( CourseProgressStatus::COMPLETED !== $course_progress->get_status( 'edit' ) ) {
+			// Guests (user_id 0) must never be persisted - their progress is session-only.
+			if ( CourseProgressStatus::COMPLETED !== $course_progress->get_status( 'edit' ) && is_user_logged_in() ) {
 				$course_progress->set_status( CourseProgressStatus::COMPLETED );
 				$course_progress->save();
 			}

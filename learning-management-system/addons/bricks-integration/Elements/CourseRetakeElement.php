@@ -61,7 +61,7 @@ class CourseRetakeElement extends \Bricks\Element {
 			'css'    => array(
 				array(
 					'property' => 'fill',
-					'selector' => '{{WRAPPER}} .masteriyo-time-btn .masteriyo-retake-btn > span svg',
+					'selector' => 'a.masteriyo-retake-btn svg',
 				),
 			),
 		);
@@ -80,16 +80,16 @@ class CourseRetakeElement extends \Bricks\Element {
 			'css'    => array(
 				array(
 					'property' => 'width',
-					'selector' => '{{WRAPPER}} .masteriyo-time-btn .masteriyo-retake-btn > span svg',
+					'selector' => 'a.masteriyo-retake-btn svg',
 				),
 				array(
 					'property'  => 'height',
-					'selector'  => '{{WRAPPER}} .masteriyo-time-btn .masteriyo-retake-btn > span svg',
+					'selector'  => 'a.masteriyo-retake-btn svg',
 					'important' => true,
 				),
 				array(
 					'property'  => 'height',
-					'selector'  => '{{WRAPPER}} .masteriyo-time-btn masteriyo-retake-btn',
+					'selector'  => 'a.masteriyo-retake-btn',
 					'important' => true,
 				),
 
@@ -105,7 +105,7 @@ class CourseRetakeElement extends \Bricks\Element {
 			'css'   => array(
 				array(
 					'property' => 'margin',
-					'selector' => '{{WRAPPER}} .masteriyo-time-btn masteriyo-retake-btn',
+					'selector' => 'a.masteriyo-retake-btn',
 				),
 			),
 		);
@@ -131,7 +131,7 @@ class CourseRetakeElement extends \Bricks\Element {
 
 			if ( $course->get_enable_course_retake() ) {
 				?>
-				<span class="masteriyo-time-btn masteriyo-retake-btn">
+				<span class="masteriyo-time-btn">
 					<?php	masteriyo_template_course_retake_button( $course ); ?>
 				</span>
 				<?php

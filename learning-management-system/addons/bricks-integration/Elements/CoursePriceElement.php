@@ -57,7 +57,7 @@ class CoursePriceElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-course-price .current-amount ',
+						'selector' => '.masteriyo-course-price .current-amount ',
 					),
 				),
 				// 'exclude' => array(

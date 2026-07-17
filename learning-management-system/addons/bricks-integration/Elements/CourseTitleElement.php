@@ -57,10 +57,10 @@ class CourseTitleElement extends \Bricks\Element {
 				'tab'       => 'content',
 				'group'     => 'course_title',
 				'label'     => esc_html__( 'Show Title', 'learning-management-system' ),
-				'default'   => 'block',
+				'default'   => 'flex',
 				'options'   => array(
-					'inherit' => esc_html__( 'Visible', 'learning-management-system' ),
-					'none'    => esc_html__( 'Invisible', 'learning-management-system' ),
+					'flex' => esc_html__( 'Visible', 'learning-management-system' ),
+					'none' => esc_html__( 'Invisible', 'learning-management-system' ),
 				),
 				'type'      => 'select',
 				'clearable' => false,
@@ -135,7 +135,7 @@ class CourseTitleElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-single-course--title',
+						'selector' => '.masteriyo-single-course--title',
 					),
 				),
 				'exclude' => array(

@@ -130,7 +130,7 @@ class CourseButtonElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-btn',
+						'selector' => '.masteriyo-btn',
 					),
 				),
 				'exclude' => array(

@@ -134,7 +134,7 @@ class CourseContentElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-single-course--main__content',
+						'selector' => '.masteriyo-single-course--main__content',
 					),
 				),
 				'exclude' => array(

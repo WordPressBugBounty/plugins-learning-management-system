@@ -20,6 +20,15 @@ if ( ! ( function_exists( 'add_filter' ) && function_exists( 'add_action' ) ) ) 
 }
 
 add_action( 'masteriyo_template_enroll_button', 'masteriyo_template_enroll_button' );
+
+/**
+ * Pair the retake confirmation modal with every render of the retake button,
+ * regardless of which template, block, or page builder widget/element placed it.
+ *
+ * @since x.x.x
+ */
+add_action( 'masteriyo_after_retake_button', 'masteriyo_single_course_retake_button_modal' );
+
 add_filter( 'admin_body_class', 'masteriyo_add_admin_body_class' );
 add_filter( 'body_class', 'masteriyo_add_body_class', 10, 2 );
 add_filter( 'body_class', 'masteriyo_add_current_theme_slug_to_body_tag', 10, 2 );
@@ -106,7 +115,6 @@ add_action( 'masteriyo_single_course_sidebar_content_after_progress', 'masteriyo
 add_action( 'masteriyo_single_course_curriculum_summary', 'masteriyo_template_single_course_curriculum_summary' );
 add_action( 'masteriyo_single_course_curriculum_section_summary', 'masteriyo_template_single_course_curriculum_section_summary', 10, 2 );
 add_action( 'masteriyo_single_course_curriculum_section_content', 'masteriyo_template_single_course_curriculum_section_content', 10, 2 );
-add_action( 'masteriyo_single_course_sidebar_content_after_progress', 'masteriyo_single_course_retake_button_modal' );
 add_action( 'masteriyo_single_course_sidebar_content_after_progress', 'masteriyo_template_course_retake_button', 15 );
 add_action( 'masteriyo_course_progress', 'masteriyo_archive_course_progress' );
 add_action( 'masteriyo_course_category', 'masteriyo_single_course_categories' );
@@ -140,7 +148,6 @@ add_action( 'masteriyo_layout_1_single_course_aside_items', 'masteriyo_layout_1_
 add_action( 'masteriyo_course_author', 'masteriyo_single_course_author_and_rating', 30, 1 );
 add_action( 'masteriyo_course_layout_1_meta_data', 'masteriyo_single_course_layout_1_stats' );
 add_action( 'masteriyo_layout_1_single_course_main_content_tabbar', 'masteriyo_single_course_tab_handles' );
-add_action( 'masteriyo_template_course_inside_progress', 'masteriyo_single_course_retake_button_modal' );
 add_action( 'masteriyo_template_course_inside_progress', 'masteriyo_template_course_retake_button', 15 );
 
 /**
@@ -162,7 +169,6 @@ add_action( 'masteriyo_single_course_minimal_sidebar_content', 'masteriyo_single
 add_action( 'masteriyo_single_course_minimal_sidebar_content', 'masteriyo_single_course_progress_bar', 15 );
 add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', 'masteriyo_single_course_progress_bar', 10 );
 add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', 'masteriyo_single_course_price_and_enroll_button', 15 );
-add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', 'masteriyo_single_course_retake_button_modal' );
 add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', 'masteriyo_template_course_retake_button', 11 );
 
 /**

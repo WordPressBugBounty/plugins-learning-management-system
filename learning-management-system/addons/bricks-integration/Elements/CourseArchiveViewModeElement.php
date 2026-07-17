@@ -120,7 +120,7 @@ class CourseArchiveViewModeElement extends \Bricks\Element {
 					array(
 						'property'  => 'fill',
 						'important' => true,
-						'selector'  => '{{WRAPPER}} .masteriyo-courses-view-mode-item.active .view-mode svg path',
+						'selector'  => '.masteriyo-courses-view-mode-item.active .view-mode svg path',
 					),
 				),
 			);
@@ -139,16 +139,16 @@ class CourseArchiveViewModeElement extends \Bricks\Element {
 				'css'    => array(
 					array(
 						'property' => 'width',
-						'selector' => '{{WRAPPER}} .masteriyo-courses-view-mode-item.active .view-mode svg',
+						'selector' => '.masteriyo-courses-view-mode-item.active .view-mode svg',
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-courses-view-mode-item.active .view-mode svg',
+						'selector'  => '.masteriyo-courses-view-mode-item.active .view-mode svg',
 						'important' => true,
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-rating',
+						'selector'  => '.masteriyo-courses-view-mode-item.active .view-mode',
 						'important' => true,
 					),
 
@@ -167,16 +167,8 @@ class CourseArchiveViewModeElement extends \Bricks\Element {
 	 * @since 1.11.3
 	 */
 	public function render() {
-		// Get the current page URL.
-		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-
-		if ( $course ) {
-
-							echo "<div {$this->render_attributes( '_root' )} style='width:100%;'>";
-							masteriyo_courses_view_mode();
-							echo '</div>';
-		}
+		echo "<div {$this->render_attributes( '_root' )} style='width:100%;'>"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		masteriyo_courses_view_mode();
+		echo '</div>';
 	}
 }
-

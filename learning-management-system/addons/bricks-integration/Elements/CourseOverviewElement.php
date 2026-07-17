@@ -135,7 +135,7 @@ class CourseOverviewElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .course-overview',
+						'selector' => '.course-overview',
 					),
 				),
 				'exclude' => array(

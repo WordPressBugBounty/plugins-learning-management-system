@@ -63,26 +63,21 @@ class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 			'css'     => array(
 				array(
 					'property' => 'color',
-					'selector' => '{{WRAPPER}} .masteriyo-course-complete',
+					'selector' => '.masteriyo-course-complete',
 				),
 			),
 		);
 
-		// masteriyo-rating svg
 		$this->controls['classroom_button_background'] = array(
 			'tab'    => 'content',
 			'label'  => esc_html__( 'Button Background', 'learning-management-system' ),
-			'type'   => 'number',
-			'min'    => 0,
+			'type'   => 'color',
 			'group'  => 'course_google_classroom_code',
-			'step'   => '0.5', // Default: 1
 			'inline' => true,
-			'unit'   => 'px',
-			'max'    => 50,
 			'css'    => array(
 				array(
 					'property' => 'background-color',
-					'selector' => '{{WRAPPER}} .masteriyo-course-complete',
+					'selector' => '.masteriyo-course-complete',
 				),
 			),
 		);
@@ -111,4 +106,3 @@ class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 		}
 	}
 }
-

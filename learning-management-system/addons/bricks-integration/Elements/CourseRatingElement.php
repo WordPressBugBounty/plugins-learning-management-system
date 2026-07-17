@@ -66,7 +66,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'       => array(
 					array(
 						'property' => 'display',
-						'selector' => '.{{WRAPPER}} .masteriyo-rating svg',
+						'selector' => '.masteriyo-rating svg',
 					),
 				),
 			);
@@ -124,7 +124,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-rating',
+						'selector' => '.masteriyo-rating',
 					),
 				),
 				'exclude' => array(
@@ -146,7 +146,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'    => array(
 					array(
 						'property' => 'background-color',
-						'selector' => '{{WRAPPER}} .masteriyo-rating',
+						'selector' => '.masteriyo-rating',
 					),
 				),
 			);
@@ -161,7 +161,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'fill',
-						'selector' => '{{WRAPPER}} .masteriyo-rating svg',
+						'selector' => '.masteriyo-rating svg',
 					),
 				),
 			);
@@ -180,16 +180,16 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'    => array(
 					array(
 						'property' => 'width',
-						'selector' => '{{WRAPPER}} .masteriyo-rating svg',
+						'selector' => '.masteriyo-rating svg',
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-rating svg',
+						'selector'  => '.masteriyo-rating svg',
 						'important' => true,
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-rating',
+						'selector'  => '.masteriyo-rating',
 						'important' => true,
 					),
 
@@ -205,7 +205,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property'  => 'padding',
-						'selector'  => '{{WRAPPER}} .masteriyo-rating .text',
+						'selector'  => '.masteriyo-rating .text',
 						'important' => true,
 					),
 				),
@@ -220,7 +220,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property'  => 'margin',
-						'selector'  => '{{WRAPPER}} .masteriyo-rating',
+						'selector'  => '.masteriyo-rating',
 						'important' => true,
 					),
 				),
@@ -239,7 +239,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'       => array(
 					array(
 						'property'  => 'display',
-						'selector'  => '.{{WRAPPER}} .masteriyo-rating',
+						'selector'  => '.masteriyo-rating',
 						'important' => true,
 					),
 				),
@@ -259,7 +259,7 @@ class CourseRatingElement extends \Bricks\Element {
 				'css'       => array(
 					array(
 						'property'  => 'align-items',
-						'selector'  => '.{{WRAPPER}} .masteriyo-rating',
+						'selector'  => '.masteriyo-rating',
 						'important' => true,
 					),
 				),

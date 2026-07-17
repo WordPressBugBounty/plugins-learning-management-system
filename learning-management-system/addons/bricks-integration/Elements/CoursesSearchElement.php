@@ -135,7 +135,7 @@ class CoursesSearchElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-search',
+						'selector' => '.masteriyo-search',
 					),
 				),
 				'exclude' => array(
@@ -177,16 +177,8 @@ class CoursesSearchElement extends \Bricks\Element {
 	 * @since 1.11.3
 	 */
 	public function render() {
-		// Get the current page URL.
-		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-
-		if ( $course ) {
-
-							echo "<div {$this->render_attributes( '_root' )} style='width:100%;'>";
-							masteriyo_course_search_form();
-							echo '</div>';
-		}
+		echo "<div {$this->render_attributes( '_root' )} style='width:100%;'>"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		masteriyo_course_search_form();
+		echo '</div>';
 	}
 }
-

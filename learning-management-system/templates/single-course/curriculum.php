@@ -42,19 +42,25 @@ $progress_raw = $total > 0 ? ( $completed / $total ) * 100 : 0;
 $progress_pct = max( 0, min( 100, $progress_raw ) );
 
 
-$show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id() );
-$is_hidden            = $show_overview_active;
-if ( isset( $show_curriculum ) && $show_curriculum ) {
-	$is_hidden = false;
-}
-if (
-	! is_user_logged_in() ||
-	empty( $progress ) ||
-	$completed === 0 ||
-	$total === 0
-) {
-	$show_overview_active = true;
-	$is_hidden            = true;
+if ( isset( $is_hidden ) ) {
+	// Visibility explicitly forced by the caller (e.g. standalone Elementor/Bricks/block
+	// renderers that have no tab navigation to toggle the curriculum).
+	$is_hidden = (bool) $is_hidden;
+} else {
+	$show_overview_active = ! masteriyo_is_user_enrolled_in_course( $course->get_id() );
+	$is_hidden            = $show_overview_active;
+	if ( isset( $show_curriculum ) && $show_curriculum ) {
+		$is_hidden = false;
+	}
+	if (
+		! is_user_logged_in() ||
+		empty( $progress ) ||
+		$completed === 0 ||
+		$total === 0
+	) {
+		$show_overview_active = true;
+		$is_hidden            = true;
+	}
 }
 
 $course_values = $course->get_custom_fields();

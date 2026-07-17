@@ -236,7 +236,7 @@ class CertificatePDF {
 			'default_font'     => 'Arial, sans-serif',
 			'autoScriptToLang' => false,
 			'autoLangToFont'   => true,
-			'fontdata'         => $fontdata + masteriyo_get_font_configurations(),
+			'fontdata'         => $fontdata,
 		);
 
 		// Merge in page dimensions when provided (pdfdraft format).
@@ -471,7 +471,7 @@ class CertificatePDF {
 			$instructor_name = '';
 			if ( $instructor && ! is_wp_error( $instructor ) ) {
 				$instructor_full = trim( $instructor->get_first_name() . ' ' . $instructor->get_last_name() );
-				$instructor_name = $instructor_full ?: $instructor->get_display_name();
+				$instructor_name = $instructor_full ? $instructor_full : $instructor->get_display_name();
 			}
 
 			$verification_code = $course_id . '-' . masteriyo_get_course_certificate_id( $course_id ) . '-' . $student_id;

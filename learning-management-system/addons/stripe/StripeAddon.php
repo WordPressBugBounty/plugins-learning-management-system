@@ -983,7 +983,9 @@ class StripeAddon {
 			throw new Exception( esc_html__( 'Order not found.', 'learning-management-system' ), 404 );
 		}
 
-		if ( 'stripe' !== $order->get_payment_method() ) {
+		// 'ideal' is the Stripe iDEAL variant recorded on the order for display purposes (see Checkout::process_order_payment());
+		// the order is still processed by the 'stripe' gateway, so it must be accepted here too.
+		if ( ! in_array( $order->get_payment_method(), array( 'stripe', 'ideal' ), true ) ) {
 			masteriyo_get_logger()->error( 'Stripe webhook: order payment method is not Stripe.', array( 'source' => 'payment-stripe' ) );
 			throw new Exception( esc_html__( 'Invalid payment method for order.', 'learning-management-system' ), 400 );
 		}

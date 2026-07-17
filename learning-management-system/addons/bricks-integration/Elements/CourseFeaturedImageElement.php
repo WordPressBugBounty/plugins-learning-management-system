@@ -161,7 +161,7 @@ class CourseFeaturedImageElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .difficulty-badge .masteriyo-badge',
+						'selector' => '.difficulty-badge .masteriyo-badge',
 					),
 				),
 				'exclude' => array(
@@ -179,7 +179,7 @@ class CourseFeaturedImageElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property' => 'border',
-						'selector' => '{{WRAPPER}} .difficulty-badge .masteriyo-badge',
+						'selector' => '.difficulty-badge .masteriyo-badge',
 					),
 				),
 			);
@@ -194,7 +194,7 @@ class CourseFeaturedImageElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property' => 'border-radius',
-						'selector' => '{{WRAPPER}} .difficulty-badge .masteriyo-badge',
+						'selector' => '.difficulty-badge .masteriyo-badge',
 					),
 				),
 			);
@@ -210,7 +210,7 @@ class CourseFeaturedImageElement extends \Bricks\Element {
 				'css'       => array(
 					array(
 						'property'  => 'top',
-						'selector'  => '{{WRAPPER}} .masteriyo-course--img-wrap .difficulty-badge',
+						'selector'  => '.masteriyo-course--img-wrap .difficulty-badge',
 						'important' => true,
 					),
 				),
@@ -228,7 +228,7 @@ class CourseFeaturedImageElement extends \Bricks\Element {
 				'css'       => array(
 					array(
 						'property'  => 'left',
-						'selector'  => '{{WRAPPER}} .masteriyo-course--img-wrap .difficulty-badge',
+						'selector'  => '.masteriyo-course--img-wrap .difficulty-badge',
 						'important' => true,
 					),
 				),

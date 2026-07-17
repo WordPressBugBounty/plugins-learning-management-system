@@ -175,16 +175,16 @@ class CourseStatsElement extends \Bricks\Element {
 				'css'    => array(
 					array(
 						'property' => 'width',
-						'selector' => '{{WRAPPER}} .masteriyo-single-course-stats .masteriyo-icon-svg svg',
+						'selector' => '.masteriyo-single-course-stats .masteriyo-icon-svg svg',
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-single-course-stats .masteriyo-icon-svg svg',
+						'selector'  => '.masteriyo-single-course-stats .masteriyo-icon-svg svg',
 						'important' => true,
 					),
 					array(
 						'property'  => 'height',
-						'selector'  => '{{WRAPPER}} .masteriyo-single-course-stats .masteriyo-icon-svg',
+						'selector'  => '.masteriyo-single-course-stats .masteriyo-icon-svg',
 						'important' => true,
 					),
 				),
@@ -199,7 +199,7 @@ class CourseStatsElement extends \Bricks\Element {
 					'css'     => array(
 						array(
 							'property' => 'typography',
-							'selector' => '{{WRAPPER}} .masteriyo-single-course .masteriyo-single-course-stats span ',
+							'selector' => '.masteriyo-single-course .masteriyo-single-course-stats span ',
 						),
 					),
 					'exclude' => array(

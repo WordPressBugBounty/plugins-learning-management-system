@@ -39,6 +39,8 @@ class BricksIntegrationAddon {
 			array( $this, 'register_bricks_elements' ),
 			11
 		);
+		add_filter( 'bricks/builder/first_element_category', array( $this, 'set_masteriyo_as_first_element_category' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'restrict_panel_elements_by_template_type' ), 9 );
 		add_filter(
 			'bricks/builder/i18n',
 			function( $i18n ) {
@@ -216,5 +218,76 @@ class BricksIntegrationAddon {
 			\Bricks\Elements::register_element( $file );
 		}
 
+	}
+
+	/**
+	 * Show the Masteriyo category expanded at the top of the builder's elements panel.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string|false $category Category slug to show first, or false to use Bricks' own default.
+	 * @return string
+	 */
+	public function set_masteriyo_as_first_element_category( $category ) {
+		return 'masteriyo';
+	}
+
+	/**
+	 * Restrict the Masteriyo elements offered in the builder panel to the ones
+	 * relevant to the template type currently being edited: a Single Course
+	 * template only offers single-course elements, a Course Archive template
+	 * only offers listing/archive elements. Any other template or page is left
+	 * untouched so it can freely mix both.
+	 *
+	 * Runs before Bricks' own `enqueue_scripts` (priority 10) so the trimmed
+	 * registry is what gets sent to the panel. Elements already placed on a
+	 * page are loaded separately (on the earlier `wp` hook) and are unaffected.
+	 *
+	 * @since x.x.x
+	 */
+	public function restrict_panel_elements_by_template_type() {
+		if ( ! bricks_is_builder() || ! class_exists( '\Bricks\Elements' ) ) {
+			return;
+		}
+
+		$post_id       = get_queried_object_id();
+		$template_type = $post_id ? get_post_meta( $post_id, '_bricks_template_type', true ) : '';
+
+		$archive_element_names = array(
+			'course-categories',
+			'courses',
+			'single_search_courses',
+			'course_archive_view_mode',
+		);
+
+		$single_course_element_names = array(
+			'single_course_featured_image',
+			'single_course_title',
+			'masteriyo-course--content__category',
+			'single_course_button',
+			'single_course_highlights',
+			'single_course_ratings',
+			'single_course_contents',
+			'single_course_overview',
+			'single_course_curriculum',
+			'single_course_reviews',
+			'single_course_author',
+			'single_course_stats',
+			'single_course_price',
+			'single_course_retake',
+			'single_course_google_classroom_code',
+		);
+
+		if ( 'masteriyo-single-course' === $template_type ) {
+			$names_to_hide = $archive_element_names;
+		} elseif ( 'masteriyo-course-archive' === $template_type ) {
+			$names_to_hide = $single_course_element_names;
+		} else {
+			return;
+		}
+
+		foreach ( $names_to_hide as $name ) {
+			unset( \Bricks\Elements::$elements[ $name ] );
+		}
 	}
 }

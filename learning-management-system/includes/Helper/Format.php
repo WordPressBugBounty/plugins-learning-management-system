@@ -999,8 +999,15 @@ function masteriyo_snake_to_kebab( $text ) {
  * @return string
  */
 function masteriyo_format_course_highlights( $highlights ) {
+	$highlights = (string) $highlights;
 
-	if ( ! masteriyo_starts_with( '<ul>', $highlights ) ) {
+	if ( '' === trim( wp_strip_all_tags( $highlights, true ) ) ) {
+		return '';
+	}
+
+	$modified_highlights = $highlights;
+
+	if ( ! masteriyo_starts_with( '<ul>', $modified_highlights ) ) {
 		$modified_highlights = preg_replace( '/<li[^>]*>(.*?)<\/li>/', '<div class="masteriyo-course-highlights--item"><p>$1</p></div>', $highlights );
 	}
 

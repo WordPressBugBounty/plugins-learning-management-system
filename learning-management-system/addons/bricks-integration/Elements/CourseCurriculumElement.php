@@ -135,7 +135,7 @@ class CourseCurriculumElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .course-curriculum',
+						'selector' => '.course-curriculum',
 					),
 				),
 				'exclude' => array(
@@ -164,7 +164,8 @@ class CourseCurriculumElement extends \Bricks\Element {
 
 		if ( $course ) {
 			echo "<div {$this->render_attributes( '_root' )}>";
-			masteriyo_single_course_curriculum( $course );
+			// Standalone element has no tab navigation, so always render the curriculum visible.
+			masteriyo_single_course_curriculum( $course, false );
 			echo '</div>';
 		}
 	}

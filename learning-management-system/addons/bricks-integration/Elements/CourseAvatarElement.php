@@ -169,7 +169,7 @@ class CourseAvatarElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property' => 'border',
-						'selector' => '.{{WRAPPER}} .masteriyo-course-author a img',
+						'selector' => '.masteriyo-course-author a img',
 					),
 				),
 			);
@@ -237,11 +237,11 @@ class CourseAvatarElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-course-author',
+						'selector' => '.masteriyo-course-author',
 					),
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .masteriyo-course-author a',
+						'selector' => '.masteriyo-course-author a',
 					),
 				),
 				'exclude' => array(
@@ -261,7 +261,7 @@ class CourseAvatarElement extends \Bricks\Element {
 				'css'   => array(
 					array(
 						'property' => 'height',
-						'selector' => '{{WRAPPER}} .masteriyo-course-author a img',
+						'selector' => '.masteriyo-course-author a img',
 					),
 				),
 			);
@@ -280,10 +280,10 @@ class CourseAvatarElement extends \Bricks\Element {
 	public function render() {
 		// Get the current page URL.
 		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		$author = masteriyo_get_user( $course->get_author_id() );
 
 		if ( $course ) {
+			$author = masteriyo_get_user( $course->get_author_id() );
+
 			if ( ! $author ) {
 				return;
 			}

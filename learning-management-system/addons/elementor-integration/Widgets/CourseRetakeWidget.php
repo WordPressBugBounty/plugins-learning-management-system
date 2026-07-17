@@ -195,7 +195,7 @@ class CourseRetakeWidget extends SingleCourseWidgetBase {
 		}
 
 		?>
-		<span class="masteriyo-time-btn masteriyo-retake-btn">
+		<span class="masteriyo-time-btn">
 			<?php	masteriyo_template_course_retake_button( $course ); ?>
 		</span>
 		<?php
@@ -229,7 +229,7 @@ class CourseRetakeWidget extends SingleCourseWidgetBase {
 					return;
 				}
 				?>
-				<span class="masteriyo-time-btn masteriyo-retake-btn"><?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+				<span class="masteriyo-time-btn"><?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<?php
 			},
 			__( 'Course retake button will display here once the student has completed the course.', 'learning-management-system' )

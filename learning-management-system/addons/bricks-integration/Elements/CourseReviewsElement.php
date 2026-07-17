@@ -135,7 +135,7 @@ class CourseReviewsElement extends \Bricks\Element {
 				'css'     => array(
 					array(
 						'property' => 'typography',
-						'selector' => '{{WRAPPER}} .course-reviews',
+						'selector' => '.course-reviews',
 					),
 				),
 				'exclude' => array(
