@@ -898,7 +898,7 @@ class QuizesController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $quiz, $context ) {
-		$description = 'view' === $context ? apply_filters( 'the_content', $quiz->get_description() ) : $quiz->get_description( $context );
+		$description = 'view' === $context ? apply_filters( 'the_content', wp_kses_post( $quiz->get_description() ) ) : $quiz->get_description( $context );
 
 		return $description;
 	}
@@ -1249,7 +1249,7 @@ class QuizesController extends PostsController {
 
 		// Quiz content.
 		if ( isset( $request['description'] ) ) {
-			$quiz->set_description( wp_slash( $request['description'] ) );
+			$quiz->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		// Quiz excerpt.

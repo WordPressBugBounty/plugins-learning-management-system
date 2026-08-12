@@ -577,7 +577,7 @@ class GoogleMeetController extends PostsController {
 		$data = array(
 			'id'          => $course_item->get_id(),
 			'name'        => wp_specialchars_decode( $course_item->get_name( $context ) ),
-			'description' => $course_item->get_description( $context ),
+			'description' => 'view' === $context ? wp_kses_post( $course_item->get_description() ) : $course_item->get_description( $context ),
 			'type'        => $course_item->get_object_type(),
 			'menu_order'  => $course_item->get_menu_order( $context ),
 			'parent_id'   => $course_item->get_parent_id( $context ),
@@ -1409,7 +1409,7 @@ class GoogleMeetController extends PostsController {
 
 		// GoogleMeet meeting description
 		if ( isset( $request['description'] ) ) {
-			$google_meet->set_description( wp_slash( $request['description'] ) );
+			$google_meet->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		if ( isset( $request['author'] ) ) {
@@ -1530,7 +1530,7 @@ class GoogleMeetController extends PostsController {
 			'preview_link'                 => $google_meet->get_preview_link(),
 			'menu_order'                   => $google_meet->get_menu_order( $context ),
 			'parent_menu_order'            => $section ? $section->get_menu_order( $context ) : 0,
-			'description'                  => $google_meet->get_description( $context ),
+			'description'                  => 'view' === $context ? wp_kses_post( $google_meet->get_description() ) : $google_meet->get_description( $context ),
 			'parent_id'                    => $google_meet->get_parent_id( $context ),
 			'course_id'                    => $google_meet->get_course_id( $context ),
 			'created_at'                   => masteriyo_rest_prepare_date_response( $google_meet->get_created_at( $context ) ),

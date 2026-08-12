@@ -42,7 +42,7 @@ class WebhookResource {
 			'status'       => $webhook->get_status( $context ),
 			'events'       => $webhook->get_events( $context ),
 			'delivery_url' => $webhook->get_delivery_url( $context ),
-			'description'  => 'view' === $context ? wpautop( do_shortcode( $webhook->get_description() ) ) : $webhook->get_description( $context ),
+			'description'  => 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $webhook->get_description() ) ) ) : $webhook->get_description( $context ),
 			'secret'       => $webhook->get_secret( $context ),
 			'author_id'    => $webhook->get_author_id( $context ),
 			'author'       => $author,

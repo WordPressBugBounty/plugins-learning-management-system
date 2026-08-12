@@ -292,10 +292,10 @@ class WebhooksController extends PostsController {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $webhook->get_description() ) ) : $webhook->get_description( $context );
+			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $webhook->get_description() ) ) ) : $webhook->get_description( $context );
 		}
 		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $webhook->get_description() ) : $webhook->get_description( $context );
+			$description = 'view' === $context ? do_shortcode( wp_kses_post( $webhook->get_description() ) ) : $webhook->get_description( $context );
 		}
 		return $description;
 	}
@@ -571,7 +571,7 @@ class WebhooksController extends PostsController {
 
 		// Webhook description.
 		if ( isset( $request['description'] ) ) {
-			$webhook->set_description( $request['description'] );
+			$webhook->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		// Webhook status.

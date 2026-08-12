@@ -4,7 +4,7 @@ Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,7 +295,12 @@ Yes, you can easily import SCORM-compliant courses into Masteriyo in a few click
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle any security vulnerabilities. [Report a security vulnerability](https://patchstack.com/database/vdp/learning-management-system)
 
 == Changelog ==
-= 2.3.2 - 17-07-206 =
+= 2.3.3 - 12-08-2026 =
+- Fix - Enhance security for description fields and instructor content permissions.
+- Fix - Enhance security for Course Builder REST endpoint access.
+- Fix - Enhance security for instructor course approval and course import.
+
+= 2.3.2 - 17-07-2026 =
 - Fix - Enhanced security for Webhooks.
 - Fix - Customizer settings and Additional CSS not persisting when Masteriyo is active.
 - Fix - Auto order completion not working for iDEAL payments via Stripe.

@@ -134,32 +134,49 @@ class CoursesImportExportController extends RestController {
 		$file_params  = $request->get_file_params();
 		$chunk_index  = absint( $request->get_param( 'chunkIndex' ) );
 		$total_chunks = absint( $request->get_param( 'totalChunks' ) );
-		$file_name    = sanitize_file_name( $request->get_param( 'fileName' ) );
+		$file_name    = sanitize_file_name( (string) $request->get_param( 'fileName' ) );
+		$is_chunked   = $file_name && $total_chunks;
 
-		$file_handler  = new FileHandler();
-		$file_creation = $file_handler->create_file( 'import/courses', $file_name );
+		// Validate before any file write — required here too, not just in get_import_file().
+		if ( $is_chunked ) {
+			$file_name_validation = $this->validate_import_file_name( $file_name );
 
-		if ( is_wp_error( $file_creation ) ) {
-			return $file_creation;
+			if ( is_wp_error( $file_name_validation ) ) {
+				return $file_name_validation;
+			}
 		}
 
-		$output_file_path = $file_creation['file_path'];
-		$output_file      = fopen( $output_file_path, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		// Only the chunked path below needs this handle — get_import_file() reads PHP's own tmp file directly.
+		$output_file = null;
 
-		if ( false === $output_file ) {
-			return new \WP_Error(
-				'file_open_failed',
-				__( 'Failed to open output file for writing.', 'learning-management-system' ),
-				array( 'status' => 500 )
-			);
+		if ( $is_chunked ) {
+			$file_handler  = new FileHandler();
+			$file_creation = $file_handler->create_file( 'import/courses', $file_name );
+
+			if ( is_wp_error( $file_creation ) ) {
+				return $file_creation;
+			}
+
+			$this->protect_import_directory( $file_handler );
+
+			$output_file_path = $file_creation['file_path'];
+			$output_file      = fopen( $output_file_path, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+
+			if ( false === $output_file ) {
+				return new \WP_Error(
+					'file_open_failed',
+					__( 'Failed to open output file for writing.', 'learning-management-system' ),
+					array( 'status' => 500 )
+				);
+			}
 		}
 
 		try {
-			if ( 0 === $chunk_index ) {
-				ftruncate( $output_file, 0 );
-			}
+			if ( $is_chunked ) {
+				if ( 0 === $chunk_index ) {
+					ftruncate( $output_file, 0 );
+				}
 
-			if ( $file_name && $total_chunks ) {
 				$file_info = $this->handle_chunked_upload( $file_handler, $output_file, $output_file_path, $file_params, $file_name, $chunk_index, $total_chunks );
 
 				if ( is_wp_error( $file_info ) ) {
@@ -298,10 +315,29 @@ class CoursesImportExportController extends RestController {
 			);
 		}
 
-		if (
-			! isset( $files['file']['name'] ) ||
-			'json' !== pathinfo( $files['file']['name'], PATHINFO_EXTENSION )
-		) {
+		$validation = $this->validate_import_file_name( isset( $files['file']['name'] ) ? $files['file']['name'] : '' );
+
+		if ( is_wp_error( $validation ) ) {
+			return $validation;
+		}
+
+		return $files['file']['tmp_name'];
+	}
+
+	/**
+	 * Whitelist-validate an import file name by extension.
+	 *
+	 * Shared by the direct and chunked upload paths so both always enforce the same rule.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $file_name File name to validate.
+	 * @return true|\WP_Error True if the extension is allowed, WP_Error otherwise.
+	 */
+	protected function validate_import_file_name( $file_name ) {
+		$extension = strtolower( pathinfo( (string) $file_name, PATHINFO_EXTENSION ) );
+
+		if ( '' === $extension || 'json' !== $extension ) {
 			return new \WP_Error(
 				'invalid_file_ext',
 				__( 'Invalid file type for import.', 'learning-management-system' ),
@@ -309,7 +345,32 @@ class CoursesImportExportController extends RestController {
 			);
 		}
 
-		return $files['file']['tmp_name'];
+		return true;
+	}
+
+	/**
+	 * Ensure the import/courses upload directory can never serve executable files directly.
+	 *
+	 * Defense-in-depth alongside {@see validate_import_file_name()}; mirrors the protection
+	 * already applied to MASTERIYO_LOG_DIR in Activation.php. Idempotent, so it self-heals
+	 * on installs where this folder already exists without protection.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param FileHandler $file_handler File handler scoped to the Masteriyo uploads dir.
+	 * @return void
+	 */
+	protected function protect_import_directory( FileHandler $file_handler ) {
+		$protections = array(
+			'import/courses/.htaccess'  => 'deny from all',
+			'import/courses/index.html' => '',
+		);
+
+		foreach ( $protections as $relative_path => $content ) {
+			if ( ! $file_handler->file_exists( $relative_path ) ) {
+				$file_handler->write_file( $relative_path, $content );
+			}
+		}
 	}
 
 	/**

@@ -488,10 +488,10 @@ class CoursesController extends PostsController {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $course->get_description() ) ) : $course->get_description( $context );
+			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $course->get_description() ) ) ) : $course->get_description( $context );
 		}
 		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $course->get_description() ) : $course->get_description( $context );
+			$description = 'view' === $context ? do_shortcode( wp_kses_post( $course->get_description() ) ) : $course->get_description( $context );
 		}
 		return $description;
 	}
@@ -1104,7 +1104,7 @@ class CoursesController extends PostsController {
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$course->set_description( wp_slash( $request['description'] ) );
+			$course->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		// Post excerpt.

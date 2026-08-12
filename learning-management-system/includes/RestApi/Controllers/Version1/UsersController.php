@@ -1307,11 +1307,6 @@ class UsersController extends CrudController {
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
-						'address_1'    => array(
-							'description' => __( 'User billing address 1.', 'learning-management-system' ),
-							'type'        => 'string',
-							'context'     => array( 'view', 'edit' ),
-						),
 						'address_2'    => array(
 							'description' => __( 'User billing address 2.', 'learning-management-system' ),
 							'type'        => 'string',
@@ -1452,8 +1447,8 @@ class UsersController extends CrudController {
 			$user->set_activation_key( $request['activation_key'] );
 		}
 
-		// User's status.
-		if ( isset( $request['status'] ) ) {
+		// User's status. Requires edit_users (not manage_options) so managers can approve instructors too.
+		if ( isset( $request['status'] ) && current_user_can( 'edit_users' ) ) {
 			$user->set_status( $request['status'] );
 		}
 
@@ -1944,10 +1939,18 @@ class UsersController extends CrudController {
 			);
 		}
 
-		   if ( isset( $request['roles'] ) && ! current_user_can( 'manage_options' ) ) {
+		if ( isset( $request['roles'] ) && ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_update',
 				__( 'Sorry, you are not allowed to change roles.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( isset( $request['status'] ) && ! current_user_can( 'edit_users' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to change the user status.', 'learning-management-system' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -2074,6 +2077,11 @@ class UsersController extends CrudController {
 		}
 
 		$request->set_param( 'id', $user->ID );
+
+		// Only managers/admins may change status via /users/me (mirrors the edit_users gate elsewhere).
+		if ( ! current_user_can( 'edit_users' ) ) {
+			$request->offsetUnset( 'status' );
+		}
 
 		// Deny role changes and privilege-escalation via meta_data for non-admins.
 		if ( ! current_user_can( 'manage_options' ) ) {

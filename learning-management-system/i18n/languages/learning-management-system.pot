@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 2.3.2\n"
+"Project-Id-Version: Masteriyo LMS 2.3.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-17T04:43:29+00:00\n"
+"POT-Creation-Date: 2026-08-12T07:39:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -2069,14 +2069,14 @@ msgid "Unable to open export file for writing."
 msgstr ""
 
 #: includes/Exporter/CourseExporter.php:162
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:432
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:493
 msgid "Export in progress. Please wait..."
 msgstr ""
 
 #. translators: %s: date and time.
 #: includes/Exporter/CourseExporter.php:208
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:446
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:459
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:507
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:520
 #, php-format
 msgid "Export completed on %s."
 msgstr ""
@@ -2249,7 +2249,7 @@ msgid "Your password has been reset successfully."
 msgstr ""
 
 #: includes/FormHandler/PasswordResetFormHandler.php:60
-#: includes/RestApi/Controllers/Version1/UsersController.php:2049
+#: includes/RestApi/Controllers/Version1/UsersController.php:2052
 msgid "New password cannot be the same as the old password."
 msgstr ""
 
@@ -3843,7 +3843,7 @@ msgid "Invalid Delivery URL"
 msgstr ""
 
 #: includes/Importer/CourseImporter.php:76
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:486
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:547
 msgid "Import in progress. Please wait..."
 msgstr ""
 
@@ -3872,24 +3872,24 @@ msgid "Zero size file downloaded"
 msgstr ""
 
 #: includes/Importer/UserCSVImporter.php:82
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:213
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:497
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:230
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:558
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:142
 #: includes/RestApi/Controllers/Version1/SettingsController.php:226
 #: assets/js/build/masteriyo-backend.js:41
 msgid "Import successful."
 msgstr ""
 
-#: includes/Install.php:138
+#: includes/Install.php:162
 #: assets/js/build/masteriyo-backend.js:33
 msgid "Beginner"
 msgstr ""
 
-#: includes/Install.php:139
+#: includes/Install.php:163
 msgid "Intermediate"
 msgstr ""
 
-#: includes/Install.php:140
+#: includes/Install.php:164
 msgid "Expert"
 msgstr ""
 
@@ -5222,7 +5222,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1194
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:584
 #: includes/RestApi/Controllers/Version1/SectionsController.php:381
-#: includes/RestApi/Controllers/Version1/UsersController.php:1370
+#: includes/RestApi/Controllers/Version1/UsersController.php:1365
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:518
 msgid "Meta data"
 msgstr ""
@@ -5239,7 +5239,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1201
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:591
 #: includes/RestApi/Controllers/Version1/SectionsController.php:388
-#: includes/RestApi/Controllers/Version1/UsersController.php:1377
+#: includes/RestApi/Controllers/Version1/UsersController.php:1372
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:525
 msgid "Meta ID"
 msgstr ""
@@ -5256,7 +5256,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1207
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:597
 #: includes/RestApi/Controllers/Version1/SectionsController.php:394
-#: includes/RestApi/Controllers/Version1/UsersController.php:1383
+#: includes/RestApi/Controllers/Version1/UsersController.php:1378
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:531
 msgid "Meta key"
 msgstr ""
@@ -5273,7 +5273,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1212
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:602
 #: includes/RestApi/Controllers/Version1/SectionsController.php:399
-#: includes/RestApi/Controllers/Version1/UsersController.php:1388
+#: includes/RestApi/Controllers/Version1/UsersController.php:1383
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:536
 msgid "Meta value"
 msgstr ""
@@ -5356,7 +5356,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:981
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1040
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1494
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:389
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:450
 #: includes/RestApi/Controllers/Version1/ErrorReportsController.php:93
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:962
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:998
@@ -5421,12 +5421,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:679
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:708
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:739
-#: includes/RestApi/Controllers/Version1/UsersController.php:1624
-#: includes/RestApi/Controllers/Version1/UsersController.php:1667
-#: includes/RestApi/Controllers/Version1/UsersController.php:1707
-#: includes/RestApi/Controllers/Version1/UsersController.php:1747
-#: includes/RestApi/Controllers/Version1/UsersController.php:1797
-#: includes/RestApi/Controllers/Version1/UsersController.php:1911
+#: includes/RestApi/Controllers/Version1/UsersController.php:1619
+#: includes/RestApi/Controllers/Version1/UsersController.php:1662
+#: includes/RestApi/Controllers/Version1/UsersController.php:1702
+#: includes/RestApi/Controllers/Version1/UsersController.php:1742
+#: includes/RestApi/Controllers/Version1/UsersController.php:1792
+#: includes/RestApi/Controllers/Version1/UsersController.php:1906
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:179
 #: includes/RestApi/Controllers/Version1/UtilitiesController.php:88
 #: includes/RestApi/Controllers/Version1/WebhooksController.php:250
@@ -5535,6 +5535,7 @@ msgid "The password for the post if it is password protected."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CommentsController.php:219
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:146
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:842
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:875
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:722
@@ -5552,8 +5553,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:105
 #: includes/RestApi/Controllers/Version1/QuestionsController.php:250
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:788
-#: includes/RestApi/Controllers/Version1/UsersController.php:1631
-#: includes/RestApi/Controllers/Version1/UsersController.php:1644
+#: includes/RestApi/Controllers/Version1/UsersController.php:1626
+#: includes/RestApi/Controllers/Version1/UsersController.php:1639
 msgid "Sorry, you are not allowed to read resources."
 msgstr ""
 
@@ -5573,8 +5574,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:657
-#: includes/RestApi/Controllers/Version1/UsersController.php:1674
-#: includes/RestApi/Controllers/Version1/UsersController.php:1684
+#: includes/RestApi/Controllers/Version1/UsersController.php:1669
+#: includes/RestApi/Controllers/Version1/UsersController.php:1679
 msgid "Sorry, you cannot list resources."
 msgstr ""
 
@@ -5592,8 +5593,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/SectionsController.php:521
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:686
-#: includes/RestApi/Controllers/Version1/UsersController.php:1714
-#: includes/RestApi/Controllers/Version1/UsersController.php:1724
+#: includes/RestApi/Controllers/Version1/UsersController.php:1709
+#: includes/RestApi/Controllers/Version1/UsersController.php:1719
 #: includes/RestApi/Controllers/Version1/UsersImportExportController.php:186
 msgid "Sorry, you are not allowed to create resources."
 msgstr ""
@@ -5614,8 +5615,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:927
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:748
-#: includes/RestApi/Controllers/Version1/UsersController.php:1775
-#: includes/RestApi/Controllers/Version1/UsersController.php:1814
+#: includes/RestApi/Controllers/Version1/UsersController.php:1770
+#: includes/RestApi/Controllers/Version1/UsersController.php:1809
 msgid "Sorry, you are not allowed to delete resources."
 msgstr ""
 
@@ -5637,15 +5638,15 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:994
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:717
-#: includes/RestApi/Controllers/Version1/UsersController.php:1918
-#: includes/RestApi/Controllers/Version1/UsersController.php:1930
+#: includes/RestApi/Controllers/Version1/UsersController.php:1913
+#: includes/RestApi/Controllers/Version1/UsersController.php:1925
 msgid "Sorry, you are not allowed to update resources."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CommentsController.php:612
 #: includes/RestApi/Controllers/Version1/CommentsController.php:648
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:254
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:580
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:282
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:607
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:832
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:765
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:816
@@ -5698,7 +5699,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:857
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1121
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:341
-#: includes/RestApi/Controllers/Version1/UsersController.php:1879
+#: includes/RestApi/Controllers/Version1/UsersController.php:1874
 #, php-format
 msgid "The %s cannot be bulk deleted."
 msgstr ""
@@ -5706,68 +5707,68 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CommentsController.php:822
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1592
 #: includes/RestApi/Controllers/Version1/PostsController.php:283
-#: includes/RestApi/Controllers/Version1/UsersController.php:1763
-#: includes/RestApi/Controllers/Version1/UsersController.php:1804
+#: includes/RestApi/Controllers/Version1/UsersController.php:1758
+#: includes/RestApi/Controllers/Version1/UsersController.php:1799
 msgid "Sorry, you are not allowed to delete resources"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:142
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:170
 msgid "Course contents(quiz, lesson)"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:150
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:178
 msgid "Course content ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:156
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:184
 msgid "Course content name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:161
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:189
 msgid "Course content permalink."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:166
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:194
 msgid "Course content type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:171
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:199
 msgid "Course content menu order."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:176
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:204
 msgid "Course content parent id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:184
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:212
 msgid "Course sections."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:192
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:220
 msgid "Course section ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:198
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:226
 msgid "Course section name."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:203
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:231
 msgid "Course section permalink."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:208
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:236
 msgid "Course section type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:213
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:241
 msgid "Course section menu order."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:218
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:246
 msgid "Course section parent id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:226
+#: includes/RestApi/Controllers/Version1/CourseBuilderController.php:254
 msgid "Course section order."
 msgstr ""
 
@@ -6477,29 +6478,29 @@ msgstr ""
 msgid "Whether the current user is the course author"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:152
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:168
 msgid "Failed to open output file for writing."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:172
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:189
 msgid "Chunk uploaded successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:242
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:259
 msgid "Exporting courses failed: "
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:263
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:280
 #: includes/RestApi/Controllers/Version1/OnboardingController.php:1003
 msgid "Sample courses file not found."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:280
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:297
 msgid "Sample courses installed."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:296
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:333
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:313
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:394
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1634
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:180
 #: includes/RestApi/Controllers/Version1/SettingsController.php:178
@@ -6507,7 +6508,7 @@ msgstr ""
 msgid "No data supplied."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:307
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:343
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1645
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:191
 #: includes/RestApi/Controllers/Version1/SettingsController.php:189
@@ -6515,19 +6516,19 @@ msgstr ""
 msgid "Invalid file type for import."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:344
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:405
 msgid "Invalid file parameters."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:356
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:417
 msgid "Failed to read chunk file content."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:366
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:427
 msgid "Failed to write to final file."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:397
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:458
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:132
 #: includes/RestApi/Controllers/Version1/PostsController.php:191
 #: includes/RestApi/Controllers/Version1/PostsController.php:231
@@ -6540,21 +6541,21 @@ msgstr ""
 msgid "Sorry, you are not approved by the manager."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:407
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:468
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:142
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:230
 msgid "Sorry, you are not allowed to import courses."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:467
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:528
 msgid "Error retrieving export status. Try again later."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:505
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:566
 msgid "No import in progress."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:511
+#: includes/RestApi/Controllers/Version1/CoursesImportExportController.php:572
 msgid "Error retrieving import status. Try again later."
 msgstr ""
 
@@ -6663,7 +6664,7 @@ msgid "Instructor approved."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/InstructorsController.php:213
-#: includes/RestApi/Controllers/Version1/UsersController.php:1950
+#: includes/RestApi/Controllers/Version1/UsersController.php:1945
 msgid "Sorry, you are not allowed to change roles."
 msgstr ""
 
@@ -8818,84 +8819,87 @@ msgid "User billing company id."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/UsersController.php:1306
-#: includes/RestApi/Controllers/Version1/UsersController.php:1311
 msgid "User billing address 1."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1316
+#: includes/RestApi/Controllers/Version1/UsersController.php:1311
 msgid "User billing address 2."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1321
+#: includes/RestApi/Controllers/Version1/UsersController.php:1316
 msgid "User billing city."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1326
+#: includes/RestApi/Controllers/Version1/UsersController.php:1321
 msgid "User billing post code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1331
+#: includes/RestApi/Controllers/Version1/UsersController.php:1326
 msgid "User billing country code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1336
+#: includes/RestApi/Controllers/Version1/UsersController.php:1331
 msgid "User billing state code."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1341
+#: includes/RestApi/Controllers/Version1/UsersController.php:1336
 msgid "Formatted User billing country."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1347
+#: includes/RestApi/Controllers/Version1/UsersController.php:1342
 msgid "Formatted User billing state."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1353
+#: includes/RestApi/Controllers/Version1/UsersController.php:1348
 msgid "User billing email address."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1358
+#: includes/RestApi/Controllers/Version1/UsersController.php:1353
 msgid "User billing phone number."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1365
+#: includes/RestApi/Controllers/Version1/UsersController.php:1360
 msgid "How the user was created."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1756
+#: includes/RestApi/Controllers/Version1/UsersController.php:1751
 msgid "Sorry, you cannot delete yourself."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:1940
+#: includes/RestApi/Controllers/Version1/UsersController.php:1935
 msgid "Sorry, invalid old password."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:2012
+#: includes/RestApi/Controllers/Version1/UsersController.php:1953
+msgid "Sorry, you are not allowed to change the user status."
+msgstr ""
+
+#: includes/RestApi/Controllers/Version1/UsersController.php:2015
 msgid "Confirm Your Email Change"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:2016
+#: includes/RestApi/Controllers/Version1/UsersController.php:2019
 #, php-format
 msgid "You requested to change your email to <strong>%s</strong>. Please confirm this change by clicking the link below:"
 msgstr ""
 
 #. translators: %s: user email
-#: includes/RestApi/Controllers/Version1/UsersController.php:2028
+#: includes/RestApi/Controllers/Version1/UsersController.php:2031
 #, php-format
 msgid "Your email address has not been updated yet. Please check your inbox at %s for a confirmation email."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:2038
+#: includes/RestApi/Controllers/Version1/UsersController.php:2041
 msgid "There was an error sending the confirmation email. Please try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:2059
-#: includes/RestApi/Controllers/Version1/UsersController.php:2069
+#: includes/RestApi/Controllers/Version1/UsersController.php:2062
+#: includes/RestApi/Controllers/Version1/UsersController.php:2072
 msgid "Old password does not match. Please verify your current password and try again."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/UsersController.php:2116
+#: includes/RestApi/Controllers/Version1/UsersController.php:2124
 msgid "No QR code available. Please generate one first."
 msgstr ""
 

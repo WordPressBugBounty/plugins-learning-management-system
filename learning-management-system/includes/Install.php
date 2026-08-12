@@ -34,6 +34,7 @@ class Install {
 
 		// Roles must be verified on every load; it's a cheap in-memory check.
 		self::maybe_create_roles();
+		self::maybe_revoke_instructor_unfiltered_html();
 
 		// Skip expensive DB writes and rewrite flush when version hasn't changed.
 		if ( MASTERIYO_VERSION === $masteriyo_version ) {
@@ -83,6 +84,29 @@ class Install {
 		}
 
 		Roles::create();
+	}
+
+	/**
+	 * Revoke the `unfiltered_html` capability from the instructor role on existing sites.
+	 *
+	 * Granted in 1.6.13 so instructors could embed iframes, but it also let a low-trust
+	 * instructor store raw <script>/on* payloads that execute in any viewer's browser,
+	 * including admins (MAS-3779, stored XSS). Iframe embedding is already covered without
+	 * this capability by masteriyo_add_iframe_to_post_context() via wp_kses_allowed_html.
+	 * `maybe_create_roles()` above only runs when the role is missing entirely, so an existing
+	 * site's persisted role capabilities never pick up changes made here in code without an
+	 * explicit revoke like this. Cheap in-memory check — safe to run on every load.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return void
+	 */
+	private static function maybe_revoke_instructor_unfiltered_html() {
+		$role = get_role( Roles::INSTRUCTOR );
+
+		if ( $role && $role->has_cap( 'unfiltered_html' ) ) {
+			$role->remove_cap( 'unfiltered_html' );
+		}
 	}
 
 	/**

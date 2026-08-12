@@ -241,7 +241,6 @@ class Capabilities {
 			'read_course_reviews'           => true,
 			'read_quiz_reviews'             => true,
 			'read_user_courses'             => true,
-			'read_orders'                   => true,
 			'read_announcements'            => true,
 			'edit_announcements'            => true,
 			'edit_published_announcements'  => true,
@@ -275,9 +274,6 @@ class Capabilities {
 			'publish_lesson_reviews'        => true,
 			'edit_lesson_reviews'           => true,
 			'delete_lesson_reviews'         => true,
-
-			// User courses
-			'read_user_courses'             => true,
 
 			// Taxonomy.
 			'manage_course_categories'      => true,
@@ -365,7 +361,7 @@ class Capabilities {
 			'delete_course_reviews'             => true,
 			'delete_published_course_reviews'   => true,
 			'delete_private_course_reviews'     => true,
-			
+
 			// lesson reviews
 			'read_lesson_reviews'                 => true,
 			'publish_lesson_reviews'              => true,
@@ -406,11 +402,11 @@ class Capabilities {
 			// Other
 			'upload_files'                      => true,
 			/**
-			 * Added this permission in order to add iframe like element by instructors.
-			 *
-			 * @since 1.6.13
+			 * `unfiltered_html` intentionally removed (MAS-3779): it let an instructor store
+			 * raw <script>/on* payloads that execute in any viewer's browser, including admins.
+			 * Iframe embedding (the original reason it was granted) is already covered without
+			 * this capability by masteriyo_add_iframe_to_post_context() via wp_kses_allowed_html.
 			 */
-			'unfiltered_html'                   => true,
 
 			// Google classroom
 			'publish_google_classrooms'         => true,
@@ -525,9 +521,6 @@ class Capabilities {
 			'delete_user_courses'              => true,
 			'delete_others_user_courses'       => true,
 
-			// Users
-			'list_users'                       => true,
-
 			// Course Difficulties.
 			'manage_course_difficulties'       => true,
 			'delete_course_difficulties'       => true,
@@ -553,8 +546,6 @@ class Capabilities {
 			'delete_private_mto_price_zones'   => true,
 			'edit_others_mto_price_zones'      => true,
 			'delete_others_mto_price_zones'    => true,
-			'edit_others_google_classroom'     => true,
-			'delete_others_google_classroom'   => true,
 
 			// Google Meet
 			'edit_others_google-meets'         => true,

@@ -679,10 +679,10 @@ class GroupsController extends PostsController {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $group->get_description() ) ) : $group->get_description( $context );
+			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $group->get_description() ) ) ) : $group->get_description( $context );
 		}
 		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $group->get_description() ) : $group->get_description( $context );
+			$description = 'view' === $context ? do_shortcode( wp_kses_post( $group->get_description() ) ) : $group->get_description( $context );
 		}
 		return $description;
 	}
@@ -1009,7 +1009,7 @@ class GroupsController extends PostsController {
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$group->set_description( wp_slash( $request['description'] ) );
+			$group->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {

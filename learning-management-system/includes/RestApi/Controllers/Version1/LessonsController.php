@@ -356,10 +356,10 @@ class LessonsController extends PostsController {
 		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
 		$description           = '';
 		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $lesson->get_description() ) ) : $lesson->get_description( $context );
+			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $lesson->get_description() ) ) ) : $lesson->get_description( $context );
 		}
 		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $lesson->get_description() ) : $lesson->get_description( $context );
+			$description = 'view' === $context ? do_shortcode( wp_kses_post( $lesson->get_description() ) ) : $lesson->get_description( $context );
 		}
 		return $description;
 	}
@@ -842,7 +842,7 @@ class LessonsController extends PostsController {
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$lesson->set_description( wp_slash( $request['description'] ) );
+			$lesson->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
 		}
 
 		// Post excerpt.

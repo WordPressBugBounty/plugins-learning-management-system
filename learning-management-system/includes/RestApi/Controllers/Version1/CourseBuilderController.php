@@ -126,6 +126,34 @@ class CourseBuilderController extends PostsController {
 	}
 
 	/**
+	 * Checks if a given request has access to get a specific item.
+	 *
+	 * This is a course-authoring endpoint, so access is restricted to admins,
+	 * managers, and the course's own author/instructor, regardless of whether
+	 * the requester has purchased/enrolled in the course.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return boolean|WP_Error True if the request has read access for the item, WP_Error object otherwise.
+	 */
+	public function get_item_permissions_check( $request ) {
+		$course_id = absint( $request['id'] );
+
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! masteriyo_is_current_user_post_author( $course_id ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the course builder schema, conforming to JSON Schema.
 	 *
 	 * @since 1.0.0
@@ -397,8 +425,7 @@ class CourseBuilderController extends PostsController {
 		$data = array(
 			'id'                => $course_item->get_id(),
 			'name'              => wp_specialchars_decode( $course_item->get_name( $context ) ),
-			'name'              => $course_item->get_name( $context ),
-			'description'       => $course_item->get_description( $context ),
+			'description'       => 'view' === $context ? wp_kses_post( $course_item->get_description() ) : $course_item->get_description( $context ),
 			'permalink'         => $course_item->get_permalink( $context ),
 			'preview_permalink' => $course_item->get_preview_link(),
 			'type'              => $course_item->get_object_type(),
