@@ -43,19 +43,6 @@ class PostTypeServiceProvider extends AbstractServiceProvider implements Bootabl
 		'webhook'  => Webhook::class,
 	);
 
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.5.41
-	 */
-	public function register(): void {
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -65,7 +52,7 @@ class PostTypeServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.5.41
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -76,6 +63,17 @@ class PostTypeServiceProvider extends AbstractServiceProvider implements Bootabl
 			array(),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.5.41
+	 */
+	public function register(): void {
 	}
 
 	/**

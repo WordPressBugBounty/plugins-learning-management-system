@@ -3,7 +3,6 @@
  * Get Course Tag ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseTag
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseTag;
@@ -16,8 +15,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Ability: retrieve a single course tag by ID.
  *
  * Returns the term object including name, slug, description, and course count.
- *
- * @since x.x.x
  */
 class GetCourseTagAbility extends RestProxyAbility {
 

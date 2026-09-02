@@ -7,8 +7,6 @@
  * masteriyo_get_order(), which returns null for WC order IDs.
  *
  * @package Masteriyo\Addons\WcIntegration\Emails
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\WcIntegration\Emails;
@@ -20,16 +18,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WC enrollment email to student.
  *
- * @since x.x.x
- *
  * @package Masteriyo\Addons\WcIntegration\Emails
  */
 class WcEnrollmentEmailToStudent extends Email {
 
 	/**
 	 * Email method ID.
-	 *
-	 * @since x.x.x
 	 *
 	 * @var string
 	 */
@@ -38,16 +32,12 @@ class WcEnrollmentEmailToStudent extends Email {
 	/**
 	 * HTML template path (reuses the free plugin's completed-order template).
 	 *
-	 * @since x.x.x
-	 *
 	 * @var string
 	 */
 	protected $html_template = 'emails/student/completed-order.php';
 
 	/**
 	 * Send the enrollment email.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Models\UserCourse $user_course Enrolled user-course record.
 	 * @param object                       $wc_order    WooCommerce order object (WC_Order).
@@ -107,8 +97,6 @@ class WcEnrollmentEmailToStudent extends Email {
 	/**
 	 * Return true if this email type is enabled.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	public function is_enabled() {
@@ -117,8 +105,6 @@ class WcEnrollmentEmailToStudent extends Email {
 
 	/**
 	 * Return the email subject.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -133,8 +119,6 @@ class WcEnrollmentEmailToStudent extends Email {
 
 	/**
 	 * Get email content.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -153,8 +137,6 @@ class WcEnrollmentEmailToStudent extends Email {
 
 	/**
 	 * Get placeholders.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return array
 	 */
@@ -198,8 +180,6 @@ class WcEnrollmentEmailToStudent extends Email {
 
 	/**
 	 * Return additional content.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */

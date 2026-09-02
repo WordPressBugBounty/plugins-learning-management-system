@@ -78,7 +78,14 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 						<?php esc_html_e( 'Sign in', 'learning-management-system' ); ?>
 					</button>
 				</div>
-
+					<?php
+					/**
+					 * Fires after render of login button in login form.
+					 *
+					 * @since 2.7.0
+					 */
+						do_action( 'masteriyo_login_form_after_submit_button' );
+					?>
 				<div id="masteriyo-login-error-msg" class="masteriyo-hidden masteriyo-notify-message masteriyo-alert masteriyo-danger-msg"></div>
 			</form>
 			<?php masteriyo_display_all_notices(); ?>
@@ -120,6 +127,7 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 				);
 			}
 
+
 			/**
 			 * Filters signup args to add/edit more parameters.
 			 *
@@ -140,7 +148,7 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 				/**
 				 * Filters student register text.
 				 *
-				 * @since 1.17.1
+				 * @since 1.17.1 [Free]
 				 *
 				 * @param string $message Register text.
 				 */

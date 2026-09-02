@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.11.0
+ * @version 2.11.0
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -19,10 +19,12 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Fires before rendering stats section in archive course page.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 do_action( 'masteriyo_before_archive_course_stats' );
+
 $sections = masteriyo_get_course_structure( $course->get_id() );
+
 if ( empty( $sections ) ) {
 	return;
 }
@@ -39,9 +41,9 @@ if ( empty( $sections ) ) {
 		<?php masteriyo_get_svg( 'group', true ); ?> <span><?php echo esc_html( masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count() ); ?></span>
 	</div>
 	<?php endif; ?>
-	<?php if ( masteriyo_should_show_component( 'showLessonsCount', 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count > 0 ) : ?>
+	<?php if ( masteriyo_should_show_component( 'showLessonsCount', 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count + $zoom_meet_count + $assignment_count > 0 ) : ?>
 	<div class="masteriyo-course-stats-curriculum">
-		<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count ); ?></span>
+		<?php masteriyo_get_svg( 'book', true ); ?> <span><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count + $zoom_meet_count + $assignment_count ); ?></span>
 	</div>
 	<?php endif; ?>
 	<!-- Available seats for students-->
@@ -57,6 +59,6 @@ if ( empty( $sections ) ) {
 /**
  * Fires after rendering stats section in archive course page.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 do_action( 'masteriyo_after_archive_course_stats' );

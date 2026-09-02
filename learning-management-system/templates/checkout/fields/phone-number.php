@@ -19,11 +19,14 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Notice;
 
+$field = isset( $field ) ? $field : array();
 ?>
 <div class="masteriyo-checkout----phone">
 	<label for="billing-phone" class="masteriyo-label">
 		<?php esc_html_e( 'Phone', 'learning-management-system' ); ?>
-		<span>*</span>
+		<?php if ( ! empty( $field['required'] ) ) : ?>
+			<span>*</span>
+		<?php endif; ?>
 	</label>
 
 	<input
@@ -32,6 +35,7 @@ use Masteriyo\Notice;
 		class="masteriyo-input"
 		name="billing_phone"
 		value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_billing_phone() ); ?>"
+		<?php masteriyo_checkout_field_required_attributes( $field ); ?>
 	/>
 
 	<?php if ( masteriyo_notice_exists( 'billing_phone', Notice::ERROR ) ) : ?>

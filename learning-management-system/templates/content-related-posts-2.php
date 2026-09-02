@@ -90,7 +90,7 @@ do_action( 'masteriyo_before_related_posts_content' );
 				 *
 				 * @since 1.10.0 [Free]
 				 */
-				//do_action( 'masteriyo_after_layout_2_course_thumbnail', $course );
+				do_action( 'masteriyo_after_layout_2_course_thumbnail', $course );
 
 				/**
 				 * After layout 2 course image block.
@@ -177,6 +177,7 @@ do_action( 'masteriyo_before_related_posts_content' );
 								endif;
 							endif;
 						?>
+
 						<?php
 						if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) :
 							if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) :
@@ -228,14 +229,14 @@ do_action( 'masteriyo_before_related_posts_content' );
 						 *
 						 * @since 2.13.0
 						 */
-						//do_action( 'masteriyo_course_archive_layout_2_meta_data', $course );
+						// do_action( 'masteriyo_course_archive_layout_2_meta_data', $course );
 
 						/**
 						 * Course progress (same as archive).
 						 *
 						 * @since 1.20.0 [Free]
 						 */
-						//do_action( 'masteriyo_course_progress', $course );
+						do_action( 'masteriyo_course_progress', $course );
 						?>
 
 						<?php
@@ -244,20 +245,22 @@ do_action( 'masteriyo_before_related_posts_content' );
 						 *
 						 * @since 1.0.0
 						 */
-						if ( masteriyo_get_setting( 'course_archive.components_visibility.enroll_button' ) ) {
-								//do_action( 'masteriyo_template_enroll_button', $course );
-						}
+						// if ( masteriyo_get_setting( 'course_archive.components_visibility.card_footer' ) && masteriyo_get_setting( 'course_archive.components_visibility.enroll_button' ) ) {
+						//  $layout = masteriyo_get_setting( 'single_course.display.template.layout' );
+						//      do_action( 'masteriyo_template_enroll_button', $course );
+						// }
 						?>
-							<a href="<?php echo esc_attr( $course->get_permalink() ); ?>" class="masteriyo-btn masteriyo-btn-primary masteriyo-archive-card__image-preview-button">
-								<div class="masteriyo-archive-card__image-preview-button--icon">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="#000" viewBox="0 0 24 24">
-										<path d="M3 11h15.59l-7.3-7.29a1.004 1.004 0 1 1 1.42-1.42l9 9a.93.93 0 0 1 .21.33c.051.12.078.25.08.38a1.09 1.09 0 0 1-.08.39c-.051.115-.122.22-.21.31l-9 9a1.002 1.002 0 0 1-1.639-.325 1 1 0 0 1 .219-1.095l7.3-7.28H3a1 1 0 0 1 0-2Z" />
-									</svg>
-								</div>
-								<?php
-								echo esc_html( __( 'Preview Course', 'learning-management-system' ) );
-								?>
-							</a>
+						<a href="<?php echo esc_attr( $course->get_permalink() ); ?>" class="masteriyo-btn masteriyo-btn-primary masteriyo-archive-card__image-preview-button">
+				<div class="masteriyo-archive-card__image-preview-button--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="#000" viewBox="0 0 24 24">
+						<path d="M3 11h15.59l-7.3-7.29a1.004 1.004 0 1 1 1.42-1.42l9 9a.93.93 0 0 1 .21.33c.051.12.078.25.08.38a1.09 1.09 0 0 1-.08.39c-.051.115-.122.22-.21.31l-9 9a1.002 1.002 0 0 1-1.639-.325 1 1 0 0 1 .219-1.095l7.3-7.28H3a1 1 0 0 1 0-2Z" />
+					</svg>
+				</div>
+				<?php
+				echo esc_html( __( 'Preview Course', 'learning-management-system' ) );
+				?>
+
+		</a>
 					</div>
 				</div>
 			</div>

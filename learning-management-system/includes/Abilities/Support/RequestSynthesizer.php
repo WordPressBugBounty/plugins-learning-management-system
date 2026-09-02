@@ -6,7 +6,6 @@
  * permission resolver and execute path use an identical request representation.
  *
  * @package Masteriyo\Abilities\Support
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Support;
@@ -15,15 +14,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Synthesizes WP_REST_Request instances from ability invocation data.
- *
- * @since x.x.x
  */
 class RequestSynthesizer {
 
 	/**
 	 * HTTP method to use for each verb.
 	 *
-	 * @since x.x.x
 	 * @var array
 	 */
 	private static $verb_methods = array(
@@ -40,8 +36,6 @@ class RequestSynthesizer {
 	 * Build a request suitable for calling a controller's *_permissions_check() method.
 	 *
 	 * Sets url_params so $request['id'] resolves correctly for item-level checks.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $rest_ns      REST namespace, e.g. "masteriyo/v1".
 	 * @param string $rest_base    REST base, e.g. "courses".
@@ -69,8 +63,6 @@ class RequestSynthesizer {
 	 * Build a request suitable for dispatching via rest_do_request().
 	 *
 	 * Routes params to the correct bucket (query vs body) based on HTTP method.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $rest_ns      REST namespace.
 	 * @param string $rest_base    REST base.
@@ -100,8 +92,6 @@ class RequestSynthesizer {
 
 	/**
 	 * Build the absolute REST route string for a given verb.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $rest_ns      REST namespace, e.g. "masteriyo/v1".
 	 * @param string $rest_base    REST base, e.g. "courses".

@@ -7,7 +7,7 @@
  */
 
 use Masteriyo\Addons\UserRegistrationIntegration\Helper;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -71,7 +71,7 @@ if ( ( new Addons() )->is_active( 'user-registration-integration' ) && method_ex
 						<?php echo esc_html__( 'Password', 'learning-management-system' ); ?>
 						<span class="masteriyo-text-red">*</span>
 					</label>
-					<input id="password" class="masteriyo-input" name="password" type="password" autocomplete="current-password"  value="<?php echo esc_attr( $session->get( 'instructor-registration.password' ) ); ?>">
+					<input id="password" class="masteriyo-input masteriyo-input-password" name="password" type="password" autocomplete="current-password"  value="<?php echo esc_attr( $session->get( 'instructor-registration.password' ) ); ?>">
 				</div>
 
 				<div class="masteriyo-confirm-password">

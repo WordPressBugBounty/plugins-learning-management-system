@@ -2,7 +2,6 @@
 /**
  * Manages migration session lifecycle and per-step progress state.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool
  */
 
@@ -21,7 +20,6 @@ class MigrationSession {
 	 * Prunes old terminal sessions before inserting so wp_options does not
 	 * accumulate unbounded rows across repeated migration runs.
 	 *
-	 * @since x.x.x
 	 * @param string   $lms_slug LMS plugin slug.
 	 * @param string[] $steps    Ordered step names.
 	 * @return string Session ID.
@@ -55,7 +53,6 @@ class MigrationSession {
 	 * a running background job immediately sees status changes (e.g.
 	 * cancel) written by a concurrent HTTP request.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @return array|null
 	 */
@@ -68,7 +65,6 @@ class MigrationSession {
 	/**
 	 * Merge changes into an existing session.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @param array  $changes    Key-value pairs to update.
 	 */
@@ -86,7 +82,6 @@ class MigrationSession {
 	 * one get_option() DB call per step on every status poll. Falls back to the legacy
 	 * per-step option key so sessions created before this change continue to work.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @param string $step       Step name.
 	 * @return array{ total: int, last_cursor: int, completed: int, failed: int[] }
@@ -115,7 +110,6 @@ class MigrationSession {
 	 * Stores all step states under session['step_states'] so get_status() reads the
 	 * entire state in one get_option() call instead of one per step.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @param string $step       Step name.
 	 * @param array  $state      State array to persist.
@@ -133,7 +127,6 @@ class MigrationSession {
 	/**
 	 * Find the most recent completed session.
 	 *
-	 * @since x.x.x
 	 * @return array{ session_id: string, session: array }|null
 	 */
 	public static function get_last_completed(): ?array {
@@ -169,7 +162,6 @@ class MigrationSession {
 	 * Scans wp_options for session records and returns the newest one whose
 	 * status is not completed, failed, or cancelled. Returns null when none exist.
 	 *
-	 * @since x.x.x
 	 * @return array{ session_id: string, session: array }|null
 	 */
 	public static function get_active(): ?array {
@@ -215,8 +207,6 @@ class MigrationSession {
 	 * We keep ONE completed session because the frontend banner reads it to show
 	 * "last migration completed on …". Failed and cancelled sessions are always
 	 * removed entirely since they carry no useful history.
-	 *
-	 * @since x.x.x
 	 */
 	private static function cleanup_terminal_sessions(): void {
 		global $wpdb;
@@ -255,7 +245,6 @@ class MigrationSession {
 	/**
 	 * Delete all options for a session (session record + all step states).
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 */
 	public static function cleanup( string $session_id ): void {

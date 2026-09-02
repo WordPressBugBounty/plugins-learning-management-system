@@ -9,6 +9,7 @@ namespace Masteriyo\Providers;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Constants;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Masteriyo\Tracking\WPTrackingInfo;
@@ -23,18 +24,15 @@ use Masteriyo\Tracking\MasteriyoTrackingInfo;
 class TrackingServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
 	/**
-	 * Register any bindings. None required for tracking.
-	 *
-	 * @since 1.6.0
-	 */
-	public function register(): void {}
-
-	/**
-	 * Services provided by this provider.
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.6.0
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -48,29 +46,44 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 	}
 
 	/**
+	 * Register any bindings. None required for tracking.
+	 *
+	 * @since 2.30.0
+	 */
+	public function register(): void {}
+
+	/**
 	 * Bootstraps the tracking system by registering SDK logger filter.
 	 *
 	 *
-	 * @since 1.18.1
+	 * @since 2.30.0
 	 */
 	public function boot(): void {
 
-		add_filter( 'learning_management_system_logger_data', array( $this, 'provide_tracking_data' ) );
+		// The ThemeIsle SDK derives every one of its hook names from the product
+		// key, which is the plugin directory with hyphens replaced by underscores
+		// (`ThemeisleSDK\Product::setup_from_path()`). That differs between the two
+		// products, so the name has to be derived rather than written out — the same
+		// idiom `bootstrap/plugin.php` already uses for `_sdk_should_review`.
+		$sdk_key = str_replace( '-', '_', basename( Constants::get( 'MASTERIYO_PLUGIN_DIR' ) ) );
+
+		add_filter( $sdk_key . '_logger_data', array( $this, 'provide_tracking_data' ) );
 
 		add_filter(
-			'pre_option_learning_management_system_sdk_enable_logger',
+			'pre_option_' . $sdk_key . '_sdk_enable_logger',
 			function( $enabled ) {
 				return \masteriyo_get_setting( 'advance.tracking.allow_usage' ) === true ? 'yes' : 'no';
 			}
 		);
 
 		add_action(
-			'update_option_learning_management_system_sdk_enable_logger',
+			'update_option_' . $sdk_key . '_sdk_enable_logger',
 			function( $old_value, $value ) {
+				// Sparse writes — the SDK can flip this before onboarding; see masteriyo_set_raw_setting().
 				if ( 'yes' === $value ) {
-					\masteriyo_set_setting( 'advance.tracking.allow_usage', true );
+					\masteriyo_set_raw_setting( 'advance.tracking.allow_usage', true );
 				} elseif ( 'no' === $value ) {
-					\masteriyo_set_setting( 'advance.tracking.allow_usage', false );
+					\masteriyo_set_raw_setting( 'advance.tracking.allow_usage', false );
 				}
 			},
 			10,
@@ -83,7 +96,7 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 	 * Callback for SDK tracking filter.
 	 *
 	 * @return array Tracking data payload.
-	 * @since 1.18.1
+	 * @since 2.30.0
 	 */
 	public function provide_tracking_data() {
 
@@ -150,7 +163,9 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 			ServerTrackingInfo::all()
 		);
 
-		$data['onboarding_data'] = get_option( 'masteriyo_onboarding_data' );
+		$data['onboarding_data'] = function_exists( 'masteriyo_redact_onboarding_secrets' )
+			? masteriyo_redact_onboarding_secrets( get_option( 'masteriyo_onboarding_data' ) )
+			: null;
 		$data['addons']          = MasteriyoTrackingInfo::get_addons_data();
 
 		$masteriyo_slug    = MasteriyoTrackingInfo::get_slug();
@@ -181,6 +196,9 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 			'publish_course_count'   => MasteriyoTrackingInfo::get_publish_course_count() ?? null,
 			'enrolled_users_count'   => MasteriyoTrackingInfo::masteriyo_count_total_enrolled_users() ?? null,
 			'masteriyo_install_days' => MasteriyoTrackingInfo::get_install_days() ?? null,
+			'users'                  => MasteriyoTrackingInfo::get_users_data(),
+			'content_counts'         => MasteriyoTrackingInfo::get_content_counts(),
+			'payments'               => MasteriyoTrackingInfo::get_payments_data(),
 			'onboarding_data'        => $data['onboarding_data'] ?? null,
 			'addons'                 => $data['addons'] ?? null,
 			'wp_version'             => $data['wp_version'] ?? null,

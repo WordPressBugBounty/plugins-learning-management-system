@@ -5,205 +5,71 @@
  * Description: A Complete WordPress LMS plugin to create and sell online courses in no time.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 2.3.3
+ * Version: 3.4.0
  * Requires at least: 6.6
  * Requires PHP: 7.4
  * Text Domain: learning-management-system
  * Domain Path: /i18n/languages
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
- * WordPress Available:  yes
- * Requires License:    no
+ * WordPress Available: yes
+ * Requires License: no
  */
-
-use Masteriyo\Masteriyo;
-use Masteriyo\Pro\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
-// Ghost mode: Free stays in active_plugins but runs zero code when Pro is active.
-if ( in_array( 'learning-management-system-pro/lms.php', get_option( 'active_plugins', array() ), true ) ) {
-	return;
-}
-
-if ( ! defined( 'MASTERIYO_SLUG' ) ) {
-	define( 'MASTERIYO_SLUG', 'learning-management-system' );
-}
-
-if ( ! defined( 'MASTERIYO_VERSION' ) ) {
-	define( 'MASTERIYO_VERSION', '2.3.3' );
-}
-
-if ( ! defined( 'MASTERIYO_PLUGIN_FILE' ) ) {
-	define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
-}
-
-if ( ! defined( 'MASTERIYO_PLUGIN_BASENAME' ) ) {
-	define( 'MASTERIYO_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-}
-
-if ( ! defined( 'MASTERIYO_PLUGIN_DIR' ) ) {
-	define( 'MASTERIYO_PLUGIN_DIR', __DIR__ );
-}
-
-if ( ! defined( 'MASTERIYO_ASSETS' ) ) {
-	define( 'MASTERIYO_ASSETS', __DIR__ . '/assets' );
-}
-
-if ( ! defined( 'MASTERIYO_TEMPLATES' ) ) {
-	define( 'MASTERIYO_TEMPLATES', __DIR__ . '/templates' );
-}
-
-if ( ! defined( 'MASTERIYO_LANGUAGES' ) ) {
-	define( 'MASTERIYO_LANGUAGES', __DIR__ . '/i18n/languages' );
-}
-
-if ( ! defined( 'MASTERIYO_PRO_ADDONS_DIR' ) ) {
-	define( 'MASTERIYO_PRO_ADDONS_DIR', __DIR__ . '/addons' );
-}
-
-if ( ! defined( 'MASTERIYO_LOG_DIR' ) ) {
-	define( 'MASTERIYO_LOG_DIR', wp_upload_dir()['basedir'] . '/masteriyo/masteriyo-logs/' );
-}
-
-if ( ! defined( 'MASTERIYO_LOG_URL' ) ) {
-	define( 'MASTERIYO_LOG_URL', wp_upload_dir()['baseurl'] . '/masteriyo/masteriyo-logs/' );
-}
-
-if ( ! defined( 'MASTERIYO_UPLOAD_DIR' ) ) {
-	define( 'MASTERIYO_UPLOAD_DIR', 'masteriyo' );
-}
-
-if ( ! defined( 'MASTERIYO_CORE_FEATURES_DIR' ) ) {
-	define( 'MASTERIYO_CORE_FEATURES_DIR', __DIR__ . '/includes/core-features' );
-}
-
-
-
 /**
- * Include the autoloader.
- */
-require_once __DIR__ . '/vendor/autoload.php';
-
-/**
- * Include action scheduler.
+ * Activation guard — order independent.
  *
- * @since 1.5.35
+ * The free entry stays inert whenever a pro build of Masteriyo is active, no
+ * matter which plugin WordPress happens to load first:
+ *
+ * 1. A Masteriyo bootstrap has already run in this request — pro loaded first.
+ *    In the source checkout, where both entry files live in this folder and
+ *    either may be activated, this is also what keeps free inert when both
+ *    are active: lms-pro.php sorts before lms.php, so pro always boots first.
+ * 2. A pro entry file is active in another folder and has not loaded yet — pro
+ *    loads later in this request and would otherwise define nothing in time.
+ *
+ * Pro applies rule 1 only, so it never has to wait for free and never
+ * requires free to be deactivated.
  */
-require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
-
-// Check whether assets are built or not.
-if ( masteriyo_is_production() && ! file_exists( __DIR__ . '/assets/js/build/masteriyo-backend.js' ) ) {
-	add_action(
-		'admin_notices',
-		function() {
-			printf(
-				'<div class="notice notice-error is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
-				wp_kses_post( 'Assets are need to be built. Run <code>yarn && yarn build</code> from the wp-content/plugins/learning-management-system directory.', 'learning-management-system' ),
-				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-			);
-		}
-	);
-
-	add_action(
-		'admin_init',
-		function() {
-			deactivate_plugins( plugin_basename( MASTERIYO_PLUGIN_FILE ) );
-
-			if ( isset( $_GET['activate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				unset( $_GET['activate'] );
-			}
-		},
-		0
-	);
-
+if ( defined( 'MASTERIYO_PLUGIN_FILE' ) ) {
 	return;
 }
 
+$masteriyo_pro_is_active = call_user_func(
+	function() {
+		$plugins = (array) get_option( 'active_plugins', array() );
 
-// Check for the existence of autoloader file.
-if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	add_action(
-		'admin_notices',
-		function() {
-			printf(
-				'<div class="notice notice-error is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
-				wp_kses_post( 'Requires autoloader files to work properly. Run <code>composer update</code> from the wp-content/plugins/learning-management-system directory.', 'learning-management-system' ),
-				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-			);
+		if ( is_multisite() ) {
+			$plugins = array_merge( $plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
 		}
-	);
 
-	add_action(
-		'admin_init',
-		function() {
-			deactivate_plugins( plugin_basename( MASTERIYO_PLUGIN_FILE ) );
+		foreach ( $plugins as $plugin ) {
+			if ( plugin_basename( __FILE__ ) === $plugin || 'lms.php' !== basename( $plugin ) ) {
+				continue;
+			}
 
-			if ( isset( $_GET['activate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				unset( $_GET['activate'] );
+			// Only the pro build ships a pro directory, whatever its folder is named.
+			if ( is_dir( WP_PLUGIN_DIR . '/' . dirname( $plugin ) . '/pro' ) ) {
+				return true;
 			}
 		}
-	);
 
-	return;
-}
-
-if ( ! function_exists( 'masteriyo' ) ) {
-
-	// Load all addons.
-	( new Addons() )->load_all();
-
-	// Load all free core-features.
-	( new \Masteriyo\CoreFeatures() )->load_all();
-
-	/**
-	 * Bootstrap the application.
-	 */
-	$GLOBALS['masteriyo'] = require_once __DIR__ . '/bootstrap/app.php';
-
-	/**
-	 * Return the service container.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $class Class name or alias.
-	 * @return Masteriyo\Masteriyo
-	 */
-	function masteriyo( $class = 'app' ) {
-		global $masteriyo;
-
-		return empty( $class ) ? $masteriyo : $masteriyo->get( $class );
+		return false;
 	}
+);
 
-	// Initialize pro module.
-	$GLOBALS['masteriyo']->get( 'pro' )->init();
-
-	// Initialize the application.
-	$GLOBALS['masteriyo']->get( 'app' );
-
-	/**
-	 * ThemeIsle SDK customizations
-	 * Disable promotions and dashboard widgets
-	 */
-	add_filter( 'themeisle_sdk_ran_promos', '__return_true' );
-	add_filter( 'themeisle_sdk_hide_dashboard_widget', '__return_true' );
-	add_filter( 'learning-management-system_sdk_should_review', '__return_false' );
-
-	/**
-	 * Register Masteriyo LMS with ThemeIsle SDK
-	 */
-	add_filter(
-		'themeisle_sdk_products',
-		function ( $products ) {
-			$products[] = MASTERIYO_PLUGIN_FILE;
-			return $products;
-		},
-		10,
-		1
-	);
-
+if ( $masteriyo_pro_is_active ) {
+	unset( $masteriyo_pro_is_active );
+	return;
 }
+
+unset( $masteriyo_pro_is_active );
+
+define( 'MASTERIYO_IS_PRO', false );
+define( 'MASTERIYO_VERSION', '3.4.0' );
+define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
+
+require_once __DIR__ . '/bootstrap/plugin.php';

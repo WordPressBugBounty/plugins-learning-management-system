@@ -3,7 +3,6 @@
  * Get Course ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns the full course object including metadata, pricing, access mode,
  * category and difficulty assignments, and review statistics.
- *
- * @since x.x.x
  */
 class GetCourseAbility extends RestProxyAbility {
 

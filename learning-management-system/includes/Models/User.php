@@ -15,6 +15,7 @@ use Masteriyo\ModelException;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Cache\CacheInterface;
 use Masteriyo\Enums\InstructorApplyStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Repository\UserRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -52,49 +53,62 @@ class User extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'username'                        => '',
-		'password'                        => '',
-		'nicename'                        => '',
-		'email'                           => '',
-		'url'                             => '',
-		'date_created'                    => null,
-		'date_modified'                   => null,
-		'activation_key'                  => '',
-		'status'                          => 0,
-		'display_name'                    => '',
-		'nickname'                        => '',
-		'first_name'                      => '',
-		'last_name'                       => '',
-		'description'                     => '',
-		'rich_editing'                    => true,
-		'syntax_highlighting'             => true,
-		'comment_shortcuts'               => false,
-		'admin_color'                     => 'fresh',
-		'use_ssl'                         => false,
-		'spam'                            => false,
-		'show_admin_bar_front'            => true,
-		'locale'                          => '',
-		'roles'                           => array(),
-		'profile_image_id'                => 0,
+		'username'                         => '',
+		'password'                         => '',
+		'nicename'                         => '',
+		'email'                            => '',
+		'url'                              => '',
+		'date_created'                     => null,
+		'date_modified'                    => null,
+		'activation_key'                   => '',
+		'status'                           => 0,
+		'display_name'                     => '',
+		'nickname'                         => '',
+		'first_name'                       => '',
+		'last_name'                        => '',
+		'description'                      => '',
+		'rich_editing'                     => true,
+		'syntax_highlighting'              => true,
+		'comment_shortcuts'                => false,
+		'admin_color'                      => 'fresh',
+		'use_ssl'                          => false,
+		'spam'                             => false,
+		'show_admin_bar_front'             => true,
+		'locale'                           => '',
+		'roles'                            => array(),
+		'profile_image_id'                 => 0,
 		// Billing details.
-		'billing_first_name'              => '',
-		'billing_last_name'               => '',
-		'billing_company_name'            => '',
-		'billing_company_id'              => '',
-		'billing_address_1'               => '',
-		'billing_address_2'               => '',
-		'billing_city'                    => '',
-		'billing_postcode'                => '',
-		'billing_country'                 => '',
-		'billing_state'                   => '',
-		'billing_email'                   => '',
-		'billing_phone'                   => '',
+		'billing_first_name'               => '',
+		'billing_last_name'                => '',
+		'billing_company_name'             => '',
+		'billing_company_id'               => '',
+		'billing_address_1'                => '',
+		'billing_address_2'                => '',
+		'billing_city'                     => '',
+		'billing_postcode'                 => '',
+		'billing_country'                  => '',
+		'billing_state'                    => '',
+		'billing_email'                    => '',
+		'billing_phone'                    => '',
+		// Public profile details.
+		'public_profile_biographical_info' => '',
+		'public_profile_phone'             => '',
+		'public_profile_address_1'         => '',
+		'public_profile_address_2'         => '',
+		'public_profile_city'              => '',
+		'public_profile_postcode'          => '',
+		'public_profile_country'           => '',
+		'public_profile_state'             => '',
+		'public_profile_facebook_url'      => '',
+		'public_profile_website_url'       => '',
+		'public_profile_linkedin_url'      => '',
+		'public_profile_behance_url'       => '',
+		'public_profile_show_email'        => false,
 		// Apply for instructor status.
-		'instructor_apply_status'         => InstructorApplyStatus::DEFAULT,
-		'instructor_application_attempts' => 0,
-
+		'instructor_apply_status'          => InstructorApplyStatus::DEFAULT,
+		'instructor_application_attempts'  => 0,
 		// Auto user creation during checkout.
-		'auto_create_user'                => false,
+		'auto_create_user'                 => false,
 	);
 
 	/**
@@ -119,12 +133,22 @@ class User extends Model {
 	 * @return string
 	 */
 	public function get_avatar_url( $args = null ) {
+		// A profile image uploaded on the account page takes precedence over Gravatar.
+		$image_id = $this->get_profile_image_id();
+		$post     = get_post( $image_id );
+
+		if ( $post && 'attachment' === $post->post_type ) {
+			$image_url = wp_get_attachment_image_url( $image_id );
+
+			if ( $image_url ) {
+				return $image_url;
+			}
+		}
 
 		// Check if avatars are disabled in WordPress settings.
 		if ( ! get_option( 'show_avatars' ) ) {
 			return '';
 		}
-
 		return get_avatar_url( $this->get_id(), $args );
 	}
 
@@ -136,15 +160,6 @@ class User extends Model {
 	 * @return string
 	 */
 	public function profile_image_url() {
-		$image_id = $this->get_profile_image_id();
-		$post     = get_post( $image_id );
-
-		if ( $post && 'attachment' === $post->post_type ) {
-			$image_url = wp_get_attachment_image_url( $image_id );
-		} else {
-			$image_url = $this->get_avatar_url();
-		}
-
 		/**
 		 * Filters a user's profile image URL.
 		 *
@@ -153,7 +168,7 @@ class User extends Model {
 		 * @param string $image_url The user's profile image URL.
 		 * @param Masteriyo\Models\User $user User object.
 		 */
-		return apply_filters( 'masteriyo_profile_image_url', $image_url, $this );
+		return apply_filters( 'masteriyo_profile_image_url', $this->get_avatar_url(), $this );
 	}
 
 	/**
@@ -165,9 +180,10 @@ class User extends Model {
 	 */
 	public function get_course_archive_url() {
 		$url = get_author_posts_url( $this->get_id() );
+
 		$url = add_query_arg(
 			array(
-				'post_type' => 'mto-course',
+				'post_type' => PostType::COURSE,
 			),
 			$url
 		);
@@ -657,6 +673,174 @@ class User extends Model {
 	}
 
 	/**
+	 * Get user's public profile biographical info.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_public_profile_biographical_info( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_biographical_info', $context );
+	}
+
+		/**
+	 * Get user's public profile phone number.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_public_profile_phone( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_phone', $context );
+	}
+
+	/**
+	* Get user's public profile address line 1.
+	*
+	* @since  2.6.8
+	*
+	* @param  string $context What the value is for. Valid values are view and edit.
+	*
+	* @return string
+	*/
+	public function get_public_profile_address_1( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_address_1', $context );
+	}
+
+	/**
+	 * Get user's public profile address line 2.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_public_profile_address_2( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_address_2', $context );
+	}
+
+	/**
+	 * Get user's public profile city.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_public_profile_city( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_city', $context );
+	}
+
+	/**
+	* Get user's public profile postcode.
+	*
+	* @since  2.6.8
+	*
+	* @param  string $context What the value is for. Valid values are view and edit.
+	*
+	* @return string
+		*/
+	public function get_public_profile_postcode( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_postcode', $context );
+	}
+
+	/**
+		* Get user's public profile country.
+		*
+		* @since  2.6.8
+		*
+		* @param  string $context What the value is for. Valid values are view and edit.
+		*
+		* @return string
+		*/
+	public function get_public_profile_country( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_country', $context );
+	}
+
+	/**
+	 * Get user's public profile state.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_public_profile_state( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_state', $context );
+	}
+
+	/**
+		* Get user's public profile facebook url.
+		*
+		* @since  2.6.8
+		*
+		* @param  string $context What the value is for. Valid values are view and edit.
+		*
+		* @return string
+		*/
+	public function get_public_profile_facebook_url( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_facebook_url', $context );
+	}
+
+	/**
+* Get user's public profile website url.
+*
+* @since  2.6.8
+*
+* @param  string $context What the value is for. Valid values are view and edit.
+*
+* @return string
+*/
+	public function get_public_profile_website_url( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_website_url', $context );
+	}   /**
+* Get user's public profile linkedin url.
+*
+* @since  2.6.8
+*
+* @param  string $context What the value is for. Valid values are view and edit.
+*
+* @return string
+*/
+	public function get_public_profile_linkedin_url( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_linkedin_url', $context );
+	}
+
+	/**
+* Get user's public profile behance url.
+*
+* @since  2.6.8
+*
+* @param  string $context What the value is for. Valid values are view and edit.
+*
+* @return string
+*/
+	public function get_public_profile_behance_url( $context = 'view' ) {
+		return $this->get_prop( 'public_profile_behance_url', $context );
+
+	}
+
+	/**
+	 * Get whether the user shows their email on the public profile.
+	 *
+	 * @since  2.31.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return boolean
+	 */
+	public function get_public_profile_show_email( $context = 'view' ) {
+		return masteriyo_string_to_bool( $this->get_prop( 'public_profile_show_email', $context ) );
+	}
+
+	/**
 	 * Get apply status for instructor.
 	 *
 	 * @since 1.6.13
@@ -672,7 +856,7 @@ class User extends Model {
 	/**
 	 * Get instructor application attempts count.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -685,7 +869,7 @@ class User extends Model {
 	/**
 	 * Get auto create user flag.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -945,14 +1129,14 @@ class User extends Model {
 		$roles = (array) $roles;
 
 		if ( $roles && ! masteriyo_is_role_exists( $roles ) ) {
-			throw new ModelException( 'user_invalid_roles', __( 'Invalid roles', 'learning-management-system' ) );
+			throw new ModelException( 'user_invalid_roles', esc_html__( 'Invalid roles', 'learning-management-system' ) );
 		}
 		$roles = (array) $roles;
 
 		if ( is_array( $roles ) && ! empty( $roles ) && ! empty( $GLOBALS['wp_roles']->roles ) ) {
 			foreach ( $roles as $role ) {
 				if ( ! in_array( $role, array_keys( $GLOBALS['wp_roles']->roles ), true ) ) {
-					throw new ModelException( 'user_invalid_roles', __( 'Invalid roles', 'learning-management-system' ) );
+					throw new ModelException( 'user_invalid_roles', esc_html__( 'Invalid roles', 'learning-management-system' ) );
 				}
 			}
 		}
@@ -1125,7 +1309,7 @@ class User extends Model {
 	/**
 	 * Set instructor application attempts count.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @param int $attempts Number of application attempts.
 	 */
@@ -1136,7 +1320,7 @@ class User extends Model {
 	/**
 	 * Increment instructor application attempts count.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @return int New attempts count after increment.
 	 */
@@ -1148,9 +1332,176 @@ class User extends Model {
 	}
 
 	/**
+	 * Set user's public profile biographical info.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_biographical_info( $biographical_info ) {
+		$this->set_prop( 'public_profile_biographical_info', $biographical_info );
+	}
+
+	/**
+	 * Set user's public profile phone number.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_phone( $phone ) {
+		$this->set_prop( 'public_profile_phone', $phone );
+	}
+
+	/**
+	* Set user's public profile address line 1.
+	*
+	* @since  2.6.8
+	*
+	* @param  string $context What the value is for. Valid values are view and edit.
+	*
+	* @return string
+	*/
+	public function set_public_profile_address_1( $address_1 ) {
+		$this->set_prop( 'public_profile_address_1', $address_1 );
+	}
+
+	/**
+	 * Set user's public profile address line 2.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_address_2( $address_2 ) {
+		$this->set_prop( 'public_profile_address_2', $address_2 );
+	}
+
+	/**
+	 * Set user's public profile city.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_city( $city ) {
+		$this->set_prop( 'public_profile_city', $city );
+	}
+
+	/**
+	* Set user's public profile postcode.
+	*
+	* @since  2.6.8
+	*
+	* @param  string $context What the value is for. Valid values are view and edit.
+	*
+	* @return string
+		*/
+	public function set_public_profile_postcode( $postcode ) {
+		$this->set_prop( 'public_profile_postcode', $postcode );
+	}
+
+	/**
+		* Set user's public profile country.
+		*
+		* @since  2.6.8
+		*
+		* @param  string $context What the value is for. Valid values are view and edit.
+		*
+		* @return string
+		*/
+	public function set_public_profile_country( $country ) {
+		$this->set_prop( 'public_profile_country', $country );
+	}
+
+	/**
+	 * Set user's public profile state.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_state( $state ) {
+		$this->set_prop( 'public_profile_state', $state );
+	}
+
+	/**
+		* Set user's public profile facebook url.
+		*
+		* @since  2.6.8
+		*
+		* @param  string $context What the value is for. Valid values are view and edit.
+		*
+		* @return string
+		*/
+	public function set_public_profile_facebook_url( $facebook_url ) {
+		$this->set_prop( 'public_profile_facebook_url', $facebook_url );
+	}
+
+	/**
+	 * Set user's public profile website url.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_website_url( $website_url ) {
+		$this->set_prop( 'public_profile_website_url', $website_url );
+	}
+
+	/**
+	 * Set user's public profile linkedin url.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_linkedin_url( $linkedin_url ) {
+		$this->set_prop( 'public_profile_linkedin_url', $linkedin_url );
+	}
+
+	/**
+	 * Set user's public profile behance url.
+	 *
+	 * @since  2.6.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function set_public_profile_behance_url( $behance_url ) {
+		$this->set_prop( 'public_profile_behance_url', $behance_url );
+	}
+
+	/**
+	 * Set whether the user shows their email on the public profile.
+	 *
+	 * @since  2.31.0
+	 *
+	 * @param  boolean $show_email Whether to show the email.
+	 */
+	public function set_public_profile_show_email( $show_email ) {
+		$this->set_prop( 'public_profile_show_email', masteriyo_string_to_bool( $show_email ) );
+	}
+
+	/**
 	 * Set auto create user flag.
 	 *
-	 * @since  1.14.4
+	 * @since  2.16.0
 	 *
 	 * @param  boolean $auto_create_user Whether to auto create user or not.
 	 */
@@ -1188,7 +1539,7 @@ class User extends Model {
 	/**
 	 * Return true if the user has the roles.
 	 *
-	 * @since 1.8.1
+	 * @since 2.4.6
 	 *
 	 * @param string|string[] $roles Roles.
 	 * @return boolean
@@ -1228,7 +1579,7 @@ class User extends Model {
 	/**
 	 * Add roles to the user.
 	 *
-	 * @since 1.8.1
+	 * @since 2.4.6
 	 *
 	 * @param string|string[] $roles
 	 */

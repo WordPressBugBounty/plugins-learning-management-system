@@ -78,8 +78,6 @@ const MultipleCurrencySettings = () => {
 		if (settingQuery?.isSuccess) {
 			methods.reset(methods.getValues());
 		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [settingQuery?.isSuccess]);
 
 	return settingQuery.isSuccess ? (

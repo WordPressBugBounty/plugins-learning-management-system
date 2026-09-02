@@ -14,7 +14,7 @@ use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Exceptions\RestException;
 use Masteriyo\ModelException;
-
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +35,7 @@ abstract class PostsController extends CrudController {
 
 	/**
 	 * Checks if a given request has access to get a specific item.
-	 *use Masteriyo\Enums\SectionChildrenPostType;
-
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -78,6 +77,16 @@ abstract class PostsController extends CrudController {
 				return true;
 			}
 
+			if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+				if ( masteriyo_is_instructor_or_additional_instructor( $course_id ) ) {
+					return true;
+				}
+			}
+
+			if ( masteriyo_course_has_previewable_lessons( $course_id ) ) {
+				return true;
+			}
+
 			if ( is_user_logged_in() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() && ! masteriyo_can_start_course( $course ) ) {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
@@ -88,7 +97,7 @@ abstract class PostsController extends CrudController {
 				);
 			}
 
-			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( PostStatus::PUBLISH !== $course->get_status() || post_password_required( get_post( $course->get_id() ) ) ) ) {
+			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
 					__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -119,8 +128,6 @@ abstract class PostsController extends CrudController {
 	 * never be stored by page/REST caches — otherwise a cached response could be replayed to another
 	 * tab/user and bypass access checks such as "Restrict Content During Quiz". Force no-cache headers
 	 * on these responses as defense-in-depth so the permission gate always runs against fresh state.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|WP_REST_Response
@@ -237,6 +244,38 @@ abstract class PostsController extends CrudController {
 
 		$post = get_post( (int) $request['id'] );
 
+		if ( $post && $this->post_type !== $post->post_type ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->post_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array(
+					'status' => 404,
+				)
+			);
+		}
+
+		if ( $post && in_array( $post->post_type, array_merge( CourseChildrenPostType::all(), array( PostType::QUESTION ) ), true ) ) {
+
+			$course_id = get_post_meta( $post->ID, '_course_id', true );
+			$course    = masteriyo_get_course( $course_id );
+
+			if ( is_null( $course ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_invalid_course_id',
+					__( 'Invalid course ID.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+
+			if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+				if ( masteriyo_is_instructor_or_additional_instructor( $course_id ) ) {
+					return true;
+				}
+			}
+		}
+
 		if ( $post && ! $this->permission->rest_check_post_permissions( $this->post_type, 'delete', $post->ID ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
@@ -290,7 +329,6 @@ abstract class PostsController extends CrudController {
 		return true;
 	}
 
-
 	/**
 	 * Check if a given request has access to update an item.
 	 *
@@ -319,6 +357,38 @@ abstract class PostsController extends CrudController {
 		}
 
 		$post = get_post( (int) $request['id'] );
+
+		if ( $post && $this->post_type !== $post->post_type ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->post_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array(
+					'status' => 404,
+				)
+			);
+		}
+
+		if ( $post && in_array( $post->post_type, array_merge( CourseChildrenPostType::all(), array( PostType::QUESTION ) ), true ) ) {
+
+			$course_id = get_post_meta( $post->ID, '_course_id', true );
+			$course    = masteriyo_get_course( $course_id );
+
+			if ( is_null( $course ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_invalid_course_id',
+					__( 'Invalid course ID.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+
+			if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+				if ( masteriyo_is_instructor_or_additional_instructor( $course_id ) ) {
+					return true;
+				}
+			}
+		}
 
 		if ( $post && ! $this->permission->rest_check_post_permissions( $this->post_type, 'update', $post->ID ) ) {
 			return new \WP_Error(
@@ -455,11 +525,12 @@ abstract class PostsController extends CrudController {
 		$video           = get_post_meta( $object->get_id(), '_video_source_url', true );
 
 		$previous = array(
-			'id'     => $object->get_id(),
-			'name'   => wp_specialchars_decode( $object->get_name() ),
-			'type'   => $object->get_object_type(),
-			'video'  => ! empty( trim( $video ) ),
-			'parent' => is_null( $previous_parent ) ? null : array(
+			'id'                => $object->get_id(),
+			'name'              => wp_specialchars_decode( $object->get_name() ),
+			'type'              => $object->get_object_type(),
+			'video'             => ! empty( trim( $video ) ),
+			'google_meeting_id' => $object->get_post_type() === 'mto-google-meet' ? $object->get_meeting_id() : '',
+			'parent'            => is_null( $previous_parent ) ? null : array(
 				'id'   => $previous_parent->ID,
 				'name' => $previous_parent->post_title,
 			),
@@ -493,16 +564,16 @@ abstract class PostsController extends CrudController {
 				'lesson',
 				'quiz',
 				'section',
-				// 'question', // Removed since 1.11.0: Instructors can now view all quiz questions if they are enrolled in the course, regardless of authorship.
 			)
 		);
 
 		if ( masteriyo_is_current_user_instructor() && in_array( $this->object_type, $object_types, true ) ) {
-			$args = array_merge( $args, array( 'author' => get_current_user_id() ) );
+			$args['author__in'] = array( 'author' => get_current_user_id() );
 		}
 
 		return $args;
 	}
+
 
 	/**
 	 * Get posts count by status.
@@ -513,7 +584,7 @@ abstract class PostsController extends CrudController {
 	 * @return array
 	 */
 	protected function get_posts_count() {
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+		if ( current_user_can( 'manage_masteriyo_settings' ) ) {
 			$post_count = (array) wp_count_posts( $this->post_type );
 		} else {
 			$post_count = (array) masteriyo_count_posts( $this->post_type, get_current_user_id() );
@@ -536,7 +607,8 @@ abstract class PostsController extends CrudController {
 	/**
 	 * Create new post title based on previous old post title.
 	 *
-	 * @since 1.9.3
+	 * @since 2.3.7
+	 * @since 2.5.7 Second parameter is string which contains new post title
 	 *
 	 * @param WP_Post $old_post Old post.
 	 * @param string $post_title New post title.
@@ -554,7 +626,7 @@ abstract class PostsController extends CrudController {
 		/**
 		 * Filter new clone post title.
 		 *
-		 * @since 1.9.3
+		 * @since 2.3.7
 		 *
 		 * @param string $new_title New post title.
 		 * @param WP_Post $old_post Old post.
@@ -563,10 +635,10 @@ abstract class PostsController extends CrudController {
 		return apply_filters( "masteriyo_pro_rest_{$this->object_type}_new_clone_post_title", $new_title, $old_post, $post_title );
 	}
 
-		/**
+	/**
 	 * Clone a WP Post object.
 	 *
-	 * @since 1.9.3
+	 * @since 2.5.7
 	 *
 	 * @param \WP_Post $post_id WP Post ID.
 	 * @param string[] $args New post content args.
@@ -614,13 +686,22 @@ abstract class PostsController extends CrudController {
 			update_post_meta( $new_post_id, $meta_key, maybe_unserialize( $meta_value[0] ) );
 		}
 
+		// Clone all the taxonomies.
+		$taxonomies = get_object_taxonomies( $old_post->post_type );
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = wp_get_object_terms( $old_post->ID, $taxonomy, array( 'fields' => 'ids' ) );
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+				wp_set_object_terms( $new_post_id, $terms, $taxonomy );
+			}
+		}
+
 		return get_post( $new_post_id );
 	}
 
-		/**
+	/**
 	 * Clone one item/post from the collection.
 	 *
-	 * @since 1.9.3
+	 * @since 2.3.7
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -669,7 +750,8 @@ abstract class PostsController extends CrudController {
 		 * The dynamic portion of the hook name, $this->object_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.9.3
+		 * @since 2.3.7
+		 * @since 2.5.7 Removed the second parameter called $old_post.
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param \Masteriyo\Database\Model  $object New object
@@ -681,7 +763,7 @@ abstract class PostsController extends CrudController {
 	/**
 	 * Check if a given request has access to clone an item.
 	 *
-	 * @since 1.9.3
+	 * @since 1.0.0
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -855,7 +937,7 @@ abstract class PostsController extends CrudController {
 				'masteriyo_rest_cannot_bulk_delete',
 				/* translators: %s: post type */
 				sprintf( __( 'The %s cannot be bulk deleted.', 'learning-management-system' ), $this->object_type ),
-				array( 'status' => 500 )
+				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 

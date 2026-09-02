@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Email Marketing
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\FluentCRM\Helper;
 use Masteriyo\Addons\FluentCRM\FluentCrmAddon;
 
@@ -33,7 +33,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_FLUENT_CRM_INTEGRATION_ADDON_SLUG ) 
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'Fluent CRM Integration addon requires FluentCRM to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

@@ -60,7 +60,8 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 			return;
 		}
 
-		$this->set_recipients( $admin_email );
+		$to_address = explode( ',', $this->format_string( masteriyo_get_setting( 'emails.admin.new_withdraw_request.to_address' ) ) ?? $admin_email );
+		$this->set_recipients( $to_address );
 		$this->set( 'withdraw', $withdraw );
 		$this->set( 'withdrawer', $withdraw->get_withdrawer() );
 
@@ -99,11 +100,32 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['admin']['new_withdraw_request']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.admin.new_withdraw_request.subject' ) );
 
 		return $this->format_string( $subject );
 	}
 
+	/**
+	 * Return additional content.
+	 *
+	 * @since 1.6.14
+	 *
+	 * @return string
+	 */
+	public function get_additional_content() {
+
+		/**
+		 * Filter student registration email additional content to admin.
+		 *
+		 * @since 1.6.14
+		 *
+		 * @param string $additional_content.
+		 */
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_withdraw_request.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.admin.new_withdraw_request.additional_content', 'masteriyo-email-message', $additional_content );
+
+		return $this->format_string( $additional_content );
+	}
 
 	/**
 	 * Get email content.
@@ -113,7 +135,7 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.admin.new_withdraw_request.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['new_withdraw_request']['content'] );
+		$content = masteriyo_string_translation( 'emails.admin.new_withdraw_request.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.admin.new_withdraw_request.content' ) );
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
 		return parent::get_content();
@@ -122,7 +144,7 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 		/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return array
 	 */
@@ -156,23 +178,86 @@ class NewWithdrawRequestEmailToAdmin extends Email {
 	}
 
 	/**
-	 * Return additional content.
+	 * Get the reply_to_name.
 	 *
-	 * @since 1.6.14
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
-	public function get_additional_content() {
-
+	public function get_reply_to_name() {
 		/**
-		 * Filter student registration email additional content to admin.
+		 * Filter student registration email reply_to_name to admin.
 		 *
-		 * @since 1.6.14
+		 * @since 2.8.0
 		 *
-		 * @param string $additional_content.
+		 * @param string $reply_to_name.
 		 */
-		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_withdraw_request.additional_content' ) );
-		$additional_content = masteriyo_string_translation( 'emails.admin.new_withdraw_request.additional_content', 'masteriyo-email-message', $additional_content );
-		return $this->format_string( $additional_content );
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.admin.new_withdraw_request.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.admin.new_withdraw_request.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.admin.new_withdraw_request.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.admin.new_withdraw_request.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

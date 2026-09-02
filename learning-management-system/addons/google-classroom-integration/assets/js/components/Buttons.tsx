@@ -50,7 +50,7 @@ function Buttons(props: {
 	const toast = useToast();
 	const courseAPI = new API(urls.courses);
 	const queryClient = useQueryClient();
-	let courseId = Number(course.course_id) as number;
+	const courseId = Number(course.course_id) as number;
 	const { onClose, onOpen, isOpen } = useDisclosure();
 	const [deleteCourseId, setDeleteCourseId] = useState<number | undefined>(
 		courseId,
@@ -84,6 +84,7 @@ function Buttons(props: {
 			},
 		},
 	});
+
 	const updateNPublishCourse = (data: googleClassroomCourses) => {
 		const newData: any = {
 			google_classroom_course_id: data.id,
@@ -121,6 +122,7 @@ function Buttons(props: {
 			},
 		},
 	});
+
 	const onDeletePress = (courseId?: number) => {
 		onOpen();
 		setDeleteCourseId(courseId);
@@ -139,7 +141,7 @@ function Buttons(props: {
 							<Button
 								onClick={() => updateNPublishCourse(course)}
 								size="xs"
-								variant="solid"
+								variant="outline"
 								colorScheme="primary"
 								marginRight="36px"
 								boxShadow="none"
@@ -151,7 +153,7 @@ function Buttons(props: {
 						{course.course_status === 'publish' && (
 							<Button
 								size="xs"
-								variant="solid"
+								variant="outline"
 								colorScheme="primary"
 								marginRight="2"
 								boxShadow="none"
@@ -186,7 +188,7 @@ function Buttons(props: {
 														icon={<BiShow />}
 														onClick={() => studentImportOnClick(course)}
 													>
-														{__('Student Import', 'learning-management-system')}
+														{__('Import Student', 'learning-management-system')}
 													</MenuItem>
 												</>
 											)}
@@ -224,7 +226,10 @@ function Buttons(props: {
 							},
 							delete: {
 								header: __('Deleting Courses', 'learning-management-system'),
-								body: __('Are you sure? You can’t restore after deleting.'),
+								body: __(
+									'Are you sure? You can’t restore after deleting.',
+									'learning-management-system',
+								),
 								confirm: __('Delete', 'learning-management-system'),
 							},
 						}}

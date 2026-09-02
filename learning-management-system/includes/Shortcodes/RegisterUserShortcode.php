@@ -2,7 +2,7 @@
 /**
  * Register User shortcode.
  *
- * @since 1.14.0
+ * @since 2.15.0
  * @class RegisterUserShortcode
  * @package Masteriyo\Shortcodes
  */
@@ -21,7 +21,7 @@ class RegisterUserShortcode extends Shortcode {
 	/**
 	 * Shortcode tag.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var string
 	 */
@@ -30,7 +30,7 @@ class RegisterUserShortcode extends Shortcode {
 	/**
 	 * Get shortcode content.
 	 *
-	 * @since  1.14.0
+	 * @since  2.15.0
 	 *
 	 * @return string
 	 */
@@ -55,9 +55,10 @@ class RegisterUserShortcode extends Shortcode {
 	/**
 	 * Get template path to render.
 	 *
-	 * @since  1.14.0
+	 * @since  2.15.0
 	 *
 	 * @return string
+	 *
 	 */
 	protected function get_template_path() {
 

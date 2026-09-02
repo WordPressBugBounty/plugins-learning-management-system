@@ -61,6 +61,7 @@ class GoogleClassroomSettingController extends CrudController {
 	 * Register routes.
 	 *
 	 * @since 1.8.3
+	 *
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -83,7 +84,6 @@ class GoogleClassroomSettingController extends CrudController {
 					'callback'            => array( $this, 'reset_google_classroom_setting' ),
 					'permission_callback' => array( $this, 'save_google_classroom_setting_permission_check' ),
 				),
-
 			)
 		);
 
@@ -100,13 +100,12 @@ class GoogleClassroomSettingController extends CrudController {
 		);
 	}
 
-
 	/**
-	 * get import file.
+	 * Retrieve the uploaded import file
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
-	 * @param  Array $files Full files array.
+	 * @param  Array $files Uploaded file data from the user
 	 * @return WP_Error|boolean
 	 */
 	protected function get_import_file( $files ) {
@@ -169,6 +168,7 @@ class GoogleClassroomSettingController extends CrudController {
 		return true;
 	}
 
+
 	/**
 	 * Check if a given request has access to check validate.
 	 *
@@ -180,6 +180,8 @@ class GoogleClassroomSettingController extends CrudController {
 	public function validate_settings_permission_check( $request ) {
 		return current_user_can( 'edit_google_classrooms' );
 	}
+
+
 
 	/**
 	 * Return validate
@@ -205,8 +207,7 @@ class GoogleClassroomSettingController extends CrudController {
 	}
 
 
-
-	/**
+		/**
 	 * Reset google classroom client details
 	 *
 	 * @since 1.11.0
@@ -258,6 +259,7 @@ class GoogleClassroomSettingController extends CrudController {
 		$file_contents = json_decode( $file_system->get_contents( $file ), true );
 
 		$setting = new GoogleClassroomSetting();
+
 		$setting->set( 'client_id', $file_contents['web']['client_id'] );
 		$setting->set( 'refresh_token', $file_contents['web']['token_uri'] );
 		$setting->set( 'client_secret', $file_contents['web']['client_secret'] );
@@ -265,10 +267,11 @@ class GoogleClassroomSettingController extends CrudController {
 		if ( $setting->get( 'client_id' ) !== $file_contents['web']['client_id'] || $setting->get( 'client_secret' ) !== $file_contents['web']['client_secret'] ) {
 			update_option( 'masteriyo_google_classroom_data_' . masteriyo_get_current_user_id(), array() );
 		}
+
 		$setting->save();
 		return rest_ensure_response( $setting->get_data() );
-
 	}
+
 
 	/**
 	 * Checks if a given request has access to get items.
@@ -281,6 +284,7 @@ class GoogleClassroomSettingController extends CrudController {
 	public function get_google_classrooms_setting_permission_check( $request ) {
 		return current_user_can( 'edit_google_classrooms' );
 	}
+
 
 	/**
 	 * Get the google_classroom_settings'schema, conforming to JSON Schema.

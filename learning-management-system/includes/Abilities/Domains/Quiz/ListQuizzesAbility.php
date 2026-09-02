@@ -3,7 +3,6 @@
  * List Quizzes ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports filtering by course ID or section ID.
  * Results are ordered by menu_order within their parent section.
- *
- * @since x.x.x
  */
 class ListQuizzesAbility extends RestProxyAbility {
 

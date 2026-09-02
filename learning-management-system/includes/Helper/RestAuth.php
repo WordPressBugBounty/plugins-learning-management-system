@@ -2,7 +2,7 @@
 /**
  * REST Auth helper functions.
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  * @package Masteriyo\Helper
  */
 
@@ -15,17 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
+
 /**
  * REST Auth helper class
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  */
 class RestAuth {
 
 	/**
 	 * Keys user meta key.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @var string
 	 */
 	const KEYS_USER_META_KEY = 'masteriyo_rest_api_key_secret';
@@ -37,7 +38,7 @@ class RestAuth {
 	 * 'Authorization' header of the request. It supports Basic authentication
 	 * scheme where the credentials are base64 encoded.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the incoming REST API request.
 	 *
@@ -72,7 +73,7 @@ class RestAuth {
 	 * server variable and then falls back to using the getallheaders()
 	 * function if available. Returns an empty string if the header is not found.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return string The value of the 'Authorization' header or an empty string if not found.
 	 */
@@ -99,7 +100,7 @@ class RestAuth {
 	/**
 	 * Validate API key and secret.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string $api_key     The API key to validate.
 	 * @param string $api_secret  The API secret to validate.

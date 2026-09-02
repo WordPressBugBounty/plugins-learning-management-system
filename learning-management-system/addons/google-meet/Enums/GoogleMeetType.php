@@ -2,7 +2,7 @@
 /**
  * GoogleMeet Meeting types.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  * @package Masteriyo\Enums
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GoogleMeet Meeting type enum class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class GoogleMeetType {
 	/**
 	 * GoogleMeet instant meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var integer
 	 */
 	const INSTANT = '1';
@@ -27,7 +27,7 @@ class GoogleMeetType {
 	/**
 	 * GoogleMeet scheduled meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var integer
 	 */
 	const SCHEDULED = '2';
@@ -35,7 +35,7 @@ class GoogleMeetType {
 	/**
 	 * GoogleMeet recurring not fixed meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var integer
 	 */
 	const NOT_FIXED_RECURRING = '3';
@@ -43,7 +43,7 @@ class GoogleMeetType {
 	/**
 	 * GoogleMeet recurring fixed meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var integer
 	 */
 	const FIXED_RECURRING = '8';
@@ -51,7 +51,7 @@ class GoogleMeetType {
 	/**
 	 * Return all GoogleMeet Meeting types.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -60,7 +60,7 @@ class GoogleMeetType {
 			/**
 			 * Filters GoogleMeet Meeting type list.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer[] $types GoogleMeet Meeting types.
 			 */

@@ -15,7 +15,9 @@ use Masteriyo\Constants;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Models\CourseReview;
 use Masteriyo\Query\UserCourseQuery;
+use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\CourseAccessMode;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\CourseProgressQuery;
 
 if ( ! function_exists( 'masteriyo_is_filtered' ) ) {
@@ -167,7 +169,7 @@ function masteriyo_is_rest_api_request() {
  * @return bool
  */
 function masteriyo_is_debug_enabled() {
-	return masteriyo_get_setting( 'advance.debug.debug' );
+	return (bool) Constants::get( 'MASTERIYO_DEBUG' );
 }
 
 /**
@@ -198,9 +200,8 @@ function masteriyo_is_single_course_page() {
 	return is_singular( PostType::COURSE );
 }
 
-
 /**
- * Check if the current page is a single course page.
+ * Check if the current page is a course archive page.
  *
  * @since 1.0.0
  *
@@ -212,16 +213,17 @@ function masteriyo_is_single_course_page() {
  */
 function masteriyo_is_courses_page( $check_shortcode = false ) {
 	global $post;
+
 	if ( is_post_type_archive( PostType::COURSE ) || is_page( masteriyo_get_page_id( 'courses' ) ) ) {
 		return true;
 	}
 
 	if ( $check_shortcode ) {
-
 		if ( ( $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_courses' ) ) ) {
 			return true;
 		}
 	}
+
 	if ( has_block( 'masteriyo/courses', $post ) || has_block( 'masteriyo/course-search-form', $post ) ) {
 		return true;
 	}
@@ -462,6 +464,29 @@ function masteriyo_is_course( $course_id ) {
 	return true;
 }
 
+/**
+ * Validate course bundle.
+ *
+ * @since 2.15.0
+ *
+ * @param  int $course_id Course Bundle ID.
+ * @return boolean|WP_Error
+ */
+function masteriyo_is_course_bundle( $course_id ) {
+	if ( ! is_numeric( $course_id ) ) {
+		return new \WP_Error( 'rest_invalid_type', 'course is not of type integer' );
+	}
+
+	$course_id = absint( $course_id );
+	$course    = get_post( $course_id );
+
+	if ( is_null( $course ) || PostType::COURSE_BUNDLE !== $course->post_type ) {
+		return new \WP_Error( 'rest_invalid_course', 'invalid course id' );
+	}
+
+	return true;
+}
+
 if ( ! function_exists( 'masteriyo_is_current_user_super_admin' ) ) {
 	/**
 	 * Check if the current user is super admin.
@@ -527,6 +552,28 @@ if ( ! function_exists( 'masteriyo_is_current_user_instructor' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_can_user_apply_for_instructor' ) ) {
+	/**
+	 * Check if the user can apply for instructor status.
+	 *
+	 * @param \Masteriyo\Models\User $user User object.
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_can_user_apply_for_instructor( $user ) {
+		if ( \Masteriyo\Enums\InstructorApplyStatus::APPROVED === $user->get_instructor_apply_status() ) {
+			return false;
+		}
+
+		$max_attempts = masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' );
+
+		/** This filter is documented in includes/RestApi/Controllers/Version1/UsersController.php */
+		$max_attempts = apply_filters( 'masteriyo_instructor_max_application_attempts', $max_attempts );
+
+		return $user->get_instructor_application_attempts() < $max_attempts;
+	}
+}
+
 if ( ! function_exists( 'masteriyo_is_add_payment_method_page' ) ) {
 
 	/**
@@ -555,10 +602,25 @@ if ( ! function_exists( 'masteriyo_is_current_user_post_author' ) ) {
 	 * @return boolean
 	 */
 	function masteriyo_is_current_user_post_author( $post_id ) {
+		$current_user_id = get_current_user_id();
+
+		// Guests have user ID 0, which would otherwise match a post with post_author = 0 (e.g. imported/wp-cli-created posts).
+		if ( ! $current_user_id ) {
+			return false;
+		}
+
 		$post = get_post( absint( $post_id ) );
 
 		if ( is_a( $post, \WP_Post::class ) ) {
-			return get_current_user_id() === absint( $post->post_author );
+
+			$is_author          = absint( $post->post_author ) === $current_user_id;
+			$additional_authors = get_post_meta( $post->ID, '_additional_authors' );
+			$additional_authors = is_array( $additional_authors ) ? $additional_authors : array();
+			$additional_authors = array_map( 'absint', $additional_authors );
+
+			if ( $is_author || in_array( $current_user_id, $additional_authors, true ) ) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -585,7 +647,7 @@ if ( ! function_exists( 'masteriyo_is_checkout_page' ) ) {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
+	 * @return boolean
 	 */
 	function masteriyo_is_checkout_page() {
 		global $post;
@@ -640,9 +702,9 @@ if ( ! function_exists( 'masteriyo_is_user_enrolled_in_course' ) ) {
 	}
 }
 
-
 if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 	function masteriyo_is_course_order( $course_id, $user_id = null ) {
+
 		if ( is_null( $user_id ) ) {
 			$user_id = get_current_user_id();
 		}
@@ -699,6 +761,52 @@ if ( ! function_exists( 'masteriyo_is_course_order' ) ) {
 		return ( 'completed' === $status );
 	}
 }
+
+if ( ! function_exists( 'masteriyo_course_order_awaiting_payment' ) ) {
+	/**
+	 * Check if the user's order for a course is awaiting payment confirmation (on-hold).
+	 *
+	 * A pending order does not count: it is created before the customer is
+	 * handed to a payment gateway, so an abandoned checkout must keep the
+	 * course purchasable.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param integer|string $course_id Course ID.
+	 * @param integer|string|null $user_id User ID. Defaults to the current user.
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_course_order_awaiting_payment( $course_id, $user_id = null ) {
+		if ( is_null( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $user_id,
+				'type'      => 'course',
+			)
+		);
+
+		$user_course = current( $query->get_user_courses() );
+
+		if ( ! $user_course || 'active' === $user_course->get_status() || ! $user_course->get_order_id() ) {
+			return false;
+		}
+
+		$order = masteriyo_get_order( $user_course->get_order_id() );
+
+		return $order && OrderStatus::ON_HOLD === $order->get_status();
+	}
+}
+
+
 if ( ! function_exists( 'masteriyo_is_current_user_enrolled_in_course' ) ) {
 	/**
 	 * Check if the current logged in user is enrolled in a course.
@@ -793,7 +901,9 @@ function masteriyo_is_post_type_debug_enabled() {
  * @return bool
  */
 function masteriyo_is_template_debug_enabled() {
-	return masteriyo_get_setting( 'advance.debug.template_debug' );
+	// Constants::get(), not is_true(): is_defined() skips the
+	// masteriyo_constant_default_value filter, which Template.php honoured.
+	return (bool) Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' );
 }
 
 if ( ! function_exists( 'masteriyo_is_quiz_attempt_limit_reached' ) ) {
@@ -846,7 +956,7 @@ if ( ! function_exists( 'masteriyo_is_quiz_attempt_limit_reached' ) ) {
 if ( ! function_exists( 'masteriyo_is_instructor_registration_page' ) ) {
 
 	/**
-	 * Check if the current page is signup page.
+	 * Check if the current page is instructor registration page.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1064,7 +1174,16 @@ if ( ! function_exists( 'masteriyo_is_show_review_notice' ) ) {
 		}
 
 		if ( is_super_admin() || current_user_can( 'manage_masteriyo' ) ) {
-			return true;
+			/**
+			 * Filters whether the ask-for-a-review notice may show.
+			 *
+			 * The notice asks for a wordpress.org review of the vendor's
+			 * product, so White Label turns it off: on a branded site it
+			 * would reveal the vendor and misattribute the request.
+			 *
+			 * @param bool $show Whether to show the notice.
+			 */
+			return (bool) apply_filters( 'masteriyo_show_review_notice', true );
 		}
 
 		return false;
@@ -1149,6 +1268,8 @@ function masteriyo_is_account_page( $page_id = null ) {
 }
 
 
+
+
 /**
  * Check if the current page is password reset page.
  *
@@ -1205,6 +1326,22 @@ function masteriyo_is_edit_account_page() {
 function masteriyo_is_signin_page( $page_id = null ) {
 	return masteriyo_is_account_page( $page_id ) && ! is_user_logged_in() && ( isset( $GLOBALS['wp']->query_vars['page'] ) || empty( $GLOBALS['wp']->query_vars['page'] ) );
 }
+
+/**
+ * Check if the current page is otp page.
+ *
+ * @since 2.7.0
+ *
+ * @return boolean
+ */
+function masteriyo_is_otp_page() {
+	return (
+		masteriyo_is_account_page()
+		&& isset( $GLOBALS['wp']->query_vars['otp'] )
+		&& masteriyo_get_setting( 'authentication.two_factor_authentication.enable' )
+	);
+}
+
 
 
 if ( ! function_exists( 'masteriyo_is_wc_active' ) ) {
@@ -1350,28 +1487,11 @@ if ( ! function_exists( 'masteriyo_is_instructors_list_page' ) ) {
 	}
 }
 
-/**
- * Function to check if the current page is the categories page.
- *
- * @since 1.12.0
- *
- * @return boolean True if the current page is the categories page, false otherwise.
- */
-function masteriyo_is_categories_page() {
-	global $post;
-
-	if ( ( $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_course_categories' ) ) ) {
-		return true;
-	}
-
-	return false;
-}
-
 if ( ! function_exists( 'masteriyo_is_single_page_contains_block' ) ) {
 	/**
 	 * Checks whether the current page contains masteriyo single page block or not.
 	 *
-	 * @since 1.12.2
+	 * @since 1.12.2 [Free]
 	 *
 	 * @return bool
 	 */
@@ -1393,6 +1513,62 @@ if ( ! function_exists( 'masteriyo_is_single_page_contains_block' ) ) {
 
 }
 
+/**
+ * Function to check if the current page is the categories page.
+ *
+ * @since 1.12.0 [Free]
+ *
+ * @return boolean True if the current page is the categories page, false otherwise.
+ */
+function masteriyo_is_categories_page() {
+	global $post;
+
+	if ( ( $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'masteriyo_course_categories' ) ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+if ( ! function_exists( 'masteriyo_is_current_user_has_masteriyo_role' ) ) {
+	/**
+	 * Function to check if the current page is the tags page.
+	 *
+	 * @since 2.14.3
+	 *
+	 * @return boolean True if the current page is the tags page, false otherwise.
+	 */
+	function masteriyo_is_current_user_has_masteriyo_role() {
+		$user = wp_get_current_user();
+
+		/**
+		 * Filters the roles that are considered as masteriyo roles.
+		 *
+		 * @since 2.14.3
+		 * @param array $roles Array of roles.
+		 * @param WP_User $user User object.
+		 * @return array User roles.
+		 */
+		$roles = apply_filters(
+			'masteriyo_current_user_roles',
+			array(
+				'administrator',
+				'masteriyo_manager',
+				'masteriyo_instructor',
+				'masteriyo_student',
+			),
+			$user
+		);
+
+		if ( array_intersect( $roles, $user->roles ) ) {
+			return true;
+		}
+
+		return false;
+	}
+}
+
+
 
 /**
  * Determines if the current page contains any Masteriyo blocks.
@@ -1404,7 +1580,7 @@ if ( ! function_exists( 'masteriyo_is_single_page_contains_block' ) ) {
  * - The functions 'parse_blocks' and 'get_post' must exist.
  * - The current post must have non-empty content.
  *
- * @since 1.20.0
+ * @since 2.30.0
  *
  * @return bool True if a Masteriyo block is present, false otherwise.
  */
@@ -1416,7 +1592,7 @@ function is_masteriyo_block() {
 	/**
 	 * Check if the current page has any Masteriyo block (e.g., masteriyo/*).
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return bool
 	 */
@@ -1453,8 +1629,6 @@ if ( ! function_exists( 'masteriyo_post_has_masteriyo_content' ) ) {
 	 * Shortcode storage format: "[masteriyo_..."
 	 * Both prefixes are unique to Masteriyo and collision-free.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_Post $post The post object to inspect.
 	 *
 	 * @return bool True if the post contains Masteriyo content.
@@ -1475,8 +1649,6 @@ if ( ! function_exists( 'masteriyo_post_has_masteriyo_content' ) ) {
 		if ( ! $has_content ) {
 			/**
 			 * Filters the list of post meta keys to check for Masteriyo content.
-			 *
-			 * @since x.x.x
 			 *
 			 * @param array $meta_keys List of meta keys.
 			 */
@@ -1549,8 +1721,6 @@ if ( ! function_exists( 'masteriyo_is_masteriyo_public_page' ) ) {
 	 *
 	 * Tier 3 — Extensibility filter:
 	 *   Covers PRO addon pages, headless setups, and any edge case not covered by Tiers 0-2.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return bool True if Masteriyo public styles should be enqueued.
 	 */
@@ -1698,8 +1868,6 @@ if ( ! function_exists( 'masteriyo_is_masteriyo_public_page' ) ) {
 		 *
 		 * Use this for: Custom page templates, headless setups, or PRO addon pages
 		 * not covered by Tier 1-2.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param bool $enqueue Whether to enqueue public styles. Default false.
 		 */

@@ -3,7 +3,6 @@
  * List Course Reviews ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseReview
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseReview;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports filtering by course ID and review status (approved, pending, spam).
  * Returns reviewer name, rating, comment, and approval state.
- *
- * @since x.x.x
  */
 class ListCourseReviewsAbility extends RestProxyAbility {
 

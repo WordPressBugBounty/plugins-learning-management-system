@@ -3,7 +3,6 @@
  * Update Course Difficulty ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseDifficulty
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseDifficulty;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Supports partial updates — name, slug, and description can be changed
  * independently.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class UpdateCourseDifficultyAbility extends RestProxyAbility {
 

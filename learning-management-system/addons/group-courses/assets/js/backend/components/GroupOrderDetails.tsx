@@ -25,6 +25,7 @@ interface Props {
 		edit_url: string;
 		seats?: number;
 		plan?: string;
+		formatted_per_seat_price?: string;
 	}[];
 }
 
@@ -68,12 +69,25 @@ const GroupOrderDetails: React.FC<Props> = ({ groups }) => {
 										{group.plan}
 									</Text>
 								)}
-								{group.seats && (
+								{/* seats is 0 for manual-enrollment orders, and `0 &&` renders a literal 0 */}
+								{!!group.seats && (
 									<Text>
 										<strong>
 											{__('Total Seats', 'learning-management-system')}:
 										</strong>{' '}
 										{group.seats}
+									</Text>
+								)}
+								{group.formatted_per_seat_price && (
+									<Text>
+										<strong>
+											{__('Per Seat Price', 'learning-management-system')}:
+										</strong>{' '}
+										<span
+											dangerouslySetInnerHTML={{
+												__html: group.formatted_per_seat_price,
+											}}
+										/>
 									</Text>
 								)}
 								<Text>

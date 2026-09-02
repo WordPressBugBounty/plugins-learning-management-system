@@ -2,7 +2,7 @@
 /**
  * Custom Course Lists Module Class
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 
@@ -18,7 +18,7 @@ class CoursesListsModule extends \FLBuilderModule {
 			array(
 				'name'            => __( 'Courses List', 'learning-management-system' ),
 				'description'     => __( 'A Collection of courses that will be displayed in builders', 'learning-management-system' ),
-				'category'        => __( 'Masteriyo', 'learning-management-system' ),
+				'category'        => masteriyo_get_plugin_name(),
 				'dir'             => __DIR__,
 				'url'             => __DIR__,
 				'editor_export'   => true,
@@ -34,4 +34,3 @@ class CoursesListsModule extends \FLBuilderModule {
 		return file_get_contents( MASTERIYO_ELEMENTOR_INTEGRATION_DIR . '/svg/course-list-widget-icon.svg' );
 	}
 }
-

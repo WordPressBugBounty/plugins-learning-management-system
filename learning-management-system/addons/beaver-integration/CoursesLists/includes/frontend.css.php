@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * contains the css rules which will use to style the elements
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 
@@ -93,16 +93,16 @@ FLBuilderCSS::typography_field_rule(
 		'selector'     => ".fl-node-$id .masteriyo-course-author .masteriyo-course-author--name",
 
 		// 'props'        => array(
-		// 	'font-family'     => $settings->author_typography['font_family'],
-		// 	'font-weight'     => $settings->author_typography['font_weight'],
-		// 	'font-size'       => $settings->author_typography['font_size']['length'] . $settings->author_typography['font_size']['unit'],
-		// 	'line-height'     => $settings->author_typography['line_height']['length'] . $settings->author_typography['line_height']['unit'],
-		// 	'text-align-left' => $settings->author_typography['text_align'],
-		// 	'letter-spacing'  => $settings->author_typography['letter_spacing']['length'] . $settings->author_typography['letter_spacing']['unit'],
-		// 	'text-transform'  => $settings->author_typography['text_transform'],
-		// 	'text-decoration' => $settings->author_typography['text_decoration'],
-		// 	'font-style'      => $settings->author_typography['font_style'],
-		// 	'text-shadow'     => $settings->author_typography['text_shadow']['color'] . $settings->author_typography['text_shadow']['horizontal'] . $settings->author_typography['text_shadow']['vertical'] . $settings->author_typography['text_shadow']['blur'],
+		//  'font-family'     => $settings->author_typography['font_family'],
+		//  'font-weight'     => $settings->author_typography['font_weight'],
+		//  'font-size'       => $settings->author_typography['font_size']['length'] . $settings->author_typography['font_size']['unit'],
+		//  'line-height'     => $settings->author_typography['line_height']['length'] . $settings->author_typography['line_height']['unit'],
+		//  'text-align-left' => $settings->author_typography['text_align'],
+		//  'letter-spacing'  => $settings->author_typography['letter_spacing']['length'] . $settings->author_typography['letter_spacing']['unit'],
+		//  'text-transform'  => $settings->author_typography['text_transform'],
+		//  'text-decoration' => $settings->author_typography['text_decoration'],
+		//  'font-style'      => $settings->author_typography['font_style'],
+		//  'text-shadow'     => $settings->author_typography['text_shadow']['color'] . $settings->author_typography['text_shadow']['horizontal'] . $settings->author_typography['text_shadow']['vertical'] . $settings->author_typography['text_shadow']['blur'],
 		// ),
 	),
 	array(
@@ -134,13 +134,13 @@ FLBuilderCSS::typography_field_rule(
 ?>
 
 
-.fl-node-<?php echo $id; ?> .masteriyo-course--card {
-	box-shadow: <?php echo FLBuilderColor::shadow( $settings->card_box_shadow ); ?>
+.fl-node-<?php echo esc_attr( $id ); ?> .masteriyo-course--card {
+	box-shadow: <?php echo esc_attr( FLBuilderColor::shadow( $settings->card_box_shadow ) ); ?>
 	text-decoration:none
 }
 
-.fl-node-<?php echo $id; ?> .difficulty-badge .masteriyo-badge {
-	box-shadow: <?php echo FLBuilderColor::shadow( $settings->difficulty_badge_border_shadow ); ?>
+.fl-node-<?php echo esc_attr( $id ); ?> .difficulty-badge .masteriyo-badge {
+	box-shadow: <?php echo esc_attr( FLBuilderColor::shadow( $settings->difficulty_badge_border_shadow ) ); ?>
 }
 
 
@@ -149,11 +149,11 @@ FLBuilderCSS::typography_field_rule(
  * Render the units data
  */
 ?>
-.fl-node-<?php echo $id; ?> .masteriyo-col {
-	padding-top: <?php echo $settings->courses_gap_top . 'px' . '!important'; ?>;
-	padding-bottom: <?php echo $settings->courses_gap_bottom . 'px' . '!important'; ?>;
-	padding-left: <?php echo $settings->courses_gap_left . 'px' . '!important'; ?>;
-	padding-right: <?php echo $settings->courses_gap_right . 'px' . '!important'; ?>;
+.fl-node-<?php echo esc_attr( $id ); ?> .masteriyo-col {
+	padding-top: <?php echo esc_attr( $settings->courses_gap_top . 'px!important' ); ?>;
+	padding-bottom: <?php echo esc_attr( $settings->courses_gap_bottom . 'px!important' ); ?>;
+	padding-left: <?php echo esc_attr( $settings->courses_gap_left . 'px!important' ); ?>;
+	padding-right: <?php echo esc_attr( $settings->courses_gap_right . 'px!important' ); ?>;
 }
 
 <?php
@@ -161,17 +161,17 @@ FLBuilderCSS::typography_field_rule(
  * Render the position data
  */
 ?>
-.fl-node-<?php echo $id; ?> .difficulty-badge .masteriyo-badge {
+.fl-node-<?php echo esc_attr( $id ); ?> .difficulty-badge .masteriyo-badge {
 	position: absolute;
-	left: <?php echo $settings->difficulty_badge_horizontal_position . 'px'; ?>;
+	left: <?php echo esc_attr( $settings->difficulty_badge_horizontal_position . 'px' ); ?>;
 }
 
-.fl-node-<?php echo $id; ?> .difficulty-badge .masteriyo-badge {
+.fl-node-<?php echo esc_attr( $id ); ?> .difficulty-badge .masteriyo-badge {
 	position: absolute;
-	top: <?php echo $settings->difficulty_badge_vertical_position . 'px'; ?>;
+	top: <?php echo esc_attr( $settings->difficulty_badge_vertical_position . 'px' ); ?>;
 }
 
-.fl-node-<?php echo $id; ?> .masteriyo-rating > svg {
-	width:<?php echo $settings->rating_gap . 'px' . '!important'; ?>;
+.fl-node-<?php echo esc_attr( $id ); ?> .masteriyo-rating > svg {
+	width:<?php echo esc_attr( $settings->rating_gap . 'px!important' ); ?>;
 	;
 }

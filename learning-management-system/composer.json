@@ -1,7 +1,7 @@
 {
-  "name": "masteriyo/masteriyo",
+  "name": "masteriyo/masteriyo-pro",
   "description": "An WordPress LMS plugin",
-  "version": "2.3.3",
+  "version": "3.4.0",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -50,11 +50,17 @@
       "includes/Helper/tracking.php",
       "includes/Helper/wp.php",
       "includes/Helper/webhook.php",
-      "includes/Helper/OpenAI.php",
       "includes/Helper/email.php",
+      "includes/Helper/OpenAI.php",
       "includes/Helper/export-import.php",
       "includes/Helper/LoginSessionManagement.php",
       "includes/Helper/student-preview.php",
+      "includes/Helper/subscription.php",
+      "includes/Helper/coupons.php",
+      "includes/Helper/course-bundle.php",
+      "includes/Helper/course-content.php",
+      "includes/Helper/course-preview.php",
+      "includes/Helper/public-profile.php",
       "vendor/codeinwp/themeisle-sdk/load.php"
     ],
     "psr-4": {
@@ -63,34 +69,72 @@
       "Masteriyo\\CoreFeatures\\PasswordStrength\\": "includes/core-features/password-strength/",
       "Masteriyo\\CoreFeatures\\CourseComingSoon\\": "includes/core-features/course-coming-soon/",
       "Masteriyo\\CoreFeatures\\BunnyNet\\": "includes/core-features/bunny-net/",
+      "Masteriyo\\Pro\\CoreFeatures\\SocialShare\\": "pro/core-features/social-share/",
+      "Masteriyo\\Pro\\CoreFeatures\\TwoFactorAuthentication\\": "pro/core-features/two-factor-authentication/",
+      "Masteriyo\\Pro\\CoreFeatures\\Calendar\\": "pro/core-features/calendar/",
+      "Masteriyo\\Addons\\Stripe\\": "addons/stripe",
       "Masteriyo\\Addons\\DownloadMaterials\\": "addons/download-materials",
-      "Masteriyo\\Addons\\RevenueSharing\\": "addons/revenue-sharing",
-      "Masteriyo\\Addons\\CourseAnnouncement\\": "addons/course-announcement",
-      "Masteriyo\\Addons\\Recaptcha\\": "addons/recaptcha",
-      "Masteriyo\\Addons\\ElementorIntegration\\": "addons/elementor-integration/",
-      "Masteriyo\\Addons\\DiviIntegration\\": "addons/divi-integration/",
-      "Masteriyo\\Addons\\GamiPressIntegration\\": "addons/gamipress-integration/",
-      "Masteriyo\\Addons\\OxygenIntegration\\": "addons/oxygen-integration/",
-      "Masteriyo\\Addons\\UserRegistrationIntegration\\": "addons/user-registration-integration/",
-      "Masteriyo\\Addons\\MigrationTool\\": "addons/migration-tool/",
       "Masteriyo\\Addons\\WcIntegration\\": "addons/wc-integration",
+      "Masteriyo\\Pro\\Addons\\EDDIntegration\\": "pro/addons/edd-integration",
+      "Masteriyo\\Pro\\Addons\\CourseFaq\\": "pro/addons/course-faq/",
+      "Masteriyo\\Pro\\Addons\\WhiteLabel\\": "pro/addons/white-label",
+      "Masteriyo\\Pro\\Addons\\CourseAttachments\\": "pro/addons/course-attachments/",
+      "Masteriyo\\Addons\\Recaptcha\\": "addons/recaptcha",
+      "Masteriyo\\Pro\\Addons\\Prerequisites\\": "pro/addons/prerequisites",
+      "Masteriyo\\Pro\\Addons\\MultipleInstructors\\": "pro/addons/multiple-instructors",
+      "Masteriyo\\Addons\\WishList\\": "addons/wishlist/",
+      "Masteriyo\\Pro\\Addons\\Assignment\\": "pro/addons/assignment",
+      "Masteriyo\\Addons\\H5P\\": "addons/h5p",
+      "Masteriyo\\Addons\\H5P\\Pro\\": "addons/h5p/pro",
+      "Masteriyo\\Addons\\Certificate\\": "addons/certificate",
+      "Masteriyo\\Addons\\Certificate\\Pro\\": "addons/certificate/pro",
+      "Masteriyo\\Pro\\Addons\\AdvancedQuiz\\": "pro/addons/advanced-quiz",
+      "Masteriyo\\Pro\\Addons\\ContentDrip\\": "pro/addons/content-drip/",
+      "Masteriyo\\Pro\\Addons\\Coupons\\": "pro/addons/coupons/",
+      "Masteriyo\\Pro\\Addons\\Zoom\\": "pro/addons/zoom/",
+      "Masteriyo\\Pro\\Addons\\Gradebook\\": "pro/addons/gradebook/",
+      "Masteriyo\\Pro\\Addons\\CoursePreview\\": "pro/addons/course-preview/",
+      "Masteriyo\\Pro\\Addons\\PublicProfile\\": "pro/addons/public-profile/",
+      "Masteriyo\\Addons\\ElementorIntegration\\": "addons/elementor-integration/",
+      "Masteriyo\\Addons\\ElementorIntegration\\Pro\\": "addons/elementor-integration/pro/",
+      "Masteriyo\\Addons\\DiviIntegration\\": "addons/divi-integration/",
+      "Masteriyo\\Pro\\Addons\\PMPROIntegration\\": "pro/addons/pmpro-integration/",
+      "Masteriyo\\Addons\\RevenueSharing\\": "addons/revenue-sharing",
+      "Masteriyo\\Addons\\GamiPressIntegration\\": "addons/gamipress-integration/",
+      "Masteriyo\\Pro\\Addons\\MailchimpIntegration\\": "pro/addons/mailchimp-integration/",
+      "Masteriyo\\Addons\\CourseAnnouncement\\": "addons/course-announcement",
+      "Masteriyo\\Addons\\CourseAnnouncement\\Pro\\": "addons/course-announcement/pro",
+      "Masteriyo\\Addons\\OxygenIntegration\\": "addons/oxygen-integration/",
+      "Masteriyo\\Pro\\Addons\\SocialLogin\\": "pro/addons/social-login/",
+      "Masteriyo\\Pro\\Addons\\Razorpay\\": "pro/addons/razorpay/",
+      "Masteriyo\\Addons\\UserRegistrationIntegration\\": "addons/user-registration-integration/",
+      "Masteriyo\\Pro\\Addons\\RCPIntegration\\": "pro/addons/rcp-integration/",
+      "Masteriyo\\Addons\\MigrationTool\\Pro\\": "addons/migration-tool/pro",
+      "Masteriyo\\Addons\\MigrationTool\\": "addons/migration-tool/",
       "Masteriyo\\Addons\\Scorm\\": "addons/scorm/",
       "Masteriyo\\Addons\\GoogleClassroomIntegration\\": "addons/google-classroom-integration/",
       "Masteriyo\\Addons\\GroupCourses\\": "addons/group-courses/",
+      "Masteriyo\\Addons\\GroupCourses\\Pro\\": "addons/group-courses/pro",
       "Masteriyo\\Addons\\BricksIntegration\\": "addons/bricks-integration/",
       "Masteriyo\\Addons\\LemonSqueezyIntegration\\": "addons/lemon-squeezy-integration/",
       "Masteriyo\\Addons\\BeaverIntegration\\": "addons/beaver-integration",
+      "Masteriyo\\Pro\\Addons\\CourseBundle\\": "pro/addons/course-bundle/",
       "Masteriyo\\Addons\\MultipleCurrency\\": "addons/multiple-currency/",
+      "Masteriyo\\Addons\\MultipleCurrency\\Pro\\": "addons/multiple-currency/pro/",
       "Masteriyo\\Addons\\GoogleMeet\\": "addons/google-meet/",
-      "Masteriyo\\Addons\\H5P\\": "addons/h5p/",
+      "Masteriyo\\Pro\\Addons\\Zapier\\": "pro/addons/zapier/",
       "Masteriyo\\Addons\\SureCartIntegration\\": "addons/sure-cart-integration/",
-      "Masteriyo\\Addons\\WishList\\": "addons/wishlist/",
-      "Masteriyo\\Addons\\Certificate\\": "addons/certificate",
       "Masteriyo\\Addons\\BrevoIntegration\\": "addons/brevo-integration/",
+      "Masteriyo\\Pro\\Addons\\HubSpotIntegration\\": "pro/addons/hubspot-integration/",
+      "Masteriyo\\Pro\\Addons\\MailerLiteIntegration\\": "pro/addons/mailerlite-integration/",
       "Masteriyo\\Addons\\FluentCRM\\": "addons/fluent-crm/",
-      "Masteriyo\\Addons\\Stripe\\": "addons/stripe",
       "Masteriyo\\Addons\\BuddyPress\\": "addons/buddy-press/",
       "Masteriyo\\Addons\\Mollie\\": "addons/mollie/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Masteriyo\\PHPStan\\": "phpstan/"
     }
   },
   "require": {
@@ -99,23 +143,30 @@
     "codeinwp/themeisle-sdk": "^3.3",
     "halaxa/json-machine": "^1.1",
     "league/container": "^4.2",
+    "league/oauth2-facebook": "^2.2",
     "league/oauth2-google": "^4.0",
     "maxmind-db/reader": "^1.11",
+    "mistic100/randomcolor": "^1.0",
     "mollie/mollie-api-php": "^2.75",
     "mpdf/mpdf": "^8.2",
     "tijsverkoyen/css-to-inline-styles": "2.4.0",
+    "phenx/php-font-lib": "^1.0",
     "psr/container": "^2.0",
+    "razorpay/razorpay": "2.9.0",
     "simplehtmldom/simplehtmldom": "^2.0@RC",
     "stripe/stripe-php": "^17.3",
-    "themegrill/openai": "@dev",
+    "themegrill/zoom": "@dev",
+    "waynestate/parse-youtube-id": "^1.0",
     "woocommerce/action-scheduler": "^3.8.1"
   },
   "require-dev": {
     "brain/monkey": "^2",
     "composer/installers": "^2.0",
-    "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.1.1",
+    "php-stubs/woocommerce-stubs": "^11.0",
     "php-stubs/wordpress-stubs": "6.3.*",
     "phpcompatibility/phpcompatibility-wp": "2.1.0",
+    "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9",
     "vlucas/phpdotenv": "^5.4",
     "wp-cli/db-command": "^2.0",
@@ -124,35 +175,51 @@
     "wp-coding-standards/wpcs": "^3.0",
     "yoast/phpunit-polyfills": "^3"
   },
+  "replace": {
+    "rmccue/requests": "*"
+  },
   "repositories": [
     {
       "type": "path",
-      "url": "./packages/openai",
+      "url": "./packages/zoom",
       "options": {
         "symlink": false
       }
     }
   ],
   "scripts": {
+    "phpstan": [
+      "\"vendor/bin/phpstan\" analyse --memory-limit=6G"
+    ],
+    "phpstan:baseline": [
+      "\"vendor/bin/phpstan\" analyse --memory-limit=6G --generate-baseline=phpstan-baseline.neon"
+    ],
     "phpcs": [
-      "\"vendor/bin/phpcs\" -n -s -p"
+      "\"vendor/bin/phpcs\" -n -s -p -d memory_limit=2G"
     ],
     "phpcbf": [
       "\"vendor/bin/phpcbf\""
     ],
     "makepot-audit": [
+      "@putenv WP_CLI_PHP_ARGS=-d memory_limit=2G",
       "wp i18n make-pot . --slug=learning-management-system"
     ],
     "makepot": [
-      "\"vendor/bin/wp\" i18n make-pot . ./i18n/languages/learning-management-system.pot --include=\"assets/js/build,includes,templates\""
+      "@putenv WP_CLI_PHP_ARGS=-d memory_limit=2G",
+      "\"vendor/bin/wp\" i18n make-pot . ./i18n/languages/learning-management-system.pot --include=\"assets/js/build,includes,templates,addons,pro\" --exclude=\"dist,artifact\""
+    ],
+    "post-autoload-dump": [
+      "@php -r \"file_exists('scripts/razorpay-deprecated.php') && copy('scripts/razorpay-deprecated.php', 'vendor/razorpay/razorpay/Deprecated.php');\""
+    ],
+    "post-install-cmd": [
+      "@php -r \"! file_exists( '.env' ) && copy( '.env.example', '.env' );\""
     ],
     "post-update-cmd": [
-      "@php -r \"! file_exists( '.env' ) && copy( '.env.example', '.env' );\"",
-      "rm -rf wp-content"
+      "@php -r \"! file_exists( '.env' ) && copy( '.env.example', '.env' );\""
     ],
-    "test": "vendor/bin/phpunit --testdox",
-    "test:coverage": "@php -r \"if (!extension_loaded('xdebug') && !extension_loaded('pcov')) { echo 'Warning: Xdebug or PCOV extension required for coverage reports\n'; echo 'Install: pecl install xdebug\n'; exit(1); }\" && vendor/bin/phpunit --testdox --coverage-html coverage",
-    "test:unit": "vendor/bin/phpunit --testsuite Unit --testdox"
+    "test": "php -d auto_prepend_file=tests/wp-prepend.php vendor/bin/phpunit --testdox",
+    "test:coverage": "@php -r \"if (!extension_loaded('xdebug') && !extension_loaded('pcov')) { echo 'Warning: Xdebug or PCOV extension required for coverage reports\n'; echo 'Install: pecl install xdebug\n'; exit(1); }\" && php -d auto_prepend_file=tests/wp-prepend.php vendor/bin/phpunit --testdox --coverage-html coverage",
+    "test:unit": "php -d auto_prepend_file=tests/wp-prepend.php vendor/bin/phpunit --testsuite Unit --testdox"
   },
   "extra": {
     "wordpress-install-dir": "tests/wordpress",

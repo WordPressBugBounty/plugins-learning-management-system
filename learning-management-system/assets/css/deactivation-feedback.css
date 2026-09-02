@@ -1,14 +1,13 @@
 #masteriyo-deactivate-feedback-popup-wrapper {
   position: fixed;
-  height: 100%;
   width: 100%;
   bottom: 0;
   left: 0;
   background-color: rgba(0, 0, 0, 0.8);
   z-index: 99999;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   display: none;
   height: calc(100vh - 32px);
 }
@@ -90,7 +89,6 @@
   display: block;
 }
 #masteriyo-deactivate-feedback-popup-wrapper .masteriyo-deactivate-feedback-popup-inner .masteriyo-deactivate-feedback-popup-form-footer {
-  padding: 8px 16px;
   overflow: hidden;
   display: flex;
   justify-content: space-between;

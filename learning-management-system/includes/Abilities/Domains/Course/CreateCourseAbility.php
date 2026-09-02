@@ -3,7 +3,6 @@
  * Create Course ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Accepts title, description, pricing, access mode, category and difficulty
  * assignments, and any other writable course fields.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CreateCourseAbility extends RestProxyAbility {
 

@@ -153,6 +153,18 @@ class CourseEnrollButtonWidget extends SingleCourseWidgetBase {
 	}
 
 	/**
+	 * Returns the hook map used to suppress group-buy hooks during enroll button render.
+	 *
+	 * @return array<string, string[]>
+	 */
+	private function get_group_buy_hook_map() {
+		return array(
+			'masteriyo_template_enroll_button' => array( 'masteriyo_template_group_buy_button' ),
+			'masteriyo_after_single_course_enroll_button_wrapper' => array( 'masteriyo_template_group_buy_button_for_new_layout' ),
+		);
+	}
+
+	/**
 	 * Render heading widget output in the editor.
 	 *
 	 * Written as a Backbone JavaScript template and used to generate the live preview.
@@ -175,7 +187,8 @@ class CourseEnrollButtonWidget extends SingleCourseWidgetBase {
 
 		$progress = current( $query->get_course_progress() );
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
-		$removed  = $this->suppress_hook_callbacks_by_method( $this->get_group_buy_hook_map() );
+
+		$removed = $this->suppress_hook_callbacks_by_method( $this->get_group_buy_hook_map() );
 
 		// Suppress retake hook — the retake widget renders it as a separate Elementor widget.
 		remove_action( 'masteriyo_single_course_layout_1_template_enroll_button', 'masteriyo_layout_1_single_course_retake_button', 15 );
@@ -215,7 +228,8 @@ class CourseEnrollButtonWidget extends SingleCourseWidgetBase {
 
 		$progress = current( $query->get_course_progress() );
 		$summary  = $progress ? $progress->get_summary( 'all' ) : '';
-		$removed  = $this->suppress_hook_callbacks_by_method( $this->get_group_buy_hook_map() );
+
+		$removed = $this->suppress_hook_callbacks_by_method( $this->get_group_buy_hook_map() );
 
 		// Suppress retake hook — the retake widget renders it as a separate Elementor widget.
 		remove_action( 'masteriyo_single_course_layout_1_template_enroll_button', 'masteriyo_layout_1_single_course_retake_button', 15 );
@@ -231,19 +245,5 @@ class CourseEnrollButtonWidget extends SingleCourseWidgetBase {
 
 		add_action( 'masteriyo_single_course_layout_1_template_enroll_button', 'masteriyo_layout_1_single_course_retake_button', 15 );
 		$this->restore_hook_callbacks( $removed );
-	}
-
-	/**
-	 * Hooks => group-buy callbacks to suppress, so the button isn't duplicated here.
-	 *
-	 * @since x.x.x
-	 *
-	 * @return array<string,string[]>
-	 */
-	private function get_group_buy_hook_map() {
-		return array(
-			'masteriyo_template_enroll_button' => array( 'masteriyo_template_group_buy_button' ),
-			'masteriyo_after_single_course_enroll_button_wrapper' => array( 'masteriyo_template_group_buy_button_for_new_layout' ),
-		);
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * Style course list components.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @package Masteriyo
  */
@@ -18,7 +18,7 @@ class InstructorCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Style instructor course list components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */
@@ -29,13 +29,11 @@ class InstructorCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Should print if instructor course page.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return bool
 	 */
 	protected function should_print(): bool {
 		return masteriyo_is_courses_page();
 	}
-
 }
-

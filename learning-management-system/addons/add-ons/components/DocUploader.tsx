@@ -13,8 +13,9 @@ import { uploadMedia } from '@wordpress/media-utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Accept, useDropzone } from 'react-dropzone';
 import { useFormContext } from 'react-hook-form';
-import { BiPlus } from 'react-icons/bi';
+import { BiCloudUpload } from 'react-icons/bi';
 import MediaUploader from '../../../assets/js/back-end/components/common/MediaUploader';
+import ToolTip from '../../../assets/js/back-end/screens/settings/components/ToolTip';
 import MediaAPI from '../../../assets/js/back-end/utils/media';
 import {
 	getFileNameFromURL,
@@ -22,6 +23,35 @@ import {
 } from '../../../assets/js/back-end/utils/utils';
 import DocPreview from './DocPreview';
 
+export type File = {
+	name: string;
+	preview: string;
+	size: number;
+};
+
+export type Files = File[];
+
+interface Props {
+	defaultValue?: DownloadMaterials;
+	name: {
+		title: string;
+		tooltipText?: string;
+		keyIndex:
+			| 'attachments'
+			| 'download_materials'
+			| 'assignment_attachments'
+			| 'files'
+			| 'pdf'
+			| 'audio_source_files';
+	};
+	docPreviewNotice: string;
+	maxUploadFileSize?: number;
+	acceptedFileTypes?: Accept;
+	useWPLibrary?: boolean;
+	multiple?: boolean;
+	showUploader?: boolean;
+	fontSize?: string;
+}
 const defaultAcceptedFileTypes = {
 	'image/*': ['.jpeg', '.png', '.jpg', '.gif'],
 	'video/*': ['.mp4', '.mkv', '.avi', '.flv', '.mov', '.webm', '.wmv'],
@@ -98,38 +128,17 @@ const defaultAcceptedFileTypesWPMedia = [
 	'audio/x-wav',
 ];
 
-export type File = {
-	name: string;
-	preview: string;
-	size: number;
-};
-
-export type Files = File[];
-
-interface Props {
-	defaultValue?: DownloadMaterials;
-	name: {
-		title: string;
-		keyIndex:
-			| 'attachments'
-			| 'download_materials'
-			| 'assignment_attachments'
-			| 'files';
-	};
-	docPreviewNotice: string;
-	maxUploadFileSize?: number;
-	acceptedFileTypes?: Accept;
-	useWPLibrary?: boolean;
-}
-
 const DocUploader: React.FC<Props> = (props) => {
 	const {
 		defaultValue,
-		name: { title, keyIndex },
+		name: { title, keyIndex, tooltipText },
 		docPreviewNotice,
 		maxUploadFileSize, // In MB
 		acceptedFileTypes,
 		useWPLibrary = false,
+		multiple = true,
+		showUploader = true,
+		fontSize,
 	} = props;
 
 	const [files, setFiles] = useState<DownloadMaterials>(defaultValue || []);
@@ -137,8 +146,6 @@ const DocUploader: React.FC<Props> = (props) => {
 	const API = new MediaAPI();
 	const { setValue } = useFormContext();
 	const isMounted = useRef(false);
-
-	const textColorValue = useColorModeValue('#383838', 'white');
 
 	useEffect(() => {
 		if (isMounted.current) {
@@ -177,7 +184,10 @@ const DocUploader: React.FC<Props> = (props) => {
 				onError: (err: any) => {
 					toast({
 						title: __('Error while uploading', 'learning-management-system'),
-						description: `${err?.file?.name}  ${err?.message}`,
+						// The message already leads with the file name — WordPress's
+						// upload validators sprintf it in — so adding it here shows
+						// the name twice.
+						description: err?.message,
 						status: 'error',
 						isClosable: true,
 					});
@@ -188,7 +198,10 @@ const DocUploader: React.FC<Props> = (props) => {
 		onDropRejected: () => {
 			toast({
 				title: __('Error while uploading', 'learning-management-system'),
-				description: __('Make sure you are uploading an appropriate file type'),
+				description: __(
+					'Make sure you are uploading an appropriate file type',
+					'learning-management-system',
+				),
 				status: 'error',
 				isClosable: true,
 			});
@@ -199,81 +212,95 @@ const DocUploader: React.FC<Props> = (props) => {
 		setFiles(files.filter((file) => file !== attachment));
 	};
 
+	// Light mode inherits the FormLabel theme color; the override only matters
+	// on the interactive app's dark screens.
+	const labelColor = useColorModeValue(undefined, 'white');
+	const instructionColor = useColorModeValue('gray.700', 'gray.200');
+
 	return (
 		<FormControl>
-			<FormLabel color={textColorValue}>{title}</FormLabel>
-			<Stack
-				direction="column"
-				justify="center"
-				align="center"
-				border="2px dashed"
-				borderColor="gray.300"
-				borderRadius="md"
-				px="4"
-				py="12"
-				textAlign="center"
-				backgroundColor={isDragActive ? 'blue.100' : 'transparent'}
-				{...getRootProps()}
-			>
-				<input {...getInputProps()} />
-				<Stack
-					direction="row"
-					color="blue.700"
-					align="center"
-					fontWeight="medium"
-				>
-					<Icon as={BiPlus} fontSize="2xl" />
-					<Text>
-						{__(
-							'Drop documents or click here to upload',
-							'learning-management-system',
-						)}
-					</Text>
-				</Stack>
-				{useWPLibrary ? (
-					<MediaUploader
-						buttonLabel={'WP Media Library'}
-						modalTitle="Course Attachment"
-						onSelect={(attachments: any) => {
-							setFiles([
-								...files,
-								...attachments.map((attachment: any) => ({
-									id: attachment?.id,
-									url: attachment?.url,
-									title: getFileNameFromURL(attachment?.url),
-									mime_type: attachment?.mime,
-									formatted_file_size: attachment?.filesizeHumanReadable,
-									file_size: attachment?.filesizeInBytes,
-								})),
-							]);
-						}}
-						mediaType={defaultAcceptedFileTypesWPMedia}
-						width={'auto'}
-						size="sm"
-					/>
-				) : null}
-				{maxUploadFileSize ? (
-					<Text fontSize="sm" color="gray.500">
-						(
-						{sprintf(
-							/* translators: %d: maximum upload size in megabytes */
-							_x(
-								'Maximum upload size limit is %d MB.',
-								'File upload size validation message',
+			<FormLabel color={labelColor}>
+				{title}
+				{tooltipText && <ToolTip label={tooltipText} />}
+			</FormLabel>
+
+			{showUploader && (
+				<>
+					<Stack
+						direction="column"
+						justify="center"
+						align="center"
+						border="1px dashed"
+						borderColor={isDragActive ? 'primary.400' : 'gray.300'}
+						borderRadius="base"
+						px="4"
+						py="6"
+						textAlign="center"
+						cursor="pointer"
+						transition="border-color 0.2s, background-color 0.2s"
+						backgroundColor={isDragActive ? 'primary.100' : 'gray.50'}
+						_hover={{ borderColor: 'gray.400' }}
+						{...getRootProps()}
+					>
+						<input {...getInputProps()} multiple={multiple} />
+						<Icon
+							as={BiCloudUpload}
+							boxSize="6"
+							color={isDragActive ? 'primary.400' : 'gray.400'}
+						/>
+						<Text fontSize="sm" fontWeight="medium" color={instructionColor}>
+							{__(
+								'Drop documents or click here to upload',
 								'learning-management-system',
-							),
-							maxUploadFileSize,
-						)}
-						)
-					</Text>
-				) : null}
-			</Stack>
-			<Spacer h="30px" />
+							)}
+						</Text>
+						{useWPLibrary ? (
+							<MediaUploader
+								buttonLabel={'WP Media Library'}
+								modaltitle="Course Attachment"
+								variant="surface"
+								isMultiple={multiple}
+								onSelect={(attachments: any) => {
+									setFiles([
+										...files,
+										...attachments.map((attachment: any) => ({
+											id: attachment?.id,
+											url: attachment?.url,
+											title: getFileNameFromURL(attachment?.url),
+											mime_type: attachment?.mime,
+											formatted_file_size: attachment?.filesizeHumanReadable,
+											file_size: attachment?.filesizeInBytes,
+										})),
+									]);
+								}}
+								mediaType={defaultAcceptedFileTypesWPMedia}
+								width={'auto'}
+								size="sm"
+							/>
+						) : null}
+						{maxUploadFileSize ? (
+							<Text fontSize="xs" color="gray.500">
+								{sprintf(
+									/* translators: %d: maximum upload size in megabytes */
+									_x(
+										'Maximum upload size limit is %d MB.',
+										'File upload size validation message',
+										'learning-management-system',
+									),
+									maxUploadFileSize,
+								)}
+							</Text>
+						) : null}
+					</Stack>
+					<Spacer h="4" />
+				</>
+			)}
 
 			<DocPreview
 				files={files}
 				onRemove={(file) => onRemove(file)}
 				docPreviewNotice={docPreviewNotice}
+				fontSize={fontSize}
 			/>
 		</FormControl>
 	);

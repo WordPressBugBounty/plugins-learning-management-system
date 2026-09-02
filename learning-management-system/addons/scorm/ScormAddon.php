@@ -7,11 +7,12 @@
 
 namespace Masteriyo\Addons\Scorm;
 
-use Masteriyo\Addons\Scorm\Controllers\ScormController;
 use Masteriyo\Constants;
-use Masteriyo\Enums\CourseProgressStatus;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\Addons\Scorm\Setting;
 use Masteriyo\Query\CourseProgressQuery;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Addons\Scorm\Controllers\ScormController;
 
 /**
  * SCORM Addon main class for Masteriyo.
@@ -46,14 +47,15 @@ class ScormAddon {
 		// Setting related hooks.
 		add_filter( 'masteriyo_new_setting', array( $this, 'save_setting' ), 10 );
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
-
 		add_action( 'template_redirect', array( $this, 'course_complete_handler' ) );
 	}
+
 	/**
 	 * Handles course completion for SCORM courses.
 	 *
-	 * @since 1.14.2
+	 * @since 1.14.2 [Free]
 	 */
+
 	public function course_complete_handler() {
 		if ( ! isset( $_GET['masteriyo_scorm_complete'] ) || ! is_user_logged_in() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
@@ -84,7 +86,7 @@ class ScormAddon {
 	/**
 	 * Add the the the whitelisted styles for scorm learn page.
 	 *
-	 * @since v.x.x [free]
+	 * @since 1.8.3 [free]
 	 *
 	 * @param array $styles Array of the whitelisted styles.
 	 *
@@ -111,32 +113,43 @@ class ScormAddon {
 			array(
 				'scorm_package' => array(
 					'description' => __( 'SCORM package', 'learning-management-system' ),
-					'type'        => 'array',
-					'required'    => false,
+					// One package, so an object — masteriyo_get_scorm_meta()
+					// returns the meta of the single package attached to the
+					// course, never a list of them.
+					'type'        => 'object',
+					// The builder saves by handing its own payload back, this
+					// field included, and a course save must never be what
+					// attaches or moves a package: that is the import and delete
+					// endpoints' work. Read-only keeps it out of the editable
+					// endpoint's arguments altogether, so the save neither
+					// validates it nor acts on it.
+					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'path'          => array(
-								'description' => __( 'Scorm file path.', 'learning-management-system' ),
-								'type'        => 'string',
-								'context'     => array( 'view', 'edit' ),
-							),
-							'url'           => array(
-								'description' => __( 'Scorm file url.', 'learning-management-system' ),
-								'type'        => 'string',
-								'context'     => array( 'view', 'edit' ),
-							),
-							'scorm_version' => array(
-								'description' => __( 'Scorm version.', 'learning-management-system' ),
-								'type'        => 'string',
-								'context'     => array( 'view', 'edit' ),
-							),
-							'file_name'     => array(
-								'description' => __( 'Scorm file name.', 'learning-management-system' ),
-								'type'        => 'string',
-								'context'     => array( 'view', 'edit' ),
-							),
+					'properties'  => array(
+						'path'           => array(
+							'description' => __( 'Scorm file path.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'url'            => array(
+							'description' => __( 'Scorm file url.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'scorm_version'  => array(
+							'description' => __( 'Scorm version.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'file_name'      => array(
+							'description' => __( 'Scorm file name.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'scorm_dir_name' => array(
+							'description' => __( 'Directory the package was extracted into.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
 						),
 					),
 				),
@@ -301,7 +314,7 @@ class ScormAddon {
 	/**
 	 * Save setting.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\Setting $setting
 	 */
@@ -327,7 +340,7 @@ class ScormAddon {
 	/**
 	 * Append setting to response.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param array $data Setting data.
 	 * @param \Masteriyo\Models\Setting $setting Setting object.

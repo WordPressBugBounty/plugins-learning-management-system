@@ -22,8 +22,6 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react';
-import { BiLock } from 'react-icons/bi';
-import { UpgradeToProBtn } from '../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
 import {
 	Editor,
 	PDFExporter,
@@ -34,8 +32,14 @@ import '@pdfdraft/designer/style.css';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useRef, useState } from 'react';
+import { BiLock } from 'react-icons/bi';
 import MasteriyoLogo from '../../../../../assets/img/logo.png';
+import { UpgradeToProBtn } from '../../../../../assets/js/back-end/components/common/upsell/ProShowcaseComponent';
 import localized from '../../../../../assets/js/back-end/utils/global';
+import {
+	getPluginName,
+	isLicensePlanActive,
+} from '../../../../../assets/js/back-end/utils/utils';
 import { certificateBackendRoutes } from '../utils/routes';
 import { certificateAddonUrls } from '../utils/urls';
 import {
@@ -240,6 +244,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 	onBack,
 }) => {
 	const [isEditorLoading, setIsEditorLoading] = useState(true);
+
 	useEffect(() => {
 		if (process.env.NODE_ENV !== 'production') {
 			return;
@@ -302,6 +307,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 				link.href = `https://fonts.googleapis.com/css2?family=${encoded}:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap`;
 				document.head.appendChild(link);
 			}
+
 			useEditorStore.getState().actions.updateFonts({
 				[clean]: {
 					id: clean,
@@ -334,7 +340,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 					) {
 						const re = /font-family:\s*['"]?([^;'"]+)/gi;
 						let m: RegExpExecArray | null;
-						// eslint-disable-next-line no-cond-assign
+
 						while ((m = re.exec(content)) !== null) {
 							injectGoogleFont(m[1].trim());
 						}
@@ -385,6 +391,10 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 				data?.status === 'draft' ? 'draft' : 'publish',
 			);
 		} catch (err: any) {
+			// The server caps published certificates for unlicensed sites
+			// (`masteriyo_certificate_max_published_templates`, 2 by default; pro
+			// lifts it to unlimited). Turn that refusal into the upsell rather than
+			// letting the save fail silently.
 			const isLimit =
 				String(err?.code ?? '').endsWith('upgrade_required') ||
 				/more than two published/i.test(err?.message ?? '');
@@ -414,6 +424,15 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 		onClose: onProClose,
 	} = useDisclosure();
 	const toast = useToast();
+	const cancelDeleteRef = useRef<HTMLButtonElement>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [proPopup, setProPopup] = useState<{ title: string; message: string }>({
+		title: __('Premium feature', 'learning-management-system'),
+		message: __(
+			'This certificate field is a Premium feature. Upgrade to Pro to unlock it and other advanced certificate fields.',
+			'learning-management-system',
+		),
+	});
 
 	// Reject oversized designs before the client-side rasterizer freezes the browser.
 	const assertRenderable = (settings: any): boolean => {
@@ -441,15 +460,6 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 		}
 		return true;
 	};
-	const cancelDeleteRef = useRef<HTMLButtonElement>(null);
-	const [isDeleting, setIsDeleting] = useState(false);
-	const [proPopup, setProPopup] = useState<{ title: string; message: string }>({
-		title: __('Premium feature', 'learning-management-system'),
-		message: __(
-			'This certificate field is a Premium feature. Upgrade to Pro to unlock it and other advanced certificate fields.',
-			'learning-management-system',
-		),
-	});
 
 	const handleConfirmDelete = async () => {
 		setIsDeleting(true);
@@ -574,7 +584,8 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 						display: none !important;
 					}
 
-					/* Reduce element panel label size */
+					/* Element panel: reduce item labels and category headers from 14px to 12px.
+					   Targets the cursor-grab draggable items and uppercase category labels. */
 					.masteriyo-pdfdraft-editor-shell [class*="cursor-grab"] span,
 					.masteriyo-pdfdraft-editor-shell label[class*="uppercase"] {
 						font-size: 12px !important;
@@ -602,13 +613,24 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 			>
 				<Editor
 					initialData={initialData as any}
-					onSave={(data: any) => handleSave(data)}
+					onSave={(data) => handleSave(data)}
 					config={{
-						logo: React.createElement('img', {
-							src: localized.logo || MasteriyoLogo,
-							alt: 'Masteriyo LMS',
-							style: { width: 36, height: 36, objectFit: 'contain' },
-						}),
+						logo:
+							localized.logo || !localized.whiteLabelTitle
+								? React.createElement('img', {
+										src: localized.logo || MasteriyoLogo,
+										alt: sprintf(
+											// translators: %s: the product's name.
+											__('%s LMS', 'learning-management-system'),
+											getPluginName(),
+										),
+										style: { width: 36, height: 36, objectFit: 'contain' },
+									})
+								: React.createElement(
+										'strong',
+										{ style: { fontSize: 14 } },
+										getPluginName(),
+									),
 						headerActions: React.createElement(SaveStatusBadge),
 						ui: {
 							topBar: true,
@@ -617,7 +639,10 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 							multiPage: false,
 						} as any,
 						panels: ['elements', 'library', 'backdrops', 'settings'],
-						isPremium: false,
+						// Being premium is a property of the licence, not of the build.
+						// This file ships to both products, so a hardcoded `true` hands
+						// the free product every premium certificate element.
+						isPremium: isLicensePlanActive(),
 						onProElementClick: () => {
 							setProPopup({
 								title: __('Premium feature', 'learning-management-system'),
@@ -638,13 +663,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 							categories: MASTERIYO_ELEMENT_CATEGORIES,
 						},
 						api: {
-							uploadImage: async ({
-								basename,
-								content,
-							}: {
-								basename: string;
-								content: string;
-							}) => {
+							uploadImage: async ({ basename, content }) => {
 								const blob = base64ToBlob(content);
 								const formData = new FormData();
 								formData.append('file', blob, `${basename}.png`);
@@ -656,7 +675,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 								return { url: media.source_url };
 							},
 						},
-						onPreview: async (editorState: any) => {
+						onPreview: async (editorState) => {
 							try {
 								const { pages, settings } =
 									await resolveInlinedDesign(editorState);
@@ -681,7 +700,7 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 								});
 							}
 						},
-						onExportPDF: async (editorState: any) => {
+						onExportPDF: async (editorState) => {
 							try {
 								const { pages, settings } =
 									await resolveInlinedDesign(editorState);
@@ -730,11 +749,13 @@ const EditCertificatePDFDraft: React.FC<Props> = ({
 					flexDirection="column"
 					gap={4}
 				>
-					<img
-						src={localized.logo || MasteriyoLogo}
-						alt="Masteriyo"
-						style={{ width: 56, height: 56, objectFit: 'contain' }}
-					/>
+					{(localized.logo || !localized.whiteLabelTitle) && (
+						<img
+							src={localized.logo || MasteriyoLogo}
+							alt={getPluginName()}
+							style={{ width: 56, height: 56, objectFit: 'contain' }}
+						/>
+					)}
 					<Spinner size="lg" color="blue.500" thickness="3px" />
 				</Center>
 			)}

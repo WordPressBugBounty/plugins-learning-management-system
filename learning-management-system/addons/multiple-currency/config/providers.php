@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Service providers for the addon.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 use Masteriyo\Addons\MultipleCurrency\Providers\MultipleCurrencyServiceProvider;

@@ -133,7 +133,7 @@ class Helper {
 	/**
 	 * Get all bricks templates
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return array
 	 */
@@ -161,7 +161,7 @@ class Helper {
 	/**
 	 * Get a course to use for preview in brick editor.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return \Masteriyo\Models\Course|null
 	 */
@@ -187,12 +187,13 @@ class Helper {
 	/**
 	 * Single course listing templates with masteriyo-single-course template type.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return array
 	 */
 	public static function masteriyo_single_course_listing_template() {
 		$all_templates = \Bricks\Database::get_all_templates_by_type();
+
 		if ( $all_templates && ! empty( $all_templates['masteriyo-single-course'] ) && $all_templates['masteriyo-single-course'] ) {
 			$templates                              = array_values( $all_templates['masteriyo-single-course'] );
 			$args                                   = array(
@@ -219,12 +220,14 @@ class Helper {
 			}
 			return $bricks_options;
 		}
+
+		return array();
 	}
 
 	/**
 	 * Courses listing templates with masteriyo-single-course template type.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return array
 	 */
@@ -257,12 +260,14 @@ class Helper {
 			}
 			return $bricks_options;
 		}
+
+		return array();
 	}
 
 	/**
 	 * Creates the new single course bricks template if it does not exists.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return void
 	 */
@@ -300,7 +305,7 @@ class Helper {
 	/**
 	 * Creates the new courses archive bricks template if it does not exists.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return void
 	 */
@@ -338,14 +343,14 @@ class Helper {
 	/**
 	 * Creates the new course bricks template for first time.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @return number|string
 	 */
 	public static function create_bricks_template( $template_name, $template_content ) {
 		if ( get_option( $template_content['type'] ) ) {
 			return;
-		};
+		}
 		$template_data = array(
 			'post_title'  => $template_name,
 			'post_status' => 'publish',
@@ -380,8 +385,4 @@ class Helper {
 		update_post_meta( $template_id, '_masteriyo_course_archive_template_meta', true );
 		return $template_id;
 	}
-
-
 }
-
-

@@ -13,7 +13,6 @@ use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
-use WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,12 +59,17 @@ class CourseArchivePaginationWidget extends WidgetBase {
 	}
 
 	/**
+	 * Get widget keywords.
+	 *
+	 * @since 1.6.12
+	 *
+	 * @return string[]
+	 */
+	/**
 	 * Hide widget from the Elementor panel.
 	 *
 	 * Pagination is now built into the Course List widget. This widget remains
 	 * registered so existing layouts continue to work.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return bool
 	 */
@@ -73,13 +77,6 @@ class CourseArchivePaginationWidget extends WidgetBase {
 		return false;
 	}
 
-	/**
-	 * Get widget keywords.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return string[]
-	 */
 	public function get_keywords() {
 		return array( 'pagination', 'page', 'numbers' );
 	}

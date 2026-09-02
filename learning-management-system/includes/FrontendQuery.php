@@ -8,7 +8,9 @@
 
 namespace Masteriyo;
 
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Notice;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Taxonomy\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
@@ -121,17 +123,35 @@ class FrontendQuery {
 			'learn_page_not_found'    => $is_admin ? sprintf(
 				/* translators: %s: HTML link to Masteriyo Settings page */
 				__( 'The Learn page is not configured. Please set it up in %s.', 'learning-management-system' ),
-				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( '%s Settings', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				) . '</a>'
 			) : '',
 			'account_page_not_found'  => $is_admin ? sprintf(
 				/* translators: %s: HTML link to Masteriyo Settings page */
 				__( 'The Account page is not configured. Please set it up in %s.', 'learning-management-system' ),
-				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( '%s Settings', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				) . '</a>'
 			) : '',
 			'checkout_page_not_found' => $is_admin ? sprintf(
 				/* translators: %s: HTML link to Masteriyo Settings page */
 				__( 'The Checkout page is not configured. Please set it up in %s.', 'learning-management-system' ),
-				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html__( 'Masteriyo Settings', 'learning-management-system' ) . '</a>'
+				'<a href="' . esc_url( $settings_url ) . '" class="masteriyo-link-primary">' . esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( '%s Settings', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				) . '</a>'
 			) : '',
 		);
 
@@ -274,6 +294,7 @@ class FrontendQuery {
 				break;
 			case 'view-order':
 				$order = masteriyo_get_order( $wp->query_vars['view-order'] );
+				/* translators: %s: order number */
 				$title = ( $order )
 				? sprintf(
 					/* translators: %s: order number */
@@ -285,7 +306,6 @@ class FrontendQuery {
 					$order->get_order_number()
 				)
 				: '';
-
 				break;
 			case 'downloads':
 				$title = __( 'Downloads', 'learning-management-system' );
@@ -339,6 +359,8 @@ class FrontendQuery {
 			return;
 		}
 
+		$this->include_private_courses_for_eligible_students( $q );
+
 		// Fixes for queries on homepages.
 		if ( $this->is_showing_page_on_front( $q ) ) {
 
@@ -369,6 +391,20 @@ class FrontendQuery {
 						$q->is_singular = true;
 					}
 				}
+			} elseif ( $this->page_on_front_is( masteriyo_get_page_id( 'course-bundles' ) ) ) {
+				$_query = wp_parse_args( $q->query );
+				if ( empty( $_query ) || ! array_diff( array_keys( $_query ), array( 'preview', 'page', 'paged', 'cpage', 'orderby' ) ) ) {
+					$q->set( 'page_id', (int) get_option( 'page_on_front' ) );
+					$q->is_page = true;
+					$q->is_home = false;
+
+					// WP supporting themes show post type archive.
+					if ( current_theme_supports( 'masteriyo' ) ) {
+						$q->set( 'post_type', 'mto-bundle' );
+					} else {
+						$q->is_singular = true;
+					}
+				}
 			} elseif ( ! empty( $_GET['orderby'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$q->set( 'page_id', (int) get_option( 'page_on_front' ) );
 				$q->is_page     = true;
@@ -378,7 +414,7 @@ class FrontendQuery {
 		}
 
 		// Fix course feeds.
-		if ( $q->is_feed() && $q->is_post_type_archive( 'mto-course' ) ) {
+		if ( $q->is_feed() && ( $q->is_post_type_archive( 'mto-course' ) || $q->is_post_type_archive( 'mto-bundle' ) ) ) {
 			$q->is_comment_feed = false;
 		}
 
@@ -416,17 +452,73 @@ class FrontendQuery {
 			// Remove post type archive name from front page title tag.
 			add_filter( 'post_type_archive_title', '__return_empty_string', 5 );
 
-			// Fix WP SEO.
-			if ( class_exists( 'WPSEO_Meta' ) ) {
-				add_filter( 'wpseo_metadesc', array( $this, 'wpseo_metadesc' ) );
-				add_filter( 'wpseo_metakey', array( $this, 'wpseo_metakey' ) );
+		} elseif ( current_theme_supports( 'masteriyo' ) && $q->is_page() && 'page' === get_option( 'show_on_front' ) && absint( $q->get( 'page_id' ) ) === masteriyo_get_page_id( 'course-bundles' ) ) {
+			// This is a front-page courses.
+			$q->set( 'post_type', 'mto-bundle' );
+			$q->set( 'page_id', '' );
+
+			if ( isset( $q->query['paged'] ) ) {
+				$q->set( 'paged', $q->query['paged'] );
 			}
+
+			// Define a variable so we know this is the front page courses later on.
+			masteriyo_maybe_define_constant( 'COURSE_BUNDLES_IS_ON_FRONT', true );
+
+			// Get the actual WP page to avoid errors and let us use is_front_page().
+			// This is hacky but works. Awaiting https://core.trac.wordpress.org/ticket/21096.
+			global $wp_post_types;
+
+			$courses_page = get_post( masteriyo_get_page_id( 'courses' ) );
+
+			$wp_post_types['mto-bundle']->ID         = $courses_page->ID;
+			$wp_post_types['mto-bundle']->post_title = $courses_page->post_title;
+			$wp_post_types['mto-bundle']->post_name  = $courses_page->post_name;
+			$wp_post_types['mto-bundle']->post_type  = $courses_page->post_type;
+
+			// Fix conditional Functions like is_front_page.
+			$q->is_singular          = false;
+			$q->is_post_type_archive = true;
+			$q->is_archive           = true;
+			$q->is_page              = true;
+
+			// Remove post type archive name from front page title tag.
+			add_filter( 'post_type_archive_title', '__return_empty_string', 5 );
+
 		} elseif ( ! $q->is_post_type_archive( 'mto-course' ) && ! $q->is_tax( get_object_taxonomies( 'mto-course' ) ) ) {
 			// Only apply to course categories, the course post archive, the courses page, course tags, and course attribute taxonomies.
-			return;
+			if ( ! $q->is_post_type_archive( 'mto-bundle' ) ) {
+				return;
+			}
 		}
 
 		$this->course_query( $q );
+	}
+
+	/**
+	 * Includes private courses in the query for eligible students.
+	 *
+	 * Modifies the main query to allow private 'mto-course' posts to be included when the current user
+	 * is a student and has permission to start the specified course. This applies only to single course
+	 * queries identified by the 'p' query variable and 'mto-course' post type.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @param \WP_Query $query The WordPress query object.
+	 *
+	 * @return void
+	 */
+	private function include_private_courses_for_eligible_students( $query ) {
+		if ( ! is_admin() ) {
+			if ( isset( $query->query_vars['p'] ) && isset( $query->query_vars['post_type'] ) && 'mto-course' === $query->query_vars['post_type'] ) {
+				// Only for private courses. A forced post_status list excludes
+				// drafts at the SQL level, before core's preview capability
+				// logic can serve them to authors.
+				if ( PostStatus::PVT === get_post_status( (int) $query->query_vars['p'] )
+					&& masteriyo_can_start_course( $query->query_vars['p'] ) ) {
+					$query->set( 'post_status', array( 'publish', 'private' ) );
+				}
+			}
+		}
 	}
 
 	/**

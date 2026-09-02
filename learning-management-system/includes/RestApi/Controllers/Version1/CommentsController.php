@@ -557,10 +557,11 @@ abstract class CommentsController extends CrudController {
 	 * Process objects collection.
 	 *
 	 * @since 1.4.10
+	 * @since 2.2.7 Renamed reviews_count to comments_count
 	 *
-	 * @param array $objects Courses data.
+	 * @param array $objects Comments data.
 	 * @param array $query_args Query arguments.
-	 * @param array $query_results Courses query result data.
+	 * @param array $query_results Comments query result data.
 	 *
 	 * @return array
 	 */
@@ -610,6 +611,10 @@ abstract class CommentsController extends CrudController {
 
 		if ( ! $old_comment ) {
 			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		if ( $this->comment_type !== $old_comment->comment_type ) {
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_comment_type", __( 'Invalid comment type', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$new_comment = array(
@@ -669,6 +674,59 @@ abstract class CommentsController extends CrudController {
 		 * @param WP_REST_Request  $request  Request object.
 		 */
 		return apply_filters( "masteriyo_rest_clone_prepare_{$this->object_type}_object", $response, $old_comment, $new_comment, $request );
+	}
+
+
+	/**
+	 * Get comments.
+	 *
+	 * @since  2.2.7
+	 * @param  array $query_args Query args.
+	 * @return array
+	 */
+	protected function get_objects( $query_args ) {
+		$query          = new \WP_Comment_Query( $query_args );
+		$comments       = $query->comments;
+		$total_comments = $this->get_total_comments( $query_args );
+
+		if ( $total_comments < 1 ) {
+			// Out-of-bounds, run the query again without LIMIT for total count.
+			$total_comments = $this->get_total_comments( $query_args );
+		}
+
+		return array(
+			'objects' => array_filter( array_map( array( $this, 'get_object' ), $comments ) ),
+			'total'   => (int) $total_comments,
+			'pages'   => empty( $query_args['number'] ) ? 0 : (int) ceil( $total_comments / (int) $query_args['number'] ),
+		);
+	}
+
+	/**
+	 * Get the total number of comments by comment type.
+	 *
+	 * @since 2.2.7
+	 *
+	 * @param array $query_args WP_Comment_Query args.
+	 * @return int
+	 */
+	protected function get_total_comments( $query_args ) {
+		if ( isset( $query_args['paged'] ) ) {
+			unset( $query_args['paged'] );
+		}
+
+		if ( isset( $query_args['number'] ) ) {
+			unset( $query_args['number'] );
+		}
+
+		if ( isset( $query_args['offset'] ) ) {
+			unset( $query_args['offset'] );
+		}
+
+		$query_args['fields'] = 'ids';
+
+		$comments = get_comments( $query_args );
+
+		return count( $comments );
 	}
 
 	/**

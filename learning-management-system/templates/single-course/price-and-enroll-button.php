@@ -19,6 +19,10 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 use Masteriyo\CoreFeatures\CourseComingSoon\Helper;
 
 /**
+ * @var \Masteriyo\Models\Course $course
+ */
+
+/**
  * Fires before rendering price and enroll button section in single course page.
  *
  * @since 1.0.0
@@ -41,69 +45,70 @@ if ( 'layout1' === $layout ) {
 $class = trim( $class );
 ?>
 
-
-	<div class="masteriyo-time-btn masteriyo-course-pricing--wrapper <?php echo esc_attr( $class ); ?>">
-		<?php if ( masteriyo_get_setting( 'single_course.components_visibility.price' ) ) : ?>
-			<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
-				<?php if ( ! $satisfied && ( $is_free || \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) ) : ?>
-				<?php else : ?>
-					<div class="masteriyo-course-price">
+<div class="masteriyo-time-btn masteriyo-course-pricing--wrapper <?php echo esc_attr( $class ); ?>">
+	<?php if ( masteriyo_get_setting( 'single_course.components_visibility.price' ) ) : ?>
+			<?php if ( ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) && ! masteriyo_course_order_awaiting_payment( $course->get_id() ) ) : ?>
+				<?php
+				if ( ! $satisfied && ( $is_free || \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) ) :
+					?>
+	<?php else : ?>
+		<div class="masteriyo-course-price">
 						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
-							<del class="old-amount">
-								<?php
-								echo wp_kses_post(
-									masteriyo_price(
-										$course->get_regular_price(),
-										array(
-											'currency' => $course->get_currency(),
-										)
+			<del class="old-amount">
+							<?php
+							echo wp_kses_post(
+								masteriyo_price(
+									$course->get_regular_price(),
+									array(
+										'currency' => $course->get_currency(),
+										'disable_tax_inclusive_label' => true,
 									)
-								);
-								?>
-							</del>
-						<?php endif; ?>
-						<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
-					</div>
-				<?php endif; ?>
-			<?php endif; ?>
+								)
+							);
+							?>
+									</del>
 		<?php endif; ?>
+		<span class="current-amount"><?php echo wp_kses_post( $course->price_html() ); ?></span>
 
-		<?php
-		/**
-		 * Action hook for rendering retake button template.
-		 *
-		 * @since 1.8.0
-		 *
-		 * @param \Masteriyo\Models\Course $course Course object.
-		 */
-		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
-		if ( 'default' === $layout || 'minimal' === $layout ) {
-			do_action( 'masteriyo_template_course_retake_button', $course );
-		}
-		?>
-
-		<?php
-		/**
-		 * Action hook for rendering enroll button template.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param \Masteriyo\Models\Course $course Course object.
-		 */
-		if ( masteriyo_get_setting( 'single_course.components_visibility.enroll_button' ) ) {
-			$user_id = get_current_user_id();
-			if ( masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) && 'layout1' === $layout && masteriyo_is_single_course_page() && $progress_pct > 0 ) {
-			} else {
-				do_action( 'masteriyo_template_enroll_button', $course );
-			}
-		}
-		?>
-
-			<?php masteriyo_display_all_notices(); ?>
 	</div>
+	<?php endif; ?>
+		<?php endif; ?>
+	<?php endif; ?>
+	<?php
+	/**
+	 * Action hook for rendering retake button template.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
+	if ( 'default' === $layout || 'minimal' === $layout ) {
+		do_action( 'masteriyo_template_course_retake_button', $course );
+	}
 
+	?>
 
+	<?php
+	/**
+	 * Action hook for rendering enroll button template.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	if ( masteriyo_get_setting( 'single_course.components_visibility.enroll_button' ) ) {
+			$user_id = get_current_user_id();
+		if ( ! ( masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) && 'layout1' === $layout && masteriyo_is_single_course_page() && $progress_pct > 0 ) ) {
+			do_action( 'masteriyo_template_enroll_button', $course );
+		}
+	}
+	?>
+
+	<?php masteriyo_display_all_notices(); ?>
+</div>
 <?php
+
 /**
  * Fires after rendering price and enroll button section in single course page.
  *

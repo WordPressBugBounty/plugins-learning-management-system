@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Models\UserCourse;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Exceptions\RestException;
@@ -187,6 +188,26 @@ class UserCoursesController extends CrudController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
+		$params['user'] = array(
+			'description'       => __( 'Ensure result set specific users.', 'learning-management-system' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => 'wp_parse_id_list',
+		);
+
+		$params['course'] = array(
+			'description'       => __( 'Ensure result set specific courses.', 'learning-management-system' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => 'wp_parse_id_list',
+		);
+
 		$params['user_id'] = array(
 			'description'       => __( 'User ID', 'learning-management-system' ),
 			'type'              => 'integer',
@@ -199,7 +220,7 @@ class UserCoursesController extends CrudController {
 			'description'       => __( 'User course status', 'learning-management-system' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_title',
-			'default'           => 'active',
+			'default'           => UserCourseStatus::ANY,
 			'validate_callback' => 'rest_validate_request_arg',
 			'enum'              => UserCourseStatus::all(),
 		);
@@ -232,9 +253,8 @@ class UserCoursesController extends CrudController {
 			'default'           => 'id',
 			'enum'              => array(
 				'id',
-				'type',
-				'date_start',
-				'date_modified',
+				'started_at',
+				'modified_at',
 			),
 			'validate_callback' => 'rest_validate_request_arg',
 		);
@@ -314,16 +334,27 @@ class UserCoursesController extends CrudController {
 	 */
 	protected function get_user_course_data( $user_course, $context = 'view' ) {
 		$course = masteriyo_get_course( $user_course->get_course_id( $context ) );
+		$user   = masteriyo_get_user( $user_course->get_user_id( $context ) );
 
 		$data = array(
 			'id'          => $user_course->get_id( $context ),
 			'user_id'     => $user_course->get_user_id( $context ),
 			'course'      => null,
+			'user'        => null,
 			'type'        => $user_course->get_type( $context ),
 			'status'      => $user_course->get_status( $context ),
 			'started_at'  => masteriyo_rest_prepare_date_response( $user_course->get_date_start( $context ) ),
 			'modified_at' => masteriyo_rest_prepare_date_response( $user_course->get_date_modified( $context ) ),
 		);
+
+		if ( ! is_wp_error( $user ) ) {
+			$data['user'] = array(
+				'id'           => $user->get_id(),
+				'display_name' => $user->get_display_name( $context ),
+				'avatar_url'   => $user->profile_image_url( $context ),
+				'email'        => $user->get_email( $context ),
+			);
+		}
 
 		if ( $course ) {
 			$course_progress_query = new CourseProgressQuery(
@@ -347,6 +378,7 @@ class UserCoursesController extends CrudController {
 					'summary'              => $progress->get_summary( 'all' ),
 				);
 			}
+
 			$progress_data['percentage'] = $course->get_progress_status( false, $user_course->get_user_id() );
 
 			$data['course'] = array(
@@ -374,7 +406,7 @@ class UserCoursesController extends CrudController {
 				$data['course']['author'] = array(
 					'id'           => $author->get_id(),
 					'display_name' => $author->get_display_name( $context ),
-					'avatar_url'   => $author->profile_image_url(),
+					'avatar_url'   => $author->profile_image_url( $context ),
 				);
 			}
 		}
@@ -445,9 +477,13 @@ class UserCoursesController extends CrudController {
 
 		$args['paged'] = $args['page'];
 
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			$args['user__in'] = array( get_current_user_id() );
+		}
+
 		if ( masteriyo_is_request_from_account_dashboard( $request ) ) {
-			$course_ids = masteriyo_get_user_course_ids_by_course_status( current( $args['user__in'] ) );
-			// requires for course listing(inprogress) in dashboard page so by default it would not list every course there is.
+			$course_ids = masteriyo_get_user_active_enrolled_course_ids( current( $args['user__in'] ), true );
+			// Dashboard lists the learner's active, not-yet-completed enrollments, not every course on the site.
 			if ( empty( $course_ids ) ) {
 				$args['course__in'] = array( 0 );
 			} else {
@@ -509,7 +545,7 @@ class UserCoursesController extends CrudController {
 				'status'      => array(
 					'description' => __( 'Course progress status.', 'learning-management-system' ),
 					'type'        => 'string',
-					'enum'        => masteriyo_get_user_course_statuses(),
+					'enum'        => UserCourseStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'started_at'  => array(
@@ -552,18 +588,13 @@ class UserCoursesController extends CrudController {
 			$user_course_repo->read( $user_course );
 		}
 
-		try {
-			$user_id = $this->validate_user_id( $request, $creating );
-			$user_course->set_user_id( $user_id );
-
-			$course_id = $this->validate_course_id( $request, $creating );
-			if ( ! is_null( $course_id ) ) {
-				$user_course->set_course_id( $course_id );
-			}
-		} catch ( RestException $e ) {
-			return new \WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
+		if ( isset( $request['user_id'] ) ) {
+			$user_course->set_user_id( $request['user_id'] );
 		}
 
+		if ( isset( $request['course_id'] ) ) {
+			$user_course->set_course_id( $request['course_id'] );
+		}
 		// course status.
 		if ( isset( $request['status'] ) ) {
 			$user_course->set_status( $request['status'] );
@@ -577,6 +608,25 @@ class UserCoursesController extends CrudController {
 		// course update date.
 		if ( isset( $request['modified_at'] ) ) {
 			$user_course->set_date_modified( $request['modified_at'] );
+		}
+
+		if ( $creating ) {
+			$query = new UserCourseQuery(
+				array(
+					'user_id'   => $user_course->get_user_id( 'edit' ),
+					'course_id' => $user_course->get_course_id( 'edit' ),
+				)
+			);
+
+			$user_courses = $query->get_user_courses();
+
+			if ( ! empty( $user_courses ) ) {
+				return new \WP_Error(
+					'rest_user_course_exists',
+					__( 'User is already enrolled to the course.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		/**
@@ -628,8 +678,26 @@ class UserCoursesController extends CrudController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
+		if ( ! $this->permission->rest_check_user_course_permissions( 'read', $request['id'] ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you cannot read this resource.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		$user_course = masteriyo_get_user_course( $request['id'] );
+
+		if ( $user_course && absint( $user_course->get_user_id() ) !== get_current_user_id() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you cannot read this resource.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
 		}
 
 		return true;
@@ -774,6 +842,7 @@ class UserCoursesController extends CrudController {
 	 * Validate the user ID in the request.
 	 *
 	 * @since 1.3.1
+	 * @deprecated 2.4.4
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
@@ -795,7 +864,7 @@ class UserCoursesController extends CrudController {
 		if ( is_user_logged_in() && ! $user ) {
 			throw new RestException(
 				'masteriyo_rest_invalid_user_id',
-				__( 'User ID is invalid.', 'learning-management-system' ),
+				esc_html__( 'User ID is invalid.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -805,7 +874,7 @@ class UserCoursesController extends CrudController {
 		if ( ( masteriyo_is_current_user_student() || masteriyo_is_current_user_instructor() ) && get_current_user_id() !== $user_id ) {
 			throw new RestException(
 				'masteriyo_rest_access_denied_user_course',
-				__( 'User cannot access other\'s course progress.', 'learning-management-system' ),
+				esc_html__( 'User cannot access other\'s course progress.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -817,6 +886,7 @@ class UserCoursesController extends CrudController {
 	 * Validate the course ID in the request.
 	 *
 	 * @since 1.3.1
+	 * @deprecated 2.4.4
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
@@ -835,7 +905,7 @@ class UserCoursesController extends CrudController {
 			if ( ! $course_post || 'mto-course' !== $course_post->post_type ) {
 				throw new RestException(
 					'masteriyo_rest_invalid_course_id',
-					__( 'Course ID is invalid.', 'learning-management-system' ),
+					esc_html__( 'Course ID is invalid.', 'learning-management-system' ),
 					400
 				);
 			}
@@ -844,7 +914,7 @@ class UserCoursesController extends CrudController {
 		if ( is_null( $course_id ) ) {
 			throw new RestException(
 				'masteriyo_rest_invalid_course_id',
-				__( 'Course ID is invalid.', 'learning-management-system' ),
+				esc_html__( 'Course ID is invalid.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -884,7 +954,7 @@ class UserCoursesController extends CrudController {
 	/**
 	 * Get courses statistics.
 	 *
-	 * @since 1.14.2
+	 * @since 1.14.2 [Free]
 	 *
 	 * @param int $user_id User ID.
 	 *
@@ -895,7 +965,7 @@ class UserCoursesController extends CrudController {
 		$courses_stat = array(
 			'completed_count'   => masteriyo_get_user_courses_count_by_course_status( $user_id, CourseProgressStatus::COMPLETED ),
 			'in_progress_count' => masteriyo_get_user_courses_count_by_course_status( $user_id ),
-			'enrolled_count'    => masteriyo_get_user_enrolled_courses_count( $user_id ),
+			'enrolled_count'    => count( masteriyo_get_user_active_enrolled_course_ids( $user_id ) ),
 		);
 
 		return $courses_stat;

@@ -6,14 +6,14 @@
  *
  * @category API
  * @package Masteriyo\RestApi
- * @since 1.14.3
+ * @since 1.14.3 [Free]
  */
 
 namespace Masteriyo\RestApi\Controllers\Version1;
 
 use Masteriyo\DateTime;
 use Masteriyo\Helper\Permission;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Tracking\ServerTrackingInfo;
 use Masteriyo\Tracking\WPTrackingInfo;
 use Masteriyo\Tracking\MasteriyoTrackingInfo;
@@ -47,7 +47,7 @@ class ErrorReportsController extends WP_REST_Controller {
 	/**
 	 * Permission class instance.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 * @var Permission
 	 */
 	protected $permission;
@@ -57,7 +57,7 @@ class ErrorReportsController extends WP_REST_Controller {
 	 *
 	 * Sets up the utilities controller.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 * @param Permission|null $permission The permission handler instance.
 	 */
 	public function __construct( ?Permission $permission = null ) {
@@ -84,7 +84,7 @@ class ErrorReportsController extends WP_REST_Controller {
 	/**
 	 * Checks if the current user has permissions to perform error report.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 * @param WP_REST_Request $request The request.
 	 * @return true|WP_Error True if the request has access, WP_Error object otherwise.
 	 */
@@ -109,7 +109,7 @@ class ErrorReportsController extends WP_REST_Controller {
 	/**
 	 * Reports an error.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
@@ -178,7 +178,7 @@ class ErrorReportsController extends WP_REST_Controller {
 	 *
 	 * This method collects data necessary for error reports, such as plugin and WordPress version, PHP version, MySQL version, server OS, etc.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 *
 	 * @param array $error_data The error data.
 	 *

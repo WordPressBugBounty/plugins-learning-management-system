@@ -48,9 +48,13 @@ const Edit: React.FC<any> = compose([withNotices])((props) => {
 					allowedTypes={['image']}
 					value={{ src: backgroundImageURL }}
 					labels={{
-						title: __('Certificate Background Image'),
+						title: __(
+							'Certificate Background Image',
+							'learning-management-system',
+						),
 						instructions: __(
 							'Upload an image file, pick one from your media library.',
+							'learning-management-system',
 						),
 					}}
 				/>

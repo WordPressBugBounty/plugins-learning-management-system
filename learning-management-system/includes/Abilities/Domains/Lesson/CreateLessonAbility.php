@@ -3,7 +3,6 @@
  * Create Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * The parent course ID and section ID must be supplied.
  * Lessons are appended at the end of the section unless menu_order is given.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CreateLessonAbility extends RestProxyAbility {
 

@@ -21,7 +21,8 @@ class UsageTrackingCli {
 	 * @since 1.6.0
 	 */
 	public function reset() {
-		masteriyo_set_setting( 'advance.tracking.allow_usage', false );
+		// Sparse write; see masteriyo_set_raw_setting().
+		masteriyo_set_raw_setting( 'advance.tracking.allow_usage', false );
 		masteriyo_clear_usage_tracking_preference_by_user();
 		$this->clear_notice();
 	}

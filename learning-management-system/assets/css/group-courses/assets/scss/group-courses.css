@@ -1,0 +1,577 @@
+/* Margin/Padding */
+.masteriyo-group-courses-modal .masteriyo-overlay {
+  align-items: center;
+}
+
+.masteriyo-group-course-popup {
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 25px 0 rgba(10, 10, 10, 0.1);
+  display: flex;
+  width: 520px;
+  padding: 28px 28px 30px;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.masteriyo-group-course__wrapper {
+  position: relative;
+}
+.masteriyo-group-course__heading {
+  color: #222;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 18px;
+}
+.masteriyo-group-course__exit-popup {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 60px;
+  background: #eef1f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  cursor: pointer;
+}
+.masteriyo-group-course__exit-popup svg {
+  width: 14px;
+  height: 14px;
+}
+.masteriyo-group-course__title {
+  color: #646464;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 26px;
+}
+.masteriyo-group-course__empty-state {
+  display: none;
+}
+.masteriyo-group-course__empty-state--image {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.masteriyo-group-course__empty-state--image img {
+  width: 260px;
+  height: auto;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.masteriyo-group-course__empty-state--content {
+  text-align: center;
+}
+.masteriyo-group-course__empty-state--content-title {
+  color: #383838;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 29px;
+  margin-bottom: 8px;
+}
+.masteriyo-group-course__empty-state--content-desc {
+  color: #4e4e4e;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+}
+.masteriyo-group-course__empty-state--content-desc .masteriyo-group-course--link {
+  color: var(--masteriyo-color-primary);
+  font-style: italic;
+  text-decoration: underline;
+}
+.masteriyo-group-course__lists--label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.masteriyo-group-course__lists--heading {
+  color: #646464;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.masteriyo-group-course__lists--sync-button {
+  color: #7a7a7a;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  margin-top: 14px;
+  transition: all 0.3s ease-in-out;
+}
+.masteriyo-group-course__lists--sync-button:hover {
+  text-decoration: underline;
+}
+.masteriyo-group-course__lists--sync-button svg {
+  width: 16px;
+  height: 16px;
+}
+.masteriyo-group-course__lists--list {
+  margin-left: 0;
+  margin-bottom: 24px;
+}
+.masteriyo-group-course__lists--list-item {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 10px;
+}
+.masteriyo-group-course__lists--list-item:last-child {
+  margin-bottom: 0;
+}
+.masteriyo-group-course__lists--list-item input[type=checkbox] {
+  position: absolute;
+  z-index: 1;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+}
+.masteriyo-group-course__lists--list-item_label {
+  width: 100%;
+  border-radius: 4px;
+  background: #f0f0f0;
+  padding: 12px;
+  padding-left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #646464;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+.masteriyo-group-course__lists--list-item_label_disabled {
+  color: #a7a7a7;
+}
+.masteriyo-group-course__lists--list-item_members {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #7a7a7a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+.masteriyo-group-course__lists--list-item_members svg {
+  width: 20px;
+  height: 20px;
+}
+.masteriyo-group-course__lists--list-item_disabled {
+  cursor: none;
+  pointer-events: none;
+}
+.masteriyo-group-course__lists--list-item input[type=checkbox]:checked ~ .masteriyo-group-course__lists--list-item_label {
+  background: #f3f7fd;
+}
+.masteriyo-group-course__lists .masteriyo-error-message {
+  color: #ff343e;
+  background-color: #fdd;
+  padding: 10px;
+  border: 1px solid #ff343e;
+  border-radius: 4px;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+.masteriyo-group-course__lists--footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+.masteriyo-group-course__lists--footer_link {
+  color: #646464;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-decoration-line: underline;
+  transition: all 0.3s ease-in-out;
+}
+.masteriyo-group-course__lists--footer_link:hover {
+  color: #222;
+}
+.masteriyo-group-course__lists--footer_checkout-button {
+  display: flex;
+  padding: 10px 16px 10px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  background: var(--masteriyo-color-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+.masteriyo-group-course__lists--footer_checkout-button:hover {
+  color: #fff;
+  background: #1b4aab;
+}
+.masteriyo-group-course__lists--footer_checkout-button:focus {
+  color: #fff;
+}
+.masteriyo-group-course__lists--footer_checkout-button svg {
+  width: 20px;
+  height: 20px;
+}
+.masteriyo-group-course__lists--footer_checkout-button svg path {
+  stroke: #fff;
+}
+.masteriyo-group-course__lists--footer_checkout-button--disabled {
+  background: #e2e2e2;
+  color: #a7a7a7;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.masteriyo-group-course__lists--footer_checkout-button--disabled svg path {
+  stroke: #a7a7a7;
+}
+.masteriyo-group-course__group-button {
+  width: 100%;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.masteriyo-group-course__group-button > *:last-child {
+  margin-bottom: 0;
+}
+.masteriyo-group-course__group-button .masteriyo-group-course__buy-now-button {
+  gap: 6px;
+}
+.masteriyo-group-course__group-title {
+  color: #4e4e4e;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 34px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: column;
+  border-bottom: 1px solid #e1e1e1;
+}
+.masteriyo-group-course__group-title .title-line {
+  flex: 1 0 0;
+}
+.masteriyo-group-course__group-title .title-line::after {
+  content: "";
+  width: 100%;
+  height: 1px;
+  background: #ddd;
+  display: block;
+}
+.masteriyo-group-course__group-desc {
+  color: #646464;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 24px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+.masteriyo-group-course__group-desc:empty {
+  display: none;
+}
+.masteriyo-group-course__seperator {
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #7a7a7a;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+.masteriyo-group-course__seperator::before, .masteriyo-group-course__seperator::after {
+  content: "";
+  background: var(--masteriyo-color-border);
+  width: 100%;
+  height: 1px;
+  display: block;
+}
+.masteriyo-group-course__helper-text {
+  color: #51585f;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 25px;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-align: center;
+}
+.masteriyo-group-course__checkout-title {
+  color: #07092f;
+  font-size: 26px;
+  line-height: 34px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 28px;
+}
+.masteriyo-group-course__checkout-table {
+  border-radius: 5px;
+  background: #f9f9f9;
+  padding: 20px;
+}
+.masteriyo-group-course__checkout-table table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 0;
+  margin-bottom: 0;
+}
+.masteriyo-group-course__checkout-table table tr th {
+  color: #383838;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  padding: 0 6px 16px;
+  border: 0;
+  border-bottom: 1px solid #e1e1e1;
+  width: 90%;
+  text-align: left;
+}
+.masteriyo-group-course__checkout-table table tr td {
+  color: #4e4e4e;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  padding: 16px 6px 0;
+  border: 0;
+}
+
+.masteriyo-checkout-summary-order-details li .masteriyo-badge {
+  display: table;
+  margin: 4px 0 0;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
+  white-space: nowrap;
+  border-radius: 4px;
+  color: var(--masteriyo-color-white);
+  background-color: #26c164;
+}
+
+.masteriyo-single-body__aside--price .masteriyo-group-course__group-button {
+  margin-top: 0;
+}
+
+.masteriyo-group-pricing-tiers {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier {
+  border: 1px solid var(--masteriyo-color-border);
+  border-radius: 6px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier:hover {
+  border-color: #cbd5e0;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier.selected {
+  border-color: var(--masteriyo-color-primary);
+  background: #f9f9f9;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-radio {
+  display: none;
+  position: absolute;
+  top: 23px;
+  left: 20px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e0;
+  border-radius: 50%;
+  background-color: white;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.masteriyo-group-pricing-tier.selected .masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-radio {
+  border-color: var(--masteriyo-color-primary);
+  background: var(--masteriyo-color-primary);
+}
+.masteriyo-group-pricing-tier.selected .masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-radio::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-info {
+  flex: 1;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price-regular .amount {
+  font-size: 14px;
+  line-height: 22px;
+  color: #979797;
+  font-weight: 500;
+  padding: 0 6px;
+  position: relative;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price-regular .amount::after {
+  content: "";
+  position: absolute;
+  background: #e50044;
+  width: 100%;
+  height: 1px;
+  top: 40%;
+  left: 50%;
+  transform: rotate(-5deg) translate(-50%, -50%);
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price-current {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price-current .amount {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  color: #383838;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-price-current .billing_interval {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: #545454;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-info {
+  padding-left: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  color: #9e9e9e;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-info svg {
+  width: 18px;
+  height: 18px;
+  fill: #9e9e9e;
+  margin-top: 5px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-info span {
+  flex: 1;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seat-selector {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--masteriyo-color-border);
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seat-selector .masteriyo-group-tier-seats-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #383838;
+  margin-bottom: 0;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-input {
+  min-height: 38px;
+  border-color: #e1e1e1;
+  color: #383838;
+  padding: 0 12px;
+  width: 100%;
+  flex: 1;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 24px;
+  transition: all 0.2s ease;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-input::-moz-placeholder {
+  color: #737373;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-input::placeholder {
+  color: #737373;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--masteriyo-color-primary);
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-hint {
+  margin-top: 12px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-hint .tier-breakdown {
+  font-size: 14px;
+  line-height: 20px;
+  color: #9e9e9e;
+  margin-bottom: 4px;
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-hint .tier-total {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 15px;
+  line-height: 25px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--masteriyo-color-border);
+}
+.masteriyo-group-pricing-tiers .masteriyo-group-pricing-tier .masteriyo-group-tier-seats-hint .tier-total-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #9e9e9e;
+}
+
+.masteriyo-group-tier-price-interval {
+  font-size: 13px;
+  font-weight: 400;
+  color: #718096;
+}
+
+.masteriyo-group-tier-description {
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}

@@ -106,9 +106,9 @@ abstract class Email {
 	 * @return string
 	 */
 	public function format_string( $string ) {
+		$string  = is_string( $string ) ? $string : '';
 		$find    = array_keys( $this->get_placeholders() );
 		$replace = array_values( $this->get_placeholders() );
-		$string  = is_string( $string ) ? $string : '';
 
 		/**
 		 * Filters formatted string in email.
@@ -208,7 +208,8 @@ abstract class Email {
 		 */
 		$mail_callback_params = apply_filters( 'masteriyo_mail_callback_params', array( $to, $subject, $message, $headers, $attachments ), $this );
 
-		$return = $mail_callback( ...$mail_callback_params );
+		// No recipient means nothing to send; calling the mailer anyway fires it with a blank address.
+		$return = empty( $mail_callback_params[0] ) ? false : $mail_callback( ...$mail_callback_params );
 
 		remove_filter( 'wp_mail_from', array( $this, 'get_from_address' ) );
 		remove_filter( 'wp_mail_from_name', array( $this, 'get_from_name' ) );
@@ -222,8 +223,6 @@ abstract class Email {
 
 	/**
 	 * Log email delivery failure via the wp_mail_failed action.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_Error $wp_error Error object with failure details (to, subject, reason).
 	 */
@@ -253,8 +252,8 @@ abstract class Email {
 	public function get_headers() {
 		$headers = array( 'Content-Type: ' . $this->get_content_type() . "\r\n" );
 
-		if ( $this->get_from_address() && $this->get_from_name() ) {
-			$headers[] = 'Reply-to: ' . $this->get_from_name() . ' <' . $this->get_from_address() . ">\r\n";
+		if ( $this->get_reply_to_name() && $this->get_reply_to_address() ) {
+			$headers[] = 'Reply-to: ' . $this->get_reply_to_name() . ' <' . $this->get_reply_to_address() . ">\r\n";
 		}
 
 		/**
@@ -348,11 +347,11 @@ abstract class Email {
 			// Suppress warnings for invalid HTML.
 			\libxml_use_internal_errors( true );
 			// Load HTML with UTF-8 encoding hack.
-				$converted = mb_encode_numericentity(
-					$content,
-					array( 0x80, 0x10FFFF, 0, 0xFFFF ),
-					'UTF-8'
-				);
+			$converted = mb_encode_numericentity(
+				$content,
+				array( 0x80, 0x10FFFF, 0, 0xFFFF ),
+				'UTF-8'
+			);
 
 			$dom->loadHTML(
 				$converted,
@@ -440,6 +439,65 @@ abstract class Email {
 	}
 
 	/**
+	 * Get the reply-to name for outgoing emails.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		$reply_to_name = masteriyo_get_setting( 'emails.general.reply_to_name' );
+		$reply_to_name = is_null( $reply_to_name ) ? '' : $reply_to_name;
+		// Fall back to the "From" name, which is what the Reply-To header carried before this
+		// dedicated setting existed. get_from_name() falls back to the site title itself, so an
+		// unconfigured site is unchanged while a site that set a "From" name keeps it.
+		$reply_to_name = empty( trim( $reply_to_name ) ) ? $this->get_from_name() : $reply_to_name;
+
+		/**
+		 * Filters "Reply-To" name value of an email.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_name Reply-To name for an email.
+		 * @param Masteriyo\Emails\Email $email Email class object.
+		 */
+		$reply_to_name = apply_filters( 'masteriyo_email_reply_to_name', $reply_to_name, $this );
+
+		return wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES );
+	}
+
+	/**
+	 * Get the reply-to address for outgoing emails.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address() {
+		// `reply_to_address` is the spelling every other consumer of this setting uses --
+		// SettingsController::prepare_email_data() and all 100 per-email declarations in
+		// includes/Helper/email.php. Reading `reply_to_email` here meant this method could
+		// never see a value the settings layer wrote.
+		$reply_to_email = masteriyo_get_setting( 'emails.general.reply_to_address' );
+		$reply_to_email = is_null( $reply_to_email ) ? '' : $reply_to_email;
+		// Fall back to the "From" address, as the Reply-To header did before this dedicated
+		// setting existed. get_from_address() falls back to the admin email itself.
+		$reply_to_email = empty( trim( $reply_to_email ) ) ? $this->get_from_address() : $reply_to_email;
+
+		/**
+		 * Filters "Reply-To" email address value of an email.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_email Reply-To email address.
+		 * @param Masteriyo\Emails\Email $email Email class object.
+		 */
+		$reply_to_email = apply_filters( 'masteriyo_email_reply_to_email', $reply_to_email, $this );
+
+		return sanitize_email( $reply_to_email );
+	}
+
+	/**
 	 * Get email identifier.
 	 *
 	 * @since 1.0.0
@@ -511,6 +569,8 @@ abstract class Email {
 	 * Get placeholders.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @since 2.6.9 Account url was added.
 	 *
 	 * @return array
 	 */
@@ -624,7 +684,7 @@ abstract class Email {
 	/**
 	 * Get account url.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.9
 	 *
 	 * @return string
 	 */

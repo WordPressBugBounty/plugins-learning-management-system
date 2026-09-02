@@ -26,7 +26,7 @@ class AddToCartFormHandler {
 	}
 
 	/**
-	 * Handle addtocart.
+	 * Handle add to cart.
 	 *
 	 * @since 1.0.0
 	 *
@@ -47,7 +47,8 @@ class AddToCartFormHandler {
 		 * @param integer $course_id Course ID.
 		 */
 		$course_id      = apply_filters( 'masteriyo_add_to_cart_course_id', absint( wp_unslash( $_REQUEST['add-to-cart'] ) ) );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$adding_to_cart = masteriyo_get_course( $course_id );
+		$callable       = apply_filters( 'masteriyo_add_to_cart_get_item_callable', 'masteriyo_get_course', $course_id );
+		$adding_to_cart = call_user_func( $callable, $course_id );
 
 		if ( is_null( $adding_to_cart ) ) {
 			return;

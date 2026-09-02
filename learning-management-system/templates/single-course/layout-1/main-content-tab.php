@@ -11,17 +11,19 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 2.0.0
+ * @version 3.4.0
  */
 
 use Masteriyo\PostType\PostType;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
+/** @var \Masteriyo\Models\Course $course */
+
 /**
  * Fires before rendering main content tab in single course page.
  *
- * @since 2.0.0
+ * @since 2.0.0 [Free]
  */
 do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course );
 
@@ -34,7 +36,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 	<!-- Curriculum Content -->
 		<?php
 		if ( $show_curriculum ) :
-			if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) :
+			if ( masteriyo_can_view_curriculum( $course ) ) :
 				?>
 			<div id="masteriyoSingleCourseCurriculumTab" class=" tab-content course-curriculum masteriyo-single-body__main--curriculum-content <?php echo $curriculum_is_hidden ? 'masteriyo-hidden' : ''; ?>">
 				<div class="masteriyo-single-body__main--curriculum-content-top">
@@ -45,14 +47,13 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 						if ( $section_count > 0 ) :
 							?>
 							<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
-								<?php
-
-								printf(
+									<?php
+									printf(
 									/* translators: %1$s: Sections count */
-									esc_html( _nx( '%1$s Section', '%1$s Sections', $section_count, 'Sections Count', 'learning-management-system' ) ),
-									esc_html( number_format_i18n( $section_count ) )
-								);
-								?>
+										esc_html( _nx( '%1$s Section', '%1$s Sections', $section_count, 'Sections Count', 'learning-management-system' ) ),
+										esc_html( number_format_i18n( $section_count ) )
+									);
+									?>
 							</li>
 						<?php endif; ?>
 
@@ -106,12 +107,14 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 							do_action( 'masteriyo_layout_1_single_course_curriculum_shortinfo_item', $course );
 							?>
 
+						<?php if ( $course->get_duration() > 0 ) : ?>
 						<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
 							<?php
 							echo esc_html( masteriyo_minutes_to_time_length_string( $course->get_duration() ) );
 							esc_html_e( ' Duration', 'learning-management-system' );
 							?>
 						</li>
+						<?php endif; ?>
 					</ul>
 
 					<span class="masteriyo-single-body__main--curriculum-content-top--expand-btn" data-expand-all-text="<?php esc_html_e( 'Expand All', 'learning-management-system' ); ?>" data-collapse-all-text="<?php esc_html_e( 'Collapse All', 'learning-management-system' ); ?>" data-expanded="false"><?php esc_html_e( 'Expand All', 'learning-management-system' ); ?></span>
@@ -190,16 +193,16 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 											<?php
 											foreach ( $objects as $object ) :
 												$lesson_id                          = (int) $object->get_id();
-												$status                             = $lesson_progress_map[ $lesson_id ] ?? 'not_started';
-												list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $status );
+												$lesson_status                      = $lesson_progress_map[ $lesson_id ] ?? 'not_started';
+												list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $lesson_status );
 												?>
 
 												<li class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item">
 													<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon">
 														<?php
 														echo $object->get_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-															$learn_page_url = masteriyo_get_page_permalink( 'learn' );
-															$permalink      = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
+														$learn_page_url = masteriyo_get_page_permalink( 'learn' );
+														$permalink      = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
 
 														if ( '' === get_option( 'permalink_structure' ) ) {
 															$permalink = add_query_arg(
@@ -210,13 +213,13 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 															);
 														}
 
-															$permalink .= '#/course/' . $course->get_id() . '/' . $object->get_object_type() . '/' . $lesson_id;
+														$permalink .= '#/course/' . $course->get_id() . '/' . $object->get_object_type() . '/' . $lesson_id;
 														?>
 															<a href="<?php echo esc_url( $permalink ); ?>">
 															<?php echo esc_html( $object->get_name() ); ?>
 														</a>
 														<span class="masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">
-															<?php echo $status_icon; ?>
+															<?php echo $status_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded internal SVG markup from get_lesson_status_class_and_icon(). ?>
 														</span>
 														<?php
 														/**
@@ -292,6 +295,6 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 /**
  * Fires after rendering main content tab in single course page.
  *
- * @since 2.0.0
+ * @since 2.0.0 [Free]
  */
 do_action( 'masteriyo_after_layout_1_single_course_main_tab_content', $course );

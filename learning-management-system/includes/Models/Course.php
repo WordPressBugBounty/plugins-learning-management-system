@@ -11,11 +11,14 @@ namespace Masteriyo\Models;
 
 use Masteriyo\Helper\Utils;
 use Masteriyo\Database\Model;
-use Masteriyo\Enums\CourseFlow;
+use Waynestate\Youtube\ParseId;
+use Masteriyo\Enums\VideoSource;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\CourseAccessMode;
+use Masteriyo\Enums\CourseBillingPeriod;
 use Masteriyo\Enums\CourseChildrenPostType;
+use Masteriyo\Enums\CourseFlow;
 use Masteriyo\Repository\RepositoryInterface;
 
 defined( 'ABSPATH' ) || exit;
@@ -66,12 +69,23 @@ class Course extends Model {
 	/**
 	 * Course Progress.
 	 *
-	 * @since 1.14.2
+	 * @since 1.14.2 [Free]
 	 *
 	 * @var \Masteriyo\Models\CourseProgressItem|null
 	 * Default: null
 	 */
 	public $progress = null;
+
+	/**
+	 * The date the listed learner started the course.
+	 *
+	 * Set by masteriyo_get_user_enrolled_courses(): the course-progress start
+	 * date, or the enrollment date of a course the learner has not opened yet.
+	 *
+	 * @var \Masteriyo\DateTime|null
+	 * Default: null
+	 */
+	public $started_at = null;
 
 	/**
 	 * Stores course data.
@@ -111,32 +125,49 @@ class Course extends Model {
 		'enrollment_limit'                   => 0,
 		'duration'                           => 0,
 		'access_mode'                        => CourseAccessMode::OPEN,
-		'billing_cycle'                      => '',
 		'show_curriculum'                    => true,
 		'purchase_note'                      => '',
 		'highlights'                         => '',
 		'is_ai_created'                      => false,
 		'is_creating'                        => false,
 		'end_date'                           => '',
+		'course_start_date'                  => '',
+		'enrollment_opens_on'                => '',
+		'enrollment_closes_on'               => '',
 		'enable_course_retake'               => false,
+
+		// PRO: Subscription fields (when access_mode is recurring)
+		'billing_period'                     => CourseBillingPeriod::YEAR,
+		'billing_interval'                   => 1,
+		'billing_expire_after'               => 0, // In Months
+
+		// Pro.
+		'featured_video_source'              => '',
+		'featured_video_url'                 => '',
+		'flow'                               => CourseFlow::FREE_FLOW,
+		'enrollment_expiration_enabled'      => false,
+		'enrollment_expiration_duration'     => 0,
+
 		'review_after_course_completion'     => false,
 		'disable_course_content'             => false,
 		'fake_enrolled_count'                => 0,
 		'welcome_message_to_first_time_user' => array(
-			'enabled'     => false,
+			'enabled'     => true,
 			'title'       => 'Welcome to the Course.',
 			'description' => "Get ready to dive into exciting lessons, connect with peers, and unlock new possibilities. Let's embark on this educational adventure together!",
 		),
 		'course_badge'                       => '',
 
+
 		// Multiple currency
 		'currency'                           => '',
 		'exchange_rate'                      => '',
 		'pricing_method'                     => '',
-		'flow'                               => CourseFlow::FREE_FLOW,
 		'custom_fields'                      => null,
-		'enable_end_date'                    => false,
 
+		// Cohort-Based Course
+		'enable_cohort_mode'                 => false,
+		'enable_end_date'                    => false,
 	);
 
 	/**
@@ -147,6 +178,7 @@ class Course extends Model {
 	 * @param RepositoryInterface $course_repository Course Repository,
 	 */
 	public function __construct( RepositoryInterface $course_repository ) {
+		parent::__construct();
 		$this->repository = $course_repository;
 	}
 
@@ -205,6 +237,114 @@ class Course extends Model {
 	}
 
 	/**
+	 * Get video source.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_featured_video_source( $context = 'view' ) {
+		return $this->get_prop( 'featured_video_source', $context );
+	}
+
+	/**
+	 * Check if the featured video is self hosted.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @return boolean
+	 */
+	public function is_self_hosted_featured_video() {
+		return VideoSource::SELF_HOSTED === $this->get_featured_video_source();
+	}
+
+	/**
+	 * Get video source.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_featured_video_url( $context = 'view' ) {
+		return $this->get_prop( 'featured_video_url', $context );
+	}
+
+	/**
+	 * Check if the course has featured video.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @return boolean
+	 */
+	public function has_featured_video() {
+		$video_source = $this->get_featured_video_source();
+		$video_url    = $this->get_featured_video_url();
+
+		if ( VideoSource::SELF_HOSTED === $video_source ) {
+			return absint( $video_url ) > 0;
+		}
+		return ! empty( trim( $video_url ) );
+	}
+
+	/**
+	 * Get the id of featured video.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @return string|number
+	 */
+	public function get_featured_video_id() {
+		$featured_video_source = $this->get_featured_video_source();
+		$featured_video_url    = $this->get_featured_video_url();
+		$video_id              = 0;
+
+		if ( VideoSource::SELF_HOSTED === $featured_video_source ) {
+			$video_id = absint( $featured_video_url );
+		} elseif ( VideoSource::YOUTUBE === $featured_video_source ) {
+			$video_id = ParseId::fromUrl( $featured_video_url );
+		} elseif ( VideoSource::VIMEO === $featured_video_source ) {
+			$video_id = masteriyo_get_vimeo_id_from_url( $featured_video_url );
+		}
+
+		return apply_filters( 'masteriyo_course_featured_video_id', $video_id, $this );
+	}
+
+	/**
+	 * Get embed URL for the featured video. If the video source is self-hosted, it will return the absolute URL to the file.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @return string
+	 */
+	public function get_featured_video_embed_url() {
+		$featured_video_source = $this->get_featured_video_source();
+		$video_id              = $this->get_featured_video_id();
+		$embed_url             = '';
+
+		if ( VideoSource::SELF_HOSTED === $featured_video_source ) {
+			$embed_url = wp_get_attachment_url( $video_id );
+		} elseif ( VideoSource::YOUTUBE === $featured_video_source ) {
+			$embed_url = 'https://www.youtube.com/embed/' . $video_id;
+		} elseif ( VideoSource::VIMEO === $featured_video_source ) {
+			$embed_url = 'https://player.vimeo.com/video/' . $video_id;
+		}
+
+		/**
+		 * Filters featured video embed URL of a course.
+		 *
+		 * @since 2.2.5
+		 *
+		 * @param string $embed_url
+		 * @param \Masteriyo\Models\Course $course
+		 */
+		return apply_filters( 'masteriyo_course_featured_video_embed_url', $embed_url, $this );
+	}
+
+	/**
 	 * If the stock level comes from another product ID, this should be modified.
 	 *
 	 * @since  1.0.0
@@ -212,6 +352,55 @@ class Course extends Model {
 	 */
 	public function get_stock_managed_by_id() {
 		return $this->get_id();
+	}
+
+	/**
+	 * Return course flow.
+	 *
+	 * @since  2.4.1
+	 * @pro
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_flow( $context = 'view' ) {
+		return $this->get_prop( 'flow' );
+	}
+
+	/**
+	 * Retrieves the 'enrollment_expiration_enabled' property of a course.
+	 *
+	 * This function is used to determine whether enrollment expiration is enabled for a specific course.
+	 * The property can be accessed either in 'view' or 'edit' context.
+	 *
+	 * @since  2.7.0
+	 * @access pro
+	 *
+	 * @param  string $context The context in which the value should be accessed.
+	 *                         Valid values are 'view' and 'edit'.
+	 *
+	 * @return bool The status of the 'enrollment_expiration_enabled' property. True for enabled, False for disabled.
+	 */
+	public function get_enrollment_expiration_enabled( $context = 'view' ) {
+		return $this->get_prop( 'enrollment_expiration_enabled' );
+	}
+
+	/**
+	 * Retrieves the 'enrollment_expiration_duration' property of a course.
+	 *
+	 * This function is used to fetch the duration of the enrollment expiration for a specific course.
+	 * The property can be accessed either in 'view' or 'edit' context.
+	 *
+	 * @since  2.7.0
+	 * @access pro
+	 *
+	 * @param  string $context The context in which the value should be accessed.
+	 *                         Valid values are 'view' and 'edit'.
+	 *
+	 * @return int The duration of the 'enrollment_expiration_duration' property, represented as an integer.
+	 */
+	public function get_enrollment_expiration_duration( $context = 'view' ) {
+		return $this->get_prop( 'enrollment_expiration_duration' );
 	}
 
 	/*
@@ -296,7 +485,6 @@ class Course extends Model {
 	 * Get the student preview magic link for this course.
 	 * Only meaningful for admins and instructors — returns empty string otherwise.
 	 *
-	 * @since x.x.x
 	 * @param int $target_user_id Optional. Specific user to impersonate. 0 = demo student.
 	 * @return string
 	 */
@@ -312,7 +500,6 @@ class Course extends Model {
 		/**
 		 * Filters the student preview magic link for a course.
 		 *
-		 * @since x.x.x
 		 * @param string                   $preview_link The generated URL.
 		 * @param \Masteriyo\Models\Course $course       Course object.
 		 */
@@ -420,6 +607,26 @@ class Course extends Model {
 	}
 
 	/**
+	 * Get featured text.
+	 *
+	 * @since 2.4.8
+	 *
+	 * @return string
+	 */
+	public function featured_text() {
+
+		/**
+		 * Filters featured text for a course.
+		 *
+		 * @since 2.4.8
+		 *
+		 * @param string $text Featured text.
+		 * @param Masteriyo\Models\Course $course Course object.
+		 */
+		return apply_filters( 'masteriyo_pro_course_featured_text', __( 'Featured', 'learning-management-system' ), $this );
+	}
+
+	/**
 	 * Get rest formatted price.
 	 *
 	 * @since 1.5.36
@@ -442,10 +649,10 @@ class Course extends Model {
 		return apply_filters( 'masteriyo_course_formatted_price', $price, $this );
 	}
 
-		/**
+	/**
 	 * Get rest formatted regular price.
 	 *
-	 * @since 1.18.2
+	 * @since 2.21.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -457,12 +664,36 @@ class Course extends Model {
 		/**
 		 * Filters the rest formatted regular course price.
 		 *
-		 * @since 1.18.2
+		 * @since 2.21.0
 		 *
 		 * @param integer $price Formatted regular price.
 		 * @param Masteriyo\Models\Course $course The course object.
 		 */
 		return apply_filters( 'masteriyo_course_formatted_price', $price, $this );
+	}
+
+	/**
+	 * Return price html.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @return string
+	 */
+	public function price_html() {
+		$price_html = masteriyo_price( $this->get_price(), array( 'currency' => $this->get_currency() ) );
+
+		if ( $this->get_price() > 0 && CourseAccessMode::RECURRING === $this->get_access_mode() ) {
+			$separator  = 1 === $this->get_billing_interval() ? '' : CourseBillingPeriod::separator();
+			$price_html = masteriyo_price(
+				$this->get_price(),
+				array(
+					'billing_period'   => CourseBillingPeriod::label( $this->get_billing_period() ),
+					'billing_interval' => __( ' Every', 'learning-management-system' ) . masteriyo_number_to_ordinal( $this->get_billing_interval() ),
+				)
+			);
+		}
+
+		return $price_html;
 	}
 
 	/*
@@ -645,10 +876,23 @@ class Course extends Model {
 		return $this->get_prop( 'reviews_allowed', $context );
 	}
 
+
+	/**
+	 * Retrieves the value of the 'enable_cohort_mode' property.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param string $context Optional. The context for retrieving the property. Default is 'view'.
+	 * @return mixed The value of the 'enable_cohort_mode' property based on the specified context.
+	 */
+	public function get_enable_cohort_mode( $context = 'view' ) {
+		return $this->get_prop( 'enable_cohort_mode', $context );
+	}
+
 	/**
 	 * Retrieves the value of the 'enable_end_date' property.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param string $context Optional. The context for retrieving the property. Default is 'view'.
 	 * @return mixed The value of the 'enable_end_date' property.
@@ -656,7 +900,6 @@ class Course extends Model {
 	public function get_enable_end_date( $context = 'view' ) {
 		return $this->get_prop( 'enable_end_date', $context );
 	}
-
 
 	/**
 	 * Get date on sale from.
@@ -812,9 +1055,13 @@ class Course extends Model {
 	/**
 	 * Get the difficulty object.
 	 *
+	 * Returns a SINGLE difficulty term as an associative array, not a list — the trailing
+	 * `array_shift()` below reduces the term list to its first entry, and returns null when
+	 * the course carries no difficulty term.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array|null
 	 */
 	public function get_difficulty() {
 		$terms = Utils::get_object_terms( $this->get_id(), 'course_difficulty' );
@@ -958,14 +1205,56 @@ class Course extends Model {
 	}
 
 	/**
+	 * Get course billing period.
+	 *
+	 * @since 1.0.0
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return string
+	 */
+	public function get_billing_period( $context = 'view' ) {
+		return $this->get_prop( 'billing_period', $context );
+	}
+
+	/**
 	 * Get course billing cycle.
+	 *
+	 * The single `billing_cycle` property was superseded by the three-property
+	 * `billing_period` / `billing_interval` / `billing_expire_after` model. The
+	 * REST field is still named `billing_cycle` and carries the interval — see
+	 * `Masteriyo\Resources\CourseResource` — so this reads the interval too.
+	 *
+	 * @deprecated x.x.x Use `get_billing_interval()` instead.
 	 *
 	 * @since 1.0.0
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 * @return int
 	 */
 	public function get_billing_cycle( $context = 'view' ) {
-		return $this->get_prop( 'billing_cycle', $context );
+		masteriyo_deprecated_function( 'Masteriyo\Models\Course::' . __FUNCTION__, 'x.x.x', 'Masteriyo\Models\Course::get_billing_interval' );
+
+		return $this->get_billing_interval( $context );
+	}
+
+	/**
+	 * Get course billing interval.
+	 *
+	 * @since 2.6.10
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return int
+	 */
+	public function get_billing_interval( $context = 'view' ) {
+		return $this->get_prop( 'billing_interval', $context );
+	}
+
+	/**
+	 * Get course billing expire after.
+	 *
+	 * @since 2.6.10
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return integer
+	 */
+	public function get_billing_expire_after( $context = 'view' ) {
+		return $this->get_prop( 'billing_expire_after', $context );
 	}
 
 	/**
@@ -1069,6 +1358,40 @@ class Course extends Model {
 	public function get_end_date( $context = 'view' ) {
 		return $this->get_prop( 'end_date', $context );
 	}
+
+	/**
+	 * Get course start date.
+	 *
+	 * @since 3.1.0
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return string
+	 */
+	public function get_course_start_date( $context = 'view' ) {
+		return $this->get_prop( 'course_start_date', $context );
+	}
+
+	/**
+	 * Get course Enrollment opens on.
+	 *
+	 * @since 3.1.0
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return \Masteriyo\DateTime|null object if the date is set or null if there is no date.
+	 */
+	public function get_enrollment_opens_on( $context = 'view' ) {
+		return $this->get_prop( 'enrollment_opens_on', $context );
+	}
+
+	/**
+	 * Get course Enrollment closes on.
+	 *
+	 * @since 3.1.0
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @return \Masteriyo\DateTime|null object if the date is set or null if there is no date.
+	 */
+	public function get_enrollment_closes_on( $context = 'view' ) {
+		return $this->get_prop( 'enrollment_closes_on', $context );
+	}
+
 	/**
 	 * Get enable_course_retake attribute.
 	 *
@@ -1133,7 +1456,7 @@ class Course extends Model {
 	/**
 	 * Returns course's currency.
 	 *
-	 * @since  1.11.0
+	 * @since  2.11.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -1146,7 +1469,7 @@ class Course extends Model {
 	/**
 	 * Get the exchange rate for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -1159,7 +1482,7 @@ class Course extends Model {
 	/**
 	 * Get the pricing method for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -1167,18 +1490,6 @@ class Course extends Model {
 	 */
 	public function get_pricing_method( $context = 'view' ) {
 		return $this->get_prop( 'pricing_method', $context );
-	}
-
-	/**
-	 * Return course flow.
-	 *
-	 * @since  1.15.0
-	 * @param  string $context What the value is for. Valid values are view and edit.
-	 *
-	 * @return string
-	 */
-	public function get_flow( $context = 'view' ) {
-		return $this->get_prop( 'flow' );
 	}
 
 	/**
@@ -1199,6 +1510,28 @@ class Course extends Model {
 	| Setters
 	|--------------------------------------------------------------------------
 	*/
+
+	/**
+	 * Set video source.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param string $featured_video_source Video source.
+	 */
+	public function set_featured_video_source( $featured_video_source ) {
+		$this->set_prop( 'featured_video_source', $featured_video_source );
+	}
+
+	/**
+	 * Set video source url.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param string $featured_video_url Video source url.
+	 */
+	public function set_featured_video_url( $featured_video_url ) {
+		$this->set_prop( 'featured_video_url', trim( $featured_video_url ) );
+	}
 
 	/**
 	 * Set course name.
@@ -1232,19 +1565,6 @@ class Course extends Model {
 	public function set_date_created( $date = null ) {
 		$this->set_date_prop( 'date_created', $date );
 	}
-
-
-	/**
-	 * Set the enable_end_date attribute.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param boolean $value
-	 */
-	public function set_enable_end_date( $value ) {
-		$this->set_prop( 'enable_end_date', masteriyo_string_to_bool( $value ) );
-	}
-
 
 	/**
 	 * Set course modified date.
@@ -1534,13 +1854,50 @@ class Course extends Model {
 	}
 
 	/**
+	 * Set the course billing period.
+	 *
+	 * @since 2.6.10
+	 * @param string $value Course billing period
+	 */
+	public function set_billing_period( $value ) {
+		$this->set_prop( 'billing_period', masteriyo_strtolower( $value ) );
+	}
+
+	/**
 	 * Set the course billing cycle.
 	 *
+	 * @deprecated x.x.x Use `set_billing_interval()` instead.
+	 *
+	 * @see \Masteriyo\Models\Course::get_billing_cycle() for why this maps onto the interval.
+	 *
 	 * @since 1.0.0
-	 * @param string $value Course billing cycle (1d, 2w, 3m, 4y)
+	 * @param int $value Course billing cycle.
 	 */
 	public function set_billing_cycle( $value ) {
-		$this->set_prop( 'billing_cycle', masteriyo_strtolower( $value ) );
+		masteriyo_deprecated_function( 'Masteriyo\Models\Course::' . __FUNCTION__, 'x.x.x', 'Masteriyo\Models\Course::set_billing_interval' );
+
+		$this->set_billing_interval( $value );
+	}
+
+	/**
+	 * Set the course billing interval.
+	 *
+	 * @since 2.6.10
+	 * @param int $value Course billing interval.
+	 */
+	public function set_billing_interval( $value ) {
+		$value = min( 6, absint( $value ) );
+		$this->set_prop( 'billing_interval', $value );
+	}
+
+	/**
+	 * Set the course billing expire after (months).
+	 *
+	 * @since 2.6.10
+	 * @param integer
+	 */
+	public function set_billing_expire_after( $value ) {
+		$this->set_prop( 'billing_expire_after', absint( $value ) );
 	}
 
 	/**
@@ -1594,14 +1951,57 @@ class Course extends Model {
 	}
 
 	/**
-	 * Get main image ID.
+	 * Set main image ID.
 	 *
 	 * @since  1.0.0
 	 * @param  string $value Set main image ID.
-	 * @return string
 	 */
 	public function set_image_id( $value ) {
-		return $this->set_featured_image( $value );
+		$this->set_featured_image( $value );
+	}
+
+	/**
+	 * Set course flow.
+	 *
+	 * @since  2.4.1
+	 * @param  string $flow Course flow.
+	 * @return string
+	 */
+	public function set_flow( $flow ) {
+		$this->set_prop( 'flow', $flow );
+	}
+
+	/**
+	 * Sets the 'enrollment_expiration_enabled' property of a course.
+	 *
+	 * This function is used to enable or disable the enrollment expiration feature for a specific course.
+	 *
+	 * @since  2.7.0
+	 * @access pro
+	 *
+	 * @param  bool $enabled Boolean value representing whether enrollment expiration should be enabled.
+	 *                       True for enabled, False for disabled.
+	 *
+	 * @return void
+	 */
+	public function set_enrollment_expiration_enabled( $enabled ) {
+		$this->set_prop( 'enrollment_expiration_enabled', masteriyo_string_to_bool( $enabled ) );
+	}
+
+	/**
+	 * Sets the 'enrollment_expiration_duration' property of a course.
+	 *
+	 * This function is used to set the duration for enrollment expiration for a specific course.
+	 *
+	 * @since  2.7.0
+	 * @access pro
+	 *
+	 * @param  int $duration The duration for the enrollment expiration in numerical format.
+	 *
+	 * @return void
+	 */
+	public function set_enrollment_expiration_duration( $duration ) {
+		$this->set_prop( 'enrollment_expiration_duration', absint( $duration ) );
 	}
 
 	/**
@@ -1632,6 +2032,7 @@ class Course extends Model {
 		$this->set_prop( 'is_creating', masteriyo_string_to_bool( $value ) );
 	}
 
+
 	/**
 	 * Set course end date.
 	 *
@@ -1644,6 +2045,39 @@ class Course extends Model {
 	}
 
 	/**
+	 * Set course start date.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param string $course_start_date Course start date.
+	 */
+	public function set_course_start_date( $course_start_date ) {
+		$this->set_date_prop( 'course_start_date', $course_start_date );
+	}
+
+	/**
+	 * Set course enrollment open date.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param string $enrollment_opens_on Enrollment open date
+	 */
+	public function set_enrollment_opens_on( $enrollment_opens_on ) {
+		$this->set_date_prop( 'enrollment_opens_on', $enrollment_opens_on );
+	}
+
+	/**
+	 * Set course enrollment closes date.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param string $enrollment_closes_on Enrollment close date
+	 */
+	public function set_enrollment_closes_on( $enrollment_closes_on ) {
+		$this->set_date_prop( 'enrollment_closes_on', $enrollment_closes_on );
+	}
+
+	/**
 	 * Set the enable_course_retake attribute.
 	 *
 	 * @since 1.7.0
@@ -1652,6 +2086,28 @@ class Course extends Model {
 	 */
 	public function set_enable_course_retake( $value ) {
 		$this->set_prop( 'enable_course_retake', masteriyo_string_to_bool( $value ) );
+	}
+
+	/**
+	 * Set the enable_cohort_mode attribute.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param boolean $value
+	 */
+	public function set_enable_cohort_mode( $value ) {
+		$this->set_prop( 'enable_cohort_mode', masteriyo_string_to_bool( $value ) );
+	}
+
+	/**
+	 * Set the enable_end_date attribute.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param boolean $value
+	 */
+	public function set_enable_end_date( $value ) {
+		$this->set_prop( 'enable_end_date', masteriyo_string_to_bool( $value ) );
 	}
 
 	/**
@@ -1700,7 +2156,7 @@ class Course extends Model {
 	/**
 	 * Set the course's currency. (It will be used as temporary currency for showing to users based on the country.)
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $currency Price.
 	 */
@@ -1711,7 +2167,7 @@ class Course extends Model {
 	/**
 	 * Set the exchange rate for the course.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $exchange_rate the exchange rate.
 	 */
@@ -1722,23 +2178,12 @@ class Course extends Model {
 	/**
 	 * Set the pricing method for the course.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $pricing_method The pricing method.
 	 */
 	public function set_pricing_method( $pricing_method ) {
 		$this->set_prop( 'pricing_method', $pricing_method );
-	}
-
-	/**
-	 * Set course flow.
-	 *
-	 * @since  1.15.0
-	 * @param  string $flow Course flow.
-	 * @return string
-	 */
-	public function set_flow( $flow ) {
-		$this->set_prop( 'flow', $flow );
 	}
 
 	/**
@@ -1749,7 +2194,7 @@ class Course extends Model {
 	 * @param string $custom_fields_value The custom field values.
 	 */
 	public function set_custom_fields( $custom_fields_value ) {
-		$this->set_prop( 'custom_fields', $custom_fields_value );
+		$this->set_prop( 'custom_fields', masteriyo_sanitize_custom_fields( $custom_fields_value ) );
 	}
 
 	/*
@@ -1810,7 +2255,10 @@ class Course extends Model {
 		 */
 		return apply_filters(
 			'masteriyo_is_purchasable',
-			( PostStatus::PUBLISH === $this->get_status() || current_user_can( 'edit_post', $this->get_id() ) ) && '' !== $this->get_price(),
+			(
+				in_array( $this->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true )
+				|| current_user_can( 'edit_post', $this->get_id() )
+			) && '' !== $this->get_price(),
 			$this
 		);
 	}
@@ -1857,8 +2305,13 @@ class Course extends Model {
 
 		if ( PostStatus::TRASH === $this->get_status() ) {
 			$visible = false;
-		} elseif ( PostStatus::PUBLISH !== $this->get_status() && ! current_user_can( 'edit_post', $this->get_id() ) ) {
-			$visible = false;
+		} elseif ( PostStatus::PUBLISH !== $this->get_status() ) {
+			if ( PostStatus::PVT === $this->get_status() && masteriyo_can_start_course( $this->get_id() ) ) {
+				return true;
+			}
+			if ( ! current_user_can( 'edit_post', $this->get_id() ) ) {
+				return false;
+			}
 		}
 
 		if ( 'yes' === get_option( 'masteriyo_hide_out_of_stock_items' ) ) {
@@ -2004,6 +2457,30 @@ class Course extends Model {
 		return apply_filters( 'masteriyo_single_course_start_text', __( 'Start Course', 'learning-management-system' ), $this );
 	}
 
+
+	/**
+	 * Get start course button text for the single page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function single_course_enroll_text() {
+
+		$button_text = apply_filters(
+			'masteriyo_single_course_enroll_text',
+			__( 'Enroll Now', 'learning-management-system' ),
+			$this
+		);
+
+		return $button_text;
+	}
+
+
+
+
+
+
 	/**
 	 * Get retake course button text for the single page.
 	 *
@@ -2037,31 +2514,29 @@ class Course extends Model {
 		 * @since 1.3.11
 		 *
 		 * @param string $text Continue button text.
-		 * @param Masteriyo\Models\Course $course Course object.
+		 * @param Masteriyo\Models|Course $course Course object.
 		 */
 		return apply_filters( 'masteriyo_single_course_continue_text', __( 'Continue', 'learning-management-system' ), $this );
 	}
 
 	/**
-	 * Get continue course quiz button text for the single page.
+	 * Get continue quiz button text for the single page.
 	 *
-	 * @since 1.8.0 [free]
+	 * @since 1.8.0 [Free]
 	 *
 	 * @return string
 	 */
 	public function single_course_continue_quiz_text() {
 		/**
-		 * Filters continue quiz button text for a course.
+		 * Filters continue button text for a course with a ongoing quiz.
 		 *
-		 * @since 1.8.0 [free]
+		 * @since 1.8.0 [Free]
 		 *
-		 * @param string $text Continue button text.
+		 * @param string $text Continue quiz button text.
 		 * @param Masteriyo\Models|Course $course Course object.
 		 */
 		return apply_filters( 'masteriyo_single_course_continue_quiz_text', __( 'Continue Quiz', 'learning-management-system' ), $this );
 	}
-
-
 
 	/**
 	 * Get continue course button text for the single page.
@@ -2101,7 +2576,16 @@ class Course extends Model {
 		$learn_page_url = masteriyo_get_page_permalink( 'learn' );
 		$url            = trailingslashit( $learn_page_url ) . 'course/' . $this->get_slug();
 
-		if ( '' === get_option( 'permalink_structure' ) ) {
+		if ( '' === $this->get_slug() || ! in_array( $this->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) ) {
+			// The learn page cannot resolve a draft by slug; use the ID + preview form.
+			$url = add_query_arg(
+				array(
+					'course_name' => $this->get_id(),
+					'mto-preview' => 'true',
+				),
+				$learn_page_url
+			);
+		} elseif ( '' === get_option( 'permalink_structure' ) ) {
 			$url = add_query_arg(
 				array(
 					'course_name' => $this->get_id(),
@@ -2355,7 +2839,7 @@ class Course extends Model {
 	/**
 	 * Retrieves progress data for a given course and user.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Masteriyo\Models\User|int $user User object.
 	 *
@@ -2393,7 +2877,7 @@ class Course extends Model {
 
 		$posts = get_posts(
 			array(
-				'post_status'    => PostStatus::PUBLISH || 'active' || 'upcoming',
+				'post_status'    => array( PostStatus::PUBLISH, 'active', 'upcoming' ),
 				'post_type'      => CourseChildrenPostType::all(),
 				'posts_per_page' => -1,
 				'meta_key'       => '_course_id',
@@ -2479,18 +2963,16 @@ class Course extends Model {
 	/**
 	 * Return true if review is allowed.
 	 *
-	 * It also checks for global settings as well.
+	 * The global setting decides this for every course. The course keeps a
+	 * reviews_allowed flag for the post comment status, but that flag has no
+	 * control in the admin, so it must not refuse reviews.
 	 *
 	 * @since 1.5.37
 	 *
 	 * @return boolean
 	 */
 	public function is_review_allowed() {
-		$review_allowed = masteriyo_get_setting( 'single_course.display.enable_review' );
-
-		if ( $review_allowed ) {
-			$review_allowed = $this->get_reviews_allowed();
-		}
+		$review_allowed = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) );
 
 		/**
 		 * Filters whether course review is enable or not.

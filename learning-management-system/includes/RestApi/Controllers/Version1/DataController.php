@@ -117,7 +117,7 @@ class DataController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_system_status' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => array( $this, 'get_system_status_permissions_check' ),
 				),
 			)
 		);
@@ -138,7 +138,7 @@ class DataController extends CrudController {
 		/**
 		 * Filters the list of countries before returning it in the REST API response.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array           $countries The list of countries.
 		 * @param \WP_REST_Request $request   The current REST API request.
@@ -319,6 +319,25 @@ class DataController extends CrudController {
 	}
 
 	/**
+	 * Check if a given request can read the system status.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return \WP_Error|boolean
+	 */
+	public function get_system_status_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_masteriyo_settings' ) && ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read the system status.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get system status.
 	 *
 	 * @since 1.7.3
@@ -353,4 +372,3 @@ class DataController extends CrudController {
 		return apply_filters( "masteriyo_rest_prepare_{$this->object_type}_object", $response, $data, $request );
 	}
 }
-

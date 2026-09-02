@@ -12,11 +12,13 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Models\CourseProgress;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\Enums\SectionChildrenItemType;
+use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Query\CourseProgressItemQuery;
 use Masteriyo\Repository\AbstractRepository;
 
@@ -41,9 +43,9 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
+		'manual_update'        => '_manual_update',
 		'ratings_modal_opened' => '_ratings_modal_opened',
 	);
-
 
 	/**
 	 * Create a course progress in the database.
@@ -102,9 +104,8 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		if ( ! $course_progress->get_status( 'edit' ) ) {
 			$course_progress->set_status( 'started' );
 		}
-
 		if ( ! $course_progress->get_started_at( 'edit' ) ) {
-			$course_progress->set_started_at( current_time( 'mysql', true ) );
+				$course_progress->set_started_at( current_time( 'mysql', true ) );
 		}
 
 		if ( ! $course_progress->get_modified_at( 'edit' ) ) {
@@ -120,13 +121,13 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		$result = $wpdb->insert(
 			$course_progress->get_table_name(),
 			/**
-			 * Filters new course progress data before creating.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array $data New course progress data.
-			 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
-			 */
+			* Filters new course progress data before creating.
+			*
+			* @since 1.0.0
+			*
+			* @param array $data New course progress data.
+			* @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
+			*/
 			apply_filters(
 				'masteriyo_new_course_progress_data',
 				array(
@@ -279,6 +280,7 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		$progress_obj = $cache->get_cache( $cache_key );
 
 		if ( ! $progress_obj ) {
+
 			$progress_obj = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM {$wpdb->prefix}masteriyo_user_activities WHERE id = %d;",
@@ -287,7 +289,7 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 			);
 
 			if ( ! $progress_obj || 'course_progress' !== $progress_obj->activity_type ) {
-				throw new \Exception( __( 'Invalid course progress.', 'learning-management-system' ) );
+				throw new \Exception( esc_html__( 'Invalid course progress.', 'learning-management-system' ) );
 			}
 
 			$cache->set_cache( $cache_key, $progress_obj );
@@ -349,7 +351,6 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		$course_progress->set_props( $set_props );
 	}
 
-
 	/**
 	 * Clear meta cache.
 	 *
@@ -410,11 +411,13 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		// Construct limit part.
 		$per_page = $query_vars['per_page'];
 
-		if ( $query_vars['page'] > 0 ) {
-			$offset = ( $query_vars['page'] - 1 ) * $per_page;
-		}
+		if ( $per_page > -1 ) {
+			if ( $query_vars['page'] > 0 ) {
+				$offset = ( $query_vars['page'] - 1 ) * $per_page;
+			}
 
-		$sql[] = $wpdb->prepare( 'LIMIT %d, %d', $offset, $per_page );
+			$sql[] = $wpdb->prepare( 'LIMIT %d, %d', $offset, $per_page );
+		}
 
 		// Generate SQL from the SQL parts.
 		$sql = implode( ' ', $sql ) . ';';
@@ -438,7 +441,7 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		$query = new \WP_Query(
 			array(
 				'post_type'      => CourseProgressPostType::all(),
-				'post_status'    => 'any',
+				'post_status'    => masteriyo_get_course_content_post_statuses(),
 				'posts_per_page' => -1,
 				'meta_key'       => '_course_id',
 				'meta_value'     => $course_progress->get_course_id( 'edit' ),
@@ -447,6 +450,12 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 
 		$total_items = array_map(
 			function( $lesson_quiz ) use ( $course_progress ) {
+
+				// This is for backward compatibility, because there was previously not force deletion for the lesson.
+				if ( PostType::LESSON === $lesson_quiz->post_type && PostStatus::PUBLISH !== $lesson_quiz->post_status ) {
+					return null;
+				}
+
 				$item = masteriyo( 'course-progress-item' );
 				$item->set_props(
 					array(
@@ -460,6 +469,8 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 			},
 			$query->posts
 		);
+
+		$total_items = array_filter( $total_items );
 
 		$query = new CourseProgressItemQuery(
 			array(

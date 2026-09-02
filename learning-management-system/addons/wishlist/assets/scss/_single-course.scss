@@ -1,0 +1,28 @@
+@use "../../../../assets/scss/variable/structure";
+
+// Masteriyo Single course
+.masteriyo-wishlist-toggle {
+	display: block;
+	cursor: pointer;
+
+	// padding: 8px;
+	border-radius: structure.$border_radius_100;
+	fill: none;
+
+	// stroke: var(--masteriyo-color-badge-red);
+	stroke: #4e4e4e;
+	stroke-width: 2px;
+	padding-top: 4px;
+
+	&:hover,
+	&.active {
+		fill: var(--masteriyo-color-badge-red);
+		stroke: var(--masteriyo-color-badge-red);
+		stroke-width: 2px;
+	}
+
+	svg {
+		width: 20px;
+		height: 20px;
+	}
+}

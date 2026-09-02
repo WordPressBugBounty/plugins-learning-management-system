@@ -9,7 +9,7 @@ class PasswordStrength {
 	/**
 	 * password strength addon global setting instance.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @var \Masteriyo\CoreFeatures\PasswordStrength\GlobalSetting
 	 */
@@ -17,9 +17,10 @@ class PasswordStrength {
 	/**
 	 * Initialize module.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function init() {
+
 		$this->global_setting = new GlobalSetting();
 		$this->global_setting->init();
 		if ( ! masteriyo_get_setting( 'advance.password_strength.enable' ) ) {
@@ -31,7 +32,7 @@ class PasswordStrength {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -44,7 +45,7 @@ class PasswordStrength {
 	 *
 	 * @param array $styles
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function enqueue_styles( $styles ) {
 		return masteriyo_parse_args(
@@ -63,7 +64,7 @@ class PasswordStrength {
 	/**
 	 * Load password strength js and libs only on student and instructor registration forms.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @return boolean
 	 */
@@ -86,7 +87,7 @@ class PasswordStrength {
 	/**
 	 * Enqueue scripts.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param array $scripts Array of scripts.
 	 * @return array
@@ -115,7 +116,7 @@ class PasswordStrength {
 	/**
 	 * Localize scripts.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param array $scripts Array of scripts.
 	 * @return array

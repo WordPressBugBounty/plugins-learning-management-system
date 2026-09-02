@@ -3,7 +3,6 @@
  * Restore Course Q&A ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Returns the entry to its previous status.
  * Only applies to entries currently in the trash.
  * Requires the `edit_course_qas` capability.
- *
- * @since x.x.x
  */
 class RestoreCourseQAAbility extends RestProxyAbility {
 

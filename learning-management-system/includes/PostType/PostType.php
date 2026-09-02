@@ -26,6 +26,14 @@ class PostType {
 	const SECTION = 'mto-section';
 
 	/**
+	 * GOogle Meet post type.
+	 *
+	 * @since 1.11.0 [free]
+	 * @var string
+	 */
+	const GOOGLEMEET = 'mto-google-meet';
+
+	/**
 	 * Lesson post type.
 	 *
 	 * @since 1.5.15
@@ -59,7 +67,52 @@ class PostType {
 	const ORDER = 'mto-order';
 
 	/**
-	 * Webhook post type.
+	 * Assignment post type.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @var string
+	 */
+	const ASSIGNMENT = 'mto-assignment';
+
+	/**
+	 * Coupon post type.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @var string
+	 */
+	const COUPON = 'mto-coupon';
+
+	/**
+	 * Grade post type.
+	 *
+	 * @since 2.5.20
+	 *
+	 * @var string
+	 */
+	const GRADE = 'mto-grade';
+
+	/**
+	 * Zoom post type.
+	 *
+	 * @since 2.5.19
+	 *
+	 * @var string
+	 */
+	const ZOOM = 'mto-zoom';
+
+	/**
+	 * Subscription post type.
+	 *
+	 * @since 2.5.19
+	 *
+	 * @var string
+	 */
+	const SUBSCRIPTION = 'mto-subscription';
+
+	/**
+	 * Webhook post type .
 	 *
 	 * @since 1.6.9
 	 *
@@ -95,15 +148,6 @@ class PostType {
 	const COURSEANNOUNCEMENT = 'mto-announcement';
 
 	/**
-	 * GoogleMeet post type.
-	 *
-	 * @since 1.6.16
-	 *
-	 * @var string
-	 */
-	const GOOGLEMEET = 'mto-google-meet';
-
-	/**
 	 * GROUP post type.
 	 *
 	 * @since 1.9.0
@@ -113,14 +157,22 @@ class PostType {
 	const GROUP = 'mto-group';
 
 	/**
+	 * Course bundle post type.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @var string
+	 */
+	const COURSE_BUNDLE = 'mto-bundle';
+
+	/**
 	 * PRICE_ZONE post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
 	const PRICE_ZONE = 'mto-price-zone';
-
 
 	/**
 	 * Post slug.
@@ -269,8 +321,13 @@ class PostType {
 				self::QUIZ,
 				self::QUESTION,
 				self::ORDER,
+				self::ASSIGNMENT,
+				self::COUPON,
+				self::GRADE,
+				self::ZOOM,
 				self::WEBHOOK,
 				self::GROUP,
+				self::COURSE_BUNDLE,
 			)
 		);
 

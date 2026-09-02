@@ -149,4 +149,3 @@ if ( ! function_exists( 'create_google_client' ) ) {
 		return $provider;
 	}
 }
-

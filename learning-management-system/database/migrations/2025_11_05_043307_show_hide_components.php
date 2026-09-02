@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Migration class template used by the wp cli to create migration classes.
  *
- * @since  2.1.0
+ * @since  3.1.0
  */
 
 use Masteriyo\Database\Migration;

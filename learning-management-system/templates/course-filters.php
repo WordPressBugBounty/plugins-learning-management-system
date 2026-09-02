@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.16.0
+ * @version 1.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 		/**
 		 * Fires inside the course filter form.
 		 *
-		 * @since 1.16.0
+		 * @since 2.5.18
 		 */
 		do_action( 'masteriyo_course_filter_form_content' );
 		?>

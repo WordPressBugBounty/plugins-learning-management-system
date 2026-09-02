@@ -6,7 +6,6 @@
  * Subclasses declare three abstract methods; everything else is derived automatically.
  *
  * @package Masteriyo\Abilities\Support
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Support;
@@ -23,8 +22,6 @@ defined( 'ABSPATH' ) || exit;
  *   - get_name(): string
  *   - get_label(): string
  *   - get_description(): string
- *
- * @since x.x.x
  */
 abstract class RestProxyAbility extends AbstractAbility {
 
@@ -36,7 +33,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * DI container service key for the underlying REST controller.
 	 * Example: 'course.rest', 'section.rest', 'course_builder.rest'
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	abstract protected function controller_service(): string;
@@ -45,7 +41,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * The CRUD verb this ability represents.
 	 * One of: list | get | create | update | delete | restore | clone
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	abstract protected function verb(): string;
@@ -53,7 +48,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	/**
 	 * The REST API base path for this resource, e.g. 'courses', 'sections'.
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	abstract protected function rest_base(): string;
@@ -65,7 +59,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	/**
 	 * REST namespace (without leading slash).
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	protected function rest_namespace(): string {
@@ -77,7 +70,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * Use for sub-resource endpoints: e.g. "/children" → /courses/{id}/children.
 	 * Default empty string means standard verb-based routing.
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	protected function route_suffix(): string {
@@ -144,8 +136,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * and delegates to the controller's own permission check, giving identical
 	 * authorization behaviour to the REST endpoint.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param mixed $input Ability input (array or null).
 	 * @return bool
 	 */
@@ -179,8 +169,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 *
 	 * Builds a WP_REST_Request and dispatches it through rest_do_request() so
 	 * the full WP validation/sanitization/hook chain runs — no logic duplication.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param mixed $input Ability input (array or null).
 	 * @return mixed Response data, or WP_Error on failure.
@@ -237,7 +225,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	/**
 	 * Resolve the REST controller from the DI container.
 	 *
-	 * @since x.x.x
 	 * @return \WP_REST_Controller
 	 */
 	protected function get_controller(): \WP_REST_Controller {
@@ -250,7 +237,6 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * Using the DI-provided singleton means the per-instance cache is shared across
 	 * all abilities within a request, avoiding redundant controller introspection.
 	 *
-	 * @since x.x.x
 	 * @return SchemaTranslator
 	 */
 	protected function get_schema_translator(): SchemaTranslator {

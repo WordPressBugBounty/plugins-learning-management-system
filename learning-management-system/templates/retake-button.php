@@ -2,10 +2,11 @@
 /**
  * "Retake Course" button.
  *
- * @version 1.8.0
+ * @version 2.7.3
 */
 
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Notice;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
@@ -32,8 +33,6 @@ do_action( 'masteriyo_before_retake_button', $course );
 		 *
 		 * This filter allows users to control whether course buttons open in a new tab or the same tab.
 		 * By default, buttons open in a new blank tab (_blank).
-		 *
-		 * @since x.x.x [Free]
 		 *
 		 * @param string                   $target The target attribute value. Default '_blank'.
 		 * @param \Masteriyo\Models\Course $course Course object.
@@ -63,7 +62,7 @@ do_action( 'masteriyo_before_retake_button', $course );
 				?>
 			</a>
 		</div>
-	<?php endif; ?>
+		<?php endif; ?>
 <?php endif; ?>
 <?php
 

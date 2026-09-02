@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Clock circle -->
+  <path fill="#000" fill-rule="evenodd" d="M256 48a208 208 0 1 0 0.001 0z M256 96a160 160 0 1 1-0.001 0z"/>
+  <!-- Clock hands: 12 o'clock hour hand -->
+  <rect fill="#000" x="240" y="112" width="32" height="112" rx="16"/>
+  <!-- Minute hand pointing to ~3 -->
+  <rect fill="#000" x="256" y="240" width="96" height="32" rx="16"/>
+  <!-- Center dot -->
+  <circle fill="#000" cx="256" cy="256" r="20"/>
+  <!-- Warning exclamation at bottom-right -->
+  <circle fill="#000" cx="400" cy="400" r="72"/>
+  <rect fill="#fff" x="388" y="352" width="24" height="56" rx="12"/>
+  <circle fill="#fff" cx="400" cy="432" r="12"/>
+</svg>

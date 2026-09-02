@@ -67,7 +67,7 @@ class QuizAttempt extends Model {
 		'total_attempts'           => 0,
 		'total_correct_answers'    => 0,
 		'total_incorrect_answers'  => 0,
-		'earned_marks'             => '',
+		'earned_marks'             => 0,
 		'answers'                  => array(),
 		'attempt_status'           => QuizAttemptStatus::STARTED,
 		'attempt_started_at'       => null,
@@ -127,12 +127,86 @@ class QuizAttempt extends Model {
 
 	/*
 	|--------------------------------------------------------------------------
+	| Aliases
+	|--------------------------------------------------------------------------
+	*/
+
+	/**
+	 * Alias for get_attempt_status().
+	 *
+	 * @since 2.5.20
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @return string
+	 */
+	public function get_status( $context = 'view' ) {
+		return $this->get_attempt_status( $context );
+	}
+
+	/**
+	 * Alias for set_attempt_status().
+	 *
+	 * @since 2.5.20
+	 *
+	 * @param  string $status
+	 * @return string
+	 */
+	public function set_status( $status ) {
+		return $this->set_attempt_status( $status );
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| Conditional
+	|--------------------------------------------------------------------------
+	*/
+
+	/**
+	 * Return true if the quiz attempt needs to be reviewed.
+	 *
+	 * @since 2.5.20
+	 *
+	 * @param string $context
+	 * @return boolean
+	 */
+	public function is_reviewed( $context = 'view' ) {
+		$answers  = maybe_unserialize( $this->get_answers( $context ) );
+		$reviewed = true;
+
+		if ( $answers ) {
+			foreach ( $answers as $question_id => $answer ) {
+				$question = masteriyo_get_question( $question_id );
+				if ( null === $question ) {
+					continue;
+				}
+
+				if ( $question->is_reviewable() && ( ! isset( $answer['is_reviewed'] ) || false === masteriyo_string_to_bool( $answer['is_reviewed'] ) ) ) {
+					$reviewed = false;
+					break;
+				}
+			}
+		}
+
+		/**
+		 * Filters quiz attempt reviewed.
+		 *
+		 * @since 2.5.20
+		 *
+		 * @param boolean $reviewed
+		 * @param \Masteriyo\Models\QuizAttempt $this
+		 */
+		return apply_filters( 'masteriyo_is_quiz_attempt_reviewed', $reviewed, $this );
+	}
+
+
+	/*
+	|--------------------------------------------------------------------------
 	| Getters
 	|--------------------------------------------------------------------------
 	*/
 
 	/**
-	 * Get course_id.
+	 * Get course id.
 	 *
 	 * @since  1.0.6
 	 *
@@ -255,7 +329,7 @@ class QuizAttempt extends Model {
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
-	 * @return string
+	 * @return float
 	 */
 	public function get_earned_marks( $context = 'view' ) {
 		return $this->get_prop( 'earned_marks', $context );

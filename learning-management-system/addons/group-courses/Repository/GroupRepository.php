@@ -110,7 +110,7 @@ class GroupRepository extends AbstractRepository implements RepositoryInterface 
 		$group_post = get_post( $group->get_id() );
 
 		if ( ! $group->get_id() || ! $group_post || PostType::GROUP !== $group_post->post_type ) {
-			throw new \Exception( __( 'Invalid group.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid group.', 'learning-management-system' ) );
 		}
 
 		$group->set_props(

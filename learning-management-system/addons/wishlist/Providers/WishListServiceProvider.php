@@ -2,7 +2,7 @@
 /**
  * Wishlist service provider.
  *
- * @since 1.12.2
+ * @since 2.3.4
  * @package \Masteriyo\Addons\WishList\Providers
  */
 
@@ -18,28 +18,6 @@ use Masteriyo\Addons\WishList\RestApi\Controllers\Version1\WishListItemsControll
 use Masteriyo\Addons\WishList\WishlistItemsQuery;
 
 class WishListServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.12.2
-	 */
-	public function register(): void {
-		$this->getContainer()->add( 'wishlist-item.store', WishListItemRepository::class );
-
-		$this->getContainer()->add( 'wishlist-item.rest', WishListItemsController::class )
-			->addArgument( 'permission' );
-
-		$this->getContainer()->add( 'wishlist-item', WishListItem::class )
-			->addArgument( 'wishlist-item.store' );
-
-		$this->getContainer()->add( 'query.wishlist-items', WishlistItemsQuery::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -49,7 +27,7 @@ class WishListServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 2.3.4
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -64,5 +42,25 @@ class WishListServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 2.3.4
+	 */
+	public function register(): void {
+		$this->getContainer()->add( 'wishlist-item.store', WishListItemRepository::class );
+
+		$this->getContainer()->add( 'wishlist-item.rest', WishListItemsController::class )
+			->addArgument( 'permission' );
+
+		$this->getContainer()->add( 'wishlist-item', WishListItem::class )
+			->addArgument( 'wishlist-item.store' );
+
+		$this->getContainer()->add( 'query.wishlist-items', WishlistItemsQuery::class );
 	}
 }

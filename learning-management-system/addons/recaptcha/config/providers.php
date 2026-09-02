@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Masteriyo google recaptcha service providers.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 return array_unique(
 	array(

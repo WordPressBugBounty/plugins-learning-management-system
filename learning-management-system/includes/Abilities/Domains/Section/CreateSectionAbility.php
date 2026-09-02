@@ -3,7 +3,6 @@
  * Create Section ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * The parent course ID must be supplied in the request body.
  * Sections are appended at the end unless a menu_order is specified.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CreateSectionAbility extends RestProxyAbility {
 

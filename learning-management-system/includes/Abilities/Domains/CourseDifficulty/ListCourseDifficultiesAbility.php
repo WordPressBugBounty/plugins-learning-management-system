@@ -3,7 +3,6 @@
  * List Course Difficulties ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseDifficulty
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseDifficulty;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns taxonomy terms registered under `course_difficulty`, including
  * name, slug, description, and course count.
- *
- * @since x.x.x
  */
 class ListCourseDifficultiesAbility extends RestProxyAbility {
 

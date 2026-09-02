@@ -19,26 +19,6 @@ use Masteriyo\RestApi\Controllers\Version1\UserCourseController;
 
 class UserCourseServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.0.0
-	 */
-	public function register(): void {
-		$this->getContainer()->add( 'user-course.store', UserCourseRepository::class );
-
-		$this->getContainer()
-			->add( 'user-course.rest', UserCourseController::class )
-			->addArgument( 'permission' );
-
-		$this->getContainer()
-			->add( 'user-course', UserCourse::class )
-			->addArgument( 'user-course.store' );
-	}
-
-	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
 	 * provider. Every service that is registered via
@@ -62,6 +42,26 @@ class UserCourseServiceProvider extends AbstractServiceProvider implements Boota
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register(): void {
+		$this->getContainer()->add( 'user-course.store', UserCourseRepository::class );
+
+		$this->getContainer()
+			->add( 'user-course.rest', UserCourseController::class )
+			->addArgument( 'permission' );
+
+		$this->getContainer()
+			->add( 'user-course', UserCourse::class )
+			->addArgument( 'user-course.store' );
 	}
 
 	/**

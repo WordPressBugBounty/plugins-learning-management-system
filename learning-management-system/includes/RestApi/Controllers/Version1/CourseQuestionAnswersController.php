@@ -244,7 +244,6 @@ class CourseQuestionAnswersController extends CommentsController {
 		);
 
 		return $params;
-
 	}
 
 	/**
@@ -348,7 +347,7 @@ class CourseQuestionAnswersController extends CommentsController {
 	/**
 	 * Get course question-answer data.
 	 *
-	 * @param Masteriyo\Models\CourseQuestionAnswer $course_qa Course question-answer instance.
+	 * @param \Masteriyo\Models\CourseQuestionAnswer $course_qa Course question-answer instance.
 	 * @param string       $context Request context.
 	 *                             Options: 'view' and 'edit'.
 	 *

@@ -2,7 +2,7 @@
 /**
  * Google reCAPTCHA page enums.
  *
- * @since 1.18.2
+ * @since 2.3.0
  * @package Masteriyo\Addons\Recaptcha
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google reCAPTCHA page enum class.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 class RecaptchaPage {
 	/**
 	 * reCAPTCHA all.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const ALL = 'all';
@@ -27,7 +27,7 @@ class RecaptchaPage {
 	/**
 	 * reCAPTCHA form.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const FORM = 'form';
@@ -35,7 +35,7 @@ class RecaptchaPage {
 	/**
 	 * Return all the Google reCAPTCHA pages.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @return array
 	 */
@@ -44,7 +44,7 @@ class RecaptchaPage {
 			/**
 			 * Filters Google reCAPTCHA page list.
 			 *
-			 * @since 1.18.2
+			 * @since 2.3.0
 			 *
 			 * @param string[] $statuses Google reCAPTCHA page list.
 			 */

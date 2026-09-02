@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Course Features
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_COURSE_ANNOUNCEMENT_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_COURSE_ANNOUNCEMENT_ADDON_BASENAME', plugin_basename( __FILE__ ) );

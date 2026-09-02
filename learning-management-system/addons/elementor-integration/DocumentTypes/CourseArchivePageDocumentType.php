@@ -79,7 +79,13 @@ class CourseArchivePageDocumentType extends PageBase {
 	 * @return string
 	 */
 	public static function get_title() {
-		return esc_html__( 'Masteriyo Course Archive Page', 'learning-management-system' );
+		return esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course Archive Page', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 	}
 
 	/**
@@ -90,7 +96,13 @@ class CourseArchivePageDocumentType extends PageBase {
 	 * @return string
 	 */
 	public static function get_plural_title() {
-		return esc_html__( 'Masteriyo Course Archive Pages', 'learning-management-system' );
+		return esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course Archive Pages', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 	}
 
 	/**

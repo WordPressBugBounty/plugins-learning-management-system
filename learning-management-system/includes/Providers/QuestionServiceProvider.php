@@ -12,16 +12,56 @@ use Masteriyo\Models\Question\Question;
 use Masteriyo\Models\Question\TrueFalse;
 use Masteriyo\Models\Question\SingleChoice;
 use Masteriyo\Models\Question\MultipleChoice;
-use Masteriyo\Models\Question\ShortAnswer;
+use Masteriyo\Models\Question\TextAnswer;
 use Masteriyo\Models\Question\ImageMatching;
+use Masteriyo\Models\Question\Matching;
 use Masteriyo\Models\Question\Sortable;
-
-
 use Masteriyo\Repository\QuestionRepository;
 use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
 
 class QuestionServiceProvider extends AbstractServiceProvider {
-
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'\Masteriyo\RestApi\Controllers\Version1\QuestionsController',
+				'question',
+				'question.store',
+				'question.rest',
+				'question.true-false',
+				'question.single-choice',
+				'question.multiple-choice',
+				'question.text-answer',
+				'question.matching',
+				'question.sortable',
+				// Post type.
+				'mto-question',
+				'mto-question.store',
+				'mto-question.rest',
+				'mto-question.true-false',
+				'mto-question.single-choice',
+				'mto-question.multiple-choice',
+				'mto-question.text-answer',
+				'mto-question.matching',
+				'mto-question.sortable',
+			),
+			true
+		);
+	}
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -52,7 +92,13 @@ class QuestionServiceProvider extends AbstractServiceProvider {
 		$this->getContainer()->add( 'question.multiple-choice', MultipleChoice::class )
 			->addArgument( 'question.store' );
 
-		$this->getContainer()->add( 'question.short-answer', ShortAnswer::class )
+		$this->getContainer()->add( 'question.text-answer', TextAnswer::class )
+			->addArgument( 'question.store' );
+
+		$this->getContainer()->add( 'question.sortable', Sortable::class )
+			->addArgument( 'question.store' );
+
+		$this->getContainer()->add( 'question.matching', Matching::class )
 			->addArgument( 'question.store' );
 
 		// Register based on post type.
@@ -73,48 +119,13 @@ class QuestionServiceProvider extends AbstractServiceProvider {
 		$this->getContainer()->add( 'mto-question.multiple-choice', MultipleChoice::class )
 			->addArgument( 'mto-question.store' );
 
-		$this->getContainer()->add( 'mto-question.short-answer', ShortAnswer::class )
+		$this->getContainer()->add( 'mto-question.text-answer', TextAnswer::class )
 			->addArgument( 'mto-question.store' );
-	}
 
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * Check if the service provider provides a specific service.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id Service identifier.
-	 * @return bool True if the service is provided, false otherwise.
-	 */
-	public function provides( string $id ): bool {
-		return in_array(
-			$id,
-			array(
-				'\Masteriyo\RestApi\Controllers\Version1\QuestionsController',
+		$this->getContainer()->add( 'mto-question.matching', Matching::class )
+			->addArgument( 'mto-question.store' );
 
-				'question',
-				'question.store',
-				'question.rest',
-				'question.true-false',
-				'question.single-choice',
-				'question.multiple-choice',
-				'question.short-answer',
-
-				// Post type.
-				'mto-question',
-				'mto-question.store',
-				'mto-question.rest',
-				'mto-question.true-false',
-				'mto-question.single-choice',
-				'mto-question.multiple-choice',
-				'mto-question.short-answer',
-			),
-			true
-		);
+		$this->getContainer()->add( 'mto-question.sortable', Sortable::class )
+			->addArgument( 'mto-question.store' );
 	}
 }

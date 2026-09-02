@@ -3,7 +3,6 @@
  * Delete User ability.
  *
  * @package Masteriyo\Abilities\Domains\User
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\User;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: delete a user account.
- *
- * @since x.x.x
  */
 class DeleteUserAbility extends RestProxyAbility {
 

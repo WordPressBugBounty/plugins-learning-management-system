@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.16.0
+ * @version 1.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 	/**
 	 * Fires before rendering course sorting section content.
 	 *
-	 * @since 1.16.0
+	 * @since 2.5.18
 	 *
 	 * @param array $options
 	 * @param string $sorting_order
@@ -58,7 +58,7 @@ defined( 'ABSPATH' ) || exit;
 	/**
 	 * Fires after rendering course sorting section content.
 	 *
-	 * @since 1.16.0
+	 * @since 2.5.18
 	 *
 	 * @param array $options
 	 * @param string $sorting_order

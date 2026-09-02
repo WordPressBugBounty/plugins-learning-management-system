@@ -13,6 +13,7 @@ namespace Masteriyo\Addons\MigrationTool\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Addons\MigrationTool\Helper;
 use Masteriyo\Addons\MigrationTool\MigratorRegistry;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
@@ -60,8 +61,6 @@ class LMSMigrationController extends RestController {
 
 	/**
 	 * Migrator registry.
-	 *
-	 * @since x.x.x
 	 *
 	 * @var MigratorRegistry
 	 */
@@ -192,7 +191,6 @@ class LMSMigrationController extends RestController {
 	/**
 	 * POST /migrations/start — create a new migration session and enqueue the first batch.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Request $request
 	 * @return WP_Error|\WP_REST_Response
 	 */
@@ -298,7 +296,6 @@ class LMSMigrationController extends RestController {
 	/**
 	 * GET /migrations/{session_id} — return current session state and per-step progress.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Request $request
 	 * @return WP_Error|\WP_REST_Response
 	 */
@@ -402,7 +399,6 @@ class LMSMigrationController extends RestController {
 	/**
 	 * DELETE /migrations/{session_id} — mark the session cancelled; job engine stops at next status check.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Request $request
 	 * @return WP_Error|\WP_REST_Response
 	 */
@@ -481,7 +477,6 @@ class LMSMigrationController extends RestController {
 	 * Returns HTTP 200 with `data: null` when no active session exists so the
 	 * frontend can distinguish "no session" from an API error.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response
 	 */

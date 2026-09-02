@@ -3,7 +3,6 @@
  * Delete Order ability.
  *
  * @package Masteriyo\Abilities\Domains\Order
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Order;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: delete an order.
- *
- * @since x.x.x
  */
 class DeleteOrderAbility extends RestProxyAbility {
 

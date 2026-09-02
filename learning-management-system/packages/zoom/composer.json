@@ -1,0 +1,11 @@
+{
+  "name": "themegrill/zoom",
+  "description": "WordPress sdk for zoom.",
+  "autoload": {
+    "psr-4": {
+      "ThemeGrill\\Zoom\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": false
+}

@@ -2,7 +2,7 @@
 /**
  * Certificate post type.
  *
- * @since 1.13.0
+ * @since 2.3.7
  *
  * @package Masteriyo\Addons
  * @subpackage Masteriyo\Addons\Certificate
@@ -19,7 +19,7 @@ class Certificate extends PostType {
 	/**
 	 * Post slug.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var string
 	 */

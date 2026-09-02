@@ -135,7 +135,6 @@ declare module '@pdfdraft/designer' {
 	export const WpDataFieldElement: React.FC<any>;
 	export const WpDataFieldToolbarContent: React.FC<any>;
 	export const ElementToolbar: React.FC<{ children?: React.ReactNode }>;
-	export const ElementToolbarItems: React.FC;
 	export function useEditorActions(keys: string[]): Record<string, any>;
 	export const useEditorStore: {
 		getState(): {
@@ -154,13 +153,16 @@ declare module '@pdfdraft/designer' {
 	export const useElementsStore: {
 		getState(): {
 			actions: {
-				get(namespace: string): (ElementType & { [key: string]: any }) | undefined;
+				get(
+					namespace: string,
+				): (ElementType & { [key: string]: any }) | undefined;
 				register(element: ElementType & { [key: string]: any }): void;
 				deregister(namespace: string): void;
 			};
 		};
 	};
 	export const AdvancedSelectorRender: React.FC<any>;
+	export const ElementToolbarItems: React.FC;
 	export const designerQueryClient: import('@tanstack/react-query').QueryClient;
 
 	// ── Advanced selector (slash command for smart tags) ───────────────────────
@@ -204,29 +206,9 @@ declare module '@pdfdraft/designer' {
 	): void;
 }
 
-// Aliased to lucide-react by webpack (config.base.js).
-// Declare the icons used by masteriyo-fields.ts directly (lucide-react not installed in free).
+// Aliased to lucide-react by webpack (config.base.js). Re-export so TS sees the same types.
 declare module '@pdfdraft/ui/icons' {
-	import type React from 'react';
-	type Icon = React.FC<
-		React.SVGProps<SVGSVGElement> & { size?: number | string }
-	>;
-	export const BookOpen: Icon;
-	export const Calendar: Icon;
-	export const CalendarCheck: Icon;
-	export const CalendarDays: Icon;
-	export const Clock: Icon;
-	export const Globe: Icon;
-	export const GraduationCap: Icon;
-	export const QrCode: Icon;
-	export const Shield: Icon;
-	export const Star: Icon;
-	export const Timer: Icon;
-	export const User: Icon;
-	export const Users: Icon;
-	// Allow any other icon to be imported without error.
-	const _: Icon;
-	export default _;
+	export * from 'lucide-react';
 }
 
 // Remaining @pdfdraft/* packages — only default exports used, no detailed types needed.

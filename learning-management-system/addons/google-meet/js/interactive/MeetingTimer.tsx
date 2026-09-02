@@ -12,7 +12,7 @@ import { isValidMotionProp, motion } from 'framer-motion';
 import React, { useEffect, useMemo } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../assets/js/interactive/constants/general';
-import { useCourseContext } from '../../../../assets/js/interactive/context/CourseContext';
+import { useCourseContext } from '@interactive/context/CourseContext';
 
 interface Props {
 	duration: number;
@@ -34,19 +34,23 @@ const MeetingTimer: React.FC<Props> = (props) => {
 		onExpire: onTimeout,
 	});
 
+	const currentTimerInSeconds =
+		days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
+	const isTimingOut = currentTimerInSeconds <= 30;
+
 	const LinearBox = chakra(motion.div, {
 		shouldForwardProp: (prop) =>
 			isValidMotionProp(prop) || shouldForwardProp(prop),
 	});
 
 	const timeBoxStyles = {
-		bg: 'primary.500',
+		bg: isTimingOut ? 'red.500' : 'primary.500',
 		color: 'white',
 		fontSize: { sm: 'lg', md: 'xl' },
 		fontWeight: 'semibold',
 		p: 1,
 		borderRadius: 'sm',
-		textAlign: 'center' as 'center',
+		textAlign: 'center' as const,
 		width: '1.5rem',
 	};
 
@@ -92,7 +96,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 							<Text
 								fontSize={{ sm: 'xl', md: '2xl' }}
 								fontWeight="bold"
-								color={'primary.500'}
+								color={isTimingOut ? 'red.400' : 'primary.500'}
 								mb="5"
 							>
 								:
@@ -119,7 +123,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 					<Text
 						fontSize={{ sm: 'xl', md: '2xl' }}
 						fontWeight="bold"
-						color={'primary.500'}
+						color={isTimingOut ? 'red.400' : 'primary.500'}
 						mb="5"
 					>
 						:
@@ -144,7 +148,7 @@ const MeetingTimer: React.FC<Props> = (props) => {
 					<Text
 						fontSize={{ sm: 'xl', md: '2xl' }}
 						fontWeight="bold"
-						color={'primary.500'}
+						color={isTimingOut ? 'red.400' : 'primary.500'}
 						mb="5"
 					>
 						:

@@ -66,16 +66,16 @@
 					// Show success message.
 					$('#masteriyo-btn-submit-edit-profile-form').after(
 						'<div class="masteriyo-notify-message masteriyo-success-msg"><span>' +
-						masteriyo_data.labels.profile_update_success +
-						'</span></div>'
+							masteriyo_data.labels.profile_update_success +
+							'</span></div>'
 					);
 				},
 				error: function (xhr) {
 					// Show failure message.
 					$('#masteriyo-btn-submit-edit-profile-form').after(
 						'<div class="masteriyo-notify-message masteriyo-error-msg masteriyo-text-red-700 masteriyo-bg-red-100 masteriyo-border-red-300"><span>' +
-						xhr.responseJSON.message +
-						'</span></div>'
+							xhr.responseJSON.message +
+							'</span></div>'
 					);
 				},
 				complete: function () {

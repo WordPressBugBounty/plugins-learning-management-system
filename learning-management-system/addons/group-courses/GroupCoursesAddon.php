@@ -11,6 +11,7 @@ use Masteriyo\Addons\GroupCourses\Controllers\GroupsController;
 use Masteriyo\Addons\GroupCourses\Emails\EmailScheduleActions;
 use Masteriyo\Addons\GroupCourses\Emails\GroupCourseEnrollmentEmailToNewMember;
 use Masteriyo\Addons\GroupCourses\Emails\GroupJoinedEmailToNewMember;
+use Masteriyo\Addons\GroupCourses\Emails\GroupMemberRemovedEmailToMember;
 use Masteriyo\Addons\GroupCourses\Emails\GroupPublishedEmailToAuthor;
 use Masteriyo\Addons\GroupCourses\Models\Setting;
 use Masteriyo\Addons\GroupCourses\PostType\Group;
@@ -19,6 +20,7 @@ use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Roles;
 use Masteriyo\CoreFeatures\CourseComingSoon\Helper;
@@ -73,7 +75,7 @@ class GroupCoursesAddon {
 		add_action( 'masteriyo_after_single_course_enroll_button_wrapper', array( $this, 'masteriyo_template_group_buy_button_for_new_layout' ), 20, 1 );
 		add_action( 'masteriyo_template_enroll_button', array( $this, 'masteriyo_template_group_buy_button' ), 20, 1 );
 
-		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_group_courses' ), 10, 5 );
+		add_filter( 'masteriyo_get_template', array( $this, 'change_template_for_group_courses' ), 20, 5 );
 
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_group_courses_scripts' ) );
 
@@ -82,7 +84,10 @@ class GroupCoursesAddon {
 		add_action( 'masteriyo_new_group', array( $this, 'create_group_members' ), 10, 2 );
 		add_action( 'masteriyo_update_group', array( $this, 'create_group_members' ), 10, 2 );
 
-		add_action( 'masteriyo_checkout_order_created', array( $this, 'enroll_group_members' ), 10, 1 );
+		// Enrollment must run AFTER create_group_on_order_creation (20): that hook
+		// writes _group_seats from the purchase, and enrolling first would cap a
+		// repurchase against the pre-purchase seat count.
+		add_action( 'masteriyo_checkout_order_created', array( $this, 'enroll_group_members' ), 30, 1 );
 		add_action( 'masteriyo_checkout_order_created', array( $this, 'create_group_on_order_creation' ), 20, 1 );
 		add_action( 'masteriyo_order_status_changed', array( $this, 'update_group_status_on_order_change' ), 10, 3 );
 		add_action( 'masteriyo_after_trash_order', array( $this, 'set_group_to_draft_on_order_trash' ), 10, 2 );
@@ -95,8 +100,17 @@ class GroupCoursesAddon {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'add_group_courses_dependencies_to_account_page' ) );
 
 		add_action( 'masteriyo_group_course_new_user', array( __CLASS__, 'schedule_group_joined_email_to_new_member' ), 10, 3 );
+		add_action( 'masteriyo_group_course_member_removed', array( __CLASS__, 'schedule_group_member_removed_email_to_member' ), 10, 3 );
 		add_action( 'masteriyo_group_enrollment_course_user_added', array( $this, 'schedule_group_course_enrollment_email_to_new_member' ), 10, 5 );
 		add_action( 'masteriyo_update_group', array( $this, 'schedule_group_published_email_to_author' ), 10, 2 );
+
+		// Handle manual group enrollment from manual enrollment addon
+		add_filter( 'masteriyo_rest_pre_insert_order_object', array( $this, 'validate_group_enrollment_duplicate' ), 15, 3 );
+		// Both events: the Enroll Group screen's single create request only fires
+		// masteriyo_new_order, so on update alone no group was ever created for it.
+		// Safe to double-hook — the handler is idempotent via _created_group_id.
+		add_action( 'masteriyo_new_order', array( $this, 'create_manual_group' ), 25, 3 );
+		add_action( 'masteriyo_update_order', array( $this, 'create_manual_group' ), 25, 3 );
 
 		// Initialize email schedule actions.
 		EmailScheduleActions::init();
@@ -112,7 +126,7 @@ class GroupCoursesAddon {
 		add_action( 'masteriyo_after_restore_group', array( $this, 'update_enrollments_status_for_groups_restoration' ), 10, 2 );
 		add_action( 'masteriyo_update_group', array( $this, 'update_enrollments_status_for_groups_update' ), 10, 2 );
 
-		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'adjust_course_for_group_pricing' ), 11, 3 );
+		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'adjust_course_for_group_pricing' ), 10, 3 );
 
 		add_filter( 'elementor_course_widgets', array( $this, 'append_custom_course_widgets' ), 10 );
 
@@ -122,12 +136,49 @@ class GroupCoursesAddon {
 
 		add_filter( 'masteriyo_invoice_data', array( $this, 'add_group_info_to_invoice_data' ), 10, 2 );
 		add_action( 'masteriyo_invoice_after_customer_details', array( $this, 'display_group_info_in_invoice' ), 10, 1 );
+		add_filter( 'masteriyo_analytics_summary_data', array( $this, 'append_analytics_metric' ), 10, 3 );
+	}
+
+	/**
+	 * Append total_groups count to analytics summary data.
+	 *
+	 * @param array                 $items      Analytics items.
+	 * @param \WP_REST_Request|null $request    REST request.
+	 * @param int[]                 $course_ids Scoped course IDs.
+	 *
+	 * @return array
+	 */
+	public function append_analytics_metric( $items, $request = null, $course_ids = array() ) {
+		$args = array(
+			'post_type'      => 'mto-group',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		);
+
+		$course_ids = array_filter( array_map( 'absint', (array) $course_ids ) );
+
+		if ( ! empty( $course_ids ) ) {
+			$args['meta_query'] = array(
+				array(
+					'key'     => '_course_id',
+					'value'   => $course_ids,
+					'compare' => 'IN',
+				),
+			);
+		}
+
+		$query = new \WP_Query( $args );
+
+		$items['total_groups'] = array( 'total' => $query->found_posts );
+
+		return $items;
 	}
 
 	/**
 	 * Add group course elementor widget.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 *
 	 * @param array $widgets
 	 * @return array
@@ -177,16 +228,17 @@ class GroupCoursesAddon {
 				}
 			}
 
-			$course->set_price( $group_price );
+			if ( $group_price ) {
+				$course->set_price( $group_price );
+			}
 
-			$group_badge    = ' <span class="masteriyo-badge" style="background-color: green;">' . __( 'Group', 'learning-management-system' ) . '</span>';
+			$group_badge    = '<span class="masteriyo-badge">' . __( 'Group', 'learning-management-system' ) . '</span>';
 			$modified_title = $course->get_name() . $group_badge;
 			$course->set_name( $modified_title );
 		}
 
 		return $course;
 	}
-
 
 	/**
 	 * Update enrollments status.
@@ -380,20 +432,181 @@ class GroupCoursesAddon {
 	}
 
 	/**
+	 * Enrolls members into a specified course.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $members   An array of members' emails.
+	 * @param int   $course_id The course ID.
+	 * @param int   $group_id  The group ID.
+	 * @param string $status   Resolved enrollment status (UserCourseStatus).
+	 * @param int   $order_id  Order that granted these seats, when the call is
+	 *                         checkout-driven. Stamped as _order_id so the
+	 *                         Enrollments list classifies members as automatic
+	 *                         like the buyer's own row; a later admin member-add
+	 *                         passes nothing and stays manual.
+	 */
+	private function enroll_members_into_course( $members, $course_id, $group_id, $status, $order_id = 0 ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'masteriyo_user_items';
+
+		$remaining_seats = $this->get_remaining_group_seats( $group_id, $course_id );
+		$skipped         = array();
+
+		foreach ( $members as $member ) {
+			$user = get_user_by( 'email', $member );
+			if ( ! $user || masteriyo_is_user_already_enrolled( $user->ID, $course_id ) ) {
+				continue;
+			}
+
+			// The purchased seats are the access. Members beyond them stay in the
+			// group's email list but are not enrolled.
+			if ( $remaining_seats <= 0 ) {
+				$skipped[] = $member;
+				continue;
+			}
+
+			$user_items_data = array(
+				'user_id'    => $user->ID,
+				'item_id'    => $course_id,
+				'item_type'  => 'user_course',
+				'status'     => $status,
+				'parent_id'  => 0,
+				'date_start' => current_time( 'mysql' ),
+			);
+
+			if ( $wpdb->insert( $table_name, $user_items_data ) ) {
+				--$remaining_seats;
+
+				$this->stamp_group_on_enrollment( (int) $wpdb->insert_id, $group_id );
+
+				if ( $order_id ) {
+					add_metadata( 'user_item', (int) $wpdb->insert_id, '_order_id', absint( $order_id ), true );
+				}
+
+				/**
+				 * Fires after a user is successfully enrolled into a course as part of a group.
+				 *
+				 * @since 1.9.0
+				 *
+				 * @param int     $user_id   The ID of the enrolled user.
+				 * @param WP_User $user      The WP_User object of the enrolled user.
+				 * @param int     $group_id The ID of the group the user was added to.
+				 * @param int     $course_id The ID of the course the user was enrolled into.
+				 * @param string  $status    The enrollment status of the user.
+				 */
+				do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id, $status );
+			}
+		}
+
+		if ( $skipped ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Group %1$d has no seats left for course %2$d; skipped: %3$s', $group_id, $course_id, implode( ', ', $skipped ) ),
+				array( 'source' => 'group-courses' )
+			);
+
+			/**
+			 * Fires when group members could not be enrolled because the group is out of seats.
+			 *
+			 * @since 2.31.0
+			 *
+			 * @param string[] $skipped   Emails that stayed unenrolled.
+			 * @param int      $group_id  Group ID.
+			 * @param int      $course_id Course ID.
+			 */
+			do_action( 'masteriyo_group_enrollment_seats_exhausted', $skipped, $group_id, $course_id );
+		}
+	}
+
+	/**
+	 * Seats still open for a group on a course, or PHP_INT_MAX when the group has no cap.
+	 *
+	 * Only an explicit _group_seats value caps enrollment — the course-level
+	 * _group_courses_max_group_size that masteriyo_get_group_max_size() falls back
+	 * to is a checkout-validation ceiling, and treating it as a cap would strand
+	 * members of every group that predates seat tracking. Consumed seats are the
+	 * rows this group granted (stamped _group_id), so an enrollment a member
+	 * bought independently never eats a purchased seat. Only active rows count:
+	 * a revoke keeps the row as inactive, and the Enrollments screen sells revoke
+	 * as reversible — a revoked member must free their seat for a replacement.
+	 *
+	 * @param int $group_id  Group ID.
+	 * @param int $course_id Course ID.
+	 * @return int
+	 */
+	private function get_remaining_group_seats( $group_id, $course_id ) {
+		global $wpdb;
+
+		$max = absint( get_post_meta( $group_id, '_group_seats', true ) );
+
+		if ( ! $max ) {
+			return PHP_INT_MAX;
+		}
+
+		$enrolled = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_user_items ui
+					INNER JOIN {$wpdb->prefix}masteriyo_user_itemmeta m ON m.user_item_id = ui.id AND m.meta_key = '_group_id' AND m.meta_value = %s
+					WHERE ui.item_id = %d AND ui.item_type = 'user_course' AND ui.status = %s",
+				(string) $group_id,
+				$course_id,
+				UserCourseStatus::ACTIVE
+			)
+		);
+
+		return max( 0, $max - $enrolled );
+	}
+
+	/**
+	 * Record which group an enrollment row came from, for the Enrollments list.
+	 *
+	 * @param int $user_item_id Enrollment row ID.
+	 * @param int $group_id     Group ID.
+	 */
+	private function stamp_group_on_enrollment( $user_item_id, $group_id ) {
+		if ( ! $user_item_id || ! $group_id ) {
+			return;
+		}
+
+		// unique — a re-stamp must not add a second row, or the Enrollments
+		// list join would fan out.
+		add_metadata( 'user_item', $user_item_id, '_group_id', $group_id, true );
+	}
+
+	/**
+	 * Stamp the group on a user's existing enrollment row for a course.
+	 *
+	 * The leader is enrolled by the order path, not the group loops, so their
+	 * row is stamped here instead of being derived from the order at read time
+	 * (which mislabeled co-purchased courses on the same order).
+	 *
+	 * @param int $user_id   User ID.
+	 * @param int $course_id Course ID.
+	 * @param int $group_id  Group ID.
+	 */
+	private function stamp_group_on_user_course( $user_id, $course_id, $group_id ) {
+		$user_course = masteriyo_get_user_course_by_user_and_course( $user_id, $course_id );
+
+		if ( $user_course ) {
+			$this->stamp_group_on_enrollment( absint( $user_course->get_id() ), $group_id );
+		}
+	}
+
+	/**
 	 * Appends group-specific data to the cart item.
 	 *
-	 * This function hooks into `masteriyo_group_cart_item_data` to allow adding or modifying cart item data
-	 * based on associated group IDs. It's designed for extensibility and customization of group courses feature.
+	 * This function checks if the current request is a group purchase and marks it accordingly.
+	 * Groups are created automatically after order completion in the new flow.
 	 *
 	 * @since 1.9.0
 	 *
 	 * @param array $cart_item_data Cart item data.
 	 *
-	 * @return array|\WP_Error Modified cart item data with group information or WP Error object.
+	 * @return array Modified cart item data with group purchase flag.
 	 */
 	public function append_group_course_data_in_cart_item( $cart_item_data ) {
 		// Check if this is a group purchase from the new flow
-		if ( isset( $_GET['group_purchase'] ) && 'yes' === $_GET['group_purchase'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_GET['group_purchase'] ) && 'yes' === $_GET['group_purchase'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$cart_item_data['group_purchase'] = true;
 
 			// Capture tier ID and seat count for multi-tier pricing
@@ -411,11 +624,47 @@ class GroupCoursesAddon {
 		return $cart_item_data;
 	}
 
+	/**
+	 * Get pricing tiers for a course, falling back to legacy data if necessary.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param int $course_id Course ID.
+	 * @return array List of pricing tiers.
+	 */
+	private function get_course_pricing_tiers( $course_id ) {
+		// Get pricing tiers (new format)
+		$pricing_tiers_json = get_post_meta( $course_id, '_group_courses_pricing_tiers', true );
+		$pricing_tiers      = ! empty( $pricing_tiers_json ) ? json_decode( $pricing_tiers_json, true ) : array();
+
+		// If no pricing tiers exist but legacy data exists, migrate it
+		if ( empty( $pricing_tiers ) ) {
+			$group_price    = get_post_meta( $course_id, '_group_courses_group_price', true );
+			$max_group_size = get_post_meta( $course_id, '_group_courses_max_group_size', true );
+
+			// If legacy data exists, create a default tier
+			if ( ! empty( $group_price ) || ! empty( $max_group_size ) ) {
+				$pricing_tiers = array(
+					array(
+						'id'            => 'tier_1',
+						'seat_model'    => 'fixed',
+						'group_name'    => __( 'Group', 'learning-management-system' ),
+						'group_size'    => ! empty( $max_group_size ) ? intval( $max_group_size ) : 0,
+						'pricing_type'  => 'one_time',
+						'regular_price' => ! empty( $group_price ) ? $group_price : '',
+						'sale_price'    => '',
+					),
+				);
+			}
+		}
+
+		return $pricing_tiers;
+	}
 
 	/**
 	 * Calculate price based on selected tier and seat count.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param int    $course_id  Course ID.
 	 * @param string $tier_id    Tier ID.
@@ -445,6 +694,7 @@ class GroupCoursesAddon {
 		}
 
 		$seat_model    = isset( $selected_tier['seat_model'] ) ? $selected_tier['seat_model'] : 'fixed';
+		$pricing_model = isset( $selected_tier['pricing_model'] ) ? $selected_tier['pricing_model'] : 'per_seat';
 		$regular_price = isset( $selected_tier['regular_price'] ) ? floatval( $selected_tier['regular_price'] ) : 0;
 		$sale_price    = isset( $selected_tier['sale_price'] ) && ! empty( $selected_tier['sale_price'] ) ? floatval( $selected_tier['sale_price'] ) : 0;
 		$base_price    = $sale_price > 0 ? $sale_price : $regular_price;
@@ -453,6 +703,27 @@ class GroupCoursesAddon {
 		if ( 'fixed' === $seat_model ) {
 			// Fixed seats: return tier price
 			return $base_price;
+		} elseif ( 'variable' === $seat_model ) {
+			if ( 'tiered' === $pricing_model ) {
+				// Tiered pricing: find applicable tier
+				$price_tiers    = isset( $selected_tier['tiers'] ) && is_array( $selected_tier['tiers'] ) ? $selected_tier['tiers'] : array();
+				$per_seat_price = $base_price;
+
+				foreach ( $price_tiers as $price_tier ) {
+					$from = isset( $price_tier['from'] ) ? intval( $price_tier['from'] ) : 0;
+					$to   = isset( $price_tier['to'] ) ? intval( $price_tier['to'] ) : 0;
+
+					if ( $seat_count >= $from && $seat_count <= $to ) {
+						$per_seat_price = isset( $price_tier['per_seat_price'] ) ? floatval( $price_tier['per_seat_price'] ) : $base_price;
+						break;
+					}
+				}
+
+				return $per_seat_price * $seat_count;
+			} else {
+				// Per seat pricing: simple multiplication
+				return $base_price * $seat_count;
+			}
 		}
 
 		return null;
@@ -474,7 +745,7 @@ class GroupCoursesAddon {
 
 		$cart_contents = array_map(
 			function ( $cart_item ) {
-				// Handle new group purchase flow.
+				// Handle new group purchase flow
 				if ( isset( $cart_item['group_purchase'] ) && $cart_item['group_purchase'] ) {
 					$course = $cart_item['data'];
 					if ( $course ) {
@@ -520,43 +791,6 @@ class GroupCoursesAddon {
 	}
 
 	/**
-	 * Get pricing tiers for a course, falling back to legacy data if necessary.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param int $course_id Course ID.
-	 * @return array List of pricing tiers.
-	 */
-	private function get_course_pricing_tiers( $course_id ) {
-		// Get pricing tiers (new format)
-		$pricing_tiers_json = get_post_meta( $course_id, '_group_courses_pricing_tiers', true );
-		$pricing_tiers      = ! empty( $pricing_tiers_json ) ? json_decode( $pricing_tiers_json, true ) : array();
-
-		// If no pricing tiers exist but legacy data exists, migrate it
-		if ( empty( $pricing_tiers ) ) {
-			$group_price    = get_post_meta( $course_id, '_group_courses_group_price', true );
-			$max_group_size = get_post_meta( $course_id, '_group_courses_max_group_size', true );
-
-			// If legacy data exists, create a default tier
-			if ( ! empty( $group_price ) || ! empty( $max_group_size ) ) {
-				$pricing_tiers = array(
-					array(
-						'id'            => 'tier_1',
-						'seat_model'    => 'fixed',
-						'group_name'    => __( 'Group', 'learning-management-system' ),
-						'group_size'    => ! empty( $max_group_size ) ? intval( $max_group_size ) : 0,
-						'pricing_type'  => 'one_time',
-						'regular_price' => ! empty( $group_price ) ? $group_price : '',
-						'sale_price'    => '',
-					),
-				);
-			}
-		}
-
-		return $pricing_tiers;
-	}
-
-	/**
 	 * Schedules or directly triggers a group course enrollment email to a new member based on the email scheduling setting.
 	 * If email scheduling is enabled, the action is queued. Otherwise, the email is sent immediately.
 	 *
@@ -587,7 +821,7 @@ class GroupCoursesAddon {
 			as_enqueue_async_action(
 				$email->get_schedule_handle(),
 				array(
-					'id'        => $user->get_id(),
+					'id'        => $user_id,
 					'group_id'  => $group_id,
 					'course_id' => $course_id,
 				),
@@ -627,7 +861,7 @@ class GroupCoursesAddon {
 			as_enqueue_async_action(
 				$email->get_schedule_handle(),
 				array(
-					'id'       => $user->get_id(),
+					'id'       => $user_id,
 					'group_id' => $group_id,
 				),
 				'masteriyo'
@@ -638,16 +872,64 @@ class GroupCoursesAddon {
 	}
 
 	/**
-		 * Schedules or directly triggers a group published email to the group author when group status changes to published.
-		 * This email is sent only once when the group is first published, not on subsequent updates.
-		 *
-		 * @since 1.20.0
-		 *
-		 * @param int $group_id The ID of the group that was updated.
-		 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group The group object.
-		 *
-		 * @return void
-		 */
+	 * Schedules or directly triggers a group member removed email to the removed member based on the email scheduling setting.
+	 * If email scheduling is enabled, the action is queued. Otherwise, the email is sent immediately.
+	 *
+	 * @param int      $user_id  The ID of the removed member.
+	 * @param \WP_User $user     The user object of the removed member.
+	 * @param int      $group_id The ID of the group the user was removed from.
+	 *
+	 * @return void
+	 */
+	public static function schedule_group_member_removed_email_to_member( $user_id, $user, $group_id ) {
+		// Don't send email to the group author.
+		$group_author_id = get_post_field( 'post_author', $group_id );
+		if ( $group_author_id && absint( $group_author_id ) === $user_id ) {
+			return;
+		}
+
+		$email = new GroupMemberRemovedEmailToMember();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		if ( self::is_email_schedule_enabled() ) {
+			as_enqueue_async_action(
+				$email->get_schedule_handle(),
+				array(
+					'id'       => $user_id,
+					'group_id' => $group_id,
+				),
+				'masteriyo'
+			);
+		} else {
+			$email->trigger( $user_id, $group_id );
+		}
+	}
+
+	/**
+	 * Return true if the action schedule is enabled for Email.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return boolean
+	 */
+	public static function is_email_schedule_enabled() {
+		return masteriyo_is_email_schedule_enabled();
+	}
+
+	/**
+	 * Schedules or directly triggers a group published email to the group author when group status changes to published.
+	 * This email is sent only once when the group is first published, not on subsequent updates.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $group_id The ID of the group that was updated.
+	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group The group object.
+	 *
+	 * @return void
+	 */
 	public function schedule_group_published_email_to_author( $group_id, $group ) {
 		if ( ! $group || ! $group_id ) {
 			return;
@@ -698,17 +980,6 @@ class GroupCoursesAddon {
 	}
 
 	/**
-	 * Return true if the action schedule is enabled for Email.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @return boolean
-	 */
-	public static function is_email_schedule_enabled() {
-		return masteriyo_is_email_schedule_enabled();
-	}
-
-	/**
 	 * Adds script dependencies required for group courses on the account page.
 	 * This method checks if the current page is the account page and if specific scripts are not already set as dependencies.
 	 * It then merges the required dependencies into the scripts array.
@@ -743,11 +1014,10 @@ class GroupCoursesAddon {
 		}
 	}
 
-
 	/**
 	 * Enqueue group pricing tiers script on single course page.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function enqueue_group_pricing_tiers_script() {
 		if ( ! masteriyo_is_single_course_page() ) {
@@ -766,6 +1036,11 @@ class GroupCoursesAddon {
 		// Get current course ID
 		$course_id = get_the_ID();
 
+		$currency_code = '';
+		if ( function_exists( 'masteriyo_get_currency_and_pricing_zone_based_on_course' ) ) {
+			list( $currency_code, ) = masteriyo_get_currency_and_pricing_zone_based_on_course( $course_id );
+		}
+
 		// Localize script with necessary data
 		wp_localize_script(
 			'masteriyo-group-pricing-tiers',
@@ -776,9 +1051,11 @@ class GroupCoursesAddon {
 					'checkout' => masteriyo_get_page_permalink( 'checkout' ),
 				),
 				'currency' => array(
-					'symbol'   => masteriyo_get_currency_symbol(),
-					'position' => masteriyo_get_setting( 'payments.currency.currency_position' ),
-					'decimals' => masteriyo_get_setting( 'payments.currency.number_of_decimals' ),
+					'symbol'             => masteriyo_get_currency_symbol( $currency_code ),
+					'position'           => masteriyo_get_setting( 'payments.currency.currency_position' ),
+					'decimals'           => masteriyo_get_setting( 'payments.currency.number_of_decimals' ),
+					'decimal_separator'  => masteriyo_get_setting( 'payments.currency.decimal_separator' ),
+					'thousand_separator' => masteriyo_get_setting( 'payments.currency.thousand_separator' ),
 				),
 			)
 		);
@@ -825,11 +1102,13 @@ class GroupCoursesAddon {
 				$details = $this->get_group_purchase_details( $group->get_id(), $course_id, $order->get_id() );
 
 				$group_data[] = array(
-					'id'     => $group->get_id(),
-					'title'  => $group->get_title(),
-					'seats'  => $details['seats'],
-					'plan'   => $details['plan'],
-					'emails' => masteriyo_get_enrolled_group_user_emails( $group, $course_id ),
+					'id'                       => $group->get_id(),
+					'title'                    => $group->get_title(),
+					'seats'                    => $details['seats'],
+					'plan'                     => $details['plan'],
+					'per_seat_price'           => $details['per_seat_price'],
+					'formatted_per_seat_price' => ! empty( $details['per_seat_price'] ) ? masteriyo_price( $details['per_seat_price'], array( 'currency' => $order->get_currency() ) ) : '',
+					'emails'                   => masteriyo_get_enrolled_group_user_emails( $group, $course_id ),
 				);
 			}
 		}
@@ -842,7 +1121,7 @@ class GroupCoursesAddon {
 	/**
 	 * Get group purchase details (seats and plan name).
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param int $group_id  Group ID.
 	 * @param int $course_id Course ID.
@@ -851,15 +1130,16 @@ class GroupCoursesAddon {
 	 */
 	private function get_group_purchase_details( $group_id, $course_id, $order_id = 0 ) {
 		$details = array(
-			'seats' => 0,
-			'plan'  => '',
+			'seats'          => 0,
+			'plan'           => '',
+			'per_seat_price' => '',
 		);
 
 		// Get from Order Meta (Snapshot of purchase).
 		if ( $order_id ) {
 			$order = masteriyo_get_order( $order_id );
 			if ( $order ) {
-				$purchase_data = get_post_meta( $order_id, '_group_purchase_data', true );
+				$purchase_data = $order->get_meta( '_group_purchase_data', true );
 
 				if ( ! empty( $purchase_data ) && is_array( $purchase_data ) ) {
 					if ( isset( $purchase_data['seats'] ) ) {
@@ -867,6 +1147,9 @@ class GroupCoursesAddon {
 					}
 					if ( isset( $purchase_data['plan_name'] ) ) {
 						$details['plan'] = $purchase_data['plan_name'];
+					}
+					if ( isset( $purchase_data['per_seat_price'] ) ) {
+						$details['per_seat_price'] = $purchase_data['per_seat_price'];
 					}
 				}
 			}
@@ -883,67 +1166,6 @@ class GroupCoursesAddon {
 		return $details;
 	}
 
-	/**
-	 * Enrolls group members into courses associated with the order.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param \Masteriyo\Models\Order\Order $order Order object.
-	 */
-	public function enroll_group_members( $order ) {
-		if ( ! $order instanceof \Masteriyo\Models\Order\Order || ! $order->get_id() ) {
-			return;
-		}
-
-		$course_ids = $this->get_course_ids_from_order( $order );
-		if ( empty( $course_ids ) ) {
-			return;
-		}
-
-		$group_ids = $order->get_group_ids();
-		if ( empty( $group_ids ) ) {
-			return;
-		}
-
-		foreach ( $group_ids as $group_id ) {
-			$members = masteriyo_get_members_emails_from_group( $group_id );
-			if ( empty( $members ) ) {
-				continue;
-			}
-
-			$enrollment_status = OrderStatus::COMPLETED === $order->get_status() ? 'active' : 'inactive';
-
-			$existing_course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
-			if ( ! is_array( $existing_course_data ) ) {
-				$existing_course_data = array();
-			}
-
-			foreach ( $course_ids as $course_id ) {
-				$this->enroll_members_into_course( $members, $course_id, $group_id, $order->get_status() );
-
-				$course_data = array(
-					'course_id'       => $course_id,
-					'order_id'        => $order->get_id(),
-					'enrolled_status' => $enrollment_status,
-				);
-
-				$exists = false;
-				foreach ( $existing_course_data as &$existing_data ) {
-					if ( absint( $existing_data['course_id'] ) === absint( $course_id ) ) {
-						$existing_data = $course_data;
-						$exists        = true;
-						break;
-					}
-				}
-
-				if ( ! $exists ) {
-					$existing_course_data[] = $course_data;
-				}
-			}
-
-			update_post_meta( $group_id, 'masteriyo_course_data', $existing_course_data );
-		}
-	}
 
 	/**
 	 * Creates group members based on the provided group object.
@@ -1018,8 +1240,7 @@ class GroupCoursesAddon {
 							$purchase_data['tier_id'] = $tier_id;
 
 							// Resolve Plan Name and Per Seat Price
-							$pricing_tiers_json = get_post_meta( $course_id, '_group_courses_pricing_tiers', true );
-							$pricing_tiers      = ! empty( $pricing_tiers_json ) ? json_decode( $pricing_tiers_json, true ) : array();
+							$pricing_tiers = $this->get_course_pricing_tiers( $course_id );
 
 							$seats = isset( $cart_content['group_seats'] ) ? intval( $cart_content['group_seats'] ) : 0;
 
@@ -1027,6 +1248,34 @@ class GroupCoursesAddon {
 								if ( isset( $tier['id'] ) && $tier['id'] === $tier_id ) {
 									if ( isset( $tier['group_name'] ) ) {
 										$purchase_data['plan_name'] = $tier['group_name'];
+									}
+
+									// Calculate per seat price
+									$seat_model    = isset( $tier['seat_model'] ) ? $tier['seat_model'] : 'fixed';
+									$pricing_model = isset( $tier['pricing_model'] ) ? $tier['pricing_model'] : 'per_seat';
+									$regular_price = isset( $tier['regular_price'] ) ? floatval( $tier['regular_price'] ) : 0;
+									$sale_price    = isset( $tier['sale_price'] ) && '' !== $tier['sale_price'] ? floatval( $tier['sale_price'] ) : 0;
+									$base_price    = $sale_price > 0 ? $sale_price : $regular_price;
+
+									$per_seat_price = 0;
+
+									if ( 'variable' === $seat_model ) {
+										if ( 'tiered' === $pricing_model ) {
+											$price_tiers    = isset( $tier['tiers'] ) && is_array( $tier['tiers'] ) ? $tier['tiers'] : array();
+											$per_seat_price = $base_price; // Default
+
+											foreach ( $price_tiers as $price_tier ) {
+												$from = isset( $price_tier['from'] ) ? intval( $price_tier['from'] ) : 0;
+												$to   = isset( $price_tier['to'] ) ? intval( $price_tier['to'] ) : 0;
+												if ( $seats >= $from && $seats <= $to ) {
+													$per_seat_price = isset( $price_tier['per_seat_price'] ) ? floatval( $price_tier['per_seat_price'] ) : $base_price;
+													break;
+												}
+											}
+										} else {
+											$per_seat_price = $base_price;
+										}
+										$purchase_data['per_seat_price'] = $per_seat_price;
 									}
 									break;
 								}
@@ -1080,12 +1329,13 @@ class GroupCoursesAddon {
 		return $scripts;
 	}
 
+
 	/**
 	 * Renders the group buy button for a course on single course pages for logged-in users.
 	 *
 	 * This function checks if the course is purchasable and has a group price, and then renders the group buy button template for the course.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object for which the group buy button is being rendered.
 	 */
@@ -1096,6 +1346,11 @@ class GroupCoursesAddon {
 		|| (
 			masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id )
 			&& ! $this->user_has_non_active_group_for_this_course( $course->get_id() )
+		)
+		|| (
+		$course->get_enable_cohort_mode()
+		&& function_exists( 'is_enrollment_open_now' )
+		&& ! is_enrollment_open_now( $course )
 		)
 		) {
 			return;
@@ -1148,7 +1403,7 @@ class GroupCoursesAddon {
 		/**
 		 * Filter the price for the group buy button.
 		 *
-		 * @since 1.17.1
+		 * @since 1.17.1 [free]
 		 *
 		 * @param int    $group_price The group price for the course.
 		 * @param int    $course_id   The course ID.
@@ -1205,7 +1460,7 @@ class GroupCoursesAddon {
 	/**
 	 * Renders the group buy button for a course on single course pages for logged-in users.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object for which the group buy button is being rendered.
 	 *
@@ -1238,7 +1493,7 @@ class GroupCoursesAddon {
 	/**
 	 * Renders the group buy button for a course on single course pages for logged-in users.
 	 *
-	 * @since 1.10.0
+	 * @since 1.9.0
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object for which the group buy button is being rendered.
 	 *
@@ -1265,9 +1520,558 @@ class GroupCoursesAddon {
 	}
 
 	/**
+	 * Determines whether the currently logged-in user owns a group for the specified course.
+	 *
+	 * Performs a database lookup to check if the user has any published group
+	 * post (`mto-group` post type) associated with the given course ID.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $course_id Course ID to check against.
+	 *
+	 * @return bool True if the user owns a group for the given course, false otherwise.
+	 */
+	private function user_has_a_group_for_this_course( $course_id ) {
+		if ( ! is_user_logged_in() ) {
+			return false;
+		}
+
+		global $wpdb;
+		$user_id = get_current_user_id();
+
+		$query = $wpdb->prepare(
+			"SELECT COUNT(DISTINCT g.ID)
+			FROM {$wpdb->posts} g
+			INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
+			WHERE g.post_type = 'mto-group'
+			AND g.post_author = %d
+			AND g.post_status = 'publish'
+			AND gm.meta_value LIKE %s",
+			$user_id,
+			'%:"course_id";i:' . intval( $course_id ) . ';s:%'
+		);
+
+		$count = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $count > 0;
+	}
+
+	/**
+	 * Checks if the current user has an inactive group (failed/cancelled/refunded/trashed order)
+	 * for the given course. Returns false for pending/on-hold/processing groups.
+	 *
+	 * @param int $course_id Course ID to check against.
+	 *
+	 * @return bool True if the user owns an inactive group for the given course, false otherwise.
+	 */
+	private function user_has_non_active_group_for_this_course( $course_id ) {
+		if ( ! is_user_logged_in() ) {
+			return false;
+		}
+
+		global $wpdb;
+		$user_id = get_current_user_id();
+
+		$group_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->prepare(
+				"SELECT DISTINCT g.ID
+				FROM {$wpdb->posts} g
+				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
+				WHERE g.post_type = 'mto-group'
+				AND g.post_author = %d
+				AND g.post_status = 'draft'
+				AND gm.meta_value LIKE %s",
+				$user_id,
+				'%:"course_id";i:' . intval( $course_id ) . ';s:%'
+			)
+		);
+
+		if ( empty( $group_ids ) ) {
+			return false;
+		}
+
+		foreach ( $group_ids as $group_id ) {
+			$group = masteriyo_get_group( intval( $group_id ) );
+			if ( ! $group ) {
+				continue;
+			}
+			$state = masteriyo_get_group_display_state( $group );
+			if ( isset( $state['display_status'] ) && 'inactive' === $state['display_status'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Changes the template path for specific group courses related templates.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $template Template path.
+	 * @param string $template_name Template name.
+	 * @param array $args Template arguments.
+	 * @param string $template_path Template path from function parameter.
+	 * @param string $default_path Default templates directory path.
+	 *
+	 * @return string
+	 */
+	public function change_template_for_group_courses( $template, $template_name, $args, $template_path, $default_path ) {
+		$template_map = array(
+			'group-courses/group-buy-btn.php'              => 'group-buy-btn.php',
+			'group-courses/emails/group-joining.php'       => 'emails/group-joining.php',
+			'group-courses/emails/group-member-removed.php' => 'emails/group-member-removed.php',
+			'group-courses/emails/group-course-enroll.php' => 'emails/group-course-enroll.php',
+			'group-courses/emails/group-published.php'     => 'emails/group-published.php',
+			'group-courses/order/invoice-group-info.php'   => 'order/invoice-group-info.php',
+		);
+
+		if ( isset( $template_map[ $template_name ] ) ) {
+			$new_template = trailingslashit( Constants::get( 'MASTERIYO_GROUP_COURSES_TEMPLATES' ) ) . $template_map[ $template_name ];
+
+			return file_exists( $new_template ) ? $new_template : $template;
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Enrolls group members into courses associated with the order.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 */
+	public function enroll_group_members( $order ) {
+		if ( ! $order instanceof \Masteriyo\Models\Order\Order || ! $order->get_id() ) {
+			return;
+		}
+
+		$course_ids = $this->get_course_ids_from_order( $order );
+		if ( empty( $course_ids ) ) {
+			return;
+		}
+
+		$group_ids = $order->get_group_ids();
+		if ( empty( $group_ids ) ) {
+			return;
+		}
+
+		foreach ( $group_ids as $group_id ) {
+			$members = masteriyo_get_members_emails_from_group( $group_id );
+			if ( empty( $members ) ) {
+				continue;
+			}
+
+			$enrollment_status = OrderStatus::COMPLETED === $order->get_status() ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE;
+
+			$existing_course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
+			if ( ! is_array( $existing_course_data ) ) {
+				$existing_course_data = array();
+			}
+
+			foreach ( $course_ids as $course_id ) {
+				$this->enroll_members_into_course( $members, $course_id, $group_id, $enrollment_status, $order->get_id() );
+
+				$course_data = array(
+					'course_id'       => $course_id,
+					'order_id'        => $order->get_id(),
+					'enrolled_status' => $enrollment_status,
+				);
+
+				$exists = false;
+				foreach ( $existing_course_data as &$existing_data ) {
+					if ( absint( $existing_data['course_id'] ) === absint( $course_id ) ) {
+						$existing_data = $course_data;
+						$exists        = true;
+						break;
+					}
+				}
+
+				if ( ! $exists ) {
+					$existing_course_data[] = $course_data;
+				}
+			}
+
+			update_post_meta( $group_id, 'masteriyo_course_data', $existing_course_data );
+		}
+	}
+
+	/**
+	 * Create group automatically when order is created.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 */
+	public function create_group_on_order_creation( $order ) {
+		if ( ! $order ) {
+			return;
+		}
+
+		// Check if this order needs group creation
+		$create_group = $order->get_meta( '_create_group_after_completion', true );
+		if ( 'yes' !== $create_group ) {
+			return;
+		}
+
+		$course_id = $order->get_meta( '_group_course_id', true );
+		if ( ! $course_id ) {
+			return;
+		}
+
+		$course = masteriyo_get_course( $course_id );
+		if ( ! $course ) {
+			return;
+		}
+
+		$user = masteriyo_get_user( $order->get_customer_id() );
+		if ( ! $user ) {
+			return;
+		}
+
+		// Re-link flow: if the user already has a non-active group for this course, reuse it.
+		if ( $this->relink_existing_group_to_order( $order, $course, $user ) ) {
+			return;
+		}
+
+		// Create the group with status based on order status
+		$group = masteriyo_create_group_object();
+		// Set temporary title for creation
+
+		$group->set_title(
+			sprintf(
+			/* translators: % 1$s: Course name */
+				__( '%s - Group', 'learning-management-system' ),
+				$course->get_name()
+			)
+		);
+
+		$group->set_description(
+			sprintf(
+			/* translators: %1$s: Course name, %2$d: Order ID */
+				__( 'Group created for course: %1$s (Order #%2$d)', 'learning-management-system' ),
+				$course->get_name(),
+				$order->get_id()
+			)
+		);
+
+		$group->set_author_id( $user->get_id() );
+
+		// Set group status based on order status
+		$group_status = ( OrderStatus::COMPLETED === $order->get_status() ) ? PostStatus::PUBLISH : PostStatus::DRAFT;
+		$group->set_status( $group_status );
+
+		$group->set_emails( array( $user->get_email() ) );
+
+		$group_repository = masteriyo_create_group_store();
+		$group_repository->create( $group );
+
+		// Update title with the actual group name or ID after creation
+		if ( $group->get_id() ) {
+			// Re-read the group to ensure proper change tracking
+			$group = masteriyo_get_group( $group->get_id() );
+			if ( $group ) {
+				// Get purchase data to extract the configured group name
+				$purchase_data = $order->get_meta( '_group_purchase_data', true );
+				$group_name    = '';
+
+				// Try to get the admin-configured group name from purchase data
+				if ( is_array( $purchase_data ) && isset( $purchase_data['plan_name'] ) && ! empty( $purchase_data['plan_name'] ) ) {
+					$group_name = $purchase_data['plan_name'];
+				}
+
+				// Set title using the configured group name or fall back to generic format.
+				if ( ! empty( $group_name ) ) {
+					/* translators: %1$s: Course name, %2$s: Group name (e.g., Small Team, Enterprise) */
+					$group->set_title( sprintf( __( '%1$s - %2$s', 'learning-management-system' ), $course->get_name(), $group_name ) );
+				} else {
+					/* translators: %1$s: Course name, %2$d: Group ID */
+					$group->set_title( sprintf( __( '%1$s - Group #%2$d', 'learning-management-system' ), $course->get_name(), $group->get_id() ) );
+				}
+				$group_repository->update( $group );
+			}
+
+			$course_data = array(
+				'course_id'       => $course->get_id(),
+				'order_id'        => $order->get_id(),
+				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
+			);
+			update_post_meta( $group->get_id(), 'masteriyo_course_data', array( $course_data ) );
+
+			// Store tier information in group meta (flattened for easier querying)
+			$purchase_data = $order->get_meta( '_group_purchase_data', true );
+			if ( is_array( $purchase_data ) ) {
+				if ( isset( $purchase_data['tier_id'] ) ) {
+					update_post_meta( $group->get_id(), '_group_tier_id', $purchase_data['tier_id'] );
+				}
+
+				if ( isset( $purchase_data['seats'] ) ) {
+					update_post_meta( $group->get_id(), '_group_seats', intval( $purchase_data['seats'] ) );
+				}
+
+				if ( isset( $purchase_data['plan_name'] ) ) {
+					update_post_meta( $group->get_id(), '_group_plan_name', $purchase_data['plan_name'] );
+				}
+
+				if ( isset( $purchase_data['per_seat_price'] ) ) {
+					update_post_meta( $group->get_id(), '_group_per_seat_price', $purchase_data['per_seat_price'] );
+				}
+			}
+
+			// Store group ID and remove the creation flag in a single write.
+			$order->update_meta_data( '_created_group_id', $group->get_id() );
+			$order->delete_meta_data( '_create_group_after_completion' );
+			$order->save_meta_data();
+
+			// The buyer's own enrollment row came from the order path, not the
+			// group loops, so stamp its group here.
+			$this->stamp_group_on_user_course( $user->get_id(), $course->get_id(), $group->get_id() );
+		}
+	}
+
+	/**
+	 * Update group status when order status changes.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $order_id Order ID.
+	 * @param string $old_status Old order status.
+	 * @param string $new_status New order status.
+	 */
+	public function update_group_status_on_order_change( $order_id, $old_status, $new_status ) {
+		$order = masteriyo_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+
+		// Check if this order has a created group
+		$group_id = $order->get_meta( '_created_group_id', true );
+		if ( ! $group_id ) {
+			return;
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group ) {
+			return;
+		}
+
+		// Update group status based on order status
+		if ( OrderStatus::COMPLETED === $new_status && PostStatus::PUBLISH !== $group->get_status() ) {
+			$group->set_status( PostStatus::PUBLISH );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		} elseif ( OrderStatus::COMPLETED !== $new_status && PostStatus::DRAFT !== $group->get_status() ) {
+			// Set to draft for any non-completed status (on-hold, pending, processing, cancelled, failed, refunded, trash)
+			$group->set_status( PostStatus::DRAFT );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		}
+	}
+
+	/**
+	 * Set group to draft when order is trashed.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $order_id Order ID.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 */
+	public function set_group_to_draft_on_order_trash( $order_id, $order ) {
+		if ( ! $order ) {
+			return;
+		}
+
+		$group_id = $order->get_meta( '_created_group_id', true );
+		if ( ! $group_id ) {
+			return;
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group || PostStatus::DRAFT === $group->get_status() ) {
+			return;
+		}
+
+		$group->set_status( PostStatus::DRAFT );
+		$group_repository = masteriyo_create_group_store();
+		$group_repository->update( $group );
+	}
+
+	/**
+	 * Set group to draft when order is deleted.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $order_id Order ID.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 */
+	public function set_group_to_draft_on_order_delete( $order_id, $order ) {
+		if ( ! $order ) {
+			return;
+		}
+
+		$group_id = $order->get_meta( '_created_group_id', true );
+		if ( ! $group_id ) {
+			return;
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group || PostStatus::DRAFT === $group->get_status() ) {
+			return;
+		}
+
+		$group->set_status( PostStatus::DRAFT );
+		$group_repository = masteriyo_create_group_store();
+		$group_repository->update( $group );
+	}
+
+	/**
+	 * Restore group status when order is restored from trash.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int $order_id Order ID.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 */
+	public function restore_group_status_on_order_restore( $order_id, $order ) {
+		if ( ! $order ) {
+			return;
+		}
+
+		$group_id = $order->get_meta( '_created_group_id', true );
+		if ( ! $group_id ) {
+			return;
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group ) {
+			return;
+		}
+
+		// Set group status based on restored order status
+		if ( OrderStatus::COMPLETED === $order->get_status() && PostStatus::PUBLISH !== $group->get_status() ) {
+			$group->set_status( PostStatus::PUBLISH );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		} elseif ( OrderStatus::COMPLETED !== $order->get_status() && PostStatus::DRAFT !== $group->get_status() ) {
+			$group->set_status( PostStatus::DRAFT );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		}
+	}
+
+	/**
+	 * If the user already has a non-active group for this course, re-link it to the new order
+	 * instead of creating a duplicate group. Preserves members, title, and description.
+	 *
+	 * @param \Masteriyo\Models\Order\Order  $order  New order.
+	 * @param \Masteriyo\Models\Course       $course Course.
+	 * @param \Masteriyo\Models\User         $user   Purchasing user.
+	 *
+	 * @return bool True if an existing group was re-linked (caller should return early); false if a new group must be created.
+	 */
+	private function relink_existing_group_to_order( $order, $course, $user ) {
+		global $wpdb;
+
+		// Find an existing non-active group for this user+course (draft or trash — not publish).
+		$existing_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT g.ID
+				FROM {$wpdb->posts} g
+				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
+				WHERE g.post_type = 'mto-group'
+				AND g.post_author = %d
+				AND g.post_status IN ('draft', 'trash')
+				AND gm.meta_value LIKE %s
+				LIMIT 1",
+				$user->get_id(),
+				'%"course_id";i:' . intval( $course->get_id() ) . ';%'
+			)
+		);
+
+		if ( empty( $existing_ids ) ) {
+			return false;
+		}
+
+		$group_id = absint( $existing_ids[0] );
+
+		// If the group is trashed, restore it to draft first.
+		$group_post = get_post( $group_id );
+		if ( $group_post && PostStatus::TRASH === $group_post->post_status ) {
+			wp_untrash_post( $group_id );
+			clean_post_cache( $group_id );
+		}
+
+		$group = masteriyo_get_group( $group_id );
+		if ( ! $group ) {
+			return false;
+		}
+
+		// Detach the old order from this group so its hooks no longer affect it.
+		$old_course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
+		if ( is_array( $old_course_data ) && ! empty( $old_course_data[0] ) ) {
+			$old_order_id = absint( $old_course_data[0]['order_id'] ?? 0 );
+			if ( $old_order_id && $old_order_id !== $order->get_id() ) {
+				$old_order = masteriyo_get_order( $old_order_id );
+				if ( $old_order ) {
+					$old_order->delete_meta_data( '_created_group_id' );
+					$old_order->save_meta_data();
+				}
+			}
+		}
+
+		// Refresh the course data on the group with the new order.
+		$new_course_data = array(
+			array(
+				'course_id'       => $course->get_id(),
+				'order_id'        => $order->get_id(),
+				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
+			),
+		);
+		update_post_meta( $group_id, 'masteriyo_course_data', $new_course_data );
+
+		// Refresh tier/seat meta from new purchase data.
+		$purchase_data = $order->get_meta( '_group_purchase_data', true );
+		if ( is_array( $purchase_data ) ) {
+			if ( isset( $purchase_data['tier_id'] ) ) {
+				update_post_meta( $group_id, '_group_tier_id', $purchase_data['tier_id'] );
+			}
+			if ( isset( $purchase_data['seats'] ) ) {
+				update_post_meta( $group_id, '_group_seats', intval( $purchase_data['seats'] ) );
+			}
+			if ( isset( $purchase_data['plan_name'] ) ) {
+				update_post_meta( $group_id, '_group_plan_name', $purchase_data['plan_name'] );
+			}
+			if ( isset( $purchase_data['per_seat_price'] ) ) {
+				update_post_meta( $group_id, '_group_per_seat_price', $purchase_data['per_seat_price'] );
+			}
+		}
+
+		// Ensure group status mirrors the new order.
+		$new_group_status = ( OrderStatus::COMPLETED === $order->get_status() ) ? PostStatus::PUBLISH : PostStatus::DRAFT;
+		if ( $new_group_status !== $group->get_status() ) {
+			$group->set_status( $new_group_status );
+			$group_repository = masteriyo_create_group_store();
+			$group_repository->update( $group );
+		}
+
+		// Link new order → group.
+		$order->update_meta_data( '_created_group_id', $group_id );
+		$order->delete_meta_data( '_create_group_after_completion' );
+		$order->save_meta_data();
+
+		// The buyer's own enrollment row came from the order path, not the
+		// group loops, so stamp its group here.
+		$this->stamp_group_on_user_course( absint( $order->get_customer_id() ), absint( $course->get_id() ), $group_id );
+
+		return true;
+	}
+
+	/**
 	 * Display group details section after order summary.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
@@ -1276,7 +2080,7 @@ class GroupCoursesAddon {
 			return;
 		}
 
-		$created_group_id = get_post_meta( $order->get_id(), '_created_group_id', true ) ?? get_post_meta( $order->get_id(), '_created_group_id', true );
+		$created_group_id = $order->get_meta( '_created_group_id', true );
 		if ( ! $created_group_id ) {
 			return;
 		}
@@ -1349,28 +2153,40 @@ class GroupCoursesAddon {
 				</li>
 				<?php
 			}
+
+			if ( ! empty( $details['per_seat_price'] ) ) {
+				$currency_symbol = masteriyo_get_currency_symbol();
+				// Use proper pricing formatting
+				$formatted_price = masteriyo_price( $details['per_seat_price'], array( 'currency' => $order->get_currency() ) );
+				?>
+				<li class="masteriyo-order-overview__group-per-seat-price">
+					<?php esc_html_e( 'Per Seat Price:', 'learning-management-system' ); ?>
+					<strong><?php echo wp_kses_post( $formatted_price ); ?></strong>
+				</li>
+				<?php
+			}
 			?>
 		</ul>
 		<?php
 	}
 
 	/**
-		 * Add group information to invoice data.
-		 *
-		 * @since 1.20.0
-		 *
-		 * @param array $data Invoice data.
-		 * @param \Masteriyo\Models\Order\Order $order Order object.
-		 *
-		 * @return array Modified invoice data with group information.
-		 */
+	 * Add group information to invoice data.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param array $data Invoice data.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 *
+	 * @return array Modified invoice data with group information.
+	 */
 	public function add_group_info_to_invoice_data( $data, $order ) {
 		if ( ! $order || ! $order instanceof \Masteriyo\Models\Order\Order ) {
 			return $data;
 		}
 
 		// Check if this order has a created group
-		$created_group_id = get_post_meta( $order->get_id(), '_created_group_id', true );
+		$created_group_id = $order->get_meta( '_created_group_id', true );
 		if ( ! $created_group_id ) {
 			return $data;
 		}
@@ -1411,6 +2227,10 @@ class GroupCoursesAddon {
 			$data['group_info']['plan_name'] = $details['plan'];
 		}
 
+		if ( ! empty( $details['per_seat_price'] ) ) {
+			$data['group_info']['per_seat_price'] = $details['per_seat_price'];
+		}
+
 		// Add group purchase indicator to course data
 		if ( isset( $data['course_data'] ) && is_array( $data['course_data'] ) ) {
 			foreach ( $data['course_data'] as $key => $course ) {
@@ -1424,7 +2244,7 @@ class GroupCoursesAddon {
 	/**
 	 * Display group information in invoice.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param array $invoice_data Invoice data array.
 	 */
@@ -1442,286 +2262,28 @@ class GroupCoursesAddon {
 	}
 
 	/**
-	 * Changes the template path for specific group courses related templates.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param string $template Template path.
-	 * @param string $template_name Template name.
-	 * @param array $args Template arguments.
-	 * @param string $template_path Template path from function parameter.
-	 * @param string $default_path Default templates directory path.
-	 *
-	 * @return string
-	 */
-	public function change_template_for_group_courses( $template, $template_name, $args, $template_path, $default_path ) {
-		$template_map = array(
-			'group-courses/group-buy-btn.php'              => 'group-buy-btn.php',
-			'group-courses/emails/group-joining.php'       => 'emails/group-joining.php',
-			'group-courses/emails/group-course-enroll.php' => 'emails/group-course-enroll.php',
-			'group-courses/emails/group-published.php'     => 'emails/group-published.php',
-			'group-courses/order/invoice-group-info.php'   => 'order/invoice-group-info.php',
-		);
-
-		if ( isset( $template_map[ $template_name ] ) ) {
-			$new_template = trailingslashit( Constants::get( 'MASTERIYO_GROUP_COURSES_TEMPLATES' ) ) . $template_map[ $template_name ];
-
-			return file_exists( $new_template ) ? $new_template : $template;
-		}
-
-		return $template;
-	}
-
-	/**
-		 * Create group automatically when order is created.
-		 *
-		 * @since 1.20.0
-		 *
-		 * @param \Masteriyo\Models\Order\Order $order Order object.
-		 */
-	public function create_group_on_order_creation( $order ) {
-		if ( ! $order ) {
-			return;
-		}
-
-		// Check if this order needs group creation
-		$create_group = $order->get_meta( '_create_group_after_completion', true );
-		if ( 'yes' !== $create_group ) {
-			return;
-		}
-
-		$course_id = $order->get_meta( '_group_course_id', true );
-		if ( ! $course_id ) {
-			return;
-		}
-
-		$course = masteriyo_get_course( $course_id );
-		if ( ! $course ) {
-			return;
-		}
-
-		$user = masteriyo_get_user( $order->get_customer_id() );
-		if ( ! $user ) {
-			return;
-		}
-
-		// Re-link flow: if the user already has a non-active group for this course, reuse it.
-		if ( $this->relink_existing_group_to_order( $order, $course, $user ) ) {
-			return;
-		}
-
-		// Create the group with status based on order status
-		$group = masteriyo_create_group_object();
-		// Set temporary title for creation
-		/* translators: % 1$s: Course name */
-		$group->set_title( sprintf( __( '%s - Group', 'learning-management-system' ), $course->get_name() ) );
-		/* translators: % 1$s: Course name, % 2$d: Order ID */
-		$group->set_description( sprintf( __( 'Group created for course: %1$s (Order #%2$d)', 'learning-management-system' ), $course->get_name(), $order->get_id() ) );
-		$group->set_author_id( $user->get_id() );
-
-		// Set group status based on order status
-		$group_status = ( OrderStatus::COMPLETED === $order->get_status() ) ? PostStatus::PUBLISH : PostStatus::DRAFT;
-		$group->set_status( $group_status );
-
-		$group->set_emails( array( $user->get_email() ) );
-
-		$group_repository = masteriyo_create_group_store();
-		$group_repository->create( $group );
-
-		// Update title with the actual group name or ID after creation
-		if ( $group->get_id() ) {
-			// Re-read the group to ensure proper change tracking
-			$group = masteriyo_get_group( $group->get_id() );
-			if ( $group ) {
-				// Get purchase data to extract the configured group name
-				$purchase_data = $order->get_meta( '_group_purchase_data', true );
-				$group_name    = '';
-
-				// Try to get the admin-configured group name from purchase data
-				if ( is_array( $purchase_data ) && isset( $purchase_data['plan_name'] ) && ! empty( $purchase_data['plan_name'] ) ) {
-					$group_name = $purchase_data['plan_name'];
-				}
-
-				// Set title using the configured group name or fall back to generic format.
-				if ( ! empty( $group_name ) ) {
-					/* translators: %1$s: Course name, %2$s: Group name (e.g., Small Team, Enterprise) */
-					$group->set_title( sprintf( __( '%1$s - %2$s', 'learning-management-system' ), $course->get_name(), $group_name ) );
-				} else {
-					/* translators: %1$s: Course name, %2$d: Group ID */
-					$group->set_title( sprintf( __( '%1$s - Group #%2$d', 'learning-management-system' ), $course->get_name(), $group->get_id() ) );
-				}
-				$group_repository->update( $group );
-			}
-
-			$course_data = array(
-				'course_id'       => $course->get_id(),
-				'order_id'        => $order->get_id(),
-				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
-			);
-			update_post_meta( $group->get_id(), 'masteriyo_course_data', array( $course_data ) );
-
-			// Store tier information in group meta (flattened for easier querying)
-			$purchase_data = $order->get_meta( '_group_purchase_data', true );
-			if ( is_array( $purchase_data ) ) {
-				if ( isset( $purchase_data['tier_id'] ) ) {
-					update_post_meta( $group->get_id(), '_group_tier_id', $purchase_data['tier_id'] );
-				}
-
-				if ( isset( $purchase_data['seats'] ) ) {
-					update_post_meta( $group->get_id(), '_group_seats', intval( $purchase_data['seats'] ) );
-				}
-
-				if ( isset( $purchase_data['plan_name'] ) ) {
-					update_post_meta( $group->get_id(), '_group_plan_name', $purchase_data['plan_name'] );
-				}
-			}
-
-			// Store group ID and remove the creation flag in a single write.
-			$order->update_meta_data( '_created_group_id', $group->get_id() );
-			$order->delete_meta_data( '_create_group_after_completion' );
-			$order->save_meta_data();
-		}
-	}
-
-	/**
-		 * Update group status when order status changes.
-		 *
-		 * @since 1.20.0
-		 *
-		 * @param int $order_id Order ID.
-		 * @param string $old_status Old order status.
-		 * @param string $new_status New order status.
-		 */
-	public function update_group_status_on_order_change( $order_id, $old_status, $new_status ) {
-		$order = masteriyo_get_order( $order_id );
-		if ( ! $order ) {
-			return;
-		}
-
-		// Check if this order has a created group
-		$group_id = get_post_meta( $order_id, '_created_group_id', true );
-		if ( ! $group_id ) {
-			return;
-		}
-
-		$group = masteriyo_get_group( $group_id );
-		if ( ! $group ) {
-			return;
-		}
-
-		// Update group status based on order status
-		if ( OrderStatus::COMPLETED === $new_status && PostStatus::PUBLISH !== $group->get_status() ) {
-			$group->set_status( PostStatus::PUBLISH );
-			$group_repository = masteriyo_create_group_store();
-			$group_repository->update( $group );
-		} elseif ( OrderStatus::COMPLETED !== $new_status && PostStatus::DRAFT !== $group->get_status() ) {
-			// Set to draft for any non-completed status (on-hold, pending, processing, cancelled, failed, refunded, trash)
-			$group->set_status( PostStatus::DRAFT );
-			$group_repository = masteriyo_create_group_store();
-			$group_repository->update( $group );
-		}
-	}
-
-	/**
-	 * Set group to draft when order is trashed.
-	 *
-	 * @since 1.20.0
-	 *
-	 * @param int $order_id Order ID.
-	 * @param \Masteriyo\Models\Order\Order $order Order object.
-	 */
-	public function set_group_to_draft_on_order_trash( $order_id, $order ) {
-		if ( ! $order ) {
-			return;
-		}
-
-		$group_id = get_post_meta( $order_id, '_created_group_id', true );
-		if ( ! $group_id ) {
-			return;
-		}
-
-		$group = masteriyo_get_group( $group_id );
-		if ( ! $group || PostStatus::DRAFT === $group->get_status() ) {
-			return;
-		}
-
-		$group->set_status( PostStatus::DRAFT );
-		$group_repository = masteriyo_create_group_store();
-		$group_repository->update( $group );
-	}
-
-	/**
-	 * Set group to draft when order is deleted.
-	 *
-	 * @since 1.20.0
-	 *
-	 * @param int $order_id Order ID.
-	 * @param \Masteriyo\Models\Order\Order $order Order object.
-	 */
-	public function set_group_to_draft_on_order_delete( $order_id, $order ) {
-		if ( ! $order ) {
-			return;
-		}
-
-		$group_id = get_post_meta( $order_id, '_created_group_id', true );
-		if ( ! $group_id ) {
-			return;
-		}
-
-		$group = masteriyo_get_group( $group_id );
-		if ( ! $group || PostStatus::DRAFT === $group->get_status() ) {
-			return;
-		}
-
-		$group->set_status( PostStatus::DRAFT );
-		$group_repository = masteriyo_create_group_store();
-		$group_repository->update( $group );
-	}
-
-	/**
-	 * Restore group status when order is restored from trash.
-	 *
-	 * @since 1.20.0
-	 *
-	 * @param int $order_id Order ID.
-	 * @param \Masteriyo\Models\Order\Order $order Order object.
-	 */
-	public function restore_group_status_on_order_restore( $order_id, $order ) {
-		if ( ! $order ) {
-			return;
-		}
-
-		$group_id = get_post_meta( $order_id, '_created_group_id', true );
-		if ( ! $group_id ) {
-			return;
-		}
-
-		$group = masteriyo_get_group( $group_id );
-		if ( ! $group ) {
-			return;
-		}
-
-		// Set group status based on restored order status
-		if ( OrderStatus::COMPLETED === $order->get_status() && PostStatus::PUBLISH !== $group->get_status() ) {
-			$group->set_status( PostStatus::PUBLISH );
-			$group_repository = masteriyo_create_group_store();
-			$group_repository->update( $group );
-		} elseif ( OrderStatus::COMPLETED !== $order->get_status() && PostStatus::DRAFT !== $group->get_status() ) {
-			$group->set_status( PostStatus::DRAFT );
-			$group_repository = masteriyo_create_group_store();
-			$group_repository->update( $group );
-		}
-	}
-
-	/**
 	 * Append group courses to course response.
 	 *
 	 * @since 1.9.0
 	 *
 	 * @param array $data Course data.
 	 * @param \Masteriyo\Models\Course $course Course object.
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST courses controller object.
 	 *
 	 * @return array
+	 */
+
+	/**
+	 * Append group courses data in REST API response.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $data Response data.
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 * @param string $context Request context.
+	 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller Controller object.
+	 * @return array Modified response data.
 	 */
 	public function append_group_courses_data_in_response( $data, $course, $context, $controller ) {
 
@@ -1737,6 +2299,7 @@ class GroupCoursesAddon {
 			$data['group_courses'] = array(
 				'enabled'        => $enabled,
 				'pricing_tiers'  => ! empty( $pricing_tiers ) ? $pricing_tiers : array(),
+				// Legacy fields - kept for backwards compatibility
 				'group_price'    => get_post_meta( $course->get_id(), '_group_courses_group_price', true ),
 				'max_group_size' => get_post_meta( $course->get_id(), '_group_courses_max_group_size', true ),
 			);
@@ -1770,7 +2333,7 @@ class GroupCoursesAddon {
 			update_post_meta( $id, '_group_courses_enabled', $enabled );
 		}
 
-		// Save pricing tiers.
+		// Save pricing tiers (new format)
 		if ( isset( $request['group_courses']['pricing_tiers'] ) && is_array( $request['group_courses']['pricing_tiers'] ) ) {
 			$pricing_tiers = $request['group_courses']['pricing_tiers'];
 
@@ -1789,6 +2352,22 @@ class GroupCoursesAddon {
 				// Add fields based on seat model
 				if ( 'fixed' === $sanitized_tier['seat_model'] ) {
 					$sanitized_tier['group_size'] = isset( $tier['group_size'] ) ? intval( $tier['group_size'] ) : 0;
+				} else {
+					$sanitized_tier['min_seats']     = isset( $tier['min_seats'] ) ? intval( $tier['min_seats'] ) : 0;
+					$sanitized_tier['max_seats']     = isset( $tier['max_seats'] ) ? intval( $tier['max_seats'] ) : 0;
+					$sanitized_tier['pricing_model'] = isset( $tier['pricing_model'] ) ? sanitize_text_field( $tier['pricing_model'] ) : 'per_seat';
+
+					// Add tiers if pricing model is tiered
+					if ( 'tiered' === $sanitized_tier['pricing_model'] && isset( $tier['tiers'] ) && is_array( $tier['tiers'] ) ) {
+						$sanitized_tier['tiers'] = array();
+						foreach ( $tier['tiers'] as $price_tier ) {
+							$sanitized_tier['tiers'][] = array(
+								'from'           => isset( $price_tier['from'] ) ? intval( $price_tier['from'] ) : 0,
+								'to'             => isset( $price_tier['to'] ) ? intval( $price_tier['to'] ) : 0,
+								'per_seat_price' => isset( $price_tier['per_seat_price'] ) ? sanitize_text_field( $price_tier['per_seat_price'] ) : '',
+							);
+						}
+					}
 				}
 
 				$sanitized_tiers[] = $sanitized_tier;
@@ -1809,13 +2388,13 @@ class GroupCoursesAddon {
 	}
 
 	/**
-		 * Add group courses fields to course schema.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param array $schema
-		 * @return array
-		 */
+	 * Add group courses fields to course schema.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $schema
+	 * @return array
+	 */
 	public function add_group_courses_schema_to_course( $schema ) {
 		$schema = wp_parse_args(
 			$schema,
@@ -1857,6 +2436,14 @@ class GroupCoursesAddon {
 											'type'    => 'integer',
 											'context' => array( 'view', 'edit' ),
 										),
+										'min_seats'     => array(
+											'type'    => 'integer',
+											'context' => array( 'view', 'edit' ),
+										),
+										'max_seats'     => array(
+											'type'    => 'integer',
+											'context' => array( 'view', 'edit' ),
+										),
 										'pricing_model' => array(
 											'type'    => 'string',
 											'enum'    => array( 'per_seat', 'tiered' ),
@@ -1874,6 +2461,27 @@ class GroupCoursesAddon {
 										'sale_price'    => array(
 											'type'    => 'string',
 											'context' => array( 'view', 'edit' ),
+										),
+										'tiers'         => array(
+											'type'    => 'array',
+											'context' => array( 'view', 'edit' ),
+											'items'   => array(
+												'type' => 'object',
+												'properties' => array(
+													'from' => array(
+														'type'    => 'integer',
+														'context' => array( 'view', 'edit' ),
+													),
+													'to'   => array(
+														'type'    => 'integer',
+														'context' => array( 'view', 'edit' ),
+													),
+													'per_seat_price' => array(
+														'type'    => 'string',
+														'context' => array( 'view', 'edit' ),
+													),
+												),
+											),
 										),
 									),
 								),
@@ -1942,15 +2550,15 @@ class GroupCoursesAddon {
 	 * @return array
 	 */
 	public function register_groups_submenu( $submenus ) {
-			$submenus['groups'] = array(
-				'page_title' => __( 'Groups', 'learning-management-system' ),
-				'menu_title' => '↳ ' . __( 'Groups', 'learning-management-system' ),
-				'position'   => 26,
-				'hide'       => true,
+		$submenus['groups'] = array(
+			'page_title' => __( 'Groups', 'learning-management-system' ),
+			'menu_title' => '↳ ' . __( 'Groups', 'learning-management-system' ),
+			'position'   => 26,
+			'hide'       => true,
 
-			);
+		);
 
-			return $submenus;
+		return $submenus;
 	}
 
 	/*
@@ -1974,6 +2582,240 @@ class GroupCoursesAddon {
 		&& ! is_null( $group )
 		&& ! is_wp_error( $group )
 		&& PostStatus::PUBLISH === $group->get_status();
+	}
+
+	/**
+	 * Create group for manual group enrollments.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param integer $id The order ID.
+	 * @param \Masteriyo\Models\Order\Order $order The order object.
+	 * @param \Masteriyo\Repository\OrderRepository $order_repository The order repository.
+	 */
+	/**
+	 * Prevent duplicate group enrollments via the REST API pre-insert filter.
+	 *
+	 * Fires inside prepare_object_for_database() before the order is saved.
+	 * Returning WP_Error short-circuits the save and sends a 400 response.
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order    Order object (not yet saved).
+	 * @param \WP_REST_Request              $request  Full REST request.
+	 * @param bool                         $creating True when creating, false when updating.
+	 *
+	 * @return \Masteriyo\Models\Order\Order|\WP_Error
+	 */
+	public function validate_group_enrollment_duplicate( $order, $request, $creating ) {
+		if ( ! $creating ) {
+			return $order;
+		}
+
+		if ( 'manual-enrollment' !== $order->get_created_via() ) {
+			return $order;
+		}
+
+		$enrollment_type = sanitize_text_field( $request->get_param( 'enrollment_type' ) );
+		if ( 'group' !== $enrollment_type ) {
+			return $order;
+		}
+
+		$group_name   = sanitize_text_field( $request->get_param( 'group_name' ) );
+		$customer_id  = absint( $order->get_customer_id() );
+		$course_lines = $request->get_param( 'course_lines' );
+		$course_id    = ( ! empty( $course_lines ) && isset( $course_lines[0]['course_id'] ) )
+			? absint( $course_lines[0]['course_id'] )
+			: 0;
+
+		if ( ! $group_name || ! $customer_id || ! $course_id ) {
+			return $order;
+		}
+
+		$existing_group_ids = get_posts(
+			array(
+				'post_type'      => 'mto-group',
+				'post_status'    => array( 'publish', 'draft' ),
+				'author'         => $customer_id,
+				'title'          => $group_name,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		foreach ( $existing_group_ids as $group_id ) {
+			$course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
+			if ( ! is_array( $course_data ) ) {
+				continue;
+			}
+			foreach ( $course_data as $data ) {
+				if ( isset( $data['course_id'] ) && absint( $data['course_id'] ) === $course_id ) {
+					return new \WP_Error(
+						'masteriyo_duplicate_group_enrollment',
+						__( 'A group with the same name and leader is already enrolled in this course.', 'learning-management-system' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+		}
+
+		return $order;
+	}
+
+	public function create_manual_group( $id, $order, $order_repository ) {
+		// Only process manual enrollments
+		if ( 'manual-enrollment' !== $order->get_created_via() ) {
+			return;
+		}
+
+		$request         = masteriyo_current_http_request();
+		$enrollment_type = isset( $request['enrollment_type'] ) ? sanitize_text_field( $request['enrollment_type'] ) : '';
+
+		// Check if this is a group enrollment
+		if ( 'group' !== $enrollment_type ) {
+			return;
+		}
+
+		// Check if a group already exists for this order
+		$existing_group_id = $order->get_meta( '_created_group_id', true );
+		if ( $existing_group_id ) {
+			$group = masteriyo_get_group( $existing_group_id );
+			if ( $group && ! is_wp_error( $group ) ) {
+				$needs_update     = false;
+				$group_repository = masteriyo_create_group_store();
+
+				// Restore if trashed
+				if ( 'trash' === $group->get_status() ) {
+					$group->set_status( 'publish' );
+					$needs_update = true;
+				}
+
+				// Update name if provided and different
+				$group_name = isset( $request['group_name'] ) ? sanitize_text_field( $request['group_name'] ) : '';
+				if ( $group_name && $group_name !== $group->get_title() ) {
+					$group->set_title( $group_name );
+					$needs_update = true;
+				}
+
+				// Update group leader if order customer has changed
+				$current_customer_id = $order->get_customer_id();
+				if ( $current_customer_id && $current_customer_id !== $group->get_author_id() ) {
+					$group->set_author_id( $current_customer_id );
+					$needs_update = true;
+				}
+
+				// Seats BEFORE the repository update: the update fires
+				// masteriyo_update_group -> enrollment, which must read the new cap.
+				// A seat change alone also forces the update so waiting members
+				// enroll now instead of on the next unrelated group save.
+				if ( $this->apply_manual_group_seats( $group->get_id(), $order, $request ) ) {
+					$needs_update = true;
+				}
+
+				// Single update call if any changes were made
+				if ( $needs_update ) {
+					$group_repository->update( $group );
+				}
+			}
+			return;
+		}
+
+		// Get course ID from order items
+		$course_id   = 0;
+		$order_items = $order->get_items();
+		foreach ( $order_items as $item ) {
+			if ( $item && method_exists( $item, 'get_course_id' ) ) {
+				$course_id = $item->get_course_id();
+				break;
+			}
+		}
+
+		if ( ! $course_id ) {
+			return;
+		}
+
+		$course = masteriyo_get_course( $course_id );
+		if ( ! $course ) {
+			return;
+		}
+
+		$user = masteriyo_get_user( $order->get_customer_id() );
+		if ( ! $user ) {
+			return;
+		}
+
+		// Get the custom group name from request
+		$group_name = isset( $request['group_name'] ) ? sanitize_text_field( $request['group_name'] ) : '';
+		if ( ! $group_name ) {
+			return;
+		}
+
+		// Create the group
+		$group = masteriyo_create_group_object();
+		$group->set_title( $group_name );
+		/* translators: %1$s: Course name, %2$d: Order ID */
+		$group->set_description( sprintf( __( 'Group created for course: %1$s (Order #%2$d)', 'learning-management-system' ), $course->get_name(), $order->get_id() ) );
+		$group->set_author_id( $user->get_id() );
+		$group->set_status( 'publish' );
+		$group->set_emails( array( $user->get_email() ) );
+
+		$group_repository = masteriyo_create_group_store();
+		$group_repository->create( $group );
+
+		// Link group to course and order
+		if ( $group->get_id() ) {
+			$course_data = array(
+				'course_id'       => $course->get_id(),
+				'order_id'        => $order->get_id(),
+				'enrolled_status' => 'active',
+			);
+			update_post_meta( $group->get_id(), 'masteriyo_course_data', array( $course_data ) );
+
+			$this->apply_manual_group_seats( $group->get_id(), $order, $request );
+
+			// Store group ID in order meta
+			$order->update_meta_data( '_created_group_id', $group->get_id() );
+			$order->save_meta_data();
+
+			// The leader's enrollment row was created by the order path, so the
+			// group loops never stamp it.
+			$this->stamp_group_on_user_course( $user->get_id(), $course->get_id(), $group->get_id() );
+
+			// Trigger group published email since we created a published group
+			$this->schedule_group_published_email_to_author( $group->get_id(), $group );
+		}
+	}
+
+	/**
+	 * Store the admin-stated seat count from a manual group enrollment request.
+	 *
+	 * The seat count is the group's cap, same as a purchased tier's; the order
+	 * snapshot feeds Order > Group Details. Never lowered below the current
+	 * member count — GroupsController rejects every email edit of a group whose
+	 * list already exceeds its cap, including the removals that would fix it.
+	 *
+	 * @param int                             $group_id Group ID.
+	 * @param \Masteriyo\Models\Order\Order   $order    Manual-enrollment order.
+	 * @param array|null                      $request  Current HTTP request params.
+	 * @return bool Whether a seat count was written.
+	 */
+	private function apply_manual_group_seats( $group_id, $order, $request ) {
+		$group_seats = isset( $request['group_seats'] ) ? absint( $request['group_seats'] ) : 0;
+
+		if ( $group_seats <= 0 ) {
+			return false;
+		}
+
+		$member_count = count( array_unique( (array) masteriyo_get_members_emails_from_group( $group_id ) ) );
+		$group_seats  = max( $group_seats, $member_count );
+
+		if ( absint( get_post_meta( $group_id, '_group_seats', true ) ) === $group_seats ) {
+			return false;
+		}
+
+		update_post_meta( $group_id, '_group_seats', $group_seats );
+		$order->update_meta_data( '_group_purchase_data', array( 'seats' => $group_seats ) );
+		$order->save_meta_data();
+
+		return true;
 	}
 
 	/**
@@ -2096,83 +2938,13 @@ class GroupCoursesAddon {
 	}
 
 	/**
-	 * Extracts course IDs from order items.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param \Masteriyo\Models\Order\Order $order Order object.
-	 * @return array An array of course IDs.
-	 */
-	private function get_course_ids_from_order( $order ) {
-		return array_filter(
-			array_map(
-				function( $item ) {
-					return 'course' === $item->get_type() ? $item->get_course_id() : null;
-				},
-				$order->get_items()
-			)
-		);
-	}
-
-	/**
-	 * Enrolls members into a specified course.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param array $members   An array of members' emails.
-	 * @param int   $course_id The course ID.
-	 * @param int   $group_id  The group ID.
-	 * @param string $order_status The order status.
-	 */
-	private function enroll_members_into_course( $members, $course_id, $group_id, $order_status ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'masteriyo_user_items';
-
-		$status = OrderStatus::COMPLETED === $order_status ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE;
-
-		foreach ( $members as $member ) {
-			$user = get_user_by( 'email', $member );
-			if ( ! $user || masteriyo_is_user_already_enrolled( $user->ID, $course_id ) ) {
-				continue;
-			}
-
-			$user_items_data = array(
-				'user_id'    => $user->ID,
-				'item_id'    => $course_id,
-				'item_type'  => 'user_course',
-				'status'     => $status,
-				'parent_id'  => 0,
-				'date_start' => current_time( 'mysql' ),
-			);
-
-			if ( $wpdb->insert( $table_name, $user_items_data ) ) {
-				/**
-				 * Fires after a user is successfully enrolled into a course as part of a group.
-				 *
-				 * @since 1.9.0
-				 *
-				 * @param int     $user_id   The ID of the enrolled user.
-				 * @param WP_User $user      The WP_User object of the enrolled user.
-				 * @param int     $group_id The ID of the group the user was added to.
-				 * @param int     $course_id The ID of the course the user was enrolled into.
-				 * @param string  $status    The enrollment status of the user.
-				 */
-				do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id, $status );
-			}
-		}
-	}
-
-	/**
 	 * Enrolls group members in courses associated with the group.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param int $group_id The group ID.
 	 */
 	private function enroll_group_members_in_courses( $group_id ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'masteriyo_user_items';
-
 		// Get course data associated with this group
 		$course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
 		if ( empty( $course_data ) || ! is_array( $course_data ) ) {
@@ -2199,235 +2971,36 @@ class GroupCoursesAddon {
 			$course_id = absint( $data['course_id'] );
 			$order_id  = isset( $data['order_id'] ) ? absint( $data['order_id'] ) : 0;
 
-			// Check if order exists and is completed
+			// Active only when the linked order is completed AND the group is published.
 			$order             = $order_id ? masteriyo_get_order( $order_id ) : null;
 			$enrollment_status = ( $order && OrderStatus::COMPLETED === $order->get_status() && PostStatus::PUBLISH === $group->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE;
 
-			foreach ( $members as $member_email ) {
-				$user = get_user_by( 'email', $member_email );
-				if ( ! $user || masteriyo_is_user_already_enrolled( $user->ID, $course_id ) ) {
-					continue;
-				}
-
-				$user_items_data = array(
-					'user_id'    => $user->ID,
-					'item_id'    => $course_id,
-					'item_type'  => 'user_course',
-					'status'     => $enrollment_status,
-					'parent_id'  => 0,
-					'date_start' => current_time( 'mysql' ),
-				);
-
-				if ( $wpdb->insert( $table_name, $user_items_data ) ) {
-					/**
-					 * Fires after a user is successfully enrolled into a course as part of a group.
-					 *
-					 * @since 1.9.0
-					 *
-					 * @param int     $user_id   The ID of the enrolled user.
-					 * @param WP_User $user      The WP_User object of the enrolled user.
-					 * @param int     $group_id The ID of the group the user was added to.
-					 * @param int     $course_id The ID of the course the user was enrolled into.
-					 * @param string  $status    The enrollment status of the user.
-					 */
-					do_action( 'masteriyo_group_enrollment_course_user_added', $user->ID, $user, $group_id, $course_id, $enrollment_status );
-				}
-			}
+			// Deliberately no $order_id here: this handler also serves every later
+			// masteriyo_update_group (admin member adds), and the persisted course_data
+			// order would stamp those as Automatic months after the purchase. The
+			// checkout route stamps via enroll_group_members() instead — course_data
+			// is still empty when the group-save hooks fire during checkout, so this
+			// path enrolls nobody on that route anyway.
+			$this->enroll_members_into_course( $members, $course_id, $group_id, $enrollment_status );
 		}
 	}
 
 	/**
-		 * Determines whether the currently logged-in user owns a group for the specified course.
-		 *
-		 * Performs a database lookup to check if the user has any published group
-		 * post (`mto-group` post type) associated with the given course ID.
-		 *
-
-		 * @since 2.0.0
-
-		 * @since 1.20.0
-
-		 *
-		 * @param int $course_id Course ID to check against.
-		 *
-		 * @return bool True if the user owns a group for the given course, false otherwise.
-		 */
-	private function user_has_a_group_for_this_course( $course_id ) {
-		if ( ! is_user_logged_in() ) {
-			return false;
-		}
-
-		global $wpdb;
-		$user_id = get_current_user_id();
-
-		$query = $wpdb->prepare(
-			"SELECT COUNT(DISTINCT g.ID)
-			FROM {$wpdb->posts} g
-			INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
-			WHERE g.post_type = 'mto-group'
-			AND g.post_author = %d
-			AND g.post_status = 'publish'
-			AND gm.meta_value LIKE %s",
-			$user_id,
-			'%:"course_id";i:' . intval( $course_id ) . ';s:%'
-		);
-
-		$count = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		return $count > 0;
-	}
-
-	/**
-	 * Checks if the current user has an inactive group (failed/cancelled/refunded/trashed order)
-	 * for the given course. Returns false for pending/on-hold/processing groups.
+	 * Extracts course IDs from order items.
 	 *
-	 * @since x.x.x
+	 * @since 1.9.0
 	 *
-	 * @param int $course_id Course ID to check against.
-	 *
-	 * @return bool True if the user owns an inactive group for the given course, false otherwise.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 * @return array An array of course IDs.
 	 */
-	private function user_has_non_active_group_for_this_course( $course_id ) {
-		if ( ! is_user_logged_in() ) {
-			return false;
-		}
-
-		global $wpdb;
-		$user_id = get_current_user_id();
-
-		$group_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->prepare(
-				"SELECT DISTINCT g.ID
-				FROM {$wpdb->posts} g
-				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
-				WHERE g.post_type = 'mto-group'
-				AND g.post_author = %d
-				AND g.post_status = 'draft'
-				AND gm.meta_value LIKE %s",
-				$user_id,
-				'%:"course_id";i:' . intval( $course_id ) . ';s:%'
+	private function get_course_ids_from_order( $order ) {
+		return array_filter(
+			array_map(
+				function( $item ) {
+					return 'course' === $item->get_type() ? $item->get_course_id() : null;
+				},
+				$order->get_items()
 			)
 		);
-
-		if ( empty( $group_ids ) ) {
-			return false;
-		}
-
-		foreach ( $group_ids as $group_id ) {
-			$group = masteriyo_get_group( intval( $group_id ) );
-			if ( ! $group ) {
-				continue;
-			}
-			$state = masteriyo_get_group_display_state( $group );
-			if ( isset( $state['display_status'] ) && 'inactive' === $state['display_status'] ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * If the user already has a non-active group for this course, re-link it to the new order
-	 * instead of creating a duplicate group. Preserves members, title, and description.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param \Masteriyo\Models\Order\Order  $order  New order.
-	 * @param \Masteriyo\Models\Course       $course Course.
-	 * @param \Masteriyo\Models\User         $user   Purchasing user.
-	 *
-	 * @return bool True if an existing group was re-linked (caller should return early); false if a new group must be created.
-	 */
-	private function relink_existing_group_to_order( $order, $course, $user ) {
-		global $wpdb;
-
-		// Find an existing non-active group for this user+course (draft or trash — not publish).
-		$existing_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT DISTINCT g.ID
-				FROM {$wpdb->posts} g
-				INNER JOIN {$wpdb->postmeta} gm ON g.ID = gm.post_id AND gm.meta_key = 'masteriyo_course_data'
-				WHERE g.post_type = 'mto-group'
-				AND g.post_author = %d
-				AND g.post_status IN ('draft', 'trash')
-				AND gm.meta_value LIKE %s
-				LIMIT 1",
-				$user->get_id(),
-				'%"course_id";i:' . intval( $course->get_id() ) . ';%'
-			)
-		);
-
-		if ( empty( $existing_ids ) ) {
-			return false;
-		}
-
-		$group_id = absint( $existing_ids[0] );
-
-		// If the group is trashed, restore it to draft first.
-		$group_post = get_post( $group_id );
-		if ( $group_post && PostStatus::TRASH === $group_post->post_status ) {
-			wp_untrash_post( $group_id );
-			clean_post_cache( $group_id );
-		}
-
-		$group = masteriyo_get_group( $group_id );
-		if ( ! $group ) {
-			return false;
-		}
-
-		// Detach the old order from this group so its hooks no longer affect it.
-		$old_course_data = get_post_meta( $group_id, 'masteriyo_course_data', true );
-		if ( is_array( $old_course_data ) && ! empty( $old_course_data[0] ) ) {
-			$old_order_id = absint( $old_course_data[0]['order_id'] ?? 0 );
-			if ( $old_order_id && $old_order_id !== $order->get_id() ) {
-				$old_order = masteriyo_get_order( $old_order_id );
-				if ( $old_order ) {
-					$old_order->delete_meta_data( '_created_group_id' );
-					$old_order->save_meta_data();
-				}
-			}
-		}
-
-		// Refresh the course data on the group with the new order.
-		$new_course_data = array(
-			array(
-				'course_id'       => $course->get_id(),
-				'order_id'        => $order->get_id(),
-				'enrolled_status' => ( OrderStatus::COMPLETED === $order->get_status() ) ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE,
-			),
-		);
-		update_post_meta( $group_id, 'masteriyo_course_data', $new_course_data );
-
-		// Refresh tier/seat meta from new purchase data.
-		$purchase_data = $order->get_meta( '_group_purchase_data', true );
-		if ( is_array( $purchase_data ) ) {
-			if ( isset( $purchase_data['tier_id'] ) ) {
-				update_post_meta( $group_id, '_group_tier_id', $purchase_data['tier_id'] );
-			}
-			if ( isset( $purchase_data['seats'] ) ) {
-				update_post_meta( $group_id, '_group_seats', intval( $purchase_data['seats'] ) );
-			}
-			if ( isset( $purchase_data['plan_name'] ) ) {
-				update_post_meta( $group_id, '_group_plan_name', $purchase_data['plan_name'] );
-			}
-			if ( isset( $purchase_data['per_seat_price'] ) ) {
-				update_post_meta( $group_id, '_group_per_seat_price', $purchase_data['per_seat_price'] );
-			}
-		}
-
-		// Ensure group status mirrors the new order.
-		$new_group_status = ( OrderStatus::COMPLETED === $order->get_status() ) ? PostStatus::PUBLISH : PostStatus::DRAFT;
-		if ( $new_group_status !== $group->get_status() ) {
-			$group->set_status( $new_group_status );
-			$group_repository = masteriyo_create_group_store();
-			$group_repository->update( $group );
-		}
-
-		// Link new order → group.
-		$order->update_meta_data( '_created_group_id', $group_id );
-		$order->delete_meta_data( '_create_group_after_completion' );
-		$order->save_meta_data();
-
-		return true;
 	}
 }

@@ -91,7 +91,7 @@ class OrderItemRepository extends AbstractRepository {
 			/**
 			 * Fires after creating new order item.
 			 *
-			 * @since 1.8.1
+			 * @since 2.8.1
 			 *
 			 * @param integer $order_item_id Order item ID.
 			 * @param \Masteriyo\Models\Order\OrderItem $order_item Order item object.
@@ -206,7 +206,7 @@ class OrderItemRepository extends AbstractRepository {
 		}
 
 		if ( ! $data ) {
-			throw new \Exception( __( 'Invalid order item.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid order item.', 'learning-management-system' ) );
 		}
 
 		$item->set_props(
@@ -246,16 +246,25 @@ class OrderItemRepository extends AbstractRepository {
 		$order_items = array();
 		$order       = get_post( $order_id );
 
+		// An order id of 0 (an unsaved order) or a permanently deleted order post would
+		// otherwise run the query below and return whatever rows carry that order_id, which
+		// `Order::get_items()` then feeds to order totals and enrolment creation.
 		if ( is_null( $order ) || PostType::ORDER !== $order->post_type ) {
 			return $order_items;
 		}
 
-		$items = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}masteriyo_order_items WHERE order_id = %d",
-				$order_id
-			)
-		);
+		$sql      = "SELECT * FROM {$wpdb->prefix}masteriyo_order_items WHERE order_id = %d";
+		$sql_args = array( $order_id );
+		// `type` defaults to '' in OrderItemQuery, and `(array) ''` is `array( '' )` — which is
+		// NOT empty, so without the filter an unfiltered query appends `order_item_type = ''`
+		// and matches nothing. `Order::get_items()` filters the same way for the same reason.
+		$types = array_filter( (array) $query_vars['type'] );
+
+		if ( ! empty( $types ) ) {
+			$sql .= ' AND ' . $this->create_sql_in_query( 'order_item_type', $types );
+		}
+
+		$items = $wpdb->get_results( $wpdb->prepare( $sql, $sql_args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		$item_objects = array_filter( array_map( array( $this, 'get_order_item_object' ), $items ) );
 

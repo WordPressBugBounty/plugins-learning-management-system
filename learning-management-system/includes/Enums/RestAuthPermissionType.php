@@ -2,7 +2,7 @@
 /**
  * REST Auth Permission Type enums.
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  * @package Masteriyo\Enums
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST Auth Permission Type class.
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  */
 class RestAuthPermissionType {
 	/**
 	 * Read Permissions
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -28,7 +28,7 @@ class RestAuthPermissionType {
 	/**
 	 * Write Permissions
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -37,7 +37,7 @@ class RestAuthPermissionType {
 	/**
 	 * Read Write Permissions
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -46,7 +46,7 @@ class RestAuthPermissionType {
 	/**
 	 * Get all permission types.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @static
 	 *
 	 * @return array
@@ -55,7 +55,7 @@ class RestAuthPermissionType {
 		/**
 		 * Filter permission types.
 		 *
-		 * @since 1.16.0
+		 * @since 1.16.0 [Free]
 		 * @param string[] $permission_types Permission types.
 		 */
 		$permission_types = apply_filters(

@@ -18,6 +18,8 @@ import {
 	BiBook,
 	BiCart,
 	BiChat,
+	BiCollection,
+	BiEdit,
 	BiGroup,
 	BiHeart,
 	BiTrendingUp,
@@ -52,10 +54,15 @@ const STEP_ICON_MAP: Record<string, React.ElementType> = {
 	questions_n_answers: BiChat,
 	progress: BiTrendingUp,
 	lesson_progress: BiTrendingUp,
+	gradebook: BiTrendingUp,
 	quiz_attempts: MdQuiz,
 	quiz_results: MdQuiz,
 	quizzes: MdQuiz,
+	assignment_submissions: BiEdit,
+	assignments: BiEdit,
 	google_meet: MdVideoCall,
+	zoom: MdVideoCall,
+	course_bundles: BiCollection,
 	earned_certificates: MdWorkspacePremium,
 	wishlists: BiHeart,
 };
@@ -72,9 +79,14 @@ const STEP_LABELS: Record<string, string> = {
 	lesson_progress: 'Course Progress',
 	quiz_attempts: 'Quiz Attempts',
 	quiz_results: 'Quiz Attempts',
+	assignment_submissions: 'Assignment Submissions',
+	assignments: 'Assignments',
 	google_meet: 'Google Meet',
+	zoom: 'Zoom',
+	course_bundles: 'Course Bundles',
 	earned_certificates: 'Certificates',
 	wishlists: 'Wishlists',
+	gradebook: 'Gradebook',
 };
 
 function stepSlugToLabel(slug: string): string {
@@ -523,7 +535,7 @@ const MigrationStatusDisplay: React.FC<MigrationStatusDisplayProps> = ({
 								<Spinner size="xs" color="red.500" speed="0.9s" />
 							)}
 							{isCancelling
-								? __('Cancelling...', 'learning-management-system')
+								? __('Cancelling…', 'learning-management-system')
 								: __('Cancel Migration', 'learning-management-system')}
 						</Button>
 					)}

@@ -8,7 +8,9 @@ defined( 'ABSPATH' ) || exit;
  * @since 1.0.0
  */
 
-$masteriyo = new League\Container\Container();
+use League\Container\Container;
+
+$masteriyo = new Container();
 
 /**
  * Enable the auto wiring.
@@ -17,7 +19,7 @@ $masteriyo->delegate(
 	new League\Container\ReflectionContainer()
 );
 
-$masteriyo_service_providers = require_once dirname( dirname( __FILE__ ) ) . '/config/app.php';
+$masteriyo_service_providers = require_once dirname( __DIR__ ) . '/config/app.php';
 
 foreach ( $masteriyo_service_providers as $p ) {
 	$masteriyo->addServiceProvider( new $p() );

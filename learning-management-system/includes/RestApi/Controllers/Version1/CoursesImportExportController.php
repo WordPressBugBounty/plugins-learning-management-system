@@ -13,13 +13,16 @@ use Exception;
 use Masteriyo\Constants;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Exporter\CourseExporter;
+use Masteriyo\Exporter\CoursePdfExporter;
 use Masteriyo\FileHandler;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Setup\SampleContent;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Importer\CourseImporter;
 use Masteriyo\Jobs\CoursesExportJob;
 use Masteriyo\Jobs\CoursesImportJob;
 use Masteriyo\PostType\PostType;
+use Mpdf\Output\Destination;
 use WP_Error;
 
 /**
@@ -120,6 +123,76 @@ class CoursesImportExportController extends RestController {
 				'permission_callback' => array( $this, 'import_items_permission_check' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/export/pdf',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'export_pdf' ),
+				'permission_callback' => array( $this, 'import_items_permission_check' ),
+				'args'                => array(
+					'course_id' => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Export course as a PDF.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function export_pdf( \WP_REST_Request $request ) {
+		$course = masteriyo_get_course( absint( $request->get_param( 'course_id' ) ) );
+
+		if ( ! $course ) {
+			return new \WP_Error(
+				'masteriyo_rest_export_pdf_course_not_found',
+				__( 'Course not found.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		try {
+			$exporter = new CoursePdfExporter( $course );
+
+			// Generate the PDF content first.
+			$exporter->generate();
+
+			// Create the export file.
+			$file_info = $exporter->create_export_file();
+
+			if ( is_wp_error( $file_info ) ) {
+				return $file_info;
+			}
+
+			// Save the PDF to file.
+			$exporter->mpdf->Output( $file_info['filepath'], Destination::FILE );
+
+			return rest_ensure_response(
+				array(
+					'success' => true,
+					'data'    => array(
+						'download_url' => $file_info['download_url'],
+						'filename'     => $file_info['filename'],
+					),
+				)
+			);
+		} catch ( Exception $e ) {
+			return new \WP_Error(
+				'masteriyo_rest_export_pdf_error',
+				$e->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
 	}
 
 	/**
@@ -150,14 +223,18 @@ class CoursesImportExportController extends RestController {
 		$output_file = null;
 
 		if ( $is_chunked ) {
-			$file_handler  = new FileHandler();
-			$file_creation = $file_handler->create_file( 'import/courses', $file_name );
+			// The client names the upload, so the name it gets on disk is derived
+			// rather than taken: a hash of one user's chunks collides with nobody.
+			$storage_name = wp_hash( get_current_user_id() . '|' . $file_name ) . '.json';
+
+			$file_handler = new FileHandler();
+			$file_handler->protect_directory( 'import/courses' );
+
+			$file_creation = $file_handler->create_file( 'import/courses', $storage_name );
 
 			if ( is_wp_error( $file_creation ) ) {
 				return $file_creation;
 			}
-
-			$this->protect_import_directory( $file_handler );
 
 			$output_file_path = $file_creation['file_path'];
 			$output_file      = fopen( $output_file_path, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
@@ -272,23 +349,83 @@ class CoursesImportExportController extends RestController {
 	 */
 	public function import_sample_courses( \WP_REST_Request $request ) {
 		$status = $request->get_param( 'status' ) ?? PostStatus::PUBLISH;
-		$file   = Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/sample-data/courses.json';
 
-		if ( ! file_exists( $file ) ) {
+		// One file per course: CourseImporter imports every post group in the file it
+		// is handed, so the courses cannot live in one file and still be seeded
+		// individually elsewhere. SampleContent owns the slug-to-file map.
+		$files = array_map(
+			function ( $basename ) {
+				return Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/sample-data/' . $basename;
+			},
+			array_values( SampleContent::COURSES )
+		);
+
+		// The files are bundled with the plugin, so any missing one means a broken
+		// install; importing the remainder and answering success would hide that.
+		$missing = array_filter( $files, fn( $file ) => ! file_exists( $file ) );
+
+		if ( ! empty( $missing ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_import_sample_courses_file_not_found',
-				__( 'Sample courses file not found.', 'learning-management-system' ),
-				array( 'status' => 404 )
+				sprintf(
+					/* translators: %s: comma-separated file names */
+					__( 'Sample course files are missing from the plugin: %s.', 'learning-management-system' ),
+					implode( ', ', array_map( 'basename', $missing ) )
+				),
+				array( 'status' => 500 )
 			);
 		}
 
-		try {
-			$importer = new CourseImporter( $status );
-			$importer->import( $file, 'sample-courses' );
-		} catch ( \Exception $e ) {
+		// Through SampleContent, not CourseImporter directly: the tracked path tags
+		// every post, records the slugs, and serializes on the import lock, so a
+		// later onboarding finish sees these courses as already seeded instead of
+		// importing duplicates — and vice versa.
+		$ran = SampleContent::import( array_keys( SampleContent::COURSES ), $status );
+
+		// Deferred, not failed: another import held the lock, so this batch is queued.
+		// Reading the option now would show every slug missing and report a failure
+		// with nothing in the logs to match it.
+		if ( null === $ran ) {
+			return new \WP_REST_Response(
+				array(
+					'message' => __( 'Sample courses are being imported in the background. Refresh in a moment.', 'learning-management-system' ),
+				)
+			);
+		}
+
+		$option = get_option( SampleContent::OPTION, array() );
+		$done   = ( ! empty( $option['slugs'] ) && is_array( $option['slugs'] ) ) ? $option['slugs'] : array();
+		$failed = array_diff( array_keys( SampleContent::COURSES ), $done );
+
+		// import() skips every slug already recorded as done, so on a site whose
+		// samples were seeded as drafts by onboarding, a "Publish" choice here would
+		// otherwise be silently discarded while the response still said installed.
+		// Trash is left alone: restoring a course the admin threw away is not theirs to ask.
+		$course_ids = ( ! empty( $option['course_ids'] ) && is_array( $option['course_ids'] ) ) ? $option['course_ids'] : array();
+
+		foreach ( $course_ids as $course_id ) {
+			$current = get_post_status( absint( $course_id ) );
+
+			if ( $current && $status !== $current && in_array( $current, array( PostStatus::DRAFT, PostStatus::PUBLISH ), true ) ) {
+				wp_update_post(
+					array(
+						'ID'          => absint( $course_id ),
+						'post_status' => $status,
+					)
+				);
+			}
+		}
+
+		if ( ! empty( $failed ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_import_sample_courses_error',
-				$e->getMessage()
+				sprintf(
+					/* translators: 1: comma-separated sample course slugs, 2: the product's name */
+					__( 'These sample courses could not be imported: %1$s. See %2$s > Logs.', 'learning-management-system' ),
+					implode( ', ', $failed ),
+					masteriyo_get_plugin_name()
+				),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -304,7 +441,7 @@ class CoursesImportExportController extends RestController {
 	 *
 	 * @since 1.6.0
 	 * @param array $files $_FILES array for a given file.
-	 * @return string|\WP_Error File path on success and WP_Error on failure.
+	 * @return string|\WP_Error File path on success or WP_Error on failure.
 	 */
 	protected function get_import_file( $files ) {
 		if ( ! isset( $files['file']['tmp_name'] ) ) {
@@ -329,8 +466,6 @@ class CoursesImportExportController extends RestController {
 	 *
 	 * Shared by the direct and chunked upload paths so both always enforce the same rule.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $file_name File name to validate.
 	 * @return true|\WP_Error True if the extension is allowed, WP_Error otherwise.
 	 */
@@ -349,34 +484,9 @@ class CoursesImportExportController extends RestController {
 	}
 
 	/**
-	 * Ensure the import/courses upload directory can never serve executable files directly.
-	 *
-	 * Defense-in-depth alongside {@see validate_import_file_name()}; mirrors the protection
-	 * already applied to MASTERIYO_LOG_DIR in Activation.php. Idempotent, so it self-heals
-	 * on installs where this folder already exists without protection.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param FileHandler $file_handler File handler scoped to the Masteriyo uploads dir.
-	 * @return void
-	 */
-	protected function protect_import_directory( FileHandler $file_handler ) {
-		$protections = array(
-			'import/courses/.htaccess'  => 'deny from all',
-			'import/courses/index.html' => '',
-		);
-
-		foreach ( $protections as $relative_path => $content ) {
-			if ( ! $file_handler->file_exists( $relative_path ) ) {
-				$file_handler->write_file( $relative_path, $content );
-			}
-		}
-	}
-
-	/**
 	 * Handle the chunked file upload process.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param mixed  $file_handler The file handler.
 	 * @param string $output_file The output file path.
@@ -451,6 +561,10 @@ class CoursesImportExportController extends RestController {
 			);
 		}
 
+		if ( masteriyo_is_current_user_admin() ) {
+			return true;
+		}
+
 		$instructor = masteriyo_get_current_instructor();
 		if ( $instructor && ! $instructor->is_active() ) {
 			return new \WP_Error(
@@ -475,11 +589,10 @@ class CoursesImportExportController extends RestController {
 		return true;
 	}
 
-
 	/**
 	 * Retrieves the current export progress status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -534,7 +647,7 @@ class CoursesImportExportController extends RestController {
 	/**
 	 * Retrieves the current export progress status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */

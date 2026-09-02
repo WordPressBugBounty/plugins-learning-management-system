@@ -155,7 +155,7 @@ class CourseCategoryRepository extends AbstractRepository implements RepositoryI
 		$term = get_term( $course_cat->get_id() );
 
 		if ( ! $course_cat->get_id() || ! $term || 'course_cat' !== $term->taxonomy ) {
-			throw new \Exception( __( 'Invalid course_cat', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course_cat', 'learning-management-system' ) );
 		}
 
 		$course_cat->set_props(

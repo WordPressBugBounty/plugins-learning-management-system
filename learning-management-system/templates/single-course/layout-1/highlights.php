@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -39,7 +39,7 @@ if ( empty( $progress ) ) :
 		/**
 		 * Filters course highlights to before rendering.
 		 *
-		 * @since 1.10.0
+		 * @since 1.10.0 [Free]
 		 *
 		 * @param string $highlights The course highlights.
 		 */
@@ -54,6 +54,6 @@ if ( empty( $progress ) ) :
 /**
  * Fires after rendering highlights section in single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_after_single_course_highlights', $course );

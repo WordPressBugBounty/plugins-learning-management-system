@@ -4,16 +4,17 @@
  *
  * @package Masteriyo\Addons\GroupCourses
  *
- * @since 1.12.2
+ * @since 1.13.2 [free]
  */
 
 namespace Masteriyo\Addons\GroupCourses;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 use Masteriyo\Addons\GroupCourses\Models\Group;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,14 +23,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\GroupCourses
  *
- * @since 1.12.2
+ * @since 1.13.2 [free]
  */
 class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 *
 	 * @return string
 	 */
@@ -40,7 +41,7 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 *
 	 * @return string
 	 */
@@ -51,7 +52,7 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget icon.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 *
 	 * @return string Widget icon.
 	 */
@@ -62,25 +63,25 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget keywords.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 *
 	 * @return string[]
 	 */
 	public function get_keywords() {
-		return array( 'group', 'group course', 'course' );
+		return array( 'group', 'groups', 'course' );
 	}
 
 	/**
 	 * Register controls configuring widget content.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 */
 	protected function register_content_controls() {}
 
 	/**
 	 * Register controls for customizing widget styles.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 */
 	protected function register_style_controls() {
 
@@ -91,14 +92,14 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Register group course style controls section.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 */
 	protected function register_group_course_styles_section() {
 
 		$this->start_controls_section(
 			'group_courses_text_styles_section',
 			array(
-				'label' => esc_html__( 'Group Courses Text', 'learning-management-system' ),
+				'label' => esc_html__( 'Groups Text', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -123,7 +124,7 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 		$this->start_controls_section(
 			'group_courses_btn_styles_section',
 			array(
-				'label' => esc_html__( 'Group Course Button', 'learning-management-system' ),
+				'label' => esc_html__( 'Groups Button', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -150,7 +151,7 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	 *
 	 * Written as a Backbone JavaScript template and used to generate the live preview.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 */
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
@@ -170,7 +171,7 @@ class GroupCourseMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Render the widget output on the frontend.
 	 *
-	 * @since 1.12.2
+	 * @since 1.13.2 [free]
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();

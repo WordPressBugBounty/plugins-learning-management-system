@@ -5,6 +5,7 @@ use DateInterval;
 use DateTime;
 use Exception;
 use Masteriyo\Abstracts\PaymentGateway;
+use Masteriyo\Constants;
 use Masteriyo\Contracts\PaymentGateway as PaymentGatewayInterface;
 use Masteriyo\Enums\OrderItemType;
 use Masteriyo\Enums\OrderStatus;
@@ -18,7 +19,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Payment gateway identifier.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -27,7 +28,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * True if the gateway shows fields on the checkout.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var bool
 	 */
@@ -43,7 +44,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Logger instance
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var Logger
 	 */
@@ -52,7 +53,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Indicate if the sandbox mode is enabled.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var bool
 	 */
@@ -61,7 +62,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Indicate if the debug mode is enabled.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var bool
 	 */
@@ -90,7 +91,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Logging method.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string $message Log message.
 	 * @param string $level Optional. Default 'info'. Possible values:
@@ -100,9 +101,37 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * Get gateway icon.
+	 *
+	 * The addon's own badge — the white wordmark on black, rounded — so the backing
+	 * and the corners ride on the image and the checkout needs only to cap its
+	 * height. It lives at the addon root rather than under `assets/`, because that
+	 * is where the addon browser looks for a thumbnail.
+	 *
+	 * @return string
+	 */
+	public function get_icon() {
+		$image_url = plugins_url( 'thumbnail.png', Constants::get( 'MASTERIYO_MOLLIE_ADDON_FILE' ) );
+
+		$icon_html = sprintf(
+			'<img src="%1$s" alt="%2$s" />',
+			esc_url( $image_url ),
+			esc_attr__( 'Mollie logo', 'learning-management-system' )
+		);
+
+		/**
+		 * Filters mollie icon.
+		 *
+		 * @param string $icon Icon html.
+		 * @param string $name Payment gateway name.
+		 */
+		return apply_filters( 'masteriyo_mollie_icon', $icon_html, $this->name );
+	}
+
+	/**
 	 * Init settings for gateways.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public function init_settings() {
 		$this->enabled     = Setting::get( 'enable' );
@@ -114,7 +143,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Process the payment and return the result.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param  int $order_id Order ID.
 	 *
@@ -138,14 +167,24 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 			$mollie = new MollieApiClient();
 			$mollie->setApiKey( $secret );
 
-			$payment_type = 'one-time';
+			$payment_type = masteriyo_order_has_recurring_courses( $order ) ? 'recurring' : 'one-time';
 
-			$courses = array_map(
-				function ( $order_item ) {
-					return $order_item->get_course();
-				},
-				$order->get_items()
+			masteriyo_get_logger()->info(
+				sprintf( 'Mollie process_payment | order_id=%1$s | payment_type=%2$s | total=%3$s', $order_id, $payment_type, $order->get_total() ),
+				array( 'source' => 'payment-mollie' )
 			);
+
+			$order_items = $order->get_items();
+			if ( ! empty( $order_items[0] ) && masteriyo_is_bundle_order_item( $order_items[0] ) ) {
+				$courses = $order_items;
+			} else {
+				$courses = array_map(
+					function( $order_item ) {
+						return $order_item->get_course();
+					},
+					$order_items
+				);
+			}
 
 			if ( empty( $courses ) ) {
 				masteriyo_get_logger()->info( 'No courses found in the order.', array( 'source' => 'payment-mollie' ) );
@@ -158,8 +197,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 				throw new Exception( __( 'Invalid course data in the order.', 'learning-management-system' ) );
 			}
 
-			$receipt_id  = $order->get_billing_email();
-			$order_items = $order->get_items();
+			$receipt_id = $order->get_billing_email();
 
 			$street_and_number = trim( $order->get_billing_address_1() . ' ' . $order->get_billing_address_2() );
 			$billing_country   = $order->get_billing_country();
@@ -198,38 +236,6 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 			 * blocking simpler methods (card, iDEAL) that don't need an address.
 			 */
 			if ( $has_full_billing_address ) {
-				$order_lines = array();
-				foreach ( $order_items as $order_item ) {
-					$item_name     = '';
-					$item_quantity = 1;
-					$item_price    = 0;
-
-					$course = $order_item->get_course();
-					if ( $course ) {
-						$item_name  = $course->get_name();
-						$item_price = $order_item->get_total();
-					}
-
-					$order_lines[] = array(
-						'type'        => 'digital',
-						'description' => $item_name ? $item_name : __( 'Course', 'learning-management-system' ),
-						'quantity'    => $item_quantity,
-						'unitPrice'   => array(
-							'currency' => $order->get_currency() ?? 'EUR',
-							'value'    => number_format( (float) $item_price, 2, '.', '' ),
-						),
-						'totalAmount' => array(
-							'currency' => $order->get_currency() ?? 'EUR',
-							'value'    => number_format( (float) $item_price * $item_quantity, 2, '.', '' ),
-						),
-						'vatRate'     => '0.00',
-						'vatAmount'   => array(
-							'currency' => $order->get_currency() ?? 'EUR',
-							'value'    => '0.00',
-						),
-					);
-				}
-
 				$payment_data['billingAddress'] = array(
 					'givenName'       => $order->get_billing_first_name() ? $order->get_billing_first_name() : '',
 					'familyName'      => $order->get_billing_last_name() ? $order->get_billing_last_name() : '',
@@ -239,7 +245,33 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 					'country'         => $billing_country,
 					'email'           => $order->get_billing_email() ? $order->get_billing_email() : '',
 				);
-				$payment_data['lines']          = $order_lines;
+				$payment_data['lines']          = $this->get_order_lines( $order );
+			}
+
+			if ( 'recurring' === $payment_type ) {
+				$billing_name  = trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
+				$billing_email = $order->get_billing_email();
+
+				if ( empty( $billing_name ) || empty( $billing_email ) ) {
+					throw new Exception( __( 'Billing information is incomplete for recurring payment.', 'learning-management-system' ) );
+				}
+
+				$mollie_customer = $mollie->customers->create(
+					array(
+						'name'  => $billing_name ?? '',
+						'email' => $billing_email ?? '',
+					)
+				);
+
+				$payment_data['customerId']   = $mollie_customer->id;
+				$payment_data['sequenceType'] = 'first';
+
+				$order->update_meta_data( 'mollie_customer_id', $mollie_customer->id );
+
+				masteriyo_get_logger()->info(
+					sprintf( 'Mollie first payment prepared | order_id=%1$s | customer_id=%2$s | sequenceType=first', $order_id, $mollie_customer->id ),
+					array( 'source' => 'payment-mollie' )
+				);
 			}
 
 			$payment = $mollie->payments->create( $payment_data );
@@ -247,6 +279,11 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 			if ( empty( $payment ) || empty( $payment->id ) ) {
 				throw new Exception( __( 'Failed to create payment with Mollie.', 'learning-management-system' ) );
 			}
+
+			masteriyo_get_logger()->info(
+				sprintf( 'Mollie payment created | order_id=%1$s | payment_id=%2$s | status=%3$s | sequenceType=%4$s', $order_id, $payment->id, $payment->status, $payment_type === 'recurring' ? 'first' : 'none' ),
+				array( 'source' => 'payment-mollie' )
+			);
 
 			$order->set_transaction_id( $payment->id );
 			$order->save_meta_data();
@@ -260,14 +297,98 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 			);
 		} catch ( Exception $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-mollie' ) );
-			throw new Exception( $e->getMessage() );
+			throw new Exception( esc_html( $e->getMessage() ) );
 		}
+	}
+
+	/**
+	 * Build the Mollie payment lines for an order.
+	 *
+	 * Mollie's v2 payments API rejects the request with a 422 unless `amount`
+	 * equals the sum of `lines[].totalAmount`. Item totals are tax-exclusive
+	 * while the order total includes tax (and reflects order-level discounts),
+	 * so any remainder is reconciled with a surcharge or discount line.
+	 *
+	 * @since 3.3.4
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order The order.
+	 *
+	 * @return array
+	 */
+	protected function get_order_lines( $order ) {
+		$currency    = $order->get_currency() ? $order->get_currency() : 'EUR';
+		$order_lines = array();
+		$lines_total = 0;
+
+		foreach ( $order->get_items() as $order_item ) {
+			$item_name     = '';
+			$item_quantity = 1;
+			$item_price    = 0;
+
+			if ( masteriyo_is_bundle_order_item( $order_item ) ) {
+				$item_name  = $order_item->get_name();
+				$item_price = $order_item->get_total();
+			} else {
+				$course = $order_item->get_course();
+				if ( $course ) {
+					$item_name  = $course->get_name();
+					$item_price = $order_item->get_total();
+				}
+			}
+
+			$line_total   = number_format( (float) $item_price * $item_quantity, 2, '.', '' );
+			$lines_total += (float) $line_total;
+
+			$order_lines[] = array(
+				'type'        => 'digital',
+				'description' => $item_name ? $item_name : __( 'Course', 'learning-management-system' ),
+				'quantity'    => $item_quantity,
+				'unitPrice'   => array(
+					'currency' => $currency,
+					'value'    => number_format( (float) $item_price, 2, '.', '' ),
+				),
+				'totalAmount' => array(
+					'currency' => $currency,
+					'value'    => $line_total,
+				),
+				'vatRate'     => '0.00',
+				'vatAmount'   => array(
+					'currency' => $currency,
+					'value'    => '0.00',
+				),
+			);
+		}
+
+		$difference = round( (float) $order->get_total() - $lines_total, 2 );
+
+		if ( abs( $difference ) >= 0.01 ) {
+			$order_lines[] = array(
+				'type'        => $difference > 0 ? 'surcharge' : 'discount',
+				'description' => $difference > 0 ? __( 'Taxes and fees', 'learning-management-system' ) : __( 'Discount', 'learning-management-system' ),
+				'quantity'    => 1,
+				'unitPrice'   => array(
+					'currency' => $currency,
+					'value'    => number_format( $difference, 2, '.', '' ),
+				),
+				'totalAmount' => array(
+					'currency' => $currency,
+					'value'    => number_format( $difference, 2, '.', '' ),
+				),
+				'vatRate'     => '0.00',
+				'vatAmount'   => array(
+					'currency' => $currency,
+					'value'    => '0.00',
+				),
+			);
+		}
+
+		return $order_lines;
 	}
 
 	/**
 	 * Handle different payment statuses and update order accordingly.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param int $order_id The order ID
 	 * @param string $status The payment status
 	 * @return void
@@ -316,7 +437,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Handle open payment status.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param \Masteriyo\Models\Order\Order $order
 	 * @param \Mollie\Api\Resources\Payment $payment
 	 */
@@ -342,7 +463,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Handle failed payment status.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param \Masteriyo\Models\Order\Order $order
 	 * @param \Mollie\Api\Resources\Payment $payment
 	 */
@@ -367,7 +488,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Handle expired payment status.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param \Masteriyo\Models\Order\Order $order
 	 * @param \Mollie\Api\Resources\Payment $payment
 	 */
@@ -388,6 +509,86 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 		);
 	}
 
+	/**
+	 * Create subscription or handle regular payment.
+	 *
+	 * @since 1.16.0 [Free]
+	 * @param object $mollie_customer
+	 * @param array $mollie_objects
+	 * @param int $expire_after Expire/Cancel subscription after months.
+	 */
+	protected function create_mollie_subscription( $mollie_customer, $price_objects, $expire_after ) {
+		masteriyo_get_logger()->info( 'Mollie create_subscription: Start', array( 'source' => 'payment-mollie' ) );
+
+		if ( empty( $price_objects ) ) {
+			masteriyo_get_logger()->info( 'Mollie create_subscription: No price objects', array( 'source' => 'payment-mollie' ) );
+			return;
+		}
+
+		$items = array_map(
+			function( $price_object ) {
+				return array( 'price' => $price_object->id );
+			},
+			$price_objects
+		);
+
+		try {
+			$subscription = $mollie->subscriptions->create(
+				array(
+					'customer' => $mollie_customer->id,
+					'lines'    => $items,
+					'metadata' => array(
+						'expire_after' => $expire_after,
+					),
+					'status'   => 'active', // Set to active or pending based on your logic
+				)
+			);
+
+				masteriyo_get_logger()->info( 'Mollie create_subscription: Success', array( 'source' => 'payment-mollie' ) );
+				return $subscription;
+		} catch ( \Mollie\Api\Exceptions\ApiException $e ) {
+			masteriyo_get_logger()->error( 'Mollie API error: ' . $e->getMessage(), array( 'source' => 'payment-mollie' ) );
+			throw new Exception( 'Unable to create subscription: ' . esc_html( $e->getMessage() ) );
+		}
+	}
+
+	/**
+	 * Create or return Mollie customer id.
+	 *
+	 * @since 2.6.10
+	 * @return object
+	 */
+	protected function create_mollie_customer() {
+		masteriyo_get_logger()->info( 'Mollie create_mollie_customer: Start', array( 'source' => 'payment-mollie' ) );
+
+		$user               = masteriyo_get_current_user();
+		$mollie_customer_id = get_user_meta( $user->get_id(), '_mollie_customer', true );
+
+		if ( ! empty( $mollie_customer_id ) ) {
+			// Retrieve existing customer
+			return \Mollie\Api\Resources\Customer::retrieve( $mollie_customer_id );
+		}
+
+		// Create new customer if not exists
+		try {
+			$mollie_customer = \Mollie\Api\Resources\Customer::create(
+				array(
+					'email' => $user->get_billing_email(),
+					'name'  => $user->get_billing_first_name() . ' ' . $user->get_billing_last_name(),
+				// Add more fields as necessary
+				)
+			);
+
+			// Save customer ID in user meta
+			update_user_meta( $user->get_id(), '_mollie_customer', $mollie_customer->id );
+
+			masteriyo_get_logger()->info( 'Mollie create_mollie_customer: Customer ID: ' . $mollie_customer->id, array( 'source' => 'payment-mollie' ) );
+			return $mollie_customer;
+		} catch ( \Mollie\Api\Exceptions\ApiException $e ) {
+			masteriyo_get_logger()->error( 'Mollie API error: ' . $e->getMessage(), array( 'source' => 'payment-mollie' ) );
+			throw new Exception( 'Unable to create customer: ' . esc_html( $e->getMessage() ) );
+		}
+	}
 
 	/**
 	 * Process refund.
@@ -395,7 +596,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	 * If the gateway declares 'refund' support, this will allow it to refund.
 	 * a passed in amount.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param  int        $order_id Order ID.
 	 * @param  float|null $amount Refund amount.
@@ -409,7 +610,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Custom Mollie order received text.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string   $text Default text.
 	 * @param Order $order Order data.
@@ -429,7 +630,7 @@ class Mollie extends PaymentGateway implements PaymentGatewayInterface {
 	/**
 	 * Get the transaction URL.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param  Order $order Order object.
 	 *

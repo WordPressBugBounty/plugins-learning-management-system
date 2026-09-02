@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\BuddyPress
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  */
 
 namespace Masteriyo\Addons\BuddyPress\Classes;
@@ -25,13 +25,17 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	/**
 	 * Constructor
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 */
 	public function __construct() {
 		$args = array(
 			'slug'            => 'masteriyo-group-course-settings',
-			'name'            => __( 'Masteriyo Course Settings', 'learning-management-system' ),
+			'name'            => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course Settings', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'enable_nav_item' => false,
 		);
 		parent::init( $args );
@@ -45,7 +49,7 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	 *
 	 * @param int $group_id
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public function settings_screen( $group_id = null ) {
 		$group_status = groups_get_groupmeta( $group_id, 'bp_course_attached', true );
@@ -73,7 +77,7 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 
 		if ( ! empty( $courses ) ) { ?>
 			<div class="bp-masteriyo-group-course">
-				<h4><?php echo esc_html( __( 'Groups', 'learning-management-system' ) ); ?></h4>
+				<h4><?php echo esc_html( __( 'Group Course', 'learning-management-system' ) ); ?></h4>
 				<select name="bp_group_course" id="bp-group-course">
 					<option value="-1"><?php echo esc_html( __( 'Select a course', 'learning-management-system' ) ); ?></option>
 					<?php
@@ -97,7 +101,17 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 
 			<h4><?php echo esc_html( __( 'Course Activities', 'learning-management-system' ) ); ?></h4>
 
-			<p> <?php echo esc_html( __( 'Which Masteriyo LMS activity should be displayed in this group?', 'learning-management-system' ) ); ?></p>
+			<p> 
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: %s: the product's name */
+					__( 'Which %s LMS activity should be displayed in this group?', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				)
+			);
+			?>
+			</p>
 
 			<div class="masteriyo-bp-group-activities">
 
@@ -154,7 +168,7 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	 *
 	 * @param int $group_id
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public function settings_screen_save( $group_id = null ) {
 
@@ -190,7 +204,7 @@ class BuddyPressGroupSettings extends \BP_Group_Extension {
 	 * @param $value
 	 * @param $array
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return string
 	 *

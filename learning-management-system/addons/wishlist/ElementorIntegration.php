@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\WishList
  *
- * @since 1.12.2
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\WishList;
@@ -16,13 +16,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\WishList
  *
- * @since 1.12.2
+ * @since 2.5.14
  */
 class ElementorIntegration {
 	/**
 	 * Initialize the application.
 	 *
-	 * @since 1.12.2
+	 * @since 2.5.14
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -31,17 +31,19 @@ class ElementorIntegration {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.12.2
+	 * @since 2.5.14
 	 */
 	public function init_hooks() {
 		add_action( 'elementor/element/masteriyo-course-list/general/before_section_end', array( $this, 'add_wishlist_icon_toggle_in_course_list_widget' ) );
+		add_action( 'elementor/element/masteriyo-course-carousel/general/before_section_end', array( $this, 'add_wishlist_icon_toggle_in_course_carousel_widget' ) );
 		add_action( 'masteriyo_elementor_integration_widget_after_register_controls', array( $this, 'add_style_controls_in_course_list_widget' ) );
+		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'extend_wishlist_script_enqueue_condition' ), 20 );
 	}
 
 	/**
 	 * Add wishlist icon toggle to course list elementor widget.
 	 *
-	 * @since 1.12.2
+	 * @since 2.5.14
 	 *
 	 * @param \Masteriyo\Addons\ElementorIntegration\WidgetBase $course_list
 	 */
@@ -64,14 +66,37 @@ class ElementorIntegration {
 	}
 
 	/**
+	 * Add wishlist icon toggle to course carousel elementor widget.
+	 *
+	 * @param \Masteriyo\Addons\ElementorIntegration\WidgetBase $course_carousel
+	 */
+	public function add_wishlist_icon_toggle_in_course_carousel_widget( $course_carousel ) {
+		$course_carousel->add_on_off_switch_control(
+			'show_wishlist_icon',
+			__( 'Wishlist Icon', 'learning-management-system' ),
+			array(),
+			array(
+				'{{WRAPPER}} .masteriyo-wishlist' => 'display: none !important;',
+			),
+			array(
+				'position' => array(
+					'type' => 'control',
+					'at'   => 'after',
+					'of'   => 'show_course_title',
+				),
+			)
+		);
+	}
+
+	/**
 	 * Add style controls for wishlist icon in course list elementor widget.
 	 *
-	 * @since 1.12.2
+	 * @since 2.5.14
 	 *
 	 * @param \Masteriyo\Addons\ElementorIntegration\WidgetBase $widget
 	 */
 	public function add_style_controls_in_course_list_widget( $widget ) {
-		if ( 'masteriyo-course-list' !== $widget->get_name() ) {
+		if ( ! in_array( $widget->get_name(), array( 'masteriyo-course-list', 'masteriyo-course-carousel' ), true ) ) {
 			return;
 		}
 
@@ -291,5 +316,58 @@ class ElementorIntegration {
 		$widget->end_controls_tabs();
 
 		$widget->end_controls_section();
+	}
+
+	/**
+	 * Extend wishlist script enqueue condition to include Elementor pages with the carousel widget.
+	 *
+	 * @param array $scripts
+	 *
+	 * @return array
+	 */
+	public function extend_wishlist_script_enqueue_condition( $scripts ) {
+		if ( ! isset( $scripts['wishlist'] ) ) {
+			return $scripts;
+		}
+
+		$original_callback               = $scripts['wishlist']['callback'];
+		$scripts['wishlist']['callback'] = function() use ( $original_callback ) {
+			if ( is_callable( $original_callback ) && call_user_func( $original_callback ) ) {
+				return true;
+			}
+
+			global $post;
+
+			if ( $post && class_exists( '\Elementor\Plugin' ) ) {
+				$elementor_data = get_post_meta( $post->ID, '_elementor_data', true );
+				$elementor_arr  = is_array( $elementor_data ) ? $elementor_data : json_decode( (string) $elementor_data, true );
+				if ( is_array( $elementor_arr ) && self::elementor_elements_contain_widget( $elementor_arr, 'masteriyo-course-carousel' ) ) {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		return $scripts;
+	}
+
+	/**
+	 * Recursively check whether any element in Elementor data uses the given widget type.
+	 *
+	 * @param array  $elements    Decoded Elementor elements array.
+	 * @param string $widget_type Widget type slug to search for.
+	 * @return bool
+	 */
+	private static function elementor_elements_contain_widget( array $elements, string $widget_type ): bool {
+		foreach ( $elements as $element ) {
+			if ( isset( $element['widgetType'] ) && $widget_type === $element['widgetType'] ) {
+				return true;
+			}
+			if ( ! empty( $element['elements'] ) && self::elementor_elements_contain_widget( $element['elements'], $widget_type ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

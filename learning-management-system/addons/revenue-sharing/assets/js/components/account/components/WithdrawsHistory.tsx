@@ -1,15 +1,15 @@
-import { Badge, Stack, Text } from '@chakra-ui/react';
+import { Stack, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { Table, Tbody, Td, Th, Thead, Tr } from 'react-super-responsive-table';
 import EmptyTableData from '../../../../../../../assets/js/account/common/EmptyTableData';
+import StatusBadge from '../../../../../../../assets/js/account/common/StatusBadge';
 import localized from '../../../../../../../assets/js/account/utils/global';
 import MasteriyoPagination from '../../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import API from '../../../../../../../assets/js/back-end/utils/api';
 import { isEmpty } from '../../../../../../../assets/js/back-end/utils/utils';
 import { urls } from '../../../constants/urls';
-import { WithdrawStatus } from '../../../enums/Enum';
 import { WithdrawResponseDataMap } from '../../../types/withdraw';
 import SkeletonWithdrawsList from './SkeletonWithdrawsList';
 
@@ -50,39 +50,31 @@ const WithdrawsHistory: React.FC = () => {
 						<SkeletonWithdrawsList />
 					) : withdrawsQuery.isSuccess &&
 					  !isEmpty(withdrawsQuery?.data?.data) ? (
-						withdrawsQuery.data?.data?.map((withdraw) => (
-							<Tr key={withdraw?.id}>
+						withdrawsQuery.data?.data.map((withdraw) => (
+							<Tr key={withdraw.id}>
 								<Td>
-									<Text fontSize="sm" color="gray.600">
-										{withdraw?.date_created}
+									<Text fontSize="sm" color="saint-blue">
+										{withdraw.date_created}
 									</Text>
 								</Td>
 								<Td>
-									<Text fontSize="sm" color="gray.600">
-										{withdraw?.withdraw_amount}
+									<Text
+										fontSize="sm"
+										fontWeight="semibold"
+										color="oxford-night"
+									>
+										{withdraw.withdraw_amount}
 									</Text>
 								</Td>
 								<Td>
-									<Text fontSize="sm" color="gray.600">
+									<Text fontSize="sm" color="saint-blue">
 										{withdrawMethods?.[
-											withdraw?.withdraw_method?.method ?? ''
+											withdraw.withdraw_method?.method ?? ''
 										] ?? ''}
 									</Text>
 								</Td>
 								<Td>
-									<Badge
-										colorScheme={
-											withdraw.status === WithdrawStatus.Approved
-												? 'green'
-												: withdraw.status === WithdrawStatus.Rejected
-													? 'red'
-													: withdraw.status === WithdrawStatus.Pending
-														? 'yellow'
-														: 'gray'
-										}
-									>
-										{withdraw.status}
-									</Badge>
+									<StatusBadge status={withdraw.status} />
 								</Td>
 							</Tr>
 						))
@@ -95,11 +87,10 @@ const WithdrawsHistory: React.FC = () => {
 							)}
 						/>
 					)}
-
 					{withdrawsQuery.isSuccess &&
 						!isEmpty(withdrawsQuery.data.meta) &&
 						withdrawsQuery.data?.data.length > 0 && (
-							<Tr>
+							<Tr className={'account_page_table_footer'}>
 								<Td colSpan={4}>
 									<MasteriyoPagination
 										stackProps={{ mt: 0, pb: 0 }}

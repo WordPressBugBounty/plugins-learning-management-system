@@ -2,7 +2,7 @@
 /**
  * WordPress core Paragraph block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -10,11 +10,14 @@ namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
 defined( 'ABSPATH' ) || exit;
 
 
+use simplehtmldom\HtmlDocument;
+
 class CoreParagraph extends CoreHeading {
+
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.14.0
 	 *
 	 * @return string
 	 */
@@ -23,5 +26,4 @@ class CoreParagraph extends CoreHeading {
 		$html = do_shortcode( $this->block['innerHTML'] );
 		return $html;
 	}
-
 }

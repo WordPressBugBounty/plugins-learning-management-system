@@ -7,10 +7,12 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Exporter\SettingExporter;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Models\Setting;
+use Masteriyo\Enums\QuizGradingType;
+use Masteriyo\Exporter\SettingExporter;
 use WP_Error;
+
 
 class SettingsController extends CrudController {
 
@@ -130,20 +132,27 @@ class SettingsController extends CrudController {
 				'callback'            => array( $this, 'collect_email_and_data_sharing_consent' ),
 				'permission_callback' => array( $this, 'collect_email_and_data_sharing_consent_permissions_check' ),
 				'args'                => array(
-					'allow_usage'       => array(
+					'allow_usage' => array(
 						'required'    => true,
 						'type'        => 'boolean',
 						'description' => __( 'User consent for sharing diagnostic data.', 'learning-management-system' ),
 					),
-					'subscribe_updates' => array(
-						'required'    => true,
-						'type'        => 'boolean',
-						'description' => __( 'User consent for receiving updates and offers.', 'learning-management-system' ),
-					),
-					'email'             => array(
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/individual-email-reset',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'reset_individual_email' ),
+				'permission_callback' => array( $this, 'reset_individual_email_permissions_check' ),
+				'args'                => array(
+					'email_id' => array(
 						'required'    => true,
 						'type'        => 'string',
-						'description' => __( 'User email for communications.', 'learning-management-system' ),
+						'description' => __( 'Individual email ID.', 'learning-management-system' ),
 					),
 				),
 			)
@@ -303,7 +312,7 @@ class SettingsController extends CrudController {
 	/**
 	 * Check if a given request has access to update an data sharing consent.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -314,6 +323,27 @@ class SettingsController extends CrudController {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_create',
 				__( 'Sorry, you are not allowed to submit setup preferences.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if a given request has access to reset individual email content.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function reset_individual_email_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_create',
+				__( 'Sorry, you are not allowed to reset email content.', 'learning-management-system' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -393,6 +423,11 @@ class SettingsController extends CrudController {
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
+								'theme'              => array(
+									'description' => __( 'Theme', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
 								'primary_color_for_learn_page' => array(
 									'description' => __( 'Primary color for learn page', 'learning-management-system' ),
 									'type'        => 'string',
@@ -409,11 +444,6 @@ class SettingsController extends CrudController {
 									'description' => __( 'Button hover color', 'learning-management-system' ),
 									'type'        => 'string',
 									'format'      => 'hex-color',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'theme'              => array(
-									'description' => __( 'Theme', 'learning-management-system' ),
-									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
@@ -489,14 +519,15 @@ class SettingsController extends CrudController {
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
-							),
-						),
-						'editor'       => array(
-							'description' => __( 'Editor', 'learning-management-system' ),
-							'type'        => 'object',
-							'context'     => array( 'view', 'edit' ),
-							'items'       => array(
-								'default_editor' => 'string',
+								'editor'                => array(
+									'description' => __( 'Editor', 'learning-management-system' ),
+									'type'        => 'object',
+									'context'     => array( 'view', 'edit' ),
+									'items'       => array(
+										'default_editor' => 'string',
+										'course_overview_editor' => 'string',
+									),
+								),
 							),
 						),
 					),
@@ -580,6 +611,18 @@ class SettingsController extends CrudController {
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
+								'show_curriculum'      => array(
+									'description' => __( 'Show the curriculum tab to everyone, not only enrolled students.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'default'     => true,
+									'context'     => array( 'view', 'edit' ),
+								),
+								'review_after_course_completion' => array(
+									'description' => __( 'Ask the student for a review after the student completes a course.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'default'     => false,
+									'context'     => array( 'view', 'edit' ),
+								),
 							),
 						),
 					),
@@ -624,9 +667,16 @@ class SettingsController extends CrudController {
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'        => 'object',
+								'grading'     => array(
+									'description' => __( 'Quiz grading calculation type', 'learning-management-system' ),
+									'type'        => 'string',
+									'default'     => QuizGradingType::LAST_ATTEMPT,
+									'enum'        => QuizGradingType::all(),
+									'context'     => array( 'view', 'edit' ),
+								),
 								'quiz_access' => array(
 									'description' => __( 'Quiz access for guest users.', 'learning-management-system' ),
-									'type'        => 'string',
+									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'automatically_submit_quiz' => array(
@@ -659,6 +709,11 @@ class SettingsController extends CrudController {
 									'description' => __( "When enabled, the page will automatically navigate to the next content as we press 'Mark as complete.'", 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_content_protection' => array(
+									'description' => __( 'Content protection for course content', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'content'     => array( 'view', 'edit' ),
 								),
 								'lesson_video_url_type'  => array(
 									'description' => __( "Lesson video URL type.'", 'learning-management-system' ),
@@ -707,61 +762,19 @@ class SettingsController extends CrudController {
 						),
 					),
 				),
-				'accounts_page'  => array(
-					'description' => __( 'Account page settings', 'learning-management-system' ),
-					'type'        => 'object',
-					'context'     => array( 'view', 'edit' ),
-					'items'       => array(
-						'type'    => 'object',
-						'display' => array(
-							'description' => __( 'Account page display settings.', 'learning-management-system' ),
-							'type'        => 'object',
-							'context'     => array( 'view', 'edit' ),
-							'items'       => array(
-								'type'                    => 'object',
-								'enable_history_page'     => array(
-									'description' => __( 'Enable history in accounts page.', 'learning-management-system' ),
-									'type'        => 'boolean',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'enable_invoice'          => array(
-									'description' => __( 'Enable invoice in orders table.', 'learning-management-system' ),
-									'type'        => 'boolean',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'enable_profile_page'     => array(
-									'description' => __( 'Enable profile page in accounts page.', 'learning-management-system' ),
-									'type'        => 'boolean',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'enable_instructor_apply' => array(
-									'description' => __( 'Enable apply for instructor button for profile page in accounts page.', 'learning-management-system' ),
-									'type'        => 'boolean',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'enable_edit_profile'     => array(
-									'description' => __( 'Enable edit profile button for profile page in accounts page.', 'learning-management-system' ),
-									'type'        => 'boolean',
-									'context'     => array( 'view', 'edit' ),
-								),
-								'instructor_max_attempts' => array(
-									'description' => __( 'Maximum number of times a user can apply for instructor status.', 'learning-management-system' ),
-									'type'        => 'integer',
-									'default'     => 3,
-									'minimum'     => 1,
-									'maximum'     => 10,
-									'context'     => array( 'view', 'edit' ),
-								),
-							),
-						),
-					),
-				),
 				'payments'       => array(
 					'description' => __( 'Payments Settings', 'learning-management-system' ),
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'            => 'object',
+						'enabled'         => array(
+							// Tri-state string, matching the `'yes' === ...` check in masteriyo_commerce_enabled(). Not boolean: WP REST would coerce a 'boolean' schema type to PHP true/false, which that comparison would never match.
+							'description' => __( 'Whether commerce (payments) is explicitly enabled. Empty string falls back to evidence-based detection.', 'learning-management-system' ),
+							'type'        => 'string',
+							'enum'        => array( '', 'yes', 'no' ),
+							'context'     => array( 'view', 'edit' ),
+						),
 						'store'           => array(
 							'description' => __( 'General Settings', 'learning-management-system' ),
 							'type'        => 'object',
@@ -981,7 +994,7 @@ class SettingsController extends CrudController {
 								'context'     => array( 'view', 'edit' ),
 							),
 							'attachment_upload' => array(
-								'description' => __( 'Attachment Upload', 'learning-management-system' ),
+								'description' => __( 'Customer Note', 'learning-management-system' ),
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1006,6 +1019,29 @@ class SettingsController extends CrudController {
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
+						'taxes'           => array(
+							'type'        => 'object',
+							'context'     => array( 'view', 'edit' ),
+							'description' => __( 'Taxes settings', 'learning-management-system' ),
+							'items'       => array(
+								'calculation_method' => array(
+									'description' => __( 'Tax calculation method', 'learning-management-system' ),
+									'type'        => 'string',
+									'enum'        => array( 'inclusive', 'exclusive' ),
+									'context'     => array( 'view', 'edit' ),
+								),
+								'display_inclusive'  => array(
+									'description' => __( 'Display inclusive tax', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'regions'            => array(
+									'description' => __( 'Tax regions', 'learning-management-system' ),
+									'type'        => 'object',
+									'context'     => array( 'view', 'edit' ),
+								),
+							),
+						),
 					),
 				),
 				'emails'         => array(
@@ -1014,28 +1050,53 @@ class SettingsController extends CrudController {
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'general'              => array(
-							'from_name'       => array(
+							'from_name'         => array(
 								'description' => __( 'Email send from.', 'learning-management-system' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
-							'from_email'      => array(
+							'from_email'        => array(
 								'description' => __( 'Email address to send email.', 'learning-management-system' ),
 								'type'        => 'email',
 								'context'     => array( 'view', 'edit' ),
 							),
-							'default_content' => array(
+							'default_content'   => array(
 								'description' => __( 'Default content for email.', 'learning-management-system' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
-							'header_image'    => array(
+							'header_image'      => array(
 								'description' => __( 'Email header image.', 'learning-management-system' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
-							'footer_text'     => array(
+							'footer_text'       => array(
 								'description' => __( 'Email footer text.', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'body_bg_color'     => array(
+								'description' => __( 'Email template body background color.', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'body_text_color'   => array(
+								'description' => __( 'Email template body text color.', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'header_bg_color'   => array(
+								'description' => __( 'Email template header background color.', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'button_bg_color'   => array(
+								'description' => __( 'Email template button background color.', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'button_text_color' => array(
+								'description' => __( 'Email template button text color.', 'learning-management-system' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1239,7 +1300,7 @@ class SettingsController extends CrudController {
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
-						'checkout'   => array(
+						'checkout'              => array(
 							'description' => __( 'Checkout endpoints', 'learning-management-system' ),
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
@@ -1271,7 +1332,7 @@ class SettingsController extends CrudController {
 								),
 							),
 						),
-						'account'    => array(
+						'account'               => array(
 							'description' => __( 'Account endpoints', 'learning-management-system' ),
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
@@ -1313,7 +1374,7 @@ class SettingsController extends CrudController {
 								),
 							),
 						),
-						'permalinks' => array(
+						'permalinks'            => array(
 							'description' => __( 'Permalinks', 'learning-management-system' ),
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
@@ -1356,19 +1417,121 @@ class SettingsController extends CrudController {
 								),
 							),
 						),
-						'debug'      => array(
+						'debug'                 => array(
 							'description' => __( 'Debug', 'learning-management-system' ),
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
-								'type'           => 'object',
-								'template_debug' => array(
-									'description' => __( 'Enable template debug.', 'learning-management-system' ),
+								'type'          => 'object',
+								'enable_logger' => array(
+									'description' => __( 'Enable logger.', 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
-								'debug'          => array(
-									'description' => __( 'Enable debug.', 'learning-management-system' ),
+							),
+						),
+						'mailchimp_integration' => array(
+							'description' => __( 'Set the client secrets for the data and content message with default list and group.', 'learning-management-system' ),
+							'type'        => 'object',
+							'context'     => array( 'view', 'edit' ),
+							'items'       => array(
+								'type'          => 'object',
+								'client_id'     => array(
+									'description' => __( 'Client Id created from mailchimp', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'client_secret' => array(
+									'description' => __( 'Client Secret created from mailchimp', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'subscriber_consent_message' => array(
+									'description' => __( 'Subscriber Consent Message created from mailchimp', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'default_group' => array(
+									'description' => __( 'Default Group created for mailchimp', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'default_list'  => array(
+									'description' => __( 'Default List created for mailchimp', 'learning-management-system' ),
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+							),
+						),
+					),
+				),
+				'accounts_page'  => array(
+					'description' => __( 'Account page settings', 'learning-management-system' ),
+					'type'        => 'object',
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'    => 'object',
+						'display' => array(
+							'description' => __( 'Account page display settings.', 'learning-management-system' ),
+							'type'        => 'object',
+							'context'     => array( 'view', 'edit' ),
+							'items'       => array(
+								'type'                    => 'object',
+								'enable_assignments_page' => array(
+									'description' => __( 'Enable assignment in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_certificate_page' => array(
+									'description' => __( 'Enable certificate in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_gradebook_page'   => array(
+									'description' => __( 'Enable gradebook in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_history_page'     => array(
+									'description' => __( 'Enable history in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_invoice'          => array(
+									'description' => __( 'Enable invoice in orders table.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_quiz_attempts_page' => array(
+									'description' => __( 'Enable quiz attempts in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_subscriptions_page' => array(
+									'description' => __( 'Enable subscription in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_instructor_apply' => array(
+									'description' => __( 'Enable instructor apply button in accounts page in profile tab.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'instructor_max_attempts' => array(
+									'description' => __( 'Maximum number of times a user can apply for instructor status.', 'learning-management-system' ),
+									'type'        => 'integer',
+									'default'     => 3,
+									'minimum'     => 1,
+									'maximum'     => 10,
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_profile_page'     => array(
+									'description' => __( 'Enable profile page tab in accounts page.', 'learning-management-system' ),
+									'type'        => 'boolean',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enable_edit_profile'     => array(
+									'description' => __( 'Enable edit profile button for accounts page in profile tab.', 'learning-management-system' ),
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -1384,12 +1547,12 @@ class SettingsController extends CrudController {
 	}
 
 	/**
-	 * Prepare objects query.
-	 *
-	 * @since  1.0.0
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return array
-	 */
+	* Prepare objects query.
+	*
+	* @since  1.0.0
+	* @param  WP_REST_Request $request Full details about the request.
+	* @return array
+	*/
 	protected function prepare_objects_query( $request ) {
 		$args = array(
 			'offset'   => $request['offset'],
@@ -1399,30 +1562,30 @@ class SettingsController extends CrudController {
 		);
 
 		/**
-		 * Filter the query arguments for a request.
-		 *
-		 * Enables adding extra arguments or setting defaults for a post
-		 * collection request.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array           $args    Key value array of query var to query value.
-		 * @param WP_REST_Request $request The request used.
-		 */
+		* Filter the query arguments for a request.
+		*
+		* Enables adding extra arguments or setting defaults for a post
+		* collection request.
+		*
+		* @since 1.0.0
+		*
+		* @param array           $args    Key value array of query var to query value.
+		* @param WP_REST_Request $request The request used.
+		*/
 		$args = apply_filters( "masteriyo_rest_{$this->object_type}_object_query", $args, $request );
 
 		return $args;
 	}
 
 	/**
-	 * Get a collection of posts.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_Error|WP_REST_Response
-	 */
+	* Get a collection of posts.
+	*
+	* @since 1.0.0
+	*
+	* @param WP_REST_Request $request Full details about the request.
+	*
+	* @return WP_Error|WP_REST_Response
+	*/
 	public function get_items( $request ) {
 		$setting      = masteriyo( 'setting' );
 		$setting_repo = masteriyo( 'setting.store' );
@@ -1432,26 +1595,26 @@ class SettingsController extends CrudController {
 	}
 
 	/**
-	 * Check permissions for an item.
-	 *
-	 * @since 1.0.0
-	 * @param string $object_type Object type.
-	 * @param string $context   Request context.
-	 * @param int    $object_id Post ID.
-	 * @return bool
-	 */
+	* Check permissions for an item.
+	*
+	* @since 1.0.0
+	* @param string $object_type Object type.
+	* @param string $context   Request context.
+	* @param int    $object_id Post ID.
+	* @return bool
+	*/
 	protected function check_item_permission( $object_type, $context = 'read', $object_id = 0 ) {
 		return current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' );
 	}
 
 	/**
-	 * Get object.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Model $option Option.
-	 * @return Setting
-	 */
+	* Get object.
+	*
+	* @since 1.0.0
+	*
+	* @param Model $option Option.
+	* @return Setting
+	*/
 	public function get_object( $option ) {
 		try {
 			$setting      = masteriyo( 'setting' );
@@ -1465,11 +1628,11 @@ class SettingsController extends CrudController {
 	}
 
 	/**
-	 * Reset the default value to settings.
-	 *
-	 * @since 1.0.0
-	 * @return Setting
-	 */
+	* Reset the default value to settings.
+	*
+	* @since 1.0.0
+	* @return Setting
+	*/
 	public function delete_items( $request ) {
 		$setting = masteriyo( 'setting' );
 		$setting->delete( $setting );
@@ -1481,15 +1644,15 @@ class SettingsController extends CrudController {
 
 
 	/**
-	 * Prepares the object for the REST response.
-	 *
-	 * @since  1.0.0
-	 *
-	 * @param  Masteriyo\Database\Model $object  Model object.
-	 * @param  WP_REST_Request $request Request object.
-	 *
-	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-	 */
+	* Prepares the object for the REST response.
+	*
+	* @since  1.0.0
+	*
+	* @param  Masteriyo\Database\Model $object  Model object.
+	* @param  WP_REST_Request $request Request object.
+	*
+	* @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	*/
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$name    = ! empty( $request['name'] ) ? $request['name'] : '';
@@ -1500,17 +1663,17 @@ class SettingsController extends CrudController {
 		$response = rest_ensure_response( $data );
 
 		/**
-		 * Filter the data for a response.
-		 *
-		 * The dynamic portion of the hook name, $this->object_type,
-		 * refers to object type being prepared for the response.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param WP_REST_Response $response The response object.
-		 * @param Masteriyo\Database\Model $object   Object data.
-		 * @param WP_REST_Request  $request  Request object.
-		 */
+		* Filter the data for a response.
+		*
+		* The dynamic portion of the hook name, $this->object_type,
+		* refers to object type being prepared for the response.
+		*
+		* @since 1.0.0
+		*
+		* @param WP_REST_Response $response The response object.
+		* @param Masteriyo\Database\Model $object   Object data.
+		* @param WP_REST_Request  $request  Request object.
+		*/
 		return apply_filters( "masteriyo_rest_prepare_{$this->object_type}_object", $response, $object, $request );
 	}
 
@@ -1518,7 +1681,7 @@ class SettingsController extends CrudController {
 	 * Return the Elearning palette "colors" array from theme_mods_elearning.
 	 * Empty array if Elearning isn't active or keys/option are missing.
 	 *
-	 * @since 2.0.2
+	 * @since 3.0.2
 	 * @return array
 	 */
 	protected function get_elearning_colors_only() {
@@ -1567,18 +1730,54 @@ class SettingsController extends CrudController {
 		return array_intersect_key( $colors, array_flip( $allowed_keys ) );
 	}
 
+
 	/**
-	 * Get settings data.
+	 * Converted the settings data to a simplified structure for search terms.
 	 *
-	 * @since 1.0.0
-	 * @since 1.3.13 Added 'name' parameter to fetch group or individual setting.
+	 * @since 2.14.0
 	 *
-	 * @param object $setting Setting instance.
-	 * @param string $context Request context. Options: 'view' and 'edit'.
-	 * @param string $name Setting name.
-	 *
+	 * @param array $data
 	 * @return array
 	 */
+	protected function simplify_structure_for_search_term( $data ) {
+		$simplified = array();
+
+		foreach ( $data as $key => $section ) {
+			$section_name                = ucwords( str_replace( '_', ' ', $key ) );
+			$simplified[ $section_name ] = array();
+
+			foreach ( $section as $sub_key => $sub_section ) {
+				$sub_section_name                                 = ucwords( str_replace( '_', ' ', $sub_key ) );
+				$simplified[ $section_name ][ $sub_section_name ] = array();
+
+				if ( is_array( $sub_section ) ) {
+					foreach ( $sub_section as $item_key => $value ) {
+							$item_name = ucwords( str_replace( '_', ' ', $item_key ) );
+							$simplified[ $section_name ][ $sub_section_name ][] = $item_name;
+					}
+				} else {
+					$item_name = ucwords( str_replace( '_', ' ', $sub_key ) );
+					$simplified[ $section_name ][ $sub_section_name ][] = $item_name;
+				}
+			}
+		}
+
+		return $simplified;
+	}
+
+
+	/**
+	* Get settings data.
+	*
+	* @since 1.0.0
+	* @since 1.3.13 Added 'name' parameter to fetch group or individual setting.
+	*
+	* @param object $setting Setting instance.
+	* @param string $context Request context. Options: 'view' and 'edit'.
+	* @param string $name Setting name.
+	*
+	* @return array
+	*/
 	protected function get_setting_data( $setting, $context = 'view', $name = '' ) {
 		if ( empty( $name ) ) {
 			$data = $setting->get_data();
@@ -1587,33 +1786,49 @@ class SettingsController extends CrudController {
 		}
 
 		/**
-		 * Filter global setting  rest response data.
-		 *
-		 * @since 1.4.10
-		 *
-		 * @param array $data Setting data.
-		 * @param Masteriyo\Models\Setting $setting Setting object.
-		 * @param string $context What the value is for. Valid values are view and edit.
-		 * @param Masteriyo\RestApi\Controllers\Version1\SettingsController $controller REST settings controller object.
-		 */
-
+		* Filter global setting  rest response data.
+		*
+		* @since 1.4.10
+		*
+		* @param array $data Setting data.
+		* @param Masteriyo\Models\Setting $setting Setting object.
+		* @param string $context What the value is for. Valid values are view and edit.
+		* @param Masteriyo\RestApi\Controllers\Version1\SettingsController $controller REST settings controller object.
+		*/
 		$data = apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $setting, $context, $this );
 		$data['general']['styling']['elearning_colors'] = $this->get_elearning_colors_only();
+		$data['searchTerms']                            = $this->simplify_structure_for_search_term( $data );
+		// Response-only, like searchTerms. The resolved commerce visibility ('' defers to the evidence rule, so the client can't compute it) — the save flow compares it against the page-load value to know the admin menus went stale.
+		$data['commerce_visible'] = masteriyo_commerce_enabled();
 
 		return $data;
 	}
 
 	/**
-	 * Prepare a single settings for create or update.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @param bool            $creating If is creating a new object.
-	 *
-	 * @return WP_Error|Masteriyo\Database\Model
-	 */
+	* Prepare a single settings for create or update.
+	*
+	* @since 1.0.0
+	*
+	* @param \WP_REST_Request $request Request object.
+	* @param bool            $creating If is creating a new object.
+	*
+	* @return WP_Error|Masteriyo\Database\Model
+	*/
 	protected function prepare_object_for_database( $request, $creating = false ) {
+		$regions = $request['payments']['taxes']['regions'] ?? array();
+
+		if ( ! empty( $regions ) ) {
+			$regions = masteriyo_sanitize_nested_tax_regions( $regions );
+
+			if ( isset( $data['payments']['taxes']['regions'] ) ) {
+				unset( $data['payments']['taxes']['regions'] );
+			}
+
+			if ( ! empty( $regions ) ) {
+				masteriyo_set_setting( 'payments.taxes.regions', maybe_serialize( $regions ) );
+			}
+		}
+
 		$setting      = masteriyo( 'setting' );
 		$setting_repo = masteriyo( 'setting.store' );
 		$setting_repo->read( $setting );
@@ -1621,25 +1836,25 @@ class SettingsController extends CrudController {
 		$setting->set_data( $request->get_params() );
 
 		/**
-		 * Filters an object before it is inserted via the REST API.
-		 *
-		 * The dynamic portion of the hook name, `$this->object_type`,
-		 * refers to the object type slug.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param Masteriyo\Database\Model $setting Setting object.
-		 * @param WP_REST_Request $request  Request object.
-		 * @param bool            $creating If is creating a new object.
-		 */
+		* Filters an object before it is inserted via the REST API.
+		*
+		* The dynamic portion of the hook name, `$this->object_type`,
+		* refers to the object type slug.
+		*
+		* @since 1.0.0
+		*
+		* @param Masteriyo\Database\Model $setting Setting object.
+		* @param WP_REST_Request $request  Request object.
+		* @param bool            $creating If is creating a new object.
+		*/
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $setting, $request, $creating );
 	}
 
 	/**
-	 * Return settings as object.
-	 *
-	 * @since 1.0.0
-	 */
+	* Return settings as object.
+	*
+	* @since 1.0.0
+	*/
 	protected function process_objects_collection( $settings ) {
 		return array_shift( $settings );
 	}
@@ -1647,7 +1862,7 @@ class SettingsController extends CrudController {
 	/**
 	 * Collect email and data sharing consent.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -1655,41 +1870,14 @@ class SettingsController extends CrudController {
 	 */
 	public function collect_email_and_data_sharing_consent( \WP_REST_Request $request ) {
 		try {
-			$allow_usage       = isset( $request['allow_usage'] ) ? masteriyo_string_to_bool( $request['allow_usage'] ) : false;
-			$subscribe_updates = isset( $request['subscribe_updates'] ) ? masteriyo_string_to_bool( $request['subscribe_updates'] ) : false;
-			$email             = isset( $request['email'] ) ? sanitize_email( $request['email'] ) : '';
-
-			if ( ! is_email( $email ) ) {
-				return new WP_Error(
-					'masteriyo_invalid_email',
-					__( 'Please provide a valid email address.', 'learning-management-system' ),
-					array( 'status' => 400 )
-				);
-			}
-
-			$old_email = masteriyo_get_setting( 'advance.tracking.email' );
+			$allow_usage = isset( $request['allow_usage'] ) ? masteriyo_string_to_bool( $request['allow_usage'] ) : false;
 
 			masteriyo_set_setting( 'advance.tracking.allow_usage', $allow_usage );
-			masteriyo_set_setting( 'advance.tracking.subscribe_updates', $subscribe_updates );
-			masteriyo_set_setting( 'advance.tracking.email', $email );
-
-			if ( $old_email && $old_email === $email ) {
-				return rest_ensure_response(
-					array(
-						'status'  => 'success',
-						'message' => __( 'Email has been collected already.', 'learning-management-system' ),
-					)
-				);
-			}
-
-			if ( $subscribe_updates ) {
-				$this->send_email_to_tracking_server( $email );
-			}
 
 			return rest_ensure_response(
 				array(
 					'status'  => 'success',
-					'message' => __( 'Email and data sharing consent collected.', 'learning-management-system' ),
+					'message' => __( 'Data sharing consent collected.', 'learning-management-system' ),
 				)
 			);
 		} catch ( \Exception $e ) {
@@ -1702,34 +1890,110 @@ class SettingsController extends CrudController {
 	}
 
 	/**
-	 * Send email to tracking server.
+	 * Reset individual email settings to default values.
 	 *
-	 * @since 1.14.0
+	 * @since 2.16.0
 	 *
-	 * @param string $email Email address.
+	 * @param WP_REST_Request $request Full details about the request.
 	 *
-	 * @return void
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	private function send_email_to_tracking_server( $email ) {
-		wp_remote_post(
-			'https://stats.wpeverest.com/wp-json/tgreporting/v1/process-email/',
-			array(
-				'method'      => 'POST',
-				'timeout'     => 10,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'headers'     => array(
-					'user-agent' => 'Masteriyo/' . masteriyo_get_version() . '; ' . get_bloginfo( 'url' ),
-				),
-				'body'        => array(
-					'data' => array(
-						'email'       => $email,
-						'website_url' => get_bloginfo( 'url' ),
-						'plugin_name' => is_plugin_active( 'learning-management-system-pro/lms.php' ) ? 'Masteriyo PRO' : 'Masteriyo',
-						'plugin_slug' => plugin_basename( MASTERIYO_PLUGIN_FILE ),
-					),
-				),
-			)
-		);
+	public function reset_individual_email( \WP_REST_Request $request ) {
+		try {
+			$email_id = $request->get_param( 'email_id' );
+
+			$validation_result = $this->validate_email_id( $email_id );
+
+			if ( is_wp_error( $validation_result ) ) {
+				return $validation_result;
+			}
+
+			list( $second_key, $third_key ) = $validation_result;
+
+			$default_email_contents = masteriyo_get_default_email_contents();
+			$email_data             = $default_email_contents[ $second_key ][ $third_key ] ?? array();
+
+			if ( empty( $email_data ) ) {
+					return new WP_Error(
+						'masteriyo_invalid_email_data',
+						__( 'No default email data found for the given ID.', 'learning-management-system' ),
+						array( 'status' => 400 )
+					);
+			}
+
+			$email_data = $this->populate_email_defaults( $email_id, $email_data );
+
+			masteriyo_set_setting( $email_id, $email_data );
+
+			return rest_ensure_response(
+				array(
+					'status'  => 'success',
+					'message' => __( 'Email reset successfully.', 'learning-management-system' ),
+					'data'    => array( $email_id => $email_data ),
+				)
+			);
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'masteriyo_email_reset_error',
+				__( 'An unexpected error occurred while resetting email.', 'learning-management-system' ),
+				array(
+					'status'  => 500,
+					'details' => $e->getMessage(),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Validates the email ID and extracts keys.
+	 *
+	 * @param string|null $email_id Email ID to validate.
+	 *
+	 * @return array|WP_Error List of keys on success, or WP_Error on failure.
+	 *
+	 * @throws WP_Error If the email ID is invalid.
+	 */
+	private function validate_email_id( $email_id ) {
+		if ( empty( $email_id ) ) {
+			return new WP_Error(
+				'masteriyo_email_id_missing',
+				__( 'Email ID is missing.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$keys = explode( '.', $email_id );
+
+		if ( count( $keys ) !== 3 ) {
+			return new WP_Error(
+				'masteriyo_invalid_email_id',
+				__( 'Invalid email ID format.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		array_shift( $keys );
+
+		return $keys;
+	}
+
+
+	/**
+	 * Populates default email settings with fallback values if not present.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param string $email_id  The email ID.
+	 * @param array  $email_data The email data to populate.
+	 *
+	 * @return array The populated email data.
+	 */
+	private function populate_email_defaults( $email_id, $email_data ) {
+		$email_data['from_address']     = ! empty( $email_data['from_address'] ) ? $email_data['from_address'] : masteriyo_get_setting( 'emails.general.from_email' ) ?? get_bloginfo( 'admin_email' );
+		$email_data['from_name']        = ! empty( $email_data['from_name'] ) ? $email_data['from_name'] : masteriyo_get_setting( 'emails.general.from_name' ) ?? get_bloginfo( 'name' );
+		$email_data['reply_to_address'] = ! empty( $email_data['reply_to_address'] ) ? $email_data['reply_to_address'] : masteriyo_get_setting( 'emails.general.reply_to_address' ) ?? get_bloginfo( 'admin_email' );
+		$email_data['reply_to_name']    = ! empty( $email_data['reply_to_name'] ) ? $email_data['reply_to_name'] : masteriyo_get_setting( 'emails.general.reply_to_name' ) ?? get_bloginfo( 'name' );
+
+		return $email_data;
 	}
 }

@@ -161,11 +161,14 @@ if ( ! function_exists( 'masteriyo_get_earning_summary' ) ) {
 		global $wpdb;
 
 		$maturity_period = masteriyo( 'addons.revenue-sharing' )->setting->get( 'withdraw.maturity_period', 7 );
+
+		// Pending withdraw requests are money already spoken for: they reduce the
+		// available/withdrawable balance, while only approved ones count as withdrawn.
 		$earning_summary = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT
 					IFNULL(
-						SUM(CASE WHEN pm.meta_key = '_withdraw_amount' THEN pm.meta_value END), 0) AS withdrawn_amount,
+						SUM(CASE WHEN pm.meta_key = '_withdraw_amount' AND p.post_status = %s THEN pm.meta_value END), 0) AS withdrawn_amount,
 					GREATEST(
 						IFNULL(SUM(CASE WHEN pm.meta_key = '_instructor_amount' THEN pm.meta_value END), 0)
 						-
@@ -174,10 +177,10 @@ if ( ! function_exists( 'masteriyo_get_earning_summary' ) ) {
 					GREATEST(
 						IFNULL(
 							SUM(
-								CASE 
-									WHEN pm.meta_key = '_instructor_amount' 
-									AND (%d = 0 OR p.post_date <= DATE(DATE_SUB(NOW(), INTERVAL %d DAY))) 
-									THEN pm.meta_value 
+								CASE
+									WHEN pm.meta_key = '_instructor_amount'
+									AND (%d = 0 OR p.post_date <= DATE(DATE_SUB(NOW(), INTERVAL %d DAY)))
+									THEN pm.meta_value
 								END
 							),
 							0
@@ -187,16 +190,20 @@ if ( ! function_exists( 'masteriyo_get_earning_summary' ) ) {
 					) AS withdrawable_amount
 				FROM {$wpdb->prefix}postmeta AS pm
 				INNER JOIN {$wpdb->prefix}posts AS p ON pm.post_id = p.ID
-				WHERE (p.post_type = %s OR p.post_type = %s)
-					AND p.post_author = %d
-					AND (p.post_status = %s OR p.post_status = %s)",
+				WHERE p.post_author = %d
+					AND (
+						(p.post_type = %s AND p.post_status = %s)
+						OR (p.post_type = %s AND p.post_status IN (%s, %s))
+					)",
+				WithdrawStatus::APPROVED,
 				$maturity_period,
 				$maturity_period,
-				PostType::EARNING,
-				PostType::WITHDRAW,
 				$user_id,
+				PostType::EARNING,
 				OrderStatus::COMPLETED,
-				WithdrawStatus::APPROVED
+				PostType::WITHDRAW,
+				WithdrawStatus::APPROVED,
+				WithdrawStatus::PENDING
 			),
 			ARRAY_A
 		);

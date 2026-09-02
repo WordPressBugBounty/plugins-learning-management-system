@@ -1,6 +1,7 @@
 type DownloadMaterial = {
 	id: number;
 	url: string;
+	preview_url?: string;
 	title: string;
 	mime_type:
 		| 'application/pdf'
@@ -22,15 +23,23 @@ type DownloadMaterial = {
 		| 'video/flv'
 		| 'video/mov'
 		| 'audio/mpeg'
-		| 'audio/wav';
-
+		| 'audio/wav'
+		| 'audio/ogg';
 	file_size: number;
-	formatted_file_size: '100 KB';
+	formatted_file_size: string;
 };
 
 type DownloadMaterials = DownloadMaterial[];
 
 declare module '@wordpress/media-utils';
+
+// Consumed by the standalone editor shell. Both packages are externalised
+// onto the site's own scripts by the build, so they are deliberately not
+// installed — installing @wordpress/block-editor alone would drag most of a
+// gigabyte of Gutenberg packages into node_modules for type information.
+declare module '@wordpress/block-editor';
+declare module '@wordpress/block-library';
+declare module '@wordpress/keyboard-shortcuts';
 
 type Addon = {
 	slug: string;
@@ -44,9 +53,18 @@ type Addon = {
 	thumbnail: string;
 	requires: string;
 	requirement_fulfilled: string;
-	plan: 'Starter' | 'Growth' | 'Scale';
+	required_plugin?: {
+		name: string;
+		file: string;
+		slug: string;
+		status: 'inactive' | 'not-installed';
+	};
+	plan: 'Free' | 'Starter' | 'Growth' | 'Scale' | 'Elite' | 'Pro' | 'Basic';
 	locked: boolean;
-	category: string;
+	isStatic?: boolean;
+	video?: string;
+	docs?: string;
+	category?: string;
 };
 
 type Addons = Addon[];

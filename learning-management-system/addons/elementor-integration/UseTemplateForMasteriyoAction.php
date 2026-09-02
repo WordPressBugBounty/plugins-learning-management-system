@@ -94,7 +94,13 @@ class UseTemplateForMasteriyoAction {
 
 		printf(
 			'<div class="notice notice-success"><p>%s</p></div>',
-			esc_html__( 'Successfully updated the Masteriyo template settings.', 'learning-management-system' )
+			esc_html(
+				sprintf(
+					/* translators: %s: the product's name */
+					__( 'Successfully updated the %s template settings.', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				)
+			)
 		);
 	}
 }

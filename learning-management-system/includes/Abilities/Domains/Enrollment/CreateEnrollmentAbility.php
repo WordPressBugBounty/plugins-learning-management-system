@@ -3,7 +3,6 @@
  * Create Enrollment ability.
  *
  * @package Masteriyo\Abilities\Domains\Enrollment
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Enrollment;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: enroll a student in a course.
- *
- * @since x.x.x
  */
 class CreateEnrollmentAbility extends RestProxyAbility {
 

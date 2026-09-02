@@ -2,7 +2,7 @@
 /**
  * LessonReview Repository class.
  *
- * @since 1.14.0
+ * @since 2.15.0
  *
  * @package Masteriyo\Repository;
  */
@@ -24,7 +24,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Meta type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var string
 	 */
@@ -33,7 +33,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Data stored in meta keys, but not considered "meta".
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
@@ -43,7 +43,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Flag to indicate if the filter to modify comment queries by karma has been added.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var bool Defaults to false, indicating that the filter has not been added yet.
 	 */
@@ -53,7 +53,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Create lesson review (comment) in database.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
 	 */
@@ -94,7 +94,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Filters new lesson review data before creating.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param array $data New lesson review data.
 			 * @param Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -132,7 +132,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires after new lesson review is added.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param int $id Lesson review ID.
 			 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -144,7 +144,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Read a lesson review.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param \Masteriyo\Models\LessonReview $lesson_review lesson review object.
 	 *
@@ -154,7 +154,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 		$lesson_review_obj = get_comment( $lesson_review->get_id() );
 
 		if ( ! $lesson_review->get_id() || ! $lesson_review_obj ) {
-			throw new \Exception( __( 'Invalid Lesson Review.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Lesson Review.', 'learning-management-system' ) );
 		}
 
 		// Map the comment status from numerical to word.
@@ -189,7 +189,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires after lesson review is read from database.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param int $id Lesson review ID.
 		 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -200,7 +200,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Update a lesson review in the database.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param \Masteriyo\Models\LessonReview $lesson_review lesson review object.
 	 *
@@ -242,7 +242,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires after lesson review is updated.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param int $id Lesson review ID.
 		 * @param \Masteriyo\Models\LessonReview Lesson review object.
@@ -253,7 +253,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Delete a lesson review from the database.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param \Masteriyo\Models\LessonReview $lesson_review lesson review object.
 	 * @param array $args Array of args to pass.alert-danger.
@@ -285,7 +285,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires before lesson review is permanently deleted.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param int $id Lesson review ID.
 			 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -298,7 +298,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires after lesson review is permanently deleted.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param int $id Lesson review ID.
 			 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -308,7 +308,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires before lesson review is trashed.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param int $id Lesson review ID.
 			 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -321,7 +321,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires after lesson review is trashed.
 			 *
-			 * @since 1.14.0
+			 * @since 2.15.0
 			 *
 			 * @param int $id Lesson review ID.
 			 * @param \Masteriyo\Models\LessonReview $lesson_review Lesson review object.
@@ -337,7 +337,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Read lesson review data. Can be overridden by child classes to load other props.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param User $lesson_review Lesson review object.
 	 */
@@ -365,7 +365,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Read extra data associated with the lesson review.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param LessonReview $lesson_review lesson review object.
 	 */
@@ -384,7 +384,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Get valid \WP_Comment_Query args from a ObjectQuery's query variables.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $query_vars Query vars from a ObjectQuery.
 	 *
@@ -450,8 +450,8 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Filter WP query vars.
 		 *
-		 * @since 1.14.0
-		 * @since 1.14.0  Added third parameter $repository.
+		 * @since 2.15.0
+		 * @since 2.15.0  Added third parameter $repository.
 		 *
 		 * @param array $wp_query_args WP Query args.
 		 * @param array $query_vars query vars from a ObjectQuery.
@@ -465,7 +465,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Fetch lessons reviews.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $query_vars Query vars.
 	 *
@@ -522,7 +522,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Delete a lesson review that has 'trash' status and doesn't have any replies.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param integer $review_id
 	 */
@@ -543,7 +543,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Modifies the WHERE clause of a comment query to filter comments by their karma score.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $pieces An associative array containing the query's JOIN, WHERE, GROUP BY, ORDER BY, and LIMITS clauses.
 	 * @param \WP_Comment_Query $query The current WP_Comment_Query instance, providing access to the query variables.

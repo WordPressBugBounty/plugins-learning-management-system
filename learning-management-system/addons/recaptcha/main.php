@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Security
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_RECAPTCHA_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_RECAPTCHA_ADDON_BASENAME', plugin_basename( __FILE__ ) );

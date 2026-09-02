@@ -2,6 +2,7 @@
 /**
  * Addons rest API controller.
  *
+ * @since 2.0.5
  * @since 1.6.11
  */
 
@@ -10,13 +11,14 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 defined( 'ABSPATH' ) || exit;
 
 use WP_Error;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Enums\AddonStatus;
 
 class AddonsController extends RestController {
 	/**
 	 * Endpoint namespace.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @var string
@@ -26,6 +28,7 @@ class AddonsController extends RestController {
 	/**
 	 * Route base.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @var string
@@ -35,6 +38,7 @@ class AddonsController extends RestController {
 	/**
 	 * Object type.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @var string
@@ -44,18 +48,19 @@ class AddonsController extends RestController {
 	/**
 	 * Addons class.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
-	 * @var Masteriyo\Pro\Addons
+	 * @var \Masteriyo\AddonsFramework\Addons
 	 */
 	protected $addons = null;
 
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.6.11
+	 * @since 2.0.5
 	 *
-	 * @param Masteriyo\Addons $addons
+	 * @param \Masteriyo\AddonsFramework\Addons|null $addons Addons instance.
 	 */
 	public function __construct( ?Addons $addons = null ) {
 		$this->addons = $addons;
@@ -64,6 +69,7 @@ class AddonsController extends RestController {
 	/**
 	 * Register routes.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @return void
@@ -166,6 +172,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get the courses'schema, conforming to JSON Schema.
 	 *
+	 * @since 1.0.0
 	 * @since 1.6.11
 	 *
 	 * @return array
@@ -190,6 +197,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get a collection of addons.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -218,6 +226,7 @@ class AddonsController extends RestController {
 		/**
 		 * Filters addon activate requirements.
 		 *
+		 * @since 2.5.0
 		 * @since 1.6.11
 		 *
 		 * @param string $slug Addon slug.
@@ -230,6 +239,7 @@ class AddonsController extends RestController {
 		/**
 		 * Filters addon activate requirements.
 		 *
+		 * @since 2.2.0
 		 * @since 1.6.11
 		 *
 		 * @param \WP_Rest_Response $response Response object.
@@ -265,6 +275,7 @@ class AddonsController extends RestController {
 		/**
 		 * Filters addon activate response.
 		 *
+		 * @since 2.2.0
 		 * @since 1.6.11
 		 *
 		 * @param \WP_Rest_Response $response Response object.
@@ -277,6 +288,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get a collection of addons.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -305,6 +317,7 @@ class AddonsController extends RestController {
 		/**
 		 * Filters addon deactivate requirements.
 		 *
+		 * @since 2.2.0
 		 * @since 1.6.11
 		 *
 		 * @param \WP_Rest_Response $response Response object.
@@ -340,6 +353,7 @@ class AddonsController extends RestController {
 		/**
 		 * Filters addon deactivate response.
 		 *
+		 * @since 2.2.0
 		 * @since 1.6.11
 		 *
 		 * @param \WP_Rest_Response $response Response object.
@@ -377,7 +391,8 @@ class AddonsController extends RestController {
 
 			if ( $result ) {
 				$result             = $this->get_addon_data( $slug, $result );
-				$activated_addons[] = $result;          }
+				$activated_addons[] = $result;
+			}
 		}
 
 		$data['addons']     = $activated_addons;
@@ -393,7 +408,8 @@ class AddonsController extends RestController {
 		 * @param \WP_REST_Request        $request  Request object.
 		 * @param \Masteriyo\RestApi\Controllers\Version1\AddonsController $this Addons controller object.
 		 */
-		return apply_filters( 'masteriyo_rest_addon_bulk_activate_response', $response, $request, $this );  }
+		return apply_filters( 'masteriyo_rest_addon_bulk_activate_response', $response, $request, $this );
+	}
 
 	/**
 	 * Bulk deactivate add-ons.
@@ -423,8 +439,10 @@ class AddonsController extends RestController {
 
 			if ( $result ) {
 				$result               = $this->get_addon_data( $slug, $result );
-				$deactivated_addons[] = $result;            }
+				$deactivated_addons[] = $result;
+			}
 		}
+
 		$data['addons']     = $deactivated_addons;
 		$data['menu_items'] = masteriyo_get_submenus_if_slugs_present( $slugs );
 		$response           = rest_ensure_response( $data );
@@ -444,6 +462,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get the query params for collections of attachments.
 	 *
+	 * @since  2.0.5
 	 * @since 1.6.11
 	 *
 	 * @return array
@@ -468,6 +487,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get a collection of addons.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -485,10 +505,11 @@ class AddonsController extends RestController {
 			$addons = $this->addons->get_addons_data();
 		}
 
+		// Hidden addons exist everywhere except this listing.
 		$addons = array_filter(
 			$addons,
 			function( $slug ) {
-				return $this->addons->is_addon( $slug );
+				return $this->addons->is_addon( $slug ) && ! $this->addons->is_hidden( $slug );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -523,6 +544,8 @@ class AddonsController extends RestController {
 	/**
 	 * Return data by formatting it.
 	 *
+	 * @since 2.0.5
+	 * @deprecated 2.2.0
 	 * @since 1.6.11
 	 *
 	 * @param string $slug Addon slug.
@@ -553,6 +576,7 @@ class AddonsController extends RestController {
 	/**
 	 * Get a single addon.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -578,6 +602,8 @@ class AddonsController extends RestController {
 	/**
 	 * Checks if a given request has access to list addons.
 	 *
+	 * @since 2.0.5
+	 * @since 2.2.0 Return true because non admin user need to access addons status.
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -590,6 +616,8 @@ class AddonsController extends RestController {
 	/**
 	 * Checks if a given request has access to list addons.
 	 *
+	 * @since 2.0.5
+	 * @since 2.2.0 Return true because non admin user need to access addons status.
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -602,6 +630,7 @@ class AddonsController extends RestController {
 	/**
 	 * Checks if a given request has access to activate an addon.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -614,6 +643,7 @@ class AddonsController extends RestController {
 	/**
 	 * Checks if a given request has access to deactivate an addon.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.

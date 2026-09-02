@@ -10,7 +10,10 @@
 namespace Masteriyo\Models;
 
 use Masteriyo\Database\Model;
+use Masteriyo\Enums\VideoSource;
 use Masteriyo\Repository\LessonRepository;
+use Waynestate\Youtube\ParseId;
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,38 +68,47 @@ class Lesson extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'name'                => '',
-		'slug'                => '',
-		'date_created'        => null,
-		'date_modified'       => null,
-		'status'              => false,
-		'menu_order'          => 0,
-		'description'         => '',
-		'short_description'   => '',
-		'post_password'       => '',
-		'parent_id'           => 0,
-		'course_id'           => 0,
-		'author_id'           => 0,
-		'reviews_allowed'     => true,
-		'featured_image'      => '',
-		'video_source'        => '',
-		'video_source_url'    => '',
-		'video_playback_time' => 0,
-		'rating_counts'       => array(),
-		'average_rating'      => 0,
-		'review_count'        => 0,
-		'download_materials'  => array(),
-		'video_meta'          => array(
+		'name'                    => '',
+		'slug'                    => '',
+		'date_created'            => null,
+		'date_modified'           => null,
+		'status'                  => false,
+		'menu_order'              => 0,
+		'description'             => '',
+		'short_description'       => '',
+		'post_password'           => '',
+		'parent_id'               => 0,
+		'course_id'               => 0,
+		'author_id'               => 0,
+		'reviews_allowed'         => true,
+		'featured_image'          => '',
+		'video_source'            => '',
+		'video_source_url'        => '',
+		'enable_preview'          => false,
+		'enable_video_preview'    => false,
+		'video_playback_time'     => 0,
+		'rating_counts'           => array(),
+		'average_rating'          => 0,
+		'review_count'            => 0,
+		'download_materials'      => array(),
+		'video_meta'              => array(
 			'time_stamps'               => array(),
 			'enable_video_share'        => false,
 			'enable_right_button_click' => false,
-		),
-		'starts_at'           => '',
-		'ends_at'             => '',
-		'live_chat_enabled'   => true,
-		'custom_fields'       => null,
 
-		'lesson_type'         => '',
+		),
+		'starts_at'               => '',
+		'ends_at'                 => '',
+		'live_chat_enabled'       => true,
+		'pdf'                     => array(),
+		'pdf_downloadable'        => true,
+		'transform_live_to_video' => false,
+		'subtitle_meta'           => array(),
+		'audio_source'            => '',
+		'audio_source_url'        => '',
+		'audio_source_files'      => array(),
+		'custom_fields'           => null,
+		'lesson_type'             => '',
 	);
 
 	/**
@@ -188,8 +200,6 @@ class Lesson extends Model {
 
 	/**
 	 * Get learn page URL for the lesson.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -311,10 +321,13 @@ class Lesson extends Model {
 			} else {
 				$icon = masteriyo_get_svg( 'video-lesson' );
 			}
+		} elseif ( ! empty( $this->get_pdf() ) ) {
+			$icon = masteriyo_get_svg( 'pdf-lesson' );
+		} elseif ( ! empty( $this->get_audio_source_url() ) || ! empty( $this->get_audio_source_files() ) ) {
+			$icon = masteriyo_get_svg( 'audio-lesson' );
 		} else {
 			$icon = masteriyo_get_svg( 'text-lesson' );
 		}
-
 		/**
 		 * Filters lesson icon.
 		 *
@@ -366,7 +379,7 @@ class Lesson extends Model {
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
-	 * @return DateTime|NULL object if the date is set or null if there is no date.
+	 * @return \Masteriyo\DateTime|null object if the date is set or null if there is no date.
 	 */
 	public function get_date_created( $context = 'view' ) {
 		return $this->get_prop( 'date_created', $context );
@@ -531,6 +544,20 @@ class Lesson extends Model {
 	}
 
 	/**
+	 * Get featured image URL.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return string
+	 */
+	public function get_featured_image_url( $size = 'thumbnail' ) {
+		if ( empty( $this->get_featured_image() ) ) {
+			return masteriyo_placeholder_img_src( $size );
+		}
+		return wp_get_attachment_image_url( $this->get_featured_image(), $size );
+	}
+
+	/**
 	 * Get video source.
 	 *
 	 * @since 1.0.0
@@ -559,9 +586,9 @@ class Lesson extends Model {
 		if ( 'edit' === $context ) {
 			return $source_url;
 		}
-		if ( 'self-hosted' === $source && is_numeric( $source_url ) ) {
-			$video_url_type = masteriyo_get_setting( 'learn_page.general.lesson_video_url_type' );
 
+		if ( VideoSource::SELF_HOSTED === $source && is_numeric( $source_url ) ) {
+			$video_url_type = masteriyo_get_setting( 'learn_page.general.lesson_video_url_type' );
 			if ( 'default' === $video_url_type ) {
 				$source_url = wp_get_attachment_url( $this->get_video_source_id( $context ) );
 			} else {
@@ -570,6 +597,32 @@ class Lesson extends Model {
 		}
 
 		return $source_url;
+	}
+
+	/**
+	 * Get preview enable.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return boolean
+	 */
+	public function get_enable_preview( $context = 'view' ) {
+		return $this->get_prop( 'enable_preview', $context );
+	}
+
+	/**
+	 * Get video preview enable.
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return boolean
+	 */
+	public function get_enable_video_preview( $context = 'view' ) {
+		return $this->get_prop( 'enable_video_preview', $context );
 	}
 
 	/**
@@ -584,6 +637,67 @@ class Lesson extends Model {
 	public function get_video_source_id( $context = 'view' ) {
 		return absint( $this->get_prop( 'video_source_url', $context ) );
 	}
+
+	/**
+	 * Get embed URL for the featured video. If the video source is self-hosted, it will return the absolute URL to the file.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return string
+	 */
+	public function get_video_source_embed_url() {
+		$featured_video_source = $this->get_video_source();
+		$video_id              = $this->get_video_id();
+		$embed_url             = '';
+
+		if ( VideoSource::SELF_HOSTED === $featured_video_source || VideoSource::EXTERNAL === $featured_video_source ) {
+			$embed_url = $this->get_video_source_url();
+		} elseif ( VideoSource::YOUTUBE === $featured_video_source ) {
+			$embed_url = 'https://www.youtube.com/embed/' . $video_id;
+		} elseif ( VideoSource::VIMEO === $featured_video_source ) {
+			$embed_url = 'https://player.vimeo.com/video/' . $video_id;
+		}
+
+		/**
+		 * Filters video embed URL of a lesson.
+		 *
+		 * @since 2.6.7
+		 *
+		 * @param string $embed_url
+		 * @param \Masteriyo\Models\Lesson $lesson
+		 */
+		return apply_filters( 'masteriyo_lesson_video_embed_url', $embed_url, $this );
+	}
+
+	/**
+	 * Get the id of featured video.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return string|number
+	 */
+	public function get_video_id() {
+		$featured_video_source = $this->get_video_source();
+		$featured_video_url    = $this->get_video_source_url();
+		$video_id              = 0;
+
+		if ( VideoSource::YOUTUBE === $featured_video_source ) {
+			$video_id = ParseId::fromUrl( $featured_video_url );
+		} elseif ( VideoSource::VIMEO === $featured_video_source ) {
+			$video_id = masteriyo_get_vimeo_id_from_url( $featured_video_url );
+		}
+
+		/**
+		 * Filters video id of a lesson.
+		 *
+		 * @since 2.6.7
+		 *
+		 * @param int $video_id
+		 * @param \Masteriyo\Models\Lesson $lesson
+		 */
+		return apply_filters( 'masteriyo_lesson_video_id', $video_id, $this );
+	}
+
 
 	/**
 	 * Get video playback time.
@@ -640,7 +754,7 @@ class Lesson extends Model {
 	/**
 	 * Get download_materials.
 	 *
-	 * @since 1.9.0
+	 * @since 2.0.2
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -650,12 +764,87 @@ class Lesson extends Model {
 		return $this->get_prop( 'download_materials', $context );
 	}
 
+	/**
+	 * Get audio source.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_audio_source( $context = 'view' ) {
+		return $this->get_prop( 'audio_source', $context );
+	}
 
+	/**
+	 * Get audio source url.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_audio_source_url( $context = 'view' ) {
+		return $this->get_prop( 'audio_source_url', $context );
+	}
+
+	/**
+	 * Get audio source files.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return array
+	 */
+	public function get_audio_source_files( $context = 'view' ) {
+		return $this->get_prop( 'audio_source_files', $context );
+	}
+
+
+	/**
+	 * Get subtitle meta info for masteriyo player.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return array
+	 */
+	public function get_subtitle_meta( $context = 'view' ) {
+		$data = $this->get_prop( 'subtitle_meta', $context );
+
+		$filtered_data = array_filter(
+			$data,
+			function ( $item ) {
+				return ! empty( $item );
+			}
+		);
+		return $filtered_data;
+	}
+
+
+
+
+	/**
+	 * Get video meta info for masteriyo player.
+	 *
+	 * @since 2.13.0
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return int
+	 */
+	public function get_video_meta( $context = 'view' ) {
+		return $this->get_prop( 'video_meta', $context );
+	}
 
 	/**
 	 * Get starts_at.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -668,7 +857,7 @@ class Lesson extends Model {
 	/**
 	 * Get ends_at.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -681,7 +870,7 @@ class Lesson extends Model {
 	/**
 	 * Get Live Chat Enabled.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -692,16 +881,67 @@ class Lesson extends Model {
 	}
 
 		/**
-	 * Get video meta info for masteriyo player.
+	 * Get PDF.
 	 *
-	 * @since 1.12.0
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
-	 * @return int
+	 * @return object
 	 */
-	public function get_video_meta( $context = 'view' ) {
-		return $this->get_prop( 'video_meta', $context );
+	public function get_pdf( $context = 'view' ) {
+		return $this->refresh_attachment_urls( $this->get_prop( 'pdf', $context ) );
+	}
+
+	/**
+	 * Re-resolve stored attachment URLs from their attachment IDs.
+	 *
+	 * A stored PDF URL can become stale if WordPress later re-sanitizes or
+	 * renames the underlying media file (for example, stripping spaces from
+	 * the filename), which results in a 404 when the player fetches it. When
+	 * an attachment ID is present it is the source of truth, so the current
+	 * URL is resolved from it. Items without an ID (externally-hosted or
+	 * legacy data) keep their stored URL for backward compatibility.
+	 *
+	 * @param array $pdf PDF items, each with an `id` and `url`.
+	 *
+	 * @return array
+	 */
+	protected function refresh_attachment_urls( $pdf ) {
+		if ( empty( $pdf ) || ! is_array( $pdf ) ) {
+			return $pdf;
+		}
+
+		foreach ( $pdf as $index => $item ) {
+			$item = (array) $item;
+
+			if ( empty( $item['id'] ) ) {
+				continue;
+			}
+
+			$url = wp_get_attachment_url( (int) $item['id'] );
+
+			if ( $url ) {
+				$item['url'] = $url;
+			}
+
+			$pdf[ $index ] = $item;
+		}
+
+		return $pdf;
+	}
+
+	/**
+	 * Get transform live to normal video.
+	 *
+	 * @since 1.16.0 [Free]
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_transform_live_to_video( $context = 'view' ) {
+		return $this->get_prop( 'transform_live_to_video', $context );
 	}
 
 	/**
@@ -720,7 +960,7 @@ class Lesson extends Model {
 	/**
 	 * Get lesson type.
 	 *
-	 * @since 2.0.0
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -922,6 +1162,28 @@ class Lesson extends Model {
 	}
 
 	/**
+	 * Set enable preview.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @param string $enable Enable preview
+	 */
+	public function set_enable_preview( $enable ) {
+		$this->set_prop( 'enable_preview', masteriyo_string_to_bool( $enable ) );
+	}
+
+	/**
+	 * Set video preview enable.
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param string $enable Enable preview
+	 */
+	public function set_enable_video_preview( $enable ) {
+		$this->set_prop( 'enable_video_preview', masteriyo_string_to_bool( $enable ) );
+	}
+
+	/**
 	 * Set video playback time.
 	 *
 	 * @since 1.0.0
@@ -969,7 +1231,7 @@ class Lesson extends Model {
 	/**
 	 * Set download_materials.
 	 *
-	 * @since 1.9.0
+	 * @since 2.0.2
 	 *
 	 * @param array $download_materials Attachment IDs or URLs.
 	 */
@@ -977,13 +1239,80 @@ class Lesson extends Model {
 		$this->set_prop( 'download_materials', $download_materials );
 	}
 
+
 	/**
-	 * Set starts_at.
+	 * Set subtitle meta info for masteriyo player.
 	 *
-	 * @since 1.11.3
+	 * @since 2.17.0
 	 *
-	 * @param string $starts_at timestamp.
+	 * @param array $subtitle meta The array subtitle meta info like label, type, kind, etc.
+	 * @param bool $delete The delete has the condition to delete or update subtitle meta.
+	*/
+	public function set_subtitle_meta( $subtitle_meta ) {
+
+		if ( is_array( $subtitle_meta ) ) {
+				$this->set_prop( 'subtitle_meta', $subtitle_meta );
+		}
+	}
+
+
+
+
+
+
+
+	/**
+	 * Set audio source.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $audio_source audio source.
 	 */
+	public function set_audio_source( $audio_source ) {
+		$this->set_prop( 'audio_source', $audio_source );
+	}
+
+	/**
+	 * Set audio source url.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $audio_source_url Audio source url.
+	 */
+	public function set_audio_source_url( $audio_source_url ) {
+		$this->set_prop( 'audio_source_url', masteriyo_sanitize_media_embed( $audio_source_url ) );
+	}
+
+	/**
+	 * Set audio source files.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $audio_source_files Audio source files.
+	 */
+	public function set_audio_source_files( $audio_source_files ) {
+		$this->set_prop( 'audio_source_files', $audio_source_files );
+	}
+
+	/**
+	 * Set video meta info for masteriyo player.
+	 *
+	 * @since 2.13.0
+	 *
+	 * @param array $video_meta The array video meta info like timestamps, notes, enable_video_share, etc.
+	 */
+	public function set_video_meta( $video_meta ) {
+		$this->set_prop( 'video_meta', $video_meta );
+	}
+
+
+	/**
+		 * Set starts_at.
+		 *
+		 * @since 2.12.0
+		 *
+		 * @param string $starts_at timestamp.
+		 */
 	public function set_starts_at( $starts_at ) {
 		$this->set_prop( 'starts_at', $starts_at );
 	}
@@ -991,7 +1320,7 @@ class Lesson extends Model {
 	/**
 	 * Set ends_at.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $starts_at timestamp.
 	 */
@@ -1002,7 +1331,7 @@ class Lesson extends Model {
 	/**
 	 * Set live chat enabled.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $live_chat_enabled Live Chat Enabled.
 	 */
@@ -1010,15 +1339,45 @@ class Lesson extends Model {
 		$this->set_prop( 'live_chat_enabled', masteriyo_string_to_bool( $live_chat_enabled ) );
 	}
 
-		/**
-	 * Set video meta info for masteriyo player.
+	/**
+	 * Set PDF
 	 *
-	 * @since 1.12.0
+	 * @since 2.12.0
 	 *
-	 * @param array $video_meta The array video meta info like timestamps, notes, enable_video_share, etc.
+	 * @param object $pdf PDF.
 	 */
-	public function set_video_meta( $video_meta ) {
-		$this->set_prop( 'video_meta', $video_meta );
+	public function set_pdf( $pdf ) {
+		$this->set_prop( 'pdf', ( $pdf ) );
+	}
+
+	/**
+	 * Get pdf downloadable.
+	 *
+	 * @param string $context Context.
+	 * @return boolean
+	 */
+	public function get_pdf_downloadable( $context = 'view' ) {
+		return $this->get_prop( 'pdf_downloadable', $context );
+	}
+
+	/**
+	 * Set pdf downloadable.
+	 *
+	 * @param bool $pdf_downloadable Whether PDF is downloadable.
+	 */
+	public function set_pdf_downloadable( $pdf_downloadable ) {
+		$this->set_prop( 'pdf_downloadable', masteriyo_string_to_bool( $pdf_downloadable ) );
+	}
+
+	/**
+	 * Set transform live to normal video.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @param string $transform_live_to_video Transform Live To Video.
+	 */
+	public function set_transform_live_to_video( $transform_live_to_video ) {
+		$this->set_prop( 'transform_live_to_video', masteriyo_string_to_bool( $transform_live_to_video ) );
 	}
 
 	/**
@@ -1029,13 +1388,13 @@ class Lesson extends Model {
 	 * @param object $custom_fields Custom fields values.
 	 */
 	public function set_custom_fields( $custom_fields ) {
-		$this->set_prop( 'custom_fields', ( $custom_fields ) );
+		$this->set_prop( 'custom_fields', masteriyo_sanitize_custom_fields( $custom_fields ) );
 	}
 
 	/**
 	 * Set lesson type
 	 *
-	 * @since 2.0.0
+	 * @since 2.12.0
 	 *
 	 * @param string $type lesson type.
 	 */

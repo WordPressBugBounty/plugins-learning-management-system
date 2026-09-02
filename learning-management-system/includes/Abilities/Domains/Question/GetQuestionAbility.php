@@ -3,7 +3,6 @@
  * Get Question ability.
  *
  * @package Masteriyo\Abilities\Domains\Question
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Question;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns the question including its type (single-choice, multi-choice, true/false,
  * short answer, etc.), all answer options, and the correct answer flag.
- *
- * @since x.x.x
  */
 class GetQuestionAbility extends RestProxyAbility {
 

@@ -5,8 +5,8 @@ import type {
 } from '@pdfdraft/designer';
 import {
 	AdvancedSelectorRender,
-	designerQueryClient,
 	ElementToolbarItems,
+	designerQueryClient,
 	generateStyleString,
 	useEditorActions,
 } from '@pdfdraft/designer';
@@ -25,11 +25,29 @@ import {
 	User,
 	Users,
 } from '@pdfdraft/ui/icons';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
+import localized from '../../../../../assets/js/back-end/utils/global';
+import {
+	getPluginName,
+	isLicensePlanActive,
+} from '../../../../../assets/js/back-end/utils/utils';
+
+/**
+ * Whether an addon is active, read synchronously from the localized data so it
+ * resolves correctly at module-load time (before the wp.data `addOns` store is
+ * guaranteed registered).
+ */
+function isAddonActive(slug: string): boolean {
+	return ((localized?.addons as any[]) ?? []).some(
+		(addon) => addon?.slug === slug && addon?.active,
+	);
+}
 
 export const MASTERIYO_FIELD_GROUP: WpDataFieldGroup = {
 	source: 'masteriyo',
-	label: 'Masteriyo LMS',
+	// translators: %s: the product's name.
+	label: sprintf(__('%s LMS', 'learning-management-system'), getPluginName()),
 	fields: [
 		{
 			key: 'masteriyo:course_title',
@@ -41,6 +59,7 @@ export const MASTERIYO_FIELD_GROUP: WpDataFieldGroup = {
 			label: 'Student Name',
 			outputType: 'text',
 		},
+		{ key: 'masteriyo:qr_code', label: 'QR Code', outputType: 'image' },
 		{
 			key: 'masteriyo:completion_date',
 			label: 'Completion Date',
@@ -48,16 +67,39 @@ export const MASTERIYO_FIELD_GROUP: WpDataFieldGroup = {
 			hasDateFormat: true,
 		},
 		{
+			key: 'masteriyo:verification_code',
+			label: 'Verify Code',
+			outputType: 'text',
+		},
+		{
 			key: 'masteriyo:start_date',
 			label: 'Start Date',
 			outputType: 'text',
 			hasDateFormat: true,
 		},
+		...(isAddonActive('gradebook')
+			? [
+					{
+						key: 'masteriyo:grade',
+						label: 'Grade Result',
+						outputType: 'text' as const,
+					},
+				]
+			: []),
 		{
 			key: 'masteriyo:instructor_name',
 			label: 'Instructor Name',
 			outputType: 'text',
 		},
+		...(isAddonActive('multiple-instructors')
+			? [
+					{
+						key: 'masteriyo:co_instructors',
+						label: 'Co-Instructors',
+						outputType: 'text' as const,
+					},
+				]
+			: []),
 		{
 			key: 'masteriyo:course_duration',
 			label: 'Course Duration',
@@ -95,7 +137,7 @@ export const MASTERIYO_FIELD_GROUP: WpDataFieldGroup = {
 
 export const MASTERIYO_ELEMENT_CATEGORY: ElementCategory = {
 	namespace: 'masteriyo',
-	label: 'Masteriyo LMS',
+	label: '',
 	order: 3,
 };
 
@@ -108,18 +150,18 @@ const FIELD_ICONS: Record<string, React.ComponentType<any>> = {
 	'masteriyo:student_name_full': User,
 	'masteriyo:student_name_first': User,
 	'masteriyo:student_name_last': User,
+	'masteriyo:qr_code': QrCode,
 	'masteriyo:completion_date': CalendarCheck,
 	'masteriyo:start_date': Calendar,
+	'masteriyo:verification_code': Shield,
+	'masteriyo:grade': Star,
 	'masteriyo:instructor_name': GraduationCap,
+	'masteriyo:co_instructors': Users,
 	'masteriyo:course_duration': Clock,
 	'masteriyo:current_date': CalendarDays,
 	'masteriyo:current_time': Clock,
 	'masteriyo:current_timestamp': Timer,
 	'masteriyo:site_name': Globe,
-	'masteriyo:grade': Star,
-	'masteriyo:verification_code': Shield,
-	'masteriyo:co_instructors': Users,
-	'masteriyo:qr_code': QrCode,
 };
 
 const HEADING_OPTIONS = [
@@ -319,11 +361,13 @@ function makeMasteriyoElement(
 				(styleObj as any).fontWeight = hWeight;
 			const style = generateStyleString(styleObj);
 			const textAlign = (elementData?.style as any)?.textAlign ?? 'start';
-			const rawText: string =
+			const rawText: string = resolveFieldForPDF(
+				fieldKey,
 				(elementData?.props?.content as string | undefined) ||
-				(elementData?.content as string | undefined) ||
-				elementData?.props?.fallback ||
-				resolveFieldForPDF(fieldKey, label);
+					(elementData?.content as string | undefined) ||
+					elementData?.props?.fallback ||
+					label,
+			);
 			const escaped = rawText
 				.replace(/&/g, '&amp;')
 				.replace(/</g, '&lt;')
@@ -345,33 +389,32 @@ function makeMasteriyoElement(
 	};
 }
 
-const MASTERIYO_PRO_FIELDS: {
-	key: string;
-	label: string;
-	outputType: 'text' | 'image';
-}[] = [
-	{ key: 'masteriyo:grade', label: 'Grade', outputType: 'text' },
-	{
-		key: 'masteriyo:verification_code',
-		label: 'Verification Code',
-		outputType: 'text',
-	},
-	{
-		key: 'masteriyo:co_instructors',
-		label: 'Co-Instructors',
-		outputType: 'text',
-	},
-	{ key: 'masteriyo:qr_code', label: 'QR Code', outputType: 'image' },
-];
+/**
+ * Certificate fields that are a paid feature.
+ *
+ * They stay in the palette in both products: the editor renders a `pro`-tier
+ * element locked and routes a click to the upsell, and unlocks it when its
+ * `isPremium` config is true. Tier is a static property of the field; the
+ * licence check lives at the `isPremium` call site in EditCertificatePDFDraft.
+ *
+ * Grade and Co-Instructors are deliberately absent — they are gated on their
+ * own addons in MASTERIYO_FIELD_GROUP above, and an addon check is the better
+ * gate for them because it also hides a field a licensed site cannot fill.
+ */
+const MASTERIYO_PRO_FIELD_KEYS = new Set([
+	'masteriyo:verification_code',
+	'masteriyo:qr_code',
+]);
 
-export const MASTERIYO_CUSTOM_ELEMENTS: ElementType[] = [
-	...MASTERIYO_FIELD_GROUP.fields.map((f) =>
-		makeMasteriyoElement(f.key, f.label, f.outputType),
-	),
-	...MASTERIYO_PRO_FIELDS.map((f) =>
-		makeMasteriyoElement(f.key, f.label, f.outputType, 'pro'),
-	),
-];
+export const MASTERIYO_CUSTOM_ELEMENTS: ElementType[] =
+	MASTERIYO_FIELD_GROUP.fields.map((f) =>
+		makeMasteriyoElement(
+			f.key,
+			f.label,
+			f.outputType,
+			MASTERIYO_PRO_FIELD_KEYS.has(f.key) ? 'pro' : 'free',
+		),
+	);
 
 function resolveWpDataFieldForHTML(fieldKey: string, fallback: string): string {
 	const now = new Date();
@@ -419,11 +462,22 @@ function resolveWpDataFieldForHTML(fieldKey: string, fallback: string): string {
 }
 
 export function getMasteriyoMergeTagOptions() {
-	const masGroup = MASTERIYO_FIELD_GROUP.fields.map((f) => ({
-		tag: `{{${f.key}}}`,
-		label: f.label,
-		groupLabel: 'Masteriyo LMS',
-	}));
+	// The merge-tag dropdown is the other door onto the same fields: the tag
+	// resolves server-side in the shared CertificatePDF, so offering a paid
+	// field here would hand it over regardless of the palette's tier lock.
+	const isLicensed = isLicensePlanActive();
+
+	const masGroup = MASTERIYO_FIELD_GROUP.fields
+		.filter((f) => isLicensed || !MASTERIYO_PRO_FIELD_KEYS.has(f.key))
+		.map((f) => ({
+			tag: `{{${f.key}}}`,
+			label: f.label,
+			groupLabel: sprintf(
+				// translators: %s: the product's name.
+				__('%s LMS', 'learning-management-system'),
+				getPluginName(),
+			),
+		}));
 
 	const wpFields = [
 		{ tag: '{{site.name}}', label: 'Site Name', groupLabel: 'Site Info' },

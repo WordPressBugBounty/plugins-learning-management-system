@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  */
 
 namespace Masteriyo\Addons\GroupCourses\Emails;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Group course enrollment email to the user class.
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +24,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @var String
 	 */
@@ -33,7 +33,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @param int $student_id User ID.
 	 * @param int $group_id Group ID.
@@ -62,8 +62,16 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 			return;
 		}
 
-		$user_email = $student->get_email();
-		$this->set_recipients( $user_email );
+		$user_email           = $student->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.student.group_course_enroll.to_address' );
+		$to_address           = array();
+
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{student_email}', $user_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $user_email );
 
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'student', $student );
@@ -82,7 +90,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return bool
 	 */
@@ -92,7 +100,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 		/**
 		 * Filters boolean-like value: 'yes' if group course enrollment should be disabled, otherwise 'no'.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $is_disabled 'yes' if group course enrollment should be disabled, otherwise 'no'.
 		 */
@@ -104,7 +112,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -145,7 +153,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.9.0s
+	 * @since 1.9.0 [Free]s
 	 *
 	 * @return string
 	 */
@@ -153,11 +161,12 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 		/**
 		 * Filter group course enrollment subject to the user.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['group_course_enroll']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.group_course_enroll.subject' ) );
+		$subject = empty( trim( $subject ) ) ? masteriyo_get_default_email_contents()['student']['group_course_enroll']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -165,7 +174,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -173,15 +182,14 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 		/**
 		 * Filter group course enrollment heading to the user.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $heading.
 		 */
-		$heading = apply_filters( $this->get_full_id() . '_heading', '' );
+		$heading = apply_filters( $this->get_full_id() . '_heading', masteriyo_get_setting( 'emails.student.group_course_enroll.heading' ) );
 
 		return $this->format_string( $heading );
 	}
-
 
 	/**
 	 * Get email content.
@@ -191,7 +199,11 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['student']['group_course_enroll']['content'];
+		$content = masteriyo_get_setting( 'emails.student.group_course_enroll.content' );
+
+		if ( empty( trim( $content ) ) ) {
+			$content = masteriyo_get_default_email_contents()['student']['group_course_enroll']['content'];
+		}
 
 		$content = $this->format_string( $content );
 
@@ -203,7 +215,7 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -212,12 +224,92 @@ class GroupCourseEnrollmentEmailToNewMember extends Email {
 		/**
 		 * Filter group course enrollment additional content to the user.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $additional_content.
 		 */
-		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', '' );
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.student.group_course_enroll.additional_content' ) );
 
 		return $this->format_string( $additional_content );
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.group_course_enroll.reply_to_name' ) );
+
+		return ! empty( trim( $reply_to_name ) ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.group_course_enroll.reply_to_address' ) );
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.group_course_enroll.from_name' ) );
+
+		return ! empty( trim( $from_name ) ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.group_course_enroll.from_address' ) );
+
+		return ! empty( trim( $from_address ) ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

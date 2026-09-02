@@ -2,7 +2,7 @@
 /**
  * Ajax handler to remove course from a user's wishlist.
  *
- * @since 1.12.2
+ * @since 2.3.4
  *
  * @package Masteriyo\Addons\WishList\AjaxHandlers
  */
@@ -19,7 +19,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 	/**
 	 * Ajax action name.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -28,7 +28,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 	/**
 	 * Register ajax handler.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function register() {
 		add_action( "wp_ajax_{$this->action}", array( $this, 'handle' ) );
@@ -37,7 +37,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 	/**
 	 * Handle the ajax request.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function handle() {
 		try {
@@ -45,7 +45,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 				throw new \Exception( __( 'Nonce is required.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( sanitize_key(wp_unslash($_POST['_wpnonce'])), 'masteriyo-wishlist-toggle-nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'masteriyo-wishlist-toggle-nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 
@@ -70,7 +70,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 				/**
 				 * Fires after adding a course to wishlist.
 				 *
-				 * @since 1.12.2
+				 * @since 2.3.4
 				 *
 				 * @param integer $course_id Course ID.
 				 * @param integer $user_id ID of the user that the wishlist belongs to.
@@ -84,7 +84,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 				/**
 				 * Fires when trying to remove a course from a wishlist but the course isn't in the wishlist.
 				 *
-				 * @since 1.12.2
+				 * @since 2.3.4
 				 *
 				 * @param integer $course_id Course ID.
 				 * @param integer $user_id ID of the user that the wishlist belongs to.
@@ -95,7 +95,7 @@ class RemoveCourseFromWishlistAjaxHandler extends AjaxHandler {
 			/**
 			 * Filters the response for Remove Course from Wishlist AJAX endpoint.
 			 *
-			 * @since 1.12.2
+			 * @since 2.3.4
 			 *
 			 * @param array $response The AJAX response.
 			 * @param integer $course_id Course ID.

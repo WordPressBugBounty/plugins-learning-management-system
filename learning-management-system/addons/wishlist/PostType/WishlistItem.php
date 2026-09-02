@@ -2,7 +2,7 @@
 /**
  * Wishlist item post type.
  *
- * @since 1.12.2
+ * @since 2.3.4
  */
 
 namespace Masteriyo\Addons\WishList\PostType;
@@ -16,7 +16,7 @@ class WishListItem extends PostType {
 	/**
 	 * Post slug.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -25,7 +25,7 @@ class WishListItem extends PostType {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function __construct() {
 		$debug = masteriyo_is_post_type_debug_enabled();

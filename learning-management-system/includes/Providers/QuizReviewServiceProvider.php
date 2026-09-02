@@ -19,7 +19,32 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use PHP_CodeSniffer\Tokenizers\Comment;
 
 class QuizReviewServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'quiz_review',
+				'quiz_review.store',
+				'quiz_review.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\QuizReviewsController',
+			),
+			true
+		);
+	}
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -40,33 +65,6 @@ class QuizReviewServiceProvider extends AbstractServiceProvider implements Boota
 
 		$this->getContainer()->add( 'quiz_review', QuizReview::class )
 		->addArgument( 'quiz_review.store' );
-	}
-
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * Check if the service provider provides a specific service.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id Service identifier.
-	 * @return bool True if the service is provided, false otherwise.
-	 */
-	public function provides( string $id ): bool {
-		return in_array(
-			$id,
-			array(
-				'quiz_review',
-				'quiz_review.store',
-				'quiz_review.rest',
-				'\Masteriyo\RestApi\Controllers\Version1\QuizReviewsController',
-			),
-			true
-		);
 	}
 
 	/**

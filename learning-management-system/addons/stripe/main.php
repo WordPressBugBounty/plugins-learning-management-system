@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Addons\Stripe\StripeAddon;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_STRIPE_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_STRIPE_ADDON_BASENAME', plugin_basename( __FILE__ ) );

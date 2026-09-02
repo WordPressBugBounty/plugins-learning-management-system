@@ -25,7 +25,7 @@ const MeetingSuccessConsentScreen: React.FC<Props> = ({
 	const consentScreenButtons = useMemo(() => {
 		return [
 			{
-				title: 'Reset Credentials',
+				title: __('Reset Credentials', 'learning-management-system'),
 				Icon: RiRestartLine,
 				colorScheme: 'primary',
 				onClick: () => onResetCredentialsModalChange(true),

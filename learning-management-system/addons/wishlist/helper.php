@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Wishlist addon helper functions.
  *
- * @since 1.12.2
+ * @since 2.3.4
  */
 
 use Masteriyo\Addons\WishList\WishlistItemsQuery;
@@ -14,7 +14,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_items' ) ) {
 	/**
 	 * Get wishlist items.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $args Query arguments.
 	 *
@@ -27,7 +27,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_items' ) ) {
 		/**
 		 * Filters queried wishlist items.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $items Queried wishlist items.
 		 * @param array $args Query args.
@@ -40,7 +40,7 @@ if ( ! function_exists( 'masteriyo_user_has_course_in_wishlist' ) ) {
 	/**
 	 * Check if a user has a course in their wishlist.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer $user_id User ID.
 	 * @param integer $course_id Course ID.
@@ -59,7 +59,7 @@ if ( ! function_exists( 'masteriyo_user_has_course_in_wishlist' ) ) {
 		/**
 		 * Filters boolean: True if the given user has the given course in their wishlist.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param boolean $bool True if the given user has the given course in their wishlist.
 		 * @param integer $user_id User ID.
@@ -73,7 +73,7 @@ if ( ! function_exists( 'masteriyo_current_user_has_course_in_wishlist' ) ) {
 	/**
 	 * Check if the current user has a course in their wishlist.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer $course_id Course ID.
 	 *
@@ -88,7 +88,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_item_by_user_and_course' ) ) {
 	/**
 	 * Get the wishlist item ID, if the given user has the given course in their wishlist.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer $user_id User ID.
 	 * @param integer $course_id Course ID.
@@ -108,7 +108,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_item_by_user_and_course' ) ) {
 		/**
 		 * Filters the wishlist item ID, that contains the given user ID and course ID.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param integer $item The wishlist item.
 		 * @param integer $user_id User ID.
@@ -122,7 +122,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_item' ) ) {
 	/**
 	 * Get wishlist item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param int|\Masteriyo\Addons\WishList\Models\WishListItem|\WP_Post $wishlist_item ID or model object or WP_Post object.
 	 *
@@ -151,7 +151,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_item' ) ) {
 		/**
 		 * Filters wishlist item object.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item_obj The wishlist item object.
 		 * @param int|\Masteriyo\Addons\WishList\Models\WishListItem|WP_Post $wishlist_item ID or model object or WP_Post object.
@@ -164,7 +164,7 @@ if ( ! function_exists( 'masteriyo_sync_wishlist_items_with_course' ) ) {
 	/**
 	 * Sync wishlist items with a course, by updating them with the latest value of the course.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id ID or model object or WP_Post object.
 	 */
@@ -183,9 +183,9 @@ if ( ! function_exists( 'masteriyo_sync_wishlist_items_with_course' ) ) {
 		$course_id    = $course->get_id();
 		$table        = $wpdb->posts;
 		$course_title = sanitize_text_field( $course->get_title() );
-		$sql          = "UPDATE $table SET post_title = '%s' WHERE post_type = 'mto-wishlist-item' AND post_parent = %d";
+		$sql          = "UPDATE $table SET post_title = %s WHERE post_type = 'mto-wishlist-item' AND post_parent = %d";
 
-		$wpdb->query( $wpdb->prepare( $sql, array( $course_title, $course_id ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( $wpdb->prepare( $sql, $course_title, $course_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		/**
 		 * Prepare common data.
@@ -204,21 +204,15 @@ if ( ! function_exists( 'masteriyo_sync_wishlist_items_with_course' ) ) {
 
 		$post_meta_table = _get_meta_table( 'post' );
 
-		if ( ! $post_meta_table ) {
+		if ( ! $post_meta_table || empty( $wishlist_item_ids ) ) {
 			return;
 		}
-
-		$ids_where_condition = 'post_id IN (0';
-
-		foreach ( $wishlist_item_ids as $id ) {
-			$ids_where_condition .= ', %d';
-		}
-		$ids_where_condition .= ')';
 
 		/**
 		 * Delete all previous metadata for force update.
 		 */
-		$sql = "DELETE FROM $post_meta_table WHERE meta_key IN ('_course_price', '_course_difficulty', '_course_category_ids') AND " . $ids_where_condition;
+		$ids_placeholder = implode( ', ', array_fill( 0, count( $wishlist_item_ids ), '%d' ) );
+		$sql             = "DELETE FROM $post_meta_table WHERE meta_key IN ('_course_price', '_course_difficulty', '_course_category_ids') AND post_id IN ($ids_placeholder)";
 
 		$wpdb->query( $wpdb->prepare( $sql, $wishlist_item_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
@@ -255,7 +249,7 @@ if ( ! function_exists( 'masteriyo_remove_course_from_wishlist' ) ) {
 	/**
 	 * Remove a course from a user's wishlist.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer $course_id ID or model object or WP_Post object.
 	 * @param integer $user_id Wishlist owner's ID.
@@ -282,7 +276,7 @@ if ( ! function_exists( 'masteriyo_create_wishlist_item_object' ) ) {
 	/**
 	 * Create an instance of WishListItem class.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return \Masteriyo\Addons\WishList\Models\WishListItem
 	 */
@@ -295,7 +289,7 @@ if ( ! function_exists( 'masteriyo_get_wishlist_item_store' ) ) {
 	/**
 	 * Get wishlist item store.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return \Masteriyo\Addons\WishList\Repository\WishListItemRepository
 	 */

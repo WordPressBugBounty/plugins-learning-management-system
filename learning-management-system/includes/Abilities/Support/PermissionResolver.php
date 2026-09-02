@@ -6,7 +6,6 @@
  * own *_permissions_check() methods, ensuring perfect parity with the REST API.
  *
  * @package Masteriyo\Abilities\Support
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Support;
@@ -15,15 +14,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Resolves ability permissions by calling the controller's existing check methods.
- *
- * @since x.x.x
  */
 class PermissionResolver {
 
 	/**
 	 * Map each ability verb to the controller method that checks it.
 	 *
-	 * @since x.x.x
 	 * @var array
 	 */
 	private static $verb_method_map = array(
@@ -40,8 +36,6 @@ class PermissionResolver {
 	 *
 	 * WP_Error responses are treated as denial (false). This matches how the REST
 	 * API would respond to a client that lacks the necessary capability.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Controller $controller REST controller to check against.
 	 * @param string              $verb        The ability verb (list, get, create, etc.).

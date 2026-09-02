@@ -12,12 +12,20 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Enums\CourseFlow;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\VideoSource;
 use Masteriyo\Helper\Permission;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\CoursePriceType;
 use Masteriyo\Enums\CourseAccessMode;
+use Masteriyo\Enums\CourseBillingPeriod;
+use Masteriyo\Enums\SectionChildrenPostType;
+use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use Masteriyo\Jobs\CheckCourseEndDateJob;
+use Masteriyo\AddonsFramework\Addons;
 use DateTime;
 use DateTimeZone;
+
+
 class CoursesController extends PostsController {
 	/**
 	 * Endpoint namespace.
@@ -251,13 +259,32 @@ class CoursesController extends PostsController {
 			)
 		);
 
+		// @since 2.5.7 Added clone endpoint to lessons REST API.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/clone',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'clone_item' ),
+					'permission_callback' => array( $this, 'clone_item_permissions_check' ),
+				),
+			)
+		);
+
 		/**
 		 * Registers the REST API routes for the Courses controller.
 		 *
 		 * This action hook allows other plugins or modules to register additional routes
 		 * for the Courses controller.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $namespace The API namespace.
 		 * @param string $rest_base The REST base.
@@ -266,46 +293,6 @@ class CoursesController extends PostsController {
 		do_action( 'masteriyo_rest_api_register_course_routes', $this->namespace, $this->rest_base, $this );
 	}
 
-	/**
-	 * Restore courses.
-	 *
-	 * @since 1.13.3
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_Error|WP_REST_Response
-	 */
-	public function restore_items( $request ) {
-		$restored_objects = array();
-
-		$objects = $this->get_objects(
-			array(
-				'post_status'    => PostStatus::TRASH,
-				'post_type'      => $this->post_type,
-				'post__in'       => $request['ids'],
-				'posts_per_page' => -1,
-			)
-		);
-
-		$objects = isset( $objects['objects'] ) ? $objects['objects'] : array();
-
-		foreach ( $objects as $object ) {
-			if ( ! $this->check_item_permission( $this->post_type, 'delete', $object->get_id() ) ) {
-				continue;
-			}
-
-			wp_untrash_post( $object->get_id() );
-
-			// Read object again.
-			$object->set_status( PostStatus::DRAFT );
-
-			// do_action( 'masteriyo_rest_restore_course_item', $object->get_id(), $object );
-			$data               = $this->prepare_object_for_response( $object, $request );
-			$restored_objects[] = $this->prepare_response_for_collection( $data );
-		}
-
-		return rest_ensure_response( $restored_objects );
-	}
 
 	/**
 	 * Get the query params for collections of attachments.
@@ -370,6 +357,13 @@ class CoursesController extends PostsController {
 			'description'       => __( 'Limit result set to courses assigned a specific difficulty ID.', 'learning-management-system' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+
+		$params['access_mode'] = array(
+			'description'       => __( 'List courses with specific access mode.', 'learning-management-system' ),
+			'type'              => 'string',
+			'enum'              => CourseAccessMode::all(),
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
@@ -485,15 +479,10 @@ class CoursesController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $course, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-		$description           = '';
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $course->get_description() ) ) ) : $course->get_description( $context );
+		if ( 'view' === $context ) {
+			return masteriyo_format_content_for_view( wp_kses_post( $course->get_description() ) );
 		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( wp_kses_post( $course->get_description() ) ) : $course->get_description( $context );
-		}
-		return $description;
+		return $course->get_description( $context );
 	}
 
 	/**
@@ -535,6 +524,7 @@ class CoursesController extends PostsController {
 			'slug'                               => $course->get_slug( $context ),
 			'permalink'                          => $course->get_permalink(),
 			'preview_permalink'                  => $course->get_preview_link(),
+			'page_preview_permalink'             => (string) $course->get_preview_course_link(),
 			'student_preview_permalink'          => masteriyo_current_user_can_student_preview()
 				? $course->get_student_preview_link()
 				: '',
@@ -562,7 +552,6 @@ class CoursesController extends PostsController {
 			'enrollment_limit'                   => $course->get_enrollment_limit( $context ),
 			'duration'                           => $course->get_duration( $context ),
 			'access_mode'                        => $course->get_access_mode( $context ),
-			'billing_cycle'                      => $course->get_billing_cycle( $context ),
 			'show_curriculum'                    => $course->get_show_curriculum( $context ),
 			'highlights'                         => $course->get_highlights( $context ),
 			'edit_post_link'                     => $course->get_edit_post_link(),
@@ -572,19 +561,37 @@ class CoursesController extends PostsController {
 			'is_ai_created'                      => $course->get_is_ai_created( $context ),
 			'is_creating'                        => $course->get_is_creating( $context ),
 			'end_date'                           => ! empty( $course->get_end_date( $context ) ) ? masteriyo_rest_prepare_date_response( $course->get_end_date( $context ) ) : null,
-			'enable_end_date'                    => $course->get_enable_end_date( $context ),
+			'course_start_date'                  => ! empty( $course->get_course_start_date( $context ) ) ? masteriyo_rest_prepare_date_response( $course->get_course_start_date( $context ) ) : null,
+			'enrollment_opens_on'                => ! empty( $course->get_enrollment_opens_on( $context ) ) ? masteriyo_rest_prepare_date_response( $course->get_enrollment_opens_on( $context ) ) : null,
+			'enrollment_closes_on'               => ! empty( $course->get_enrollment_closes_on( $context ) ) ? masteriyo_rest_prepare_date_response( $course->get_enrollment_closes_on( $context ) ) : null,
 			'enable_course_retake'               => $course->get_enable_course_retake( $context ),
+			'enable_cohort_mode'                 => $course->get_enable_cohort_mode( $context ),
+			'enable_end_date'                    => $course->get_enable_end_date( $context ),
+
+			// PRO: Subscription fields (when access_mode is recurring)
+			'billing_period'                     => $course->get_billing_period( $context ),
+			'billing_interval'                   => $course->get_billing_interval( $context ),
+			'billing_expire_after'               => $course->get_billing_expire_after( $context ),
+
+			// Pro.
+			'featured_video_source'              => $course->get_featured_video_source( $context ),
+			'featured_video_url'                 => $course->get_featured_video_url( $context ),
+			'flow'                               => $course->get_flow( $context ),
+			'enrollment_expiration_enabled'      => $course->get_enrollment_expiration_enabled( $context ),
+			'enrollment_expiration_duration'     => $course->get_enrollment_expiration_duration( $context ),
+
 			'review_after_course_completion'     => $course->get_review_after_course_completion( $context ),
 			'disable_course_content'             => $course->get_disable_course_content( $context ),
-			'fake_enrolled_count'                => $course->get_fake_enrolled_count( $context ),
 			'welcome_message_to_first_time_user' => $course->get_welcome_message_to_first_time_user( $context ),
+			'fake_enrolled_count'                => $course->get_fake_enrolled_count( $context ),
 			'course_badge'                       => $course->get_course_badge( $context ),
-			'flow'                               => $course->get_flow( $context ),
 			'custom_fields'                      => $course->get_custom_fields( $context ),
+
+			// PDF download URL.
+			'pdf_download_url'                   => masteriyo_generate_course_pdf_download_url( $course ),
 
 			// Preview mode helpers
 			'is_current_user_course_author'      => masteriyo_bool_to_string( masteriyo_is_current_user_post_author( $course->get_id() ) ),
-
 		);
 
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' ) || user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
@@ -612,7 +619,9 @@ class CoursesController extends PostsController {
 	 * @param Course $course Course object.
 	 * @param string $taxonomy Taxonomy slug.
 	 *
-	 * @return array
+	 * @return array|null A list of terms for every taxonomy except 'difficulty', which yields a
+	 *                    SINGLE term — or null when the course carries no difficulty term,
+	 *                    because array_shift() on an empty array returns null.
 	 */
 	protected function get_taxonomy_terms( $course, $taxonomy = 'cat' ) {
 		$terms = Utils::get_object_terms( $course->get_id(), 'course_' . $taxonomy );
@@ -621,7 +630,7 @@ class CoursesController extends PostsController {
 			function ( $term ) {
 				return array(
 					'id'   => $term->term_id,
-					'name' => $term->name,
+					'name' => wp_specialchars_decode( $term->name ),
 					'slug' => $term->slug,
 				);
 			},
@@ -706,6 +715,14 @@ class CoursesController extends PostsController {
 			);
 		}
 
+		if ( $request['access_mode'] ) {
+			$args['meta_query'][] = array(
+				'key'     => '_access_mode',
+				'value'   => $request['access_mode'],
+				'compare' => '=',
+			);
+		}
+
 		if ( masteriyo_is_current_user_admin() ) {
 			unset( $args['author'] );
 		}
@@ -756,6 +773,13 @@ class CoursesController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
+				'page_preview_permalink'         => array(
+					'description' => __( 'Preview URL for the single course page; resolves for every status except trash.', 'learning-management-system' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 				'student_preview_permalink'      => array(
 					'description' => __( 'Student preview magic link (admin/instructor only).', 'learning-management-system' ),
 					'type'        => 'string',
@@ -801,6 +825,18 @@ class CoursesController extends PostsController {
 					'description' => __( 'Featured course.', 'learning-management-system' ),
 					'type'        => 'boolean',
 					'default'     => false,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'featured_video_source'          => array(
+					'description' => __( 'Featured video source', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'default'     => VideoSource::SELF_HOSTED,
+					'enum'        => VideoSource::all(),
+				),
+				'featured_video_url'             => array(
+					'description' => __( 'Featured video URL or id if self hosted', 'learning-management-system' ),
+					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'catalog_visibility'             => array(
@@ -979,7 +1015,26 @@ class CoursesController extends PostsController {
 				),
 				'billing_cycle'                  => array(
 					'description' => __( 'Course billing cycle (1d, 2w, 3m, 4y).', 'learning-management-system' ),
+				),
+				'billing_interval'               => array(
+					'description' => __( 'Course billing interval.', 'learning-management-system' ),
+					'type'        => 'integer',
+					'default'     => 1,
+					'min'         => 1,
+					'max'         => 6,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'billing_period'                 => array(
+					'description' => __( 'Course billing period.', 'learning-management-system' ),
 					'type'        => 'string',
+					'default'     => CourseBillingPeriod::YEAR,
+					'enum'        => CourseBillingPeriod::all(),
+					'context'     => array( 'view', 'edit' ),
+				),
+				'billing_expire_after'           => array(
+					'description' => __( 'Course billing expire after.', 'learning-management-system' ),
+					'type'        => 'integer',
+					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'show_curriculum'                => array(
@@ -1006,14 +1061,48 @@ class CoursesController extends PostsController {
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'flow'                           => array(
+					'description' => __( 'Course flow', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'default'     => CourseFlow::FREE_FLOW,
+					'enum'        => CourseFlow::all(),
+				),
 				'students_count'                 => array(
 					'description' => __( 'Enrolled students count', 'learning-management-system' ),
 					'type'        => 'integer',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'enrollment_expiration_enabled'  => array(
+					'description' => __( 'Indicates if enrollment expiration is enabled for the course', 'learning-management-system' ),
+					'type'        => 'boolean',
+					'readonly'    => false,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'enrollment_expiration_duration' => array(
+					'description' => __( 'Duration for which the enrollment is valid (in days)', 'learning-management-system' ),
+					'type'        => 'integer',
+					'readonly'    => false,
+					'context'     => array( 'view', 'edit' ),
+				),
 				'end_date'                       => array(
 					'description' => __( 'Course end date', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'course_start_date'              => array(
+					'description' => __( 'Course start date', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'enrollment_opens_on'            => array(
+					'description' => __( 'Enrollment opens on', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'enrollment_closes_on'           => array(
+					'description' => __( 'Enrollment closes on', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
@@ -1026,13 +1115,6 @@ class CoursesController extends PostsController {
 					'type'        => 'integer',
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
-				),
-				'flow'                           => array(
-					'description' => __( 'Course flow', 'learning-management-system' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'default'     => CourseFlow::FREE_FLOW,
-					'enum'        => CourseFlow::all(),
 				),
 				'custom_fields'                  => array(
 					'description' => __( 'Custom fields', 'learning-management-system' ),
@@ -1120,7 +1202,6 @@ class CoursesController extends PostsController {
 			// Update  all the enrollments related with this course.
 			$this->update_enrollments_status( $course, $current_status, $new_status );
 			$course->set_status( $new_status );
-
 		}
 
 		// Post slug.
@@ -1148,9 +1229,21 @@ class CoursesController extends PostsController {
 			$course->set_featured( $request['featured'] );
 		}
 
+		// Featured video source.
+		if ( isset( $request['featured_video_source'] ) ) {
+			$course->set_featured_video_source( $request['featured_video_source'] );
+		}
+
+		// Featured video source url.
+		if ( isset( $request['featured_video_url'] ) ) {
+			$course->set_featured_video_url( $request['featured_video_url'] );
+		}
+
 		// Regular Price.
 		if ( isset( $request['regular_price'] ) ) {
-			'' === $request['regular_price'] ? $course->set_regular_price( '0' ) : $course->set_regular_price( $request['regular_price'] );
+			// An empty price must persist as '0', not ''. masteriyo_format_decimal( '' ) is '',
+			// and an empty WC regular price means "not purchasable" rather than "free".
+			$course->set_regular_price( '' === $request['regular_price'] ? '0' : $request['regular_price'] );
 		}
 
 		// Sale Price.
@@ -1184,8 +1277,18 @@ class CoursesController extends PostsController {
 		}
 
 		// Course billing cycle.
-		if ( isset( $request['billing_cycle'] ) ) {
-			$course->set_billing_cycle( $request['billing_cycle'] );
+		if ( isset( $request['billing_period'] ) ) {
+			$course->set_billing_period( $request['billing_period'] );
+		}
+
+		// Course billing interval.
+		if ( isset( $request['billing_interval'] ) ) {
+			$course->set_billing_interval( $request['billing_interval'] );
+		}
+
+		// Course billing expire after.
+		if ( isset( $request['billing_expire_after'] ) ) {
+			$course->set_billing_expire_after( $request['billing_expire_after'] );
 		}
 
 		// Course show curriculum.
@@ -1252,6 +1355,35 @@ class CoursesController extends PostsController {
 			}
 		}
 
+		// Course start date.
+		if ( isset( $request['course_start_date'] ) ) {
+			$course_start_date = $request['course_start_date']
+			? ( new \DateTime( $request['course_start_date'], new \DateTimeZone( 'UTC' ) ) )
+			->format( 'Y-m-d\TH:i:s\Z' )
+			: null;
+
+			$course->set_course_start_date( $course_start_date );
+		}
+
+		// Enrollment start date and close date.
+		if ( isset( $request['enrollment_opens_on'] ) ) {
+			$enrollment_opens_on = $request['enrollment_opens_on']
+			? ( new \DateTime( $request['enrollment_opens_on'], new \DateTimeZone( 'UTC' ) ) )
+			->format( 'Y-m-d\TH:i:s\Z' )
+			: null;
+
+			$course->set_enrollment_opens_on( $enrollment_opens_on );
+		}
+
+		if ( isset( $request['enrollment_closes_on'] ) ) {
+			$enrollment_closes_on = $request['enrollment_closes_on'] ?? null;
+			$enrollment_closes_on = $enrollment_closes_on
+			? ( new \DateTime( $enrollment_closes_on, new \DateTimeZone( 'UTC' ) ) )
+			->format( 'Y-m-d\TH:i:s\Z' )
+			: null;
+			$course->set_enrollment_closes_on( $enrollment_closes_on );
+		}
+
 		// Course badge.
 		if ( isset( $request['course_badge'] ) ) {
 			$course->set_course_badge( sanitize_text_field( $request['course_badge'] ) );
@@ -1269,10 +1401,24 @@ class CoursesController extends PostsController {
 			}
 		}
 
+		// Course flow.
+		if ( isset( $request['flow'] ) ) {
+			$course->set_flow( $request['flow'] );
+		}
+
+		// Check if 'enrollment_expiration_enabled' is set in the request and update the course object accordingly.
+		if ( isset( $request['enrollment_expiration_enabled'] ) ) {
+			$course->set_enrollment_expiration_enabled( $request['enrollment_expiration_enabled'] );
+		}
+
+		// Check if 'enrollment_expiration_duration' is set in the request and update the course object accordingly.
+		if ( isset( $request['enrollment_expiration_duration'] ) ) {
+			$course->set_enrollment_expiration_duration( $request['enrollment_expiration_duration'] );
+		}
+
 		// Allow set welcome_message_to_first_time_user.
 		if ( isset( $request['welcome_message_to_first_time_user'] ) ) {
 			$course->set_welcome_message_to_first_time_user( $request['welcome_message_to_first_time_user'] );
-
 		}
 
 		// Course fake enrolled count.
@@ -1280,14 +1426,13 @@ class CoursesController extends PostsController {
 			$course->set_fake_enrolled_count( $request['fake_enrolled_count'] );
 		}
 
-		// Course flow.
-		if ( isset( $request['flow'] ) ) {
-			$course->set_flow( $request['flow'] );
-		}
-
 		// Custom field values.
 		if ( isset( $request['custom_fields'] ) ) {
 			$course->set_custom_fields( $request['custom_fields'] );
+		}
+
+		if ( isset( $request['enable_cohort_mode'] ) ) {
+			$course->set_enable_cohort_mode( $request['enable_cohort_mode'] );
 		}
 
 		if ( isset( $request['enable_end_date'] ) ) {
@@ -1403,7 +1548,6 @@ class CoursesController extends PostsController {
 	/**
 	 * Check permissions for GET /courses/{id}/preview-link.
 	 *
-	 * @since x.x.x
 	 * @param WP_REST_Request $request
 	 * @return bool
 	 */
@@ -1425,7 +1569,6 @@ class CoursesController extends PostsController {
 	 * GET /masteriyo/v1/courses/{id}/preview-link
 	 * GET /masteriyo/v1/courses/{id}/preview-link?email=someone@example.com
 	 *
-	 * @since x.x.x
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -1467,6 +1610,7 @@ class CoursesController extends PostsController {
 
 		do_action( 'masteriyo_course_restore', $request['id'], $object );
 
+		// Read object again.
 		$object = $this->get_object( (int) $request['id'] );
 
 		$data     = $this->prepare_object_for_response( $object, $request );
@@ -1507,7 +1651,40 @@ class CoursesController extends PostsController {
 			);
 		}
 
-		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && PostStatus::PUBLISH !== $course->get_status() ) {
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+			if ( masteriyo_is_instructor_or_additional_instructor( $request['id'] ) ) {
+				return true;
+			}
+		}
+		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) &&
+		! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		/*
+		 * A private course is readable only by someone who may edit it or who is actually enrolled.
+		 *
+		 * The status guard above admits PostStatus::PVT because a private course is still a real
+		 * course for its own students; the eligibility half of that has to live here, on its own,
+		 * for two reasons. The open-access short-circuit immediately below returns true before any
+		 * enrolment is consulted, and masteriyo_can_start_course() cannot supply the missing test
+		 * either — it is unconditionally true for an open-access course
+		 * (includes/Helper/course.php), before the user is looked at at all.
+		 *
+		 * This is the same policy the two other private-course gates enforce: the course page
+		 * (includes/Masteriyo.php — access_denied when anonymous, not_enrolled when there is no
+		 * UserCourse row and the user is not an admin or instructor) and the main query
+		 * (FrontendQuery::include_private_courses_for_eligible_students).
+		 */
+		if ( PostStatus::PVT === $course->get_status()
+			&& ! user_can( get_current_user_id(), 'edit_course', $course->get_id() )
+			&& ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -1518,6 +1695,10 @@ class CoursesController extends PostsController {
 		}
 
 		if ( CourseAccessMode::OPEN === $course->get_access_mode() ) {
+			return true;
+		}
+
+		if ( masteriyo_course_has_previewable_lessons( $request['id'] ) ) {
 			return true;
 		}
 
@@ -1532,6 +1713,160 @@ class CoursesController extends PostsController {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Clone one item/post from the collection.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function clone_item( $request ) {
+		$response = parent::clone_item( $request );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$new_course = get_post( masteriyo_array_get( $response->get_data(), 'id' ) );
+
+		$new_course_id = $new_course->ID ?? 0;
+		$sections      = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => PostType::SECTION,
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $request['id'],
+			)
+		);
+
+		foreach ( $sections as $section ) {
+			/**
+			 * Fires before cloning course section.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post $child Section child.
+			 * @param \WP_Request $request WP Request object.
+			 * @param \WP_Response $response WP Response object.
+			 */
+			do_action( 'masteriyo_rest_pro_before_course_section_clone', $section, $request, $response );
+
+			$new_section = $this->clone( $section->ID, array( 'post_parent' => $new_course->ID ) );
+
+			// Update course ID of the new section to new course ID.
+			update_post_meta( $new_section->ID, '_course_id', $new_course->ID );
+
+			if ( PostType::SECTION === $new_section->post_type ) {
+				$this->clone_section_children( $section, $new_section, $new_course );
+			}
+
+			/**
+			 * Fires after cloning section children.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post|null $new_section
+			 * @param \WP_Post $section Section child.
+			 * @param \WP_Request $request WP Request object.
+			 * @param \WP_Response $response WP Response object.
+			 */
+			do_action( 'masteriyo_rest_pro_after_section_children_clone', $new_section, $section, $request, $response );
+		}
+
+		do_action( 'masteriyo_rest_pro_before_course_clone_response', $new_course_id, $response );
+
+		$new_course_object = masteriyo_get_course( $new_course_id );
+		if ( $new_course_object ) {
+			/**
+			 * Fires after a course is duplicated.
+			 *
+			 * @param integer $new_course_id The new duplicated course ID.
+			 * @param \Masteriyo\Models\Course $new_course_object The new duplicated course object.
+			 */
+			do_action( 'masteriyo_new_course', $new_course_id, $new_course_object );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Clone section's children.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param \WP_Post $old_section Old section post
+	 * @param \WP_Post $new_section New cloned section post.
+	 * @param \WP_Post $new_course_id New course ID.
+	 */
+	protected function clone_section_children( $old_section, $new_section, $new_course ) {
+		$children = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => SectionChildrenPostType::all(),
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $old_section->ID,
+			)
+		);
+
+		foreach ( $children as $child ) {
+			/**
+			 * Fires before cloning section children.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post $child Section child.
+			 */
+			do_action( 'masteriyo_rest_pro_before_section_children_clone', $child );
+
+			$new_child = $this->clone( $child->ID, array( 'post_parent' => $new_section->ID ) );
+
+			// Update course ID of the new section to new course ID.
+			update_post_meta( $new_child->ID, '_course_id', $new_course->ID );
+
+			if ( PostType::QUIZ === $child->post_type ) {
+				$this->clone_questions( $child, $new_child, $new_course );
+			}
+
+			/**
+			 * Fires after cloning section children.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post|null $new_child
+			 * @param \WP_Post $child Section child.
+			 */
+			do_action( 'masteriyo_rest_pro_after_section_children_clone', $new_child, $child );
+		}
+	}
+
+	/**
+	 * Clone questions.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param \WP_Post $old_quiz Old Quiz post
+	 * @param \WP_Post $new_quiz New cloned quiz post.
+	 * @param \WP_Post $new_course New cloned course.
+	 */
+	protected function clone_questions( $old_quiz, $new_quiz, $new_course ) {
+		$questions = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => PostType::QUESTION,
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $old_quiz->ID,
+			)
+		);
+
+		foreach ( $questions as $question ) {
+			$new_question = $this->clone( $question->ID, array( 'post_parent' => $new_quiz->ID ) );
+
+			// Update course ID of the new section to new course ID.
+			update_post_meta( $new_question->ID, '_course_id', $new_course->ID );
+		}
 	}
 
 	/**
@@ -1554,13 +1889,17 @@ class CoursesController extends PostsController {
 			return;
 		}
 
+		// Determine enrollment status based on course status.
+		// Keep enrollments active for both 'publish' and 'private' courses.
+		$enrollment_status = ( PostStatus::PUBLISH === $new_status || 'private' === $new_status ) ? 'active' : 'inactive';
+
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->prefix}masteriyo_user_items
             SET status = %s
             WHERE item_id = %d
             AND item_type = 'user_course'",
-				PostStatus::PUBLISH !== $new_status ? 'inactive' : 'active',
+				$enrollment_status,
 				$course->get_id()
 			)
 		); // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared

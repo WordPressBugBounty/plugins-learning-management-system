@@ -7,7 +7,7 @@
  */
 
 use Masteriyo\Addons\UserRegistrationIntegration\Helper;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -97,6 +97,9 @@ if ( ( new Addons() )->is_active( 'user-registration-integration' ) && method_ex
 					?>
 				</div>
 			<?php endif; ?>
+			<?php
+			do_action( 'masteriyo_mailchimp_consent_checkbox' );
+			?>
 
 			<?php
 				/**

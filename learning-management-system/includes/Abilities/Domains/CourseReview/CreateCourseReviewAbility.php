@@ -3,7 +3,6 @@
  * Create Course Review ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseReview
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseReview;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * The caller must supply the parent course ID, a rating (1–5), and a comment.
  * Reviews may require moderator approval before appearing publicly, depending
  * on the LMS settings.
- *
- * @since x.x.x
  */
 class CreateCourseReviewAbility extends RestProxyAbility {
 

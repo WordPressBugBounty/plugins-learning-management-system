@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.15.0
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Emails\Admin;
@@ -18,7 +18,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @var string
 	 */
@@ -36,7 +36,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @param \Masteriyo\Models\CourseProgress $course_progress User course object.
 	 */
@@ -54,7 +54,8 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		$course = masteriyo_get_course( $quiz_attempt->get_course_id() );
 		$user   = masteriyo_get_user( $quiz_attempt->get_user_id() );
 
-		$this->set_recipients( $admin_email );
+		$to_address = explode( ',', $this->format_string( masteriyo_get_setting( 'emails.admin.new_quiz_attempt.to_address' ) ) ?? $admin_email );
+		$this->set_recipients( $to_address );
 		$this->set( 'course_progress', $course_progress );
 		$this->set( 'course', $course );
 		$this->set( 'student', $user );
@@ -73,7 +74,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return bool
 	 */
@@ -84,7 +85,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return string
 	 */
@@ -92,11 +93,13 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		/**
 		 * Filter course start email subject to admin.
 		 *
-		 * @since 1.15.0
+		 * @since 2.12.0
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id(), masteriyo_get_default_email_contents()['admin']['new_quiz_attempt']['subject'] );
+		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.admin.new_quiz_attempt.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['admin']['new_quiz_attempt']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -104,7 +107,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return string
 	 */
@@ -112,7 +115,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		/**
 		 * Filter course start email heading to admin.
 		 *
-		 * @since 1.15.0
+		 * @since 2.12.0
 		 *
 		 * @param string $heading.
 		 */
@@ -124,7 +127,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return string
 	 */
@@ -133,7 +136,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		/**
 		 * Filter course start email additional content to admin.
 		 *
-		 * @since 1.15.0
+		 * @since 2.12.0
 		 *
 		 * @param string $additional_content.
 		 */
@@ -146,12 +149,12 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.admin.new_quiz_attempt.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['new_quiz_attempt']['content'] );
+		$content = masteriyo_string_translation( 'emails.admin.new_quiz_attempt.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.content' ) );
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
 		return parent::get_content();
@@ -160,7 +163,7 @@ class NewQuizAttemptEmailToAdmin extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.12.0
 	 *
 	 * @return array
 	 */
@@ -208,11 +211,95 @@ class NewQuizAttemptEmailToAdmin extends Email {
 		if ( $quiz_attempt ) {
 			$placeholders = $placeholders + array(
 				'{quiz_attempt_review_link}' => wp_kses_post(
-					'<a href="' . admin_url( 'admin.php?page=masteriyo#/quiz-attempts/' ) . $quiz_attempt->get_id() . '" style="text-decoration: none;">Review Quiz Attempt</a>'
+					'<a href="' . admin_url( 'admin.php?page=masteriyo#/quiz-attempts/' ) . $quiz_attempt->get_id() . '" class="email-template--button">Review Quiz Attempt</a>'
 				),
 			);
 		}
 
 		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 2.12.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.12.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.12.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.12.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.12.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.admin.new_quiz_attempt.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

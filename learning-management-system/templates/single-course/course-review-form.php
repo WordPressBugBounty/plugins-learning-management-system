@@ -49,6 +49,7 @@ $can_review                    = function_exists( 'masteriyo_can_user_review_cou
 				<!-- Rating (respect visibility settings) -->
 				<?php
 				$show_rating = masteriyo_get_setting( 'course_archive.components_visibility.rating' );
+
 				if ( $show_rating ) :
 					?>
 					<div class="masteriyo-rating masteriyo-single-form-group">

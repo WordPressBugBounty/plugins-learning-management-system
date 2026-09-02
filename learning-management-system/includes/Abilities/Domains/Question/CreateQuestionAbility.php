@@ -3,7 +3,6 @@
  * Create Question ability.
  *
  * @package Masteriyo\Abilities\Domains\Question
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Question;
@@ -19,8 +18,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * answer options, and the correct answer designation.
  * The parent quiz ID must be supplied.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CreateQuestionAbility extends RestProxyAbility {
 

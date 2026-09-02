@@ -11,13 +11,12 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Enums\CourseAccessMode;
-use Masteriyo\Enums\CourseProgressItemType;
-use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\ModelException;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Exceptions\RestException;
 use Masteriyo\Models\CourseProgressItem;
+use Masteriyo\Enums\CourseProgressItemType;
+use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\Query\CourseProgressItemQuery;
 
 /**
@@ -458,7 +457,8 @@ class CourseProgressItemsController extends CrudController {
 	 * @return WP_Error|Masteriyo\Models\CourseProgressItem
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id                   = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		/** @var \Masteriyo\Models\CourseProgressItem */
 		$course_progress_item = masteriyo( 'course-progress-item' );
 
 		if ( 0 !== $id ) {
@@ -516,8 +516,12 @@ class CourseProgressItemsController extends CrudController {
 		}
 
 		// previously_visited_page.
-		if ( isset( $request['previously_visited_page'] ) && isset( $request['course_progress_item_id'] ) ) {
+		if ( isset( $request['previously_visited_page'] ) && isset( $request['course_progress_item_id'] ) && ! masteriyo_is_course_preview_request( $request ) ) {
 			$this->create_or_update_activity_meta( $request['course_progress_item_id'], $request['previously_visited_page'], '_previously_visited_page' );
+		}
+
+		if ( ! masteriyo_is_course_preview_request( $request ) && masteriyo_check_manual_quiz_attempt( $request ) ) {
+			masteriyo_create_manual_quiz_attempt( $course_progress_item->get_user_id(), $course_progress_item->get_course_id(), $course_progress_item->get_item_id() );
 		}
 
 		/**
@@ -533,126 +537,6 @@ class CourseProgressItemsController extends CrudController {
 		 * @param bool            $creating If is creating a new object.
 		 */
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $course_progress_item, $request, $creating );
-	}
-	/**
-	 * Get user activity ID.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param int $user_id         User ID.
-	 * @param int $item_id         Item ID.
-	 * @param string $item_type    Item type. Default 'course_progress'.
-	 * @param int $parent_id      Parent ID. Default 0.
-	 *
-	 * @return int User activity ID.
-	 */
-	private function get_user_activity_id( $user_id, $item_id, $item_type = 'quiz', $parent_id = 0 ) {
-		global $wpdb;
-
-		$user_activity_id = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}masteriyo_user_activities
-					WHERE item_id = %d
-					AND user_id = %d
-					AND activity_type = %s
-					AND parent_id = %d",
-				$item_id,
-				$user_id,
-				$item_type,
-				$parent_id
-			)
-		);
-
-		return $user_activity_id ? absint( $user_activity_id ) : 0;
-	}
-
-	/**
-	 * create or update activity meta value.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param array $data_to_be_updated Data to be updated.
-	 *
-	 * @return array Sanitized data.
-	 */
-	private function create_or_update_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key = 'previously_visited_page' ) {
-		$data_to_be_updated    = $data_to_be_updated;
-		$user_activity_meta_id = $this->get_user_activity_meta_id( $user_activity_id, $meta_key );
-
-		if ( $user_activity_meta_id ) {
-			$this->update_activity_meta( $user_activity_meta_id, $data_to_be_updated );
-		} else {
-			$this->create_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key );
-		}
-	}
-
-	/**
-	 * Creates activity meta.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param int $user_activity_id User activity ID.
-	 * @param array $meta_value Data to be updated in the activity meta.
-	 * @param string $meta_key The meta key.
-	 */
-	private function create_activity_meta( $user_activity_id, $meta_value, $meta_key = 'activity_log' ) {
-		global $wpdb;
-
-		$wpdb->insert(
-			"{$wpdb->prefix}masteriyo_user_activitymeta",
-			array(
-				'user_activity_id' => $user_activity_id,
-				'meta_key'         => $meta_key,
-				'meta_value'       => maybe_serialize( $meta_value ),
-			),
-			array( '%d', '%s', '%s' )
-		);
-	}
-
-	/**
-	 * Retrieves the meta ID for a given user activity ID and meta key.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param int    $user_activity_id The user activity ID.
-	 * @param string $meta_key        The meta key. Default 'activity_log'.
-	 *
-	 * @return int The meta ID on success, 0 on failure.
-	 */
-	private function get_user_activity_meta_id( $user_activity_id, $meta_key = '_previously_visited_page' ) {
-		global $wpdb;
-
-		$user_activity_meta_id = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT meta_id FROM {$wpdb->prefix}masteriyo_user_activitymeta
-					WHERE user_activity_id = %d
-					AND meta_key = %s",
-				$user_activity_id,
-				$meta_key
-			)
-		);
-
-		return $user_activity_meta_id ? absint( $user_activity_meta_id ) : 0;
-	}
-
-	/**
-	 * Updates activity meta.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param int $user_activity_meta_id User activity meta ID.
-	 * @param array $meta_value Data to be updated in the activity meta.
-	 */
-	private function update_activity_meta( $user_activity_meta_id, $meta_value ) {
-		global $wpdb;
-
-		$wpdb->update(
-			"{$wpdb->prefix}masteriyo_user_activitymeta",
-			array( 'meta_value' => maybe_serialize( $meta_value ) ),
-			array( 'meta_id' => $user_activity_meta_id ),
-			array( '%s' ),
-			array( '%d' )
-		);
 	}
 
 	/**
@@ -699,7 +583,6 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to read item.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -749,7 +632,6 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to read items.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -774,6 +656,17 @@ class CourseProgressItemsController extends CrudController {
 			);
 		}
 
+		// The collection is scoped by the `user_id` query arg, which defaults to the
+		// current user but is overridden by the request. Scope it the way the singular
+		// sibling scopes a single item, or the ownership check above is bypassed in bulk.
+		if ( ! empty( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -781,7 +674,6 @@ class CourseProgressItemsController extends CrudController {
 	 * Check if a given request has access to create an item.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -798,28 +690,47 @@ class CourseProgressItemsController extends CrudController {
 			return true;
 		}
 
-		$course = masteriyo_get_course( absint( $request['course_id'] ) );
-
-		if ( $course && CourseAccessMode::OPEN === $course->get_access_mode() ) {
-			return true;
-		}
-
+		// A completion needs an account; open access grants a guest read only (#754).
 		if ( ! is_user_logged_in() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_create',
-				__( 'Sorry, you are not allowed to create resources.', 'learning-management-system' ),
+				__( 'Please sign in to record your progress.', 'learning-management-system' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 
-		return true;
+		return $this->check_progress_item_permission( absint( $request['item_id'] ), $request );
+	}
+
+	/**
+	 * Run feature permission checks against a course progress item.
+	 *
+	 * Open access and the owner check decide whether the request reaches this
+	 * point; content drip and similar features decide whether the item itself
+	 * may be recorded. The item ID resolves its own course, so the filter never
+	 * trusts a course ID from the request.
+	 *
+	 * @param int $item_id Lesson, quiz or assignment ID.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return bool|\WP_Error
+	 */
+	protected function check_progress_item_permission( $item_id, $request ) {
+		/**
+		 * Filters whether the current user may record progress for a course item.
+		 *
+		 * Lets features such as content drip refuse an item that is not released yet.
+		 *
+		 * @param bool|\WP_Error $can Whether the progress item may be recorded.
+		 * @param int $item_id Lesson, quiz or assignment ID.
+		 * @param \WP_REST_Request $request Request object.
+		 */
+		return apply_filters( 'masteriyo_rest_check_course_progress_item_permission', true, $item_id, $request );
 	}
 
 	/**
 	 * Check if a given request has access to create/update an item.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -854,14 +765,20 @@ class CourseProgressItemsController extends CrudController {
 			);
 		}
 
-		return true;
+		// Check the item the request will save, not the one the row points at.
+		if ( isset( $request['item_id'] ) ) {
+			$item_id = absint( $request['item_id'] );
+		} else {
+			$item_id = is_object( $item ) ? $item->get_item_id() : 0;
+		}
+
+		return $this->check_progress_item_permission( $item_id, $request );
 	}
 
 	/**
 	 * Check if a given request has access to delete an item.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Added authorization check to prevent unauthenticated access.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -929,7 +846,7 @@ class CourseProgressItemsController extends CrudController {
 
 		// User ID.
 		if ( isset( $request['user_id'] ) && ! empty( $request['user_id'] ) ) {
-			$user_id = $request['user_id'];
+			$user_id = absint( $request['user_id'] );
 		} else {
 			$user_id = get_current_user_id();
 		}
@@ -944,9 +861,13 @@ class CourseProgressItemsController extends CrudController {
 		if ( ! $user ) {
 			throw new RestException(
 				'masteriyo_rest_invalid_user_id',
-				__( 'User ID is invalid.', 'learning-management-system' ),
+				esc_html__( 'User ID is invalid.', 'learning-management-system' ),
 				400
 			);
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return $user_id;
 		}
 
 		// If the current user is not administrator or manager, then the current
@@ -954,7 +875,7 @@ class CourseProgressItemsController extends CrudController {
 		if ( masteriyo_is_current_user_student() && get_current_user_id() !== $user_id ) {
 			throw new RestException(
 				'masteriyo_rest_access_denied_course_progress',
-				__( 'Student cannot access other\'s course progress.', 'learning-management-system' ),
+				esc_html__( 'Student cannot access other\'s course progress.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -996,7 +917,7 @@ class CourseProgressItemsController extends CrudController {
 			if ( ! $course_post || 'mto-course' !== $course_post->post_type ) {
 				throw new RestException(
 					'masteriyo_rest_invalid_course_id',
-					__( 'Course ID is invalid.', 'learning-management-system' ),
+					esc_html__( 'Course ID is invalid.', 'learning-management-system' ),
 					400
 				);
 			}
@@ -1020,7 +941,7 @@ class CourseProgressItemsController extends CrudController {
 		if ( is_null( $item ) || ! in_array( $item->post_type, CourseProgressPostType::all(), true ) ) {
 			throw new RestException(
 				'masteriyo_invalid_item_id',
-				__( 'Invalid item ID.', 'learning-management-system' ),
+				esc_html__( 'Invalid item ID.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -1037,6 +958,11 @@ class CourseProgressItemsController extends CrudController {
 	 * @return Model|WP_Error
 	 */
 	protected function save_object( $request, $creating = false ) {
+		// A preview must not record progress (issue #679).
+		if ( masteriyo_is_course_preview_request( $request ) ) {
+			return $this->prepare_object_for_database( $request, $creating );
+		}
+
 		// Save the object to database if the user is logged in.
 		if ( is_user_logged_in() ) {
 			$object = parent::save_object( $request, $creating );
@@ -1098,9 +1024,9 @@ class CourseProgressItemsController extends CrudController {
 	 *
 	 * @since 1.3.8
 	 *
-	 * @param Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
+	 * @param \Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
 	 *
-	 * @return Masteriyo\Models\CourseProgressItem
+	 * @return \Masteriyo\Models\CourseProgressItem
 	 */
 	protected function get_course_progress_item( $course_progress_item ) {
 		$post = get_post( $course_progress_item->get_item_id() );
@@ -1118,7 +1044,7 @@ class CourseProgressItemsController extends CrudController {
 		if ( is_user_logged_in() ) {
 			$query = new CourseProgressItemQuery(
 				array(
-					'user_id' => masteriyo_get_current_user_id(),
+					'user_id' => $course_progress_item->get_user_id() ? $course_progress_item->get_user_id() : masteriyo_get_current_user_id(),
 					'item_id' => $course_progress_item->get_item_id(),
 				)
 			);
@@ -1147,5 +1073,95 @@ class CourseProgressItemsController extends CrudController {
 		 * @param Masteriyo\RestApi\Controllers\Version1\CourseProgressItemsController $controller Course progress API controller.
 		 */
 		return apply_filters( 'masteriyo_rest_get_course_progress_item', $course_progress_item, $this );
+	}
+
+
+	/**
+	 * create or update activity meta value.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param array $data_to_be_updated Data to be updated.
+	 *
+	 * @return array Sanitized data.
+	 */
+	private function create_or_update_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key = 'previously_visited_page' ) {
+		$data_to_be_updated    = $data_to_be_updated;
+		$user_activity_meta_id = $this->get_user_activity_meta_id( $user_activity_id, $meta_key );
+
+		if ( $user_activity_meta_id ) {
+			$this->update_activity_meta( $user_activity_meta_id, $data_to_be_updated );
+		} else {
+			$this->create_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key );
+		}
+	}
+
+	/**
+	 * Creates activity meta.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param int $user_activity_id User activity ID.
+	 * @param array $meta_value Data to be updated in the activity meta.
+	 * @param string $meta_key The meta key.
+	 */
+	private function create_activity_meta( $user_activity_id, $meta_value, $meta_key = 'activity_log' ) {
+		global $wpdb;
+
+		$wpdb->insert(
+			"{$wpdb->prefix}masteriyo_user_activitymeta",
+			array(
+				'user_activity_id' => $user_activity_id,
+				'meta_key'         => $meta_key,
+				'meta_value'       => maybe_serialize( $meta_value ),
+			),
+			array( '%d', '%s', '%s' )
+		);
+	}
+
+	/**
+	 * Retrieves the meta ID for a given user activity ID and meta key.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param int    $user_activity_id The user activity ID.
+	 * @param string $meta_key        The meta key. Default 'activity_log'.
+	 *
+	 * @return int The meta ID on success, 0 on failure.
+	 */
+	private function get_user_activity_meta_id( $user_activity_id, $meta_key = '_previously_visited_page' ) {
+		global $wpdb;
+
+		$user_activity_meta_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_id FROM {$wpdb->prefix}masteriyo_user_activitymeta
+					WHERE user_activity_id = %d
+					AND meta_key = %s",
+				$user_activity_id,
+				$meta_key
+			)
+		);
+
+		return $user_activity_meta_id ? absint( $user_activity_meta_id ) : 0;
+	}
+
+	/**
+	 * Updates activity meta.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param int $user_activity_meta_id User activity meta ID.
+	 * @param array $meta_value Data to be updated in the activity meta.
+	 */
+	private function update_activity_meta( $user_activity_meta_id, $meta_value ) {
+		global $wpdb;
+
+		$wpdb->update(
+			"{$wpdb->prefix}masteriyo_user_activitymeta",
+			array( 'meta_value' => maybe_serialize( $meta_value ) ),
+			array( 'meta_id' => $user_activity_meta_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
 	}
 }

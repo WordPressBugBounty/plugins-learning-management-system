@@ -5,8 +5,6 @@
  * appended to admin_footer. This script handles show/hide, dynamic data
  * population, and the REST API call to create the course.
  *
- * @since x.x.x
- *
  * @param {Object} data - Localized strings from _MASTERIYO_WC_ROW_ACTION_.
  */
 ( function ( data ) {
@@ -27,8 +25,6 @@
 
 		/**
 		 * Initialize the row action module.
-		 *
-		 * @since x.x.x
 		 */
 		init: function () {
 			this.bindUIActions();
@@ -36,8 +32,6 @@
 
 		/**
 		 * Show the conversion confirmation modal for a given product.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param {string}      productId        WooCommerce product ID.
 		 * @param {string}      productName      Product display name.
@@ -61,8 +55,6 @@
 
 		/**
 		 * Hide the conversion confirmation modal.
-		 *
-		 * @since x.x.x
 		 */
 		hideModal: function () {
 			var overlay = document.getElementById( MODAL_ID );
@@ -74,8 +66,6 @@
 		/**
 		 * Call the REST API to create a draft Masteriyo course from the WC product,
 		 * open the course editor in a new tab, and replace the row action link in place.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param {string}      productId WooCommerce product ID.
 		 * @param {HTMLElement} link      The "Create Course" anchor element in the product row.
@@ -153,8 +143,6 @@
 
 		/**
 		 * Bind all UI event listeners for the modal and the "Create Course" row action trigger.
-		 *
-		 * @since x.x.x
 		 */
 		bindUIActions: function () {
 			var self = this;

@@ -28,7 +28,7 @@ class BunnyNet {
 	 * @since 2.11.0
 	 */
 	public function init() {
-		
+
 		$this->init_hooks();
 	}
 

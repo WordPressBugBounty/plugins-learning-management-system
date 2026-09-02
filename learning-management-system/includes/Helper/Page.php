@@ -1,11 +1,9 @@
 <?php
 
-use Masteriyo\Enums\PostStatus;
-use Masteriyo\PostType\PostType;
-use Masteriyo\Addons\Stripe\Setting as StripeSetting;
-
-
 //As this files autoload from composer.
+
+use Masteriyo\Setup\HomeGuide;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
@@ -28,43 +26,62 @@ function masteriyo_is_archive_course_page() {
 }
 
 
-
 if ( ! function_exists( 'get_hide_home_page' ) ) {
 	/**
 	 * Fetch all necessary data and determine if home page should be hidden
 	 *
-	 * @since 2.0.2
+	 * @since 2.0.2 [Free]
 	 * @return bool
 	 */
 	function get_hide_home_page() {
-		$page_check_result       = check_required_pages();
-		$stripe_setting          = new StripeSetting();
-		$payment_data            = array(
-			'offline_payment' => masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
-			'paypal'          => masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
-			'paypal_email'    => masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
-			'stripe'          => $stripe_setting->get( 'enable' ) ?? false,
-			'stripe_user_id'  => $stripe_setting->get( 'stripe_user_id' ) ?? false,
-		);
-		$show_starters_templates = get_option( 'show_starters_templates', 'yes' );
-		$skip_payment_setup      = get_option( 'skip_payment_setup' );
-		$course_count            = masteriyo_array_get( (array) wp_count_posts( PostType::COURSE ), PostStatus::PUBLISH, 0 );
-		$course_created          = $course_count > 0;
+		// Finished when the guide has nothing numbered left to do.
+		$complete = HomeGuide::is_complete( HomeGuide::get_facts() );
 
-		$missing_pages = $page_check_result['missing_pages'] ?? array();
+		// Every accurate answer refreshes the flag the admin menu reads, so the
+		// menu never has to compute one itself.
+		HomeGuide::remember_completion( $complete );
 
-		$hide_home_page = $course_created &&
-						empty( $missing_pages ) &&
-						(
-							$skip_payment_setup === 'yes' ||
-							( $payment_data['offline_payment'] && $payment_data['paypal'] && $payment_data['stripe'] )
-						) &&
-						$show_starters_templates === 'no';
-
-		return $hide_home_page;
+		return $complete;
 	}
 }
 
+
+if ( ! function_exists( 'masteriyo_site_needs_checkout' ) ) {
+	/**
+	 * Whether this site needs a Checkout page.
+	 *
+	 * Checkout is not created on every install any more, because a site that enrols
+	 * its own learners never reaches it — free courses start directly or route via
+	 * the Account page. It becomes required once the site sells, which is either the
+	 * answer given in onboarding or a payment method being switched on.
+	 *
+	 * @return bool
+	 */
+	function masteriyo_site_needs_checkout() {
+		$onboarding = get_option( 'masteriyo_onboarding_data', array() );
+		$access     = $onboarding['steps']['welcome']['options']['learner_access'] ?? '';
+
+		if ( in_array( $access, array( 'sell', 'both' ), true ) ) {
+			return true;
+		}
+
+		// The same rule the Home guide uses; two would disagree about who sells.
+		if ( HomeGuide::is_payment_connected() ) {
+			return true;
+		}
+
+		// Already assigned: if it was created earlier, a missing one is worth reporting.
+		$needs = (bool) absint( masteriyo_get_setting( 'general.pages.checkout_page_id' ) );
+
+		/**
+		 * Filters whether this site needs a Checkout page, so gateway addons that
+		 * keep their enable flag outside masteriyo_settings can declare themselves.
+		 *
+		 * @param bool $needs Whether the site needs a Checkout page.
+		 */
+		return (bool) apply_filters( 'masteriyo_site_needs_checkout', $needs );
+	}
+}
 
 if ( ! function_exists( 'check_required_pages' ) ) {
 	/**
@@ -72,25 +89,34 @@ if ( ! function_exists( 'check_required_pages' ) ) {
 		*
 		* Checks if the required pages (Learn, Account, Checkout) are set up correctly.
 		*
-		* @since 2.0.2
+		* @since 2.0.2 [Free]
 		*
-		* @return array Status of the pages (either 'success' or 'error' with a message).
+		* @param bool $keyed Return the pages keyed by slug (learn, account, checkout).
+		*                    The default plain list of names is a REST/JS contract:
+		*                    Home.tsx does missing_pages.includes('Checkout').
+		*
+		* @return array Missing page names, keyed by slug when $keyed is true.
 		*/
-	function check_required_pages() {
+	function check_required_pages( $keyed = false ) {
 		$required_pages = array(
-			'learn'    => array(
+			'learn'   => array(
 				'setting_key' => 'general.pages.learn_page_id',
 				'name'        => 'Learn',
 			),
-			'account'  => array(
+			'account' => array(
 				'setting_key' => 'general.pages.account_page_id',
 				'name'        => 'Account',
 			),
-			'checkout' => array(
+		);
+
+		// Only a selling site needs checkout; requiring it everywhere would nag every
+		// site that enrols its own learners about a page it will never use.
+		if ( masteriyo_site_needs_checkout() ) {
+			$required_pages['checkout'] = array(
 				'setting_key' => 'general.pages.checkout_page_id',
 				'name'        => 'Checkout',
-			),
-		);
+			);
+		}
 
 		$missing_pages = array();
 
@@ -103,7 +129,7 @@ if ( ! function_exists( 'check_required_pages' ) ) {
 		}
 
 		if ( ! empty( $missing_pages ) ) {
-			return array_values( $missing_pages );
+			return $keyed ? $missing_pages : array_values( $missing_pages );
 		}
 
 		return array();

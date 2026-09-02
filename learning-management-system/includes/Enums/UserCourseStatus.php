@@ -2,6 +2,7 @@
 /**
  * User Course status enums.
  *
+ * @since 2.2.0
  * @since 1.5.3
  * @package Masteriyo\Enums
  */
@@ -13,12 +14,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * User course status enum class.
  *
+ * @since 2.2.0
  * @since 1.5.3
  */
 class UserCourseStatus {
 	/**
 	 * User course any status.
 	 *
+	 * @since 2.2.0
 	 * @since 1.5.3
 	 * @var string
 	 */
@@ -27,14 +30,16 @@ class UserCourseStatus {
 	/**
 	 * User course enrolled status.
 	 *
+	 * @since 2.2.0
 	 * @since 1.5.3
 	 * @var string
 	 */
-	const ENROLLED = 'enrolled';
+	const ENROLLED = 'active';
 
 	/**
 	 * User course active status.
 	 *
+	 * @since 2.2.0
 	 * @since 1.5.3
 	 * @var string
 	 */
@@ -43,6 +48,7 @@ class UserCourseStatus {
 	/**
 	 * User course inactive status.
 	 *
+	 * @since 2.2.0
 	 * @since 1.5.3
 	 * @var string
 	 */
@@ -51,6 +57,7 @@ class UserCourseStatus {
 	/**
 	 * Return user course statuses.
 	 *
+	 * @since 2.2.0
 	 * @since 1.5.3
 	 *
 	 * @return array
@@ -66,6 +73,8 @@ class UserCourseStatus {
 		$statuses = apply_filters(
 			'masteriyo_user_course_statuses',
 			array(
+				self::ANY,
+				self::ENROLLED,
 				self::ACTIVE,
 				self::INACTIVE,
 			)

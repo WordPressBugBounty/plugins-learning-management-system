@@ -18,20 +18,6 @@ use Masteriyo\Addons\UserRegistrationIntegration\UserRegistrationIntegrationAddo
  * @since 1.7.1
  */
 class UserRegistrationIntegrationServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.7.1
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'addons.user-registration-integration', UserRegistrationIntegrationAddon::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -41,7 +27,7 @@ class UserRegistrationIntegrationServiceProvider extends AbstractServiceProvider
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.7.1
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -55,5 +41,17 @@ class UserRegistrationIntegrationServiceProvider extends AbstractServiceProvider
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.7.1
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons.user-registration-integration', UserRegistrationIntegrationAddon::class );
 	}
 }

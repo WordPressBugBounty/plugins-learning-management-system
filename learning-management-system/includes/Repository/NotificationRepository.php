@@ -108,9 +108,8 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 			);
 
 			if ( ! $notification_obj ) {
-				throw new \Exception( __( 'Invalid notification.', 'learning-management-system' ) );
+				throw new \Exception( esc_html__( 'Invalid notification.', 'learning-management-system' ) );
 			}
-
 			$cache->set_cache( $cache_key, $notification_obj, 2 * HOUR_IN_SECONDS );
 		}
 

@@ -110,7 +110,6 @@ const Announcements: React.FC<Props> = ({ courseId }) => {
 		return () => {
 			observer.disconnect();
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		isOpen,
 		announcementQuery.hasNextPage,

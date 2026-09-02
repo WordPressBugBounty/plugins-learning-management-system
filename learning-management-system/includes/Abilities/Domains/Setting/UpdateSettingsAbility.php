@@ -3,7 +3,6 @@
  * Update Settings ability.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: write Masteriyo settings.
- *
- * @since x.x.x
  */
 class UpdateSettingsAbility extends RestProxyAbility {
 
@@ -51,6 +48,10 @@ class UpdateSettingsAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Write Masteriyo LMS settings. Accepts a partial or full settings object. Only provided keys are updated; omitted keys retain their current values. Returns the updated settings object.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Write %s LMS settings. Accepts a partial or full settings object. Only provided keys are updated; omitted keys retain their current values. Returns the updated settings object.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

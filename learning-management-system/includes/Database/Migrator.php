@@ -234,6 +234,8 @@ class Migrator {
 	 * @return string[]
 	 */
 	public function migrate( $migration = null ) {
+		global $wpdb;
+
 		$ran_migrations = array();
 		$table          = $this->get_table_name();
 		$migrations     = $this->get_migrations_to_run( $migration );
@@ -242,12 +244,49 @@ class Migrator {
 			return $ran_migrations;
 		}
 
+		// Non-blocking cross-request lock: a long resumable migration otherwise runs
+		// concurrently in every simultaneous request, each redoing the same table work.
+		// Auto-released on disconnect, so a fatal mid-run can never wedge migrations.
+		// Prefixed per site — server-level locks are shared across a multisite network.
+		$lock_name = 'masteriyo_migrate_' . $wpdb->prefix;
+
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 0 )', $lock_name ) ) ) {
+			/*
+			 * '0' means another request holds the lock and is doing the work — yield.
+			 * NULL with a DB error means this host cannot GET_LOCK at all (pooler,
+			 * restricted user); yielding there would silently disable every present
+			 * and future migration, so run unlocked instead — the pre-lock behavior.
+			 */
+			if ( empty( $wpdb->last_error ) ) {
+				return $ran_migrations;
+			}
+
+			if ( function_exists( 'masteriyo_get_logger' ) ) {
+				masteriyo_get_logger()->warning(
+					'GET_LOCK unavailable; running migrations unlocked. DB error: ' . $wpdb->last_error,
+					array( 'source' => 'migrator' )
+				);
+			}
+		}
+
 		$current_batch = $this->get_current_batch();
 
 		foreach ( $migrations as $file => $name ) {
-			if ( $this->run_migration( $file, $name ) ) {
-				$ran_migrations[] = $name;
+			/*
+			 * A falsy but non-false return (void/null) still counts as ran — an explicit
+			 * `false` from up() means "not finished, retry next request", and later
+			 * migrations may depend on this one's schema, so the queue stops here rather
+			 * than run them out of order. `false` must therefore only ever mean forward
+			 * progress is still possible; a migration that discovers it can NEVER finish
+			 * has to park itself (record its own incomplete state and return null) so it
+			 * stops blocking the queue — a runner-side retry cap cannot tell a big table
+			 * legitimately yielding from a permanently failing one.
+			 */
+			if ( false === $this->run_migration( $file, $name ) ) {
+				break;
 			}
+
+			$ran_migrations[] = $name;
 
 			$this->connection->insert(
 				$table,
@@ -258,6 +297,8 @@ class Migrator {
 				)
 			);
 		}
+
+		$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $lock_name ) );
 
 		return $ran_migrations;
 	}
@@ -345,7 +386,9 @@ class Migrator {
 	 * @param string $name Migration name to run.
 	 * @param boolean $rollback Whether to rollback or not.
 	 *
-	 * @return boolean|string Return false if the migration is not run and migration name if is is run.
+	 * @return boolean|string False if not run, or up()/down() explicitly returned false to
+	 *                        signal unfinished work; migration name's file path if it ran to
+	 *                        completion.
 	 */
 	protected function run_migration( $file, $name, $rollback = false ) {
 		require_once $file;
@@ -365,9 +408,9 @@ class Migrator {
 			return false;
 		}
 
-		$migration->{$method}();
+		$result = $migration->{$method}();
 
-		return $file;
+		return false === $result ? false : $file;
 	}
 
 	/**

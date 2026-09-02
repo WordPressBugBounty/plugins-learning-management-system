@@ -138,10 +138,12 @@ class QuizBuilderController extends PostsController {
 			);
 		}
 
-		if ( ! $this->permission->rest_check_post_permissions( 'mto-quiz', 'read' ) ) {
+		$quiz_id = absint( $request['id'] );
+
+		if ( ! is_user_logged_in() || ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! masteriyo_is_current_user_post_author( $quiz_id ) ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you cannot list resources.', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -211,7 +213,6 @@ class QuizBuilderController extends PostsController {
 		}
 
 		return $this->prepare_response_for_collection( $data );
-
 	}
 
 	/**
@@ -266,7 +267,6 @@ class QuizBuilderController extends PostsController {
 
 		return $data;
 	}
-
 	/**
 	 * Get object.
 	 *
@@ -353,10 +353,10 @@ class QuizBuilderController extends PostsController {
 	 *
 	 * @since 1.5.3
 	 *
-	 * @param \Masteriyo\Models\Question $question Question object.
+	 * @param \Masteriyo\Models\Question\Question $question Question object.
 	 * @param string     $context Request context.
 	 *                            Options: 'view' and 'edit'.
-	 * @param int        $parent_id Quiz ID.
+	 *  * @param int        $parent_id Quiz ID.
 	 *
 	 * @return array
 	 */
@@ -389,9 +389,14 @@ class QuizBuilderController extends PostsController {
 			'positive_feedback'      => $question->get_positive_feedback( $context ),
 			'negative_feedback'      => $question->get_negative_feedback( $context ),
 			'feedback'               => $question->get_feedback( $context ),
-			'answers'                => $question->get_answers( $context ),
 			'answers_decode_success' => $question->is_answers_decoded(),
+			'answers'                => $question->get_answers( $context ),
+
+			// @since 2.2.9
 			'enable_description'     => $question->get_enable_description( $context ),
+
+			// @since 2.13.0
+			'answer_explanation'     => $question->get_answer_explanation( $context ),
 			'is_from_bank'           => $question->get_is_from_bank( $context ),
 		);
 
@@ -572,5 +577,4 @@ class QuizBuilderController extends PostsController {
 			);
 		}
 	}
-
 }

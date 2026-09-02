@@ -11,10 +11,12 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.11.0
+ * @version 3.4.0
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
+
+/** @var \Masteriyo\Models\Course $course */
 
 /**
  * Fires before rendering stats section in archive course page.
@@ -25,7 +27,7 @@ do_action( 'masteriyo_before_course_layout_1_meta_data' );
 ?>
 
 
-	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_duration' ) ) : ?>
+	<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.course_duration' ) && $course->get_duration() > 0 ) : ?>
 <div class="masteriyo-single-header__content--info-items duration">
 	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 		<path fill="#646464" fill-rule="evenodd" d="M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm1 5a1 1 0 1 0-2 0v6a1 1 0 0 0 .553.894l4 2a1 1 0 1 0 .894-1.788L13 11.382V6Z" clip-rule="evenodd"></path>

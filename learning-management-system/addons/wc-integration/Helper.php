@@ -2,7 +2,7 @@
 /**
  * WC Integration helper functions.
  *
- * @since 1.8.1
+ * @since 2.2.0
  * @package Masteriyo\Addons\WcIntegration
  */
 
@@ -17,7 +17,7 @@ class Helper {
 	/**
 	 * Return if WooCommerce is active.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @return boolean
 	 */
@@ -28,18 +28,17 @@ class Helper {
 	/**
 	 * Return if WooCommerce Subscriptions is active.
 	 *
-	 * @since 1.8.1
+	 * @since 2.6.11
 	 * @return boolean
 	 */
 	public static function is_wc_subscriptions_active() {
 		return in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', get_option( 'active_plugins', array() ), true );
 	}
 
-
 	/**
 	 * Checks if a given course is currently in the WooCommerce cart.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param int $course_id The ID of the course to check.
 	 * @return bool|null True if the course is in the cart, false if not, or null if the course is not associated with a WooCommerce product.
@@ -67,7 +66,7 @@ class Helper {
 	/**
 	 * Checks if a given course ID is associated with a WooCommerce product.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param int $course_id The ID of the course to check.
 	 * @return int|false The ID of the associated WooCommerce product, or false if no product is found.
@@ -90,7 +89,7 @@ class Helper {
 	/**
 	 * Checks if the "Add to Cart" functionality is enabled.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return bool True if the "Add to Cart" functionality is enabled, false otherwise.
 	 */
@@ -100,28 +99,11 @@ class Helper {
 	}
 
 	/**
-	 * Gets the label for the "Add to Cart" button before the course adding to the cart.
-	 *
-	 * @since 1.11.3
-	 *
-	 * @return string The label for the "Add to Cart" button before the course adding to the cart.
-	 */
-	public static function get_enroll_btn_label_before() {
-		$setting = new Setting();
-
-		$label = $setting->get( 'add_to_cart.enroll_btn_label_before' );
-
-		return $label ? $label : __( 'Add to Cart', 'learning-management-system' );
-	}
-
-	/**
 	 * Checks whether at least one WooCommerce order item is linked to a Masteriyo course or bundle.
 	 *
 	 * Result is cached in a transient for 1 hour to avoid a DB hit on every page load.
 	 * The transient is cleared when the first qualifying order item is saved so the notice
 	 * appears immediately after the first WC-based enrolment.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return bool
 	 */
@@ -140,9 +122,10 @@ class Helper {
 			$wpdb->prepare(
 				"SELECT 1
 				 FROM {$wpdb->prefix}woocommerce_order_itemmeta
-				 WHERE meta_key = %s
+				 WHERE meta_key IN ( %s, %s )
 				 LIMIT 1",
-				'_masteriyo_course_id'
+				'_masteriyo_course_id',
+				'_masteriyo_course_bundle_id'
 			)
 		);
 
@@ -154,17 +137,30 @@ class Helper {
 	/**
 	 * Clears the cached WC-orders-exist flag so the orders-page notice appears immediately
 	 * after the first Masteriyo course item is added to a WooCommerce order.
-	 *
-	 * @since x.x.x
 	 */
 	public static function clear_wc_orders_cache() {
 		delete_transient( 'masteriyo_wc_orders_exist' );
 	}
 
 	/**
+	 * Gets the label for the "Add to Cart" button before the course adding to the cart.
+	 *
+	 * @since 1.11.3 [Free]
+	 *
+	 * @return string The label for the "Add to Cart" button before the course adding to the cart.
+	 */
+	public static function get_enroll_btn_label_before() {
+		$setting = new Setting();
+
+		$label = $setting->get( 'add_to_cart.enroll_btn_label_before' );
+
+		return $label ? $label : __( 'Add to Cart', 'learning-management-system' );
+	}
+
+	/**
 	 * Gets the label for the "Add to Cart" button after the course adding to the cart.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string The label for the "Add to Cart" button after the course adding to the cart.
 	 */

@@ -25,7 +25,6 @@ import React, { useRef } from 'react';
 import { BiCalendar, BiDotsVerticalRounded, BiShow } from 'react-icons/bi';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
-import { CustomIcon } from '../../../../../../../assets/js/back-end/components/common/CustomIcon';
 import {
 	EditIcon,
 	Trash,
@@ -204,7 +203,9 @@ const GroupRow: React.FC<Props> = (props) => {
 								</MenuItem>
 								<MenuItem
 									onClick={() => onDeletePress()}
-									icon={<CustomIcon icon={Trash} boxSize="12px" />}
+									icon={
+										<Trash width="12px" height="12px" fill="currentColor" />
+									}
 									_hover={{ color: 'red.500' }}
 								>
 									{__('Delete Permanently', 'learning-management-system')}
@@ -221,7 +222,9 @@ const GroupRow: React.FC<Props> = (props) => {
 							>
 								<Button
 									colorScheme="primary"
-									leftIcon={<CustomIcon icon={EditIcon} boxSize="12px" />}
+									leftIcon={
+										<EditIcon width="12px" height="12px" fill="currentColor" />
+									}
 									size="xs"
 								>
 									{__('Edit', 'learning-management-system')}
@@ -239,7 +242,9 @@ const GroupRow: React.FC<Props> = (props) => {
 								<MenuList>
 									<MenuItem
 										onClick={() => onTrashPress()}
-										icon={<CustomIcon icon={Trash} boxSize="12px" />}
+										icon={
+											<Trash width="12px" height="12px" fill="currentColor" />
+										}
 										_hover={{ color: 'red.500' }}
 									>
 										{__('Trash', 'learning-management-system')}

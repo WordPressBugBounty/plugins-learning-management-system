@@ -2,7 +2,7 @@
 /**
  * Service providers configuration for Course Coming Soon core feature.
  *
- * @since 2.1.0
+ * @since 3.1.0
  * @package Masteriyo\CoreFeatures\CourseComingSoon
  */
 
@@ -13,7 +13,7 @@ use Masteriyo\CoreFeatures\CourseComingSoon\Providers\CourseComingSoonServicePro
 /**
  * List of service providers to be registered for this feature.
  *
- * @since 2.1.0
+ * @since 3.1.0
  *
  * @return array
  */

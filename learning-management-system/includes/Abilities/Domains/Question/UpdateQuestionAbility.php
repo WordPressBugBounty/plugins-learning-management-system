@@ -3,7 +3,6 @@
  * Update Question ability.
  *
  * @package Masteriyo\Abilities\Domains\Question
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Question;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports partial updates — only the supplied fields are changed.
  * Commonly used to correct question text, change the type, or update answer choices.
- *
- * @since x.x.x
  */
 class UpdateQuestionAbility extends RestProxyAbility {
 

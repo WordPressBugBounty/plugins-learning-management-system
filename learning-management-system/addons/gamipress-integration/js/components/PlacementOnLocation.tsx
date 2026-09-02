@@ -77,7 +77,6 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 		achievementTypes,
 		uiPlacements,
 	} = props;
-
 	const alreadyAddedPointTypes: string[] = [];
 	const alreadyAddedRankTypes: string[] = [];
 	const alreadyAddedAchievementTypes: string[] = [];

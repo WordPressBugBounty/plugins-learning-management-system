@@ -35,6 +35,16 @@ class CourseSearchFormWidget extends WidgetBase {
 	}
 
 	/**
+	 * Hide from the widget panel — superseded by the Courses Toolbar widget.
+	 * Existing pages using this widget keep rendering as before.
+	 *
+	 * @return bool
+	 */
+	public function show_in_panel() {
+		return false;
+	}
+
+	/**
 	 * Get widget title.
 	 *
 	 * @since 1.6.12
@@ -65,18 +75,6 @@ class CourseSearchFormWidget extends WidgetBase {
 	 */
 	public function get_keywords() {
 		return array( 'search' );
-	}
-
-	/**
-	 * Hide from the widget panel — superseded by the Courses Toolbar widget.
-	 * Existing pages using this widget keep rendering as before.
-	 *
-	 * @since x.x.x
-	 *
-	 * @return bool
-	 */
-	public function show_in_panel() {
-		return false;
 	}
 
 	/**

@@ -47,13 +47,10 @@ class OrderItemCourseRepository extends OrderItemRepository implements Repositor
 	 */
 	public function read( &$order_item ) {
 		if ( ! $order_item->get_id() ) {
-			throw new \Exception( __( 'Invalid order item.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid order item.', 'learning-management-system' ) );
 		}
 
 		global $wpdb;
-
-		// Get from cache if available.
-		// $order_item_obj = masteriyo( 'cache' )->get( 'masteriyo-order-item-' . $order_item->get_id(), 'masteriyo-order-items' );
 		$order_item_obj = false;
 
 		if ( false === $order_item_obj ) {
@@ -67,11 +64,10 @@ class OrderItemCourseRepository extends OrderItemRepository implements Repositor
 			);
 
 			if ( ! is_array( $results ) || count( $results ) === 0 ) {
-				throw new \Exception( __( 'Order item not found.', 'learning-management-system' ) );
+				throw new \Exception( esc_html__( 'Order item not found.', 'learning-management-system' ) );
 			}
 
 			$order_item_obj = $results[0];
-			// masteriyo( 'cache' )->set( 'masteriyo-item-' . $order_item->get_id(), $order_item_obj, 'masteriyo-order-items' );
 		}
 
 		$order_item->set_props(
@@ -391,7 +387,7 @@ class OrderItemCourseRepository extends OrderItemRepository implements Repositor
 		foreach ( $where as $db_key => $value ) {
 			$where_clause  .= " AND {$db_key} = {$where_format[ $index ]} ";
 			$where_values[] = $value;
-			$index++;
+			++$index;
 		}
 		$sql            = "SELECT order_item_id FROM {$table_name} {$where_clause}";
 		$order_item_ids = $wpdb->get_results( $wpdb->prepare( $sql, $where_values ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

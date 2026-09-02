@@ -56,7 +56,8 @@ class InstructorApplyEmailToAdmin extends Email {
 			return;
 		}
 
-		$this->set_recipients( $admin_email );
+		$to_address = explode( ',', $this->format_string( masteriyo_get_setting( 'emails.admin.instructor_apply.to_address' ) ) ?? $admin_email );
+		$this->set_recipients( $to_address );
 		$this->set( 'user', $user );
 
 		$this->send(
@@ -88,63 +89,17 @@ class InstructorApplyEmailToAdmin extends Email {
 	 */
 	public function get_subject() {
 		/**
-		 * Filter instructor apply email subject to admin.
+		 * Filter student registration email subject to admin.
 		 *
 		 * @since 1.6.13
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['admin']['instructor_apply']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.admin.instructor_apply.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['admin']['instructor_apply']['subject'] : $subject;
 
 		return $this->format_string( $subject );
-	}
-
-	/**
-	 * Get email content.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return string
-	 */
-	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.admin.instructor_apply.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['instructor_apply']['content'] );
-
-		$content = $this->format_string( $content );
-
-		$this->set( 'content', trim( $content ) );
-
-		return parent::get_content();
-	}
-
-	/**
-	 * Get placeholders.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return array
-	 */
-	public function get_placeholders() {
-		$placeholders = parent::get_placeholders();
-
-		/** @var \Masteriyo\Models\User $student */
-		$student = $this->get( 'user' );
-
-		if ( $student ) {
-			$placeholders['{student_display_name}']    = $student->get_display_name();
-			$placeholders['{student_first_name}']      = $student->get_first_name();
-			$placeholders['{student_last_name}']       = $student->get_last_name();
-			$placeholders['{student_username}']        = $student->get_username();
-			$placeholders['{student_nicename}']        = $student->get_nicename();
-			$placeholders['{student_nickname}']        = $student->get_nickname();
-			$placeholders['{student_email}']           = $student->get_email();
-			$placeholders['{student_name}']            = ! empty( $name ) ? $name : $student->get_display_name();
-			$placeholders['{student_registered_date}'] = gmdate( 'd M Y', $student->get_date_created( 'edit' )->getOffsetTimestamp() );
-			$placeholders['{review_application_link}'] = wp_kses_post(
-				'<a href="' . admin_url( 'admin.php?page=masteriyo#/users/students/' ) . $student->get_id() . '" style="text-decoration: none;">Review Application</a>'
-			);
-		}
-
-		return $placeholders;
 	}
 
 	/**
@@ -165,6 +120,144 @@ class InstructorApplyEmailToAdmin extends Email {
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.instructor_apply.additional_content' ) );
 		$additional_content = masteriyo_string_translation( 'emails.admin.instructor_apply.additional_content', 'masteriyo-email-message', $additional_content );
+
 		return $this->format_string( $additional_content );
+	}
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 2.6.9
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_string_translation( 'emails.admin.instructor_apply.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.admin.instructor_apply.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['admin']['instructor_apply']['content'];
+		}
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 2.6.9
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $student */
+		$student = $this->get( 'user' );
+
+		if ( $student ) {
+			$placeholders['{student_display_name}']    = $student->get_display_name();
+			$placeholders['{student_first_name}']      = $student->get_first_name();
+			$placeholders['{student_last_name}']       = $student->get_last_name();
+			$placeholders['{student_username}']        = $student->get_username();
+			$placeholders['{student_nicename}']        = $student->get_nicename();
+			$placeholders['{student_nickname}']        = $student->get_nickname();
+			$placeholders['{student_email}']           = $student->get_email();
+			$placeholders['{student_name}']            = ! empty( $name ) ? $name : $student->get_display_name();
+			$placeholders['{student_registered_date}'] = gmdate( 'd M Y', $student->get_date_created( 'edit' )->getOffsetTimestamp() );
+			$placeholders['{review_application_link}'] = wp_kses_post(
+				'<a href="' . admin_url( 'admin.php?page=masteriyo#/users/students/' ) . $student->get_id() . '" class="email-template--button">Review Application</a>'
+			);
+		}
+
+		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.admin.instructor_apply.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.admin.instructor_apply.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.admin.instructor_apply.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.admin.instructor_apply.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

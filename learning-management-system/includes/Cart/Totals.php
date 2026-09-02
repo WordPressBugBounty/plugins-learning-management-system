@@ -27,9 +27,11 @@ final class Totals {
 	 * Reference to cart object.
 	 *
 	 * @since 1.0.0
-	 * @var Cart
+	 * @since 2.5.12 Changed visibility to 'public' from 'protected'.
+	 *
+	 * @var \Masteriyo\Cart\Cart
 	 */
-	protected $cart;
+	public $cart;
 
 	/**
 	 * Reference to customer object.
@@ -43,9 +45,11 @@ final class Totals {
 	 * Line items to calculate.
 	 *
 	 * @since 1.0.0
+	 * @since 2.5.12 Changed visibility to 'public' from 'protected'.
+	 *
 	 * @var array
 	 */
-	protected $items = array();
+	public $items = array();
 
 	/**
 	 * Fees to calculate.
@@ -54,22 +58,6 @@ final class Totals {
 	 * @var array
 	 */
 	protected $fees = array();
-
-	/**
-	 * Applied coupon objects.
-	 *
-	 * @since 1.0.0
-	 * @var array
-	 */
-	protected $coupons = array();
-
-	/**
-	 * Item/coupon discount totals.
-	 *
-	 * @since 1.0.0
-	 * @var array
-	 */
-	protected $coupon_discount_totals = array();
 
 	/**
 	 * Stores totals.
@@ -83,6 +71,7 @@ final class Totals {
 		'items_total'     => 0,
 		'total'           => 0,
 		'discounts_total' => 0,
+		'tax_total'       => 0,
 	);
 
 	/**
@@ -131,8 +120,9 @@ final class Totals {
 	/**
 	 * Get default blank set of props used per fee.
 	 *
-	 * @since  1.0.0
-	 * @return array
+	 * @since 1.0.0
+	 *
+	 * @return object
 	 */
 	protected function get_default_fee_props() {
 		return (object) array(
@@ -217,13 +207,23 @@ final class Totals {
 	 * Get discounted price of an item with precision (in cents).
 	 *
 	 * @since  1.0.0
-	 * @param  object $item_key Item to get the price of.
+	 * @param  string $item_key Item to get the price of.
 	 * @return int
 	 */
 	protected function get_discounted_price_in_cents( $item_key ) {
 		$item  = $this->items[ $item_key ];
 		$price = $item->price;
-		return $price;
+
+		/**
+		 * Filters discounted price in cents.
+		 *
+		 * @since 2.5.12
+		 *
+		 * @param integer $price
+		 * @param string $item_key Item to get the price of.
+		 * @param \Masteriyo\Cart\Totals $totals
+		 */
+		return apply_filters( 'masteriyo_totals_get_discounted_price_in_cents', $price, $item_key, $this );
 	}
 
 	/**
@@ -243,10 +243,13 @@ final class Totals {
 	 * Set a single total.
 	 *
 	 * @since  1.0.0
+	 * @since 2.5.12 Changed visibility to 'public' from 'protected'.
+	 *
 	 * @param string $key Total name you want to set.
+	 *
 	 * @param int    $total Total to set.
 	 */
-	protected function set_total( $key, $total ) {
+	public function set_total( $key, $total ) {
 		$this->totals[ $key ] = $total;
 	}
 
@@ -285,6 +288,15 @@ final class Totals {
 	protected function calculate_item_totals() {
 		$this->get_items_from_cart();
 		$this->calculate_item_subtotals();
+
+		/**
+		 * Fires while calculating item totals.
+		 *
+		 * @since 2.5.12
+		 *
+		 * @param \Masteriyo\Cart\Totals $totals
+		 */
+		do_action( 'masteriyo_calculate_item_totals', $this );
 
 		foreach ( $this->items as $item_key => $item ) {
 			$item->total = $this->get_discounted_price_in_cents( $item_key );
@@ -362,7 +374,10 @@ final class Totals {
 	 * @since 1.0.0
 	 */
 	protected function calculate_totals() {
-		$this->set_total( 'total', masteriyo_round( $this->get_total( 'items_total', true ) + $this->get_total( 'fees_total', true ), 0 ) );
+		$items_total = $this->get_total( 'items_total', true );
+		$fees_total  = $this->get_total( 'fees_total', true );
+
+		$this->set_total( 'total', masteriyo_round( $items_total + $fees_total, 0 ) );
 
 		// Allow plugins to hook and alter totals before final total is calculated.
 		if ( has_action( 'masteriyo_calculate_totals' ) ) {

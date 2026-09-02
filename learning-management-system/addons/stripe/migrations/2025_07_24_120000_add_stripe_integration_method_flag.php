@@ -5,20 +5,28 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Add stripe integration method flag.
  *
- * @since 1.20.0
+ * @since 2.30.0
  */
 
+use Masteriyo\Addons\Stripe\Setting;
 use Masteriyo\Database\Migration;
 
 class AddStripeIntegrationMethodFlag extends Migration {
 	/**
 	 * Run the migration.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 */
 	public function up() {
+		// The connect flow already wrote the flag as a string; nothing to derive.
+		if ( false !== get_option( '_masteriyo_stripe_integration_method', false ) ) {
+			return;
+		}
+
+		$settings = get_option( Setting::OPTION_NAME, array() );
+
 		$keys              = masteriyo_array_only(
-			get_option( '_masteriyo_stripe_integration_method', array() ),
+			is_array( $settings ) ? $settings : array(),
 			array(
 				'test_publishable_key',
 				'test_secret_key',
@@ -45,7 +53,7 @@ class AddStripeIntegrationMethodFlag extends Migration {
 	/**
 	 * Reverse the migrations.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 */
 	public function down() {
 		delete_option( '_masteriyo_stripe_integration_method' );

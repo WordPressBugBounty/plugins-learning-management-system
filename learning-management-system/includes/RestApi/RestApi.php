@@ -23,39 +23,42 @@ use Masteriyo\RestApi\Controllers\Version1\CoursesController;
 use Masteriyo\RestApi\Controllers\Version1\CoursesImportExportController;
 use Masteriyo\RestApi\Controllers\Version1\CourseTagsController;
 use Masteriyo\RestApi\Controllers\Version1\DataController;
-use Masteriyo\RestApi\Controllers\Version1\InstructorsController;
-use Masteriyo\RestApi\Controllers\Version1\LessonsController;
-use Masteriyo\RestApi\Controllers\Version1\NotificationsController;
-use Masteriyo\RestApi\Controllers\Version1\OrderItemsController;
-use Masteriyo\RestApi\Controllers\Version1\OrdersController;
+use Masteriyo\RestApi\Controllers\Version1\EnrollmentsController;
 use Masteriyo\RestApi\Controllers\Version1\PagesController;
-use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
-use Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController;
-use Masteriyo\RestApi\Controllers\Version1\QuizBuilderController;
+use Masteriyo\RestApi\Controllers\Version1\RolesController;
+use Masteriyo\RestApi\Controllers\Version1\UsersController;
+use Masteriyo\RestApi\Controllers\Version1\OpenAIController;
+use Masteriyo\RestApi\Controllers\Version1\OrdersController;
 use Masteriyo\RestApi\Controllers\Version1\QuizesController;
-use Masteriyo\RestApi\Controllers\Version1\QuizReviewsController;
-use Masteriyo\RestApi\Controllers\Version1\SectionChildrenController;
+use Masteriyo\RestApi\Controllers\Version1\LessonsController;
 use Masteriyo\RestApi\Controllers\Version1\SectionsController;
 use Masteriyo\RestApi\Controllers\Version1\SettingsController;
-use Masteriyo\RestApi\Controllers\Version1\UserCoursesController;
-use Masteriyo\RestApi\Controllers\Version1\UsersController;
+use Masteriyo\RestApi\Controllers\Version1\WebhooksController;
 use Masteriyo\RestApi\Controllers\Version1\AnalyticsController;
+use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
+use Masteriyo\RestApi\Controllers\Version1\OrderItemsController;
+use Masteriyo\RestApi\Controllers\Version1\InstructorsController;
+use Masteriyo\RestApi\Controllers\Version1\QuizBuilderController;
+use Masteriyo\RestApi\Controllers\Version1\QuizReviewsController;
+use Masteriyo\RestApi\Controllers\Version1\UserCoursesController;
+use Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController;
+use Masteriyo\RestApi\Controllers\Version1\NotificationsController;
+use Masteriyo\RestApi\Controllers\Version1\SectionChildrenController;
+use Masteriyo\RestApi\Controllers\Version1\UsersImportExportController;
+use Masteriyo\RestApi\Controllers\Version1\QuizzesImportExportController;
+use Masteriyo\RestApi\Controllers\Version1\NavMenuController;
+use Masteriyo\RestApi\Controllers\Version1\PaymentsReadinessController;
+use Masteriyo\RestApi\Controllers\Version1\SingleCourseLayoutNoticeController;
+use Masteriyo\RestApi\Controllers\Version1\UtilitiesController;
 use Masteriyo\RestApi\Controllers\Version1\ChangelogController;
-use Masteriyo\RestApi\Controllers\Version1\DemosController;
 use Masteriyo\RestApi\Controllers\Version1\ErrorReportsController;
 use Masteriyo\RestApi\Controllers\Version1\LessonReviewsController;
-use Masteriyo\RestApi\Controllers\Version1\QuizzesImportExportController;
-use Masteriyo\RestApi\Controllers\Version1\RolesController;
-use Masteriyo\RestApi\Controllers\Version1\WebhooksController;
-use Masteriyo\RestApi\Controllers\Version1\OpenAIController;
-use Masteriyo\RestApi\Controllers\Version1\UsersImportExportController;
-use Masteriyo\RestApi\Controllers\Version1\NavMenuController;
-use Masteriyo\RestApi\Controllers\Version1\UtilitiesController;
 use Masteriyo\RestApi\Controllers\Version1\LogsController;
 use Masteriyo\RestApi\Controllers\Version1\OnboardingController;
-use Masteriyo\RestApi\Controllers\Version1\RestAuthController;
+use Masteriyo\RestApi\Controllers\Version1\DemosController;
 use Masteriyo\RestApi\Controllers\Version1\WelcomePageController;
 
+use Masteriyo\RestApi\Controllers\Version1\RestAuthController;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -91,6 +94,22 @@ class RestApi {
 				self::$controllers[ $namespace ][ $controller_name ]->register_routes();
 			}
 		}
+
+		// Add file size information to the /wp/v2/media response.
+		register_rest_field(
+			'attachment',
+			'masteriyo',
+			array(
+				'get_callback' => function( $comment_arr ) {
+					$file_size = absint( filesize( get_attached_file( $comment_arr['id'] ) ) );
+
+					return array(
+						'file_size'           => $file_size,
+						'formatted_file_size' => size_format( $file_size ),
+					);
+				},
+			)
+		);
 	}
 
 	/**
@@ -128,51 +147,54 @@ class RestApi {
 	protected static function get_v1_controllers() {
 
 		return array(
-			'courses'               => CoursesController::class,
-			'courses.categories'    => CourseCategoriesController::class,
-			'courses.tags'          => CourseTagsController::class,
-			'courses.difficulties'  => CourseDifficultiesController::class,
-			'courses.children'      => CourseChildrenController::class,
-			'lessons'               => LessonsController::class,
-			'questions'             => QuestionsController::class,
-			'quizzes'               => QuizesController::class,
-			'quizzes.attempts'      => QuizAttemptsController::class,
-			'sections'              => SectionsController::class,
-			'sections.children'     => SectionChildrenController::class,
-			'orders'                => OrdersController::class,
-			'orders.items'          => OrderItemsController::class,
-			'users'                 => UsersController::class,
-			'settings'              => SettingsController::class,
-			'courses.reviews'       => CourseReviewsController::class,
-			'lessons.reviews'       => LessonReviewsController::class,
-			'quizzes.reviews'       => QuizReviewsController::class,
-			'courses.qas'           => CourseQuestionAnswersController::class,
-			'courses.builder'       => CourseBuilderController::class,
-			'quizzes.builder'       => QuizBuilderController::class,
-			'course-progress'       => CourseProgressController::class,
-			'course-progress.items' => CourseProgressItemsController::class,
-			'data'                  => DataController::class,
-			'blocks'                => BlocksController::class,
-			'instructors'           => InstructorsController::class,
-			'users.courses'         => UserCoursesController::class,
-			'notifications'         => NotificationsController::class,
-			'pages'                 => PagesController::class,
-			'courses.import-export' => CoursesImportExportController::class,
-			'analytics'             => AnalyticsController::class,
-			'webhooks'              => WebhooksController::class,
-			'roles'                 => RolesController::class,
-			'openai'                => OpenAIController::class,
-			'users.import-export'   => UsersImportExportController::class,
-			'quizzes.import-export' => QuizzesImportExportController::class,
-			'nav-menu-notice'       => NavMenuController::class,
-			'tools.utilities'       => UtilitiesController::class,
-			'changelog'             => ChangelogController::class,
-			'logger'                => LogsController::class,
-			'error_reports'         => ErrorReportsController::class,
-			'rest-api-auth'         => RestAuthController::class,
-			'onboarding'            => OnboardingController::class,
-			'demos'                 => DemosController::class,
-			'create_pages'          => WelcomePageController::class,
+			'courses'                     => CoursesController::class,
+			'courses.categories'          => CourseCategoriesController::class,
+			'courses.tags'                => CourseTagsController::class,
+			'courses.difficulties'        => CourseDifficultiesController::class,
+			'courses.children'            => CourseChildrenController::class,
+			'lessons'                     => LessonsController::class,
+			'questions'                   => QuestionsController::class,
+			'quizzes'                     => QuizesController::class,
+			'quizzes.attempts'            => QuizAttemptsController::class,
+			'sections'                    => SectionsController::class,
+			'sections.children'           => SectionChildrenController::class,
+			'orders'                      => OrdersController::class,
+			'orders.items'                => OrderItemsController::class,
+			'users'                       => UsersController::class,
+			'settings'                    => SettingsController::class,
+			'courses.reviews'             => CourseReviewsController::class,
+			'lessons.reviews'             => LessonReviewsController::class,
+			'quizzes.reviews'             => QuizReviewsController::class,
+			'courses.qas'                 => CourseQuestionAnswersController::class,
+			'courses.builder'             => CourseBuilderController::class,
+			'quizzes.builder'             => QuizBuilderController::class,
+			'course-progress'             => CourseProgressController::class,
+			'course-progress.items'       => CourseProgressItemsController::class,
+			'data'                        => DataController::class,
+			'blocks'                      => BlocksController::class,
+			'instructors'                 => InstructorsController::class,
+			'users.courses'               => UserCoursesController::class,
+			'enrollments'                 => EnrollmentsController::class,
+			'notifications'               => NotificationsController::class,
+			'pages'                       => PagesController::class,
+			'courses.import-export'       => CoursesImportExportController::class,
+			'analytics'                   => AnalyticsController::class,
+			'webhooks'                    => WebhooksController::class,
+			'roles'                       => RolesController::class,
+			'openai'                      => OpenAIController::class,
+			'users.import-export'         => UsersImportExportController::class,
+			'quizzes.import-export'       => QuizzesImportExportController::class,
+			'nav-menu-notice'             => NavMenuController::class,
+			'single-course-layout-notice' => SingleCourseLayoutNoticeController::class,
+			'tools.utilities'             => UtilitiesController::class,
+			'changelog'                   => ChangelogController::class,
+			'payments.readiness'          => PaymentsReadinessController::class,
+			'logger'                      => LogsController::class,
+			'rest-api-auth'               => RestAuthController::class,
+			'error_reports'               => ErrorReportsController::class,
+			'onboarding'                  => OnboardingController::class,
+			'demos'                       => DemosController::class,
+			'create_pages'                => WelcomePageController::class,
 		);
 	}
 
@@ -191,6 +213,7 @@ class RestApi {
 	/**
 	 * Return pro addons controller.
 	 *
+	 * @since 2.2.7
 	 * @since 1.6.11
 	 *
 	 * @return array

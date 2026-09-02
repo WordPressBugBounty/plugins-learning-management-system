@@ -2,7 +2,7 @@
 /**
  * Add to cart Ajax handler.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @package Masteriyo\Addons\WcIntegration
  */
@@ -22,7 +22,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 	/**
 	 * Add to cart ajax action.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 * @var string
 	 */
 	public $action = 'masteriyo_wc_integration_add_to_cart';
@@ -30,7 +30,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 	/**
 	 * Register ajax handler.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 */
 	public function register() {
 		add_action( "wp_ajax_nopriv_{$this->action}", array( $this, 'add_to_cart' ) );
@@ -40,7 +40,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 	/**
 	 * Add to cart.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 */
 	public function add_to_cart() {
 		try {
@@ -76,7 +76,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 				if ( $wc_guest_disabled || $wc_signup_disabled ) {
 					wp_send_json_error(
 						array(
-							'redirect' => masteriyo_get_account_url() . '/#/sign-in',
+							'redirect' => masteriyo_get_account_url() . '#/sign-in',
 							'message'  => __( 'Please log in to add this course to your cart.', 'learning-management-system' ),
 						),
 						401

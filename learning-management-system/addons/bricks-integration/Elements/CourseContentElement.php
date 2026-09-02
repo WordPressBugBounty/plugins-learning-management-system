@@ -2,7 +2,7 @@
 /**
  * Masteriyo single course content bricks element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -20,7 +20,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 /**
 * Masteriyo single course content elements class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CourseContentElement extends \Bricks\Element {
 
@@ -31,7 +31,7 @@ class CourseContentElement extends \Bricks\Element {
 	/**
 	* Bricks single course content label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Single Course Content', 'learning-management-system' );
@@ -40,7 +40,7 @@ class CourseContentElement extends \Bricks\Element {
 	/**
 	* Bricks controls groups for single course content CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['course_contents'] = array(
@@ -154,15 +154,14 @@ class CourseContentElement extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		// Get the current page URL.
 		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $course ) {
-			echo "<div {$this->render_attributes( '_root' )} style='width:100%;' >";
+			echo "<div {$this->render_attributes( '_root' )} style='width:100%;' >"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks render_attributes() returns pre-escaped attribute markup.
 			masteriyo_template_single_course_main_content( $course );
 			echo '</div>';
 		}

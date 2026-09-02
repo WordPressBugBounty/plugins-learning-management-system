@@ -9,14 +9,13 @@ defined( 'ABSPATH' ) || exit;
  * Description: SureCart Integration allows to enroll users using SureCart checkout process and payment methods.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 1.12.0
+ * Version: 2.13.0
  * Requires: SureCart
  * Plan: Free
  * Category: Commerce
- * Category: User Management
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\SureCartIntegration\SureCartIntegrationAddon;
 
 define( 'MASTERIYO_SURECART_INTEGRATION_ADDON_FILE', __FILE__ );
@@ -36,7 +35,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_SURECART_INTEGRATION_ADDON_SLUG && !
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'SureCart Integration addon requires SureCart to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

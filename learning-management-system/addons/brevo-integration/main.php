@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Addons\BrevoIntegration\BrevoIntegrationAddon;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_BREVO_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_BREVO_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );

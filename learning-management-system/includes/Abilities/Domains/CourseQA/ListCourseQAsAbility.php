@@ -3,7 +3,6 @@
  * List Course Q&As ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Supports filtering by course ID and status. Returns both questions and
  * their nested answers in a threaded structure.
  * Requires the `read_course_qas` capability.
- *
- * @since x.x.x
  */
 class ListCourseQAsAbility extends RestProxyAbility {
 

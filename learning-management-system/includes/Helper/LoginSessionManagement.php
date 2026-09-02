@@ -57,7 +57,7 @@ if ( ! function_exists( 'masteriyo_wp_is_login' ) ) {
 	/**
 	 * Checks current page is WordPress login page or not.
 	 *
-	 * @since 1.9.4
+	 * @since 1.9.4 [Free]
 	 */
 	function masteriyo_wp_is_login() {
 		return false !== stripos( wp_login_url(), $_SERVER['SCRIPT_NAME'] );
@@ -135,7 +135,7 @@ if ( ! function_exists( 'masteriyo_session_information' ) ) {
 		$sessions                  = WP_Session_Tokens::get_instance( masteriyo_get_current_user_id() );
 		$session_info              = $sessions->get( $token );
 		$current_user_session_info = array();
-		$date_format               = 'F j,Y H:i a';
+		$date_format               = 'F j, Y H:i a';
 		$current_user_session_info['human_readable_date'] = ( $session_info && isset( $session_info['login'] ) && $session_info['login'] ) ? date_i18n( $date_format, $session_info['login'] ) : null;
 		$current_user_session_info['device_info']         = masteriyo_get_current_device_info();
 		$current_user_session_info['token']               = $token;

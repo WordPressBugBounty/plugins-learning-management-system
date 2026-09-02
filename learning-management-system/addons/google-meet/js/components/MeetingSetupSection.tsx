@@ -121,6 +121,10 @@ const MeetingSetupSection: React.FC<Props> = () => {
 		}
 	}, [handleFileUpload.isSuccess, toast]);
 
+	const uploadFile = (selectedFile: File) => {
+		handleFileUpload.mutateAsync(selectedFile);
+	};
+
 	return (
 		<Container
 			maxW="container.xl"
@@ -173,7 +177,7 @@ const MeetingSetupSection: React.FC<Props> = () => {
 						/>
 					</Col>
 					<Col xs={12} md={6}>
-						<DNDJson handleFileUpload={handleFileUpload} />
+						<DNDJson handleFileUpload={uploadFile} />
 					</Col>
 				</Row>
 			)}

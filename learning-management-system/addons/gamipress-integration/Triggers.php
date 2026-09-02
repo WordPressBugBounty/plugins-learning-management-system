@@ -56,7 +56,13 @@ class Triggers {
 	 * @return array
 	 */
 	public function add_triggers( $triggers ) {
-		$triggers[ __( 'Masteriyo LMS', 'learning-management-system' ) ] = array(
+		$category = sprintf(
+			/* translators: %s: the product's name */
+			__( '%s LMS', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
+
+		$triggers[ $category ] = array(
 			// Quizzes
 			'masteriyo_gamipress_complete_quiz'            => __( 'Complete a quiz', 'learning-management-system' ),
 			'masteriyo_gamipress_complete_specific_quiz'   => __( 'Complete a specific quiz', 'learning-management-system' ),
@@ -151,7 +157,6 @@ class Triggers {
 		return $specific_activity_trigger_labels;
 	}
 
-
 	/**
 	 * Add specific activity triggers.
 	 *
@@ -245,7 +250,6 @@ class Triggers {
 
 		return $title;
 	}
-
 
 	/**
 	 * Get user for a given trigger action.

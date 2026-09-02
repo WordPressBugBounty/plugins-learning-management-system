@@ -17,17 +17,27 @@
 
 defined( 'ABSPATH' ) || exit;
 
+
 ?>
-<form role="search" method="get" class="masteriyo-course-search" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+<form role="search" method="get" class="masteriyo-course-search" action="<?php echo esc_url( masteriyo_get_page_permalink( 'courses' ) ); ?>">
 	<label class="screen-reader-text" for="masteriyo-course-search-field-<?php echo isset( $index ) ? absint( $index ) : 0; ?>">
 		<?php esc_html_e( 'Search for:', 'learning-management-system' ); ?>
 	</label>
 	<span class="masteriyo-course-search__icon">
 		<?php masteriyo_get_svg( 'search', true ); ?>
 	</span>
-	<input type="search" id="masteriyo-course-search-field-<?php echo isset( $index ) ? absint( $index ) : 0; ?>" class="search-field masteriyo-input" placeholder="<?php echo esc_attr__( 'Search courses&hellip;', 'learning-management-system' ); ?>" value="<?php echo get_search_query(); ?>" name="s" />
-	<button type="submit" value="<?php echo esc_attr_x( 'Search', 'submit button', 'learning-management-system' ); ?>" class="masteriyo-btn masteriyo-btn-primary">
+	<input
+		type="search"
+		id="masteriyo-course-search-field-<?php echo isset( $index ) ? absint( $index ) : 0; ?>"
+		class="search-field masteriyo-input"
+		placeholder="<?php echo esc_attr__( 'Search courses&hellip;', 'learning-management-system' ); ?>"
+		value="<?php echo get_search_query(); ?>"
+		name="s"
+	/>
+	<button type="submit" value="<?php echo esc_attr_x( 'Search', 'submit button', 'learning-management-system' ); ?>"
+		class="masteriyo-btn masteriyo-btn-primary">
 		<?php echo esc_html_x( 'Search', 'submit button', 'learning-management-system' ); ?>
 	</button>
+	<?php masteriyo_render_query_string_form_fields( null, array( 'post_type', 's' ) ); ?>
 	<input type="hidden" name="post_type" value="mto-course" />
 </form>

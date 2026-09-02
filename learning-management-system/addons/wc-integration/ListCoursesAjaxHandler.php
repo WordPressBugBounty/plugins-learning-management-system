@@ -2,7 +2,7 @@
 /**
  * List Course Ajax handler.
  *
- * @since 1.8.1
+ * @since 2.2.0
  *
  * @package Masteriyo\Addons\WcIntegration
  */
@@ -24,7 +24,7 @@ class ListCoursesAjaxHandler extends AjaxHandler {
 	/**
 	 * ListCourse ajax action.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 * @var string
 	 */
 	public $action = 'masteriyo_wc_integration_list_courses';
@@ -32,7 +32,7 @@ class ListCoursesAjaxHandler extends AjaxHandler {
 	/**
 	 * Register ajax handler.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function register() {
 		add_action( "wp_ajax_nopriv_{$this->action}", array( $this, 'list_courses' ) );
@@ -42,10 +42,10 @@ class ListCoursesAjaxHandler extends AjaxHandler {
 	/**
 	 * List courses.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function list_courses() {
-		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key(wp_unslash($_GET['nonce'] ) ), $this->action ) ) {
+		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), $this->action ) ) {
 			wp_send_json(
 				array(
 					'results' => array(),
@@ -58,7 +58,7 @@ class ListCoursesAjaxHandler extends AjaxHandler {
 
 		$query = new \WP_Query(
 			array(
-				'post_type'      => PostType::COURSE,
+				'post_type'      => isset( $_GET['for_bundle'] ) ? PostType::COURSE_BUNDLE : PostType::COURSE,
 				'posts_per_page' => '10',
 				'paged'          => $page,
 				's'              => $search,

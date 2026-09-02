@@ -1,7 +1,6 @@
 <?php
 /**
- * The Template for displaying course progress bar in single course page
- *
+ * The Template for displaying course progress bar on the single course page.
  *
  * HOWEVER, on occasion Masteriyo will need to update template files and you
  * (the theme developer) will need to copy the new files to your theme to
@@ -33,11 +32,19 @@ if ( ! isset( $is_completed ) ) {
 	$is_completed = ( $total > 0 ) && ( $completed >= $total );
 }
 
-if ( is_singular( 'mto-course' ) ) {
+
+// Archive-style cards (course archive, related courses) pass an explicit
+// 'archive' context: on the single course page is_singular() is also true for
+// related-course cards, which must follow the archive setting, not the single
+// course one.
+$is_archive_card = isset( $context ) && 'archive' === $context;
+
+if ( ! $is_archive_card && is_singular( 'mto-course' ) ) {
 	$show_progress = ! empty( $summary ) && (bool) masteriyo_get_setting( 'single_course.components_visibility.course_progress' );
 } else {
 	$show_progress = ! empty( $summary ) && (bool) masteriyo_get_setting( 'course_archive.components_visibility.course_progress' );
 }
+
 
 $layout = masteriyo_get_setting( 'single_course.display.template.layout' );
 $class  = '';
@@ -57,8 +64,6 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 				 * This filter allows users to control whether course buttons open in a new tab or the same tab.
 				 * By default, buttons open in a new blank tab (_blank).
 				 *
-				 * @since x.x.x [Free]
-				 *
 				 * @param string                   $target The target attribute value. Default '_blank'.
 				 * @param \Masteriyo\Models\Course $course Course object.
 				 */
@@ -76,14 +81,15 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 						<strong><?php echo esc_html__( 'Course Completed', 'learning-management-system' ); ?></strong>
 					</div>
 					<div class="complete-eye-icon">
-					<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="<?php echo esc_attr( $button_target ); ?>" title="<?php echo esc_html__( 'Revisit Course', 'learning-management-system' ); ?>">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="#000" viewBox="0 0 24 24">
-					<path d="M12 5c2.116 0 4.183.648 5.941 1.861a10.935 10.935 0 0 1 3.776 4.58l.158.375.011.032a1.93 1.93 0 0 1-.011 1.335 10.953 10.953 0 0 1-3.934 4.956A10.453 10.453 0 0 1 12.001 20c-2.116 0-4.184-.648-5.942-1.861a10.952 10.952 0 0 1-3.934-4.955l-.011-.032a1.93 1.93 0 0 1 0-1.304l.011-.032A10.953 10.953 0 0 1 6.06 6.861 10.454 10.454 0 0 1 12 5Zm0 1.875A8.675 8.675 0 0 0 7.07 8.42a9.08 9.08 0 0 0-3.251 4.08 9.086 9.086 0 0 0 3.25 4.08A8.676 8.676 0 0 0 12 18.125a8.674 8.674 0 0 0 4.93-1.545c1.45-1 2.58-2.42 3.25-4.08a9.085 9.085 0 0 0-3.25-4.08A8.674 8.674 0 0 0 12 6.875Z"/>
-					<path d="M13.818 12.5c0-1.036-.814-1.875-1.818-1.875s-1.818.84-1.818 1.875c0 1.036.814 1.875 1.818 1.875s1.818-.84 1.818-1.875Zm1.818 0c0 2.071-1.628 3.75-3.636 3.75s-3.636-1.679-3.636-3.75c0-2.071 1.628-3.75 3.636-3.75s3.636 1.679 3.636 3.75Z"/>
-				</svg>
-				</a>
+			<a href="<?php echo esc_url( $course->start_course_url() ); ?>" target="<?php echo esc_attr( $button_target ); ?>" title="<?php echo esc_html__( 'Revisit Course', 'learning-management-system' ); ?>">
+	<svg xmlns="http://www.w3.org/2000/svg" fill="#000" viewBox="0 0 24 24">
+		<path d="M12 5c2.116 0 4.183.648 5.941 1.861a10.935 10.935 0 0 1 3.776 4.58l.158.375.011.032a1.93 1.93 0 0 1-.011 1.335 10.953 10.953 0 0 1-3.934 4.956A10.453 10.453 0 0 1 12.001 20c-2.116 0-4.184-.648-5.942-1.861a10.952 10.952 0 0 1-3.934-4.955l-.011-.032a1.93 1.93 0 0 1 0-1.304l.011-.032A10.953 10.953 0 0 1 6.06 6.861 10.454 10.454 0 0 1 12 5Zm0 1.875A8.675 8.675 0 0 0 7.07 8.42a9.08 9.08 0 0 0-3.251 4.08 9.086 9.086 0 0 0 3.25 4.08A8.676 8.676 0 0 0 12 18.125a8.674 8.674 0 0 0 4.93-1.545c1.45-1 2.58-2.42 3.25-4.08a9.085 9.085 0 0 0-3.25-4.08A8.674 8.674 0 0 0 12 6.875Z"/>
+		<path d="M13.818 12.5c0-1.036-.814-1.875-1.818-1.875s-1.818.84-1.818 1.875c0 1.036.814 1.875 1.818 1.875s1.818-.84 1.818-1.875Zm1.818 0c0 2.071-1.628 3.75-3.636 3.75s-3.636-1.679-3.636-3.75c0-2.071 1.628-3.75 3.636-3.75s3.636 1.679 3.636 3.75Z"/>
+	</svg>
+</a>
+
+					</div>
 				</div>
-			</div>
 
 			<?php else : ?>
 
@@ -94,6 +100,7 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 						</h2>
 						<div class="progress-percent">
 							<?php
+
 							echo esc_html(
 								sprintf(
 									/* translators: %f: progress percentage (e.g. 75) */
@@ -107,6 +114,7 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 							);
 							?>
 						</div>
+
 					</div>
 
 					<div class="completed-component">

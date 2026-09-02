@@ -15,9 +15,9 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\PostStatus;
-use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
 /**
@@ -27,7 +27,6 @@ use Masteriyo\RestApi\Controllers\Version1\PostsController;
  * @extends CrudController
  */
 class CourseBuilderController extends PostsController {
-
 
 	/**
 	 * Endpoint namespace.
@@ -132,10 +131,8 @@ class CourseBuilderController extends PostsController {
 	 * managers, and the course's own author/instructor, regardless of whether
 	 * the requester has purchased/enrolled in the course.
 	 *
-	 * @since x.x.x
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return boolean|WP_Error True if the request has read access for the item, WP_Error object otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return boolean|\WP_Error True if the request has read access for the item, WP_Error object otherwise.
 	 */
 	public function get_item_permissions_check( $request ) {
 		$course_id = absint( $request['id'] );
@@ -287,6 +284,7 @@ class CourseBuilderController extends PostsController {
 		$objects = $this->get_course_contents( $request );
 
 		foreach ( $objects as $object ) {
+
 			if ( ! $this->check_item_permission( $object->get_post_type(), 'read', $object->get_id() ) ) {
 				continue;
 			}
@@ -312,6 +310,7 @@ class CourseBuilderController extends PostsController {
 			array(
 				'post_parent' => $request['id'],
 				'post_type'   => PostType::SECTION,
+				'post_status' => PostStatus::ANY,
 			)
 		);
 
@@ -434,9 +433,24 @@ class CourseBuilderController extends PostsController {
 			'status'            => $course_item->get_status( $context ),
 		);
 
-		if ( 'mto-lesson' === $course_item->get_post_type() ) {
-			$data['video']        = ! empty( $course_item->get_video_source_url() ) || 'video-lesson' === $course_item->get_lesson_type();
-			$data['video_source'] = $course_item->get_video_source();
+		if ( PostType::LESSON === $course_item->get_post_type() ) {
+			$lesson_type      = $course_item->get_lesson_type();
+			$video_source_url = $course_item->get_video_source_url();
+
+			$data['lesson_type'] = $lesson_type;
+			$data['video']       = ! empty( $video_source_url ) || 'video-lesson' === $lesson_type;
+			// A video lesson with no video attached yet — the builder flags it
+			// so creators don't publish an empty lesson.
+			$data['video_missing'] = 'video-lesson' === $lesson_type && empty( $video_source_url );
+			$data['previewable']   = masteriyo_bool_to_string( $course_item->get_enable_preview() );
+			$data['video_source']  = $course_item->get_video_source();
+			$data['pdf']           = ! empty( $course_item->get_pdf() ) ? $course_item->get_pdf() : null;
+			$data['audio']         = (
+				( $course_item->get_audio_source() === 'self-hosted' && ! empty( $course_item->get_audio_source_files() ) ) ||
+				( $course_item->get_audio_source() === 'external' && ! empty( $course_item->get_audio_source_url() ) ) ||
+				( $course_item->get_audio_source() === 'embed-audio' && ! empty( $course_item->get_audio_source_url() ) )
+			);
+
 		}
 
 		/**

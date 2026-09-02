@@ -1,6 +1,6 @@
 # Build Testable ZIP Workflow
 
-This document explains how to use the automated build workflow to create testable ZIP files for Masteriyo.
+This document explains how to use the automated build workflow to create testable ZIP files for Masteriyo Pro.
 
 ## Overview
 
@@ -49,28 +49,29 @@ git commit -m "docs: update README"
 1. **Build Process:**
    - Checks out the PR branch
    - Installs dependencies (Node.js, PHP, Composer, Yarn)
-   - Runs optimized build which:
+   - Runs `yarn release` which:
      - Builds frontend assets
      - Builds blocks
-     - Generates translation files (only if requested)
+     - Generates translation files
      - Creates the release ZIP
 
 2. **Artifact Upload:**
    - Uploads the ZIP as a GitHub Actions artifact
-   - Names it: `masteriyo-pr-{number}` (e.g., `masteriyo-pr-123`)
+   - Names it: `masteriyo-pro-pr-{number}` (e.g., `masteriyo-pro-pr-123`)
    - Keeps it for 30 days
 
 3. **PR Comment:**
-   - Posts a comment on the PR with a **direct download link**
+   - Posts a comment on the PR with download instructions
    - Updates the comment on subsequent builds (doesn't spam)
 
 ### How to Download (For PR Builds)
 
-**Option 1: Direct Download Link (Recommended)**
+**Option 1: From PR Comment**
 1. Go to the pull request page
 2. Find the comment titled "📦 Build Artifact Ready"
-3. Click the **direct download link** - download starts immediately
-4. Install in WordPress via Plugins → Add New → Upload Plugin
+3. Click the download link
+4. Scroll to "Artifacts" section at the bottom
+5. Download the ZIP file
 
 **Option 2: From Actions Tab**
 1. Go to **Actions** tab in GitHub
@@ -106,11 +107,11 @@ Use manual builds when you need to:
    **Branch to build from:**
    - Enter the branch name you want to build
    - Default: `develop`
-   - Examples: `feature/new-feature`, `bugfix/issue-123`, `release/1.8.0`
+   - Examples: `feature/new-feature`, `bugfix/issue-123`, `release-pro/3.0.4`
 
    **Custom artifact name (optional):**
    - Leave empty for automatic naming
-   - Or enter a custom name (e.g., `release-candidate-v1.8.0`)
+   - Or enter a custom name (e.g., `release-candidate-v3.0.4`)
 
    **Generate translation POT file:**
    - Check this box if you need translation files in the build
@@ -129,9 +130,118 @@ Use manual builds when you need to:
    - Once complete, scroll to the **Artifacts** section at the bottom
    - Click the artifact name to download
 
+## Artifact Naming Convention
+
+The workflow uses smart naming based on how it was triggered:
+
+### For Pull Requests
+```
+masteriyo-pro-pr-{number}
+```
+**Examples:**
+- `masteriyo-pro-pr-42`
+- `masteriyo-pro-pr-123`
+
+### For Manual Builds (with custom name)
+```
+{your-custom-name}
+```
+**Examples:**
+- `release-candidate-v3.0.4`
+- `hotfix-build-urgent`
+- `qa-testing-build`
+
+### For Manual Builds (without custom name)
+```
+masteriyo-pro-{branch}-{timestamp}
+```
+**Examples:**
+- `masteriyo-pro-develop-20251129-143025`
+- `masteriyo-pro-feature-new-payment-20251129-150530`
+- `masteriyo-pro-bugfix-checkout-issue-20251129-162245`
+
+Note: Branch names are sanitized (special characters replaced with hyphens)
+
+## Use Case Examples
+
+### Example 1: Working on a PR with Multiple Commits
+**Scenario:** You're working on a feature and making multiple commits, but only want to build when ready to test.
+
+**Steps:**
+```bash
+# Open PR - automatic build runs
+git checkout -b feature/new-checkout-flow
+git push origin feature/new-checkout-flow
+# Create PR on GitHub → Build runs automatically
+
+# Make several commits without triggering builds
+git commit -m "fix: update validation logic"
+git push
+# → No build (no #build keyword)
+
+git commit -m "refactor: improve code structure"
+git push
+# → No build
+
+git commit -m "docs: add comments"
+git push
+# → No build
+
+# Ready to test? Trigger a build
+git commit -m "feat: complete checkout implementation #build"
+git push
+# → Build runs! ZIP available for testing
+```
+
+### Example 2: Quick Test After Bug Fix
+**Scenario:** Fixed a critical bug and need to test immediately.
+
+**Steps:**
+```bash
+git commit -m "#build - urgent: fix payment gateway crash"
+git push
+# → Build runs immediately
+```
+
+### Example 3: Testing a Feature Branch (Manual Build)
+**Scenario:** You have a feature branch and want to test it before creating a PR.
+
+**Steps:**
+1. Go to Actions → Build Testable ZIP → Run workflow
+2. Branch: `feature/stripe-integration`
+3. Custom name: (leave empty)
+4. Result: `masteriyo-pro-feature-stripe-integration-20251129-143025.zip`
+
+### Example 4: Creating a Release Candidate (Manual Build)
+**Scenario:** Preparing for a release and need a build for final testing.
+
+**Steps:**
+1. Go to Actions → Build Testable ZIP → Run workflow
+2. Branch: `develop`
+3. Custom name: `release-candidate-v3.0.4`
+4. Result: `release-candidate-v3.0.4.zip`
+
+### Example 5: Quick Develop Build (Manual Build)
+**Scenario:** Need the latest develop branch for testing.
+
+**Steps:**
+1. Go to Actions → Build Testable ZIP → Run workflow
+2. Branch: (leave default `develop`)
+3. Custom name: (leave empty)
+4. Result: `masteriyo-pro-develop-20251129-143025.zip`
+
+### Example 6: Testing a Bugfix (Manual Build)
+**Scenario:** Need to test a specific bugfix branch.
+
+**Steps:**
+1. Go to Actions → Build Testable ZIP → Run workflow
+2. Branch: `bugfix/MAS-2935-php-8-4-compatibility`
+3. Custom name: `php84-compatibility-test`
+4. Result: `php84-compatibility-test.zip`
+
 ## What Gets Built
 
-The workflow runs an optimized build process, which includes:
+The workflow runs the `yarn release` command, which includes:
 
 1. **Dependency Installation:**
    - `yarn install` - Install Node.js dependencies
@@ -150,35 +260,30 @@ The workflow runs an optimized build process, which includes:
    - `gulp release` - Package everything into a distributable ZIP
    - Excludes development files (see `.distignore`)
 
-## Direct Download Links
+## Build Artifacts
 
-### How It Works
+### Retention Period
+All artifacts are kept for **30 days** and then automatically deleted.
 
-All PR builds now include **direct download links** in PR comments using the nightly.link service:
+### File Size
+Typical ZIP size: **50-80 MB** (varies based on dependencies and assets)
 
-- Click the link and download starts immediately
-- No need to navigate to GitHub Actions artifacts page
-- Works with all modern browsers
-- Free and reliable service
+### What's Included
+The ZIP contains:
+- ✅ Compiled JavaScript/CSS
+- ✅ PHP source code
+- ✅ Vendor dependencies
+- ✅ Translation files
+- ✅ Templates
+- ✅ Addons
 
-### Fallback Option
-
-If the direct link doesn't work:
-- Use the "Alternative Download" link in the PR comment
-- Or go to Actions → Find your workflow run → Download from Artifacts section
-
-## Build Performance
-
-### Expected Build Times
-
-- **Standard build (no makepot):** 9-11 minutes
-- **Build with makepot:** 10-12 minutes
-
-### Speed Tips
-
-1. Use `#build` instead of `#build:makepot` for faster PR testing
-2. Only use `#build:makepot` when you've modified translatable strings
-3. Consider manual builds for release candidates with translations enabled
+### What's Excluded
+Based on `.distignore`, these are not included:
+- ❌ Source TypeScript/React files
+- ❌ Node modules (dev dependencies)
+- ❌ Build configuration files
+- ❌ Git files and directories
+- ❌ Development scripts
 
 ## Troubleshooting
 
@@ -201,61 +306,41 @@ If the direct link doesn't work:
 2. Look at the **Artifacts** section at the bottom of the workflow run page
 3. If not there, check if the build failed in the "Find Release ZIP" step
 
-### Direct Download Link Not Working
+### ZIP File is Too Large
 
-**Try:**
-1. Wait a few seconds and try again (nightly.link needs time to process)
-2. Use the "Alternative Download" link in the PR comment
-3. Download directly from GitHub Actions artifacts section
+**What to check:**
+- Ensure `.distignore` is properly excluding development files
+- Check if unnecessary files are being included in the `release/` directory
 
-## Use Case Examples
+### Manual Trigger Button Not Visible
 
-### Example 1: Quick Feature Test
-```bash
-# Working on a feature, ready to test
-git commit -m "feat: implement new checkout flow #build"
-git push
-# → Build runs, PR comment appears with direct download link
-# → Click link, download starts, install in WordPress
-```
-
-### Example 2: Testing Translations
-```bash
-# Added new translatable strings
-git commit -m "feat: add user profile strings #build:makepot"
-git push
-# → Build runs with translation generation
-```
-
-### Example 3: Manual Build for Release Candidate
-1. Go to Actions → Build Testable ZIP → Run workflow
-2. Branch: `develop`
-3. Custom name: `rc-v1.8.0`
-4. Generate POT file: ✓ (checked)
-5. Result: WordPress-ready zip with translations
+**Possible reasons:**
+- You don't have write permissions to the repository
+- The workflow file is not on the default branch yet
+- Browser cache issue (try hard refresh)
 
 ## Best Practices
 
 ### For Developers
 
-1. **Use standard builds for testing:** `#build` is faster, use it for most PR testing
-2. **Use makepot when needed:** Only use `#build:makepot` when you've modified strings
-3. **Clean commits:** Ensure your code is ready before triggering a build
-4. **Test the artifact:** Always download and test before requesting review
+1. **Test before PR:** Use manual builds to test your feature branch before opening a PR
+2. **Clean commits:** Ensure your code is ready before triggering a build
+3. **Meaningful names:** Use descriptive custom artifact names for important builds
+4. **Check artifacts:** Always verify the build succeeded and download the artifact
 
 ### For QA Team
 
-1. **Use direct download links:** Fastest way to get PR builds
-2. **Test immediately:** Artifacts are kept for 30 days, test while fresh
-3. **Document testing:** Note which artifact version you tested in your reports
+1. **Use PR builds:** For testing pull requests, use the automatic builds from PR comments
+2. **Consistent naming:** When requesting manual builds, use consistent naming conventions
+3. **Document testing:** Note which artifact version you tested
 4. **Report issues:** Include the artifact name in bug reports
 
 ### For Release Managers
 
-1. **Use manual builds with makepot:** Enable translation generation for RCs
-2. **Consistent naming:** Use `rc-v1.8.0` format for release candidates
-3. **Archive builds:** Download and keep important RC builds locally
-4. **Final verification:** Test RC before creating actual release
+1. **Release candidates:** Use custom names like `rc-v3.0.4` for release candidates
+2. **Final testing:** Create a build from the release branch before tagging
+3. **Archive important builds:** Download and archive release candidate artifacts locally
+4. **Verify checksums:** Compare artifact contents with your local build if needed
 
 ## Workflow File Location
 
@@ -272,3 +357,9 @@ If you encounter issues with the build workflow:
 2. Review the workflow logs in GitHub Actions
 3. Ask in the development team channel
 4. Create an issue if it's a workflow bug
+
+## Related Documentation
+
+- [Masteriyo Release Process](../README.md#release-process)
+- [Development Setup](../README.md#development-setup)
+- [Contributor Guide](./contributor-guide.md)

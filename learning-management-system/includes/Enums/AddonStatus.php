@@ -2,6 +2,7 @@
 /**
  * Addon status enums.
  *
+ * @since 2.0.5
  * @since 1.6.11
  * @package Masteriyo\Enums
  */
@@ -13,12 +14,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Addon status enum class.
  *
+ * @since 2.0.5
  * @since 1.6.11
  */
 class AddonStatus {
 	/**
 	 * Addon any status.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 * @var string
 	 */
@@ -27,6 +30,7 @@ class AddonStatus {
 	/**
 	 * Addon active status.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 * @var string
 	 */
@@ -35,6 +39,7 @@ class AddonStatus {
 	/**
 	 * Addon inactive status.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 * @var string
 	 */
@@ -43,6 +48,7 @@ class AddonStatus {
 	/**
 	 * Return addon statuses.
 	 *
+	 * @since 2.0.5
 	 * @since 1.6.11
 	 *
 	 * @return array

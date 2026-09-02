@@ -20,6 +20,7 @@ import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Table, Tbody, Th, Thead, Tr } from 'react-super-responsive-table';
+import { triggerLicenseCheck } from '../../../../../assets/js/back-end/components/LicenseCheck';
 import ActionDialog from '../../../../../assets/js/back-end/components/common/ActionDialog';
 import EmptyInfo from '../../../../../assets/js/back-end/components/common/EmptyInfo';
 import FilterTabs from '../../../../../assets/js/back-end/components/common/FilterTabs';
@@ -33,10 +34,7 @@ import {
 	HeaderTop,
 } from '../../../../../assets/js/back-end/components/common/Header';
 import MasteriyoPagination from '../../../../../assets/js/back-end/components/common/MasteriyoPagination';
-import {
-	Certificate,
-	Gear,
-} from '../../../../../assets/js/back-end/constants/images';
+import { Gear } from '../../../../../assets/js/back-end/constants/images';
 import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
 import Sorting from '../../../../../assets/js/back-end/screens/courses/components/Sorting';
 import API from '../../../../../assets/js/back-end/utils/api';
@@ -77,11 +75,16 @@ const tabButtons: FilterTabs = [
 		status: 'trash',
 		name: __('Trash', 'learning-management-system'),
 	},
-	{
-		status: 'settings',
-		name: __('Settings', 'learning-management-system'),
-		icon: <Gear height="20px" width="20px" fill="currentColor" />,
-	},
+	// Only add Settings tab if user IS admin
+	...(localized.isCurrentUserAdmin !== 'no'
+		? [
+				{
+					status: 'settings' as const,
+					name: __('Settings', 'learning-management-system'),
+					icon: <Gear height="20px" width="20px" fill="currentColor" />,
+				},
+			]
+		: []),
 ];
 
 const AllCertificates: React.FC = () => {
@@ -341,6 +344,8 @@ const AllCertificates: React.FC = () => {
 					<HeaderRightSection>
 						<HeaderPrimaryButton
 							onClick={() => {
+								if (!triggerLicenseCheck()) return;
+
 								navigate(certificateBackendRoutes.certificate.add);
 							}}
 							leftIcon={min360px ? <Add /> : undefined}
@@ -383,7 +388,7 @@ const AllCertificates: React.FC = () => {
 					</Button>
 				</Alert>
 				<Box bg="white" py={{ base: 6, md: 12 }} shadow="box" mx="auto">
-					{active === 'settings' ? (
+					{active === 'settings' && localized.isCurrentUserAdmin !== 'no' ? (
 						<FormProvider {...methods}>
 							<form onSubmit={methods.handleSubmit(onSettingSubmit)}>
 								<CertificateSetting
@@ -405,6 +410,7 @@ const AllCertificates: React.FC = () => {
 									  isEmpty(certificatesQuery?.data?.data) ? (
 										<EmptyInfo
 											onPrimaryButtonClick={() => {
+												if (!triggerLicenseCheck()) return;
 												navigate(certificateBackendRoutes.certificate.add);
 											}}
 											title={__(
@@ -485,19 +491,25 @@ const AllCertificates: React.FC = () => {
 												</Tr>
 											</Thead>
 											<Tbody>
-												{certificatesQuery?.data?.data?.map((certificate) => (
-													<CertificateRow
-														key={certificate.id}
-														data={certificate}
-														bulkIds={bulkIds}
-														setBulkIds={setBulkIds}
-														isLoading={
-															certificatesQuery.isLoading ||
-															certificatesQuery.isFetching ||
-															certificatesQuery.isRefetching
-														}
-													/>
-												))}
+												{certificatesQuery?.data?.data
+													?.filter(
+														(c: any) =>
+															!c.content_format ||
+															c.content_format === 'gutenberg',
+													)
+													.map((certificate) => (
+														<CertificateRow
+															key={certificate.id}
+															data={certificate}
+															bulkIds={bulkIds}
+															setBulkIds={setBulkIds}
+															isLoading={
+																certificatesQuery.isLoading ||
+																certificatesQuery.isFetching ||
+																certificatesQuery.isRefetching
+															}
+														/>
+													))}
 											</Tbody>
 										</>
 									)}
@@ -570,7 +582,10 @@ const AllCertificates: React.FC = () => {
 					},
 					delete: {
 						header: __('Deleting Certificate', 'learning-management-system'),
-						body: __('Are you sure? You can’t restore after deleting.'),
+						body: __(
+							'Are you sure? You can’t restore after deleting.',
+							'learning-management-system',
+						),
 						confirm: __('Delete', 'learning-management-system'),
 					},
 					restore: {

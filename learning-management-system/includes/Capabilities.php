@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Capabilities class.
  *
- * @since 1.9.4 (Moved all addons capabilities to core due to permission issue.)
+ * @since 2.9.4 (Moved all addons capabilities to core due to permission issue.)
  */
 class Capabilities {
 
@@ -232,54 +232,76 @@ class Capabilities {
 	 */
 	public static function get_student_capabilities() {
 		$capabilities = array(
-			'read_courses'                  => true,
-			'read_sections'                 => true,
-			'read_lessons'                  => true,
-			'read_quizzes'                  => true,
-			'read_questions'                => true,
-			'read_orders'                   => true,
-			'read_course_reviews'           => true,
-			'read_quiz_reviews'             => true,
-			'read_user_courses'             => true,
-			'read_announcements'            => true,
-			'edit_announcements'            => true,
-			'edit_published_announcements'  => true,
-			'edit_others_announcements'     => true,
+			'read_courses'                      => true,
+			'read_sections'                     => true,
+			'read_lessons'                      => true,
+			'read_quizzes'                      => true,
+			'read_h5p_quizzes'                  => true,
+			'read_questions'                    => true,
+			'read_orders'                       => true,
+			'read_course_reviews'               => true,
+			'read_quiz_reviews'                 => true,
+			'read_user_courses'                 => true,
+			'read_faqs'                         => true,
+			'read_certificates'                 => true,
+			'read_announcements'                => true,
+			'read_subscriptions'                => true,
+			'edit_announcements'                => true,
+			'edit_published_announcements'      => true,
 
 			// Course Progress
-			'read_course_progresses'        => true,
-			'publish_course_progresses'     => true,
-			'edit_course_progresses'        => true,
+			'read_course_progresses'            => true,
+			'publish_course_progresses'         => true,
+			'edit_course_progresses'            => true,
 
 			// Quiz reviews
-			'publish_quiz_reviews'          => true,
-			'edit_quiz_reviews'             => true,
-			'edit_private_quiz_reviews'     => true,
-			'edit_published_quiz_reviews'   => true,
+			'publish_quiz_reviews'              => true,
+			'edit_quiz_reviews'                 => true,
+			'edit_private_quiz_reviews'         => true,
+			'edit_published_quiz_reviews'       => true,
 
 			// Course Qas
-			'read_course_qas'               => true,
-			'create_course_qas'             => true,
-			'edit_course_qas'               => true,
-			'delete_course_qas'             => true,
+			'read_course_qas'                   => true,
+			'create_course_qas'                 => true,
+			'edit_course_qas'                   => true,
+			'delete_course_qas'                 => true,
 
 			// Course reviews
-			'publish_course_reviews'        => true,
-			'edit_course_reviews'           => true,
-			'edit_published_course_reviews' => true,
-			'delete_course_reviews'         => true,
+			'publish_course_reviews'            => true,
+			'edit_course_reviews'               => true,
+			'edit_published_course_reviews'     => true,
+			'delete_course_reviews'             => true,
 
 			// lesson reviews
-			'read_lesson_reviews'           => true,
-			'publish_lesson_reviews'        => true,
-			'edit_lesson_reviews'           => true,
-			'delete_lesson_reviews'         => true,
+			'read_lesson_reviews'               => true,
+			'publish_lesson_reviews'            => true,
+			'edit_lesson_reviews'               => true,
+			'delete_lesson_reviews'             => true,
 
 			// Taxonomy.
-			'manage_course_categories'      => true,
+			'manage_course_categories'          => true,
+
+			// For uploading and deleting the uploaded files for the users.
+			'upload_files'                      => true,
+			'delete_posts'                      => true,
+
+			// Assignments
+			'read_assignments'                  => true,
+
+			// Assignment replies.
+			'read_assignment_replies'           => true,
+			'publish_assignment_replies'        => true,
+			'edit_assignment_replies'           => true,
+			'edit_private_assignment_replies'   => true,
+			'edit_published_assignment_replies' => true,
+			'delete_assignment_replies'         => true,
+
+			// User role editor pro compatibility.
+			'manage_mto-course_terms'           => true,
 
 			// Google Meet
-			'get_google-meets'              => true,
+			'get_google-meets'                  => true,
+
 		);
 
 		$subscriber      = get_role( 'subscriber' );
@@ -306,61 +328,79 @@ class Capabilities {
 	public static function get_instructor_capabilities() {
 		$capabilities = array(
 			// Users
-			'read_users'                        => true,
+			'read_users'                          => true,
 
 			// Courses
-			'publish_courses'                   => true,
-			'edit_courses'                      => true,
-			'edit_private_courses'              => true,
-			'edit_published_courses'            => true,
-			'delete_courses'                    => true,
-			'delete_published_courses'          => true,
-			'delete_private_courses'            => true,
+			'publish_courses'                     => true,
+			'edit_courses'                        => true,
+			'edit_private_courses'                => true,
+			'edit_published_courses'              => true,
+			'delete_courses'                      => true,
+			'delete_published_courses'            => true,
+			'delete_private_courses'              => true,
 
 			// sections
-			'publish_sections'                  => true,
-			'edit_sections'                     => true,
-			'edit_private_sections'             => true,
-			'edit_published_sections'           => true,
-			'delete_sections'                   => true,
-			'delete_published_sections'         => true,
-			'delete_private_sections'           => true,
+			'publish_sections'                    => true,
+			'edit_sections'                       => true,
+			'edit_private_sections'               => true,
+			'edit_published_sections'             => true,
+			'delete_sections'                     => true,
+			'delete_published_sections'           => true,
+			'delete_private_sections'             => true,
 
 			// Lessons
-			'publish_lessons'                   => true,
-			'edit_lessons'                      => true,
-			'edit_private_lessons'              => true,
-			'edit_published_lessons'            => true,
-			'delete_lessons'                    => true,
-			'delete_published_lessons'          => true,
-			'delete_private_lessons'            => true,
+			'publish_lessons'                     => true,
+			'edit_lessons'                        => true,
+			'edit_private_lessons'                => true,
+			'edit_published_lessons'              => true,
+			'delete_lessons'                      => true,
+			'delete_published_lessons'            => true,
+			'delete_private_lessons'              => true,
 
 			// Quizzes
-			'publish_quizzes'                   => true,
-			'edit_quizzes'                      => true,
-			'edit_private_quizzes'              => true,
-			'edit_published_quizzes'            => true,
-			'delete_quizzes'                    => true,
-			'delete_published_quizzes'          => true,
-			'delete_private_quizzes'            => true,
+			'publish_quizzes'                     => true,
+			'edit_quizzes'                        => true,
+			'edit_private_quizzes'                => true,
+			'edit_published_quizzes'              => true,
+			'delete_quizzes'                      => true,
+			'delete_published_quizzes'            => true,
+			'delete_private_quizzes'              => true,
+
+			// H5P Quizzes
+			'publish_h5p_quizzes'                 => true,
+			'edit_h5p_quizzes'                    => true,
+			'edit_private_h5p_quizzes'            => true,
+			'edit_published_h5p_quizzes'          => true,
+			'delete_h5p_quizzes'                  => true,
+			'delete_published_h5p_quizzes'        => true,
+			'delete_private_h5p_quizzes'          => true,
 
 			// Questions
-			'publish_questions'                 => true,
-			'edit_questions'                    => true,
-			'edit_private_questions'            => true,
-			'edit_published_questions'          => true,
-			'delete_questions'                  => true,
-			'delete_published_questions'        => true,
-			'delete_private_questions'          => true,
+			'publish_questions'                   => true,
+			'edit_questions'                      => true,
+			'edit_private_questions'              => true,
+			'edit_published_questions'            => true,
+			'delete_questions'                    => true,
+			'delete_published_questions'          => true,
+			'delete_private_questions'            => true,
+
+			// Certificates
+			'publish_certificates'                => true,
+			'edit_certificates'                   => true,
+			'edit_private_certificates'           => true,
+			'edit_published_certificates'         => true,
+			'delete_certificates'                 => true,
+			'delete_published_certificates'       => true,
+			'delete_private_certificates'         => true,
 
 			// Course reviews
-			'publish_course_reviews'            => true,
-			'edit_course_reviews'               => true,
-			'edit_private_course_reviews'       => true,
-			'edit_published_course_reviews'     => true,
-			'delete_course_reviews'             => true,
-			'delete_published_course_reviews'   => true,
-			'delete_private_course_reviews'     => true,
+			'publish_course_reviews'              => true,
+			'edit_course_reviews'                 => true,
+			'edit_private_course_reviews'         => true,
+			'edit_published_course_reviews'       => true,
+			'delete_course_reviews'               => true,
+			'delete_published_course_reviews'     => true,
+			'delete_private_course_reviews'       => true,
 
 			// lesson reviews
 			'read_lesson_reviews'                 => true,
@@ -369,64 +409,127 @@ class Capabilities {
 			'delete_lesson_reviews'               => true,
 
 			// Quiz reviews
-			'publish_quiz_reviews'              => true,
-			'edit_quiz_reviews'                 => true,
-			'edit_private_quiz_reviews'         => true,
-			'edit_published_quiz_reviews'       => true,
-			'delete_quiz_reviews'               => true,
-			'delete_published_quiz_reviews'     => true,
-			'delete_private_quiz_reviews'       => true,
+			'publish_quiz_reviews'                => true,
+			'edit_quiz_reviews'                   => true,
+			'edit_private_quiz_reviews'           => true,
+			'edit_published_quiz_reviews'         => true,
+			'delete_quiz_reviews'                 => true,
+			'delete_published_quiz_reviews'       => true,
+			'delete_private_quiz_reviews'         => true,
 
 			// Taxonomy.
-			'manage_terms'                      => true,
-			'manage_course_difficulties'        => true,
-			'manage_course_categories'          => true,
-			'edit_course_categories'            => true,
+			'manage_terms'                        => true,
+			'manage_course_difficulties'          => true,
+			'manage_course_categories'            => true,
+			'edit_course_categories'              => true,
 
 			// Webhooks.
-			'publish_mto_webhooks'              => true,
-			'edit_mto_webhooks'                 => true,
-			'edit_private_mto_webhooks'         => true,
-			'edit_published_mto_webhooks'       => true,
-			'delete_mto_webhooks'               => true,
-			'delete_published_mto_webhooks'     => true,
-			'delete_private_mto_webhooks'       => true,
+			'publish_mto_webhooks'                => true,
+			'edit_mto_webhooks'                   => true,
+			'edit_private_mto_webhooks'           => true,
+			'edit_published_mto_webhooks'         => true,
+			'delete_mto_webhooks'                 => true,
+			'delete_published_mto_webhooks'       => true,
+			'delete_private_mto_webhooks'         => true,
 
 			// Announcements (Added to main capability file due to permission issue on individual addon, so adding with filter is not used here.)
-			'publish_announcements'             => true,
-			'edit_private_announcements'        => true,
-			'delete_announcements'              => true,
-			'delete_published_announcements'    => true,
-			'delete_private_announcements'      => true,
+			'publish_announcements'               => true,
+			'edit_private_announcements'          => true,
+			'edit_others_announcements'           => true,
+			'delete_announcements'                => true,
+			'delete_published_announcements'      => true,
+			'delete_private_announcements'        => true,
+
+			// Courses bundles.
+			'publish_bundles'                     => true,
+			'edit_bundles'                        => true,
+			'edit_private_bundles'                => true,
+			'edit_published_bundles'              => true,
+			'delete_bundles'                      => true,
+			'delete_published_bundles'            => true,
+			'delete_private_bundles'              => true,
 
 			// Other
-			'upload_files'                      => true,
+			'upload_files'                        => true,
 			/**
 			 * `unfiltered_html` intentionally removed (MAS-3779): it let an instructor store
 			 * raw <script>/on* payloads that execute in any viewer's browser, including admins.
-			 * Iframe embedding (the original reason it was granted) is already covered without
-			 * this capability by masteriyo_add_iframe_to_post_context() via wp_kses_allowed_html.
+			 * Iframe embedding (the original reason it was granted) and <style> are already
+			 * covered without this capability by masteriyo_add_iframe_to_post_context() and
+			 * masteriyo_add_style_to_post_context() via wp_kses_allowed_html.
 			 */
 
+			// Assignments
+			'publish_assignments'                 => true,
+			'edit_assignments'                    => true,
+			'edit_private_assignments'            => true,
+			'edit_published_assignments'          => true,
+			'delete_assignments'                  => true,
+			'delete_published_assignments'        => true,
+			'delete_private_assignments'          => true,
+
+			// Assignment replies.
+			'edit_others_assignment_replies'      => true,
+			'delete_others_assignment_replies'    => true,
+			'delete_published_assignment_replies' => true,
+			'delete_private_assignment_replies'   => true,
+
+			// Coupons
+			'read_coupons'                        => true,
+			'read_private_coupons'                => true,
+			'publish_coupons'                     => true,
+			'edit_coupons'                        => true,
+			'edit_private_coupons'                => true,
+			'edit_published_coupons'              => true,
+			'delete_coupons'                      => true,
+			'delete_published_coupons'            => true,
+			'delete_private_coupons'              => true,
+
 			// Google classroom
-			'publish_google_classrooms'         => true,
-			'get_google_classroom'              => true,
-			'edit_google_classrooms'            => true,
-			'edit_private_google_classroom'     => true,
-			'edit_published_google_classroom'   => true,
-			'delete_google_classroom'           => true,
-			'delete_published_google_classroom' => true,
-			'delete_private_google_classroom'   => true,
+			'publish_google_classrooms'           => true,
+			'get_google_classroom'                => true,
+			'edit_google_classrooms'              => true,
+			'edit_private_google_classroom'       => true,
+			'edit_published_google_classroom'     => true,
+			'delete_google_classroom'             => true,
+			'delete_published_google_classroom'   => true,
+			'delete_private_google_classroom'     => true,
+
+			// Grades
+			'read_grades'                         => true,
+			'publish_grades'                      => true,
+			'edit_grades'                         => true,
+			'edit_private_grades'                 => true,
+			'edit_published_grades'               => true,
+			'delete_grades'                       => true,
+			'delete_published_grades'             => true,
+			'delete_private_grades'               => true,
+
+			// Grade results
+			'read_grade_results'                  => true,
+			'publish_grade_results'               => true,
+			'edit_grade_results'                  => true,
+			'delete_grade_results'                => true,
+
+			// Zoom
+			'publish_zooms'                       => true,
+			'edit_zooms'                          => true,
+			'edit_private_zooms'                  => true,
+			'edit_published_zooms'                => true,
+			'delete_zooms'                        => true,
+			'delete_published_zooms'              => true,
+			'delete_private_zooms'                => true,
 
 			// Google Meet
-			'edit_google-meet'                  => true,
-			'publish_google-meets'              => true,
-			'edit_google-meets'                 => true,
-			'edit_private_google-meets'         => true,
-			'edit_published_google-meets'       => true,
-			'delete_google-meets'               => true,
-			'delete_published_google-meets'     => true,
-			'delete_private_google-meets'       => true,
+			'edit_google-meet'                    => true,
+			'publish_google-meets'                => true,
+			'edit_google-meets'                   => true,
+			'edit_private_google-meets'           => true,
+			'edit_published_google-meets'         => true,
+			'delete_google-meets'                 => true,
+			'delete_published_google-meets'       => true,
+			'delete_private_google-meets'         => true,
+
 		);
 
 		$capabilities = array_merge( $capabilities, self::get_student_capabilities() );
@@ -451,117 +554,149 @@ class Capabilities {
 	public static function get_manager_capabilities() {
 		$capabilities = array(
 			// Manage settings
-			'manage_masteriyo_settings'        => true,
+			'manage_masteriyo_settings'          => true,
 
 			// Users
-			'read_users'                       => true,
-			'create_users'                     => true,
-			'delete_users'                     => true,
-			'edit_users'                       => true,
-			'list_users'                       => true,
-			'promote_users'                    => true,
-			'remove_users'                     => true,
+			'read_users'                         => true,
+			'create_users'                       => true,
+			'delete_users'                       => true,
+			'edit_users'                         => true,
+			'list_users'                         => true,
+			'promote_users'                      => true,
+			'remove_users'                       => true,
 
 			// Courses
-			'edit_others_courses'              => true,
-			'delete_others_courses'            => true,
+			'edit_others_courses'                => true,
+			'delete_others_courses'              => true,
 
 			// Sections
-			'edit_others_sections'             => true,
-			'delete_others_sections'           => true,
+			'edit_others_sections'               => true,
+			'delete_others_sections'             => true,
 
 			// Lessons
-			'edit_others_lessons'              => true,
-			'delete_others_lessons'            => true,
+			'edit_others_lessons'                => true,
+			'delete_others_lessons'              => true,
 
 			// Quizzes
-			'edit_others_quizzes'              => true,
-			'delete_others_quizzes'            => true,
+			'edit_others_quizzes'                => true,
+			'delete_others_quizzes'              => true,
+
+			// H5P Quizzes
+			'edit_others_h5p_quizzes'            => true,
+			'delete_others_h5p_quizzes'          => true,
 
 			// Questions
-			'edit_others_questions'            => true,
-			'delete_others_questions'          => true,
-
-			// Orders
-			'publish_orders'                   => true,
-			'edit_orders'                      => true,
-			'edit_private_orders'              => true,
-			'edit_published_orders'            => true,
-			'delete_orders'                    => true,
-			'delete_published_orders'          => true,
-			'delete_private_orders'            => true,
-			'edit_others_orders'               => true,
-			'delete_others_orders'             => true,
-
-			// Course reviews
-			'edit_others_course_reviews'       => true,
-			'delete_others_course_reviews'     => true,
-
-			// Quiz reviews
-			'edit_others_quiz_reviews'         => true,
-			'delete_others_quiz_reviews'       => true,
-
-			// Course QAs
-			'edit_others_course_qas'           => true,
-			'delete_others_course_qas'         => true,
-
-			// Course Progresses
-			'edit_others_course_progresses'    => true,
-			'delete_others_course_progresses'  => true,
-			'delete_course_progresses'         => true,
-
-			// Course Categories.
-			'delete_course_categories'         => true,
-			'assign_course_categories'         => true,
-
-			// User courses.
-			'publish_user_courses'             => true,
-			'edit_user_courses'                => true,
-			'edit_others_user_courses'         => true,
-			'delete_user_courses'              => true,
-			'delete_others_user_courses'       => true,
-
-			// Course Difficulties.
-			'manage_course_difficulties'       => true,
-			'delete_course_difficulties'       => true,
-			'assign_course_difficulties'       => true,
-			'edit_course_difficulties'         => true,
-
-			// Webhooks.
-			'edit_others_mto_webhooks'         => true,
-			'delete_others_mto_webhooks'       => true,
-
-			// Google classroom
-			'edit_others_google_classroom'     => true,
-			'delete_others_google_classroom'   => true,
-
-			// Multiple Currency Price Zones.
-			'read_mto_price_zones'             => true,
-			'publish_mto_price_zones'          => true,
-			'edit_mto_price_zones'             => true,
-			'edit_private_mto_price_zones'     => true,
-			'edit_published_mto_price_zones'   => true,
-			'delete_mto_price_zones'           => true,
-			'delete_published_mto_price_zones' => true,
-			'delete_private_mto_price_zones'   => true,
-			'edit_others_mto_price_zones'      => true,
-			'delete_others_mto_price_zones'    => true,
-
-			// Google Meet
-			'edit_others_google-meets'         => true,
-			'delete_others_google-meets'       => true,
+			'edit_others_questions'              => true,
+			'delete_others_questions'            => true,
 
 			// Certificates
-			'read_certificates'                => true,
-			'publish_certificates'             => true,
-			'edit_certificates'                => true,
-			'edit_private_certificates'        => true,
-			'edit_published_certificates'      => true,
-			'delete_certificates'              => true,
-			'delete_published_certificates'    => true,
-			'delete_private_certificates'      => true,
-			'edit_others_certificates'         => true,
-			'delete_others_certificates'       => true,
+			'edit_others_certificates'           => true,
+			'delete_others_certificates'         => true,
+
+			// Orders
+			'publish_orders'                     => true,
+			'edit_orders'                        => true,
+			'edit_private_orders'                => true,
+			'edit_published_orders'              => true,
+			'delete_orders'                      => true,
+			'delete_published_orders'            => true,
+			'delete_private_orders'              => true,
+			'edit_others_orders'                 => true,
+			'delete_others_orders'               => true,
+
+			// Course reviews
+			'edit_others_course_reviews'         => true,
+			'delete_others_course_reviews'       => true,
+
+			// Quiz reviews
+			'edit_others_quiz_reviews'           => true,
+			'delete_others_quiz_reviews'         => true,
+
+			// Course QAs
+			'edit_others_course_qas'             => true,
+			'delete_others_course_qas'           => true,
+
+			// Course Progresses
+			'edit_others_course_progresses'      => true,
+			'delete_others_course_progresses'    => true,
+			'delete_course_progresses'           => true,
+
+			// Course Categories.
+			'delete_course_categories'           => true,
+			'assign_course_categories'           => true,
+
+			// User courses.
+			'publish_user_courses'               => true,
+			'edit_user_courses'                  => true,
+			'edit_others_user_courses'           => true,
+			'delete_user_courses'                => true,
+			'delete_others_user_courses'         => true,
+
+			// Course Difficulties.
+			'manage_course_difficulties'         => true,
+			'delete_course_difficulties'         => true,
+			'assign_course_difficulties'         => true,
+			'edit_course_difficulties'           => true,
+
+			// Subscriptions
+			'publish_mto_subscriptions'          => true,
+			'edit_mto_subscriptions'             => true,
+			'edit_private_mto_subscriptions'     => true,
+			'edit_published_mto_subscriptions'   => true,
+			'delete_mto_subscriptions'           => true,
+			'delete_published_mto_subscriptions' => true,
+			'delete_private_mto_subscriptions'   => true,
+			'edit_others_mto_subscriptions'      => true,
+			'delete_others_mto_subscriptions'    => true,
+
+			// Webhooks.
+			'edit_others_mto_webhooks'           => true,
+			'delete_others_mto_webhooks'         => true,
+
+			// Assignments
+			'edit_others_assignments'            => true,
+			'delete_others_assignments'          => true,
+
+			// Coupons
+			'edit_others_coupons'                => true,
+			'delete_others_coupons'              => true,
+
+			// Google classroom
+			'edit_others_google_classroom'       => true,
+			'delete_others_google_classroom'     => true,
+
+			// Grades
+			'edit_others_grades'                 => true,
+			'delete_others_grades'               => true,
+
+			// Grade results.
+			'edit_others_grade_results'          => true,
+			'delete_others_grade_results'        => true,
+
+			// Zoom
+			'edit_others_zooms'                  => true,
+			'delete_others_zooms'                => true,
+
+			// Course Bundles
+			'read_others_bundles'                => true,
+			'edit_others_bundles'                => true,
+			'delete_others_bundles'              => true,
+
+			// Multiple Currency Price Zones.
+			'read_mto_price_zones'               => true,
+			'publish_mto_price_zones'            => true,
+			'edit_mto_price_zones'               => true,
+			'edit_private_mto_price_zones'       => true,
+			'edit_published_mto_price_zones'     => true,
+			'delete_mto_price_zones'             => true,
+			'delete_published_mto_price_zones'   => true,
+			'delete_private_mto_price_zones'     => true,
+			'edit_others_mto_price_zones'        => true,
+			'delete_others_mto_price_zones'      => true,
+
+			// Google Meet
+			'edit_others_google-meets'           => true,
+			'delete_others_google-meets'         => true,
 		);
 
 		$capabilities = array_merge( $capabilities, self::get_instructor_capabilities() );
@@ -584,7 +719,11 @@ class Capabilities {
 	 * @return array
 	 */
 	public static function get_admin_capabilities() {
-		$capabilities       = array();
+		$capabilities       = array(
+			'manage_masteriyo_enrollments' => true,
+			'edit_others_grades'            => true,
+			'delete_others_grades'          => true,
+		);
 		$administrator      = get_role( 'administrator' );
 		$administrator_caps = $administrator ? $administrator->capabilities : array();
 		$capabilities       = array_merge( $capabilities, $administrator_caps );

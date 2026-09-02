@@ -99,13 +99,18 @@ class LemonSqueezyIntegrationAddon {
 		add_filter( 'masteriyo_rest_course_schema', array( $this, 'add_lemon_squeezy_schema_to_course' ) );
 		add_action( 'masteriyo_new_course', array( $this, 'save_lemon_squeezy_data' ), 10, 2 );
 		add_action( 'masteriyo_update_course', array( $this, 'save_lemon_squeezy_data' ), 10, 2 );
-		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_lemon_squeezy_data_in_response' ), 10, 4 );
+		add_action( 'masteriyo_new_course_bundle', array( $this, 'save_lemon_squeezy_data' ), 10, 2 );
+		add_action( 'masteriyo_update_course_bundle', array( $this, 'save_lemon_squeezy_data' ), 10, 2 );
+
+		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_lemon_squeezy_data_in_response' ), 10, 2 );
+		add_filter( 'masteriyo_rest_response_course_bundle_data', array( $this, 'append_lemon_squeezy_data_in_response' ), 10, 2 );
 
 		add_filter( 'masteriyo_new_setting', array( $this, 'save_setting' ), 10 );
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
 
 		add_action( 'wp_ajax_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
 		add_action( 'wp_ajax_nopriv_masteriyo_lemon_squeezy_webhook', array( $this, 'handle_webhook' ) );
+		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
 		add_filter( 'masteriyo_checkout_available_gateways', array( $this, 'remove_lemon_squeezy_gateway' ) );
 		add_action( 'masteriyo_admin_notices', array( $this, 'show_webhook_secret_notice' ) );
 	}
@@ -113,7 +118,7 @@ class LemonSqueezyIntegrationAddon {
 	/**
 	 * Remove Lemon Squeezy gateway.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param array $gateways
 	 *
@@ -152,6 +157,22 @@ class LemonSqueezyIntegrationAddon {
 	}
 
 	/**
+	 * Localize admin scripts.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @param array $scripts
+	 * @return array
+	 */
+	public function localize_admin_scripts( $scripts ) {
+		if ( isset( $scripts['backend'], $scripts['backend']['data'] ) ) {
+			$scripts['backend']['data']['isLemonSqueezyEnabled'] = masteriyo_bool_to_string( Setting::get( 'enable' ) );
+		}
+
+		return $scripts;
+	}
+
+	/**
 	 * Add Lemon Squeezy payment gateway to available payment gateways.
 	 *
 	 * @since 1.9.3
@@ -172,17 +193,15 @@ class LemonSqueezyIntegrationAddon {
 	 * @since 1.9.3
 	 *
 	 * @param array $data Course data.
-	 * @param \Masteriyo\Models\Course $course Course object.
-	 * @param string $context What the value is for. Valid values are view and edit.
-	 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST courses controller object.
+	 * @param object $item Course or course bundle object.
 	 *
-	 * @return array The modified course data with Lemon Squeezy integration data appended.
+	 * @return array The modified course or course bundle data with Lemon Squeezy integration data appended.
 	 */
-	public function append_lemon_squeezy_data_in_response( $data, $course, $context, $controller ) {
+	public function append_lemon_squeezy_data_in_response( $data, $item ) {
 
-		if ( $course instanceof \Masteriyo\Models\Course ) {
+		if ( $item instanceof \Masteriyo\Models\Course ) {
 			$data['lemon_squeezy_integration'] = array(
-				'product_id' => get_post_meta( $course->get_id(), '_lemon_squeezy_product_id', true ),
+				'product_id' => get_post_meta( $item->get_id(), '_lemon_squeezy_product_id', true ),
 				'enabled'    => masteriyo_string_to_bool( Setting::get( 'enable' ) ),
 			);
 		}
@@ -320,8 +339,6 @@ class LemonSqueezyIntegrationAddon {
 
 	/**
 	 * Show admin notice if Lemon Squeezy is enabled but webhook secret is not configured.
-	 *
-	 * @since x.x.x
 	 */
 	public function show_webhook_secret_notice() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -336,14 +353,32 @@ class LemonSqueezyIntegrationAddon {
 			return;
 		}
 
-		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods' );
+		$settings_url = admin_url( 'admin.php?page=masteriyo#/settings?first=payments&second=payment-methods&expand=lemon_squeezy_integration' );
 
 		printf(
 			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s" class="masteriyo-notice-link">%s</a>.</p></div>',
-			esc_html__( 'Masteriyo Lemon Squeezy:', 'learning-management-system' ),
-			esc_html__( 'Lemon Squeezy webhook verification is required (v2.1.9+). Add your webhook secret to ensure payments process correctly.', 'learning-management-system' ),
+			esc_html(
+				sprintf(
+					/* translators: %s: the product's name */
+					__( '%s Lemon Squeezy:', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				)
+			),
+			esc_html(
+				sprintf(
+					/* translators: %s: the product's name */
+					__( 'Your webhook signing secret is missing. Copy it from the Lemon Squeezy dashboard and save it in %s so payments can be confirmed correctly.', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				)
+			),
 			esc_url( $settings_url ),
-			esc_html__( 'Configure it in Lemon Squeezy settings', 'learning-management-system' )
+			esc_html(
+				sprintf(
+					/* translators: %s: the product's name */
+					__( 'Open %s’s Lemon Squeezy settings', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				)
+			)
 		);
 	}
 
@@ -402,7 +437,7 @@ class LemonSqueezyIntegrationAddon {
 
 			$meta_data   = $data['meta'];
 			$custom_data = $meta_data['custom_data'];
-			$course_id   = absint( $custom_data['course_id'] );
+			$course_id   = isset( $custom_data['course_id'] ) ? absint( $custom_data['course_id'] ) : ( isset( $custom_data['course_bundle_id'] ) ? absint( $custom_data['course_bundle_id'] ) : 0 );
 			$order_id    = absint( $custom_data['order_id'] );
 			$user_id     = absint( $custom_data['user_id'] );
 

@@ -4,7 +4,7 @@ import React from 'react';
 import {
 	ProTextInputForSettings,
 	VerticallyStackProShowcase,
-} from '../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
+} from '../../../assets/js/back-end/components/common/upsell/ProShowcaseComponent';
 import SingleComponentsWrapper from '../../../assets/js/back-end/screens/settings/components/SingleComponentsWrapper';
 
 const WhiteLabel: React.FC = (props) => {

@@ -19,7 +19,7 @@ const Name: React.FC<Props> = (props) => {
 		formState: { errors },
 	} = useFormContext();
 	return (
-		<FormControl isInvalid={!!errors?.name}>
+		<FormControl isInvalid={!!errors?.title}>
 			<FormLabel>
 				{__('Announcement Name', 'learning-management-system')}
 			</FormLabel>
@@ -33,7 +33,7 @@ const Name: React.FC<Props> = (props) => {
 					),
 				})}
 			/>
-			<FormErrorMessage>{errors?.name?.message + ''}</FormErrorMessage>
+			<FormErrorMessage>{errors?.title?.message as string}</FormErrorMessage>
 		</FormControl>
 	);
 };

@@ -252,7 +252,6 @@ class ScormController extends RestController {
 	 */
 	public function update_course_progress( $request ) {
 		global $wpdb;
-
 		$user_id     = get_current_user_id();
 		$course_id   = absint( $request['course_id'] );
 		$user_course = masteriyo_get_user_course_by_user_and_course( $user_id, $course_id );
@@ -292,6 +291,12 @@ class ScormController extends RestController {
 				$wpdb->prepare( 'DELETE FROM ' . $table . ' WHERE user_course_id=%d', array( $user_course->get_id() ) ) // phpcs:ignore
 			);
 
+			// SCORM 2004's two axes. Read before the loop so their order cannot
+			// matter, and so the readings below can stand down for them.
+			$completion = isset( $scorm_data['cmi.completion_status'] ) ? $scorm_data['cmi.completion_status'] : '';
+			$success    = isset( $scorm_data['cmi.success_status'] ) ? $scorm_data['cmi.success_status'] : '';
+			$has_2004   = '' !== $completion || '' !== $success;
+
 			$is_progress_updated = false;
 			foreach ( $scorm_data as $parameter => $value ) {
 
@@ -307,15 +312,36 @@ class ScormController extends RestController {
 					)
 				);
 
-				if ( false === $is_progress_updated && ( 'cmi.core.score.raw' === $parameter || 'cmi.score.raw' === $parameter ) ) {
+				// The axes are the only completion a 2004 package claims, so the
+				// 1.2 readings stand down -- nothing here can be demoted later.
+				if ( $has_2004 || $is_progress_updated ) {
+					continue;
+				}
+
+				if ( 'cmi.core.score.raw' === $parameter ) {
+					// A 1.2 score is a percentage, so it can state completion.
 					masteriyo_update_user_scorm_course_progress( $course_id, $user_id, absint( $value ) );
 					$is_progress_updated = true;
-				} elseif ( false === $is_progress_updated && ( 'cmi.core.lesson_status' === $parameter || 'cmi.lesson_status' === $parameter ) ) {
-					$activity_status = 'incomplete' === $value ? CourseProgressStatus::STARTED : CourseProgressStatus::COMPLETED;
+				} elseif ( 'cmi.score.raw' === $parameter ) {
+					// The 2004 spelling is a raw score against cmi.score.max, so
+					// it states attendance and never completion, whichever commit
+					// carries it.
+					masteriyo_update_user_scorm_course_progress( $course_id, $user_id, CourseProgressStatus::STARTED );
+				} elseif ( 'cmi.core.lesson_status' === $parameter || 'cmi.lesson_status' === $parameter ) {
+					$activity_status = masteriyo_scorm_lesson_status_to_progress_status( $value );
 
 					masteriyo_update_user_scorm_course_progress( $course_id, $user_id, $activity_status );
 					$is_progress_updated = CourseProgressStatus::COMPLETED === $activity_status ? true : false;
 				}
+			}
+
+			if ( $has_2004 ) {
+				// Reaching the end of the content is not passing its assessment.
+				$activity_status = ( 'completed' === $completion && 'failed' !== $success )
+					? CourseProgressStatus::COMPLETED
+					: CourseProgressStatus::STARTED;
+
+				masteriyo_update_user_scorm_course_progress( $course_id, $user_id, $activity_status );
 			}
 		}
 

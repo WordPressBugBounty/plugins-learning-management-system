@@ -3,7 +3,6 @@
  * Get Course Builder ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseBuilder
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseBuilder;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns sections with their ordered children (lessons and quizzes) as a
  * nested structure suitable for rendering or modifying the course builder UI.
- *
- * @since x.x.x
  */
 class GetCourseBuilderAbility extends RestProxyAbility {
 

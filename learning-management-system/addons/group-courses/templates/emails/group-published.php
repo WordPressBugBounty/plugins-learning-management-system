@@ -4,7 +4,7 @@
  *
  * Sent to group authors when their group is published/activated.
  *
- * @since 1.20.0
+ * @since 2.30.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires before rendering email header.
  *
- * @since 1.20.0
+ * @since 2.30.0
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */
@@ -25,7 +25,7 @@ do_action( 'masteriyo_email_header', $email ); ?>
 /**
  * Action hook fired in email's footer section.
  *
- * @since 1.20.0
+ * @since 2.30.0
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */

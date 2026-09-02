@@ -3,7 +3,6 @@
  * List Lessons ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports filtering by course ID or section ID.
  * Results are ordered by menu_order within their parent section.
- *
- * @since x.x.x
  */
 class ListLessonsAbility extends RestProxyAbility {
 

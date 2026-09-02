@@ -56,6 +56,15 @@ class QuizReviewsController extends CommentsController {
 	 */
 	protected $permission = null;
 
+	/**
+	 * Temporary search term storage for comment meta search.
+	 *
+	 * @since 3.1.2
+	 *
+	 * @var string
+	 */
+	protected $search_term = '';
+
 
 	/**
 	 * Constructor.
@@ -295,13 +304,27 @@ class QuizReviewsController extends CommentsController {
 			$query_args['post__in'] = $quiz_ids;
 		}
 
-		$query          = new \WP_Comment_Query( $query_args );
-		$quiz_reviews   = $query->comments;
-		$total_comments = $this->get_total_comments( $query_args );
+		$search_term = isset( $query_args['search'] ) ? $query_args['search'] : '';
+
+		if ( ! empty( $search_term ) ) {
+			unset( $query_args['search'] );
+			$this->search_term = $search_term;
+			add_filter( 'comments_clauses', array( $this, 'add_title_meta_search_clause' ), 10, 2 );
+		}
+
+		$query        = new \WP_Comment_Query( $query_args );
+		$quiz_reviews = $query->comments;
+
+		if ( ! empty( $search_term ) ) {
+			remove_filter( 'comments_clauses', array( $this, 'add_title_meta_search_clause' ), 10 );
+			$this->search_term = '';
+		}
+
+		$total_comments = $this->get_total_comments( $query_args, $search_term );
 
 		if ( $total_comments < 1 ) {
 			// Out-of-bounds, run the query again without LIMIT for total count.
-			$total_comments = $this->get_total_comments( $query_args );
+			$total_comments = $this->get_total_comments( $query_args, $search_term );
 		}
 
 		return array(
@@ -316,10 +339,11 @@ class QuizReviewsController extends CommentsController {
 	 *
 	 * @since 1.7.0
 	 *
-	 * @param array $query_args WP_Comment_Query args.
+	 * @param array  $query_args  WP_Comment_Query args.
+	 * @param string $search_term Search term for meta search.
 	 * @return int
 	 */
-	protected function get_total_comments( $query_args ) {
+	protected function get_total_comments( $query_args, $search_term = '' ) {
 		if ( isset( $query_args['paged'] ) ) {
 			unset( $query_args['paged'] );
 		}
@@ -334,7 +358,17 @@ class QuizReviewsController extends CommentsController {
 
 		$query_args['fields'] = 'ids';
 
+		if ( ! empty( $search_term ) ) {
+			$this->search_term = $search_term;
+			add_filter( 'comments_clauses', array( $this, 'add_title_meta_search_clause' ), 10, 2 );
+		}
+
 		$comments = get_comments( $query_args );
+
+		if ( ! empty( $search_term ) ) {
+			remove_filter( 'comments_clauses', array( $this, 'add_title_meta_search_clause' ), 10 );
+			$this->search_term = '';
+		}
 
 		return count( $comments );
 	}
@@ -1085,5 +1119,39 @@ class QuizReviewsController extends CommentsController {
 				'reviews_count' => $this->get_comments_count( 0, $quiz_ids ),
 			),
 		);
+	}
+
+	/**
+	 * Add search clause to also search in _title meta key.
+	 *
+	 * @since 3.1.2
+	 *
+	 * @param array             $clauses Comment query clauses.
+	 * @param \WP_Comment_Query $query   Comment query object.
+	 *
+	 * @return array Modified clauses.
+	 */
+	public function add_title_meta_search_clause( $clauses, $query ) {
+		global $wpdb;
+
+		if ( empty( $this->search_term ) ) {
+			return $clauses;
+		}
+
+		$search      = '%' . $wpdb->esc_like( $this->search_term ) . '%';
+		$meta_table  = $wpdb->commentmeta;
+		$comment_tbl = $wpdb->comments;
+
+		$clauses['join'] .= " LEFT JOIN {$meta_table} AS title_meta ON ({$comment_tbl}.comment_ID = title_meta.comment_id AND title_meta.meta_key = '_title')";
+
+		$clauses['where'] .= $wpdb->prepare(
+			" AND ({$comment_tbl}.comment_content LIKE %s OR {$comment_tbl}.comment_author LIKE %s OR {$comment_tbl}.comment_author_email LIKE %s OR title_meta.meta_value LIKE %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$search,
+			$search,
+			$search,
+			$search
+		);
+
+		return $clauses;
 	}
 }

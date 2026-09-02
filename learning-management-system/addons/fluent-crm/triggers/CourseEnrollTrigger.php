@@ -3,7 +3,7 @@
 /**
 * Fluent CRM Integration Curse enroll trigger.
 *
-* @since 1.14.0
+* @since 1.14.0 [free]
 * @package Masteriyo\Addons\FluentCRM
 */
 // phpcs:ignoreFile
@@ -22,7 +22,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * CourseEnrollTrigger constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function __construct() {
 		$this->triggerName  = 'masteriyo_new_user_course';
@@ -34,13 +34,17 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Get the trigger.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
 	public function getTrigger() {
 		return array(
-			'category'    => __( 'Masteriyo LMS', 'learning-management-system' ),
+			'category'    => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s LMS', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'label'       => __( 'Course Started', 'learning-management-system' ),
 			'icon'        => 'dashicons dashicons-welcome-learn-more',
 			'description' => __( 'This funnel runs when a student starts a new course', 'learning-management-system' ),
@@ -50,7 +54,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Get the default settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
@@ -63,7 +67,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Get the settings fields.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $funnel The funnel.
 	 *
@@ -71,7 +75,11 @@ class CourseEnrollTrigger extends BaseTrigger {
 	 */
 	public function getSettingsFields( $funnel ) {
 		return array(
-			'title'     => __( 'Starting a course in Masteriyo LMS', 'learning-management-system' ),
+			'title'     => sprintf(
+				/* translators: %s: the product's name */
+				__( 'Starting a course in %s LMS', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'sub_title' => __( 'This Funnel will start when a student starts a new course', 'learning-management-system' ),
 			'fields'    => array(
 				'subscription_status'      => array(
@@ -97,7 +105,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Get the default condition settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $funnel The funnel.
 	 *
@@ -114,7 +122,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Get the condition fields.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $funnel The funnel.
 	 *
@@ -147,7 +155,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Handle the trigger.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param mixed $funnel The funnel.
 	 * @param mixed $originalArgs The original arguments.
@@ -175,7 +183,11 @@ class CourseEnrollTrigger extends BaseTrigger {
 
 		$subscriberData = FunnelHelper::prepareUserData( $userId );
 
-		$subscriberData['source'] = __( 'Masteriyo LMS', 'learning-management-system' );
+		$subscriberData['source'] = sprintf(
+			/* translators: %s: the product's name */
+			__( '%s LMS', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 
 		if ( empty( $subscriberData['email'] ) ) {
 			return;
@@ -206,7 +218,7 @@ class CourseEnrollTrigger extends BaseTrigger {
 	/**
 	 * Check if the trigger is processable.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param mixed $funnel The funnel.
 	 * @param mixed $courseId The course ID.

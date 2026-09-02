@@ -44,6 +44,7 @@ class Rewrite {
 	public function add_rewrite_endpoint() {
 		add_rewrite_endpoint( 'reset-password', EP_PAGES );
 		add_rewrite_endpoint( 'signup', EP_PAGES );
+		add_rewrite_endpoint( 'otp', EP_PAGES );
 	}
 
 	/**

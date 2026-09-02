@@ -142,7 +142,7 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 
 	useEffect(() => {
 		if (isSyncing) {
-			brevoListQuery?.refetch()?.then(() => {
+			brevoListQuery.refetch().then(() => {
 				setIsSyncing(false);
 				toast({
 					title: __('Lists Synced Successfully.', 'learning-management-system'),
@@ -151,202 +151,209 @@ const BrevoIntegrationSetting: React.FC<Props> = ({ brevoIntegration }) => {
 				});
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isSyncing]);
 
 	return (
-		<SingleComponentsWrapper title={__('Brevo', 'learning-management-system')}>
-			<Stack width="full">
-				<Collapse in={!isAPIKeyConnected}>
-					<BrevoAlertMessage />
+		<SingleComponentsWrapper
+			title={__('Brevo Integration', 'learning-management-system')}
+		>
+			<Stack direction="column" spacing="6" width={'full'}>
+				<Stack direction="column" spacing="6">
+					<Collapse in={!isAPIKeyConnected}>
+						<BrevoAlertMessage />
 
-					<FormControlTwoCol>
-						<FormLabel>
-							{__('Brevo V3 API Key', 'learning-management-system')}
-							<ToolTip
-								label={__(
-									'Enter your Brevo API Key. If you don’t have one, please log in to your Brevo account to generate it.',
-									'learning-management-system',
-								)}
-							></ToolTip>
-						</FormLabel>
-
-						<HStack spacing={0}>
-							<Input
-								mr={0}
-								isDisabled={!isAPIKeyConnected && connectMutation?.isPending}
-								type={showApiKey ? 'text' : 'password'}
-								defaultValue={brevoIntegration?.api_key}
-								{...register('integrations.brevo_integration.api_key')}
-							/>
-
-							<Flex bg={'gray.100'} padding={3} cursor={'pointer'}>
-								<Icon
-									as={showApiKey ? BiHide : BiShow}
-									fontSize={'large'}
-									onClick={() => setShowApiKey(!showApiKey)}
-								/>
-							</Flex>
-						</HStack>
-					</FormControlTwoCol>
-				</Collapse>
-
-				<Collapse in={isAPIKeyConnected} style={{ width: '100%' }}>
-					<Stack spacing={'6'} direction={'column'} mt={2}>
 						<FormControlTwoCol>
 							<FormLabel>
-								{__('Forced Subscription', 'learning-management-system')}
+								{__('Brevo V3 API Key', 'learning-management-system')}
 								<ToolTip
 									label={__(
-										'Enable this option to automatically subscribe users to your email list.',
+										'Enter your Brevo API Key. If you don’t have one, please log in to your Brevo account to generate it.',
 										'learning-management-system',
 									)}
-								></ToolTip>
+								/>
 							</FormLabel>
-							<Controller
-								name="integrations.brevo_integration.enable_forced_email_subscription"
-								control={control}
-								defaultValue={
-									brevoIntegration?.enable_forced_email_subscription || false
-								}
-								render={({ field: { onChange, value } }) => (
-									<Switch
-										isChecked={value}
-										onChange={(e) => onChange(e.target.checked)}
+
+							<HStack spacing={0}>
+								<Input
+									mr={0}
+									isDisabled={!isAPIKeyConnected && connectMutation?.isPending}
+									type={showApiKey ? 'text' : 'password'}
+									defaultValue={brevoIntegration?.api_key}
+									{...register('integrations.brevo_integration.api_key')}
+								/>
+
+								<Flex bg={'gray.100'} padding={3} cursor={'pointer'}>
+									<Icon
+										as={showApiKey ? BiHide : BiShow}
+										fontSize={'large'}
+										onClick={() => setShowApiKey(!showApiKey)}
 									/>
-								)}
-							/>
+								</Flex>
+							</HStack>
 						</FormControlTwoCol>
+					</Collapse>
 
-						<FormControlTwoCol>
-							<FormLabel>
-								{__('Consent Message', 'learning-management-system')}
-								<ToolTip
-									label={__(
-										'This message will be displayed to users in the registration form when asking for their email subscription consent.',
-										'learning-management-system',
-									)}
-								></ToolTip>
-							</FormLabel>
-							<Input
-								defaultValue={brevoIntegration?.subscriber_consent_message}
-								{...register(
-									'integrations.brevo_integration.subscriber_consent_message',
-								)}
-							/>
-						</FormControlTwoCol>
-					</Stack>
-				</Collapse>
+					<Collapse in={isAPIKeyConnected}>
+						<Stack spacing={'6'} direction={'column'} mt={2}>
+							<FormControlTwoCol>
+								<FormLabel>
+									{__('Forced Subscription', 'learning-management-system')}
+									<ToolTip
+										label={__(
+											'Enable this option to automatically subscribe users to your email list.',
+											'learning-management-system',
+										)}
+									/>
+								</FormLabel>
 
-				{brevoListQuery.isLoading ? (
-					<Stack spacing={6}>
-						<Skeleton height="40px" />
-					</Stack>
-				) : (
-					isAPIKeyConnected && (
-						<FormControlTwoCol>
-							<FormLabel>
-								{__('Lists', 'learning-management-system')}
-								<ToolTip
-									label={__(
-										'Select a list to add subscribers to.',
-										'learning-management-system',
-									)}
-								/>
-							</FormLabel>
-							<Box w="100%">
 								<Controller
-									name="integrations.brevo_integration.list"
+									name="integrations.brevo_integration.enable_forced_email_subscription"
 									control={control}
-									defaultValue={brevoIntegration?.list}
+									defaultValue={
+										brevoIntegration?.enable_forced_email_subscription || false
+									}
 									render={({ field: { onChange, value } }) => (
-										<HStack spacing={0} cursor={'pointer'}>
-											<Select
-												isDisabled={brevoListQuery.isFetching}
-												value={value || ''}
-												onChange={(e) => onChange(e.target.value)}
-												placeholder={
-													brevoListQuery?.isError ||
-													isEmpty(brevoListQuery?.data)
-														? __(
-																'No lists available',
-																'learning-management-system',
-															)
-														: __('Select a list', 'learning-management-system')
-												}
-											>
-												{brevoListQuery?.isSuccess &&
-													brevoListQuery?.data?.map((list) => (
-														<option key={list?.id} value={list?.id}>
-															{list?.name}
-														</option>
-													))}
-											</Select>
-											<Tooltip
-												label={__(
-													'Clear cached data and fetch the latest lists from Brevo.',
-													'learning-management-system',
-												)}
-												hasArrow
-												fontSize="xs"
-											>
-												<Flex
-													bg={'gray.100'}
-													padding={2}
-													onClick={() => setIsSyncing(true)}
-												>
-													{brevoListQuery.isFetching ? (
-														<Spinner fontSize={'x-large'} />
-													) : (
-														<Icon as={BiSync} fontSize={'x-large'} />
-													)}
-												</Flex>
-											</Tooltip>
-										</HStack>
+										<Switch
+											isChecked={value}
+											onChange={(e) => onChange(e.target.checked)}
+										/>
 									)}
 								/>
-							</Box>
-						</FormControlTwoCol>
-					)
-				)}
-				<ButtonGroup>
-					{isAPIKeyConnected &&
-						brevoIntegration?.is_connected &&
-						!connectMutation?.isSuccess && (
-							<Button
-								size={'sm'}
-								onClick={() => connectMutation.mutate(true)}
-								isLoading={connectMutation?.isPending}
-								isDisabled={connectMutation?.isPending}
-							>
-								{__('Verify Connection Again', 'learning-management-system')}
-							</Button>
-						)}
-					<Button
-						size={'sm'}
-						width={'fit-content'}
-						colorScheme={isAPIKeyConnected ? 'red' : 'primary'}
-						onClick={() =>
-							isAPIKeyConnected
-								? disConnectMutation.mutate()
-								: connectMutation.mutate(false)
-						}
-						isDisabled={
-							(!isAPIKeyConnected && !apiKeyWatchValue) ||
-							connectMutation?.isPending ||
-							disConnectMutation?.isPending
-						}
-						isLoading={
-							isAPIKeyConnected
-								? disConnectMutation?.isPending
-								: connectMutation?.isPending
-						}
-					>
-						{isAPIKeyConnected
-							? __('Disconnect', 'learning-management-system')
-							: __('Connect', 'learning-management-system')}
-					</Button>
-				</ButtonGroup>
+							</FormControlTwoCol>
+
+							<FormControlTwoCol>
+								<FormLabel>
+									{__('Consent Message', 'learning-management-system')}
+									<ToolTip
+										label={__(
+											'This message will be displayed to users in the registration form when asking for their email subscription consent.',
+											'learning-management-system',
+										)}
+									/>
+								</FormLabel>
+								<Input
+									defaultValue={brevoIntegration?.subscriber_consent_message}
+									{...register(
+										'integrations.brevo_integration.subscriber_consent_message',
+									)}
+								/>
+							</FormControlTwoCol>
+						</Stack>
+					</Collapse>
+
+					{brevoListQuery.isLoading ? (
+						<Stack spacing={6}>
+							<Skeleton height="40px" />
+						</Stack>
+					) : (
+						isAPIKeyConnected && (
+							<FormControlTwoCol>
+								<FormLabel>
+									{__('Lists', 'learning-management-system')}
+									<ToolTip
+										label={__(
+											'Select a list to add subscribers to.',
+											'learning-management-system',
+										)}
+									/>
+								</FormLabel>
+								<Box w="100%">
+									<Controller
+										name="integrations.brevo_integration.list"
+										control={control}
+										defaultValue={brevoIntegration?.list}
+										render={({ field: { onChange, value } }) => (
+											<HStack spacing={0} cursor={'pointer'}>
+												<Select
+													isDisabled={brevoListQuery.isFetching}
+													value={value || ''}
+													onChange={(e) => onChange(e.target.value)}
+													placeholder={
+														brevoListQuery?.isError ||
+														isEmpty(brevoListQuery?.data)
+															? __(
+																	'No lists available',
+																	'learning-management-system',
+																)
+															: __(
+																	'Select a list',
+																	'learning-management-system',
+																)
+													}
+												>
+													{brevoListQuery?.isSuccess &&
+														brevoListQuery?.data?.map((list) => (
+															<option key={list.id} value={list.id}>
+																{list.name}
+															</option>
+														))}
+												</Select>
+												<Tooltip
+													label={__(
+														'Clear cached data and fetch the latest lists from Brevo.',
+														'learning-management-system',
+													)}
+													hasArrow
+													fontSize="xs"
+												>
+													<Flex
+														bg={'gray.100'}
+														padding={2}
+														onClick={() => setIsSyncing(true)}
+													>
+														{brevoListQuery.isFetching ? (
+															<Spinner fontSize={'x-large'} />
+														) : (
+															<Icon as={BiSync} fontSize={'x-large'} />
+														)}
+													</Flex>
+												</Tooltip>
+											</HStack>
+										)}
+									/>
+								</Box>
+							</FormControlTwoCol>
+						)
+					)}
+					<ButtonGroup>
+						{isAPIKeyConnected &&
+							brevoIntegration?.is_connected &&
+							!connectMutation?.isSuccess && (
+								<Button
+									size={'sm'}
+									onClick={() => connectMutation.mutate(true)}
+									isLoading={connectMutation?.isPending}
+									isDisabled={connectMutation?.isPending}
+								>
+									{__('Verify Connection Again', 'learning-management-system')}
+								</Button>
+							)}
+						<Button
+							size={'sm'}
+							width={'fit-content'}
+							colorScheme={isAPIKeyConnected ? 'red' : 'primary'}
+							onClick={() =>
+								isAPIKeyConnected
+									? disConnectMutation.mutate()
+									: connectMutation.mutate(false)
+							}
+							isDisabled={
+								(!isAPIKeyConnected && !apiKeyWatchValue) ||
+								connectMutation?.isPending ||
+								disConnectMutation?.isPending
+							}
+							isLoading={
+								isAPIKeyConnected
+									? disConnectMutation?.isPending
+									: connectMutation?.isPending
+							}
+						>
+							{isAPIKeyConnected
+								? __('Disconnect', 'learning-management-system')
+								: __('Connect', 'learning-management-system')}
+						</Button>
+					</ButtonGroup>
+				</Stack>
 			</Stack>
 		</SingleComponentsWrapper>
 	);

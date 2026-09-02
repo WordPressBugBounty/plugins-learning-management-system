@@ -2,7 +2,7 @@
 /**
  * BuddyPress Integration service provider.
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  * @package \Masteriyo\Addons\BuddyPress
  */
 
@@ -16,23 +16,9 @@ use Masteriyo\Addons\BuddyPress\BuddyPressAddon;
 /**
  * BuddyPress Integration service provider.
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  */
 class BuddyPressServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.15.0
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'addons.buddy-press', BuddyPressAddon::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -42,7 +28,7 @@ class BuddyPressServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -55,5 +41,17 @@ class BuddyPressServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.15.0 [Free]
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons.buddy-press', BuddyPressAddon::class );
 	}
 }

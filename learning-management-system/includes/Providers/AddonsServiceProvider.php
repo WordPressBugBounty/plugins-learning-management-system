@@ -1,0 +1,62 @@
+<?php
+/**
+ * Addons class service provider.
+ *
+ * @since 2.0.5
+ * @since 1.6.11
+ */
+
+namespace Masteriyo\Providers;
+
+defined( 'ABSPATH' ) || exit;
+
+use League\Container\ServiceProvider\AbstractServiceProvider;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\AddonsFramework\AddonsIntegration;
+use Masteriyo\RestApi\Controllers\Version1\AddonsController;
+
+class AddonsServiceProvider extends AbstractServiceProvider {
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 2.0.5
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'addons',
+				'addons.rest',
+				'addons.integration',
+			),
+			true
+		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	* access the container and register or retrieve anything
+	* that you need to, but remember, every alias registered
+	* within this method must be declared in the `$provides` array.
+	*
+	* @since 2.0.5
+	*/
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons', Addons::class );
+
+		$this->getContainer()->add( 'addons.rest', AddonsController::class )
+			->addArgument( 'addons' );
+
+		$this->getContainer()->addShared( 'addons.integration', AddonsIntegration::class )
+			->addArgument( 'addons' );
+	}
+}

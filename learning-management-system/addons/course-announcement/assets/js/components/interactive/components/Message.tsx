@@ -63,7 +63,8 @@ const Message: React.FC<Props> = ({
 
 	const updateAnnouncement = useMutation({
 		mutationFn: (data: object) => announcementAPI.update(id, data),
-		onSuccess: (res: any, variables: any) => {
+		onSuccess: () => {
+			// Never merge the response: its edit-context description is raw markup.
 			queryClient.setQueryData(
 				[`announcement${courseId}`, courseId],
 				(old: any) => {
@@ -71,7 +72,7 @@ const Message: React.FC<Props> = ({
 					const newPages = old.pages.map((page: any) => {
 						if (!page || !page.data) return page;
 						const newData = page.data.map((n: any) =>
-							n.id === id ? { ...n, ...variables, ...(res || {}) } : n,
+							n.id === id ? { ...n, [`has_user_read_${id}`]: true } : n,
 						);
 						return { ...page, data: newData };
 					});

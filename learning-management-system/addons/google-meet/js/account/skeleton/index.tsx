@@ -21,7 +21,7 @@ export const SkeletonAccountGoogleMeetSessions: React.FC = () => {
 						<SkeletonText w="40px" noOfLines={1} />
 					</Td>
 					<Td>
-						<SkeletonText w="40px" noOfLines={2} />
+						<SkeletonText w="40px" noOfLines={1} />
 					</Td>
 					<Td>
 						<SkeletonText w="60px" noOfLines={2} />

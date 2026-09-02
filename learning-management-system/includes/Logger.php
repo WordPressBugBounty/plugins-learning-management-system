@@ -2,7 +2,7 @@
 /**
  * Provides logging capabilities for debugging purposes.
  *
- * @since 1.12.2
+ * @since 2.12.2
  * @package Masteriyo
  */
 
@@ -75,7 +75,7 @@ class Logger implements LoggerInterface {
 					masteriyo_doing_it_wrong(
 						__METHOD__,
 						$message,
-						'1.12.2'
+						'2.12.2'
 					);
 				}
 			}

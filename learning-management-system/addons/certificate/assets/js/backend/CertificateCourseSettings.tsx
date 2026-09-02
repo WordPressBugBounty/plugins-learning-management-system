@@ -1,17 +1,28 @@
-import { Collapse, FormLabel, Skeleton, Stack, Switch } from '@chakra-ui/react';
+import {
+	Collapse,
+	FormLabel,
+	Link,
+	Skeleton,
+	Stack,
+	Switch,
+} from '@chakra-ui/react';
+import { Slot } from '@registry';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelect from '../../../../../assets/js/back-end/components/common/AsyncSelect';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { ProCheckboxForSettings } from '../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
+import { ProCheckboxForSettings } from '../../../../../assets/js/back-end/components/common/upsell/ProShowcaseComponent';
 import { reactSelectStyles } from '../../../../../assets/js/back-end/config/styles';
+import { BUILDER_SLOTS } from '../../../../../assets/js/back-end/constants/slots';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../assets/js/back-end/types/course';
+import localized from '../../../../../assets/js/back-end/utils/global';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
 import { getAllCertificates } from '../utils/certificates';
 import { CertificateStatus } from '../utils/enums';
+import { newCertificateAdminUrl } from '../utils/routes';
 
 function groupCertificateOptions(certs: any[]) {
 	const builder = certs.filter((c) => c.content_format === 'pdfdraft');
@@ -117,22 +128,40 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 										}}
 										cacheOptions={true}
 										loadingMessage={() =>
-											__('Searching...', 'learning-management-system')
+											__('Searching…', 'learning-management-system')
 										}
-										noOptionsMessage={({ inputValue }) =>
-											!isEmpty(inputValue)
-												? __(
-														'Certificate not found.',
+										noOptionsMessage={({ inputValue }) => (
+											<Stack spacing={2} align="center">
+												<span>
+													{!isEmpty(inputValue)
+														? __(
+																'Certificate not found.',
+																'learning-management-system',
+															)
+														: __(
+																'Please enter one or more characters.',
+																'learning-management-system',
+															)}
+												</span>
+												<Link
+													href={newCertificateAdminUrl(
+														localized?.adminUrl ?? '',
+													)}
+													isExternal
+													color="primary.500"
+													fontWeight="medium"
+													onMouseDown={(e) => e.preventDefault()}
+												>
+													{__(
+														'Create new certificate',
 														'learning-management-system',
-													)
-												: __(
-														'Please enter one or more characters.',
-														'learning-management-system',
-													)
-										}
+													)}
+												</Link>
+											</Stack>
+										)}
 										isClearable={true}
 										placeholder={__(
-											'Search certificate...',
+											'Search certificate…',
 											'learning-management-system',
 										)}
 										value={value}
@@ -163,12 +192,24 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 							/>
 						</FormControlTwoCol>
 
-						<ProCheckboxForSettings
-							label={__(
-								'Send Certificate via Email',
-								'learning-management-system',
-							)}
-						/>
+						{/*
+						 * Pro's real switch, with free 2.3.2's upsell as the fallback.
+						 * The certificate-email plumbing ships to both products — core's
+						 * `CourseCompletionEmailToStudent` reads `_certificate_email_enabled`
+						 * in free too — so what is withheld from free is the control that
+						 * sets it, not the feature behind it.
+						 */}
+						<Slot
+							name={BUILDER_SLOTS.COURSE_SETTINGS_CERTIFICATE_EMAIL}
+							courseData={courseData}
+						>
+							<ProCheckboxForSettings
+								label={__(
+									'Send Certificate via Email',
+									'learning-management-system',
+								)}
+							/>
+						</Slot>
 
 						<FormControlTwoCol>
 							<Stack direction="row">

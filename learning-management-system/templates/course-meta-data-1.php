@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.12.0
+ * @version 1.11.0
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Fires before rendering stats section in archive course page.
  *
- * @since 1.11.0
+ * @since 2.13.0
  */
 do_action( 'masteriyo_before_course_archive_layout_1_meta_data' );
 
@@ -28,13 +28,15 @@ $sections = masteriyo_get_course_structure( $course->get_id() );
 if ( empty( $sections ) ) {
 	return;
 }
+
 ?>
-	<div class="masteriyo-archive-card__content--info">
+<div class="masteriyo-archive-card__content--info">
 <?php if ( masteriyo_should_show_component( 'showCourseDuration', 'course_archive.components_visibility.course_duration' ) && $course->get_duration() > 0 ) : ?>
 	<div class="masteriyo-archive-card__content--info-duration">
 	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 		<path fill="#646464" fill-rule="evenodd" d="M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm1 5a1 1 0 1 0-2 0v6a1 1 0 0 0 .553.894l4 2a1 1 0 1 0 .894-1.788L13 11.382V6Z" clip-rule="evenodd" />
 	</svg>
+
 	<span class="masteriyo-info-label"><?php echo esc_html( masteriyo_minutes_to_time_length_string( $course->get_duration() ) ); ?></span>
 	</div>
 	<?php endif; ?>
@@ -47,12 +49,13 @@ if ( empty( $sections ) ) {
 	<span class="masteriyo-info-label"><?php echo esc_html( masteriyo_count_enrolled_users( $course->get_id() ) + $course->get_fake_enrolled_count() ); ?></span>
 	</div>
 	<?php endif; ?>
-	<?php if ( masteriyo_should_show_component( 'showLessonsCount', 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count > 0 ) : ?>
+	<?php if ( masteriyo_should_show_component( 'showLessonsCount', 'course_archive.components_visibility.lessons_count' ) && masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count + $zoom_meet_count + $assignment_count > 0 ) : ?>
 	<div class="masteriyo-archive-card__content--info-lessons">
 	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 		<path stroke="#646464" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5Zm0 0A2.5 2.5 0 0 1 6.5 17H20" />
 	</svg>
-	<span class="masteriyo-info-label"><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count ); ?></span>
+
+	<span class="masteriyo-info-label"><?php echo esc_html( masteriyo_get_lessons_count( $course ) + $quiz_count + $google_meet_count + $zoom_meet_count + $assignment_count ); ?></span>
 	</div>
 	<?php endif; ?>
 </div>

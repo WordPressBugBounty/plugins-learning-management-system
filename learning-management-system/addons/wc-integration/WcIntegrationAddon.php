@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\WcIntegration
  *
- * @since 1.8.1
+ * @since 2.2.0
  */
 
 namespace Masteriyo\Addons\WcIntegration;
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  * Main Masteriyo WcIntegration class.
  *
  * @class Masteriyo\Addons\WcIntegration
- * @since 1.8.1
+ * @since 2.3.8 Renamed to WcIntegrationAddon
  */
 
 class WcIntegrationAddon {
@@ -32,7 +32,7 @@ class WcIntegrationAddon {
 	/**
 	 * Instance of Setting class.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @var \Masteriyo\Addons\WcIntegration\Setting
 	 */
@@ -41,7 +41,7 @@ class WcIntegrationAddon {
 	/**
 	 * The single instance of the class.
 	 *
-	 * @since 1.8.1
+	 * @since 2.5.29
 	 *
 	 * @var \Masteriyo\Addons\WcIntegration\WcIntegrationAddon|null
 	 */
@@ -50,14 +50,14 @@ class WcIntegrationAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.8.1
+	 * @since 2.5.29
 	 */
 	protected function __construct() {}
 
 	/**
 	 * Get class instance.
 	 *
-	 * @since 1.8.1
+	 * @since 2.5.29
 	 *
 	 * @return \Masteriyo\Addons\WcIntegration\WcIntegrationAddon Instance.
 	 */
@@ -72,21 +72,21 @@ class WcIntegrationAddon {
 	/**
 	 * Prevent cloning.
 	 *
-	 * @since 1.8.1
+	 * @since 2.5.29
 	 */
 	public function __clone() {}
 
 	/**
 	 * Prevent unserializing.
 	 *
-	 * @since 1.8.1
+	 * @since 2.5.29
 	 */
 	public function __wakeup() {}
 
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function init() {
 		$this->setting = new Setting();
@@ -98,7 +98,7 @@ class WcIntegrationAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -125,10 +125,16 @@ class WcIntegrationAddon {
 
 		add_action( 'profile_update', array( $this, 'add_student_role_to_wc_customer' ) );
 		add_action( 'user_register', array( $this, 'add_student_role_to_wc_customer' ) );
-		add_filter( 'woocommerce_order_item_needs_processing', array( $this, 'course_order_item_needs_processing' ), 10, 3 );
 		add_action( 'woocommerce_thankyou', array( $this, 'add_custom_order_meta_data' ) );
+		add_filter( 'woocommerce_order_item_needs_processing', array( $this, 'course_order_item_needs_processing' ), 10, 3 );
 		add_action( 'woocommerce_thankyou', array( $this, 'maybe_redirect_to_enrolled_course' ), 1 );
 		add_filter( 'page_template_hierarchy', array( $this, 'remove_wc_order_confirmation_template' ), 2 );
+
+		if ( Helper::is_wc_subscriptions_active() ) {
+			add_action( 'woocommerce_mto_course_recurring_add_to_cart', array( $this, 'use_simple_add_to_cart_template' ) );
+			add_filter( 'woocommerce_is_subscription', array( $this, 'modify_is_subscription' ), 10, 3 );
+			add_filter( 'wcs_admin_is_subscription_product_save_request', array( $this, 'modify_is_subscription_product_save_request' ), 10, 3 );
+		}
 
 		add_action( 'masteriyo_admin_notices', array( $this, 'guest_checkout_misconfiguration_notice' ) );
 		add_action( 'rest_api_init', array( $this, 'register_wc_rest_routes' ) );
@@ -143,26 +149,61 @@ class WcIntegrationAddon {
 		add_action( 'masteriyo_after_trash_course', array( $this, 'update_wc_product_price' ), 10, 2 );
 		add_action( 'masteriyo_course_restore', array( $this, 'update_wc_product_price' ), 10, 2 );
 		add_action( 'masteriyo_rest_restore_course_item', array( $this, 'update_wc_product_price' ), 10, 2 );
+		add_action( 'masteriyo_update_course_bundle', array( $this, 'update_wc_product_price' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_wd_integration_data_in_response' ), 10, 4 );
-		add_filter( 'masteriyo_enroll_button_class', array( $this, 'add_add_to_cart_btn_class' ), 11, 3 );
+
+		add_filter( 'masteriyo_enroll_button_class', array( $this, 'add_add_to_cart_btn_class' ), 10, 3 );
+		add_filter( 'masteriyo_enroll_bundle_button_class', array( $this, 'add_bundle_add_to_cart_btn_class' ), 10, 3 );
 
 		add_filter( 'masteriyo_single_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
 		add_filter( 'masteriyo_course_add_to_cart_text', array( $this, 'add_tot_cart_btn_text' ), 99, 2 );
-
+		add_filter( 'masteriyo_rest_response_course_bundle_data', array( $this, 'append_wd_integration_data_in_response' ), 10, 4 );
 		add_filter( 'masteriyo_user_has_bought_bundle', array( $this, 'check_if_user_has_completed_order' ), 10, 2 );
 		add_filter( 'masteriyo_enroll_button_class', array( $this, 'remove_password_protected_class' ), 15, 2 );
 		add_filter( 'masteriyo_rest_pro_before_course_clone_response', array( $this, 'delete_woocommerce_product_id_on_clone' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'localize_backend_wc_data' ), 99 );
 
-		// Free-only: enroll guest users by email when WooCommerce creates their account.
+		// A guest order is placed with customer_id = 0, so create_user_course() bails on it.
+		// WooCommerce creates the account after checkout; that is the moment enrollment
+		// becomes possible. Without this, a guest pays and is never enrolled.
 		add_action( 'woocommerce_created_customer', array( $this, 'maybe_enroll_guest_by_email' ), 10, 3 );
 	}
 
 
 	/**
+	 * Delete the associated WooCommerce product when a course is cloned via the REST API.
+	 *
+	 * This function is hooked to the 'masteriyo_rest_pro_before_course_clone_response' action.
+	 * It checks if a new course ID is provided and retrieves the associated WooCommerce product ID
+	 * from the course meta. If a WooCommerce product ID exists, it deletes the corresponding product
+	 * from the database.
+	 *
+	 * @since 3.0.2
+	 *
+	 * @param int $new_course_id The ID of the newly cloned course.
+	 * @param \WP_REST_Response $response The REST API response object.
+	 *
+	 * @return \WP_REST_Response The original response object, unmodified.
+	 */
+	public function delete_woocommerce_product_id_on_clone( $new_course_id, $response ) {
+
+		if ( empty( $new_course_id ) || ! $new_course_id ) {
+			return $response;
+		}
+
+		$wc_product_id = get_post_meta( $new_course_id, '_wc_product_id', true );
+
+		if ( $wc_product_id ) {
+			update_post_meta( $new_course_id, '_wc_product_id', false );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Remove 'masteriyo-password-protected' class from the enroll button classes array if the course is a WooCommerce product and the user can't start the course.
 	 *
-	 * @since 1.14.2
+	 * @since 1.14.2 [Free]
 	 *
 	 * @param string[] $classes The array of classes for the enroll button.
 	 * @param \Masteriyo\Models\Course $course The course object.
@@ -184,7 +225,7 @@ class WcIntegrationAddon {
 	/**
 	 * delete wc product.
 	 *
-	 * @since 1.13.3
+	 * @since 1.13.3 [free]
 	 *
 	 * @param int $item_id
 	 * @param  $item
@@ -194,7 +235,7 @@ class WcIntegrationAddon {
 		global $wpdb;
 		$product_id = get_post_meta( $item_id, '_wc_product_id', true );
 
-		if ( PostType::COURSE === get_post_type( $product_id ) ) {
+		if ( PostType::COURSE === get_post_type( $product_id ) || PostType::COURSE_BUNDLE === get_post_type( $product_id ) ) {
 			wp_delete_post( $product_id, true );
 			$wpdb->delete( "{$wpdb->prefix}wc_product_meta_lookup", array( 'product_id' => $product_id ), array( '%d' ) );
 			$wpdb->delete( "{$wpdb->prefix}wc_reserved_stock", array( 'product_id' => $product_id ), array( '%d' ) );
@@ -207,9 +248,9 @@ class WcIntegrationAddon {
 	/**
 	 * wc product price update when course/course_bundle is updated.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4
 	 *
-	 * @param int $item_id
+	 * @param int $course_id
 	 * @param Masteriyo\Models\Course $item
 	 * @return void
 	 */
@@ -243,7 +284,7 @@ class WcIntegrationAddon {
 		/**
 		 * It is the fix for a bug where user not enter password for buying the course.
 		 *
-		 * @since 1.14.2
+		 * @since 1.14.2 [Free]
 		 */
 		if ( ! empty( $post_password ) ) {
 			$product->set_post_password( '' );
@@ -252,14 +293,187 @@ class WcIntegrationAddon {
 		$product->save();
 	}
 
+	/**
+	 * check if user has completed order for course bundle
+	 *
+	 * @param object $course_bundle
+	 * @return void
+	 *
+	 * @since 2.14.0
+	 */
+	public function check_if_user_has_completed_order( $user_has_bought_bundle, $course_bundle ) {
+		if ( ! function_exists( 'wc_get_product' ) || ! $course_bundle ) {
+			return $user_has_bought_bundle;
+		}
 
+		$course_bundle_id = $course_bundle->get_id();
+		$user_id          = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return $user_has_bought_bundle;
+		}
+
+		// Recurring bundles: check live WCS subscription status before the cached order meta (which may be absent for recurring purchases).
+		if ( CourseAccessMode::RECURRING === $course_bundle->get_access_mode()
+			&& function_exists( 'wcs_get_users_subscriptions' )
+		) {
+			$product_id = absint( get_post_meta( $course_bundle_id, '_wc_product_id', true ) );
+
+			// Cache per user for this request so the DB is hit once even when multiple recurring bundles appear on the same page.
+			static $subscription_cache = array();
+			if ( ! isset( $subscription_cache[ $user_id ] ) ) {
+				$subscription_cache[ $user_id ] = wcs_get_users_subscriptions( $user_id );
+			}
+
+			foreach ( $subscription_cache[ $user_id ] as $subscription ) {
+				// A WC_Subscription, so the status is WooCommerce's vocabulary, not Masteriyo's.
+				if ( ! $subscription->has_status( 'active' ) ) {
+					continue;
+				}
+				foreach ( $subscription->get_items() as $item ) {
+					$item_product_id = absint( $item->get_product_id() );
+					// Match by linked product ID, or reverse-lookup bundle ID on the product meta.
+					if ( ( $product_id && $item_product_id === $product_id )
+						|| ( $course_bundle_id && absint( get_post_meta( $item_product_id, '_masteriyo_course_bundle_id', true ) ) === $course_bundle_id )
+					) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		// Non-recurring bundles, or recurring when WCS is unavailable: use cached order list.
+		$product_id = absint( get_post_meta( $course_bundle_id, '_wc_product_id', true ) );
+
+		if ( empty( $product_id ) ) {
+			return $user_has_bought_bundle;
+		}
+
+		$user_orders = get_user_meta( $user_id, '_user_product_orders_' . $product_id, true );
+
+		if ( ! is_array( $user_orders ) || empty( $user_orders ) ) {
+			return $user_has_bought_bundle;
+		}
+
+		foreach ( $user_orders as $order_id ) {
+			$order = wc_get_order( $order_id );
+			if ( $order && OrderStatus::COMPLETED === $order->get_status() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Enroll guest users by email after WooCommerce creates their account.
+	 *
+	 * When a guest completes a WooCommerce purchase, WC may create a customer account
+	 * after checkout (woocommerce_created_customer). At that point the order was
+	 * placed with customer_id = 0. This method finds all completed guest orders for the
+	 * same billing email, assigns them to the new customer, and calls create_user_course()
+	 * so the user gets enrolled in the purchased courses.
+	 *
+	 * @param int    $customer_id  Newly created WC customer (WordPress user) ID.
+	 * @param array  $new_customer_data Array of new customer data.
+	 * @param bool   $password_generated Whether a password was auto-generated.
+	 */
+	public function maybe_enroll_guest_by_email( $customer_id, $new_customer_data, $password_generated ) {
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return;
+		}
+
+		$email = isset( $new_customer_data['user_email'] ) ? sanitize_email( $new_customer_data['user_email'] ) : '';
+
+		if ( empty( $email ) ) {
+			return;
+		}
+
+		// Find completed guest orders (customer_id = 0) placed with this billing email.
+		$orders = wc_get_orders(
+			array(
+				'billing_email' => $email,
+				'customer_id'   => 0,
+				'status'        => array( 'wc-completed' ),
+				'limit'         => -1,
+			)
+		);
+
+		if ( empty( $orders ) ) {
+			return;
+		}
+
+		foreach ( $orders as $order ) {
+			// Assign order to the new customer.
+			$order->set_customer_id( $customer_id );
+			$order->save();
+
+			// Now that the order has a customer ID, trigger enrollment.
+			$this->create_user_course( $order->get_id() );
+		}
+	}
+
+	/**
+	 * Add order id to user if course bundle is ordered.
+	 *
+	 * @param number $order_id
+	 * @return void
+	 * @since 2.14.0
+	 */
+	public function add_custom_order_meta_data( $order_id ) {
+
+		if ( ! $order_id ) {
+			return;
+		}
+
+		$order = \wc_get_order( $order_id );
+
+		if ( ! $order ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		foreach ( $order->get_items() as $item_id => $item ) {
+			/** @var \WC_Order_Item_Product $item */
+			$product_id = $item->get_product_id();
+
+			$product = \wc_get_product( $product_id );
+
+			if ( $product ) {
+				$product_type = $product->get_type();
+
+				if ( in_array( $product_type, array( WcCourseProductType::COURSE_BUNDLE, WcCourseProductType::COURSE_BUNDLE_RECURRING ), true ) ) {
+					$user_meta_key = '_user_product_orders_' . $product_id;
+					$user_orders   = get_user_meta( $user_id, $user_meta_key, true );
+
+					if ( ! is_array( $user_orders ) ) {
+						$user_orders = array();
+					}
+
+					if ( in_array( $order_id, $user_orders ) ) {
+						continue;
+					}
+
+					$user_orders[] = $order_id;
+
+					update_user_meta( $user_id, $user_meta_key, $user_orders );
+				}
+			}
+		}
+	}
 
 	/**
 	 * Modifies the text of the "Add to Cart" button for a course that is connected to a WooCommerce product.
 	 *
 	 * If the course is connected to a WooCommerce product, the button text will be "Add to Cart" if the product is not in the cart, or "Go to Cart" if the product is already in the cart.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string $text The default button text.
 	 * @param \Masteriyo\Models\Course $course The course object.
@@ -291,7 +505,7 @@ class WcIntegrationAddon {
 	/**
 	 * Adds the 'masteriyo-add-to-cart-btn' class to the enroll button if the course is connected to a WooCommerce product.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string[] $class An array of class names.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -323,9 +537,71 @@ class WcIntegrationAddon {
 	}
 
 	/**
+	 * Adds the 'masteriyo-add-to-cart-btn' class to the bundle enroll button if the bundle is connected to a WooCommerce product.
+	 *
+	 * @param string[] $class An array of class names.
+	 * @param \Masteriyo\Models\Course $course_bundle Course bundle object.
+	 * @param bool $user_has_bought_bundle Whether the user has already purchased the bundle.
+	 *
+	 * @return string[] The modified class array.
+	 */
+	public function add_bundle_add_to_cart_btn_class( $class, $course_bundle, $user_has_bought_bundle ) {
+		if ( $user_has_bought_bundle ) {
+			return $class;
+		}
+
+		if ( ! $course_bundle || ! Helper::is_add_to_cart_enable() ) {
+			return $class;
+		}
+
+		$is_added_to_cart = Helper::is_course_added_to_cart( $course_bundle->get_id() );
+
+		if ( is_null( $is_added_to_cart ) ) {
+			return $class;
+		}
+
+		if ( ! $is_added_to_cart ) {
+			$class[] = 'masteriyo-add-to-cart-btn';
+		}
+
+		return $class;
+	}
+
+	/**
+	 * Modify is subscription.
+	 *
+	 * @since 2.6.11
+	 * @param boolean $is_subscription Is subscription.
+	 * @param int $id Product id.
+	 * @param \WC_Product $product WC Product object
+	 * @return boolean
+	 */
+	public function modify_is_subscription( $is_subscription, $id, $product ) {
+		if ( $product->is_type( WcCourseProductType::COURSE_RECURRING ) || $product->is_type( WcCourseProductType::COURSE_BUNDLE_RECURRING ) ) {
+			$is_subscription = true;
+		}
+		return $is_subscription;
+	}
+
+	/**
+	 * Mark request if for subscription.
+	 *
+	 * @since 2.6.11
+	 * @param bool $is_subscription_product_save_request Is subscription product save request.
+	 * @param int $post_id Post ID.
+	 * @param array $product_types Product types.
+	 */
+	public function modify_is_subscription_product_save_request( $is_subscription_product_save_request, $post_id, $product_types ) {
+		if ( isset( $_POST['product-type'] ) && in_array( sanitize_key( $_POST['product-type'] ), array( WcCourseProductType::COURSE_RECURRING, WcCourseProductType::COURSE_BUNDLE_RECURRING ), true ) ) { // phpcs:ignore
+			$is_subscription_product_save_request = true;
+		}
+		return $is_subscription_product_save_request;
+	}
+
+	/**
 	 * Print inline scripts.
 	 *
-	 * @since 1.8.1
+	 * @since 2.6.11
 	 */
 	public function print_inline_scripts() {
 		if ( 'product' !== get_post_type() ) {
@@ -333,19 +609,43 @@ class WcIntegrationAddon {
 		}
 		$scripts = '
 		(function($) {
-			$( "div.downloadable_files" ).parent().addClass( "hide_if_mto_course" ).hide();
+			$( "div.downloadable_files" ).parent().addClass( "hide_if_mto_course hide_if_mto_course_recurring" ).hide();
 			$( ".options_group.pricing" ).addClass( "show_if_mto_course" );
-			$( ".options_group.show_if_simple.show_if_external.show_if_variable" ).addClass( "show_if_mto_course" );
+			$( ".options_group.pricing, ._subscription_sign_up_fee_field, ._subscription_trial_length_field" ).addClass( "hide_if_mto_course_recurring" );
+			$( ".options_group.subscription_pricing" ).addClass( "show_if_mto_course_recurring" );
+			$( ".options_group.show_if_simple.show_if_external.show_if_variable" ).addClass( "show_if_mto_course show_if_mto_course_recurring show_if_mto_course_bundle show_if_mto_course_bundle_recurring" );
+			if ( $( \'#product-type\' ).val() === \'mto_course_recurring\' ) {
+					$(\'option[value="mto_course_recurring"]\').show();
+					$(\'option[value="mto_course"]\').hide();
+			} else {
+					$(\'option[value="mto_course_recurring"]\').hide();
+					$(\'option[value="mto_course"]\').show();
+				}
 			})(jQuery);
 			';
+
+		/**
+		 * Changes the inline scripts for the "Product" tab in the WooCommerce product editor.
+		 * @since 2.14.0
+		 */
+		$scripts = apply_filters( 'print_inline_scripts_for_tab_product', $scripts );
 
 		wp_print_inline_script_tag( $scripts );
 	}
 
 	/**
+	 * Use simple add to cart template for Masteriyo course product type.
+	 *
+	 * @since 2.2.0
+	 */
+	public function use_simple_add_to_cart_template() {
+		wc_get_template( 'single-product/add-to-cart/simple.php' );
+	}
+
+	/**
 	 * Register custom course product class.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param string $class_name Class name.
 	 * @param string $product_type Product type
@@ -356,36 +656,43 @@ class WcIntegrationAddon {
 			$class_name = CourseProduct::class;
 		}
 
+		if ( WcCourseProductType::COURSE_RECURRING === $product_type && Helper::is_wc_subscriptions_active() ) {
+			$class_name = \Masteriyo\Addons\WcIntegration\CourseRecurringProduct::class;
+		}
+
 		return $class_name;
 	}
 
 	/**
 	 * Add course product type in the product type selector.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param array $types WooCommerce product types.
 	 * @return array
 	 */
 	public function add_course_product_type( $types ) {
-		$types[ WcCourseProductType::COURSE ] = __( 'Masteriyo Course', 'learning-management-system' );
+		$types[ WcCourseProductType::COURSE ] = sprintf(
+			/* translators: %s: the product's name */
+			__( '%s Course', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
+
+		if ( Helper::is_wc_subscriptions_active() ) {
+			$types[ WcCourseProductType::COURSE_RECURRING ] = sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course (Recurring)', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			);
+		}
 
 		return $types;
 	}
 
 	/**
-	 * Use simple add to cart template for Masteriyo course product type.
-	 *
-	 * @since 1.8.1
-	 */
-	public function use_simple_add_to_cart_template() {
-		wc_get_template( 'single-product/add-to-cart/simple.php' );
-	}
-
-	/**
 	 * Convert WC status to Masteriyo status.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param string $status WC order status.
 	 *
@@ -417,7 +724,7 @@ class WcIntegrationAddon {
 	/**
 	 * Update user course status according to WooCommerce order status.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param int $wc_order_id WC order ID.
 	 * @param string $from WC order from status.
@@ -426,6 +733,12 @@ class WcIntegrationAddon {
 	 */
 	public function change_order_status( $wc_order_id, $from, $to, $wc_order ) {
 		if ( $from === $to ) {
+			return;
+		}
+
+		// Bail without an order object, or on a guest order — its customer_id
+		// of 0 makes UserCourseQuery match any user's enrollment.
+		if ( ! $wc_order || ! absint( $wc_order->get_customer_id() ) ) {
 			return;
 		}
 
@@ -438,40 +751,87 @@ class WcIntegrationAddon {
 		);
 
 		foreach ( $order_items as $order_item ) {
-			$course = masteriyo_get_course( $order_item->get_meta( '_masteriyo_course_id' ) );
-
-			if ( ! $course ) {
+			$product = wc_get_product( $order_item->get_product_id() );
+			// Bail early if product doesn't exist.
+			if ( ! $product ) {
 				continue;
 			}
 
-			// Get user courses.
-			$query = new UserCourseQuery(
-				array(
-					'course_id' => $course->get_id(),
-					'user_id'   => $wc_order->get_customer_id(),
-				)
-			);
+			$product_type = $product->get_type();
 
-			$user_course = current( $query->get_user_courses() );
+			if ( in_array( $product_type, array( WcCourseProductType::COURSE_BUNDLE, WcCourseProductType::COURSE_BUNDLE_RECURRING ), true ) ) {
+				$course_bundle = masteriyo_get_bundle_product( $product->get_meta( '_masteriyo_course_bundle_id', true ) );
+				if ( ! $course_bundle ) {
+					continue;
+				}
+				$courses = $course_bundle->get_courses();
 
-			if ( empty( $user_course ) ) {
-				continue;
-			}
+				foreach ( $courses as $course ) {
+					$course = masteriyo_get_course( $course );
+					// Bail early if course doesn't exist.
+					if ( ! $course ) {
+						continue;
+					}
+					$query        = new UserCourseQuery(
+						array(
+							'course_id' => $course->get_id(),
+							'user_id'   => $wc_order->get_customer_id(),
+						)
+					);
+					$user_courses = current( $query->get_user_courses() );
+					if ( empty( $user_courses ) ) {
+						continue;
+					}
 
-			if ( OrderStatus::COMPLETED === $to ) {
-				$user_course->set_status( UserCourseStatus::ACTIVE );
-			} elseif ( in_array( $to, $this->setting->get( 'unenrollment_status' ), true ) ) {
-				$user_course->set_status( UserCourseStatus::INACTIVE );
-				delete_user_meta( $user_course->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_course->get_course_id() );
-			} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
-				$user_course->set_status( UserCourseStatus::INACTIVE );
-				delete_user_meta( $user_course->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_course->get_course_id() );
-			}
+					if ( OrderStatus::COMPLETED === $to ) {
+						$user_courses->set_status( UserCourseStatus::ACTIVE );
+					} elseif ( in_array( $to, $this->setting->get( 'unenrollment_status' ), true ) ) {
+						$user_courses->set_status( UserCourseStatus::INACTIVE );
+						delete_user_meta( $user_courses->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_courses->get_course_id() );
+					} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
+						$user_courses->set_status( UserCourseStatus::INACTIVE );
+						delete_user_meta( $user_courses->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_courses->get_course_id() );
+					}
 
-			$user_course->save();
+					$user_courses->save();
 
-			if ( OrderStatus::COMPLETED === $to ) {
-				$this->send_wc_enrollment_email( $user_course, $wc_order );
+					if ( OrderStatus::COMPLETED === $to ) {
+						$this->send_wc_enrollment_email( $user_courses, $wc_order );
+					}
+				}
+			} else {
+				$course = masteriyo_get_course( $order_item->get_meta( '_masteriyo_course_id' ) );
+
+				if ( ! $course ) {
+					continue;
+				}
+
+				// Get user courses.
+				$query = new UserCourseQuery(
+					array(
+						'course_id' => $course->get_id(),
+						'user_id'   => $wc_order->get_customer_id(),
+					)
+				);
+
+				$user_course = current( $query->get_user_courses() );
+
+				if ( empty( $user_course ) ) {
+					continue;
+				}
+
+				if ( OrderStatus::COMPLETED === $to ) {
+					$user_course->set_status( UserCourseStatus::ACTIVE );
+				} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
+					$user_course->set_status( UserCourseStatus::INACTIVE );
+					delete_user_meta( $user_course->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_course->get_course_id() );
+				}
+
+				$user_course->save();
+
+				if ( OrderStatus::COMPLETED === $to ) {
+					$this->send_wc_enrollment_email( $user_course, $wc_order );
+				}
 			}
 		}
 	}
@@ -479,7 +839,7 @@ class WcIntegrationAddon {
 	/**
 	 * Change to WooCommerce Add to Cart URL.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param string $url
 	 * @param Masteriyo\Models\Course $course
@@ -515,7 +875,7 @@ class WcIntegrationAddon {
 			$wc_signup_disabled      = $masteriyo_guest_enabled && ! $wc_any_account_creation;
 
 			if ( $wc_guest_disabled || $wc_signup_disabled ) {
-				return masteriyo_get_account_url() . '/#/sign-in';
+				return masteriyo_get_account_url() . '#/sign-in';
 			}
 		}
 
@@ -542,7 +902,7 @@ class WcIntegrationAddon {
 	/**
 	 * Register ajax handlers.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param array $handlers
 	 * @return array
@@ -556,7 +916,7 @@ class WcIntegrationAddon {
 	/**
 	 * Save masteriyo data.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param int $product_id
 	 * @param WP_Post $product
@@ -570,7 +930,23 @@ class WcIntegrationAddon {
 			if ( $course ) {
 				update_post_meta( $course_id, '_wc_product_id', $product_id );
 				update_post_meta( $product_id, '_masteriyo_course_id', $course_id );
+				delete_post_meta($product_id,'_masteriyo_course_bundle_id');
 			}
+		}
+
+		if(masteriyo_bundles_enabled() && isset( $_POST['masteriyo_course_bundle_id'] )) {
+			$bundle_course_ids =  absint($_POST['masteriyo_course_bundle_id']);
+			if ( isset( $_POST['masteriyo_course_bundle_id'] ) ) {
+
+			$course_bundle    = masteriyo_get_bundle_product( $bundle_course_ids );
+
+			if ( $course_bundle ) {
+					update_post_meta( $bundle_course_ids, '_wc_product_id', $product_id );
+					update_post_meta( $product_id, '_masteriyo_course_bundle_id', $bundle_course_ids );
+					delete_post_meta($product_id,'_masteriyo_course_id');
+
+			}
+		}
 		}
 		//phpcs:enable
 	}
@@ -578,7 +954,7 @@ class WcIntegrationAddon {
 	/**
 	 * Add icon to masteriyo tab.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function add_masteriyo_tab_icon() {
 		$handle = 'add_masteriyo_tab_icon';
@@ -594,11 +970,10 @@ class WcIntegrationAddon {
 		wp_add_inline_style( $handle, $inline_css );
 	}
 
-
 	/**
 	 * Add masteriyo tab to product tabs.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param array $tabs
 	 * @return array
@@ -624,13 +999,30 @@ class WcIntegrationAddon {
 		$tabs['shipping']['class'][]  = 'hide_if_mto_course hide_if_mto_course_recurring';
 		$tabs['attribute']['class'][] = 'hide_if_mto_course hide_if_mto_course_recurring';
 
+		if ( masteriyo_bundles_enabled() ) {
+			$tabs[ WcCourseProductType::COURSE_BUNDLE ] = array(
+				'label'    => __( 'Course Bundles', 'learning-management-system' ),
+				'target'   => 'mto_course_bundle_options',
+				'class'    => array( 'show_if_mto_course_bundle', 'show_if_mto_course_bundle_recurring' ),
+				'priority' => 1,
+			);
+
+			// Show general in course.
+			$tabs['general']['class'][]   = 'show_if_mto_course_bundle show_if_mto_course_bundle_recurring';
+			$tabs['inventory']['class'][] = 'show_if_mto_course_bundle show_if_mto_course_bundle_recurring';
+
+			// Hide shipping attributes.
+			$tabs['shipping']['class'][]  = 'hide_if_mto_course_bundle hide_if_mto_course_bundle_recurring';
+			$tabs['attribute']['class'][] = 'hide_if_mto_course_bundle hide_if_mto_course_bundle_recurring';
+		}
+
 		return $tabs;
 	}
 
 	/**
 	 * Display masteriyo tab content.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function display_masteriyo_tab_content() {
 		if ( ! function_exists( 'woocommerce_wp_select' ) ) {
@@ -641,36 +1033,68 @@ class WcIntegrationAddon {
 			'' => esc_html__( 'Please select a course', 'learning-management-system' ),
 		);
 		$course_id = get_post_meta( get_the_ID(), '_masteriyo_course_id', true );
-		$course    = masteriyo_get_course( $course_id );
 
+			$course = masteriyo_get_course( $course_id );
 		if ( $course ) {
 			$options[ $course_id ] = $course->get_name();
 		}
 
-		echo '<div id="mto_course_options" class="panel woocommerce_options_panel hidden">';
+				echo '<div id="mto_course_options" class="panel woocommerce_options_panel hidden">';
 
-		\woocommerce_wp_select(
-			array(
-				'id'                => 'masteriyo_course_id',
-				'value'             => $course_id,
-				'wrapper_class'     => 'show_if_mto_course show_if_mto_course_recurring',
-				'label'             => esc_html__( 'Course', 'learning-management-system' ),
-				'desc_tip'          => true,
-				'description'       => esc_html__( 'Select a course to connect with the product.', 'learning-management-system' ),
-				'options'           => $options,
-				'custom_attributes' => array(
-					'data-course-access-mode' => $course ? $course->get_access_mode() : '',
-				),
-			)
-		);
+				\woocommerce_wp_select(
+					array(
+						'id'                => 'masteriyo_course_id',
+						'value'             => $course_id,
+						'wrapper_class'     => 'show_if_mto_course show_if_mto_course_recurring',
+						'label'             => esc_html__( 'Course', 'learning-management-system' ),
+						'desc_tip'          => true,
+						'description'       => esc_html__( 'Select a course to connect with the product.', 'learning-management-system' ),
+						'options'           => $options,
+						'custom_attributes' => array(
+							'data-course-access-mode' => $course ? $course->get_access_mode() : '',
+						),
+					)
+				);
 
-		echo '</div>';
+				echo '</div>';
+
+		if ( masteriyo_bundles_enabled() ) {
+
+			$bundle_course_id = get_post_meta( get_the_ID(), '_masteriyo_course_bundle_id', true );
+
+			$bundle_course = masteriyo_get_bundle_product( $bundle_course_id );
+
+			if ( $bundle_course ) {
+				$options[ $bundle_course_id ] = $bundle_course->get_name();
+			}
+
+				echo '<div id="mto_course_bundle_options" class="panel woocommerce_options_panel hidden">';
+
+				\woocommerce_wp_select(
+					array(
+						'id'                => 'masteriyo_course_bundle_id',
+						'value'             => $bundle_course_id,
+						'wrapper_class'     => 'show_if_mto_course_bundle show_if_mto_course_bundle_recurring',
+						'label'             => esc_html__( 'Course Bundle', 'learning-management-system' ),
+						'desc_tip'          => true,
+						'description'       => esc_html__( 'Select a course bundle to connect with the product.', 'learning-management-system' ),
+						'options'           => $options,
+						'custom_attributes' => array(
+							'data-course-access-mode' => $bundle_course ? $bundle_course->get_access_mode() : '',
+						),
+					)
+				);
+
+				echo '</div>';
+
+		}
+
 	}
 
 	/**
 	 * Enqueue necessary scripts.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param array $scripts
 	 * @return array
@@ -692,7 +1116,9 @@ class WcIntegrationAddon {
 			'context'  => 'public',
 			'deps'     => array( 'jquery' ),
 			'callback' => function() {
-				return masteriyo_is_single_course_page() || masteriyo_is_courses_page() || is_tax( 'course_cat' );
+				$is_bundle_page = masteriyo_is_bundle_page()
+					|| masteriyo_is_bundles_archive_page();
+				return masteriyo_is_single_course_page() || masteriyo_is_courses_page() || is_tax( 'course_cat' ) || $is_bundle_page;
 			},
 		);
 
@@ -702,7 +1128,7 @@ class WcIntegrationAddon {
 	/**
 	 * Localize admin scripts.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param array $scripts
 	 * @return array
@@ -711,17 +1137,18 @@ class WcIntegrationAddon {
 		$scripts['wc-integration'] = array(
 			'name' => '_MASTERIYO_WC_INTEGRATION_',
 			'data' => array(
-				'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
-				'adminUrl' => admin_url(),
-				'nonces'   => array(
+				'ajaxUrl'                => admin_url( 'admin-ajax.php' ),
+				'adminUrl'               => admin_url(),
+				'nonces'                 => array(
 					'listCourses' => wp_create_nonce( 'masteriyo_wc_integration_list_courses' ),
 				),
+				'isWCSubscriptionActive' => Helper::is_wc_subscriptions_active(),
 			),
 		);
 
-		// Pass WC orders admin URL so the AllOrders notice shows when WC course orders exist.
+		// Pass WC orders admin URL so the orders page can show a notice when add-to-cart is active and WC orders exist.
 		if ( isset( $scripts['backend']['data'] ) ) {
-			$scripts['backend']['data']['wcOrdersAdminUrl'] = Helper::has_wc_orders_for_masteriyo_courses()
+			$scripts['backend']['data']['wcOrdersAdminUrl'] = Helper::is_add_to_cart_enable() && Helper::has_wc_orders_for_masteriyo_courses()
 				? $this->get_wc_orders_admin_url()
 				: '';
 		}
@@ -735,20 +1162,19 @@ class WcIntegrationAddon {
 	 * The masteriyo-backend script is enqueued on all Masteriyo admin pages
 	 * (including the course builder) but NOT on WooCommerce product pages.
 	 * The wc-integration script handles the WC pages; this covers the builder.
-	 *
-	 * @since x.x.x
 	 */
 	public function localize_backend_wc_data() {
 		wp_localize_script(
 			'masteriyo-backend',
 			'_MASTERIYO_WC_INTEGRATION_',
 			array(
-				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-				'adminUrl'         => admin_url(),
-				'nonces'           => array(
+				'ajaxUrl'                => admin_url( 'admin-ajax.php' ),
+				'adminUrl'               => admin_url(),
+				'nonces'                 => array(
 					'listCourses' => wp_create_nonce( 'masteriyo_wc_integration_list_courses' ),
 				),
-				'wcOrdersAdminUrl' => Helper::has_wc_orders_for_masteriyo_courses()
+				'isWCSubscriptionActive' => Helper::is_wc_subscriptions_active(),
+				'wcOrdersAdminUrl'       => Helper::is_add_to_cart_enable() && Helper::has_wc_orders_for_masteriyo_courses()
 					? $this->get_wc_orders_admin_url()
 					: '',
 			)
@@ -758,8 +1184,6 @@ class WcIntegrationAddon {
 	/**
 	 * Return the WC orders admin URL, using the HPOS page when available and
 	 * falling back to the legacy CPT list when HPOS is disabled.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -772,7 +1196,7 @@ class WcIntegrationAddon {
 	/**
 	 * Localize public scripts.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param array $scripts
 	 * @return array
@@ -795,10 +1219,11 @@ class WcIntegrationAddon {
 		return $scripts;
 	}
 
+
 	/**
 	 * Return true if the page is WC product add page.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @return boolean
 	 */
@@ -815,7 +1240,7 @@ class WcIntegrationAddon {
 	/**
 	 * Return true if the page is WC product edit page.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @return boolean
 	 */
@@ -832,7 +1257,8 @@ class WcIntegrationAddon {
 	/**
 	 * Create Masteriyo order when WooCommerce order is created.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
+	 * @since 2.5.18 Removed $wc_order parameter due to checkout and deletion issue with WC Subscription addon.
 	 *
 	 * @param int $wc_order_id
 	 */
@@ -858,67 +1284,155 @@ class WcIntegrationAddon {
 
 		foreach ( $order_items as $order_item ) {
 			$product = wc_get_product( $order_item->get_product_id() );
-
 			// Bail early if product doesn't exist.
 			if ( ! $product ) {
 				continue;
 			}
 
-			$course = masteriyo_get_course( $product->get_meta( '_masteriyo_course_id', true ) );
+			$product_type = $product->get_type();
 
-			// Bail early if course doesn't exist.
-			if ( ! $course ) {
-				continue;
+			if ( in_array( $product_type, array( WcCourseProductType::COURSE_BUNDLE, WcCourseProductType::COURSE_BUNDLE_RECURRING ), true ) ) {
+				$course_bundle = masteriyo_get_bundle_product( $product->get_meta( '_masteriyo_course_bundle_id', true ) );
+				if ( ! $course_bundle ) {
+					continue;
+				}
+				$courses = $course_bundle->get_courses();
+				$order_item->update_meta_data( '_masteriyo_course_bundle_id', $course_bundle->get_id() );
+				$order_item->save_meta_data();
+				Helper::clear_wc_orders_cache();
+				foreach ( $courses as $course ) {
+					$course = masteriyo_get_course( $course );
+
+					// Bail early if course doesn't exist.
+					if ( ! $course ) {
+						continue;
+					}
+
+					// Get user courses.
+					$query = new UserCourseQuery(
+						array(
+							'course_id' => $course->get_id(),
+							'user_id'   => $wc_order->get_customer_id(),
+						)
+					);
+
+					$user_courses = $query->get_user_courses();
+					$user_course  = empty( $user_courses ) ? masteriyo( 'user-course' ) : current( $user_courses );
+
+					if ( empty( $user_courses ) ) {
+						$user_course->set_status( UserCourseStatus::INACTIVE );
+					}
+
+					$user_course->set_course_id( $course->get_id() );
+					$user_course->set_user_id( $wc_order->get_customer_id() );
+					$user_course->set_price( $product->get_price() );
+
+					if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
+						$this->maybe_set_enrollment_start_date( $user_course );
+						$user_course->set_status( UserCourseStatus::ACTIVE );
+					} elseif ( in_array( $wc_order->get_status(), $this->setting->get( 'unenrollment_status' ), true ) ) {
+						$user_course->set_status( UserCourseStatus::INACTIVE );
+						$user_course->set_date_start( null );
+						$user_course->set_date_modified( null );
+						$user_course->set_date_end( null );
+					} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
+						$user_course->set_status( UserCourseStatus::INACTIVE );
+						$user_course->set_date_start( null );
+						$user_course->set_date_modified( null );
+						$user_course->set_date_end( null );
+					}
+
+					$user_course->save();
+
+					if ( $user_course->get_id() ) {
+						$user_course->update_meta_data( '_wc_order_id', $wc_order_id );
+						$user_course->save_meta_data();
+					}
+
+					if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
+						$this->send_wc_enrollment_email( $user_course, $wc_order );
+					}
+				}
+			} else {
+				$course = masteriyo_get_course( $product->get_meta( '_masteriyo_course_id', true ) );
+
+				// Bail early if course doesn't exist.
+				if ( ! $course ) {
+					continue;
+				}
+
+				// Save course id in the order item as meta.
+				$order_item->update_meta_data( '_masteriyo_course_id', $course->get_id() );
+				$order_item->save_meta_data();
+				Helper::clear_wc_orders_cache();
+
+				// Get user courses.
+				$query = new UserCourseQuery(
+					array(
+						'course_id' => $course->get_id(),
+						'user_id'   => $wc_order->get_customer_id(),
+					)
+				);
+
+				$user_courses = $query->get_user_courses();
+				$user_course  = empty( $user_courses ) ? masteriyo( 'user-course' ) : current( $user_courses );
+
+				if ( empty( $user_courses ) ) {
+					$user_course->set_status( UserCourseStatus::INACTIVE );
+				}
+
+				$user_course->set_course_id( $course->get_id() );
+				$user_course->set_user_id( $wc_order->get_customer_id() );
+				$user_course->set_price( $product->get_price() );
+
+				if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
+					$this->maybe_set_enrollment_start_date( $user_course );
+					$user_course->set_status( UserCourseStatus::ACTIVE );
+				} elseif ( in_array( $wc_order->get_status(), $this->setting->get( 'unenrollment_status' ), true ) ) {
+					$user_course->set_status( UserCourseStatus::INACTIVE );
+					$user_course->set_date_start( null );
+					$user_course->set_date_modified( null );
+					$user_course->set_date_end( null );
+				}
+
+				$user_course->save();
+
+				if ( $user_course->get_id() ) {
+					$user_course->update_meta_data( '_wc_order_id', $wc_order_id );
+					$user_course->save_meta_data();
+				}
+
+				if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
+					$this->send_wc_enrollment_email( $user_course, $wc_order );
+				}
 			}
+		}
+	}
 
-			// Save course id in the order item as meta.
-			$order_item->update_meta_data( '_masteriyo_course_id', $course->get_id() );
-			$order_item->save_meta_data();
-			Helper::clear_wc_orders_cache();
+	/**
+	 * Start the enrollment clock only when access actually (re)starts.
+	 *
+	 * A plain re-save of an active enrollment keeps its original start date; a
+	 * new or lapsed enrollment starts it. This stops a completed-order edit from
+	 * silently extending time-limited access. Read before the status is changed.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param \Masteriyo\Models\UserCourse $user_course User course.
+	 */
+	protected function maybe_set_enrollment_start_date( $user_course ) {
+		$access_started = UserCourseStatus::ACTIVE === $user_course->get_status( 'edit' )
+			&& $user_course->get_date_start( 'edit' );
 
-			// Get user courses.
-			$query = new UserCourseQuery(
-				array(
-					'course_id' => $course->get_id(),
-					'user_id'   => $wc_order->get_customer_id(),
-				)
-			);
-
-			$user_courses = $query->get_user_courses();
-			$user_course  = empty( $user_courses ) ? masteriyo( 'user-course' ) : current( $user_courses );
-
-			$user_course->set_course_id( $course->get_id() );
-			$user_course->set_user_id( $wc_order->get_customer_id() );
-			$user_course->set_price( $product->get_price() );
-
-			if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
-				$user_course->set_status( UserCourseStatus::ACTIVE );
-				$user_course->set_date_start( current_time( 'mysql', true ) );
-			} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
-				$user_course->set_status( UserCourseStatus::INACTIVE );
-				$user_course->set_date_start( null );
-				$user_course->set_date_modified( null );
-				$user_course->set_date_end( null );
-				delete_user_meta( $user_course->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_course->get_course_id() );
-			}
-
-			$user_course->save();
-
-			if ( $user_course->get_id() ) {
-				$user_course->update_meta_data( '_wc_order_id', $wc_order_id );
-				$user_course->save_meta_data();
-			}
-
-			if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
-				$this->send_wc_enrollment_email( $user_course, $wc_order );
-			}
+		if ( ! $access_started ) {
+			$user_course->set_date_start( current_time( 'mysql', true ) );
 		}
 	}
 
 	/**
 	 * Update masteriyo_can_start_course() for course connected with WC product.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param bool $can_start_course Whether user can start the course.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -927,12 +1441,8 @@ class WcIntegrationAddon {
 	 */
 	public function update_can_start_course( $can_start_course, $course, $user ) {
 		// Bail early if WC is not active.
-		if ( ! function_exists( 'wc_get_product' ) ) {
-			return;
-		}
-
-		if ( ! $course ) {
-			return;
+		if ( ! function_exists( 'wc_get_product' ) || ! $course ) {
+			return $can_start_course;
 		}
 
 		$product = wc_get_product( $course->get_meta( '_wc_product_id' ) );
@@ -972,7 +1482,16 @@ class WcIntegrationAddon {
 			return $can_start_course;
 		}
 
-		$can_start_course = OrderStatus::COMPLETED === $wc_order->get_status();
+		if ( CourseAccessMode::RECURRING === $course->get_access_mode() ) {
+			$subscription = function_exists( 'wcs_get_subscriptions_for_order' ) ? current( wcs_get_subscriptions_for_order( $wc_order_id ) ) : false;
+			if ( ! $subscription ) {
+				return $can_start_course;
+			}
+			// A WC_Subscription, so the status is WooCommerce's vocabulary, not Masteriyo's.
+			$can_start_course = $subscription->has_status( 'active' );
+		} else {
+			$can_start_course = OrderStatus::COMPLETED === $wc_order->get_status();
+		}
 
 		return $can_start_course;
 	}
@@ -980,7 +1499,7 @@ class WcIntegrationAddon {
 	/**
 	 * Add student role to WC customer.
 	 *
-	 * @since 1.8.1
+	 * @since 2.4.6
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1010,7 +1529,7 @@ class WcIntegrationAddon {
 	/**
 	 * Registers the REST API routes for the WC Integration addon.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $namespace The API namespace.
 	 * @param string $rest_base The REST base.
@@ -1104,8 +1623,6 @@ class WcIntegrationAddon {
 	/**
 	 * List WooCommerce products via REST API for the course link-product selector.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
 	 */
@@ -1126,7 +1643,7 @@ class WcIntegrationAddon {
 			'status'     => 'publish',
 			'orderby'    => 'title',
 			'order'      => 'ASC',
-			'type'       => array( 'simple', 'variable', WcCourseProductType::COURSE ),
+			'type'       => array( 'simple', 'variable', 'subscription', 'variable-subscription', WcCourseProductType::COURSE, WcCourseProductType::COURSE_RECURRING ),
 			'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
 					'key'     => '_masteriyo_course_id',
@@ -1169,7 +1686,7 @@ class WcIntegrationAddon {
 	/**
 	 * Creates a WooCommerce product for a given Masteriyo course.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request The REST API request object.
 	 *
@@ -1179,7 +1696,11 @@ class WcIntegrationAddon {
 		$course_id      = absint( $request->get_param( 'course_id' ) ?? 0 );
 		$product_create = masteriyo_string_to_bool( $request->get_param( 'product_create' ) ?? true );
 
-		$course = masteriyo_get_course( $course_id );
+		if ( $request->get_param( 'is_course_bundle' ) ) {
+			$course = masteriyo_get_bundle_product( $course_id );
+		} else {
+			$course = masteriyo_get_course( $course_id );
+		}
 
 		if ( ! $course ) {
 			return new \WP_Error( 'masteriyo_course_not_found', __( 'Course not found.', 'learning-management-system' ), array( 'status' => 404 ) );
@@ -1210,26 +1731,95 @@ class WcIntegrationAddon {
 			}
 		}
 
-		$product = new CourseProduct();
-		$product->set_category_ids( $course->get_category_ids() );
-		$product->set_tag_ids( $course->get_tag_ids() );
-		$product->set_reviews_allowed( $course->get_reviews_allowed() );
-		$product->set_catalog_visibility( $course->get_catalog_visibility() );
+		$is_recurring = CourseAccessMode::RECURRING === $course->get_access_mode() && Helper::is_wc_subscriptions_active();
+
+		if ( $request->get_param( 'is_course_bundle' ) ) {
+			/**
+			 * Filters the WooCommerce product object to create for a course bundle.
+			 *
+			 * The bundle product classes belong to the course-bundle addon, which is
+			 * pro; this addon ships to both products and so cannot name them. Pro
+			 * answers from `CourseBundleAddon`. With no answer there is no bundle to
+			 * sell, which is the correct outcome for the free product.
+			 *
+			 * @param object|null $product      The product object, or null.
+			 * @param bool        $is_recurring Whether a recurring product was asked for.
+			 * @param object      $course       The bundle model.
+			 */
+			$product = apply_filters( 'masteriyo_wc_new_bundle_product', null, $is_recurring, $course );
+
+			if ( ! $product ) {
+				return new \WP_Error( 'masteriyo_course_not_found', __( 'Course not found.', 'learning-management-system' ), array( 'status' => 404 ) );
+			}
+
+			$product->set_sale_price( $course->get_regular_price() );
+		} else {
+			$product = $is_recurring ? new CourseRecurringProduct() : new CourseProduct();
+			$product->set_category_ids( $course->get_category_ids() );
+			$product->set_tag_ids( $course->get_tag_ids() );
+			$product->set_reviews_allowed( $course->get_reviews_allowed() );
+			$product->set_catalog_visibility( $course->get_catalog_visibility() );
+			$product->set_short_description( $course->get_short_description() );
+		}
 
 		$product->set_name( $course->get_title() );
 		$product->set_description( $course->get_description() );
-		$product->set_short_description( $course->get_short_description() );
 		$product->set_featured( $course->get_featured() );
 		$product->set_price( $course->get_price() );
 		$product->set_regular_price( $course->get_regular_price() );
 		$product->set_sale_price( $course->get_sale_price() );
 		$product->set_image_id( $course->get_image_id() );
 
+		if ( $is_recurring ) {
+			$billing_period      = $course->get_billing_period();
+			$billing_interval    = max( 1, absint( $course->get_billing_interval() ) );
+			$expire_after_months = absint( $course->get_billing_expire_after() );
+
+			// billing_expire_after is in months; _subscription_length must be in period units
+			// and a multiple of billing_interval (WCS only accepts interval-aligned values).
+			$months_per_period = array(
+				'day'   => 1.0 / 30,
+				'week'  => 7.0 / 30,
+				'month' => 1.0,
+				'year'  => 12.0,
+			);
+			// WCS hard limits per period unit.
+			$max_length_per_period = array(
+				'day'   => 90,
+				'week'  => 52,
+				'month' => 24,
+				'year'  => 5,
+			);
+
+			if ( 0 === $expire_after_months || ! isset( $months_per_period[ $billing_period ] ) ) {
+				$subscription_length = 0;
+			} else {
+				$length_in_periods = (int) ceil( $expire_after_months / $months_per_period[ $billing_period ] );
+				$length_in_periods = (int) ( ceil( $length_in_periods / $billing_interval ) * $billing_interval );
+
+				if ( isset( $max_length_per_period[ $billing_period ] ) && $length_in_periods > $max_length_per_period[ $billing_period ] ) {
+					$max_valid         = (int) ( floor( $max_length_per_period[ $billing_period ] / $billing_interval ) * $billing_interval );
+					$length_in_periods = $max_valid > 0 ? $max_valid : 0;
+				}
+
+				$subscription_length = $length_in_periods;
+			}
+
+			$product->update_meta_data( '_subscription_price', $course->get_price() );
+			$product->update_meta_data( '_subscription_period', $billing_period );
+			$product->update_meta_data( '_subscription_period_interval', $billing_interval );
+			$product->update_meta_data( '_subscription_length', $subscription_length );
+		}
+
 		$product_id = $product->save();
 
 		if ( $product_id ) {
 			update_post_meta( $course_id, '_wc_product_id', $product_id );
-			update_post_meta( $product_id, '_masteriyo_course_id', $course_id );
+			if ( $request->get_param( 'is_course_bundle' ) ) {
+				update_post_meta( $product_id, '_masteriyo_course_bundle_id', $course_id );
+			} else {
+				update_post_meta( $product_id, '_masteriyo_course_id', $course_id );
+			}
 		}
 
 		return rest_ensure_response(
@@ -1244,7 +1834,7 @@ class WcIntegrationAddon {
 	/**
 	 * Append WC integration data in course data response.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $data Course data.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -1256,7 +1846,7 @@ class WcIntegrationAddon {
 	public function append_wd_integration_data_in_response( $data, $course, $context, $controller ) {
 
 		// Check if $course is an instance of Course
-		if ( ! ( $course instanceof \Masteriyo\Models\Course ) ) {
+		if ( ! ( $course instanceof \Masteriyo\Models\Course ) && ! masteriyo_is_bundle_product( $course ) ) {
 			return $data;
 		}
 
@@ -1294,6 +1884,18 @@ class WcIntegrationAddon {
 			'linked_product_edit_url' => $linked_product_id ? admin_url( 'post.php?post=' . $linked_product_id . '&action=edit' ) : '',
 		);
 
+		if ( masteriyo_is_bundle_product( $course ) ) {
+			$data['wc_integration'] = array(
+				'course_id'               => $course->get_id(),
+				'product_create'          => $product_exists,
+				'is_course_bundle'        => true,
+				'linked_product_id'       => $linked_product_id,
+				'linked_product_name'     => $linked_product_name,
+				'linked_product_price'    => $linked_product_price,
+				'linked_product_edit_url' => $linked_product_id ? admin_url( 'post.php?post=' . $linked_product_id . '&action=edit' ) : '',
+			);
+		}
+
 		return $data;
 	}
 
@@ -1301,8 +1903,6 @@ class WcIntegrationAddon {
 	 * Tell WooCommerce that Masteriyo course products don't need manual processing.
 	 * When all items in an order return false, WooCommerce natively auto-completes
 	 * the order via maybe_complete_order() — no direct status manipulation needed.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param bool        $needs_processing Whether the item needs processing.
 	 * @param \WC_Product $product          Product object.
@@ -1328,8 +1928,6 @@ class WcIntegrationAddon {
 	 * output buffering keeps headers available here, so wp_safe_redirect() works.
 	 * Only redirects when order is completed (enrollment is active).
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $order_id WooCommerce order ID.
 	 */
 	public function maybe_redirect_to_enrolled_course( $order_id ) {
@@ -1347,7 +1945,7 @@ class WcIntegrationAddon {
 			return;
 		}
 
-		wp_safe_redirect( trailingslashit( masteriyo_get_account_url() ) . '#/courses' );
+		wp_safe_redirect( masteriyo_get_account_url() . '#/courses' );
 		exit;
 	}
 
@@ -1361,8 +1959,6 @@ class WcIntegrationAddon {
 	 * including Masteriyo's checkout page. This causes WordPress to load WC's block-based
 	 * Order Confirmation template instead of the normal page template, preventing
 	 * [masteriyo_checkout] from running and showing WC's thankyou instead of Masteriyo's.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string[] $templates Page template hierarchy.
 	 * @return string[]
@@ -1393,8 +1989,6 @@ class WcIntegrationAddon {
 	/**
 	 * Add "Create Masteriyo Course" or "Edit Course" row action to the WC product list.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array    $actions Row actions.
 	 * @param \WP_Post $post    Current post object.
 	 * @return array
@@ -1418,8 +2012,19 @@ class WcIntegrationAddon {
 				esc_html__( 'Edit Course', 'learning-management-system' )
 			);
 		} elseif ( current_user_can( 'edit_masteriyo_courses' ) || current_user_can( 'manage_options' ) ) {
-			$course_types = array( WcCourseProductType::COURSE );
-			if ( $product && in_array( $product->get_type(), $course_types, true ) ) {
+			$skip_types = array(
+				WcCourseProductType::COURSE,
+				WcCourseProductType::COURSE_RECURRING,
+				WcCourseProductType::COURSE_BUNDLE,
+				WcCourseProductType::COURSE_BUNDLE_RECURRING,
+			);
+			if ( $product && in_array( $product->get_type(), $skip_types, true ) ) {
+				return $actions;
+			}
+
+			// Also skip products already linked to an existing course bundle.
+			$bundle_id = $product ? absint( $product->get_meta( '_masteriyo_course_bundle_id', true ) ) : 0;
+			if ( $bundle_id && masteriyo_get_bundle_product( $bundle_id ) ) {
 				return $actions;
 			}
 
@@ -1442,8 +2047,6 @@ class WcIntegrationAddon {
 
 	/**
 	 * Enqueue the product list row-action admin script.
-	 *
-	 * @since x.x.x
 	 */
 	public function enqueue_product_row_action_script() {
 		global $pagenow;
@@ -1454,7 +2057,7 @@ class WcIntegrationAddon {
 
 		wp_enqueue_style(
 			'masteriyo-wc-product-row-action',
-			plugin_dir_url( MASTERIYO_PLUGIN_FILE ) . 'assets/css/wc-product-row-action.css',
+			plugin_dir_url( MASTERIYO_PLUGIN_FILE ) . 'assets/css/wc-integration/assets/scss/wc-product-row-action.css',
 			array( 'dashicons' ),
 			MASTERIYO_VERSION
 		);
@@ -1484,8 +2087,6 @@ class WcIntegrationAddon {
 	 *
 	 * Only renders on edit.php?post_type=product. HTML is server-rendered so JS only
 	 * handles show/hide and dynamic data — no DOM construction in JavaScript.
-	 *
-	 * @since x.x.x
 	 */
 	public function render_product_row_action_modal() {
 		global $pagenow;
@@ -1499,21 +2100,57 @@ class WcIntegrationAddon {
 				<div class="masteriyo--modal masteriyo-convert-modal-content">
 					<h4 class="masteriyo--title masteriyo-convert-modal-title-row">
 						<span class="dashicons dashicons-info masteriyo-convert-modal-icon"></span>
-						<?php esc_html_e( 'Convert to Masteriyo Course?', 'learning-management-system' ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+							/* translators: %s: the product's name */
+								__( 'Convert to %s Course?', 'learning-management-system' ),
+								masteriyo_get_plugin_name()
+							)
+						);
+						?>
 					</h4>
 					<div class="masteriyo--content">
-						<p class="masteriyo-convert-modal-desc"><?php esc_html_e( 'To create a course from this product, its type will be changed to Masteriyo Course.', 'learning-management-system' ); ?></p>
+						<p class="masteriyo-convert-modal-desc">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: the product's name */
+								__( 'To create a course from this product, its type will be changed to %s Course.', 'learning-management-system' ),
+								masteriyo_get_plugin_name()
+							)
+						);
+						?>
+						</p>
 						<div class="masteriyo-convert-modal-highlight">
 							<div class="masteriyo-product-name" id="masteriyo-modal-product-name"></div>
 							<div class="masteriyo-type-change">
 								<span id="masteriyo-modal-type-from"></span>
 								<span class="masteriyo-type-arrow">→</span>
-								<span><?php esc_html_e( 'Masteriyo Course', 'learning-management-system' ); ?></span>
+								<span>
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: %s: the product's name */
+										__( '%s Course', 'learning-management-system' ),
+										masteriyo_get_plugin_name()
+									)
+								);
+								?>
+								</span>
 							</div>
 						</div>
 						<label class="masteriyo-convert-modal-check-label" for="masteriyo-convert-confirm-check">
 							<input type="checkbox" id="masteriyo-convert-confirm-check">
-							<?php esc_html_e( 'I understand the product type will change to Masteriyo Course.', 'learning-management-system' ); ?>
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %s: the product's name */
+									__( 'I understand the product type will change to %s Course.', 'learning-management-system' ),
+									masteriyo_get_plugin_name()
+								)
+							);
+							?>
 						</label>
 					</div>
 					<div class="masteriyo-actions">
@@ -1528,8 +2165,6 @@ class WcIntegrationAddon {
 
 	/**
 	 * Register all WC integration REST routes.
-	 *
-	 * @since x.x.x
 	 */
 	public function register_wc_rest_routes() {
 		register_rest_route(
@@ -1607,8 +2242,6 @@ class WcIntegrationAddon {
 	/**
 	 * REST callback: create a draft Masteriyo course from a WC product.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
@@ -1632,7 +2265,11 @@ class WcIntegrationAddon {
 			);
 		}
 
-		$access_mode = CourseAccessMode::ONE_TIME;
+		// Determine access mode from product type.
+		$product_type = $product->get_type();
+		$access_mode  = in_array( $product_type, array( 'subscription', 'variable-subscription' ), true )
+			? CourseAccessMode::RECURRING
+			: CourseAccessMode::ONE_TIME;
 
 		$course = masteriyo( 'course' );
 		$course->set_name( $product->get_name() );
@@ -1683,7 +2320,12 @@ class WcIntegrationAddon {
 		update_post_meta( $course_id, '_wc_product_id', $product_id );
 		update_post_meta( $product_id, '_masteriyo_course_id', $course_id );
 
-		wp_set_object_terms( $product_id, WcCourseProductType::COURSE, 'product_type' );
+		// Convert product type: subscription products become mto_course_recurring,
+		// all others become mto_course.
+		$target_product_type = CourseAccessMode::RECURRING === $access_mode
+			? WcCourseProductType::COURSE_RECURRING
+			: WcCourseProductType::COURSE;
+		wp_set_object_terms( $product_id, $target_product_type, 'product_type' );
 
 		return rest_ensure_response(
 			array(
@@ -1701,8 +2343,6 @@ class WcIntegrationAddon {
 	 *            using its own native API (handles WC HPOS automatically).
 	 * Phase 2 — merge + sort the pairs, apply pagination → get total + page slice.
 	 * Phase 3 — load full order details only for the paginated items (~per_page).
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -1748,8 +2388,6 @@ class WcIntegrationAddon {
 	 * combines them with UNION ALL so ORDER BY + LIMIT/OFFSET execute in the DB,
 	 * not in PHP. All filters (status, date range) are pushed down into each
 	 * sub-query before the UNION, keeping the result set small.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int        $user_id
 	 * @param string     $status    Order status slug (empty string = no filter).
@@ -1840,8 +2478,6 @@ class WcIntegrationAddon {
 	/**
 	 * Format a single Masteriyo order for the unified orders response.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $order_id
 	 * @return array|null
 	 */
@@ -1872,8 +2508,6 @@ class WcIntegrationAddon {
 
 	/**
 	 * Format a single WooCommerce order for the unified orders response.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $order_id
 	 * @return array|null
@@ -1922,8 +2556,6 @@ class WcIntegrationAddon {
 	/**
 	 * Send the WC enrollment email to the student if enabled.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \Masteriyo\Models\UserCourse $user_course
 	 * @param \WC_Order                    $wc_order
 	 */
@@ -1940,8 +2572,6 @@ class WcIntegrationAddon {
 	/**
 	 * Whether WooCommerce HPOS (High-Performance Order Storage) is active.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	private function is_hpos_enabled() {
@@ -1954,8 +2584,6 @@ class WcIntegrationAddon {
 	 *
 	 * Used as the permission_callback for /orders/wc/{id}. Ownership is verified
 	 * here so the main callback never needs to repeat it.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return true|\WP_Error
@@ -1981,8 +2609,6 @@ class WcIntegrationAddon {
 	/**
 	 * Return a single WC order in the same shape as the Masteriyo OrderSchema.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
@@ -1995,6 +2621,7 @@ class WcIntegrationAddon {
 
 		$course_lines = array();
 		foreach ( $order->get_items() as $item ) {
+			/** @var \WC_Order_Item_Product $item */
 			$course_lines[] = array(
 				'id'       => $item->get_id(),
 				'name'     => $item->get_name(),
@@ -2049,8 +2676,6 @@ class WcIntegrationAddon {
 	/**
 	 * Append the unified orders endpoint URL to the account page localized scripts.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $scripts Localized scripts array.
 	 * @return array
 	 */
@@ -2065,8 +2690,6 @@ class WcIntegrationAddon {
 	/**
 	 * Show an admin notice when Masteriyo and WooCommerce guest checkout settings are mismatched,
 	 * or when account creation during checkout is disabled while guest checkout is active.
-	 *
-	 * @since x.x.x
 	 */
 	public function guest_checkout_misconfiguration_notice() {
 		$masteriyo_guest_enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'general.registration.enable_guest_checkout' ) );
@@ -2085,7 +2708,7 @@ class WcIntegrationAddon {
 		if ( ! $wc_guest_enabled ) {
 			printf(
 				'<div class="notice notice-warning"><p><strong>%s</strong> %s</p></div>',
-				esc_html__( 'Masteriyo:', 'learning-management-system' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses(
 					sprintf(
 						/* translators: %s: Anchor tag linking to WooCommerce account settings */
@@ -2102,7 +2725,7 @@ class WcIntegrationAddon {
 		if ( $wc_guest_enabled && ! $wc_signup_enabled && ! $wc_delayed_signup_enabled ) {
 			printf(
 				'<div class="notice notice-warning"><p><strong>%s</strong> %s</p></div>',
-				esc_html__( 'Masteriyo:', 'learning-management-system' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses(
 					sprintf(
 						/* translators: %s: Anchor tag linking to WooCommerce account settings */
@@ -2118,8 +2741,6 @@ class WcIntegrationAddon {
 	/**
 	 * Extract all Masteriyo course IDs from a WooCommerce order.
 	 * Handles single courses, recurring courses, and course bundles.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WC_Order $order WooCommerce order object.
 	 * @return int[]
@@ -2137,7 +2758,14 @@ class WcIntegrationAddon {
 				continue;
 			}
 
-			if ( WcCourseProductType::COURSE === $product->get_type() ) {
+			if ( in_array( $product->get_type(), array( WcCourseProductType::COURSE_BUNDLE, WcCourseProductType::COURSE_BUNDLE_RECURRING ), true ) ) {
+				$bundle = masteriyo_get_bundle_product( $product->get_meta( '_masteriyo_course_bundle_id', true ) );
+				if ( $bundle ) {
+					foreach ( $bundle->get_courses() as $course_id ) {
+						$course_ids[] = absint( $course_id );
+					}
+				}
+			} elseif ( in_array( $product->get_type(), array( WcCourseProductType::COURSE, WcCourseProductType::COURSE_RECURRING ), true ) ) {
 				$course_id = absint( $product->get_meta( '_masteriyo_course_id', true ) );
 				if ( $course_id ) {
 					$course_ids[] = $course_id;
@@ -2153,8 +2781,6 @@ class WcIntegrationAddon {
 	 *
 	 * Saves `_wc_product_id` on the course and `_masteriyo_course_id` on the product.
 	 * Syncs WC product price → course regular price (product is source of truth on link).
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_Error|\WP_REST_Response
@@ -2209,7 +2835,11 @@ class WcIntegrationAddon {
 		// then save() sets the product_type taxonomy to mto_course through WC's own mechanism.
 		$current_type = $product->get_type();
 		try {
-			$typed_product = new CourseProduct( $product_id );
+			if ( Helper::is_wc_subscriptions_active() && in_array( $current_type, array( 'subscription', 'variable-subscription' ), true ) ) {
+				$typed_product = new CourseRecurringProduct( $product_id );
+			} else {
+				$typed_product = new CourseProduct( $product_id );
+			}
 			$typed_product->save();
 			$product_type = $typed_product->get_type();
 		} catch ( \Exception $e ) {
@@ -2235,8 +2865,6 @@ class WcIntegrationAddon {
 	 * Unlink a WooCommerce product from a Masteriyo course.
 	 *
 	 * Removes `_wc_product_id` from the course and `_masteriyo_course_id` from the product.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_Error|\WP_REST_Response
@@ -2268,96 +2896,5 @@ class WcIntegrationAddon {
 				'message'   => __( 'Product unlinked successfully.', 'learning-management-system' ),
 			)
 		);
-	}
-
-	/**
-	 * Enroll guest users by email after WooCommerce creates their account.
-	 *
-	 * When a guest completes a WooCommerce purchase, WC may create a customer account
-	 * after checkout (woocommerce_created_customer). At that point the order was
-	 * placed with customer_id = 0. This method finds all completed guest orders for the
-	 * same billing email, assigns them to the new customer, and calls create_user_course()
-	 * so the user gets enrolled in the purchased courses.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param int    $customer_id  Newly created WC customer (WordPress user) ID.
-	 * @param array  $new_customer_data Array of new customer data.
-	 * @param bool   $password_generated Whether a password was auto-generated.
-	 */
-	public function maybe_enroll_guest_by_email( $customer_id, $new_customer_data, $password_generated ) {
-		if ( ! function_exists( 'wc_get_orders' ) ) {
-			return;
-		}
-
-		$email = isset( $new_customer_data['user_email'] ) ? sanitize_email( $new_customer_data['user_email'] ) : '';
-
-		if ( empty( $email ) ) {
-			return;
-		}
-
-		// Find completed guest orders (customer_id = 0) placed with this billing email.
-		$orders = wc_get_orders(
-			array(
-				'billing_email' => $email,
-				'customer_id'   => 0,
-				'status'        => array( 'wc-completed' ),
-				'limit'         => -1,
-			)
-		);
-
-		if ( empty( $orders ) ) {
-			return;
-		}
-
-		foreach ( $orders as $order ) {
-			// Assign order to the new customer.
-			$order->set_customer_id( $customer_id );
-			$order->save();
-
-			// Now that the order has a customer ID, trigger enrollment.
-			$this->create_user_course( $order->get_id() );
-		}
-	}
-
-	/**
-	 * Add custom meta data to WooCommerce order on thank you page.
-	 *
-	 * @since 1.8.1
-	 *
-	 * @param int $order_id WooCommerce order ID.
-	 */
-	public function add_custom_order_meta_data( $order_id ) {
-		// Intentionally left as a hook stub; implementations may extend this.
-	}
-
-	/**
-	 * Check if user has completed order for a bundle.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param bool $has_bought Whether user has bought the bundle.
-	 * @param int  $user_id    User ID.
-	 * @return bool
-	 */
-	public function check_if_user_has_completed_order( $has_bought, $user_id ) {
-		return $has_bought;
-	}
-
-	/**
-	 * Delete WooCommerce product ID meta on course clone.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param array                           $response Response data.
-	 * @param \Masteriyo\Models\Course        $course   Cloned course object.
-	 * @return array
-	 */
-	public function delete_woocommerce_product_id_on_clone( $response, $course ) {
-		if ( $course && $course->get_id() ) {
-			delete_post_meta( $course->get_id(), '_wc_product_id' );
-		}
-
-		return $response;
 	}
 }

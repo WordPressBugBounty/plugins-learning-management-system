@@ -11,8 +11,9 @@ namespace Masteriyo\CoreFeatures\CourseComingSoon;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 

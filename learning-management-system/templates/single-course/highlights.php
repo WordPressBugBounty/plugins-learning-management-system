@@ -29,21 +29,21 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 }
 ?>
 <?php if ( empty( $progress ) ) : ?>
-	<?php if ( masteriyo_get_setting( 'single_course.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) : ?>
+		<?php if ( masteriyo_get_setting( 'single_course.components_visibility.course_description' ) && ! empty( $course->get_highlights() ) && ! empty( wp_strip_all_tags( $course->get_highlights(), true ) ) ) : ?>
 	<div class="masteriyo-course--content__description masteriyo-course-highlights <?php echo esc_attr( $class ); ?>">
-		<?php if ( 'minimal' !== $layout ) : ?>
+			<?php if ( 'minimal' !== $layout ) : ?>
 		<h5 class="title masteriyo-aside-heading"><?php esc_html_e( 'This course includes', 'learning-management-system' ); ?></h5>
 		<?php endif; ?>
-		<?php
-		/**
-		 * Filters course highlights to before rendering.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $highlights The course highlights.
-		 */
-		echo wp_kses_post( apply_filters( 'masteriyo_single_course_highlights_content', masteriyo_format_course_highlights( $course->get_highlights() ) ) );
-		?>
+			<?php
+			/**
+			 * Filters course highlights to before rendering.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param string $highlights The course highlights.
+			 */
+			echo wp_kses_post( apply_filters( 'masteriyo_single_course_highlights_content', masteriyo_format_course_highlights( $course->get_highlights() ) ) );
+			?>
 	</div>
 	<?php endif; ?>
 <?php endif; ?>

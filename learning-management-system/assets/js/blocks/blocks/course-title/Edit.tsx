@@ -123,10 +123,7 @@ const Edit: React.FC<any> = (props) => {
 										textAlign="center"
 									>
 										<Box mb={3} fontSize="14px" fontWeight="600">
-											{__(
-												'Select Course',
-												'learning-management-system',
-											)}
+											{__('Select Course', 'learning-management-system')}
 										</Box>
 										<Box maxW="400px" margin="0 auto">
 											<CourseFilterForBlocks

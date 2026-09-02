@@ -2,7 +2,7 @@
 /**
  * Multiple currency setting controller class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency\Controllers
  */
@@ -26,14 +26,14 @@ use WP_Error;
  * This controller handles the REST API endpoints for retrieving and saving the
  * multiple currency settings.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class MultipleCurrencySettingsController extends PostsController {
 
 	/**
 	 * Endpoint namespace.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Route base.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -58,7 +58,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -67,7 +67,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -92,7 +92,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Checks if a given request has access to get items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
@@ -108,7 +108,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -121,10 +121,11 @@ class MultipleCurrencySettingsController extends PostsController {
 		return current_user_can( 'edit_mto_price_zones' );
 	}
 
+
 	/**
 	 * Get all settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -146,10 +147,11 @@ class MultipleCurrencySettingsController extends PostsController {
 		return rest_ensure_response( $data );
 	}
 
+
 	/**
 	 * Saves the multiple currency settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $request The request data containing the settings to be saved.
 	 *
@@ -231,7 +233,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Get the zooms'schema, conforming to JSON Schema.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	*/
@@ -288,7 +290,7 @@ class MultipleCurrencySettingsController extends PostsController {
 	/**
 	 * Get price zones count by status.
 	 *
-	 * @since 1.20.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return Array
 	 */

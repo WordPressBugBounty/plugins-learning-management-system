@@ -31,10 +31,11 @@ class QuizAttemptQuery extends ObjectQuery {
 			array(
 				'quiz_id'   => 0,
 				'course_id' => 0,
+				'quiz'      => array(),
+				'user'      => array(),
 				'paged'     => 1,
 				'order'     => 'desc',
 				'orderby'   => 'id',
-				'quiz'      => array(),
 			)
 		);
 	}
@@ -44,7 +45,7 @@ class QuizAttemptQuery extends ObjectQuery {
 	 *
 	 * @since 1.3.2
 	 *
-	 * @return Masteriyo\Models\QuizAttempt[] Quiz attempt objects.
+	 * @return \Masteriyo\Models\QuizAttempt[] Quiz attempt objects.
 	 */
 	public function get_quiz_attempts() {
 		/**
@@ -62,7 +63,7 @@ class QuizAttemptQuery extends ObjectQuery {
 		 *
 		 * @since 1.3.2
 		 *
-		 * @param Masteriyo\Models\QuizAttempt[] $results The query results.
+		 * @param \Masteriyo\Models\QuizAttempt[] $results The query results.
 		 * @param array $query_args The object query args.
 		 */
 		return apply_filters( 'masteriyo_quiz_attempt_object_query', $results, $args );

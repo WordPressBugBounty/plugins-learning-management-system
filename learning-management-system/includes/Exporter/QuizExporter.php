@@ -26,7 +26,7 @@ class QuizExporter {
 	/**
 	 * The ID used to generate download URL for exported quizzes file.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	const FILE_PATH_ID = 'export_quizzes';
 
@@ -75,7 +75,7 @@ class QuizExporter {
 	 *
 	 * @since 1.6.15
 	 *
-	 * @param array $post_types The post types to fetch.
+	 * @param array $args The arguments for fetching posts.
 	 *
 	 * @return array The fetched posts along with their metadata.
 	 */
@@ -171,7 +171,7 @@ class QuizExporter {
 	/**
 	 * Return the folder name where exported courses files are stored.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return string
 	 */

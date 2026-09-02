@@ -1,11 +1,69 @@
-/**
- * Masteriyo Courses JS.
- * @namespace
- */
-(function ($, mto_data) {
-	'use strict';
+(function ($) {
+	var masteriyo_helper = {
+		stop_all_videos: function (container) {
+			$(container)
+				.find('video')
+				.each(function () {
+					if (this.pause) {
+						this.pause();
+					}
+				});
+
+			$(container)
+				.find('iframe')
+				.each(function () {
+					var iframeSrc = this.src;
+					this.src = iframeSrc;
+				});
+		},
+
+		lockScrolling: function () {
+			var scrollPosition = [
+				self.pageXOffset ||
+					document.documentElement.scrollLeft ||
+					document.body.scrollLeft,
+				self.pageYOffset ||
+					document.documentElement.scrollTop ||
+					document.body.scrollTop,
+			];
+
+			$('html').data('scroll-position', scrollPosition);
+			$('html').data('previous-overflow', $('html').css('overflow'));
+			$('html').css('overflow', 'hidden');
+
+			window.scrollTo(scrollPosition[0], scrollPosition[1]);
+		},
+
+		unlockScrolling: function () {
+			var scrollPosition = $('html').data('scroll-position');
+			var overflow = $('html').data('previous-overflow');
+
+			if (overflow) {
+				$('html').css('overflow', overflow);
+			}
+			if (scrollPosition) {
+				window.scrollTo(scrollPosition[0], scrollPosition[1]);
+			}
+		},
+	};
 
 	var filtersSidebar = {
+		// The sidebar is resolved on every call rather than cached once, and
+		// every method bails when it is not on the page. Both halves matter:
+		//
+		// - the toggle button and the sidebar are gated by DIFFERENT
+		//   conditions. `masteriyo_template_course_filter_sidebar_toggle()`
+		//   checks only `course_archive.filters_and_sorting.enable_filters`,
+		//   while `masteriyo_template_course_filters()` returns early on the
+		//   Elementor widget's own flag or the block's `enableCourseFilters`.
+		//   So a Course List widget with filters switched off still renders the
+		//   button. Without the length check `openFiltersSidebar()` then locks
+		//   `<html>` scrolling for a sidebar that never appears, and nothing
+		//   can unlock it — `closeFiltersSidebar()` is only reachable from the
+		//   close button and the overlay, which live in the sidebar markup that
+		//   did not render;
+		// - a cached node also goes stale, because an Elementor editor
+		//   re-render replaces the element.
 		openFiltersSidebar: function () {
 			var $sidebar = $('.masteriyo-courses-filters');
 			if (!$sidebar.length) {
@@ -14,10 +72,11 @@
 			}
 
 			var scrollTop =
-				window.pageYOffset ||
+				self.pageYOffset ||
 				document.documentElement.scrollTop ||
 				document.body.scrollTop;
 			var sidebarTopPadding = 20;
+
 			$sidebar.addClass('masteriyo-expanded');
 
 			if (
@@ -26,10 +85,7 @@
 			) {
 				$sidebar.addClass('masteriyo-add-admin-bar-margin');
 			}
-
-			if (typeof masteriyo_helper !== 'undefined') {
-				masteriyo_helper.lockScrolling();
-			}
+			masteriyo_helper.lockScrolling();
 		},
 
 		closeFiltersSidebar: function () {
@@ -40,10 +96,7 @@
 
 			$sidebar.removeClass('masteriyo-expanded');
 			$sidebar.removeClass('masteriyo-add-admin-bar-margin');
-
-			if (typeof masteriyo_helper !== 'undefined') {
-				masteriyo_helper.unlockScrolling();
-			}
+			masteriyo_helper.unlockScrolling();
 		},
 
 		isFiltersSidebarOpen: function () {
@@ -53,17 +106,13 @@
 
 		toggleFiltersSidebar: function () {
 			if (this.isFiltersSidebarOpen()) {
-				// this.closeFiltersSidebar();
+				this.closeFiltersSidebar();
 			} else {
 				this.openFiltersSidebar();
 			}
 		},
 	};
 
-	/**
-	 * MasteriyoCourses namespace.
-	 * @type {Object}
-	 */
 	var MasteriyoCourses = {
 		/**
 		 * The current view mode of the courses.
@@ -97,7 +146,6 @@
 
 			$(document).ready(function () {
 				MasteriyoCourses.init_password_projected_form_handler();
-				MasteriyoCourses.init_course_filters();
 			});
 
 			$(document).ready(function () {
@@ -154,7 +202,6 @@
 
 			this.currentViewMode = mode;
 		},
-
 		/**
 		 * Initializes the password-protected form handler.
 		 *
@@ -184,8 +231,13 @@
 
 				var password = $('#masteriyoPostPassword').val();
 				if (!password) {
-					if (mto_data.labels && mto_data.labels.password_not_empty) {
-						$('#passwordError').text(mto_data.labels.password_not_empty).show();
+					if (
+						_MASTERIYO_COURSES_.labels &&
+						_MASTERIYO_COURSES_.labels.password_not_empty
+					) {
+						$('#passwordError')
+							.text(_MASTERIYO_COURSES_.labels.password_not_empty)
+							.show();
 
 						submitBtnText = originalSubmitBtnText;
 						$submitBtn.text(submitBtnText);
@@ -198,11 +250,11 @@
 					dataType: 'json',
 					data: {
 						action: 'masteriyo_course_password_protection',
-						nonce: mto_data.password_protected_nonce,
+						nonce: _MASTERIYO_COURSES_.password_protected_nonce,
 						password,
 						course_id: protectedCourseId,
 					},
-					url: mto_data.ajaxURL,
+					url: _MASTERIYO_COURSES_.ajaxURL,
 					success: function (response) {
 						submitBtnText = originalSubmitBtnText;
 						$submitBtn.text(submitBtnText);
@@ -280,58 +332,8 @@
 				}
 			});
 		},
-
-		/**
-		 * Initialize course filters.
-		 *
-		 * @since 1.16.0
-		 */
-		init_course_filters: function () {
-			$(document.body).on(
-				'click',
-				'.masteriyo-toggle-course-filters-sidebar',
-				function () {
-					filtersSidebar.toggleFiltersSidebar();
-				},
-			);
-
-			$(document.body).on(
-				'click',
-				'.masteriyo-close-filters-sidebar, .masteriyo-course-filter-sidebar-overlay',
-				function () {
-					filtersSidebar.closeFiltersSidebar();
-				},
-			);
-
-			$(window).on('resize', function () {
-				if ($(this).height() <= 768) {
-					filtersSidebar.closeFiltersSidebar();
-				}
-			});
-
-			$(document.body).on(
-				'click',
-				'.masteriyo-see-more-categories',
-				function (e) {
-					e.preventDefault();
-					$(this).addClass('masteriyo-hidden');
-					$('.masteriyo-overflowed-category').removeClass('masteriyo-hidden');
-					$('.masteriyo-see-less-categories').removeClass('masteriyo-hidden');
-				},
-			);
-
-			$(document.body).on(
-				'click',
-				'.masteriyo-see-less-categories',
-				function (e) {
-					e.preventDefault();
-					$(this).addClass('masteriyo-hidden');
-					$('.masteriyo-overflowed-category').addClass('masteriyo-hidden');
-					$('.masteriyo-see-more-categories').removeClass('masteriyo-hidden');
-				},
-			);
-		},
 	};
+
 	/**
 	 * Return WordPress spinner.
 	 *
@@ -358,9 +360,11 @@
 	var filtersAndSorting = {
 		currentPage: 0,
 		refreshCallsCount: 0,
+		requestSeq: 0,
 
 		refreshCourses: function () {
 			filtersAndSorting.refreshCallsCount++;
+			var requestId = ++filtersAndSorting.requestSeq;
 
 			var data = {
 				action: 'masteriyo_course_filter_and_sorting',
@@ -402,7 +406,7 @@
 
 			$.ajax({
 				type: 'POST',
-				url: masteriyo_data.ajaxURL,
+				url: _MASTERIYO_COURSES_.ajaxURL,
 				dataType: 'json',
 				data: data,
 				beforeSend: function (jqXHR) {
@@ -414,7 +418,7 @@
 					var data = response.data;
 
 					if (
-						filtersAndSorting.refreshCallsCount <= 1 &&
+						requestId === filtersAndSorting.requestSeq &&
 						data &&
 						data.fragments
 					) {
@@ -448,6 +452,7 @@
 	var masteriyo = {
 		init: function () {
 			$(document).ready(function () {
+				masteriyo.init_featured_video_modals();
 				masteriyo.init_course_search();
 				masteriyo.init_course_filters();
 				masteriyo.init_course_sorting();
@@ -460,11 +465,8 @@
 		init_course_progress_chart: function () {
 			$(document.body).on('click', '.progress-icon', function (e) {
 				e.preventDefault();
-				e.stopPropagation();
-
 				var $host = $(this).closest('.completed-component');
 				if (!$host.length) return;
-
 				var $existing = $host.find('.course-progress-popover');
 				if ($existing.length) {
 					$existing.remove();
@@ -642,6 +644,74 @@
 				},
 			);
 		},
+		init_featured_video_modals: function () {
+			// Open modal.
+			$(document.body).on(
+				'click',
+				'.masteriyo-play-featured-video-btn',
+				function (e) {
+					e.preventDefault();
+
+					var $modal = $(this)
+						.closest('.masteriyo-col')
+						.find('.masteriyo-featured-video-modal');
+					var $player = $modal.find('video').length
+						? $modal.find('video')
+						: $modal.find('iframe');
+
+					if (!$player.attr('src')) {
+						$player.attr('src', $player.data('src'));
+					}
+
+					$modal.fadeIn();
+					document.body.style.overflow = 'hidden';
+				},
+			);
+
+			// Close modal.
+			$(document.body).on(
+				'click',
+				'.masteriyo-featured-video-modal',
+				function (e) {
+					if ($(e.target).hasClass('masteriyo-overlay')) {
+						$(e.target).fadeOut();
+						masteriyo_helper.stop_all_videos(e.target);
+						document.body.style.overflow = '';
+					}
+				},
+			);
+		},
+
+		updateSearchUrl: function (term, replace) {
+			if (!window.history || !window.history.pushState) {
+				return;
+			}
+
+			var url = new URL(window.location.href);
+
+			if (term) {
+				url.searchParams.set('course_search', term);
+			} else {
+				url.searchParams.delete('course_search');
+			}
+
+			if (url.toString() === window.location.href) {
+				return;
+			}
+
+			window.history[replace ? 'replaceState' : 'pushState'](
+				null,
+				'',
+				url.toString(),
+			);
+		},
+
+		applySearchFromUrl: function () {
+			var term = new URL(window.location.href).searchParams.get('course_search') || '';
+			$('.search-field.masteriyo-input').val(term);
+			return term;
+		},
+
 		init_course_search: function () {
 			$(document.body).on(
 				'submit',
@@ -649,9 +719,25 @@
 				function (e) {
 					e.preventDefault();
 					filtersAndSorting.currentPage = 0;
+					masteriyo.updateSearchUrl($('.search-field.masteriyo-input').val());
 					filtersAndSorting.refreshCourses();
 				},
 			);
+
+			if (!$('form.masteriyo-course-search').length) {
+				return;
+			}
+
+			$(window).on('popstate', function () {
+				masteriyo.applySearchFromUrl();
+				filtersAndSorting.currentPage = 0;
+				filtersAndSorting.refreshCourses();
+			});
+
+			if (masteriyo.applySearchFromUrl()) {
+				filtersAndSorting.currentPage = 0;
+				filtersAndSorting.refreshCourses();
+			}
 		},
 
 		init_course_filters: function () {
@@ -713,6 +799,7 @@
 
 				$('.masteriyo-rating-filter-link').removeClass('active');
 				$('.search-field.masteriyo-input').val('');
+				masteriyo.updateSearchUrl('', true);
 				$('.masteriyo-courses-filters select[name="price-type"]').val('');
 
 				const minVal = $('.range-min').attr('min') || 0;
@@ -769,6 +856,7 @@
 				'select.masteriyo-courses-order-by',
 				function () {
 					var order = $(this).find('option:selected').data('order');
+
 					$('input.masteriyo-courses-sorting-order').val(order);
 					filtersAndSorting.currentPage = 0;
 					filtersAndSorting.refreshCourses();
@@ -881,11 +969,8 @@
 		},
 	};
 
-	/**
-	 * Initialization.
-	 */
-	MasteriyoCourses.init();
 	masteriyo.init();
+	MasteriyoCourses.init();
 
 	/**
 	 * Helper function to set a cookie.

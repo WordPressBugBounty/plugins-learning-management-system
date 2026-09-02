@@ -2,7 +2,7 @@
 /**
  * Price Zones Controller Class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency
  */
@@ -53,7 +53,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var Masteriyo\Helper\Permission;
 	 */
@@ -62,7 +62,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Permission $permission
 	 */
@@ -73,7 +73,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return void
 	 */
@@ -218,7 +218,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Check if a given request has access to get an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -252,7 +252,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -285,7 +285,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -332,7 +332,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Check if a given request has access to delete item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_Error|boolean
@@ -378,7 +378,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Check if a given request has access to delete multiple items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_Error|boolean
@@ -410,7 +410,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Get the query params for collections of price zones.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -432,7 +432,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Get object.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int|\Masteriyo\Addons\MultipleCurrency\Models\PriceZone|\WP_Post $object Object ID or Model or WP_Post object.
 	 *
@@ -460,7 +460,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Prepares the object for the REST response.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  \Masteriyo\Database\Model $object  Model object.
 	 * @param  \WP_REST_Request $request Request object.
@@ -481,7 +481,7 @@ class PriceZonesController extends PostsController {
 		 * The dynamic portion of the hook name, $this->object_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param Masteriyo\Database\Model $object   Object data.
@@ -493,7 +493,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $objects Price Zones data.
 	 * @param array $query_args Query arguments.
@@ -517,7 +517,7 @@ class PriceZonesController extends PostsController {
 	/**
 		 * Get price zones count by status.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @return Array
 		 */
@@ -530,7 +530,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Get price zone data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $price_zone Price zone instance.
 	 * @param string $context Request context. Options: 'view' and 'edit'.
@@ -579,7 +579,7 @@ class PriceZonesController extends PostsController {
 		/**
 		 * Filter Price zone rest response data.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $data Price zone data.
 		 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $price_zone Price zone object.
@@ -594,7 +594,7 @@ class PriceZonesController extends PostsController {
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @return array
 	 */
 	protected function prepare_objects_query( $request ) {
@@ -614,7 +614,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Get the price zones'schema, conforming to JSON Schema.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -716,7 +716,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Prepare a single price zone for create or update.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
@@ -734,16 +734,35 @@ class PriceZonesController extends PostsController {
 			$price_zone_repo->read( $price_zone );
 		}
 
-		$count_posts = wp_count_posts( PostType::PRICE_ZONE );
+		/**
+		 * Filters how many pricing zones may be active at once.
+		 *
+		 * This is the only thing that enforces the limit — neither product has a
+		 * UI counterpart, so the editor lets an admin try and this is what
+		 * refuses. It sits in `prepare_object_for_database()` because that is the
+		 * single funnel `CrudController::save_object()` puts both creates and
+		 * updates through, so one gate covers activating a new zone and
+		 * activating an existing inactive one.
+		 *
+		 * The messages below name free's default rather than interpolating
+		 * `$limit`: they are static msgids already in the shipped translation
+		 * catalogue, and the only answer that is not the default is pro's, which
+		 * disables the gate so neither message can render.
+		 *
+		 * @param int $limit How many pricing zones may be active at once; 0 means no limit.
+		 */
+		$limit = absint( apply_filters( 'masteriyo_multiple_currency_active_price_zones_limit', 2 ) );
 
-		$status = get_post_status( $id );
+		if ( $limit > 0 && PriceZoneStatus::ACTIVE !== get_post_status( $id ) ) {
+			$count_posts  = wp_count_posts( PostType::PRICE_ZONE );
+			$active_count = isset( $count_posts->active ) ? absint( $count_posts->active ) : 0;
+			$going_active = isset( $request['status'] ) && PriceZoneStatus::ACTIVE === $request['status'];
 
-		if ( PriceZoneStatus::ACTIVE !== $status ) {
-			if ( ! $id && isset( $count_posts->active ) && 2 <= $count_posts->active && isset( $request['status'] ) && PriceZoneStatus::ACTIVE === $request['status'] ) {
-				return new \WP_Error( "masteriyo_rest_{$this->post_type}_upgrade_required", __( 'You cannot create more than two active pricing zones in the free version. Please upgrade to Pro.', 'learning-management-system' ), array( 'status' => 400 ) );
-			}
+			if ( $going_active && $limit <= $active_count ) {
+				if ( ! $id ) {
+					return new \WP_Error( "masteriyo_rest_{$this->post_type}_upgrade_required", __( 'You cannot create more than two active pricing zones in the free version. Please upgrade to Pro.', 'learning-management-system' ), array( 'status' => 400 ) );
+				}
 
-			if ( $id && isset( $request['status'] ) && PriceZoneStatus::ACTIVE === $request['status'] && isset( $count_posts->active ) && 2 <= $count_posts->active ) {
 				return new \WP_Error( "masteriyo_rest_{$this->post_type}_upgrade_required", __( 'You cannot have more than two active pricing zones in the free version. Please upgrade to Pro.', 'learning-management-system' ), array( 'status' => 400 ) );
 			}
 		}
@@ -870,7 +889,7 @@ class PriceZonesController extends PostsController {
 		 * The dynamic portion of the hook name, `$this->object_type`,
 		 * refers to the object type slug.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $price_zone Price zone object.
 		 * @param \WP_REST_Request $request  Request object.
@@ -882,7 +901,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Delete multiple items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -915,7 +934,7 @@ class PriceZonesController extends PostsController {
 		/**
 		 * Fires after a multiple objects is deleted or trashed via the REST API.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $deleted_objects Objects collection which are deleted.
 		 * @param array $objects Objects which are supposed to be deleted.
@@ -929,7 +948,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Restore price zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -957,7 +976,7 @@ class PriceZonesController extends PostsController {
 	/**
 	 * Restore price zones.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *

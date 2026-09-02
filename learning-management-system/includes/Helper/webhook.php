@@ -258,10 +258,10 @@ function masteriyo_send_webhook( $event_name, $webhook, $payload ) {
 	$delivery_url = trim( $webhook['delivery_url'] ?? '' );
 
 	if ( empty( $delivery_url ) ) {
-		throw new Exception( __( 'Delivery URL not specified', 'learning-management-system' ) );
+		throw new Exception( esc_html__( 'Delivery URL not specified', 'learning-management-system' ) );
 	}
 	if ( ! wp_http_validate_url( $delivery_url ) ) {
-		throw new Exception( __( 'Invalid Delivery URL', 'learning-management-system' ) );
+		throw new Exception( esc_html__( 'Invalid Delivery URL', 'learning-management-system' ) );
 	}
 
 	$response = wp_safe_remote_request( $delivery_url, $http_args );
@@ -299,6 +299,6 @@ function masteriyo_send_webhook( $event_name, $webhook, $payload ) {
 		$error_message = $response->get_error_message();
 		$error_code    = (int) $response->get_error_code();
 
-		throw new Exception( $error_message, $error_code );
+		throw new Exception( esc_html( $error_message ), (int) $error_code );
 	}
 }

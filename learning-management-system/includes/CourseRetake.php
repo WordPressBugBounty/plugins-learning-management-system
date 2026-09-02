@@ -8,6 +8,7 @@
 namespace Masteriyo;
 
 use Masteriyo\Enums\UserCourseStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Query\UserCourseQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,7 +41,7 @@ class CourseRetake {
 			return;
 		}
 
-		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key(wp_unslash($_GET['nonce'])), 'masteriyo_course_retake' ) ) {
+		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_course_retake' ) ) {
 			wp_die( esc_html__( 'Invalid or missing nonce!', 'learning-management-system' ), esc_html__( 'Retake Course', 'learning-management-system' ) );
 		}
 
@@ -119,10 +120,14 @@ class CourseRetake {
 				)
 			);
 
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			masteriyo_delete_user_course_assignment_submissions( $course->get_id(), get_current_user_id() );
+			masteriyo_delete_user_course_gradebooks( $course->get_id(), get_current_user_id() );
+
+			$user_course->set_date_modified( current_time( 'mysql', true ) );
 			$user_course->save();
 
 			wp_safe_redirect( $course->start_course_url(), 302, 'learning-management-system' );
+			exit;
 		} else {
 			wp_die( esc_html__( 'You cannot retake this course!', 'learning-management-system' ), esc_html__( 'Retake Course', 'learning-management-system' ) );
 		}

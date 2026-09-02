@@ -12,15 +12,12 @@ defined( 'ABSPATH' ) || exit;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Masteriyo\Addons\MigrationTool\Controllers\LMSMigrationController;
+use Masteriyo\Addons\MigrationTool\Controllers\MigrationNoticeController;
+use Masteriyo\Addons\MigrationTool\Helper;
 use Masteriyo\Addons\MigrationTool\Jobs\MigrationProcessJob;
 use Masteriyo\Addons\MigrationTool\MigrationSession;
 use Masteriyo\Addons\MigrationTool\MigrationToolAddon;
 use Masteriyo\Addons\MigrationTool\MigratorRegistry;
-use Masteriyo\Addons\MigrationTool\Migrators\LearnDashMigrator;
-use Masteriyo\Addons\MigrationTool\Migrators\LearnPressMigrator;
-use Masteriyo\Addons\MigrationTool\Migrators\LifterLMSMigrator;
-use Masteriyo\Addons\MigrationTool\Migrators\MasterStudyMigrator;
-use Masteriyo\Addons\MigrationTool\Migrators\TutorLMSMigrator;
 
 /**
  * Migration Tool service provider.
@@ -43,6 +40,7 @@ class MigrationToolServiceProvider extends AbstractServiceProvider implements Bo
 			array(
 				'migration-tool.registry',
 				'migration-tool.rest',
+				'migration-tool.notice.rest',
 				'addons.migration-tool',
 				'migration.process_job',
 				'migration.session',
@@ -62,19 +60,20 @@ class MigrationToolServiceProvider extends AbstractServiceProvider implements Bo
 			function () {
 				$registry = new MigratorRegistry();
 
-				$registry->register( new TutorLMSMigrator() );
-				$registry->register( new LearnDashMigrator() );
-				$registry->register( new LearnPressMigrator() );
-				$registry->register( new LifterLMSMigrator() );
-				$registry->register( new MasterStudyMigrator() );
+				/*
+				 * One inventory, shared with detection. Listing the built-in
+				 * migrators here as well would let the two drift, and a migrator
+				 * that can migrate but is never detected auto-activates nothing.
+				 */
+				foreach ( Helper::source_migrators() as $migrator_class ) {
+					$registry->register( new $migrator_class() );
+				}
 
 				/**
 				 * Filter to register additional LMS migrators.
 				 *
 				 * Adding a new LMS requires only a new class implementing MigratorInterface
 				 * and one line here (or hooked into this filter from an addon).
-				 *
-				 * @since x.x.x
 				 *
 				 * @param MigratorRegistry $registry
 				 */
@@ -85,6 +84,8 @@ class MigrationToolServiceProvider extends AbstractServiceProvider implements Bo
 		$this->getContainer()->add( 'migration-tool.rest', LMSMigrationController::class )
 			->addArgument( 'permission' )
 			->addArgument( 'migration-tool.registry' );
+
+		$this->getContainer()->add( 'migration-tool.notice.rest', MigrationNoticeController::class );
 
 		$this->getContainer()->addShared( 'addons.migration-tool', MigrationToolAddon::class );
 
@@ -98,8 +99,6 @@ class MigrationToolServiceProvider extends AbstractServiceProvider implements Bo
 	 * Called during Container::addServiceProvider() — before masteriyo() is available.
 	 * We instantiate MigrationProcessJob directly so its add_action() call lands
 	 * immediately; handle() itself resolves the container lazily at runtime.
-	 *
-	 * @since x.x.x
 	 */
 	public function boot(): void {
 		( new MigrationProcessJob() )->register();

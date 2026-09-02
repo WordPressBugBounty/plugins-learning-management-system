@@ -30,6 +30,7 @@ interface Props {
 
 const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 	const {
+		register,
 		control,
 		setValue,
 		formState: { errors },
@@ -52,12 +53,12 @@ const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 		return countriesQuery.isSuccess
 			? countriesQuery.data?.map((country: CountriesSchema) => {
 					return {
-						value: country?.code,
-						label: country?.name,
+						value: country.code,
+						label: country.name,
 					};
 				})
 			: [];
-	}, [countriesQuery.isSuccess, countriesQuery?.data]);
+	}, [countriesQuery.isSuccess, countriesQuery.data]);
 
 	useEffect(() => {
 		if (defaultValue) {
@@ -97,7 +98,7 @@ const Countries: React.FC<Props> = ({ defaultValue, prizeZoneID }) => {
 						render={({ field: { onChange, value } }) => (
 							<AsyncSelect
 								loadingMessage={() =>
-									__('Searching...', 'learning-management-system')
+									__('Searching…', 'learning-management-system')
 								}
 								onChange={(selectedOption: any) => {
 									const selectedValues = selectedOption?.map(

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Commerce
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_REVENUE_SHARING_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_REVENUE_SHARING_ADDON_BASENAME', plugin_basename( __FILE__ ) );

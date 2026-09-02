@@ -11,6 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -252,7 +253,6 @@ class CourseStatsWidget extends SingleCourseWidgetBase {
 			$this->render_no_course_notice();
 			return;
 		}
-
 		$this->render_buffered_or_notice(
 			function () use ( $course ) {
 				masteriyo_single_course_stats( $course );

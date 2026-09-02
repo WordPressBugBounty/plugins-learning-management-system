@@ -2,7 +2,7 @@
 /**
  * Beaver integration service provider.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 namespace Masteriyo\Addons\BeaverIntegration\Providers;
@@ -15,23 +15,9 @@ use Masteriyo\Addons\BeaverIntegration\BeaverIntegrationAddon;
 /**
  * Beaver integration  service provider.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 class BeaverIntegrationServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.10.0
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'addons.beaver-integration', BeaverIntegrationAddon::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -41,7 +27,7 @@ class BeaverIntegrationServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -55,5 +41,17 @@ class BeaverIntegrationServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.10.0 [Free]
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons.beaver-integration', BeaverIntegrationAddon::class );
 	}
 }

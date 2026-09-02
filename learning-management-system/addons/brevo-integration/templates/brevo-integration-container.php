@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The Template for displaying brevo consent checkbox in sing-up page.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 
 if ( is_user_logged_in() ) {

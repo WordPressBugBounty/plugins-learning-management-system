@@ -81,15 +81,15 @@ const Scorm: React.FC<Props> = (props) => {
 
 	return (
 		<Center>
+			{/*
+			 * Secondary to the Add New Section button it sits beside — the
+			 * builder's neutral `surface` treatment, at that button's size.
+			 */}
 			<Button
-				bg="brandBlueAlpha10"
-				borderRadius="base"
-				variant="outline"
-				colorScheme="primary"
+				variant="surface"
+				fontSize="sm"
 				onClick={() => onOpen()}
-				leftIcon={<BiImport size="14" />}
-				border="none"
-				_hover={{ borderWidth: 1, textDecoration: 'underline' }}
+				leftIcon={<Icon as={BiImport} fontSize="xl" />}
 			>
 				{__('Import SCORM', 'learning-management-system')}
 			</Button>
@@ -106,7 +106,7 @@ const Scorm: React.FC<Props> = (props) => {
 							<Flex direction="column" align="center" justify="center" p={6}>
 								<Spinner size="xl" />
 								<Text mt={4} fontWeight="bold">
-									{__('Uploading...', 'learning-management-system')}
+									{__('Uploading…', 'learning-management-system')}
 								</Text>
 							</Flex>
 						) : (

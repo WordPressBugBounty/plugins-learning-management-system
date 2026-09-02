@@ -3,7 +3,6 @@
  * Get Course Q&A ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Returns the entry including content, author, status, and parent (if it is
  * an answer rather than a top-level question).
  * Requires the `read_course_qas` capability.
- *
- * @since x.x.x
  */
 class GetCourseQAAbility extends RestProxyAbility {
 

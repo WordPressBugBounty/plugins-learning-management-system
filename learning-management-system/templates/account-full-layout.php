@@ -5,13 +5,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Account full page layout.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 
- /**
+/**
  * Fires before rendering account page template.
  *
- * @since 1.13.3
+ * @since 2.14.4
  */
 do_action( 'masteriyo_before_account' );
 ?>
@@ -35,6 +35,6 @@ do_action( 'masteriyo_before_account' );
 /**
  * Fires after rendering account page template.
  *
- * @since 1.13.3
+ * @since 2.14.4
  */
 do_action( 'masteriyo_after_account' );

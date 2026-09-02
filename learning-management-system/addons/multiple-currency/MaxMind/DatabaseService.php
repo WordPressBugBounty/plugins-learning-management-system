@@ -2,7 +2,7 @@
 /**
  * The MaxMind database service.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency\MaxMind
  */
@@ -17,28 +17,28 @@ defined( 'ABSPATH' ) || exit;
 /**
  * DatabaseService class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class DatabaseService {
 
 	/**
 	 * The name of the MaxMind database to utilize.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	const DATABASE = 'GeoLite2-Country';
 
 	/**
 	 * The extension for the MaxMind database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	const DATABASE_EXTENSION = '.mmdb';
 
 	/**
 	 * Fetches the path that the database should be stored.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string The local database path.
 	 */
@@ -55,7 +55,7 @@ class DatabaseService {
 		/**
 		 * Filter the geolocation database storage path.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 	 *
 		 * @param string $database_path The path to the database.
 		 */
@@ -65,7 +65,7 @@ class DatabaseService {
 	/**
 	 * Fetches the prefix for the MaxMind database file.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -78,7 +78,7 @@ class DatabaseService {
 	/**
 	 * Fetches the database from the MaxMind service.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $license_key The license key to be used when downloading the database.
 	 *
@@ -143,7 +143,7 @@ class DatabaseService {
 	/**
 	 * Fetches the ISO country code associated with an IP address.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $ip_address The IP address to find the country code for.
 	 * @return string The country code for the IP address, or empty if not found.

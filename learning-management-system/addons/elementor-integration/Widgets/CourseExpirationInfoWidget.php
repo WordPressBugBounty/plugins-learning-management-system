@@ -3,8 +3,6 @@
  * Masteriyo course expiration info elementor widget class.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -18,15 +16,11 @@ defined( 'ABSPATH' ) || exit;
  * Masteriyo course expiration info elementor widget class.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -37,8 +31,6 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_title() {
@@ -47,8 +39,6 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget icon.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string Widget icon.
 	 */
@@ -59,8 +49,6 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget keywords.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string[]
 	 */
 	public function get_keywords() {
@@ -69,22 +57,16 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Register controls configuring widget content.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_content_controls() {}
 
 	/**
 	 * Register controls for customizing widget styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_style_controls() {}
 
 	/**
 	 * Render widget output in the editor.
-	 *
-	 * @since x.x.x
 	 */
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
@@ -99,8 +81,6 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Render the widget output on the frontend.
-	 *
-	 * @since x.x.x
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();
@@ -115,8 +95,6 @@ class CourseExpirationInfoWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Render the course expiration info, with an editor notice when it has nothing to show.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Models\Course $course
 	 */

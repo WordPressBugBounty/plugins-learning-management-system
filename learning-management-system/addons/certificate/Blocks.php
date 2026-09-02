@@ -2,7 +2,7 @@
 /**
  * Blocks class.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate;
@@ -13,7 +13,7 @@ class Blocks {
 	/**
 	 * Init.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -22,7 +22,7 @@ class Blocks {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	private function init_hooks() {
 		add_action( 'init', array( $this, 'register_blocks' ) );
@@ -31,7 +31,7 @@ class Blocks {
 	/**
 	 * Register all the blocks.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function register_blocks() {
 		register_block_type(
@@ -154,5 +154,15 @@ class Blocks {
 				'editor_style'  => 'masteriyo-public',
 			)
 		);
+
+		/**
+		 * Fires after the shared certificate blocks are registered.
+		 *
+		 * The blocks that ship only with pro register here. Their builders live
+		 * in pro's own namespace, which pro appends to
+		 * `masteriyo_certificate_block_builder_namespaces`, so a block registered
+		 * from here renders in the PDF as well as in the editor.
+		 */
+		do_action( 'masteriyo_certificate_register_blocks' );
 	}
 }

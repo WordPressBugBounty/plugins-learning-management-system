@@ -8,10 +8,10 @@
 
 namespace Masteriyo\FormHandler;
 
-use Masteriyo\Addons\UserRegistrationIntegration\Helper;
-use Masteriyo\Enums\UserStatus;
 use Masteriyo\Notice;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\Enums\UserStatus;
+use Masteriyo\Addons\UserRegistrationIntegration\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,6 +29,46 @@ class InstructorRegistrationFormHandler {
 	 */
 	public function __construct() {
 		add_action( 'template_redirect', array( $this, 'process' ), 20 );
+		add_action( 'template_redirect', array( $this, 'process_apply' ), 20 );
+	}
+
+	/**
+	 * Handle the apply-for-instructor form for logged-in users (issue #570).
+	 */
+	public function process_apply() {
+		if ( ! isset( $_POST['masteriyo-apply-for-instructor'] ) || ! is_user_logged_in() ) {
+			return;
+		}
+
+		$nonce_value = isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $nonce_value, 'masteriyo-apply-for-instructor' ) ) {
+			masteriyo_add_notice( __( 'Your session has expired. Please refresh the page and try again.', 'learning-management-system' ), Notice::ERROR );
+			return;
+		}
+
+		// Dispatch to the existing REST route so both paths share one rule set.
+		$request = new \WP_REST_Request( 'POST', '/masteriyo/v1/users/account/apply-for-instructor' );
+		$request->set_param( 'user_id', get_current_user_id() );
+
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			masteriyo_add_notice( $response->as_error()->get_error_message(), Notice::ERROR );
+		} else {
+			masteriyo_add_notice( __( 'Your instructor application has been submitted for review.', 'learning-management-system' ) );
+		}
+
+		// PRG: a refresh must not resubmit the application. The notice lives in the
+		// session, which is only read back when the session cookie exists — set it
+		// and persist before redirecting (same as the guest-to-login transition).
+		/** @var \Masteriyo\Session\Session $session */
+		$session = masteriyo( 'session' );
+		$session->set_user_session_cookie( true );
+		$session->save_data();
+
+		wp_safe_redirect( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
+		exit;
 	}
 
 	/**
@@ -52,7 +92,7 @@ class InstructorRegistrationFormHandler {
 
 			$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-			if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-instructor-registration' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-instructor-registration' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
@@ -85,7 +125,7 @@ class InstructorRegistrationFormHandler {
 		$session = masteriyo( 'session' );
 
 		foreach ( $data as $key => $value ) {
-			$session->put( "user-registration.{$key}", $value );
+			$session->put( "instructor-registration.{$key}", $value );
 		}
 	}
 
@@ -125,14 +165,16 @@ class InstructorRegistrationFormHandler {
 		}
 		$user->save();
 
+		if ( masteriyo_show_gdpr_msg() && ! empty( $data['gdpr'] ) ) {
+			masteriyo_record_gdpr_consent( $user->get_id(), 'instructor-registration' );
+		}
+
 		if ( masteriyo_registration_is_generate_password() ) {
 			masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
-		} else {
-			if ( masteriyo_is_email_verification_enabled() ) {
+		} elseif ( masteriyo_is_email_verification_enabled() ) {
 				masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
-			} else {
-				masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
-			}
+		} else {
+			masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
 		}
 
 		$this->redirect( $user );
@@ -255,11 +297,11 @@ class InstructorRegistrationFormHandler {
 	protected function get_form_data() {
 		$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-		if ( empty( sanitize_key( wp_unslash($nonce_value)) ) ) {
-			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
+		if ( empty( $nonce_value ) ) {
+			throw new \Exception( esc_html__( 'Nonce is missing.', 'learning-management-system' ) );
 		}
-		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-instructor-registration' ) ) {
-			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
+		if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-instructor-registration' ) ) {
+			throw new \Exception( esc_html__( 'Invalid nonce', 'learning-management-system' ) );
 		}
 
 		$data   = array();

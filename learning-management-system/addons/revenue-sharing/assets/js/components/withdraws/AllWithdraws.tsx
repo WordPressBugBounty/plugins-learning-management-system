@@ -158,7 +158,17 @@ const AllWithdraws: React.FC = () => {
 								{withdrawsQuery.isLoading || !withdrawsQuery.isFetched ? (
 									<SkeletonWithdrawsList />
 								) : withdrawsQuery.isSuccess &&
-								  !isEmpty(withdrawsQuery?.data?.data) ? (
+								  isEmpty(withdrawsQuery?.data?.data) ? (
+									<EmptyInfo
+										title={__('No Withdraws Yet', 'learning-management-system')}
+										isResultFiltered={Boolean(
+											filterParams?.after ||
+											filterParams?.before ||
+											filterParams?.instructor ||
+											filterParams?.status !== 'any',
+										)}
+									/>
+								) : (
 									<>
 										<Thead>
 											<Tr>
@@ -195,7 +205,7 @@ const AllWithdraws: React.FC = () => {
 											</Tr>
 										</Thead>
 										<Tbody>
-											{withdrawsQuery.data.data.map((withdraw: any) => (
+											{withdrawsQuery?.data?.data.map((withdraw: any) => (
 												<WithdrawRow
 													key={withdraw?.id}
 													data={withdraw}
@@ -204,16 +214,6 @@ const AllWithdraws: React.FC = () => {
 											))}
 										</Tbody>
 									</>
-								) : (
-									<EmptyInfo
-										title={__('No Withdraws Yet', 'learning-management-system')}
-										isResultFiltered={Boolean(
-											filterParams?.after ||
-												filterParams?.before ||
-												filterParams?.instructor ||
-												filterParams?.status !== 'any',
-										)}
-									/>
 								)}
 							</Table>
 						</Stack>

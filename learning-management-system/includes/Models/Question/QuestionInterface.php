@@ -35,4 +35,13 @@ interface QuestionInterface {
 	 * @return mixed
 	 */
 	public function get_correct_answers();
+
+	/**
+	 * Return true if the answer should be manually reviewed and manually assigned points.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return boolean
+	 */
+	public function is_reviewable();
 }

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Addons\DiviIntegration\Helper;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_DIVI_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_DIVI_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
@@ -29,7 +29,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_DIVI_INTEGRATION_SLUG ) && ! Helper:
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'Divi Integration addon requires Divi theme to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

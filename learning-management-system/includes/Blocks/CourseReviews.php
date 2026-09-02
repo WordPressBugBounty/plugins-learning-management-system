@@ -88,11 +88,11 @@ class CourseReviews extends BlockHandler {
 		if ( $course && $course->is_review_allowed() ) {
 			$reviews_and_replies = masteriyo_get_course_reviews_and_replies( $course );
 
-				printf(
-					'<div class="masteriyo-block masteriyo-course-reviews-block--%s" data-id="%s">',
-					esc_attr( $client_id ),
-					esc_attr( $course_id )
-				);
+			printf(
+				'<div class="masteriyo-block masteriyo-course-reviews-block--%s" data-id="%s">',
+				esc_attr( $client_id ),
+				esc_attr( $course_id )
+			);
 
 			masteriyo_get_template(
 				'single-course/reviews.php',

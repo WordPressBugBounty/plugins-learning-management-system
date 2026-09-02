@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\BrevoIntegration
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 
 namespace Masteriyo\Addons\BrevoIntegration;
@@ -18,14 +18,14 @@ use Masteriyo\EmailMarketingAndCRM\IntegrationSettings;
 /**
  * Brevo integration settings class.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 class BrevoIntegrationSettings extends IntegrationSettings {
 
 	/**
 	 * The settings data.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var array
 	 */
@@ -40,7 +40,7 @@ class BrevoIntegrationSettings extends IntegrationSettings {
 	/**
 	 * Get the option name for the settings.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return string
 	 */
@@ -51,7 +51,7 @@ class BrevoIntegrationSettings extends IntegrationSettings {
 	/**
 	 * Get the Brevo API key.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return string The Brevo API key.
 	 */

@@ -3,7 +3,6 @@
  * Delete Course Review ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseReview
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseReview;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Course reviews have no trash state — this operation is always permanent.
  * Requires the `edit_course_reviews` capability.
- *
- * @since x.x.x
  */
 class DeleteCourseReviewAbility extends RestProxyAbility {
 

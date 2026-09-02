@@ -33,6 +33,7 @@ import {
 } from '../../../../../assets/js/back-end/config/styles';
 import { ProCrownFilledIcon } from '../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../assets/js/back-end/utils/api';
+import { isLicensePlanActive } from '../../../../../assets/js/back-end/utils/utils';
 import templates from '../../templates.json';
 import { certificateBackendRoutes } from '../utils/routes';
 import { certificateAddonUrls } from '../utils/urls';
@@ -126,7 +127,6 @@ function styleToString(style: Record<string, unknown>): string {
 		.join(';');
 }
 
-
 function resolveAssetUrl(src: string): string {
 	if (!src) return src;
 	const assetsBase: string =
@@ -135,7 +135,6 @@ function resolveAssetUrl(src: string): string {
 		.replace(/__MASTERIYO_TPL_ASSETS_BASE__/g, `${assetsBase}templates`)
 		.replace(/__MASTERIYO_SEAL__/g, `${assetsBase}teal-medallion-seal.webp`);
 }
-
 
 function globalFontStyle(gs: Record<string, any> = {}): string {
 	const parts: string[] = ['line-height:1.4', 'letter-spacing:0px'];
@@ -149,7 +148,6 @@ function globalFontStyle(gs: Record<string, any> = {}): string {
 	if (gs.color) parts.push(`color:${gs.color}`);
 	return parts.join(';');
 }
-
 
 const GENERIC_FONT_KEYWORDS = new Set([
 	'inter',
@@ -165,7 +163,10 @@ const GENERIC_FONT_KEYWORDS = new Set([
 	'unset',
 ]);
 
-function collectFontFamilies(children: any[], acc: Set<string> = new Set()): Set<string> {
+function collectFontFamilies(
+	children: any[],
+	acc: Set<string> = new Set(),
+): Set<string> {
 	for (const el of children ?? []) {
 		const fams = [el?.style?.fontFamily, el?.props?.globalStyle?.fontFamily];
 		for (const f of fams) {
@@ -264,7 +265,10 @@ const CertificateTemplatePicker: React.FC<CertificateTemplatePickerProps> = ({
 				versionHistory: [],
 			})
 				.replace(/__MASTERIYO_TPL_ASSETS_BASE__/g, `${assetsBase}templates`)
-				.replace(/__MASTERIYO_SEAL__/g, `${assetsBase}teal-medallion-seal.webp`);
+				.replace(
+					/__MASTERIYO_SEAL__/g,
+					`${assetsBase}teal-medallion-seal.webp`,
+				);
 			navigate(
 				certificateBackendRoutes.certificate.edit.replace(
 					':certificateId',
@@ -385,50 +389,55 @@ const CertificateTemplatePicker: React.FC<CertificateTemplatePickerProps> = ({
 						</Flex>
 
 						{/* Template cards */}
-						{(templates as PDFDraftTemplate[]).map((tpl) => (
-							<Box
-								key={tpl.id}
-								position="relative"
-								shadow="box"
-								bg="white"
-								cursor={tpl.locked ? 'not-allowed' : 'pointer'}
-								tabIndex={0}
-								opacity={creatingId && creatingId !== tpl.id ? 0.5 : 1}
-								onClick={() => {
-									if (tpl.locked || creatingId) return;
-									setCreatingId(tpl.id);
-									createMutation.mutate(tpl);
-								}}
-							>
-								<TemplateThumb tpl={tpl} />
-								<Heading fontSize="md" p={2} textAlign="center">
-									{tpl.name}
-								</Heading>
-								{tpl.locked && (
-									<Button
-										position="absolute"
-										top={2}
-										right={2}
-										zIndex={1}
-										size="sm"
-										minW="fit-content"
-										borderRadius="5px"
-										colorScheme="green"
-										leftIcon={<ProCrownFilledIcon />}
-										boxShadow="sm"
-										onClick={(e) => {
-											e.stopPropagation();
-											window.open(
-												'https://masteriyo.com/upgrade/',
-												'_blank',
-											);
-										}}
-									>
-										{__('Pro', 'learning-management-system')}
-									</Button>
-								)}
-							</Box>
-						))}
+						{(templates as PDFDraftTemplate[]).map((tpl) => {
+							// `locked` is a property of the template, but being locked is a
+							// property of the *licence*. Free has no active plan, so it gets
+							// the upsell badge free 2.3.2 shipped; a licensed install gets
+							// every template, which is what it paid for.
+							const isLocked = Boolean(tpl.locked) && !isLicensePlanActive();
+
+							return (
+								<Box
+									key={tpl.id}
+									position="relative"
+									shadow="box"
+									bg="white"
+									cursor={isLocked ? 'not-allowed' : 'pointer'}
+									tabIndex={0}
+									opacity={creatingId && creatingId !== tpl.id ? 0.5 : 1}
+									onClick={() => {
+										if (isLocked || creatingId) return;
+										setCreatingId(tpl.id);
+										createMutation.mutate(tpl);
+									}}
+								>
+									{isLocked && (
+										<Button
+											position="absolute"
+											top={2}
+											right={2}
+											zIndex={1}
+											size="sm"
+											minW="fit-content"
+											borderRadius="5px"
+											colorScheme="green"
+											leftIcon={<ProCrownFilledIcon />}
+											boxShadow="sm"
+											onClick={(e) => {
+												e.stopPropagation();
+												window.open('https://masteriyo.com/upgrade/', '_blank');
+											}}
+										>
+											{__('Pro', 'learning-management-system')}
+										</Button>
+									)}
+									<TemplateThumb tpl={tpl} />
+									<Heading fontSize="md" p={2} textAlign="center">
+										{tpl.name}
+									</Heading>
+								</Box>
+							);
+						})}
 					</SimpleGrid>
 				</Stack>
 			</Container>

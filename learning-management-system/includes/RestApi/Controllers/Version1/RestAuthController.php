@@ -6,7 +6,7 @@
  *
  * @category API
  * @package Masteriyo\RestApi
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  */
 
 namespace Masteriyo\RestApi\Controllers\Version1;
@@ -45,7 +45,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Permission class instance.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @var Permission
 	 */
 	protected $permission;
@@ -55,7 +55,7 @@ class RestAuthController extends WP_REST_Controller {
 	 *
 	 * Sets up the utilities controller.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param Permission|null $permission The permission handler instance.
 	 */
 	public function __construct( ?Permission $permission = null ) {
@@ -65,7 +65,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public function register_routes() {
 
@@ -147,7 +147,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Checks if the current user has permissions to perform deletion.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param WP_REST_Request $request The request.
 	 * @return true|WP_Error True if the request has access, WP_Error object otherwise.
 	 */
@@ -172,7 +172,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Retrieves the authentication keys for all users.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @access public
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -221,7 +221,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Create an API key.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|WP_REST_Response
 	 */
@@ -240,8 +240,8 @@ class RestAuthController extends WP_REST_Controller {
 
 		$description = sanitize_textarea_field( $request->get_param( 'description' ) );
 
-		$api_key    = 'key_' . \bin2hex( \random_bytes( 16 ) );
-		$api_secret = 'secret_' . \bin2hex( \random_bytes( 32 ) );
+		$api_key    = 'key_' . bin2hex( random_bytes( 16 ) );
+		$api_secret = 'secret_' . bin2hex( random_bytes( 32 ) );
 
 		$api_item = array(
 			'apiKey'      => $api_key,
@@ -263,7 +263,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Updates an existing API key.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|WP_REST_Response Updated API key data on success, or WP_Error object on failure.
 	 */
@@ -327,7 +327,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Deletes an API key.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|WP_REST_Response True on success, or WP_Error object on failure.
 	 */
@@ -358,7 +358,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Fetches a meta value from usermeta table.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param int $meta_id The meta ID.
 	 *
@@ -380,7 +380,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Fetches all meta IDs from usermeta table.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return array List of meta IDs.
 	 */
@@ -400,7 +400,7 @@ class RestAuthController extends WP_REST_Controller {
 	/**
 	 * Validates the given permissions string.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 * @param string $permissions The permission string to validate.
 	 * @return string|false The validated permission string on success, false on failure.
 	 */

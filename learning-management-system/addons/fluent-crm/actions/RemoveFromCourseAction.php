@@ -2,7 +2,7 @@
 /**
 * Fluent CRM Integration remove from course action.
 *
-* @since 1.14.0
+* @since 1.14.0 [free]
 * @package Masteriyo\Addons\FluentCRM
 */
 // phpcs:ignoreFile
@@ -21,7 +21,7 @@ class RemoveFromCourseAction extends BaseAction {
 	/**
 	 * RemoveFromCourseAction constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function __construct() {
 		$this->actionName = 'masteriyo_lms_remove_from_course';
@@ -30,15 +30,19 @@ class RemoveFromCourseAction extends BaseAction {
 	}
 
 	/**
-	 * Get the block settings.
+	 * Get block settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
 	public function getBlock() {
 		return [
-			'category'    => __( 'Masteriyo LMS', 'learning-management-system' ),
+			'category'    => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s LMS', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'title'       => __( 'Remove From a Course', 'learning-management-system' ),
 			'description' => __( 'Remove the contact from a specific LMS Course', 'learning-management-system' ),
 			'icon'        => 'dashicons dashicons-welcome-learn-more',
@@ -49,9 +53,9 @@ class RemoveFromCourseAction extends BaseAction {
 	}
 
 	/**
-	 * Get the block fields.
+	 * Get block fields.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
@@ -76,12 +80,12 @@ class RemoveFromCourseAction extends BaseAction {
 	/**
 	 * Handle the action.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
-	 * @param mixed $subscriber
-	 * @param mixed $sequence
-	 * @param mixed $funnelSubscriberId
-	 * @param mixed $funnelMetric
+	 * @param mixed $subscriber Subscriber.
+	 * @param mixed $sequence Sequence.
+	 * @param int $funnelSubscriberId Funnel Subscriber ID.
+	 * @param mixed $funnelMetric Funnel Metric.
 	 *
 	 * @return bool
 	 */
@@ -99,7 +103,7 @@ class RemoveFromCourseAction extends BaseAction {
 			return false;
 		}
 
-        $result = Helper::masteriyo_remove_user_from_course( $userId, $courseId );
+		$result = Helper::masteriyo_remove_user_from_course( $userId, $courseId );
 
 		if ( ! $result ) {
 			$funnelMetric->notes = __( 'User is not enrolled in the course', 'learning-management-system' );

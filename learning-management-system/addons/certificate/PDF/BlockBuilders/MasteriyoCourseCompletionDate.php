@@ -2,7 +2,7 @@
 /**
  * Masteriyo course completion date block builder.
  *
- * @since 1.13.0
+ * @since 2.4.4
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -18,7 +18,7 @@ class MasteriyoCourseCompletionDate extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.4.4
 	 *
 	 * @return string
 	 */
@@ -53,8 +53,6 @@ class MasteriyoCourseCompletionDate extends BlockBuilder {
 
 		/**
 		 * Filters the course completion date before using in certificate.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param string $completion_date Formatted completion date.
 		 * @param string $date_format Date format string.

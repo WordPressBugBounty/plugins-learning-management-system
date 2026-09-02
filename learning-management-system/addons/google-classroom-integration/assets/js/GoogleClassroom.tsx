@@ -332,7 +332,7 @@ function GoogleClassroom() {
 										onClick={onSyncClick}
 										isLoading={syncHandle?.isPending}
 										rounded="md"
-										loadingText={__('Syncing...', 'learning-management-system')}
+										loadingText={__('Syncing…', 'learning-management-system')}
 									>
 										{__('Sync', 'learning-management-system')}
 									</Button>

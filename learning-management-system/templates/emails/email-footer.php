@@ -29,3 +29,4 @@ $footer_text = str_replace( '{site_title}', get_bloginfo( 'name' ), $footer_text
 	</div>
 </body>
 </html>
+

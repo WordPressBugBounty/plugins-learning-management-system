@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 use Masteriyo\Query\CourseProgressQuery;
@@ -28,7 +28,7 @@ if ( empty( $course ) || ! $course->is_visible() ) {
 /**
  * Fires before rendering single course page content.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 do_action( 'masteriyo_before_single_course_content' );
 
@@ -38,7 +38,7 @@ do_action( 'masteriyo_before_single_course_content' );
 		/**
 		 * Fires an action to allow customization of the single course featured image.
 		 *
-		 * @since 2.0.0
+		 * @since 2.0.0 [Free]
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 */
@@ -104,7 +104,7 @@ do_action( 'masteriyo_before_single_course_content' );
 		/**
 		 * Fires an action to allow customization of the single course main content.
 		 *
-		 * @since 2.0.0
+		 * @since 2.0.0 [Free]
 		 *
 		 * @hooked masteriyo_single_course_minimal_main_content - 50
 		 *
@@ -117,6 +117,6 @@ do_action( 'masteriyo_before_single_course_content' );
 /**
  * Fires after rendering single course page content.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 do_action( 'masteriyo_after_single_course_content' );

@@ -25,24 +25,30 @@
 			url: _MASTERIYO_.ajax_url,
 			data: $form.serializeArray(),
 			success: function (res) {
-				if (res.data.user_id && res.data.mas_session_token) {
-					$('#clear-sessions-link').data('sessionData', {
-						mas_session_token: res.data.mas_session_token,
-						user_id: res.data.user_id,
-						_wpnonce: res.data._wpnonce,
-					});
-					$('#masteriyo-session-limit-warning').show();
-				} else if (res.success) {
-					window.location.replace(res.data.redirect);
+				if (res.success) {
+					if (res.data.user_id && res.data.mas_session_token) {
+						$('#clear-sessions-link').data('sessionData', {
+							mas_session_token: res.data.mas_session_token,
+							user_id: res.data.user_id,
+							_wpnonce: res.data._wpnonce,
+						});
+						$('#masteriyo-session-limit-warning').show();
+					} else if (res.data.otp_required) {
+						window.location.replace(res.data.otp_page_url);
+					} else if (res.success) {
+						window.location.replace(res.data.redirect);
+					}
 				} else {
 					$('#masteriyo-login-error-msg').show().html(res.data.message);
 					$(document.body).trigger('masteriyo_recaptcha_refresh');
 				}
 			},
 			error: function (xhr, status, error) {
-				var message = xhr.responseJSON.message
-					? xhr.responseJSON.message
-					: error;
+				var message =
+					xhr.responseJSON && xhr.responseJSON.message
+						? xhr.responseJSON.message
+						: error;
+
 				$('#masteriyo-login-error-msg').show().html(message);
 				$(document.body).trigger('masteriyo_recaptcha_refresh');
 			},

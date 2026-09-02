@@ -7,6 +7,8 @@
 
 namespace Masteriyo\Helper;
 
+use Masteriyo\PostType\PostType;
+
 //As this files autoload from composer.
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
@@ -125,7 +127,8 @@ class Permission {
 		 * Users check permission
 		 *
 		 * @since 1.0.0
-		 * @since 1.3.6 Added $user_id and 'users' parameter.
+		 *
+		 * @since 1.3.6 Added $user_id and 'users' as parameters.
 		 *
 		 * @param boolean $permission True if permission granted.
 		 * @param string $context Permission context.
@@ -220,11 +223,10 @@ class Permission {
 		return apply_filters( 'masteriyo_rest_check_permissions', $permission, $context, $object_id, 'course_review' );
 	}
 
-
 	/**
 	 * Check lesson reviews permissions on REST API.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 * @param string $context   Request context.
 	 * @param string $object_id Object ID.
 	 * @return bool
@@ -255,7 +257,6 @@ class Permission {
 		 */
 		return apply_filters( 'masteriyo_rest_check_permissions', $permission, $context, $object_id, 'lesson_review' );
 	}
-
 
 	/**
 	 * Check quiz reviews permissions on REST API.
@@ -307,6 +308,7 @@ class Permission {
 			'read'   => 'moderate_comments',
 			'create' => 'moderate_comments',
 			'edit'   => 'moderate_comments',
+			'update' => 'moderate_comments',
 			'delete' => 'moderate_comments',
 			'batch'  => 'moderate_comments',
 		);
@@ -393,7 +395,7 @@ class Permission {
 
 		/**
 		 * Filters permission for an order.
-		 *
+		 *w
 		 * @since 1.0.0
 		 *
 		 * @param boolean $permission True if permission granted.
@@ -534,6 +536,45 @@ class Permission {
 	}
 
 	/**
+	 * Check subscription permissions.
+	 *
+	 * @since 2.6.10
+	 * @param string $context   Request context.
+	 * @param string $object_id Object ID.
+	 * @return bool
+	 */
+	public function rest_check_subscription_permissions( $context = 'read', $object_id = 0 ) {
+		$cap      = $context;
+		$contexts = array(
+			'read'   => 'read_post',
+			'create' => 'publish_posts',
+			'update' => 'edit_post',
+			'delete' => 'delete_post',
+			'batch'  => 'edit_others_posts',
+		);
+
+		if ( isset( $contexts[ $context ] ) ) {
+			$post_type_object = get_post_type_object( PostType::SUBSCRIPTION );
+			$cap              = $contexts[ $context ];
+			$cap              = $post_type_object->cap->$cap;
+		}
+
+		$permission = current_user_can( $cap, $object_id );
+
+		/**
+		 * Filters permission for an subscription.
+		 *w
+		 * @since 2.6.10
+		 *
+		 * @param boolean $permission True if permission granted.
+		 * @param string $context Permission context.
+		 * @param integer $object_id Object ID which requires permission, if available.
+		 * @param string $post_type Object's post type.
+		 */
+		return apply_filters( 'masteriyo_rest_check_permissions', $permission, $context, $object_id, PostType::SUBSCRIPTION );
+	}
+
+	/**
 	 * Check permissions of google classroom on REST API.
 	 *
 	 * @since 1.8.3
@@ -569,7 +610,7 @@ class Permission {
 	/**
 	 * Check permissions of google meet on REST API.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @param string $context   Request context.
 	 * @param int    $object_id ID.
 	 * @return bool
@@ -589,7 +630,7 @@ class Permission {
 		/**
 		 * Filters permission for an google meet.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param boolean $permission True if permission granted.
 		 * @param string $context Permission context.

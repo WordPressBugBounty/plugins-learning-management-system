@@ -2,7 +2,6 @@
 /**
  * Abstract LMS migrator.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool\Migrators
  */
 
@@ -17,15 +16,12 @@ use Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface;
  *
  * Base class for all LMS migrators. Concrete migrators implement get_lms_class()
  * and the three identity methods; all delegation logic lives here.
- *
- * @since x.x.x
  */
 abstract class AbstractLMSMigrator implements MigratorInterface {
 
 	/**
 	 * Return the fully-qualified class name of the LMS static helper.
 	 *
-	 * @since x.x.x
 	 * @return class-string
 	 */
 	abstract protected static function get_lms_class(): string;
@@ -36,12 +32,22 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	 * Default: every step is available. Migrators with steps backed by a separate
 	 * source Pro plugin override this to gate those steps on the Pro plugin being active.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return bool
 	 */
 	public function is_step_available( string $step ): bool {
-		return true;
+		/**
+		 * Filters whether a migration step's source data may be migrated.
+		 *
+		 * Lets a contributed step gate itself on its own source plugin, through
+		 * `is_source_plugin_active()` on the migrator passed to it.
+		 *
+		 * @param bool                                                        $available Whether the step may be migrated.
+		 * @param string                                                      $step      Step name.
+		 * @param string                                                      $slug      Migrator slug, e.g. 'tutor'.
+		 * @param \Masteriyo\Addons\MigrationTool\Migrators\AbstractLMSMigrator $migrator  The migrator.
+		 */
+		return (bool) apply_filters( 'masteriyo_migration_tool_is_step_available', true, $step, $this->get_slug(), $this );
 	}
 
 	/**
@@ -50,11 +56,10 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	 * Loads wp-admin/includes/plugin.php on demand so the check is reliable inside
 	 * REST requests and Action Scheduler jobs where it may not yet be loaded.
 	 *
-	 * @since x.x.x
 	 * @param string $plugin_file Plugin basename, e.g. 'tutor-pro/tutor-pro.php'.
 	 * @return bool
 	 */
-	protected function is_source_plugin_active( string $plugin_file ): bool {
+	public function is_source_plugin_active( string $plugin_file ): bool {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -67,7 +72,6 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	 * Returns 0 for steps whose source Pro plugin is inactive so the pipeline skips
 	 * them cleanly instead of attempting (and silently failing) to migrate orphaned data.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return int
 	 */
@@ -75,13 +79,28 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 		if ( ! $this->is_step_available( $step ) ) {
 			return 0;
 		}
-		return ( static::get_lms_class() )::count_source_items( $step );
+
+		/**
+		 * Filters the source item count for a migration step.
+		 *
+		 * Lets a contributed step answer for itself; the shared LMS class returns 0
+		 * for a step it does not know.
+		 *
+		 * @param int    $count Item count.
+		 * @param string $step  Step name.
+		 * @param string $slug  Migrator slug, e.g. 'tutor'.
+		 */
+		return (int) apply_filters(
+			'masteriyo_migration_tool_count_source_items',
+			( static::get_lms_class() )::count_source_items( $step ),
+			$step,
+			$this->get_slug()
+		);
 	}
 
 	/**
 	 * Return paginated source IDs. Must use LIMIT/OFFSET — never load all at once.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name.
 	 * @param int    $limit   Batch size.
 	 * @param int    $cursor  Last processed ID (0 = first batch).
@@ -92,7 +111,29 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 		if ( ! $this->is_step_available( $step ) ) {
 			return array();
 		}
-		return ( static::get_lms_class() )::get_source_ids( $step, $limit, $cursor, $exclude );
+
+		/**
+		 * Filters one batch of source IDs for a migration step.
+		 *
+		 * Lets a contributed step answer for itself; the shared LMS class returns an
+		 * empty array for a step it does not know.
+		 *
+		 * @param int[]  $ids     Source IDs.
+		 * @param string $step    Step name.
+		 * @param int    $limit   Batch size.
+		 * @param int    $cursor  Last processed ID (0 = first batch).
+		 * @param int[]  $exclude IDs to exclude.
+		 * @param string $slug    Migrator slug, e.g. 'tutor'.
+		 */
+		return (array) apply_filters(
+			'masteriyo_migration_tool_source_ids',
+			( static::get_lms_class() )::get_source_ids( $step, $limit, $cursor, $exclude ),
+			$step,
+			$limit,
+			$cursor,
+			$exclude,
+			$this->get_slug()
+		);
 	}
 
 	/**
@@ -104,7 +145,6 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	 *
 	 * Safe to call repeatedly — no-op if the service is already registered.
 	 *
-	 * @since x.x.x
 	 * @param string $service_key    Container key (e.g. 'wishlist-item').
 	 * @param string $provider_class Fully-qualified service provider class name.
 	 * @throws \Exception If the provider class file is not installed.
@@ -124,19 +164,29 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	/**
 	 * Migrate exactly one item. Called inside START TRANSACTION / COMMIT.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name.
 	 * @param int    $item_id Source item ID.
 	 * @throws \Exception Triggers ROLLBACK; item added to failed list.
 	 */
 	public function migrate_item( string $step, int $item_id ): void {
 		( static::get_lms_class() )::migrate_item( $step, $item_id );
+
+		/**
+		 * Fires after the shared migration of one item.
+		 *
+		 * A contributed step is migrated here; the shared LMS class above is a no-op
+		 * for a step it does not know.
+		 *
+		 * @param string $step    Step name.
+		 * @param int    $item_id Source item ID.
+		 * @param string $slug    Migrator slug, e.g. 'tutor'.
+		 */
+		do_action( 'masteriyo_migration_tool_migrate_item', $step, $item_id, $this->get_slug() );
 	}
 
 	/**
 	 * Called once after a step fully completes.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public function finalize_step( string $step ): void {
@@ -147,7 +197,6 @@ abstract class AbstractLMSMigrator implements MigratorInterface {
 	 * Return Masteriyo addon slugs to activate when this step has data to migrate.
 	 * Override in concrete migrators for LMS plugins that have addon-specific steps.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return string[]
 	 */

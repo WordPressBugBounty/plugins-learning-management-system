@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 <section class="masteriyo-invoice" style="background: #ffffff; padding: 60px;">
 	<div class="container">
 		<div class="masteriyo-invoice-header" style="width: 100%; margin-bottom: 32px;">
-			<img style="float: left;" width="150px" height="27px" src="<?php echo esc_url( plugins_url( 'assets/img/masteriyo-logo-horizontal.png', MASTERIYO_PLUGIN_FILE ) ); ?>" alt="Masteriyo Logo">
+			<img style="float: left;" width="70px" src="<?php echo esc_url( $logo_url ); ?>" alt="Masteriyo Logo">
 			<div class="masteriyo-invoice-header--invoice-number" style="float: right; text-align: right; color: #383838; font-size: 14px; font-weight: 700; line-height: 24px;">
 				<strong>
 					<?php
@@ -223,7 +223,7 @@ defined( 'ABSPATH' ) || exit;
 			/**
 			 * Hook to display group information in invoice.
 			 *
-			 * @since 1.20.0
+			 * @since 2.30.0
 			 *
 			 * @param array $invoice_data Invoice data array.
 			 */
@@ -235,8 +235,8 @@ defined( 'ABSPATH' ) || exit;
 			<table style="width: 100%; border-collapse: collapse;">
 				<thead>
 					<tr>
-						<th style="text-align: left; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Course ID', 'learning-management-system' ) ); ?> </strong></th>
-						<th style="text-align: left; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Course Name', 'learning-management-system' ) ); ?> </strong></th>
+						<th style="text-align: left; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Item ID', 'learning-management-system' ) ); ?> </strong></th>
+						<th style="text-align: left; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Item Name', 'learning-management-system' ) ); ?> </strong></th>
 						<th style="text-align: center; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Quantity', 'learning-management-system' ) ); ?> </strong></th>
 						<th style="text-align: right; color: #999999; font-size: 14px; font-weight: 600; line-height: 24px; text-transform: uppercase; padding: 0px 4px 12px; border-bottom: 1px solid #999999;"><strong><?php echo esc_html( __( 'Amount', 'learning-management-system' ) ); ?> </strong></th>
 					</tr>
@@ -263,6 +263,19 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div class="masteriyo-invoice-footer" style="padding-top: 28px; border-top: 1px solid #999999;">
+			<!-- Tax Section -->
+			<?php if ( isset( $invoice_data['tax_total'] ) && floatval( $invoice_data['tax_total'] ) > 0 ) : ?>
+				<div class="masteriyo-invoice-order-summary" style="margin-bottom: 20px;">
+					<table style="width: 100%; border-collapse: collapse;">
+						<tbody>
+							<tr style="margin-bottom: 12px;">
+								<td style="color: #383838; font-size: 14px; font-weight: 500; line-height: 24px; padding: 10px 6px 6px; text-align: left;"><?php echo esc_html( __( 'Tax', 'learning-management-system' ) ); ?></td>
+								<td style="color: #383838; font-size: 14px; font-weight: 400; line-height: 24px; padding: 10px 6px 6px; text-align: right;"><?php echo wp_kses_post( $invoice_data['formatted_tax_total'] ); ?></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			<?php endif; ?>
 			<div class="masteriyo-invoice-footer--wrapper" style="background: #f8f8fa;">
 				<div class="masteriyo-invoice-footer--payment-status" style="float: left; width: 60%; padding: 26px;">
 					<div style="color: #999999; font-size: 14px; font-weight: 500; line-height: 16px;"><?php echo esc_html( __( 'Payment Status', 'learning-management-system' ) ); ?></div>

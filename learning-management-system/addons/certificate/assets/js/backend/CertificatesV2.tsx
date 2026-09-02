@@ -22,6 +22,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { LuCheck, LuSearch, LuX } from 'react-icons/lu';
 import API from '../../../../../assets/js/back-end/utils/api';
 import { certificateAddonUrls } from '../utils/urls';
+import { triggerLicenseCheck } from '../../../../../assets/js/back-end/components/LicenseCheck';
 import EmptyInfo from '../../../../../assets/js/back-end/components/common/EmptyInfo';
 import FilterTabs from '../../../../../assets/js/back-end/components/common/FilterTabs';
 import {
@@ -76,6 +77,13 @@ const CertificatesV2: React.FC = () => {
 	const [bulkSelectMode, setBulkSelectMode] = useState(false);
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+	// Gate certificate creation behind the Pro license, matching the v1 builder.
+	// triggerLicenseCheck() shows the license popup when the license is inactive/expired.
+	const handleAddNewCertificate = () => {
+		if (!triggerLicenseCheck()) return;
+		setShowPicker(true);
+	};
+
 	const toggleBulkSelect = () => {
 		setBulkSelectMode((v) => !v);
 		setSelectedIds(new Set());
@@ -126,9 +134,7 @@ const CertificatesV2: React.FC = () => {
 				ids: Array.from(selectedIds),
 			}),
 		onSuccess: () =>
-			onBulkSuccess(
-				__('Certificates restored', 'learning-management-system'),
-			),
+			onBulkSuccess(__('Certificates restored', 'learning-management-system')),
 		onError: onBulkError,
 	});
 
@@ -140,9 +146,7 @@ const CertificatesV2: React.FC = () => {
 				children: true,
 			}),
 		onSuccess: () =>
-			onBulkSuccess(
-				__('Certificates deleted', 'learning-management-system'),
-			),
+			onBulkSuccess(__('Certificates deleted', 'learning-management-system')),
 		onError: onBulkError,
 	});
 
@@ -231,7 +235,7 @@ const CertificatesV2: React.FC = () => {
 					</HeaderLeftSection>
 					<HeaderRightSection>
 						<HeaderPrimaryButton
-							onClick={() => setShowPicker(true)}
+							onClick={handleAddNewCertificate}
 							leftIcon={<Add />}
 						>
 							{__('Add New Certificate', 'learning-management-system')}
@@ -301,7 +305,7 @@ const CertificatesV2: React.FC = () => {
 						<Input
 							h="36px"
 							placeholder={__(
-								'Search templates...',
+								'Search templates…',
 								'learning-management-system',
 							)}
 							value={search}
@@ -338,7 +342,7 @@ const CertificatesV2: React.FC = () => {
 						!search.trim() &&
 						orientationFilter === 'all' ? (
 							<EmptyInfo
-								onPrimaryButtonClick={() => setShowPicker(true)}
+								onPrimaryButtonClick={handleAddNewCertificate}
 								title={__(
 									'Create Your First Certificate',
 									'learning-management-system',
@@ -351,7 +355,9 @@ const CertificatesV2: React.FC = () => {
 									'Add New Certificate',
 									'learning-management-system',
 								)}
-								docs={'https://docs.masteriyo.com/free-addons/certificate-builder'}
+								docs={
+									'https://docs.masteriyo.com/free-addons/certificate-builder'
+								}
 							/>
 						) : (
 							<EmptyInfo isResultFiltered />
@@ -401,8 +407,7 @@ const CertificatesV2: React.FC = () => {
 							color="gray.800"
 							whiteSpace="nowrap"
 						>
-							{selectedIds.size}{' '}
-							{__('selected', 'learning-management-system')}
+							{selectedIds.size} {__('selected', 'learning-management-system')}
 						</Text>
 						<Box w="1px" h="20px" bg="gray.200" mx={1} />
 						{isTrashView ? (

@@ -1,0 +1,113 @@
+@use "../../../../assets/scss/variable/structure";
+
+.masteriyo-course--google-classroom .google-classroom-container {
+	border-radius: 4px;
+	padding: structure.$spacing_20px;
+	color: azure;
+	background-color: #4285f4;
+}
+
+.masteriyo-course--google-classroom .google-classroom-code-left {
+	padding-top: structure.$spacing_20px;
+}
+
+.masteriyo-course--google-classroom .google-classroom-code-right {
+	margin-left: 5px;
+	padding-top: structure.$spacing_20px;
+}
+
+.masteriyo-single-course .tab-content.google-classroom {
+	margin: structure.$spacing_30px;
+}
+
+// .masteriyo-single-course {
+.masteriyo-course--google-classroom {
+	margin-top: structure.$spacing_30px;
+	padding: structure.$spacing_24px;
+	border: 1px solid var(--masteriyo-color-border);
+	border-radius: structure.$border_radius_8;
+	display: flex;
+	flex-direction: column;
+
+	&__heading {
+		font-size: 20px;
+		font-weight: 700;
+		line-height: 26px;
+		border-bottom: 1px solid #e5e5e5;
+		padding-bottom: structure.$spacing_16px;
+		color: var(--masteriyo-color-text);
+		margin-bottom: structure.$spacing_16px;
+	}
+
+	&__code {
+		display: flex;
+		align-items: center;
+		gap: structure.$spacing_8px;
+
+		&-label {
+			font-weight: 500;
+
+			.masteriyo-copy-this-text {
+				font-size: 18px;
+				color: var(--masteriyo-color-primary);
+			}
+		}
+
+		.copy-button-code {
+			display: flex;
+			padding: structure.$spacing_6px;
+			transition: all 0.3s ease-in-out;
+			cursor: pointer;
+			border-radius: 3px;
+
+			&:hover {
+				background: #f4f4f4;
+			}
+
+			svg {
+				width: 16px;
+				height: 16px;
+				stroke: #767676;
+			}
+		}
+	}
+
+	.masteriyo-course-complete {
+		background: var(--masteriyo-color-primary);
+		font-weight: 500;
+		padding: structure.$spacing_6px;
+		border-radius: 4px;
+		cursor: pointer;
+		margin-top: structure.$spacing_10px;
+		text-align: center;
+	}
+}
+
+// }
+
+// Single Course Page New Layout
+.masteriyo-single {
+	&-body {
+		&__aside {
+			&--items-wrapper {
+				.masteriyo-course--google-classroom {
+					border: 0;
+					margin-top: 0;
+					background: #fbfbfb;
+					padding: structure.$spacing_20px;
+
+					&__heading {
+						color: #383838;
+						font-size: 18px;
+						font-weight: 600;
+						line-height: 26px;
+						border-bottom: 1px solid #ebecf2;
+						padding-bottom: structure.$spacing_16px;
+						margin-bottom: structure.$spacing_12px;
+						text-align: left;
+					}
+				}
+			}
+		}
+	}
+}

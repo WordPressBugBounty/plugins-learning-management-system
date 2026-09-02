@@ -3,7 +3,6 @@
  * Abstract ability base.
  *
  * @package Masteriyo\Abilities\Support
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Support;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Contracts\AbilityInterface;
  *
  * Concrete subclasses must implement: get_name(), get_label(), get_description(),
  * get_input_schema(), get_output_schema(), get_permission_callback(), get_execute_callback().
- *
- * @since x.x.x
  */
 abstract class AbstractAbility implements AbilityInterface {
 
@@ -32,7 +29,6 @@ abstract class AbstractAbility implements AbilityInterface {
 	/**
 	 * Whether this ability only reads data (no side effects).
 	 *
-	 * @since x.x.x
 	 * @return bool
 	 */
 	public function is_readonly(): bool {
@@ -42,7 +38,6 @@ abstract class AbstractAbility implements AbilityInterface {
 	/**
 	 * Whether this ability may cause irreversible data loss.
 	 *
-	 * @since x.x.x
 	 * @return bool
 	 */
 	public function is_destructive(): bool {
@@ -52,7 +47,6 @@ abstract class AbstractAbility implements AbilityInterface {
 	/**
 	 * Whether repeated invocations with the same input have no additional effect.
 	 *
-	 * @since x.x.x
 	 * @return bool
 	 */
 	public function is_idempotent(): bool {
@@ -63,7 +57,6 @@ abstract class AbstractAbility implements AbilityInterface {
 	 * Whether this ability interacts with external systems (payment gateways, email, etc.).
 	 * Override to true for abilities that touch open-world external entities.
 	 *
-	 * @since x.x.x
 	 * @return bool
 	 */
 	public function is_open_world(): bool {

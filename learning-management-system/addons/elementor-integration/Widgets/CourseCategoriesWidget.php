@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -24,14 +24,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 class CourseCategoriesWidget extends WidgetBase {
 
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -42,7 +42,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -53,7 +53,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Get icon class for the widget.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -64,7 +64,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register controls for configuring widget content.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_content_controls() {
 		$this->register_general_content_controls_section();
@@ -74,7 +74,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register general content controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_general_content_controls_section() {
 		$this->start_controls_section(
@@ -178,7 +178,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register sorting controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_sorting_controls_section() {
 		$this->start_controls_section(
@@ -221,7 +221,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register controls for customizing widget styles.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_style_controls() {
 		$this->register_layout_style_section();
@@ -234,7 +234,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register layout controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_layout_style_section() {
 		$this->start_controls_section(
@@ -279,7 +279,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register card style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_card_styles_section() {
 		$this->start_controls_section(
@@ -438,7 +438,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register thumbnail style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_thumbnail_styles_section() {
 		$this->start_controls_section(
@@ -497,7 +497,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register category title style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_title_styles_section() {
 		$this->start_controls_section(
@@ -629,7 +629,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Register courses count style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_courses_count_styles_section() {
 		$this->start_controls_section(
@@ -762,7 +762,7 @@ class CourseCategoriesWidget extends WidgetBase {
 	/**
 	 * Render HTML for frontend.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function render() {
 		$settings               = $this->get_settings();

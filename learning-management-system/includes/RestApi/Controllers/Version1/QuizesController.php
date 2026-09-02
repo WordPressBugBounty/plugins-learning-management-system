@@ -9,12 +9,12 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\QuizPassMarkType;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\QuizAttemptStatus;
 use Masteriyo\Enums\SectionChildrenPostType;
-use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
-use Masteriyo\Models\QuizAttempt;
-use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
+use WP_Error;
 
 class QuizesController extends PostsController {
 	/**
@@ -201,7 +201,26 @@ class QuizesController extends PostsController {
 			)
 		);
 
-		// @since 1.9.3 Added clone endpoint to quizzes REST API.
+		// Pro REST API endpoints.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/full-points',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'calculate_full_points' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+
+		// @since 2.5.7 Added clone endpoint to quizzes REST API.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/clone',
@@ -219,6 +238,91 @@ class QuizesController extends PostsController {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Checks if a given request has access to get a specific item.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return boolean|\WP_Error True if the request has read access for the item, WP_Error object otherwise.
+	 */
+	public function get_item_permissions_check( $request ) {
+		if ( is_null( $this->permission ) ) {
+			return new \WP_Error(
+				'masteriyo_null_permission',
+				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+			);
+		}
+
+		$quiz = masteriyo_get_quiz( $request['id'] );
+
+		if ( is_null( $quiz ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_quiz_id',
+				__( 'Invalid quiz ID.', 'learning-management-system' ),
+				array(
+					'status' => 400,
+				)
+			);
+		}
+
+		$course = masteriyo_get_course( $quiz->get_course_id() );
+
+		if ( is_null( $course ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_course_id',
+				__( 'Invalid course ID.', 'learning-management-system' ),
+				array(
+					'status' => 400,
+				)
+			);
+		}
+
+		// Restrict access to other course content while a quiz attempt is in progress.
+		// The quiz being attempted stays accessible; other quizzes are blocked. Placed before the
+		// open-access short-circuit so it always applies to enrolled students.
+		$restriction = masteriyo_check_content_restriction_during_quiz( $course, $request['id'] );
+		if ( is_wp_error( $restriction ) ) {
+			return $restriction;
+		}
+
+		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		if ( CourseAccessMode::OPEN === $course->get_access_mode() ) {
+			return true;
+		}
+
+		if ( is_user_logged_in() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() && ! masteriyo_can_start_course( $course ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_start_course',
+				__( 'Sorry, you have not bought the course.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'read', $request['id'] ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -286,7 +390,16 @@ class QuizesController extends PostsController {
 			);
 		}
 
-		return true;
+		/**
+		 * Filters whether the current user is allowed to start the quiz.
+		 *
+		 * Lets features such as content drip refuse a quiz that is not released yet.
+		 *
+		 * @param bool|\WP_Error $can_start Whether the quiz can be started.
+		 * @param \Masteriyo\Models\Quiz $quiz Quiz object.
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 */
+		return apply_filters( 'masteriyo_rest_check_quiz_start_permission', true, $quiz, $course );
 	}
 
 	/**
@@ -528,6 +641,7 @@ class QuizesController extends PostsController {
 			'total_attempts'           => count( $attempts ) + 1,
 			'total_answered_questions' => 0,
 			'attempt_status'           => 'attempt_started',
+			// Must be ISO-8601 UTC (trailing Z); a bare 'Y-m-d H:i:s' is mis-parsed as WP-local and reintroduces the guest timer bug.
 			'attempt_started_at'       => gmdate( 'Y-m-d\TH:i:s\Z' ),
 		);
 
@@ -535,7 +649,7 @@ class QuizesController extends PostsController {
 
 		$session->put( 'quiz_attempts', $all_attempts );
 
-		// Force cookie so the guest's session persists; otherwise has_cookie stays false and save_data() skips the DB write, losing the attempt on the next request.
+		// Force the session cookie, else has_cookie stays false and the shutdown save skips the DB write, losing the guest attempt.
 		$session->set_user_session_cookie( true );
 
 		return $attempt_data;
@@ -555,16 +669,24 @@ class QuizesController extends PostsController {
 		$quiz_id         = absint( $request['id'] );
 		$attempted_count = masteriyo_get_quiz_attempt_count( $quiz_id, $user_id );
 		$quiz            = masteriyo_get_quiz( $quiz_id );
+		$quiz_questions  = masteriyo_get_quiz_questions( $quiz_id );
+
+		$answer_explanation = array();
+
+		foreach ( $quiz_questions as $question ) {
+			$answer_explanation[ $question->get_id() ] = $question->get_answer_explanation();
+		}
 
 		$last_attempt = $this->is_quiz_started( $quiz_id );
 		$last_attempt = $last_attempt ? $last_attempt : masteriyo_create_quiz_attempt_object();
 
 		$last_attempt->set_props(
 			array(
-				'course_id'      => $quiz->get_course_id(),
-				'quiz_id'        => $quiz->get_id(),
-				'user_id'        => $user_id,
-				'total_attempts' => ++$attempted_count,
+				'course_id'          => $quiz->get_course_id(),
+				'quiz_id'            => $quiz->get_id(),
+				'user_id'            => $user_id,
+				'total_attempts'     => ++$attempted_count,
+				'answer_explanation' => $answer_explanation,
 			)
 		);
 
@@ -613,6 +735,7 @@ class QuizesController extends PostsController {
 							'attempt_status'           => QuizAttemptStatus::STARTED,
 							'attempt_started_at'       => null,
 							'attempt_ended_at'         => null,
+							'answer_explanation'       => array(),
 						)
 					);
 					$is_quiz_started->set_props( $data );
@@ -649,6 +772,16 @@ class QuizesController extends PostsController {
 			unset( $answers['id'] );
 		}
 
+		// Gate: require all questions attempted (skipped for timer-driven auto-submit).
+		$gate_result = $this->check_all_questions_attempted( $quiz_id, $answers, $request );
+		if ( is_wp_error( $gate_result ) ) {
+			return $gate_result;
+		}
+
+		// Strip control flags before grading; grade_quiz() treats every remaining key as a
+		// question ID, so these would absint() to 0 and trigger an "Invalid ID" error.
+		unset( $answers['is_auto_submit'], $answers['abandonQuiz'] );
+
 		$last_attempt   = $this->is_quiz_started( $quiz_id );
 		$attempt_detail = $this->grade_quiz( $quiz_id, $answers );
 
@@ -662,11 +795,17 @@ class QuizesController extends PostsController {
 
 			$attempt_detail['total_attempts'] = count( $attempts );
 
+			// Merge once and use the same record for both the response and the session, so the
+			// two cannot disagree. Setting only $last_attempt_arr on the object returned the
+			// PRE-grade attempt — attempt_status still attempt_started, zero earned marks, no
+			// answers, null attempt_ended_at — while the logged-in branch above applies
+			// $attempt_detail. One endpoint, two contracts.
 			$last_attempt_arr = array_pop( $attempts );
+			$graded_attempt   = wp_parse_args( $attempt_detail, $last_attempt_arr );
 			$last_attempt     = masteriyo_create_quiz_attempt_object();
-			$last_attempt->set_props( $last_attempt_arr );
+			$last_attempt->set_props( $graded_attempt );
 
-			$attempts[]               = wp_parse_args( $attempt_detail, $last_attempt_arr );
+			$attempts[]               = $graded_attempt;
 			$all_attempts[ $quiz_id ] = $attempts;
 
 			$session->put( 'quiz_attempts', $all_attempts );
@@ -685,6 +824,72 @@ class QuizesController extends PostsController {
 	}
 
 	/**
+	 * Check whether all questions have been attempted. Returns WP_Error if not, null otherwise.
+	 *
+	 * @param int             $quiz_id  Quiz ID.
+	 * @param array           $answers  Submitted answers keyed by question ID.
+	 * @param WP_REST_Request $request  Full request object.
+	 *
+	 * @return \WP_Error|null
+	 */
+	protected function check_all_questions_attempted( $quiz_id, $answers, $request ) {
+		// Timer auto-submit and abandon bypass the gate. The client nests these flags
+		// inside the `data` payload, so they arrive in $answers, not at the top level.
+		if ( ! empty( $answers['is_auto_submit'] ) || ! empty( $request['is_auto_submit'] ) || ! empty( $answers['abandonQuiz'] ) ) {
+			return null;
+		}
+
+		$quiz = masteriyo_get_quiz( $quiz_id );
+
+		if ( ! $quiz || ! method_exists( $quiz, 'get_require_all_questions_attempted' ) ) {
+			return null;
+		}
+
+		if ( ! $quiz->get_require_all_questions_attempted() ) {
+			return null;
+		}
+
+		// Check each real quiz question (rel table + post_parent) so the client list
+		// and server share one source of truth and stray keys can't satisfy the gate.
+		foreach ( masteriyo_get_all_question_ids_by_quiz( $quiz ) as $question_id ) {
+			if ( $this->is_answer_empty( isset( $answers[ $question_id ] ) ? $answers[ $question_id ] : null ) ) {
+				return new \WP_Error(
+					'masteriyo_quiz_incomplete',
+					__( 'Please attempt all questions before submitting the quiz.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check if a submitted answer value is empty.
+	 *
+	 * @param mixed $value Answer value.
+	 *
+	 * @return bool
+	 */
+	protected function is_answer_empty( $value ) {
+		if ( null === $value || '' === $value ) {
+			return true;
+		}
+		if ( is_array( $value ) ) {
+			if ( empty( $value ) ) {
+				return true;
+			}
+			foreach ( $value as $item ) {
+				if ( ! $this->is_answer_empty( $item ) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Grade quiz.
 	 *
 	 * @since 1.3.8
@@ -699,13 +904,16 @@ class QuizesController extends PostsController {
 		$total_incorrect_answers = 0;
 		$answers_data            = array();
 
+		// Force is reviewed to true if the question types are following.
+		$force_reviewed_types = array( 'fill-in-the-blanks' );
+
 		$quiz           = masteriyo_get_quiz( $quiz_id );
 		$quiz_questions = masteriyo_get_quiz_questions( $quiz_id );
 
 		foreach ( $answers as $question_id => $value ) {
-			$object = $this->get_question_object( absint( $question_id ) );
+			$question = $this->get_question_object( absint( $question_id ) );
 
-			if ( ! $object || 0 === $object->get_id() ) {
+			if ( ! $question || 0 === $question->get_id() ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_invalid_id",
 					__( 'Invalid ID', 'learning-management-system' ),
@@ -713,22 +921,35 @@ class QuizesController extends PostsController {
 				);
 			}
 
-			$is_correct = $object->check_answer( $value, 'view' );
+			$is_correct = $question->check_answer( $value, 'view' );
 
 			$answers_data[ $question_id ] = array(
-				'answered' => $value,
-				'correct'  => $is_correct,
+				'answered'       => $value,
+				'correct'        => $is_correct,
+				'question'       => $question->get_name(),
+				'points'         => $is_correct ? $question->get_points() : 0,
+				'type'           => $question->get_type(),
+				'correct_answer' => $question->get_correct_answers(),
+				'is_reviewed'    => in_array( $question->get_type(), $force_reviewed_types, true ) ? true : ! $question->is_reviewable(),
+				'max_points'     => $question->get_points(),
 			);
 
 			$is_correct ? $total_correct_answers++ : $total_incorrect_answers++;
 
-			$question_mark       = $is_correct ? $object->get_points() : 0;
+			$question_mark       = $is_correct ? $question->get_points() : 0;
 			$total_earned_marks += $question_mark;
-			$attempt_questions++;
+			++$attempt_questions;
 		}
 
+		$reviewed    = $quiz && $quiz->need_manual_review() ? false : true;
+		$reviewed_by = $quiz && $quiz->need_manual_review() ? 0 : $quiz->get_author_id();
+
+		// full_mark goes stale as questions change. Empty quiz keeps it.
+		// One list for both, so total_marks and total_questions cannot disagree.
+		$full_points = masteriyo_calculate_quiz_full_points( $quiz, $quiz_questions );
+
 		return array(
-			'total_marks'              => $quiz->get_full_mark(),
+			'total_marks'              => $full_points > 0 ? $full_points : $quiz->get_full_mark(),
 			'earned_marks'             => $total_earned_marks,
 			'total_questions'          => count( $quiz_questions ),
 			'total_answered_questions' => $attempt_questions,
@@ -737,6 +958,8 @@ class QuizesController extends PostsController {
 			'answers'                  => $answers_data,
 			'attempt_status'           => QuizAttemptStatus::ENDED,
 			'attempt_ended_at'         => time(),
+			'reviewed'                 => $reviewed,
+			'reviewed_by'              => $reviewed_by,
 		);
 	}
 
@@ -945,13 +1168,20 @@ class QuizesController extends PostsController {
 			'date_modified'                     => masteriyo_rest_prepare_date_response( $quiz->get_date_modified( $context ) ),
 			'pass_mark'                         => $quiz->get_pass_mark( $context ),
 			'full_mark'                         => $quiz->get_full_mark( $context ),
+			'pass_mark_type'                    => $quiz->get_pass_mark_type( $context ),
 			'duration'                          => $quiz->get_duration( $context ),
 			'attempts_allowed'                  => $quiz->get_attempts_allowed( $context ),
 			'reveal_mode'                       => $quiz->get_reveal_mode( $context ),
+			'randomize'                         => $quiz->get_randomize( $context ),
+			'show_details'                      => $quiz->get_show_details( $context ),
 			'questions_display_per_page'        => $quiz->get_questions_display_per_page( $context ),
 			'questions_display_per_page_global' => masteriyo_get_setting( 'quiz.styling.questions_display_per_page' ),
 			'questions_count'                   => $quiz->get_questions_count(),
 			'navigation'                        => $this->get_navigation_items( $quiz, $context ),
+			'require_all_questions_attempted'   => $quiz->get_require_all_questions_attempted( $context ),
+			'question_ids'                      => $quiz->get_require_all_questions_attempted()
+				? masteriyo_get_all_question_ids_by_quiz( $quiz )
+				: array(),
 		);
 
 		/**
@@ -1069,128 +1299,150 @@ class QuizesController extends PostsController {
 			'title'      => $this->object_type,
 			'type'       => 'object',
 			'properties' => array(
-				'id'                         => array(
+				'id'                              => array(
 					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'name'                       => array(
+				'name'                            => array(
 					'description' => __( 'Quiz name', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'slug'                       => array(
+				'slug'                            => array(
 					'description' => __( 'Quiz slug', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'parent_id'                  => array(
+				'parent_id'                       => array(
 					'description' => __( 'Quiz parent ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'course_id'                  => array(
+				'course_id'                       => array(
 					'description' => __( 'Course ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'course_name'                => array(
+				'course_name'                     => array(
 					'description' => __( 'Course name', 'learning-management-system' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'menu_order'                 => array(
+				'menu_order'                      => array(
 					'description' => __( 'Menu order, used to custom sort quizzes.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'permalink'                  => array(
+				'permalink'                       => array(
 					'description' => __( 'Quiz URL', 'learning-management-system' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'date_created'               => array(
+				'date_created'                    => array(
 					'description' => __( "The date the quiz was created, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_created_gmt'           => array(
+				'date_created_gmt'                => array(
 					'description' => __( 'The date the quiz was created, as GMT.', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_modified'              => array(
+				'date_modified'                   => array(
 					'description' => __( "The date the quiz was last modified, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'date_modified_gmt'          => array(
+				'date_modified_gmt'               => array(
 					'description' => __( 'The date the quiz was last modified, as GMT.', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'status'                     => array(
+				'status'                          => array(
 					'description' => __( 'Quiz status (post status).', 'learning-management-system' ),
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
-				'description'                => array(
+				'description'                     => array(
 					'description' => __( 'Quiz description', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'short_description'          => array(
+				'short_description'               => array(
 					'description' => __( 'Quiz short description', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'pass_mark'                  => array(
+				'pass_mark'                       => array(
 					'description' => __( 'Quiz pass points', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'full_mark'                  => array(
+				'full_mark'                       => array(
 					'description' => __( 'Quiz total points', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'duration'                   => array(
+				'pass_mark_type'                  => array(
+					'description' => __( 'Quiz pass points type', 'learning-management-system' ),
+					'type'        => 'string',
+					'required'    => false,
+					'default'     => QuizPassMarkType::POINT,
+					'enum'        => QuizPassMarkType::all(),
+					'context'     => array( 'view', 'edit' ),
+				),
+				'duration'                        => array(
 					'description' => __( 'Quiz duration (seconds)', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'attempts_allowed'           => array(
+				'attempts_allowed'                => array(
 					'description' => __( 'Quiz attempts allowed.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'reveal_mode'                => array(
+				'reveal_mode'                     => array(
 					'description' => __( 'Reveal mode.', 'learning-management-system' ),
 					'type'        => 'boolean',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'questions_display_per_page' => array(
+				'require_all_questions_attempted' => array(
+					'description' => __( 'Require all questions to be attempted before submission.', 'learning-management-system' ),
+					'type'        => 'boolean',
+					'required'    => false,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'question_ids'                    => array(
+					'description' => __( 'Ordered list of question IDs.', 'learning-management-system' ),
+					'type'        => 'array',
+					'items'       => array( 'type' => 'integer' ),
+					'required'    => false,
+					'readonly'    => true,
+					'context'     => array( 'view' ),
+				),
+				'questions_display_per_page'      => array(
 					'description' => __( 'Quiz questions per page.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'meta_data'                  => array(
+				'meta_data'                       => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
@@ -1233,7 +1485,9 @@ class QuizesController extends PostsController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id   = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+
+		/** @var \Masteriyo\Models\Quiz $quiz */
 		$quiz = masteriyo( 'quiz' );
 
 		if ( 0 !== $id ) {
@@ -1260,6 +1514,17 @@ class QuizesController extends PostsController {
 		// Quiz status.
 		if ( isset( $request['status'] ) ) {
 			$quiz->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : 'draft' );
+		}
+
+		// Publishing must drop a still-pending future date, otherwise
+		// wp_insert_post() flips the status straight back to `future`. Reachable
+		// for content scheduled outside the outline, e.g. from the post editor.
+		if ( isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] ) {
+			$date_created = $quiz->get_date_created( 'edit' );
+
+			if ( $date_created && $date_created->getTimestamp() > time() ) {
+				$quiz->set_date_created( time() );
+			}
 		}
 
 		// Quiz slug.
@@ -1306,6 +1571,11 @@ class QuizesController extends PostsController {
 			$quiz->set_full_mark( $request['full_mark'] );
 		}
 
+		// Quiz pass mark type.
+		if ( isset( $request['pass_mark_type'] ) ) {
+			$quiz->set_pass_mark_type( $request['pass_mark_type'] );
+		}
+
 		// Quiz duration.
 		if ( isset( $request['duration'] ) ) {
 			$quiz->set_duration( $request['duration'] );
@@ -1316,9 +1586,24 @@ class QuizesController extends PostsController {
 			$quiz->set_attempts_allowed( $request['attempts_allowed'] );
 		}
 
+		// Quiz questions randomize.
+		if ( isset( $request['randomize'] ) ) {
+			$quiz->set_randomize( $request['randomize'] );
+		}
+
+		//Quiz Details Show/Hide
+		if ( isset( $request['show_details'] ) ) {
+			$quiz->set_show_details( $request['show_details'] );
+		}
+
 		// Reveal Mode
 		if ( isset( $request['reveal_mode'] ) ) {
 			$quiz->set_reveal_mode( $request['reveal_mode'] );
+		}
+
+		// Require all questions attempted.
+		if ( isset( $request['require_all_questions_attempted'] ) ) {
+			$quiz->set_require_all_questions_attempted( $request['require_all_questions_attempted'] );
 		}
 
 		// Quiz questions display per page.
@@ -1374,9 +1659,9 @@ class QuizesController extends PostsController {
 	 */
 	public function create_item_permissions_check( $request ) {
 		$course_id = absint( $request['course_id'] );
-		$course    = get_post( $course_id );
+		$post      = get_post( $course_id );
 
-		if ( is_null( $course ) || 'mto-course' !== $course->post_type ) {
+		if ( is_null( $post ) || PostType::COURSE !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
 				__( 'Invalid ID', 'learning-management-system' ),
@@ -1386,17 +1671,30 @@ class QuizesController extends PostsController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
+		return parent::create_item_permissions_check( $request );
+	}
+
+	/**
+	 * Calculate full points.
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function calculate_full_points( $request ) {
+		$object = $this->get_object( (int) $request['id'] );
+
+		if ( ! $object || 0 === $object->get_id() ) {
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
-		$result = parent::create_item_permissions_check( $request );
+		$data = array(
+			'full_points' => masteriyo_calculate_quiz_full_points( (int) $request['id'] ),
+		);
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return true;
+		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -1427,5 +1725,42 @@ class QuizesController extends PostsController {
 			'attempt_started_at'       => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_started_at() ),
 			'attempt_ended_at'         => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_ended_at() ),
 		);
+	}
+
+	/**
+	 * Clone one item/post from the collection.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function clone_item( $request ) {
+		$response = parent::clone_item( $request );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$new_quiz = get_post( masteriyo_array_get( $response->get_data(), 'id' ) );
+
+		if ( is_null( $new_quiz ) ) {
+			return $response;
+		}
+
+		$questions = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => PostType::QUESTION,
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $request['id'],
+			)
+		);
+
+		foreach ( $questions as $question ) {
+			$this->clone( $question->ID, array( 'post_parent' => $new_quiz->ID ) );
+		}
+
+		return $response;
 	}
 }

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Functions that must be defined to correctly fulfill logger API.
  *
- * @since 1.12.2
+ * @since 2.12.2
  */
 interface LoggerInterface {
 

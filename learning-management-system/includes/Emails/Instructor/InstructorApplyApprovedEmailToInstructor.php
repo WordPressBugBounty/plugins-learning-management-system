@@ -58,8 +58,16 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 			return;
 		}
 
-		$this->set_recipients( $instructor->get_email() );
+		$instructor_email     = $instructor->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.to_address' );
+		$to_address           = array();
 
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{instructor_email}', $instructor_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $instructor_email );
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'instructor', $instructor );
 
@@ -91,7 +99,7 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 	 * @return string
 	 */
 	public function get_subject() {
-		$subject = masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['subject'];
+		$subject = strval( masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.subject' ) );
 
 		/**
 		 * Filter instructor apply approved email subject to instructor.
@@ -102,6 +110,8 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 		 * @param \Masteriyo\Emails\Email Current email object.
 		 */
 		$subject = apply_filters( $this->get_full_id() . '_subject', $subject, $this );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -127,76 +137,6 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 	}
 
 	/**
-	 * Get email content.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return string
-	 */
-	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.instructor.instructor_apply_approved.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['content'] );
-		$content = $this->format_string( $content );
-		$this->set( 'content', trim( $content ) );
-
-		return parent::get_content();
-	}
-
-	/**
-	 * Get placeholders.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return array
-	 */
-	public function get_placeholders() {
-		$placeholders = parent::get_placeholders();
-
-		/** @var \Masteriyo\Models\User $instructor */
-		$instructor = $this->get( 'instructor' );
-
-		if ( $instructor ) {
-			$placeholders = $placeholders + array(
-				'{instructor_display_name}'               => $instructor->get_display_name(),
-				'{instructor_first_name}'                 => $instructor->get_first_name(),
-				'{instructor_last_name}'                  => $instructor->get_last_name(),
-				'{instructor_username}'                   => $instructor->get_username(),
-				'{instructor_nicename}'                   => $instructor->get_nicename(),
-				'{instructor_nickname}'                   => $instructor->get_nickname(),
-				'{instructor_approval_celebration_image}' => $this->get_celebration_image(),
-				'{account_login_link}'                    => wp_kses_post(
-					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
-				),
-			);
-		}
-
-		return $placeholders;
-	}
-
-	/**
-	 * Retrieves the HTML or URL for the celebration image for course completion.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return string The celebration image HTML or URL.
-	 */
-	private function get_celebration_image() {
-		/**
-		 * Retrieves the HTML for the course completion celebration image.
-		 *
-		 * @since 1.15.0
-		 *
-		 * @return string The HTML for the celebration image.
-		 */
-		return apply_filters(
-			'masteriyo_instructor_approval_email_celebration_image',
-			sprintf(
-				'<img src="%s" alt="celebration image">',
-				esc_url( masteriyo_get_plugin_url() . '/assets/img/new-order-celebration.png' )
-			)
-		);
-	}
-
-	/**
 	 * Return additional content.
 	 *
 	 * @since 1.6.13
@@ -216,5 +156,167 @@ class InstructorApplyApprovedEmailToInstructor extends Email {
 		$additional_content = masteriyo_string_translation( 'emails.instructor.instructor_apply_approved.heading', 'masteriyo-email-message', $additional_content );
 
 		return $this->format_string( $additional_content );
+	}
+
+
+	/**
+	 * Get email content.
+	 *
+	 * @since 2.6.9
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_string_translation( 'emails.instructor.instructor_apply_approved.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['instructor']['instructor_apply_approved']['content'];
+		}
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', trim( $content ) );
+
+		return parent::get_content();
+	}
+
+	/**
+	 * Get placeholders.
+	 *
+	 * @since 2.6.9
+	 *
+	 * @return array
+	 */
+	public function get_placeholders() {
+		$placeholders = parent::get_placeholders();
+
+		/** @var \Masteriyo\Models\User $instructor */
+		$instructor = $this->get( 'instructor' );
+
+		if ( $instructor ) {
+			$placeholders = $placeholders + array(
+				'{instructor_display_name}'               => $instructor->get_display_name(),
+				'{instructor_first_name}'                 => $instructor->get_first_name(),
+				'{instructor_last_name}'                  => $instructor->get_last_name(),
+				'{instructor_username}'                   => $instructor->get_username(),
+				'{instructor_nicename}'                   => $instructor->get_nicename(),
+				'{instructor_nickname}'                   => $instructor->get_nickname(),
+				'{instructor_approval_celebration_image}' => $this->get_celebration_image(),
+				'{account_login_link}'                    => wp_kses_post(
+					'<a href="' . $this->get_account_url() . '" class="email-template--button">Login to Your Account</a>'
+				),
+			);
+		}
+
+		return $placeholders;
+	}
+
+	/**
+	 * Retrieves the HTML or URL for the celebration image for course completion.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string The celebration image HTML or URL.
+	 */
+	private function get_celebration_image() {
+		/**
+		 * Retrieves the HTML for the course completion celebration image.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @return string The HTML for the celebration image.
+		 */
+		return apply_filters(
+			'masteriyo_instructor_approval_email_celebration_image',
+			sprintf(
+				'<img src="%s" alt="celebration image">',
+				esc_url( masteriyo_get_plugin_url() . '/assets/img/new-order-celebration.png' )
+			)
+		);
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.instructor.instructor_apply_approved.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

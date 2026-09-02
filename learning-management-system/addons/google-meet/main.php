@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Virtual Classroom
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_GOOGLE_MEET_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_GOOGLE_MEET_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );

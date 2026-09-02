@@ -1,7 +1,7 @@
+import { isAddonActive } from '@addons/add-ons/api/addons';
 import { Box, Divider } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { isAddonActive } from '../../add-ons/api/addons';
 import DocUploader from '../../add-ons/components/DocUploader';
 
 interface Props {

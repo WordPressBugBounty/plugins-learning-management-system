@@ -2,7 +2,6 @@
 /**
  * Login/Logout Navigation Menu handler.
  *
- * @since x.x.x
  * @package Masteriyo\NavMenu
  */
 
@@ -13,10 +12,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Adds Masteriyo login/logout/account links to the WordPress classic nav menus
  * via Appearance › Menus (Walker_Nav_Menu_Checklist panel + wp_nav_menu hooks).
- *
- * @since x.x.x
  */
 class NavMenu {
+
+	const DISMISS_META_KEY = 'masteriyo_dismissed_nav_menu_notice';
 
 	/**
 	 * Return placeholder slugs mapped to their display config with translated labels.
@@ -28,7 +27,6 @@ class NavMenu {
 	 * 'css_class' is stamped on every item so filter_nav_menu_objects() can act
 	 * on it after the URL has already been resolved.
 	 *
-	 * @since x.x.x
 	 * @return array<string, array{label: string, show_when: string, css_class: string}>
 	 */
 	private static function get_items(): array {
@@ -65,7 +63,6 @@ class NavMenu {
 	/**
 	 * Register all WordPress hooks.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function boot(): void {
@@ -76,6 +73,27 @@ class NavMenu {
 		add_filter( 'wp_nav_menu_objects', array( $this, 'filter_nav_menu_objects' ) );
 		add_action( 'wp_update_nav_menu_item', array( $this, 'invalidate_cache_on_item_save' ), 10, 3 );
 		add_action( 'wp_delete_nav_menu', array( $this, 'invalidate_has_used_menus_cache' ) );
+		add_action( 'admin_notices', array( $this, 'maybe_render_menus_screen_notice' ) );
+		add_action( 'save_post_wp_navigation', array( $this, 'handle_navigation_save' ), 10, 2 );
+	}
+
+	/**
+	 * Keep the notice state consistent when a block-theme navigation is saved.
+	 *
+	 * Mirrors invalidate_cache_on_item_save(): saving a navigation that contains
+	 * the Masteriyo login-link block counts as "used the feature", so the prompt
+	 * silently auto-dismisses for the saving user.
+	 *
+	 * @param int      $_post_id Navigation post ID (unused).
+	 * @param \WP_Post $post     Navigation post.
+	 * @return void
+	 */
+	public function handle_navigation_save( int $_post_id, \WP_Post $post ): void {
+		$this->invalidate_has_used_menus_cache();
+
+		if ( false !== strpos( (string) $post->post_content, 'wp:masteriyo/login-link' ) ) {
+			update_user_meta( get_current_user_id(), self::DISMISS_META_KEY, 1 );
+		}
 	}
 
 	/**
@@ -83,8 +101,6 @@ class NavMenu {
 	 *
 	 * Only clears the cache when the saved item uses a #masteriyo- placeholder URL,
 	 * avoiding unnecessary invalidations on unrelated menu saves.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int   $_menu_id    ID of the menu being updated (unused).
 	 * @param int   $_item_db_id Database ID of the nav menu item (unused).
@@ -94,14 +110,13 @@ class NavMenu {
 	public function invalidate_cache_on_item_save( int $_menu_id, int $_item_db_id, array $args ): void {
 		if ( isset( $args['menu-item-url'] ) && 0 === strpos( $args['menu-item-url'], '#masteriyo-' ) ) {
 			$this->invalidate_has_used_menus_cache();
-			update_user_meta( get_current_user_id(), 'masteriyo_dismissed_nav_menu_notice', 1 );
+			update_user_meta( get_current_user_id(), self::DISMISS_META_KEY, 1 );
 		}
 	}
 
 	/**
 	 * Invalidate the has_used_menus transient cache.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function invalidate_has_used_menus_cache(): void {
@@ -114,8 +129,6 @@ class NavMenu {
 	 * Shows the visibility condition for every item and, for the Login|Logout
 	 * toggle, an extra hint about pipe-separated custom labels.
 	 * Fires via the standard `wp_nav_menu_item_custom_fields` action.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int      $_item_id Nav menu item post ID (unused).
 	 * @param \WP_Post $item     Nav menu item object.
@@ -154,15 +167,24 @@ class NavMenu {
 	}
 
 	/**
+	 * The name of this plugin's panel on the Menus screen, under the brand.
+	 *
+	 * @return string
+	 */
+	private function panel_name(): string {
+		/* translators: %s: the product's name */
+		return sprintf( __( '%s LMS', 'learning-management-system' ), masteriyo_get_plugin_name() );
+	}
+
+	/**
 	 * Register the Masteriyo panel inside Appearance › Menus.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function register_meta_box(): void {
 		add_meta_box(
 			'masteriyo-nav-link',
-			__( 'Masteriyo LMS', 'learning-management-system' ),
+			$this->panel_name(),
 			array( $this, 'render_meta_box' ),
 			'nav-menus',
 			'side',
@@ -174,7 +196,6 @@ class NavMenu {
 	 * Output inline Javascript to automatically expand the Masteriyo metabox
 	 * if the URL hash is #masteriyo-nav-link.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function enqueue_nav_menu_js(): void {
@@ -222,7 +243,6 @@ class NavMenu {
 	/**
 	 * Output the checklist of Masteriyo items inside the meta box.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function render_meta_box(): void {
@@ -263,7 +283,6 @@ class NavMenu {
 	 * The walker expects objects shaped like nav menu items. Negative IDs prevent
 	 * collisions with any real post IDs in the database.
 	 *
-	 * @since x.x.x
 	 * @return \WP_Post[]
 	 */
 	private function get_post_objects(): array {
@@ -278,7 +297,7 @@ class NavMenu {
 			$post->db_id            = 0;
 			$post->menu_item_parent = 0;
 			$post->type             = 'custom';
-			$post->type_label       = __( 'Masteriyo', 'learning-management-system' );
+			$post->type_label       = masteriyo_get_plugin_name();
 			$post->object           = 'custom';
 			$post->title            = $config['label'];
 			$post->post_title       = $config['label'];
@@ -312,8 +331,6 @@ class NavMenu {
 	 *   (separated by a pipe character). Example: "Sign In | Sign Out". If no pipe
 	 *   is present, the translated defaults "Login" / "Logout" are used.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_Post $item Nav menu item.
 	 * @return \WP_Post
 	 */
@@ -337,26 +354,18 @@ class NavMenu {
 		);
 
 		// Always stamp the type label so the menu editor shows "Masteriyo" instead of "Custom Link".
-		$item->type_label = __( 'Masteriyo', 'learning-management-system' );
+		$item->type_label = masteriyo_get_plugin_name();
 
 		// Keep the placeholder URL visible in the admin menu editor.
 		if ( is_admin() ) {
 			return $item;
 		}
 
-		$item->url = $this->resolve_url( $placeholder );
+		$item->url = self::resolve_url( $placeholder );
 
 		// Switch loginout label on auth state; honours a custom "Login | Logout" separator.
 		if ( '#masteriyo-loginout' === $placeholder ) {
-			$parts = explode( '|', $item->post_title );
-
-			if ( 2 === count( $parts ) ) {
-				$login_label  = trim( $parts[0] );
-				$logout_label = trim( $parts[1] );
-			} else {
-				$login_label  = __( 'Login', 'learning-management-system' );
-				$logout_label = __( 'Logout', 'learning-management-system' );
-			}
+			list( $login_label, $logout_label ) = self::split_loginout_label( (string) $item->post_title );
 
 			$title            = is_user_logged_in() ? $logout_label : $login_label;
 			$item->title      = $title;
@@ -373,8 +382,6 @@ class NavMenu {
 	 * children from floating to the top level of the rendered menu.
 	 * Skipped in the admin so the menu editor always shows all items regardless
 	 * of the editor's own logged-in state.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_Post[] $items Nav menu items (ordered: parents before children).
 	 * @return \WP_Post[]
@@ -426,23 +433,44 @@ class NavMenu {
 	}
 
 	/**
+	 * Split a loginout item title into its login and logout labels.
+	 *
+	 * Exactly two pipe-separated parts are used as custom labels (trimmed,
+	 * empties included — matching the long-standing classic item behavior);
+	 * anything else falls back to the translated defaults.
+	 *
+	 * @param string $title Navigation label as saved by the admin.
+	 * @return array{0: string, 1: string} Login label, logout label.
+	 */
+	public static function split_loginout_label( string $title ): array {
+		$parts = explode( '|', $title );
+
+		if ( 2 === count( $parts ) ) {
+			return array( trim( $parts[0] ), trim( $parts[1] ) );
+		}
+
+		return array(
+			__( 'Login', 'learning-management-system' ),
+			__( 'Logout', 'learning-management-system' ),
+		);
+	}
+
+	/**
 	 * Resolve a Masteriyo placeholder URL to its real URL.
 	 *
 	 * Each URL is filterable so themes and plugins can override individual links.
 	 * The loginout placeholder resolves to logout or login URL based on auth state.
-	 *
-	 * @since x.x.x
+	 * Public so the login-link block resolves through the same filters.
 	 *
 	 * @param string $placeholder One of the #masteriyo-* placeholder strings.
 	 * @return string Resolved URL, or the original placeholder if unrecognised.
 	 */
-	private function resolve_url( string $placeholder ): string {
+	public static function resolve_url( string $placeholder ): string {
 		switch ( $placeholder ) {
 			case '#masteriyo-login':
 				/**
 				 * Filters the login URL used in Masteriyo nav menu items.
 				 *
-				 * @since x.x.x
 				 * @param string $url Resolved login URL.
 				 */
 				return (string) apply_filters( 'masteriyo_nav_login_url', masteriyo_get_account_url() );
@@ -451,7 +479,6 @@ class NavMenu {
 				/**
 				 * Filters the registration URL used in Masteriyo nav menu items.
 				 *
-				 * @since x.x.x
 				 * @param string $url Resolved registration URL.
 				 */
 				return (string) apply_filters( 'masteriyo_nav_register_url', masteriyo_get_account_endpoint_url( 'signup' ) );
@@ -460,7 +487,6 @@ class NavMenu {
 				/**
 				 * Filters the account URL used in Masteriyo nav menu items.
 				 *
-				 * @since x.x.x
 				 * @param string $url Resolved account URL.
 				 */
 				return (string) apply_filters( 'masteriyo_nav_account_url', masteriyo_get_account_url() );
@@ -469,7 +495,6 @@ class NavMenu {
 				/**
 				 * Filters the logout URL used in Masteriyo nav menu items.
 				 *
-				 * @since x.x.x
 				 * @param string $url Resolved logout URL (includes nonce).
 				 */
 				return (string) apply_filters( 'masteriyo_nav_logout_url', masteriyo_logout_url() );
@@ -493,7 +518,6 @@ class NavMenu {
 	 * in TransientCache, and stores 1/0 instead of true/false because WordPress
 	 * transients cannot distinguish a stored false from a cache miss.
 	 *
-	 * @since x.x.x
 	 * @return bool True if at least one item exists, false otherwise.
 	 */
 	public static function has_used_menus(): bool {
@@ -521,9 +545,192 @@ class NavMenu {
 			)
 		);
 
-		$result = ! empty( $items );
+		$result = ! empty( $items ) || self::block_login_link_exists();
 		$cache->set_cache( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS, $group );
 
 		return $result;
+	}
+
+	/**
+	 * Check whether any block-theme navigation contains the Masteriyo login-link block.
+	 *
+	 * @return bool
+	 */
+	public static function block_login_link_exists(): bool {
+		$navigations = get_posts(
+			array(
+				'post_type'      => 'wp_navigation',
+				'posts_per_page' => -1,
+				'post_status'    => 'publish',
+			)
+		);
+
+		foreach ( $navigations as $navigation ) {
+			if ( false !== strpos( (string) $navigation->post_content, 'wp:masteriyo/login-link' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Render the discovery notice at the top of Appearance › Menus.
+	 *
+	 * Same conditions and endpoints as the dashboard banner; the one-click
+	 * button swaps the notice into a success + Undo state.
+	 *
+	 * @return void
+	 */
+	public function maybe_render_menus_screen_notice(): void {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		if ( ! $screen || 'nav-menus' !== $screen->id ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
+		if ( get_user_meta( get_current_user_id(), self::DISMISS_META_KEY, true ) ) {
+			return;
+		}
+
+		if ( self::has_used_menus() ) {
+			return;
+		}
+		?>
+		<div id="masteriyo-nav-menu-notice" class="notice notice-info is-dismissible">
+			<div data-masteriyo-state="prompt">
+				<p>
+					<strong><?php echo esc_html( $this->panel_name() ); ?>:</strong>
+					<?php esc_html_e( 'Your visitors have no way to log in from your navigation yet. Add a smart Login | Logout link — it switches automatically with the visitor\'s login state.', 'learning-management-system' ); ?>
+				</p>
+				<p>
+					<button type="button" id="masteriyo-add-login-link" class="button button-primary">
+						<?php esc_html_e( 'Add Login | Logout link', 'learning-management-system' ); ?>
+					</button>
+					<a href="#masteriyo-nav-link" style="margin-inline-start: 8px;">
+						<?php
+						/* translators: %s: the nav-menu panel's name */
+						echo esc_html( sprintf( __( 'or pick individual links from the %s panel', 'learning-management-system' ), $this->panel_name() ) );
+						?>
+					</a>
+				</p>
+			</div>
+			<div data-masteriyo-state="success" hidden>
+				<p>
+					<strong><?php echo esc_html( $this->panel_name() ); ?>:</strong>
+					<span data-masteriyo-success-text></span>
+				</p>
+				<p>
+					<button type="button" id="masteriyo-undo-login-link" class="button">
+						<?php esc_html_e( 'Undo', 'learning-management-system' ); ?>
+					</button>
+					<a data-masteriyo-edit-link href="" hidden style="margin-inline-start: 8px;">
+						<?php esc_html_e( 'Edit menu', 'learning-management-system' ); ?>
+					</a>
+				</p>
+			</div>
+		</div>
+		<script>
+			( function() {
+				var notice = document.getElementById( 'masteriyo-nav-menu-notice' );
+				if ( ! notice ) {
+					return;
+				}
+				var nonce      = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
+				var addUrl     = <?php echo wp_json_encode( esc_url_raw( rest_url( 'masteriyo/v1/nav-menu/login-link' ) ) ); ?>;
+				var dismissUrl = <?php echo wp_json_encode( esc_url_raw( rest_url( 'masteriyo/v1/nav-menu-notice/dismiss' ) ) ); ?>;
+				var menusUrl   = <?php echo wp_json_encode( esc_url_raw( admin_url( 'nav-menus.php' ) ) ); ?>;
+				var editorUrl  = <?php echo wp_json_encode( esc_url_raw( admin_url( 'site-editor.php?path=/navigation' ) ) ); ?>;
+				var text       = {
+					added: <?php /* translators: %s: menu or navigation name */ echo wp_json_encode( __( 'Done — a Login | Logout link was added to “%s”. It switches automatically with the visitor’s login state.', 'learning-management-system' ) ); ?>,
+					addedNoName: <?php echo wp_json_encode( __( 'Done — a Login | Logout link was added to your navigation. It switches automatically with the visitor’s login state.', 'learning-management-system' ) ); ?>,
+					exists: <?php echo wp_json_encode( __( 'A Login | Logout link already exists in your navigation.', 'learning-management-system' ) ); ?>,
+					noLocation: <?php /* translators: %s: the nav-menu panel's name */ echo wp_json_encode( sprintf( __( 'The login link could not be added automatically — your theme has no menu locations. Pick individual links from the %s panel instead.', 'learning-management-system' ), $this->panel_name() ) ); ?>
+				};
+				var prompt  = notice.querySelector( '[data-masteriyo-state="prompt"]' );
+				var success = notice.querySelector( '[data-masteriyo-state="success"]' );
+
+				function showSuccess( data ) {
+					var added    = 'added' === data.status;
+					var editLink = success.querySelector( '[data-masteriyo-edit-link]' );
+					var message  = text.exists;
+
+					if ( added ) {
+						message = data.target_name ? text.added.replace( '%s', data.target_name ) : text.addedNoName;
+					} else if ( 'no_location' === data.status ) {
+						message = text.noLocation;
+					}
+
+					success.querySelector( '[data-masteriyo-success-text]' ).textContent = message;
+					document.getElementById( 'masteriyo-undo-login-link' ).hidden = ! added;
+
+					if ( added && 'block' === data.theme_type ) {
+						editLink.href   = editorUrl;
+						editLink.hidden = false;
+					} else if ( added && data.menu_id ) {
+						editLink.href   = menusUrl + '?action=edit&menu=' + data.menu_id;
+						editLink.hidden = false;
+					} else {
+						editLink.hidden = true;
+					}
+
+					prompt.hidden  = true;
+					success.hidden = false;
+					notice.classList.toggle( 'notice-success', added );
+					notice.classList.toggle( 'notice-info', ! added );
+				}
+
+				function showPrompt() {
+					success.hidden = true;
+					prompt.hidden  = false;
+					notice.classList.remove( 'notice-success' );
+					notice.classList.add( 'notice-info' );
+					document.getElementById( 'masteriyo-add-login-link' ).disabled = false;
+				}
+
+				notice.addEventListener( 'click', function( event ) {
+					var target = event.target;
+
+					if ( target.classList.contains( 'notice-dismiss' ) ) {
+						window.fetch( dismissUrl, { method: 'POST', headers: { 'X-WP-Nonce': nonce } } );
+						return;
+					}
+
+					if ( 'masteriyo-add-login-link' === target.id ) {
+						target.disabled = true;
+						window.fetch( addUrl, { method: 'POST', headers: { 'X-WP-Nonce': nonce } } )
+							.then( function( response ) {
+								if ( ! response.ok ) {
+									throw new Error();
+								}
+								return response.json();
+							} )
+							.then( showSuccess )
+							.catch( function() {
+								target.disabled = false;
+							} );
+					}
+
+					if ( 'masteriyo-undo-login-link' === target.id ) {
+						target.disabled = true;
+						window.fetch( addUrl, { method: 'DELETE', headers: { 'X-WP-Nonce': nonce } } )
+							.then( function( response ) {
+								if ( ! response.ok ) {
+									throw new Error();
+								}
+								showPrompt();
+							} )
+							.finally( function() {
+								target.disabled = false;
+							} );
+					}
+				} );
+			} )();
+		</script>
+		<?php
 	}
 }

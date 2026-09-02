@@ -14,8 +14,10 @@
  * @version 1.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
 use Masteriyo\Query\CourseProgressQuery;
+
+defined( 'ABSPATH' ) || exit;
+
 global $course;
 
 // Ensure visibility.
@@ -40,7 +42,7 @@ do_action( 'masteriyo_before_single_course_content' );
 			 *
 			 * @hooked masteriyo_single_course_featured_image - 10
 			 * @hooked masteriyo_single_course_categories - 20
-			 * @hooked masteriyo_single_course_title - 30
+			 * @hooked masteriyo_single_course_title - 25
 			 * @hooked masteriyo_single_course_author_and_rating - 40
 			 * @hooked masteriyo_template_single_course_main_content - 50
 			 *
@@ -63,6 +65,7 @@ do_action( 'masteriyo_before_single_course_content' );
 			 *
 			 * @since 1.0.5
 			 */
+
 			$query = new CourseProgressQuery(
 				array(
 					'course_id' => $course->get_id(),
@@ -76,6 +79,9 @@ do_action( 'masteriyo_before_single_course_content' );
 			} else {
 				do_action( 'masteriyo_single_course_sidebar_content', $course );
 			}
+
+
+
 			?>
 		</aside>
 		<?php

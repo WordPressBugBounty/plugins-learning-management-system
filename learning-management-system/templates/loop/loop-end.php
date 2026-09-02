@@ -16,6 +16,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
 $is_slider_enabled = masteriyo_is_course_carousel_enabled();
 
 if ( $is_slider_enabled ) {

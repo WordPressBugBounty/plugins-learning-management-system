@@ -37,4 +37,3 @@ class ShowHideArchiveCourseComponents extends ShowHideCourseComponents {
 		return masteriyo_is_courses_page( true );
 	}
 }
-

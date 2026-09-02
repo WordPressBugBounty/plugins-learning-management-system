@@ -18,16 +18,16 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Fires before rendering progress bar section in single course page.
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 do_action( 'masteriyo_before_single_course_progress_bar', $course );
-
 
 if ( is_singular( 'mto-course' ) ) {
 	$show_progress = masteriyo_get_setting( 'single_course.components_visibility.course_progress' );
 } else {
 	$show_progress = masteriyo_get_setting( 'course_archive.components_visibility.course_progress' );
 }
+
 ?>
 
 <!-- Course Progress -->
@@ -67,6 +67,6 @@ if ( is_singular( 'mto-course' ) ) {
 /**
  * Fires after rendering progress bar section in single course page.
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 do_action( 'masteriyo_after_single_course_progress_bar', $course );

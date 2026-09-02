@@ -69,13 +69,18 @@ class WXRImporter extends WP_Importer {
 	 *
 	 * @param array $options {
 	 *     @var bool $prefill_existing_posts Should we prefill `post_exists` calls? (True prefills and uses more memory, false checks once per imported post and takes longer. Default is true.)
-	 *     @var bool $prefill_existing_comments Should we prefill `comment_exists` calls? (True prefills and uses more memory, false checks once per imported comment and takes longer. Default is true.)
 	 *     @var bool $prefill_existing_terms Should we prefill `term_exists` calls? (True prefills and uses more memory, false checks once per imported term and takes longer. Default is true.)
 	 *     @var bool $update_attachment_guids Should attachment GUIDs be updated to the new URL? (True updates the GUID, which keeps compatibility with v1, false doesn't update, and allows deduplication and reimporting. Default is false.)
-	 *     @var bool $fetch_attachments Fetch attachments from the remote server. (True fetches and creates attachment posts, false skips attachments. Default is false.)
+	 *     @var bool $fetch_attachments Fetch attachments from the remote server. (True fetches and creates attachment posts, false skips attachments. Default is true.)
 	 *     @var bool $aggressive_url_search Should we search/replace for URLs aggressively? (True searches all posts' content for old URLs and replaces, false checks for `<img class="wp-image-*">` only. Default is false.)
 	 *     @var int $default_author User ID to use if author is missing or invalid. (Default is null, which leaves posts unassigned.)
 	 * }
+	 *
+	 * Upstream (humanmade/WordPress-Importer) also documents a `prefill_existing_comments`
+	 * option. Do not add it back: this vendored copy carries none of the machinery it names.
+	 * There is no `prefill_existing_comments()` method, `import_start()` prefills only posts
+	 * and terms, and `comment_exists()` is never called — `$this->exists['comment']` is
+	 * initialised above and never read. Setting the option therefore does nothing.
 	 */
 	public function __construct( $options = array() ) {
 		$empty_types = array(
@@ -226,7 +231,6 @@ class WXRImporter extends WP_Importer {
 								self::MAX_WXR_VERSION
 							)
 						);
-
 					}
 
 					// Handled everything in this node, move on to the next
@@ -481,7 +485,7 @@ class WXRImporter extends WP_Importer {
 						// Bail now
 						return new WP_Error(
 							'wxr_importer.post.cannot_import_draft',
-							__( 'Cannot import auto-draft posts' ),
+							__( 'Cannot import auto-draft posts', 'learning-management-system' ),
 							$data
 						);
 					}
@@ -569,7 +573,6 @@ class WXRImporter extends WP_Importer {
 					$data['post_type']
 				)
 			);
-
 			return false;
 		}
 
@@ -579,13 +582,12 @@ class WXRImporter extends WP_Importer {
 			if ( $post_exists ) {
 				masteriyo_get_logger()->info(
 					sprintf(
-						/* translators: %1$s: post type label, %2$s: post title */
+						/* translators: %1$s: post type singular name, %2$s: post title */
 						__( '%1$s "%2$s" already exists.', 'learning-management-system' ),
 						$post_type_object->labels->singular_name,
 						$data['post_title']
 					)
 				);
-
 				/**
 				 * Post processing already imported.
 				 *
@@ -593,6 +595,7 @@ class WXRImporter extends WP_Importer {
 				 */
 				do_action( 'wxr_importer.process_already_imported.post', $data );
 
+				$this->mapping['post'][ $original_id ] = (int) $post_exists;
 				return false;
 			}
 		}
@@ -666,7 +669,8 @@ class WXRImporter extends WP_Importer {
 			if ( ! $this->options['fetch_attachments'] ) {
 				masteriyo_get_logger()->notice(
 					sprintf(
-						__( 'Skipping attachment "%s", fetching attachments disabled' ),
+						/* translators: %s: post title */
+						__( 'Skipping attachment "%s", fetching attachments disabled', 'learning-management-system' ),
 						$data['post_title']
 					)
 				);
@@ -695,13 +699,12 @@ class WXRImporter extends WP_Importer {
 		if ( is_wp_error( $post_id ) ) {
 			masteriyo_get_logger()->error(
 				sprintf(
-					/* translators: %1$s: post title, %2$s: post type label */
+					/* translators: %1$s: post title, %2$s: post type */
 					__( 'Failed to import "%1$s" (%2$s)', 'learning-management-system' ),
 					$data['post_title'],
 					$post_type_object->labels->singular_name
 				)
 			);
-
 			masteriyo_get_logger()->debug( $post_id->get_error_message() );
 			/**
 			 * Post processing failed.
@@ -738,8 +741,12 @@ class WXRImporter extends WP_Importer {
 
 		masteriyo_get_logger()->info(
 			sprintf(
-				/* translators: %1$s: post title, %2$s: post type label */
-				__( 'Imported "%1$s" (%2$s)', 'learning-management-system' ),
+				/* translators: %1$s: object title, %2$s: object type */
+				_x(
+					'Imported "%1$s" (%2$s)',
+					'log message for imported post',
+					'learning-management-system'
+				),
 				$data['post_title'],
 				$post_type_object->labels->singular_name
 			)
@@ -747,12 +754,8 @@ class WXRImporter extends WP_Importer {
 
 		masteriyo_get_logger()->debug(
 			sprintf(
-			/* translators: 1: original post ID, 2: new post ID */
-				_x(
-					'Post %1$d remapped to %2$d',
-					'Import log message',
-					'learning-management-system'
-				),
+				/* translators: %1$d: original post ID, %2$d: new post ID */
+				__( 'Post %1$d remapped to %2$d', 'learning-management-system' ),
 				$original_id,
 				$post_id
 			)
@@ -781,7 +784,8 @@ class WXRImporter extends WP_Importer {
 						} else {
 							masteriyo_get_logger()->warning(
 								sprintf(
-									esc_html__( 'Failed to import term: %1$s - %2$s', 'wordpress-importer' ),
+									/* translators: %1$s: taxonomy name, %2$s: term name */
+									esc_html__( 'Failed to import term: %1$s - %2$s', 'learning-management-system' ),
 									esc_html( $taxonomy ),
 									esc_html( $term['name'] )
 								)
@@ -840,7 +844,13 @@ class WXRImporter extends WP_Importer {
 		$item_type          = get_post_meta( $post_id, '_menu_item_type', true );
 		$original_object_id = get_post_meta( $post_id, '_menu_item_object_id', true );
 		$object_id          = null;
-		masteriyo_get_logger()->debug( sprintf( 'Processing menu item %s', $item_type ) );
+		masteriyo_get_logger()->debug(
+			sprintf(
+			/* translators: %s: menu item type */
+				__( 'Processing menu item %s', 'learning-management-system' ),
+				$item_type
+			)
+		);
 
 		$requires_remapping = false;
 		switch ( $item_type ) {
@@ -882,7 +892,15 @@ class WXRImporter extends WP_Importer {
 			// Nothing needed here.
 			return;
 		}
-		masteriyo_get_logger()->debug( sprintf( 'Menu item %d mapped to %d', $original_object_id, $object_id ) );
+		masteriyo_get_logger()->debug(
+			sprintf(
+			/* translators: 1: original object ID, 2: mapped object ID */
+				__( 'Menu item %1$d mapped to %2$d', 'learning-management-system' ),
+				$original_object_id,
+				$object_id
+			)
+		);
+
 		update_post_meta( $post_id, '_menu_item_object_id', wp_slash( $object_id ) );
 	}
 
@@ -955,19 +973,6 @@ class WXRImporter extends WP_Importer {
 		if ( substr( $remote_url, 0, 8 ) === 'https://' ) {
 			$insecure_url                     = 'http' . substr( $remote_url, 5 );
 			$this->url_remap[ $insecure_url ] = $upload['url'];
-		}
-
-		if ( $this->options['aggressive_url_search'] ) {
-			// remap resized image URLs, works by stripping the extension and remapping the URL stub.
-			/*if ( preg_match( '!^image/!', $info['type'] ) ) {
-				$parts = pathinfo( $remote_url );
-				$name = basename( $parts['basename'], ".{$parts['extension']}" ); // PATHINFO_FILENAME in PHP 5.2
-
-				$parts_new = pathinfo( $upload['url'] );
-				$name_new = basename( $parts_new['basename'], ".{$parts_new['extension']}" );
-
-				$this->url_remap[$parts['dirname'] . '/' . $name] = $parts_new['dirname'] . '/' . $name_new;
-			}*/
 		}
 
 		return $post_id;
@@ -1333,7 +1338,6 @@ class WXRImporter extends WP_Importer {
 					$data['name']
 				)
 			);
-
 			masteriyo_get_logger()->debug( $result->get_error_message() );
 			do_action( 'wp_import_insert_term_failed', $result, $data );
 
@@ -1357,12 +1361,13 @@ class WXRImporter extends WP_Importer {
 
 		$this->mapping['term'][ $mapping_key ]    = $term_id;
 		$this->mapping['term_id'][ $original_id ] = $term_id;
+
 		masteriyo_get_logger()->info(
 			sprintf(
-			/* translators: 1: imported term name, 2: taxonomy name */
+					/* translators: %1$s: object name, %2$s: taxonomy name */
 				_x(
 					'Imported "%1$s" (%2$s)',
-					'Import log message',
+					'log message for imported term',
 					'learning-management-system'
 				),
 				$data['name'],
@@ -1372,12 +1377,8 @@ class WXRImporter extends WP_Importer {
 
 		masteriyo_get_logger()->debug(
 			sprintf(
-			/* translators: 1: original term ID, 2: new term ID */
-				_x(
-					'Term %1$d remapped to %2$d',
-					'Import log message',
-					'learning-management-system'
-				),
+				/* translators: %1$d: original term ID, %2$d: new term ID */
+				__( 'Term %1$d remapped to %2$d', 'learning-management-system' ),
 				$original_id,
 				$term_id
 			)
@@ -1450,7 +1451,7 @@ class WXRImporter extends WP_Importer {
 		$file_name = basename( $url );
 
 		// get placeholder file in the upload dir with a unique, sanitized filename
-		$upload = wp_upload_bits( $file_name, 0, '', $post['upload_date'] );
+		$upload = wp_upload_bits( $file_name, null, '', $post['upload_date'] );
 		if ( $upload['error'] ) {
 			return new WP_Error( 'upload_dir_error', $upload['error'] );
 		}
@@ -1483,7 +1484,7 @@ class WXRImporter extends WP_Importer {
 			return new WP_Error(
 				'import_file_error',
 				sprintf(
-					/* translators: %1$d: HTTP status code, %2$s: HTTP status message, %3$s: request URL */
+					/* translators: 1: HTTP status code, 2: status text, 3: URL */
 					__( 'Remote server returned %1$d %2$s for %3$s', 'learning-management-system' ),
 					$code,
 					get_status_header_desc( $code ),
@@ -1509,7 +1510,7 @@ class WXRImporter extends WP_Importer {
 		if ( ! empty( $max_size ) && $filesize > $max_size ) {
 			unlink( $upload['file'] );
 			$message = sprintf(
-				/* translators: %s: maximum allowed file size */
+				/* translators: %s: maximum file size */
 				__( 'Remote file is too large, limit is %s', 'learning-management-system' ),
 				size_format( $max_size )
 			);
@@ -1536,7 +1537,6 @@ class WXRImporter extends WP_Importer {
 				// Have we imported the parent now?
 				if ( isset( $this->mapping['post'][ $parent_id ] ) ) {
 					$data['post_parent'] = $this->mapping['post'][ $parent_id ];
-				} else {
 				}
 			}
 
@@ -1565,12 +1565,11 @@ class WXRImporter extends WP_Importer {
 			if ( empty( $data ) ) {
 				masteriyo_get_logger()->debug(
 					sprintf(
-							/* translators: %d: post ID */
+						/* translators: %d: post ID */
 						__( 'Post %d was marked for post-processing, but none was required.', 'learning-management-system' ),
 						$post_id
 					)
 				);
-
 				continue;
 			}
 
@@ -1586,7 +1585,6 @@ class WXRImporter extends WP_Importer {
 						$post_id
 					)
 				);
-
 				masteriyo_get_logger()->debug( $result->get_error_message() );
 				continue;
 			}
@@ -1635,17 +1633,15 @@ class WXRImporter extends WP_Importer {
 					$post_id
 				)
 			);
-
 			masteriyo_get_logger()->debug(
 				sprintf(
-					/* translators: %1$d: post ID, %2$d: object ID, %3$s: object type */
+					/* translators: %1$d: post ID, %2$d: original object ID, %3$s: menu item type */
 					__( 'Post %1$d was imported with object "%2$d" of type "%3$s", but could not be found', 'learning-management-system' ),
 					$post_id,
 					$menu_object_id,
 					$menu_item_type
 				)
 			);
-
 		}
 
 		delete_post_meta( $post_id, '_wxr_import_menu_item' );
@@ -1663,11 +1659,11 @@ class WXRImporter extends WP_Importer {
 		foreach ( $this->url_remap as $from_url => $to_url ) {
 			// remap urls in post_content
 			$query = $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_content = REPLACE(post_content, %s, %s)", $from_url, $to_url );
-			$wpdb->query( $query );
+			$wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared on the line above.
 
 			// remap enclosure urls
 			$query  = $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_value = REPLACE(meta_value, %s, %s) WHERE meta_key='enclosure'", $from_url, $to_url );
-			$result = $wpdb->query( $query );
+			$result = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared on the line above.
 		}
 	}
 
@@ -1719,12 +1715,12 @@ class WXRImporter extends WP_Importer {
 	 * @access protected
 	 * @return int 60
 	 */
-	function bump_request_timeout( $val ) {
+	public function bump_request_timeout( $val ) {
 		return 60;
 	}
 
 	// return the difference in length between two strings
-	function cmpr_strlen( $a, $b ) {
+	public function cmpr_strlen( $a, $b ) {
 		return strlen( $b ) - strlen( $a );
 	}
 
@@ -1796,7 +1792,7 @@ class WXRImporter extends WP_Importer {
 		global $wpdb;
 		$query  = "SELECT t.term_id, tt.taxonomy, t.slug FROM {$wpdb->terms} AS t";
 		$query .= " JOIN {$wpdb->term_taxonomy} AS tt ON t.term_id = tt.term_id";
-		$terms  = $wpdb->get_results( $query );
+		$terms  = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- literal query; only core table names are interpolated.
 
 		foreach ( $terms as $item ) {
 			$exists_key                          = sha1( $item->taxonomy . ':' . $item->slug );

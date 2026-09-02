@@ -9,6 +9,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$available_gateways = isset( $available_gateways ) ? $available_gateways : array();
+$order_button_text  = isset( $order_button_text ) ? $order_button_text : '';
+
+// A lone gateway is not a choice, so the list is rendered without selection UI —
+// see `.masteriyo-payment-methods--single`, which hides the radio the posted
+// contract and every gateway's own script still need.
+$is_single_gateway = is_array( $available_gateways ) && 1 === count( $available_gateways );
+
 /**
  * Fires before rendering payment methods in checkout page.
  *
@@ -18,8 +26,12 @@ do_action( 'masteriyo_checkout_before_payment_methods' );
 ?>
 
 <?php if ( masteriyo( 'cart' )->needs_payment() ) : ?>
-	<div id="masteriyo-payments" class="masteriyo-checkout-summary-payment-method">
-		<ul class="masteriyo-payment-methods payment-methods methods masteriyo-checkout-payment-method">
+	<div id="masteriyo-payments" class="masteriyo-checkout-payment">
+		<h3 class="masteriyo-checkout-section--title">
+			<?php esc_html_e( 'Payment', 'learning-management-system' ); ?>
+		</h3>
+
+		<ul class="masteriyo-payment-methods payment-methods methods masteriyo-checkout-payment-method <?php echo $is_single_gateway ? 'masteriyo-payment-methods--single' : ''; ?>">
 			<?php
 			if ( ! empty( $available_gateways ) ) {
 				foreach ( $available_gateways as $gateway ) {
@@ -66,11 +78,11 @@ do_action( 'masteriyo_checkout_summary_before_submit' );
 	type="submit"
 	class="masteriyo-checkout--btn masteriyo-btn masteriyo-btn-primary alt"
 	id="masteriyo-place-order"
-	name="masteriyo_checkout_place_order">
-	<?php echo esc_html( $order_button_text ); ?>
+	name="masteriyo_checkout_place_order"
+	data-value="<?php echo esc_attr( $order_button_text ); ?>">
+	<span class="masteriyo-place-order-action"><?php echo esc_html( $order_button_text ); ?></span>
+	<?php masteriyo_template_checkout_order_total(); ?>
 </button>
-<?php /** Closing missing tag of masteriyo-checkout-summary. */ ?>
-</div>
 
 <?php
 wp_nonce_field( 'masteriyo-process_checkout', 'masteriyo-process-checkout-nonce' );

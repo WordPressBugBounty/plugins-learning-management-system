@@ -23,7 +23,7 @@ class DemosController extends RestController {
 	/**
 	 * Register REST API routes for demos.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -110,7 +110,7 @@ class DemosController extends RestController {
 		/**
 	 * Install endpoint handler.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * Ensures the 'elearning' theme is installed and activated before running the import.
 	 *
@@ -182,7 +182,7 @@ class DemosController extends RestController {
 			return new WP_Error( 'invalid_demo_config', __( 'Invalid demo config provided', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
 
-		$options        = $request instanceof \WP_REST_Request ? ( $request->get_param( 'opts' ) ?: array() ) : ( $request['opts'] ?? array() );
+		$options        = $request instanceof \WP_REST_Request ? ( $request->get_param( 'opts' ) ? $request->get_param( 'opts' ) : array() ) : ( $request['opts'] ?? array() );
 		$import_service = new ImportService();
 		$response       = $import_service->handleImport( $action, $demo_config, $options );
 
@@ -211,11 +211,10 @@ class DemosController extends RestController {
 		return rest_ensure_response( $data );
 	}
 
-
 	/**
 	 * Retrieve a list of available demos.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -246,7 +245,7 @@ class DemosController extends RestController {
 	/**
 	 * Retrieve a single site's data by slug.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return \WP_REST_Response
@@ -333,7 +332,7 @@ class DemosController extends RestController {
 	/**
 	 * Retrieves demo data from a remote URL with transient-based caching.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * Generates a unique transient key from the URL, checks for cached data,
 	 * and fetches fresh data only if the cache is missing or expired.
@@ -350,6 +349,12 @@ class DemosController extends RestController {
 		// }
 
 		$data = $this->fetch_demo_data( $url );
+
+		// Third-party server: hand its failure back to get_demos(), which answers 502.
+		if ( is_wp_error( $data ) || ! is_array( $data ) ) {
+			return $data;
+		}
+
 		usort(
 			$data,
 			function( $a, $b ) {
@@ -368,7 +373,7 @@ class DemosController extends RestController {
 	/**
 	 * Fetches and decodes demo data directly from the given URL.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * Sends an HTTP GET request with a custom user agent and validates
 	 * response code, body content, and JSON format.
@@ -415,7 +420,7 @@ class DemosController extends RestController {
 	/**
 	 * Filters a demo data array to include only demos with the `elearning` theme slug.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param array $demo_data Full list of demo definitions.
 	 * @return array Filtered list of demos where 'theme_slug' equals 'elearning'.
@@ -437,7 +442,7 @@ class DemosController extends RestController {
 	/**
 	 * Check if current user has permission to access demo routes.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return bool

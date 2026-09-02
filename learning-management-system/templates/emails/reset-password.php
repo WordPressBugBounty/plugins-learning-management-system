@@ -1,8 +1,8 @@
 <?php
 /**
- * User password reset email
+ * User password reset email.
  *
- * This template can be overridden by copying it to yourtheme/masteriyo/emails/customer-reset-password.php.
+ * This template can be overridden by copying it to yourtheme/masteriyo/emails/reset-password.php.
  *
  * HOWEVER, on occasion Masteriyo will need to update template files and you
  * (the theme developer) will need to copy the new files to your theme to
@@ -31,7 +31,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 /**
  * Show user-defined additional content.
  */
-if ( $additional_content ) {
+if ( ! empty( $additional_content ) ) {
 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
 }
 

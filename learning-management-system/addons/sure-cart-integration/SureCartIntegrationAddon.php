@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\SureCartIntegration
  *
- * @since 1.12.0
+ * @since 1.12.0 [free]
  */
 
 namespace Masteriyo\Addons\SureCartIntegration;
@@ -17,8 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * Main Masteriyo SureCartIntegration addon class.
  *
  * @class Masteriyo\Addons\SureCartIntegration
- *
- * @since 1.12.0
+ * @since 1.12.0 [free]
  */
 
 class SureCartIntegrationAddon {
@@ -26,7 +25,7 @@ class SureCartIntegrationAddon {
 	/**
 	 * The single instance of the class.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @var \Masteriyo\Addons\SureCartIntegration\SureCartIntegrationAddon|null
 	 */
@@ -35,14 +34,14 @@ class SureCartIntegrationAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 */
 	protected function __construct() {}
 
 	/**
 	 * Get class instance.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return \Masteriyo\Addons\SureCartIntegration\SureCartIntegrationAddon Instance.
 	 */
@@ -57,21 +56,21 @@ class SureCartIntegrationAddon {
 	/**
 	 * Prevent cloning.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 */
 	public function __clone() {}
 
 	/**
 	 * Prevent unserializing.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 */
 	public function __wakeup() {}
 
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -79,9 +78,10 @@ class SureCartIntegrationAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 */
 	public function init_hooks() {
+
 		add_action( 'init', array( $this, 'create_integration' ) );
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'profile_update', array( $this, 'add_student_role_to_surecart_customer' ) );
@@ -92,7 +92,7 @@ class SureCartIntegrationAddon {
 	/**
 	 * Initialize the SureCart integration class.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string Plugin path.
 	 */
@@ -100,10 +100,11 @@ class SureCartIntegrationAddon {
 			( new SureCartService() )->bootstrap();
 	}
 
+
 	/**
 	 * Enqueue scripts.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $scripts Array of scripts.
 	 * @return array
@@ -128,7 +129,7 @@ class SureCartIntegrationAddon {
 	/**
 	 * Add student role to SureCart customer.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -154,5 +155,4 @@ class SureCartIntegrationAddon {
 		add_action( 'profile_update', array( $this, 'add_student_role_to_surecart_customer' ) );
 		add_action( 'user_register', array( $this, 'add_student_role_to_surecart_customer' ) );
 	}
-
 }

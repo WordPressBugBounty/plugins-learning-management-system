@@ -32,13 +32,19 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
-		'course_id'                  => '_course_id',
-		'pass_mark'                  => '_pass_mark',
-		'full_mark'                  => '_full_mark',
-		'duration'                   => '_duration',
-		'attempts_allowed'           => '_attempts_allowed',
-		'reveal_mode'                => '_reveal_mode',
-		'questions_display_per_page' => '_questions_display_per_page',
+		'course_id'                       => '_course_id',
+		'pass_mark'                       => '_pass_mark',
+		'full_mark'                       => '_full_mark',
+		'duration'                        => '_duration',
+		'attempts_allowed'                => '_attempts_allowed',
+		'reveal_mode'                     => '_reveal_mode',
+		'questions_display_per_page'      => '_questions_display_per_page',
+
+		// Pro
+		'pass_mark_type'                  => '_pass_mark_type',
+		'randomize'                       => '_randomize',
+		'show_details'                    => '_show_details',
+		'require_all_questions_attempted' => '_require_all_questions_attempted',
 	);
 
 	/**
@@ -59,7 +65,7 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 		}
 
 		// Set the author of the quiz to the current user id, if the quiz doesn't have a author.
-		if ( empty( $quiz->get_course_id() ) ) {
+		if ( empty( $quiz->get_author_id() ) ) {
 			$quiz->set_author_id( get_current_user_id() );
 		}
 
@@ -125,7 +131,7 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 		$quiz_post = get_post( $quiz->get_id() );
 
 		if ( ! $quiz->get_id() || ! $quiz_post || PostType::QUIZ !== $quiz_post->post_type ) {
-			throw new \Exception( __( 'Invalid quiz.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid quiz.', 'learning-management-system' ) );
 		}
 
 		$quiz->set_props(
@@ -192,6 +198,15 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 				'post_type'    => PostType::QUIZ,
 			);
 
+			// Write the date only when it actually changed. `edit_date` marks it
+			// deliberate: without it wp_update_post() discards dates passed for
+			// a draft and flips a future-dated quiz to `publish`.
+			if ( array_key_exists( 'date_created', $changes ) && $quiz->get_date_created( 'edit' ) ) {
+				$post_data['post_date']     = gmdate( 'Y-m-d H:i:s', $quiz->get_date_created( 'edit' )->getOffsetTimestamp() );
+				$post_data['post_date_gmt'] = gmdate( 'Y-m-d H:i:s', $quiz->get_date_created( 'edit' )->getTimestamp() );
+				$post_data['edit_date']     = true;
+			}
+
 			/**
 			 * When updating this object, to prevent infinite loops, use $wpdb
 			 * to update data, since wp_update_post spawns more calls to the
@@ -201,6 +216,8 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 			 * or an update purely from CRUD.
 			 */
 			if ( doing_action( 'save_post' ) ) {
+				// `edit_date` is a wp_update_post() flag, not a posts-table column.
+				unset( $post_data['edit_date'] );
 				// TODO Abstract the $wpdb WordPress class.
 				$GLOBALS['wpdb']->update( $GLOBALS['wpdb']->posts, $post_data, array( 'ID' => $quiz->get_id() ) );
 				clean_post_cache( $quiz->get_id() );
@@ -504,5 +521,4 @@ class QuizRepository extends AbstractRepository implements RepositoryInterface {
 			wp_delete_post( $question->ID, true );
 		}
 	}
-
 }

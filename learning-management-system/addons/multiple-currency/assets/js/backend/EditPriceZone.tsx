@@ -123,7 +123,6 @@ const EditPriceZone: React.FC = () => {
 		if (pricingZoneQuery?.isSuccess && pricingZoneQuery?.data) {
 			methods.reset(methods.getValues());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pricingZoneQuery?.data]);
 
 	const FormButton = () => (

@@ -7,17 +7,17 @@ defined( 'ABSPATH' ) || exit;
  * Buttons for single course page.
  *
  * @package Masteriyo\Addons\SureCartIntegration\Templates
- * @version 1.12.0
+ * @version 2.13.0
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 ?>
 
-<div class="masteriyo-single-course--surecart-prices" >
+<div class="masteriyo-single-course--surecart-prices">
 	<?php foreach ( $prices as $price ) : ?>
-		<a class="<?php echo 'layout-1' === $layout ? 'masteriyo-single-course--surecart-add-to-cart-btn-layout-1' : 'masteriyo-single-course--surecart-add-to-cart-btn'; ?>"
-			href="
+		<a class="<?php echo 'layout-1' === $layout ? 'masteriyo-single-course--surecart-add-to-cart-btn-layout-1' : 'masteriyo-single-course--surecart-add-to-cart-btn'; ?>" 
+		href="
 				<?php
 				echo esc_url(
 					add_query_arg(
@@ -47,5 +47,3 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</a>
 	<?php endforeach; ?>
 </div>
-
-

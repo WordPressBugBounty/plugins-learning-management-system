@@ -9,6 +9,8 @@ namespace Masteriyo\Gateways\Paypal;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Models\Order\Order;
+
 /**
  * Generates requests to send to PayPal.
  */
@@ -113,7 +115,7 @@ class Request {
 			if ( mb_strlen( $string ) > $limit ) {
 				$string = mb_strimwidth( $string, 0, $str_limit ) . '...';
 			}
-		} else {
+		} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 			if ( strlen( $string ) > $limit ) {
 				$string = substr( $string, 0, $str_limit ) . '...';
 			}
@@ -125,14 +127,17 @@ class Request {
 	 * Get transaction args for paypal request, except for line item args.
 	 *
 	 * @since 1.0.0
-	 *
+	 * @since 2.6.10 $is_subscription param is added.
 	 * @param Order $order Order object.
+	 * @param bool $is_subscription Whether to use subscription transaction or not.
 	 * @return array
 	 */
-	protected function get_transaction_args( $order ) {
+	protected function get_transaction_args( $order, $is_subscription = false ) {
+		$transaction = $is_subscription ? '_xclick-subscriptions' : '_cart';
+
 		return array_merge(
 			array(
-				'cmd'           => '_cart',
+				'cmd'           => $transaction,
 				'business'      => $this->gateway->get_option( 'email' ),
 				'no_note'       => 1,
 				'currency_code' => $order->get_currency(),
@@ -166,6 +171,54 @@ class Request {
 	}
 
 	/**
+	 * Get paypal subscription transaction args.
+	 *
+	 * @since 2.6.10
+	 * @param Order $order Order object.
+	 * @return array
+	 */
+	protected function get_subscription_args( $order ) {
+		$order_item = current( $order->get_items() );
+		$course     = masteriyo_get_order_item_subscription_product( $order_item );
+
+		if ( ! $course ) {
+			masteriyo_get_logger()->error( 'PayPal get_subscription_args: No subscription-capable product resolved from order item.', array( 'source' => 'payment-paypal' ) );
+			return array();
+		}
+
+		$args         = array(
+			'a3'        => $course->get_price(),
+			'item_name' => $course->get_title(),
+			't3'        => $this->get_paypal_billing_period( $course->get_billing_period() ),
+			'p3'        => $course->get_billing_interval(),
+		);
+		$expire_after = $course->get_billing_expire_after();
+
+		if ( $expire_after ) {
+			$args['srt'] = $expire_after;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Get paypal subscription billing period.
+	 *
+	 * @since 2.6.10
+	 * @param string $billing_period Billing period.
+	 * @return string
+	 */
+	protected function get_paypal_billing_period( $billing_period ) {
+		$map = array(
+			'year'  => 'Y',
+			'month' => 'M',
+			'week'  => 'W',
+			'day'   => 'D',
+		);
+		return $map[ $billing_period ] ?? '';
+	}
+
+	/**
 	 * If the default request with line items is too long, generate a new one with only one line item.
 	 *
 	 * If URL is longer than 2,083 chars, ignore line items and send cart to Paypal as a single item.
@@ -174,17 +227,25 @@ class Request {
 	 * https://support.microsoft.com/en-us/help/208427/maximum-url-length-is-2-083-characters-in-internet-explorer.
 	 *
 	 * @since 1.0.0
+	 * @since 2.6.10 $is_subscription param is added.
 	 *
 	 * @param \Masteriyo\Models\Order\Order $order Order to be sent to Paypal.
 	 * @param array    $paypal_args Arguments sent to Paypal in the request.
+	 * @param bool    $is_subscription Whether to use subscription transaction or not.
 	 * @return array
 	 */
-	protected function fix_request_length( $order, $paypal_args ) {
+	protected function fix_request_length( $order, $paypal_args, $is_subscription = false ) {
 		$max_paypal_length = 2083;
 		$query_candidate   = http_build_query( $paypal_args, '', '&' );
 
 		if ( strlen( $this->endpoint . $query_candidate ) <= $max_paypal_length ) {
 			return $paypal_args;
+		}
+
+		$paypal_subscription_or_cart_args = $this->get_line_item_args( $order, true );
+
+		if ( $is_subscription ) {
+			$paypal_subscription_or_cart_args = $this->get_subscription_args( $order );
 		}
 
 		/**
@@ -198,12 +259,11 @@ class Request {
 		return apply_filters(
 			'masteriyo_paypal_args',
 			array_merge(
-				$this->get_transaction_args( $order ),
-				$this->get_line_item_args( $order, true )
+				$this->get_transaction_args( $order, $is_subscription ),
+				$paypal_subscription_or_cart_args
 			),
 			$order
 		);
-
 	}
 
 	/**
@@ -231,6 +291,13 @@ class Request {
 			$force_one_line_item = true;
 		}
 
+		$order_has_recurring_courses      = masteriyo_order_has_recurring_courses( $order );
+		$paypal_subscription_or_cart_args = $this->get_line_item_args( $order, $force_one_line_item );
+
+		if ( $order_has_recurring_courses ) {
+			$paypal_subscription_or_cart_args = $this->get_subscription_args( $order );
+		}
+
 		/**
 		 * Filters paypal request args.
 		 *
@@ -242,8 +309,8 @@ class Request {
 		$paypal_args = apply_filters(
 			'masteriyo_paypal_args',
 			array_merge(
-				$this->get_transaction_args( $order ),
-				$this->get_line_item_args( $order, $force_one_line_item )
+				$this->get_transaction_args( $order, $order_has_recurring_courses ),
+				$paypal_subscription_or_cart_args
 			),
 			$order
 		);
@@ -492,7 +559,7 @@ class Request {
 				$this->add_line_item( $item->get_name(), 1, $item_line_total );
 			} else {
 				$course          = $item->get_course();
-				$sku             = $course && is_callable( $course, 'get_sku' ) ? $course->get_sku() : '';
+				$sku             = ( $course && is_callable( array( $course, 'get_sku' ) ) ) ? $course->get_sku() : '';
 				$item_line_total = $this->number_format( $order->get_item_subtotal( $item, false ), $order );
 				$this->add_line_item( $this->get_order_item_name( $order, $item ), $item->get_quantity(), $item_line_total, $sku );
 			}

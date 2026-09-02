@@ -15,7 +15,7 @@ interface Props {
 }
 
 const CountryList: React.FC<Props> = (props) => {
-	let { countries } = props;
+	const { countries } = props;
 
 	if (countries.length === 0) {
 		return <Text>{__('N/A', 'learning-management-system')}</Text>;

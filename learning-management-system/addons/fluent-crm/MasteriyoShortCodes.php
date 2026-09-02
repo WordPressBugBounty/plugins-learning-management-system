@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\FluentCRM
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 //phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM;
@@ -21,7 +21,7 @@ class MasteriyoShortCodes {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
   public function init() {
 		add_filter( 'fluent_crm/smartcode_group_callback_ml', array( $this, 'parse_masteriyo_codes' ), 10, 4 );
@@ -30,11 +30,11 @@ class MasteriyoShortCodes {
 	}
 
 	/**
-	 * Parse the Masteriyo LMS shortcodes.
+	 * Parse Masteriyo LMS SmartCodes.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
-	 * @param string $code The shortcode.
+	 * @param string $code The code.
 	 * @param string $valueKey The value key.
 	 * @param string $defaultValue The default value.
 	 * @param object $subscriber The subscriber.
@@ -145,9 +145,9 @@ class MasteriyoShortCodes {
 	}
 
 	/**
-	 * Push the Masteriyo LMS general codes.
+	 * Push Masteriyo LMS SmartCodes.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $codes The codes.
 	 *
@@ -164,9 +164,9 @@ class MasteriyoShortCodes {
 	}
 
 	/**
-	 * Get the smart codes.
+	 * Get Masteriyo LMS SmartCodes.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param string $context The context.
 	 *
@@ -202,11 +202,11 @@ class MasteriyoShortCodes {
 	}
 
 	/**
-	 * Push the context codes.
+	 * Push Masteriyo LMS Contextual SmartCodes.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
-	 * @param array $codes The codes.
+	 * @param array  $codes The codes.
 	 * @param string $context The context.
 	 *
 	 * @return array

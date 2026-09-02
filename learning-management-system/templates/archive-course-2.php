@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -37,7 +37,7 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	/**
 	 * Wrapper div opening.
 	 *
-	 * @since 2.9.5
+	 * @since 1.10.0 [Free]
 	 */
 	echo '<div class="masteriyo-w-100 masteriyo-container">';
 
@@ -178,7 +178,7 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	/**
 	 * Wrapper div closing.
 	 *
-	 * @since 2.9.5
+	 * @since 1.10.0 [Free]
 	 */
 	echo '</div>';
 }

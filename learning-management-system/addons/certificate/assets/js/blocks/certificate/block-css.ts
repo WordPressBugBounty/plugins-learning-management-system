@@ -34,7 +34,7 @@ export function useBlockCSS(props: any) {
 	// CSS for block editor.
 	const editorCSS = useMemo(() => {
 		const certificateBlock = '.wp-block[data-type="masteriyo/certificate"]';
-		let css: string[] = [];
+		const css: string[] = [];
 
 		css.push(`${certificateBlock} { aspect-ratio: ${aspectRatio}; }`);
 		css.push(`${certificateBlock} { width: ${currentWidth} !important; }`);

@@ -2,7 +2,7 @@
 /**
  * Custom Course Categories Module Class
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 
@@ -18,7 +18,7 @@ class CoursesCategoriesModule extends \FLBuilderModule {
 			array(
 				'name'            => __( 'Course Categories', 'learning-management-system' ),
 				'description'     => __( 'Categories of courses as a whole', 'learning-management-system' ),
-				'category'        => __( 'Masteriyo', 'learning-management-system' ),
+				'category'        => masteriyo_get_plugin_name(),
 				'dir'             => __DIR__,
 				'url'             => __DIR__,
 				'editor_export'   => true,

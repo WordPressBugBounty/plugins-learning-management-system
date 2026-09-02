@@ -20,19 +20,18 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.13
  *
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent $email Email object.
  * @param \Masteriyo\Models\User $student User object.
  */
 do_action( 'masteriyo_email_header', $email, $student );
 
 echo wp_kses_post( wpautop( wptexturize( $content ) ) );
-
 /**
  * Action hook fired in email's footer section.
  *
  * @since 1.6.13
  *
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent $email Email object.
  * @param \Masteriyo\Models\User $student User object.
  */
 do_action( 'masteriyo_email_footer', $email, $student );

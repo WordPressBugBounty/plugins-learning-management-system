@@ -3,7 +3,6 @@
  * List Enrollments ability.
  *
  * @package Masteriyo\Abilities\Domains\Enrollment
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Enrollment;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a paginated list of course enrollments.
- *
- * @since x.x.x
  */
 class ListEnrollmentsAbility extends RestProxyAbility {
 

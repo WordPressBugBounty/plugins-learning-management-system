@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Destroy/tear down wc integration.
  *
- * @since 1.8.1
+ * @since 2.3.8
  */
 
 use Masteriyo\Capabilities;

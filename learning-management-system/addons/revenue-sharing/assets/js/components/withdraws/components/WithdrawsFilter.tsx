@@ -99,13 +99,13 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 						<AsyncSelect
 							cacheOptions={true}
 							loadingMessage={() =>
-								__('Searching...', 'learning-management-system')
+								__('Searching…', 'learning-management-system')
 							}
 							noOptionsMessage={({ inputValue }) =>
 								!isEmpty(inputValue)
 									? __('Users not found.', 'learning-management-system')
 									: usersQuery.isLoading
-										? __('Loading...', 'learning-management-system')
+										? __('Loading…', 'learning-management-system')
 										: __(
 												'Please enter one or more characters.',
 												'learning-management-system',
@@ -124,9 +124,9 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 								usersQuery.isSuccess
 									? usersQuery.data?.data?.map((user) => {
 											return {
-												value: user?.id,
-												label: `${user?.display_name} (#${user?.id} - ${user?.email})`,
-												avatar_url: user?.avatar_url,
+												value: user.id,
+												label: `${user.display_name} (#${user.id} - ${user.email})`,
+												avatar_url: user.avatar_url,
 											};
 										})
 									: []
@@ -135,12 +135,12 @@ const WithdrawsFilter: React.FC<Props> = (props) => {
 								if (isEmpty(searchValue)) {
 									return callback([]);
 								}
-								usersAPI.list({ search: searchValue }).then((data: any) => {
+								usersAPI.list({ search: searchValue }).then((data) => {
 									callback(
-										data?.data?.map((user: any) => {
+										data.data.map((user: any) => {
 											return {
-												value: user?.id,
-												label: `${user?.display_name} (#${user?.id} - ${user?.email})`,
+												value: user.id,
+												label: `${user.display_name} (#${user.id} - ${user.email})`,
 											};
 										}),
 									);

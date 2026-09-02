@@ -3,7 +3,6 @@
  * Update Section ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports partial updates — only the supplied fields are changed.
  * Commonly used to rename a section or reorder it within the course.
- *
- * @since x.x.x
  */
 class UpdateSectionAbility extends RestProxyAbility {
 

@@ -1,0 +1,1655 @@
+{
+ "manifest": {
+  "version": "1.0",
+  "created_at": "2026-01-01 00:00:00",
+  "base_url": ""
+ },
+ "terms": [
+  {
+   "slug": "product-tour",
+   "name": "Product Tour",
+   "taxonomy": "course_cat",
+   "description": "",
+   "parent": 0
+  }
+ ],
+ "courses": [
+  {
+   "ID": 900000,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Welcome to Masteriyo, the WordPress learning management system that turns your site into a complete online school in minutes. This tour is the fastest way to understand how the plugin works, because it walks you through the exact steps you will take to build your own first course. You do not need any technical background to follow along, only a WordPress site with Masteriyo installed and activated. Prefer to watch? The featured video above is the complete video masterclass, the same journey in screen-recording form.</p>\n<h4>What you will learn</h4>\n<ul><li>Create a course and organize it into sections and focused lessons</li><li>Add rich lessons with text, embedded video, and audio</li><li>Build quizzes that grade themselves, and read the results like a teacher</li><li>Publish deliberately, with the right visibility and access model</li><li>Set a price, take payments, and support your first students</li></ul>\n<p>The lessons are arranged the way a real build flows, starting with planning your structure, then adding content, then publishing to the world. Each section ends with a short knowledge check so you can confirm you have absorbed the key skill before moving on. Work through the course top to bottom on your own site, building alongside the tutorial, and you will ship a finished course in the same session.</p>",
+   "post_title": "Getting Started with Masteriyo",
+   "post_excerpt": "Build, publish, and sell your first online course in an afternoon with this guided walkthrough of Masteriyo.",
+   "post_status": "publish",
+   "comment_status": "open",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "getting-started-with-masteriyo",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 0,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-course",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_price": [
+     ""
+    ],
+    "_access_mode": [
+     "open"
+    ],
+    "_duration": [
+     "120"
+    ],
+    "_difficulty_id": [
+     "0"
+    ],
+    "_show_curriculum": [
+     "1"
+    ],
+    "_reviews_allowed": [
+     "1"
+    ],
+    "_enrollment_limit": [
+     "0"
+    ],
+    "_is_sample_content": [
+     "1"
+    ],
+    "_featured_video_source": [
+     "youtube"
+    ],
+    "_featured_video_url": [
+     "https://www.youtube.com/watch?v=20PEFeNVRXs"
+    ]
+   },
+   "terms": [
+    {
+     "slug": "product-tour",
+     "name": "Product Tour",
+     "taxonomy": "course_cat"
+    },
+    {
+     "slug": "free",
+     "name": "free",
+     "taxonomy": "course_visibility"
+    }
+   ],
+   "attachments": []
+  }
+ ],
+ "sections": [
+  {
+   "ID": 900001,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Planning Your Course Structure",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "planning-your-course-structure",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900004,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Building Your Course Content",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "building-your-course-content",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900009,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Adding Quizzes and Knowledge Checks",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "adding-quizzes-and-knowledge-checks",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900012,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Publishing and Enabling Your Course",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "publishing-and-enabling-your-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900023,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Managing Students and Sales",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "managing-students-and-sales",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "lessons": [
+  {
+   "ID": 900002,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Every course in Masteriyo is built from the same three building blocks: sections, lessons, and a course shell. Understanding how these nest together is the single most important idea in this tour, because almost everything else you do, from adding quizzes to setting up pricing, hangs off this structure.</p>\n<p>Think of a course as a container. It holds the title, the description, the featured image, the price, and the settings that control who can see it and how they get access. The course is what appears in your course archive, what students click to enrol, and what they see on their dashboard after they sign up.</p>\n<p>Inside the course sit sections. A section is a grouping heading, like a chapter in a book. Its job is purely organizational: it gives your lessons a logical order and makes long courses navigable. Good sections are short, descriptive, and written from the student's point of view. Instead of a section called \"Unit 1\", use something like \"Exposure Basics\". Students scan section titles to decide whether a course covers what they need, so treat them as real headings, not filler.</p>\n<p>Within each section live lessons. A lesson is one self-contained unit of teaching, the smallest thing a student actually sits down to learn. It can contain written text, images, embedded video, and other media. The golden rule in Masteriyo is to keep each lesson focused on a single idea. If a lesson tries to teach three separate concepts at once, split it into three lessons.</p>\n<p>This layering matters for a practical reason beyond tidiness. Masteriyo lets you make quizzes available to students, and it tracks progress at the lesson level, so a clear structure is what makes progress reporting and completion certificates meaningful. When you connect a quiz to a lesson, your students see their results immediately and your dashboard shows exactly where each learner is in the course.</p>\n<blockquote><p><strong>A practical tip:</strong> draft your section titles before you write a single lesson. This whiteboard sketch becomes your outline, keeps every lesson on topic, and prevents the course from sprawling while you are mid-build.</p></blockquote>\n<p>Before a course can be useful, it also needs a few pieces of metadata that you will enter when you create it. These include a colour for the course card, a category, a difficulty level, an estimated duration, and a short excerpt that appears on course cards. Do not skip these, because they are what make your course look professional in a grid of other courses and help students understand what they are signing up for at a glance.</p>\n<blockquote><p><strong>Why it matters:</strong> the structure you set up now is the spine of the whole learner experience. A well-planned course with clear sections and single-idea lessons is dramatically more likely to be finished by students than an unorganized wall of content.</p></blockquote>\n<p>Hold onto this mental model, course as container, sections as chapters, lessons as focused ideas, and everything in this tour extends it.</p>",
+   "post_title": "What a Course Is Made Of",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-a-course-is-made-of",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900003,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>When you first create a course in Masteriyo, you will be asked to attach several pieces of identifying information, and two of the most visible are the category and the difficulty level. Both appear on the course card and in the course filter, and both shape who finds your course and whether they feel it is right for them. They are quick to fill in, but worth a moment of thought because they are public-facing.</p>\n<p>A category is a subject grouping that places your course alongside similar material. Categories work the same way WordPress tags and categories work for posts: you can create any set of labels that makes sense for your school. If you are running a photography site, your categories might be \"Beginner Photography\", \"Portrait Lighting\", and \"Photo Editing\". If your course is the first in a series, choose a stable category now so that future courses can share it and create a browsable library over time.</p>\n<p>When you select a category, describe the true home of the course rather than its most aspirational label. A course titled \"Introduction to Exposure\" belongs in a beginners category, not squeezed into an \"Advanced Studio Lighting\" group just because you hope to attract advanced students.</p>\n<p>The difficulty level, marked here as beginner, intermediate, or advanced, tells students how much background the course assumes. This is a trust signal. If you mark an elementary course as advanced, beginners will struggle, leave negative feedback, and feel they wasted their money. If you mark a genuinely hard course as beginner, novices will bounce immediately and warn others away. Be honest, and when in doubt at the start of a course's life, lean toward the easier label while the audience is still forming.</p>\n<blockquote><p><strong>A common mistake:</strong> skipping the category and difficulty because they feel like admin busywork. Students filter on exactly these fields. A missing or wrong value makes the course invisible to the people searching for it on the very page where you want to be found.</p></blockquote>\n<p>There is a subtlety worth understanding. Difficulty does not change how Masteriyo behaves; it is purely descriptive metadata shown to humans. So a wrong setting will never break the course technically, but it can absolutely damage the course socially and commercially. Because an honest label costs almost nothing and a dishonest one costs a lot, this is an easy decision to get right.</p>\n<blockquote><p><strong>The rule of thumb:</strong> if you are unsure whether your course is beginner or intermediate, ask whether a reader with zero knowledge of the topic could complete it unaided. If yes, it is a beginner course. That simple test settles most hesitation.</p></blockquote>\n<p>Finally, remember that both fields are editable after you publish, but set them thoughtfully the first time. Students screenshot course cards and remember what they signed up for, so the more truthful your category and difficulty are on day one, the fewer corrections you chase later. Set them now and move on to building content.</p>",
+   "post_title": "Choosing a Category and Difficulty",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "choosing-a-category-and-difficulty",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900005,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>With the structure and metadata planned, the moment has come to create the actual course container in Masteriyo. This is a simple action, but doing it cleanly at the start saves you from redoing work later, because several fields are awkward to go back and fix once a course is live.</p>\n<blockquote><p><strong>Watch first, then build:</strong> the video above is the official walkthrough of the Masteriyo course builder. Play it once to see the whole flow, then follow the steps below on your own site. This lesson is also your first look at video inside a lesson, exactly the way your own students will experience it.</p></blockquote>\n<p>From your WordPress dashboard, open the Masteriyo menu and select Courses. On the courses screen you will see a button labelled Add New (or New Course, depending on your version). Click it and you will land on the course editor, which is where the whole course lives. This editor is the one place you will return to constantly, so take a second to look around before you start typing.</p>\n<p>The first thing to fill in is the course title, the most important single piece of text in the entire course. The title has two jobs. It must tell a visitor exactly what the course teaches, and it must do so clearly enough to be understood in a list of many courses. Prefer phrases like \"Mobile Photography for Beginners\" over clever-but-vague titles like \"Shoot Better\". A good title is specific, searchable, and honest about scope.</p>\n<p>Below the title you will find the course description. This is where you expand on what the course covers, who it is for, and what they will be able to do when they finish. Write two to four solid paragraphs. Resist the temptation to pad with marketing fluff. Students read this to decide whether to enrol, and a concrete, honest description converts far better than a wall of adjectives. Mention the skills, the tools, and the outcome, and be specific about the audience.</p>\n<p>The editor also holds the administrative fields you planned in the previous lessons: category, difficulty, and excerpt. Fill these in now while you are already in the editor, so you never have to hunt for the screens later and lose the context about your own course.</p>\n<blockquote><p><strong>A practical workflow:</strong> a good first pass in the editor is title, description, featured image, category, difficulty, and excerpt. Content sections and lessons come next, but this shell makes the course recognizable and findable while you keep building.</p></blockquote>\n<p>When you have set down the shell, most new makers expect to publish immediately. Resist that instinct. A half-filled course that is publicly visible looks unfinished to visitors and can hurt the trust of an otherwise careful site. Masteriyo lets you draft titles and content that are only visible to admins, so use that draft space to build the full course before flipping it live. The craft of when to publish is itself a lesson later in this course, but the principle to internalize now is to build hidden and reveal complete.</p>\n<blockquote><p><strong>What you have now:</strong> a named, described, categorized course shell sitting in draft. It has no content yet, which is exactly the right state to be in before you create your first section.</p></blockquote>",
+   "post_title": "Creating Your First Course",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "creating-your-first-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900004,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "youtube"
+    ],
+    "_video_source_url": [
+     "https://www.youtube.com/watch?v=62Rw58Ekam4"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900006,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Your course shell exists, and now it needs its spine. Sections are the chapter headings that organize your lessons, and in this lesson you will learn how to create them, sequence them correctly, and name them in a way that helps your students navigate.</p>\n<p>Inside the course editor you will find an area for managing content, usually marked with a heading like \"Sections\" or listed directly in the lesson list. To add a section, click the button to add a new section and give it a name. That is genuinely all the creation involves. The real skill lies in choosing the name and deciding how much to put under it.</p>\n<p>The best section names are written from the learner's perspective and read like the table of contents of a good textbook. They should use the language of the subject, not the language of your internal organization. Compare \"Week Two: Exposure\" with \"Module B\". A student scanning the section list understands the first instantly and learns nothing from the second. When you can, keep names short, three to five words, so they wrap cleanly on mobile screens.</p>\n<p>As you decide how many sections to create, think in terms of an average of roughly three to five lessons per section. This is a guideline, not a rule. Very short sections feel fragmentary, while a section holding twelve lessons becomes a wall rather than a chapter.</p>\n<p>Ordering is where many first-time builders lose time, so Masteriyo makes it deliberately easy. Sections can be dragged into any order you like, and the visible order in the editor is the order students experience. Because reordering is so cheap, you can rearrange freely without fear. Build in the order that makes sense to you, then reorder at the end to match the ideal learning path.</p>\n<blockquote><p><strong>Practical tip:</strong> do not paint yourself into a corner by numbering sections in their names. If you call a section \"Section 1: Basics\" and later need to insert something at the front, every following name becomes wrong. Name sections descriptively, like \"Exposure Basics\", and let Masteriyo handle the numbering so your content stays flexible.</p></blockquote>\n<p>The same ordering freedom applies inside sections. Lessons are ordered within their section by dragging, and the relative order between sections is governed by the section order, giving you clean two-level control of the whole course path.</p>\n<blockquote><p><strong>A warning about over-organization:</strong> more sections are not automatically better. Some builders create a new section for every single lesson out of a desire for neatness, which produces a choppy course. Match the number of sections to the natural structure of the subject, and let the content dictate the shape rather than forcing a shape onto the content.</p></blockquote>\n<p>When your sections reflect the outline you sketched while planning, you have turned an abstract plan into a navigable course. The next step is to fill those sections with lessons, the material students actually learn from, and that is where the real teaching begins.</p>",
+   "post_title": "Adding and Ordering Sections",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "adding-and-ordering-sections",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900004,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900007,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A lesson is the unit of teaching that students actually consume, so this is where the quality of your course lives or dies. In this lesson you will learn how to structure a single Masteriyo lesson so that it teaches something real, keeps attention, and leaves the student measurably better off than when they started.</p>\n<p>Begin with a single main idea. A focused lesson states its point in the first line and spends the rest of its length building that point. If you cannot summarise the lesson in one sentence, it is probably trying to do too much. Split it. Students value a course of short, clear lessons far more than a course of long, wandering ones, and they are more likely to finish a lesson that promises a discrete result and delivers it.</p>\n<p>Write for a student who is looking at the screen, not for a reviewer. Use plain, direct sentences and concrete language. Prefer \"press the button marked Save Draft\" over \"utilize the draft-saving functionality\". The goal is to be understood without effort, because any friction in understanding is friction that could send the student away. Short paragraphs, active voice, and a friendly but professional tone all serve this goal.</p>\n<p>Structure is the reader's friend. Break the lesson into several short paragraphs rather than a single block of text. Use a numbered list for a sequence of steps and a bullet list for a set of related options, so the eye has places to land and instructions become a checklist to follow step by step.</p>\n<blockquote><p><strong>A strong pattern:</strong> open with one sentence telling the student what the lesson will teach, deliver the core idea in the middle using steps and examples, and close with a single sentence that states what they now know how to do. This opening, body, closing rhythm makes lessons feel complete, and it is the same rhythm used again at the level of the whole course.</p></blockquote>\n<p>Examples are what make lessons stick. Wherever you can, show a concrete instance of the idea instead of only describing it. If you are teaching how to name sections, show a good name and a weaker name side by side and explain the difference. Abstract advice is forgettable; a worked example is memorable.</p>\n<blockquote><p><strong>A caution about length:</strong> Masteriyo lesson content should be substantial enough to teach, but that does not mean it should be endless. A lesson that keeps talking after the point is made starts to lose students. Write a complete lesson, then stop.</p></blockquote>\n<p>Finally, tie every lesson back to what comes after it. The end of one lesson should feel like a natural bridge to the next, so the whole course flows as a single journey rather than a pile of disconnected files.</p>\n<blockquote><p><strong>Where this leads:</strong> you now have a course shell with sections and the craft to write the lessons inside them. The next step is to bring those lessons to life with video and audio, and then to add a quiz so students can check their understanding.</p></blockquote>",
+   "post_title": "Writing Lessons That Teach",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "writing-lessons-that-teach",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900004,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900008,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Text is only the beginning. This very lesson is an audio lesson, so before you read on, notice the player above: that is exactly what your students see the moment you attach audio to a lesson. The track playing here is a sample tune standing in for the real thing, which might be a podcast episode, a narrated version of the lesson, an interview, or a guided exercise.</p>\n<p>Media is attached from the same lesson editor you have been using in this section. Open a lesson, look for the video and audio fields, choose a source, and paste a link or upload a file. Masteriyo takes care of the player, the sizing, and the mobile experience, so your job is only to supply good material.</p>\n<h4>Where lesson video can come from</h4>\n<ol><li><strong>YouTube or Vimeo</strong> — paste the video link and Masteriyo embeds the player. This is the easiest route, and it keeps large files off your own hosting.</li><li><strong>Self-hosted uploads</strong> — upload the file to your WordPress media library for full control, with no third-party branding. Best for paid content you do not want discoverable elsewhere.</li><li><strong>External URLs and embed codes</strong> — point to a file hosted anywhere, or paste an embed snippet from another platform. This covers everything from cloud storage to specialist video hosts.</li></ol>\n<p>The lesson before this one, Creating Your First Course, carries a YouTube walkthrough at the top, so you have already seen the student's view of an embedded video. When you build your own course, use whichever source matches how much control you need.</p>\n<h4>When to reach for audio</h4>\n<p>Audio is the most underrated lesson format. Students can listen while commuting or exercising, which multiplies the time they can spend with your course. It is also far cheaper to produce than video: a quiet room and a decent microphone are enough.</p>\n<ul><li>A narrated version of a written lesson, for students who prefer listening</li><li>Interviews and conversations, where the voices are the content</li><li>Guided practice, like meditation, language pronunciation, or music drills</li></ul>\n<blockquote><p><strong>A practical rule:</strong> pick the lightest format that teaches the idea. Text for reference material students will scan and revisit, audio for narrative and practice, video for anything they need to see happen on screen. A course that mixes formats deliberately feels rich without a single wasted production hour.</p></blockquote>\n<p>Whichever media you choose, the lesson page keeps your written content underneath the player, exactly like this one. That pairing matters: the media carries the teaching, and the text stays searchable, scannable, and quotable for students who come back to review.</p>",
+   "post_title": "Adding Video and Audio Lessons",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "adding-video-and-audio-lessons",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900004,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ],
+    "_audio_source": [
+     "external"
+    ],
+    "_audio_source_url": [
+     "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900010,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Quizzes are one of Masteriyo's most powerful tools, because they turn passive reading into active recall. In this lesson you will learn how to create a multiple choice quiz, write questions that test real understanding, and attach it to your course so students can take it and see their results immediately.</p>\n<p>From the course editor, locate the button to add a quiz. A quiz is separate from a lesson, though it lives in a section alongside them. When you create one, you give it a title, then add questions one at a time. Each question is a prompt with four answer options, and you mark exactly one option as correct. Masteriyo will handle the rest: recording the student's answer, checking it against the correct one, and showing a result.</p>\n<p>The art of a good quiz is in the questions and the wrong answers. A question should test the core of what the section taught, not a trivial detail. Re-read your lesson and identify the one or two ideas that really matter, then write questions that force the student to recall those ideas. If the question can be answered by guessing or by reading the surface of the lesson, make it harder. If it requires remembering a definition you stated once, it is a fair test.</p>\n<blockquote><p><strong>A practical guideline:</strong> aim for roughly one quiz question per key concept in the section, and about five to eight questions per quiz. That is enough to give a meaningful score without becoming a grind. A quiz with three questions feels thin, while a quiz with twenty feels like an exam.</p></blockquote>\n<p>The wrong answers deserve as much care as the correct one. Each distractor should be plausible, meaning it should look like a reasonable answer to someone who did not quite understand the topic. Avoid obviously silly options that students can rule out instantly, because they make the quiz too easy and teach nothing.</p>\n<p>Before you finish, review each question from the student's side. Read it aloud and check that it is unambiguous and that there is exactly one correct answer, because it is easy to write a question with two defensible answers by accident. A single confusing question can undermine confidence in the whole quiz.</p>\n<blockquote><p><strong>A warning about fairness:</strong> a quiz is only fair if the lesson it tests actually teaches the information needed to answer. Never include a \"gotcha\" detail that appears nowhere in the lesson. Students trust that a quiz is answerable from what they just read, and violating that trust damages the course.</p></blockquote>\n<p>When the quiz is complete, save it and it will appear in its section. Students can then open it, answer the questions, and receive a score and feedback on the correct answers, closing the teaching loop and giving you a concrete signal of how well the section taught.</p>\n<blockquote><p><strong>Where this fits:</strong> you now have sections, lessons, and a working quiz. In the final building step you will learn how to make the course available to students and how to control who can take it, which is the transition from building to launching.</p></blockquote>",
+   "post_title": "Building a Multiple Choice Quiz",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "building-a-multiple-choice-quiz",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900011,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Attaching a quiz to your course is only half the story. The other half is reading the results, because quiz scores are among the most useful signals a course gives you about how well the material is landing. This lesson shows you how to review results on your side and how to interpret them so you can improve the course.</p>\n<p>When a student completes a quiz in Masteriyo, their answers and score are recorded. On your course and student screens you can view the results that have been submitted, seeing who took the quiz, what they scored, and how they answered. This becomes a small treasure of information about your teaching, if you know how to read it.</p>\n<p>The first thing to look at is the aggregate. Across all attempts, are students scoring where you expected? If most students are scoring high, the quiz may be too easy, or the teaching exceptionally clear, both of which are fine but worth knowing. If most are scoring low, the teaching is missing the mark somewhere, and the quiz is telling you where to look.</p>\n<blockquote><p><strong>A useful habit:</strong> pay attention to which specific questions students get wrong. A single question that a large share of students answers incorrectly is rarely a coincidence. It usually means that either the lesson did not teach that idea clearly, or the question itself is confusing. Either way, you now know exactly which lesson to strengthen.</p></blockquote>\n<p>A question that trips up many students is a flag, not a verdict. Your options are to teach that concept more clearly in the lesson, to reword the question, or, if a wrong answer turns out to be arguably correct, to replace the option.</p>\n<p>Individual results matter as much as the aggregate, though for a different reason. If a particular student keeps scoring low, that is a signal to reach out and confirm they are not lost. Some students are too shy to ask for help, so a low quiz score is often the first visible sign that they are struggling. A quick, friendly message can be the difference between a student who finishes and one who quietly leaves.</p>\n<blockquote><p><strong>A balance to strike:</strong> resist the urge to obsess over every individual score. One low score among many good ones is normal and not a crisis. The pattern across many students is the reliable signal. Use the aggregate to improve the course, and use individual outliers to offer support, but do not treat either as a personal failure.</p></blockquote>\n<p>Finally, let the results close the loop on your quiz design. After a cohort has gone through, revisit your questions with their scores in front of you, tightening the ones everyone aces if they test trivia and rewriting the ones many fail if the problem is the teaching. A quiz you tune against real results keeps getting better at its job.</p>\n<blockquote><p><strong>What you now have:</strong> a complete feedback channel. Students learn from the quiz and its results, and you learn from how they perform. This is the last piece of the content building stage, and it prepares you to handle the business of actually publishing and running the course.</p></blockquote>",
+   "post_title": "Reviewing Quiz Results",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "reviewing-quiz-results",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900013,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Every course you build is bound to wind up published, because a course that no one can see cannot teach anyone. But publishing is a decision, not an accident, and Masteriyo gives you control over exactly when and how a course becomes visible. This lesson explains that control so you can launch cleanly.</p>\n<p>The core distinction is between a draft and a published course. A draft is visible only to you and other site administrators. Students cannot see it, search engines do not index it, and it does not appear in your course archive. This is your private workshop. You build the whole course here, at your own pace, without ever presenting unfinished work to the world.</p>\n<p>Publishing is the flip of a switch. When you publish, the course appears in the archive, on the course list, and in any place courses are displayed. It becomes real. That is exciting, and it is also exactly why you should publish deliberately. Before you publish, run a quick review of the whole course: every lesson complete, every quiz working, every image in place, and every section titled the way you intended.</p>\n<blockquote><p><strong>A practical checklist before publishing:</strong> confirm the title and description read well, every lesson is filled with its teaching content, each quiz attaches correctly and grades as expected, the featured image shows, and the category and difficulty are set. When all of that is true, the course is ready, and not until.</p></blockquote>\n<p>Visibility is a slightly separate idea from published status, and the two are easy to confuse. Published status controls whether the course exists publicly at all. Visibility controls who can see and take it within that public state. Some courses can be visible to all visitors; others should be restricted so only registered users, or only students who have paid, can see the content.</p>\n<blockquote><p><strong>A common confusion:</strong> creators sometimes publish a course thinking they have made it available, only to find the visibility set to something restrictive, or vice versa. When a course does not show up where expected, check both settings, because they act independently and both must be correct.</p></blockquote>\n<p>There are also good reasons to publish and then adjust. You might publish a free preview course and later decide to make it paid. You might restrict a course to logged-in users at launch, then open it to everyone. These are normal. The flexibility exists precisely because real courses evolve. The key habit is to review both toggles consciously at every stage, so your intent and the actual settings never drift apart.</p>\n<blockquote><p><strong>Where this leads:</strong> with the course built and its visibility set, you are almost ready to launch. The final pieces are the access model, what students need to do to enrol, and how that flows from the settings you chose. That is the subject of the next lesson.</p></blockquote>",
+   "post_title": "Setting Visibility and Published Status",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "setting-visibility-and-published-status",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900012,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900014,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A finished course needs to decide not just when and where it appears, but who is allowed into it. Masteriyo lets you choose an access model that matches your goals, and understanding the options keeps you from locking out the students you want or letting in the ones you do not. This lesson walks through the access models and how to choose one.</p>\n<p>The simplest model is a fully public course, where anyone who visits your site can open the lessons without logging in. This is right for free content that you want to reach the widest possible audience, and it creates the least friction, because a visitor can start learning instantly.</p>\n<p>The next step up is a course that requires login. Nobody can see the content unless they have a user account on your site, even if the course itself is free. This model is powerful for building an audience, because it captures an email address and contact point from every learner.</p>\n<blockquote><p><strong>A strategic note:</strong> asking for a login is a small tax on the learner, so only charge it when the value of the collected contact justifies it. Beginners on your site may not bother to create an account for a course they are just curious about. Reserve login-required access for courses that are genuinely valuable, and let the most casual content stay open.</p></blockquote>\n<p>The most restrictive model, and the one that matters commercially, is paid access, where the student purchases enrolment and Masteriyo gates the course behind that payment. Depending on your setup, payment is handled through built-in methods or your chosen gateway. This model belongs to the courses that are the core of your business, and choosing it is the point where your course stops being content and becomes a product.</p>\n<p>Whichever model you choose, remember that access control is not the same as whether the course is published. A course can be published and still require login, or be published and open to everyone. Checking all three, published status, visibility, and access, in combination is the way to get exactly the behaviour you intend.</p>\n<blockquote><p><strong>A practical frame:</strong> ask yourself what you want from this course. If you want reach, make it open. If you want a contact list, require login and keep it free. If you want revenue, gate it behind a price. The access model follows directly from that one answer, so decide the goal first and the setting becomes obvious.</p></blockquote>\n<p>Do not feel you must pick once and never change it. Masteriyo lets you adjust access at any point, and many creators launch a course free to build reviews and social proof, then convert it to paid once it has reputation. Each change should be deliberate, with the setting always matching your current intent.</p>\n<blockquote><p><strong>What you now know:</strong> published status, visibility, and access are three layers you control independently. Setting them deliberately is what turns a finished course into a course that actually does the job you built it for. Next you will learn how learners get into the course and what the experience looks like from their side.</p></blockquote>",
+   "post_title": "Who Can Access Your Course",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "who-can-access-your-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900012,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900015,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>You have built the course and set its access, but the story is not finished until you understand what the student experiences when they arrive. Seeing the course from the learner's side is the difference between a course that is built correctly and one that actually works well. This lesson takes you into a student's journey from landing page to completion.</p>\n<p>A visitor first meets your course on its public page. Here they read the title, the description you wrote, the excerpt, the category, the difficulty, the duration, and they view the featured image. This page is essentially your sales pitch and your syllabus combined, and every field you filled in with care makes it more persuasive.</p>\n<p>If the course requires access, the student then enrols, which means establishing an account if they need one and completing any payment or sign-up step. If the course is open, they skip straight to the content. Either way, after enrolment the course appears in the student's dashboard, where all their courses are collected in one place.</p>\n<p>From the dashboard the student opens the course and sees its section list, collapsible and ordered exactly as you arranged it, along with which lessons they have completed and how far through the course they are. This progress view is one of the most motivating parts of the experience, because a visible path and visible progress pull learners toward the finish.</p>\n<blockquote><p><strong>A design principle:</strong> think of the learner's path as a handshake between you and the student. The course page makes the promise of what they will learn, enrolment seals it, and the section list keeps the promise throughout. Any point where the handshake breaks, such as a confusing title or an empty lesson, is where you lose them.</p></blockquote>\n<p>When the student opens a lesson, they read your content, watch embedded media if you added it, and can move between lessons with next buttons that keep the flow going. When they reach a quiz, they answer and see their score immediately, receiving feedback on the correct answers, which is what converts your careful quiz design into an actual learning moment.</p>\n<blockquote><p><strong>A reminder to test it yourself:</strong> there is no substitute for opening the course exactly as a student would. Use a separate test account if possible, enrol, and click through every lesson and quiz, fixing anything that reads badly, any broken link, or any quiz error before real students arrive.</p></blockquote>\n<p>Finally, consider what happens after the last lesson. A learner who reaches the end should feel a sense of closure and accomplishment, so this is a good place to add a short conclusion, a note of encouragement, or a pointer to your next course. Well-planned endings turn a completed course into a satisfied student.</p>\n<blockquote><p><strong>Where you are now:</strong> you understand the full learner journey. The challenge that remains is a business one: actually getting people into the course and running it smoothly, which means taking payments and managing enrolment. That is the subject of the final section.</p></blockquote>",
+   "post_title": "The Learner's Experience",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "the-learner-s-experience",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900012,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900024,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A course is a product the moment it has a price, and selling it well is as much a skill as building it. This lesson covers the business side of Masteriyo: how to set a price, how payment works, and how to think about pricing in a way that supports your goals rather than undermining them.</p>\n<p>The first decision is whether the course is free or paid, which we have already touched on in the access lesson. Free courses are loss leaders that build reach and trust. Paid courses are the direct revenue engine. Many creators run both deliberately: a free starter course to attract beginners, and one or more paid courses where the real value, and the real income, lives.</p>\n<p>To make a course paid, you enable the paid setting and set a price. Masteriyo then attaches the payment flow to enrolment, so a student must complete the purchase before the content unlocks. The exact payment methods available depend on your site's configuration, but the experience for the student is the same: a clear price, a checkout, and immediate access once payment succeeds.</p>\n<blockquote><p><strong>A pricing mindset:</strong> start with the value the student gains, not with what you think you can get away with. A course that saves a professional many hours of trial and error is worth far more than one that merely entertains. Price against the value delivered and the alternatives your audience could choose, and you will land somewhere both fair and sustainable.</p></blockquote>\n<p>Do not be afraid to refine the price over time. There is no fixed rule that a course keeps its launch price forever. You might launch at a discount to build early reviews and testimonials, then raise the price once the course has proof it helps people. You might bundle courses or offer different pricing for different audiences. All of these are normal commercial decisions, and Masteriyo is built to accommodate them.</p>\n<p>One of the quiet advantages of selling through your own site is the relationship it creates. When a student buys your course, you have their contact and a direct line to them. That relationship is worth more than the single sale, because a student who liked your first course is the most likely buyer of your second. Think of every sale as the start of a relationship rather than a one-off transaction.</p>\n<blockquote><p><strong>A caution about discounts:</strong> repeat discounts train students to wait for the sale. Use them deliberately for launches and promotions, not as a permanent crutch, or you will find that nobody buys at full price. Clarity about when you discount protects the perceived value of your course.</p></blockquote>\n<p>Finally, pricing is intertwined with the access model from the earlier lesson. A paid course is restricted by definition. The settings for price, access, and payment work together, so when you change one, glance at the others. Getting this combination right is what separates a course that merely exists from a course that reliably earns its keep.</p>",
+   "post_title": "Selling Your Course",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "selling-your-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900023,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900025,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Managing a course is not finished at the moment of sale. A healthy course has students to support, and knowing where to find them and how to help them is what turns transactions into lasting community. This lesson shows you where your students live inside Masteriyo and how to support them well.</p>\n<p>Masteriyo keeps your students in a dedicated area, where you can see every learner enrolled in your courses, their progress, their quiz results, and their contact details. This is your class register and your reporting tool in one. When a student is struggling or a course has a problem, this is where you find out.</p>\n<blockquote><p><strong>A practical habit:</strong> check your student list regularly, even on quiet days. Look for learners who enrol and then stall, because a stalled student is almost always a fixable problem. A quick, friendly note asking if anything is blocking them can recover students you never knew you were losing. Quiet problems are the ones that never get fixed unless you look for them.</p></blockquote>\n<p>The student's progress view is your early warning system. Because the course tracks lesson completion, you can see exactly where a learner stops. Repeatedly stopping at the same lesson across many students is a strong signal that a lesson is unclear, too long, or broken. Fixing that one lesson can lift the completion rate of the whole course. The data you already have tells you where to look.</p>\n<p>Quiz results, covered in an earlier lesson, are part of this same story. Poor results on a particular question point to the same lesson that the progress data flags, giving you two independent signals pointing at the same fix. When two different kinds of data agree on a problem, you have found something worth acting on, not a coincidence.</p>\n<blockquote><p><strong>A supportive tone:</strong> when you reach out to students, keep it human and low-pressure. A simple \"I noticed you paused after the lighting lesson, can I help with anything?\" is far more effective than a formal inspection. Students remember courses where the creator cared, and that memory is what drives the next sale and the referrals that follow.</p></blockquote>\n<p>Do not forget the happy students. A student who completes a course and clearly enjoyed it is your best material for testimonials, reviews, and word of mouth. It costs nothing to say thank you and ask if they would be willing to share their experience. Most will, and their words will sell the course more convincingly than anything you could write yourself.</p>\n<blockquote><p><strong>Where this ends:</strong> you now have the complete picture, from planning the structure to building the content to publishing, selling, and supporting. That is the full loop of running a course in Masteriyo. The final lesson ties it all together and points you toward the next steps in making your course business grow.</p></blockquote>",
+   "post_title": "Finding and Supporting Your Students",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "finding-and-supporting-your-students",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900023,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900026,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>You have come a long way through this tour, and it is worth pausing to see the whole path laid out, because a finished course is the sum of deliberate steps, not a single heroic effort. This final lesson gives you a roadmap you can follow to ship your own first course and a checklist to keep yourself honest.</p>\n<p>The roadmap has five stages, and you have already met every one of them. First, plan: decide the subject, outline the sections, and choose the category and difficulty. Second, build the shell: create the course, write the title and description, and add the featured image. Third, fill the content: add sections, write lessons that teach one idea each, and attach quizzes to check understanding. Fourth, review and publish: check every lesson, every quiz, and every setting, then flip the course live. Fifth, sell and support: set the price and access, then keep an eye on students and their results.</p>\n<blockquote><p><strong>A realistic checkpoint:</strong> nothing here requires extraordinary effort, only consistent attention. A solid course with clear sections, real lessons, and working quizzes is already far ahead of most courses on the internet. Aim for genuinely useful over perfectly polished, and you will have shipped something real.</p></blockquote>\n<p>Keep a checklist beside you as you work and tick each item as you complete it. Writing things down protects you from forgetting the small fields that quietly matter, like the excerpt, the difficulty, and the featured image. A checklist is insurance against the tiny oversights that make a course look unprofessional.</p>\n<p>When you hit the review stage, be willing to cut. A lesson that is not teaching is dead weight, and a section that does not fit the outline is a distraction, because a tight course with focused lessons teaches better than a sprawling one.</p>\n<blockquote><p><strong>A shift in mindset:</strong> before you launch, decide what success looks like. Is it ten enrolments? Fifty? A certain completion rate? Pick a concrete target, then use the student and quiz data from the previous lessons to measure against it. Courses improve when their owners measure them, so measure from the start.</p></blockquote>\n<p>After you launch, run the loop again with real data. Watch where students stall, which quiz questions they miss, and which lessons they praise. Use that evidence to tighten the course, then let the improved course teach even better. This continuous cycle of build, measure, and improve is the real career skill at the heart of running a learning business.</p>\n<blockquote><p><strong>A final word:</strong> you have everything you need to create a course that teaches something real and serves your students well. Start with the planning, build the shell, fill it with focused lessons and fair quizzes, publish deliberately, and support your learners. Every professional course was built the same way, one deliberate step at a time, so go build yours.</p></blockquote>\n<p>Thank you for taking this tour, and welcome to the craft of teaching online with Masteriyo. The students who take your courses will thank you too.</p>",
+   "post_title": "Your First Course Roadmap",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "your-first-course-roadmap",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900023,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "quizzes": [
+  {
+   "ID": 900016,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Publishing and Access Check",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "publishing-and-access-check",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900012,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "6"
+    ],
+    "_pass_mark": [
+     "4"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900027,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Masteriyo Basics Check",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "masteriyo-basics-check",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900023,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "9"
+    ],
+    "_pass_mark": [
+     "5"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "questions": [
+  {
+   "ID": 900017,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Any visitor to the site\", \"correct\": false}, {\"name\": \"All registered students\", \"correct\": false}, {\"name\": \"Only site administrators\", \"correct\": true}, {\"name\": \"Search engines and students alike\", \"correct\": false}]",
+   "post_title": "What is a draft course visible to?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-a-draft-course-visible-to",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900018,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The number of sections in the course\", \"correct\": false}, {\"name\": \"Whether the course is publicly live\", \"correct\": true}, {\"name\": \"The length of each quiz\", \"correct\": false}, {\"name\": \"The colour of the course card\", \"correct\": false}]",
+   "post_title": "What does the published status of a course control?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-does-the-published-status-of-a-course-control",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900019,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Paid access\", \"correct\": false}, {\"name\": \"Fully public\", \"correct\": true}, {\"name\": \"Login required\", \"correct\": false}, {\"name\": \"Draft only\", \"correct\": false}]",
+   "post_title": "Which access model lets anyone open lessons without logging in?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-access-model-lets-anyone-open-lessons-without-logging-in",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900020,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It makes the course faster to load\", \"correct\": false}, {\"name\": \"It captures an email address and contact point from each learner\", \"correct\": true}, {\"name\": \"It doubles the revenue from the course\", \"correct\": false}, {\"name\": \"It removes the need for descriptions\", \"correct\": false}]",
+   "post_title": "What is the benefit of requiring a login for a free course?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-benefit-of-requiring-a-login-for-a-free-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900021,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"On the WordPress admin dashboard\", \"correct\": false}, {\"name\": \"In the plugin settings\", \"correct\": false}, {\"name\": \"In the student's dashboard with all their courses\", \"correct\": true}, {\"name\": \"On the site's home page only\", \"correct\": false}]",
+   "post_title": "Where does a course appear for a student after they enrol?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "where-does-a-course-appear-for-a-student-after-they-enrol",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900022,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"In the course description\", \"correct\": false}, {\"name\": \"In the dedicated students area\", \"correct\": true}, {\"name\": \"On the featured image\", \"correct\": false}, {\"name\": \"In the plugin colour settings\", \"correct\": false}]",
+   "post_title": "Where can a course owner see every learner and their quiz results?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "where-can-a-course-owner-see-every-learner-and-their-quiz-results",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900016,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900028,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It plays video automatically on the course page\", \"correct\": false}, {\"name\": \"It sets the price that students must pay\", \"correct\": false}, {\"name\": \"It groups lessons into an organized, navigable chapter\", \"correct\": true}, {\"name\": \"It limits how many students can enrol\", \"correct\": false}]",
+   "post_title": "What is the role of a section inside a Masteriyo course?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-role-of-a-section-inside-a-masteriyo-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900029,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Only plain written text\", \"correct\": false}, {\"name\": \"Only video hosted on your own server\", \"correct\": false}, {\"name\": \"Written content plus embedded video or audio\", \"correct\": true}, {\"name\": \"A quiz, but no text\", \"correct\": false}]",
+   "post_title": "Which of these can a single Masteriyo lesson contain?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-of-these-can-a-single-masteriyo-lesson-contain",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900030,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Price and payment gateway\", \"correct\": false}, {\"name\": \"Category and difficulty level\", \"correct\": true}, {\"name\": \"Featured image and quiz count\", \"correct\": false}, {\"name\": \"Duration and lesson count\", \"correct\": false}]",
+   "post_title": "Which two fields, when set, help students find and trust a course in a grid of others?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-two-fields-when-set-help-students-find-and-trust-a-course-in-a-grid-of-others",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900031,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Twelve or more\", \"correct\": false}, {\"name\": \"No more than one\", \"correct\": false}, {\"name\": \"Roughly three to five\", \"correct\": true}, {\"name\": \"At least ten\", \"correct\": false}]",
+   "post_title": "What is the recommended average number of lessons per section?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-recommended-average-number-of-lessons-per-section",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900032,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Keep teaching until the word limit is reached\", \"correct\": false}, {\"name\": \"Split the idea across other lessons\", \"correct\": false}, {\"name\": \"Replace the main idea with an example\", \"correct\": false}, {\"name\": \"State it clearly and build the whole lesson around it\", \"correct\": true}]",
+   "post_title": "What should a great lesson do with a single main idea?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-should-a-great-lesson-do-with-a-single-main-idea",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900033,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Both control the price of the course\", \"correct\": false}, {\"name\": \"Whether the course is publicly live and who can see it\", \"correct\": true}, {\"name\": \"Both control the colour of the course card\", \"correct\": false}, {\"name\": \"Whether the course has a quiz attached\", \"correct\": false}]",
+   "post_title": "In Masteriyo, what do published status and visibility control?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "in-masteriyo-what-do-published-status-and-visibility-control",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900034,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"A course that is broken and should be deleted\", \"correct\": false}, {\"name\": \"A course that students can take for free\", \"correct\": false}, {\"name\": \"A course visible only to site administrators, not to students\", \"correct\": true}, {\"name\": \"A course that has no sections\", \"correct\": false}]",
+   "post_title": "What is a \"draft\" course in Masteriyo?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-a-draft-course-in-masteriyo",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 6,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900035,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Draft, archive, and featured\", \"correct\": false}, {\"name\": \"Fully public, login required, and paid\", \"correct\": true}, {\"name\": \"Beginner, intermediate, and advanced\", \"correct\": false}, {\"name\": \"Video, text, and audio\", \"correct\": false}]",
+   "post_title": "What are the three main access models for a course?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-are-the-three-main-access-models-for-a-course",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 7,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900036,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Delete the whole quiz immediately\", \"correct\": false}, {\"name\": \"Ignore it, since it is only one question\", \"correct\": false}, {\"name\": \"Reset every student's progress\", \"correct\": false}, {\"name\": \"Strengthen the related lesson and review the question\", \"correct\": true}]",
+   "post_title": "What should you do when most students miss the same quiz question?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-should-you-do-when-most-students-miss-the-same-quiz-question",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900027,
+   "guid": "",
+   "menu_order": 8,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ]
+}

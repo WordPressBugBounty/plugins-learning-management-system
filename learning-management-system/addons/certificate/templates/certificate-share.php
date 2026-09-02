@@ -5,14 +5,14 @@
  *
  *
  * @package Masteriyo\Templates
- * @version 1.13.3
+ * @version 2.14.4 [free]
  */
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
 /**
  * Fires before rendering certificate share button section in single course page.
  *
- * @since 1.13.3
+ * @since 2.14.4 [free]
  *
  * @param \Masteriyo\Models\Course $course
  */
@@ -36,7 +36,7 @@ $button_text = __( 'Certificate Share', 'learning-management-system' );
 		/**
 		 * Filter the display text in certificate share button in single course page.
 		 *
-		 * @since 1.13.3
+		 * @since 2.14.4 [free]
 		 *
 		 * @param string $heading The default display text.
 		 */
@@ -49,7 +49,7 @@ $button_text = __( 'Certificate Share', 'learning-management-system' );
 /**
  * Fires after rendering certificate share button section in single course page.
  *
- * @since 1.13.3
+ * @since 2.14.4 [free]
  *
  * @param \Masteriyo\Models\Course $course
  */

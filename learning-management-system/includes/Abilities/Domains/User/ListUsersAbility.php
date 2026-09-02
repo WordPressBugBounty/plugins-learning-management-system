@@ -3,7 +3,6 @@
  * List Users ability.
  *
  * @package Masteriyo\Abilities\Domains\User
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\User;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a paginated list of users (students and instructors).
- *
- * @since x.x.x
  */
 class ListUsersAbility extends RestProxyAbility {
 
@@ -46,6 +43,10 @@ class ListUsersAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of Masteriyo users (students and instructors). Optionally filter by role, search term, or enrollment status. Returns data array and pagination metadata.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Retrieve a paginated list of %s users (students and instructors). Optionally filter by role, search term, or enrollment status. Returns data array and pagination metadata.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

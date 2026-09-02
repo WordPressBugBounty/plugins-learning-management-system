@@ -56,6 +56,7 @@ class CourseCurriculum extends BlockHandler {
 
 		$course            = $this->get_block_preview_course( $course_id );
 		$GLOBALS['course'] = $course;
+
 		\ob_start();
 
 		/**
@@ -71,9 +72,8 @@ class CourseCurriculum extends BlockHandler {
 			<?php echo $block_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</style>
 		<?php
-		if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
+		if ( masteriyo_can_view_curriculum( $course ) ) {
 			$sections = masteriyo_get_course_structure( $course->get_id() );
-
 			printf(
 				'<div class="masteriyo-block masteriyo-single-course--main__content masteriyo-course-curriculum-block--%s">',
 				esc_attr( $client_id )

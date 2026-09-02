@@ -179,7 +179,8 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 	public function update( Model &$course_progress_item ) {
 		global $wpdb;
 
-		$changes                        = $course_progress_item->get_changes();
+		$changes = $course_progress_item->get_changes();
+
 		$course_progress_item_data_keys = array(
 			'user_id',
 			'item_id',
@@ -209,6 +210,7 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 				}
 			} else {
 				$modified_at = current_time( 'mysql', true );
+
 			}
 
 			$wpdb->update(
@@ -300,6 +302,7 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 		$result    = $cache->get_cache( $cache_key );
 
 		if ( ! $result ) {
+
 			$result = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM {$wpdb->prefix}masteriyo_user_activities WHERE id = %d;",
@@ -310,7 +313,7 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 			if ( ! $result ) {
 				throw new ModelException(
 					'masteriyo_invalid_course_progress_item',
-					__( 'Invalid course progress item ID.', 'learning-management-system' ),
+					esc_html__( 'Invalid course progress item ID.', 'learning-management-system' ),
 					400
 				);
 			}

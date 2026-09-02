@@ -46,6 +46,7 @@ final class Loader {
 	 * @var array The modules which SDK will be using.
 	 */
 	private static $available_modules = [
+		'crash_reporter',
 		'script_loader',
 		'dashboard_widget',
 		'rollback',
@@ -64,6 +65,7 @@ final class Loader {
 		'announcements',
 		'featured_plugins',
 		'float_widget',
+		'migrator',
 	];
 	/**
 	 * Holds the labels for the modules.
@@ -72,10 +74,11 @@ final class Loader {
 	 */
 	public static $labels = [
 		'announcements'    => [
-			'notice_link_label' => 'See the Offer',
-			'max_savings'       => 'Our biggest sale of the year: <strong>%s OFF everything!</strong>  Don\'t miss this limited-time offer.',
-			'black_friday'      => 'Black Friday Sale',
-			'time_left'         => '%s left',
+			'notice_link_label'   => 'See the deals',
+			'max_savings'         => 'Best WordPress Black Friday deals of %s — themes, plugins, hosting. Curated by the Themeisle team.',
+			'black_friday'        => 'Black Friday Sale',
+			'time_left'           => '%s left',
+			'plugin_meta_message' => 'Black Friday Sale - 60% OFF',
 		],
 		'compatibilities'  => [
 			'notice'        => '%s requires a newer version of %s. Please %supdate%s %s %s to the latest version.',
@@ -108,10 +111,14 @@ final class Loader {
 			'valid'               => 'Valid',
 			'invalid'             => 'Invalid',
 			'notice'              => 'Enter your license from %s purchase history in order to get %s updates',
-			'expired'             => 'Your %s\'s License Key has expired. In order to continue receiving support and software updates you must  %srenew%s your license key.',
+			'expired'             => '%s license expired',
+			'expired_date'        => 'Expired on %s',
+			'expired_notice'      => 'Your current setup continues working, but premium features are disabled and you\'re no longer receive updates - including critical patches - or support.',
 
 			'inactive'            => 'In order to benefit from updates and support for %s, please add your license code from your  %spurchase history%s and validate it %shere%s.',
 			'no_activations'      => 'No more activations left for %s. You need to upgrade your plan in order to use %s on more websites. If you need assistance, please get in touch with %s staff.',
+			'renew_license'       => 'Renew License',
+			'learn_more'          => 'Learn More',
 		],
 		'promotions'       => [
 			'recommended'     => 'Recommended by %s',
@@ -192,11 +199,12 @@ final class Loader {
 			'button_submit'  => 'Submit &amp; Deactivate',
 			'button_cancel'  => 'Skip &amp; Deactivate',
 			'disclosure'     => [
-				'title'   => 'Below is a detailed view of all data that Themeisle will receive if you fill in this survey. No email address or IP addresses are transmitted after you submit the survey.',
-				'version' => '%s %s version %s %s %s %s',
-				'website' => '%sCurrent website:%s %s %s %s',
-				'usage'   => '%sUsage time:%s %s %s%s',
-				'reason'  => '%s Uninstall reason %s %s Selected reason from the above survey %s ',
+				'title'       => 'Below is a detailed view of all data that Themeisle will receive if you fill in this survey. No email address or IP addresses are transmitted after you submit the survey.',
+				'version'     => '%s %s version %s %s %s %s',
+				'website'     => '%sCurrent website:%s %s %s %s',
+				'usage'       => '%sUsage time:%s %s %s%s',
+				'reason'      => '%s Uninstall reason %s %s Selected reason from the above survey %s ',
+				'diagnostics' => '%sCrash diagnostics:%s Anonymized technical details of errors recorded for this product, if any.',
 			],
 
 			'options'        => [
@@ -249,9 +257,9 @@ final class Loader {
 			'cta' => 'Rollback to v%s',
 		],
 		'logger'           => [
-			'notice' => 'Do you enjoy <b>{product}</b>? Become a contributor by opting in to our anonymous data tracking. We guarantee no sensitive data is collected.',
-			'cta_y'  => 'Sure, I would love to help.',
-			'cta_n'  => 'No, thanks.',
+			'notice' => 'Help improve <b>{product}</b> by sharing anonymous usage data about your setup. No personal data collected.',
+			'cta_y'  => 'Count me in',
+			'cta_n'  => 'No thanks',
 		],
 		'about_us'         => [
 			'title'            => 'About Us',
@@ -262,6 +270,42 @@ final class Loader {
 			'newsHeading'      => 'Stay connected for news & updates!',
 			'emailPlaceholder' => 'Your email address',
 			'signMeUp'         => 'Sign me up',
+			'services'         => [
+				'ariaLabel'       => 'Themeisle services',
+				'trustpilotLabel' => 'Rated excellent on Trustpilot',
+				'trustpilotRated' => 'Rated',
+				'trustpilotOn'    => 'on',
+				'trustpilotBrand' => 'Trustpilot',
+				'heading'         => 'Expert WordPress services from the Themeisle team',
+				'description'     => 'Done for you by the same people who build your plugins and themes.',
+				'cta'             => 'Explore all services',
+				'items'           => [
+					'websiteDesign' => [
+						'title'    => 'Website Design',
+						'subtitle' => 'Built for your business',
+					],
+					'support'       => [
+						'title'    => 'Support',
+						'subtitle' => 'On-demand expert help',
+					],
+					'speed'         => [
+						'title'    => 'Speed Optimization',
+						'subtitle' => 'Core Web Vitals boost',
+					],
+					'seo'           => [
+						'title'    => 'SEO Foundation',
+						'subtitle' => 'Rank & get found',
+					],
+					'maintenance'   => [
+						'title'    => 'Maintenance',
+						'subtitle' => 'Updates, backups, security',
+					],
+					'hackedSite'    => [
+						'title'    => 'Hacked Site Repair',
+						'subtitle' => 'Malware removed fast',
+					],
+				],
+			],
 			'installNow'       => 'Install Now',
 			'activate'         => 'Activate',
 			'learnMore'        => 'Learn More',

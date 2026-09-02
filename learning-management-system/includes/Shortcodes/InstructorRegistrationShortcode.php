@@ -10,6 +10,7 @@
 namespace Masteriyo\Shortcodes;
 
 use Masteriyo\Abstracts\Shortcode;
+use Masteriyo\Enums\InstructorApplyStatus;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,7 +63,9 @@ class InstructorRegistrationShortcode extends Shortcode {
 		$is_registration_enable = masteriyo_get_setting( 'general.registration.enable_instructor_registration' );
 
 		if ( is_user_logged_in() ) {
-			return masteriyo( 'template' )->locate( 'account.php' );
+			$this->template_args = $this->get_logged_in_template_args();
+
+			return masteriyo( 'template' )->locate( 'account/instructor-registration-status.php' );
 		}
 
 		if ( ! $is_registration_enable ) {
@@ -73,39 +76,62 @@ class InstructorRegistrationShortcode extends Shortcode {
 	}
 
 	/**
-	 * Get lost password page template.
+	 * Get the state and message for the logged-in visitor (issue #570).
 	 *
-	 * @since  1.2.0
-	 *
-	 * @return string
+	 * @return array
 	 */
-	protected function get_lost_password_page_template() {
-		if ( ! empty( $_GET['reset-link-sent'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			masteriyo_add_notice( esc_html__( 'Password reset email has been sent.', 'learning-management-system' ) );
+	protected function get_logged_in_template_args() {
+		$user   = masteriyo_get_current_user();
+		$user   = ( $user && ! is_wp_error( $user ) ) ? $user : null;
+		$status = $user ? $user->get_instructor_apply_status() : '';
 
-			return masteriyo( 'template' )->locate( 'account/reset-password-confirmation.php' );
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			// Mirror the same truthiness get_template_path() uses to pick the logged-out template.
+			$registration_enabled = (bool) masteriyo_get_setting( 'general.registration.enable_instructor_registration' );
+
+			$role_notice = masteriyo_is_current_user_admin()
+				? __( 'You are previewing this page as a site administrator.', 'learning-management-system' )
+				: __( 'You are previewing this page as a site manager.', 'learning-management-system' );
+
+			$visitor_notice = $registration_enabled
+				? __( 'Logged-out visitors see the instructor registration form here.', 'learning-management-system' )
+				: __( 'Instructor registration is turned off, so logged-out visitors see the login form here.', 'learning-management-system' );
+
+			return array(
+				'state'   => 'admin',
+				'message' => $role_notice . ' ' . $visitor_notice,
+			);
 		}
 
-		if ( ! empty( $_GET['show-reset-form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) && 0 < strpos( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ], ':' ) ) {  // @codingStandardsIgnoreLine
-				list( $rp_id, $rp_key ) = array_map( 'masteriyo_clean', explode( ':', wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ), 2 ) ); // @codingStandardsIgnoreLine
-				$user                   = masteriyo_get_user( absint( $rp_id ) );
-				$rp_login               = $user ? $user->get_username() : '';
-
-				if ( is_wp_error( check_password_reset_key( $rp_key, $rp_login ) ) ) {
-					masteriyo_add_notice( __( 'This key is invalid or has already been used. Please request to reset your password again if needed.', 'learning-management-system' ), 'error' );
-				} else {
-					$this->set_template_args(
-						array(
-							'key'   => $rp_key,
-							'login' => $rp_login,
-						)
-					);
-					return masteriyo( 'template' )->locate( 'account/form-reset-password.php' );
-				}
-			}
+		if ( masteriyo_is_current_user_instructor() || InstructorApplyStatus::APPROVED === $status ) {
+			return array(
+				'state'   => 'instructor',
+				'message' => __( 'You are already registered as an instructor.', 'learning-management-system' ),
+			);
 		}
 
-		return masteriyo( 'template' )->locate( 'account/form-reset-password-request.php' );
+		if ( InstructorApplyStatus::APPLIED === $status ) {
+			return array(
+				'state'   => 'applied',
+				'message' => __( 'Your instructor application is pending review.', 'learning-management-system' ),
+			);
+		}
+
+		$apply_enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'accounts_page.display.enable_instructor_apply' ) );
+
+		// Same gate as the account profile screen: only students may apply.
+		if ( $user && $apply_enabled && masteriyo_is_current_user_student() && masteriyo_can_user_apply_for_instructor( $user ) ) {
+			return array(
+				'state'   => 'can_apply',
+				'message' => InstructorApplyStatus::REJECTED === $status
+					? __( 'Your previous application was rejected. You can apply again to become an instructor.', 'learning-management-system' )
+					: __( 'Apply to become an instructor on this site.', 'learning-management-system' ),
+			);
+		}
+
+		return array(
+			'state'   => 'closed',
+			'message' => __( 'Instructor applications are currently closed for your account.', 'learning-management-system' ),
+		);
 	}
 }

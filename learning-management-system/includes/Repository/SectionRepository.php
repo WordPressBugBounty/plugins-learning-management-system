@@ -51,7 +51,7 @@ class SectionRepository extends AbstractRepository implements RepositoryInterfac
 		}
 
 		// Set the author of the section to the current user id, if the section doesn't have a author.
-		if ( empty( $section->get_course_id() ) ) {
+		if ( empty( $section->get_author_id() ) ) {
 			$section->set_author_id( get_current_user_id() );
 		}
 
@@ -116,7 +116,7 @@ class SectionRepository extends AbstractRepository implements RepositoryInterfac
 		$section_post = get_post( $section->get_id() );
 
 		if ( ! $section->get_id() || ! $section_post || PostType::SECTION !== $section_post->post_type ) {
-			throw new \Exception( __( 'Invalid section.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid section.', 'learning-management-system' ) );
 		}
 
 		$section->set_props(
@@ -127,6 +127,7 @@ class SectionRepository extends AbstractRepository implements RepositoryInterfac
 				'description'   => $section_post->post_content,
 				'parent_id'     => $section_post->post_parent,
 				'menu_order'    => $section_post->menu_order,
+				'status'        => $section_post->post_status,
 			)
 		);
 
@@ -164,6 +165,7 @@ class SectionRepository extends AbstractRepository implements RepositoryInterfac
 			'menu_order',
 			'date_created',
 			'date_modified',
+			'status',
 		);
 
 		// Only update the post when the post data changes.
@@ -173,7 +175,7 @@ class SectionRepository extends AbstractRepository implements RepositoryInterfac
 				'post_title'     => $section->get_name( 'edit' ),
 				'post_parent'    => $section->get_parent_id( 'edit' ),
 				'comment_status' => 'closed',
-				'post_status'    => PostStatus::PUBLISH,
+				'post_status'    => $section->get_status(),
 				'menu_order'     => $section->get_menu_order( 'edit' ),
 				'post_type'      => PostType::SECTION,
 			);

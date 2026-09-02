@@ -40,9 +40,9 @@ const AnnouncementFilter: React.FC<Props> = ({
 		queryKey: ['courseList'],
 		queryFn: () =>
 			courseAPI.list({
-				order_by: 'name',
-				order: 'asc',
-				per_page: 5,
+				orderby: 'date',
+				order: 'desc',
+				per_page: 15,
 			}),
 	});
 
@@ -50,9 +50,9 @@ const AnnouncementFilter: React.FC<Props> = ({
 		queryKey: ['userList'],
 		queryFn: () =>
 			userAPI.list({
-				order_by: 'name',
-				order: 'asc',
-				per_page: 5,
+				orderby: 'registered',
+				order: 'desc',
+				per_page: 15,
 			}),
 	});
 
@@ -105,18 +105,21 @@ const AnnouncementFilter: React.FC<Props> = ({
 							});
 							handleSubmit(onChange)();
 						}}
-						placeholder={__('Filter by Course', 'learning-management-system')}
+						placeholder={__(
+							'Type to search courses',
+							'learning-management-system',
+						)}
 						isClearable={true}
 						styles={reactSelectStyles}
 						cacheOptions={true}
 						loadingMessage={() =>
-							__('Searching course...', 'learning-management-system')
+							__('Searching course…', 'learning-management-system')
 						}
 						noOptionsMessage={({ inputValue }) =>
 							inputValue.length > 0
 								? __('Course not found.', 'learning-management-system')
 								: courseQueries.isLoading
-									? __('Loading...', 'learning-management-system')
+									? __('Loading…', 'learning-management-system')
 									: __(
 											'Please enter 1 or more characters.',
 											'learning-management-system',
@@ -162,13 +165,13 @@ const AnnouncementFilter: React.FC<Props> = ({
 						styles={reactSelectStyles}
 						cacheOptions={true}
 						loadingMessage={() =>
-							__('Searching author...', 'learning-management-system')
+							__('Searching author…', 'learning-management-system')
 						}
 						noOptionsMessage={({ inputValue }) =>
 							inputValue.length > 0
 								? __('Author not found.', 'learning-management-system')
 								: userQueries.isLoading
-									? __('Loading...', 'learning-management-system')
+									? __('Loading…', 'learning-management-system')
 									: __(
 											'Please enter 1 or more characters.',
 											'learning-management-system',

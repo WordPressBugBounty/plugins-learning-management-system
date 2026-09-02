@@ -23,8 +23,16 @@ defined( 'ABSPATH' ) || exit;
 				</form>
 			</div>
 			<div class="masteriyo-actions">
-				<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel"><?php esc_html_e( 'Cancel', 'learning-management-system' ); ?></button>
-				<button class="masteriyo-btn masteriyo-btn-primary masteriyo-submit" data-loading-text="<?php esc_html_e( 'Verifying...', 'learning-management-system' ); ?>"><?php esc_html_e( 'Verify', 'learning-management-system' ); ?></button>
+			<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel">
+				<?php
+				echo esc_html_x(
+					'Cancel',
+					'button label to cancel an action',
+					'learning-management-system'
+				);
+				?>
+			</button>
+			<button class="masteriyo-btn masteriyo-btn-primary masteriyo-submit" data-loading-text="<?php esc_html_e( 'Verifying...', 'learning-management-system' ); ?>"><?php esc_html_e( 'Verify', 'learning-management-system' ); ?></button>
 			</div>
 		</div>
 	</div>

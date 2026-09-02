@@ -55,9 +55,7 @@ var SCORM_API = {
 		this.Data = {};
 		SCORM.connection.isActive = false;
 
-		var courseCompleted = localStorage.getItem(
-			'course_' + course_id + '_completed',
-		);
+		var courseCompleted = localStorage.getItem('course_' + course_id + '_completed');
 
 		if (!courseCompleted) {
 			localStorage.setItem('course_' + course_id + '_completed', 'true');

@@ -60,7 +60,6 @@ class MasteriyoDiviExtension extends \DiviExtension {
 		$this->plugin_dir_url = plugin_dir_url( $this->plugin_dir );
 
 		parent::__construct( $name, $args );
-
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts_styles' ), 11 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts_styles' ), 99 );
 		add_filter( 'body_class', array( $this, 'add_body_class' ), 10, 2 );
@@ -76,7 +75,6 @@ class MasteriyoDiviExtension extends \DiviExtension {
 		if ( ! Helper::is_divi_builder() ) {
 			return;
 		}
-
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		$divi_integration_src = plugins_url( '/addons/divi-integration/js/build/diviIntegration' . $suffix . '.js', MASTERIYO_PLUGIN_FILE );
@@ -124,10 +122,11 @@ class MasteriyoDiviExtension extends \DiviExtension {
 		}
 	}
 
+
 	/**
 	 * Remove the styles that are conflict with masteriyo.
 	 *
-	 * @since 1.16.1
+	 * @since 2.17.2
 	 *
 	 * @return array
 	 */
@@ -141,6 +140,7 @@ class MasteriyoDiviExtension extends \DiviExtension {
 			)
 		);
 	}
+
 
 	/**
 	 * Add class to the body tag.

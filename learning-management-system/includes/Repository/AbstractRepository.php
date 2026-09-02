@@ -10,6 +10,8 @@
 
 namespace Masteriyo\Repository;
 
+use DateTimeZone;
+use Exception;
 use Masteriyo\MetaData;
 use Masteriyo\Helper\Utils;
 use Masteriyo\DateTime;
@@ -138,7 +140,7 @@ abstract class AbstractRepository {
 	 */
 	public function read_meta( &$model ) {
 		// TODO Abstract global $wpdb;
-		 global $wpdb;
+		global $wpdb;
 
 		$meta_table_info = $this->get_meta_table_info();
 
@@ -193,7 +195,12 @@ abstract class AbstractRepository {
 	 * @return array
 	 */
 	public function filter_raw_meta_data( &$model, $raw_meta_data ) {
-		$this->internal_meta_keys = array_merge( array_map( array( $this, 'prefix_key' ), $model->get_data_keys() ), $this->internal_meta_keys );
+		$extra_data_meta_keys = array();
+		foreach ( $model->get_extra_data_keys() as $key ) {
+			$extra_data_meta_keys[ $key ] = '_' . $key;
+		}
+
+		$this->internal_meta_keys = array_merge( array_map( array( $this, 'prefix_key' ), $model->get_data_keys() ), $this->internal_meta_keys, $extra_data_meta_keys );
 		$meta_data                = array_filter( $raw_meta_data, array( $this, 'exclude_internal_meta_keys' ) );
 
 		/**
@@ -450,7 +457,7 @@ abstract class AbstractRepository {
 	 * @return array Stopwords.
 	 */
 	protected function get_search_stopwords() {
-		 // Translators: This is a comma-separated list of very common words that should be excluded from a search, like a, an, and the. These are usually called "stopwords". You should not simply translate these individual words into your language. Instead, look for and provide commonly accepted stopwords in your language.
+		// Translators: This is a comma-separated list of very common words that should be excluded from a search, like a, an, and the. These are usually called "stopwords". You should not simply translate these individual words into your language. Instead, look for and provide commonly accepted stopwords in your language.
 		$stopwords = array_map(
 			array( Utils::class, 'strtolower' ),
 			array_map(
@@ -576,7 +583,7 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Model   $model               The Model model.
+	 * @param  \Masteriyo\Database\Model   $model               The Model model.
 	 * @param  array   $meta_key_to_props   A mapping of meta keys => prop names.
 	 * @param  string  $meta_type           The internal WP meta type (post, user, etc).
 	 * @return array                        A mapping of meta keys => prop names, filtered by ones that should be updated.
@@ -670,17 +677,14 @@ abstract class AbstractRepository {
 	 */
 	protected function update_post_meta( &$model, $force = false ) {
 		// Make sure to take extra data into account.
-		$extra_data_keys = $model->get_extra_data_keys();
+		$extra_data_keys   = $model->get_extra_data_keys();
+		$meta_key_to_props = $this->get_internal_meta_keys();
 
 		foreach ( $extra_data_keys as $key ) {
 			$meta_key_to_props[ $key ] = '_' . $key;
 		}
 
-		if ( $force ) {
-			$props_to_update = $this->get_internal_meta_keys();
-		} else {
-			$props_to_update = $this->get_props_to_update( $model, $this->get_internal_meta_keys() );
-		}
+		$props_to_update = $force ? $meta_key_to_props : $this->get_props_to_update( $model, $meta_key_to_props );
 
 		foreach ( $props_to_update as $prop => $meta_key ) {
 			if ( ! is_callable( array( $model, "get_{$prop}" ) ) ) {
@@ -707,7 +711,7 @@ abstract class AbstractRepository {
 			foreach ( $extra_data_keys as $key ) {
 				$meta_key = '_' . $key;
 				$function = 'get_' . $key;
-				if ( ! array_key_exists( $meta_key, $props_to_update ) ) {
+				if ( ! array_key_exists( $key, $props_to_update ) ) {
 					continue;
 				}
 				if ( is_callable( array( $model, $function ) ) ) {
@@ -920,7 +924,7 @@ abstract class AbstractRepository {
 	 * @return array
 	 */
 	protected function get_must_exist_meta_keys() {
-		 return $this->must_exist_meta_keys;
+		return $this->must_exist_meta_keys;
 	}
 
 	/**
@@ -931,7 +935,7 @@ abstract class AbstractRepository {
 	 * @return array
 	 */
 	protected function get_internal_lookup_keys() {
-		 return $this->internal_lookup_keys;
+		return $this->internal_lookup_keys;
 	}
 
 	/**
@@ -981,14 +985,25 @@ abstract class AbstractRepository {
 					'page'           => 'paged',
 					'include'        => 'post__in',
 					'exclude'        => 'post__not_in',
-					'parent'         => 'post_parent',
+					'parent'         => 'post_parent__in',
 					'parent_exclude' => 'post_parent__not_in',
 					'limit'          => 'posts_per_page',
 					'type'           => 'post_type',
+					'author'         => 'author__in',
 					'return'         => 'fields',
 				);
 
 				if ( isset( $key_mapping[ $key ] ) ) {
+					switch ( $key ) {
+						case 'include':
+						case 'exclude':
+						case 'parent':
+						case 'parent_include':
+						case 'author':
+							$value = is_array( $value ) ? $value : (array) $value;
+							break;
+					}
+
 					$wp_query_args[ $key_mapping[ $key ] ] = $value;
 				} else {
 					$wp_query_args[ $key ] = $value;
@@ -1155,25 +1170,23 @@ abstract class AbstractRepository {
 						'compare' => '<=',
 					);
 			}
-		} else {
-			if ( '...' !== $operator ) {
+		} elseif ( '...' !== $operator ) {
 				$wp_query_args['meta_query'][] = array(
 					'key'     => $key,
 					'value'   => $dates[0]->getTimestamp(),
 					'compare' => $operator,
 				);
-			} else {
-				$wp_query_args['meta_query'][] = array(
-					'key'     => $key,
-					'value'   => $dates[0]->getTimestamp(),
-					'compare' => '>=',
-				);
-				$wp_query_args['meta_query'][] = array(
-					'key'     => $key,
-					'value'   => $dates[1]->getTimestamp(),
-					'compare' => '<=',
-				);
-			}
+		} else {
+			$wp_query_args['meta_query'][] = array(
+				'key'     => $key,
+				'value'   => $dates[0]->getTimestamp(),
+				'compare' => '>=',
+			);
+			$wp_query_args['meta_query'][] = array(
+				'key'     => $key,
+				'value'   => $dates[1]->getTimestamp(),
+				'compare' => '<=',
+			);
 		}
 
 		return $wp_query_args;

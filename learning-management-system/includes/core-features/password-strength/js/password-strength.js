@@ -344,11 +344,14 @@ const { sprintf } = wp.i18n;
 	// Initialize
 	_MASTERIYO_PASSWORD_STRENGTH_.displayPolicyList(
 		'#masteriyo-signup--form #password',
+		'#masteriyo-signup--form #password',
 	);
 	_MASTERIYO_PASSWORD_STRENGTH_.displayPolicyList(
 		'#masteriyo-instructor-registration--form #password',
+		'#masteriyo-instructor-registration--form #password',
 	);
 	_MASTERIYO_PASSWORD_STRENGTH_.displayPolicyList(
+		'#masteriyo-reset--form #password',
 		'#masteriyo-reset--form #password',
 	);
 

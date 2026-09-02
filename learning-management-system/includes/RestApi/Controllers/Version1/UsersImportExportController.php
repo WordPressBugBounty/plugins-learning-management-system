@@ -97,7 +97,11 @@ class UsersImportExportController extends RestController {
 	 * @return \WP_Error|\WP_REST_Response
 	 */
 	public function export_items( \WP_REST_Request $request ) {
-		$users = $this->fetch_users();
+		$bulk_ids      = is_array( $request->get_param( 'bulkIds' ) ) ? array_map( 'absint', $request->get_param( 'bulkIds' ) ) : array();
+		$is_student    = masteriyo_string_to_bool( $request->get_param( 'isStudent' ) ?? false );
+		$is_instructor = masteriyo_string_to_bool( $request->get_param( 'isInstructor' ) ?? false );
+
+		$users = $this->fetch_users( $bulk_ids, $is_student, $is_instructor );
 
 		if ( is_wp_error( $users ) ) {
 			return $users;
@@ -194,14 +198,32 @@ class UsersImportExportController extends RestController {
 	}
 
 	/**
-	 * Fetch all users.
+	 * Fetch users based on conditions.
 	 *
 	 * @since  1.6.13
 	 *
+	 * @param array $bulk_ids List of user IDs to fetch.
+	 * @param bool $is_student Whether to fetch students.
+	 * @param bool $is_instructor Whether to fetch instructors.
+	 *
 	 * @return array|\WP_Error Returns an array of users or WP_Error if no users found.
 	 */
-	private function fetch_users() {
-		$users = get_users();
+	private function fetch_users( $bulk_ids = array(), $is_student = false, $is_instructor = false ) {
+		$args = array();
+
+		if ( ! empty( $bulk_ids ) ) {
+			$args['include'] = $bulk_ids;
+		}
+
+		if ( $is_student ) {
+			$args['role'] = Roles::STUDENT;
+		}
+
+		if ( $is_instructor ) {
+			$args['role'] = Roles::INSTRUCTOR;
+		}
+
+		$users = get_users( $args );
 
 		if ( empty( $users ) ) {
 			return new \WP_Error( 'no_users', 'No users found.', array( 'status' => 404 ) );

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/block.json",
+  "apiVersion": 3,
+  "name": "masteriyo/login-link",
+  "version": "1.0.0",
+  "title": "Login | Logout",
+  "category": "masteriyo",
+  "parent": ["core/navigation"],
+  "description": "A smart link that switches between Login and Logout based on the visitor's login state.",
+  "keywords": ["Login", "Logout", "Account", "LMS", "Masteriyo"],
+  "example": {
+    "attributes": {}
+  },
+  "textdomain": "learning-management-system",
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "",
+      "role": "content"
+    }
+  },
+  "editorScript": "masteriyo-blocks-editor-js",
+  "supports": {
+    "html": false,
+    "reusable": false
+  }
+}

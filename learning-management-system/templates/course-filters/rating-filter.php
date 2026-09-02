@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
 
 			<input type="checkbox" id="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>" name="rating[]"  value="<?php echo esc_attr( $rating ); ?>">
 			<label for="masteriyo-rating-filter-<?php echo esc_attr( $rating ); ?>">
-				<div class="border-none masteriyo-stab-rs border">
+				<div class="border-none masteriyo-stab-rs">
 					<span class="masteriyo-icon-svg masteriyo-flex masteriyo-rstar">
 						<?php masteriyo_render_stars( $rating ); ?>
 					</span>

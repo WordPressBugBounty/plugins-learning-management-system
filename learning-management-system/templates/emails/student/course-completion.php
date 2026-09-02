@@ -10,7 +10,7 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @since 1.15.0
+ * @since 2.7.3
  *
  * @package masteriyo\Templates\Emails\HTML
  */
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires before rendering email header.
  *
- * @since 1.15.0
+ * @since 2.7.3
  *
  * @param \Masteriyo\Emails\Student\CourseCompletionEmailToStudent $email Email object.
  */
@@ -31,7 +31,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 /**
  * Action hook fired in email's footer section.
  *
- * @since 1.15.0
+ * @since 2.7.3
  *
  * @param \Masteriyo\Emails\Student\CourseCompletionEmailToStudent $email Email object.
  */

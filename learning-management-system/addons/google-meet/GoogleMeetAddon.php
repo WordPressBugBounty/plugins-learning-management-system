@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\GoogleMeet
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 namespace Masteriyo\Addons\GoogleMeet;
@@ -17,8 +17,6 @@ use Masteriyo\Addons\GoogleMeet\PostType\GoogleMeet;
 use Masteriyo\Addons\GoogleMeet\RestApi\GoogleMeetSettingController;
 use Masteriyo\Addons\GoogleMeet\RestApi\GoogleMeetController;
 use Masteriyo\Enums\PostStatus;
-
-use function cli\err;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,14 +31,14 @@ class GoogleMeetAddon {
 	/**
 	 * @var Setting
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public $setting;
 
 	/**
 	 * constructor
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function __construct() {
 	}
@@ -48,7 +46,7 @@ class GoogleMeetAddon {
 	/**
 	 * Initialize the application.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -57,9 +55,27 @@ class GoogleMeetAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function init_hooks() {
+		// Core's course-content seams — see includes/Helper/course-content.php.
+		add_filter(
+			'masteriyo_is_course_content_item',
+			function( $is_content_item, $item ) {
+				return $is_content_item || $item instanceof \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet;
+			},
+			10,
+			2
+		);
+		add_filter(
+			'masteriyo_exportable_post_statuses',
+			function( $statuses, $post_type ) {
+				return PostType::GOOGLEMEET === $post_type ? array_merge( GoogleMeetStatus::all(), $statuses ) : $statuses;
+			},
+			10,
+			2
+		);
+
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'register_google_meet_submenu' ) );
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_type' ) );
 		add_filter( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_rest_namespaces' ) );
@@ -84,6 +100,8 @@ class GoogleMeetAddon {
 
 		add_action( 'masteriyo_layout_1_single_course_curriculum_shortinfo_item', array( $this, 'shortinfo_item' ), 20, 1 );
 		add_action( 'masteriyo_layout_1_single_course_curriculum_accordion_header_info_item', array( $this, 'header_info_item' ), 20, 1 );
+
+		add_filter( 'masteriyo_courses_analytics_data', array( $this, 'append_meet_data_in_response' ), 10, 4 );
 		add_filter( 'masteriyo_post_type_default_labels', array( $this, 'append_post_type_default_label' ), 10 );
 		add_action( 'masteriyo_new_user_course', array( $this, 'masteriyo_add_user_to_google_calender' ), 10, 2 );
 		add_action( 'masteriyo_course_contents_post_status', array( $this, 'include_google_meet_status' ) );
@@ -92,7 +110,7 @@ class GoogleMeetAddon {
 	/**
 	 * Add current user to Google Calendar for upcoming and today's Google Meet lessons.
 	 *
-	 * @since 1.18.2
+	 * @since 2.21.0 [free]
 	 */
 	public function masteriyo_add_user_to_google_calender( $user_course_id, $user_course ) {
 
@@ -150,7 +168,7 @@ class GoogleMeetAddon {
 	/**
 	 * Add a user to a Google Meet event in Google Calendar.
 	 *
-	 * @since 1.18.2
+	 * @since 2.21.0 [free]
 	 *
 	 * @param $google_meet Google Meet post object.
 	 * @param int $user_id User ID.
@@ -208,10 +226,8 @@ class GoogleMeetAddon {
 			$event_id
 		);
 
-		$client = new \GuzzleHttp\Client();
-
 		try {
-			$getResponse = $client->request(
+			$getResponse = masteriyo_google_calendar_request(
 				'GET',
 				$endpoint,
 				array(
@@ -238,7 +254,7 @@ class GoogleMeetAddon {
 			}
 
 			$attendees[]   = $new_attendee;
-			$patchResponse = $client->request(
+			$patchResponse = masteriyo_google_calendar_request(
 				'PATCH',
 				$endpoint,
 				array(
@@ -283,10 +299,11 @@ class GoogleMeetAddon {
 		}
 	}
 
+
 	/**
 	 * Add post type default label.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param string $post_type Post type slug.
 	 *
@@ -299,9 +316,64 @@ class GoogleMeetAddon {
 	}
 
 	/**
+	 * Append course google meet count to course analytics resource.
+	 *
+	 * @since 2.14.4
+	 *
+	 * @param array $data Course data.
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST courses controller object.
+	 *
+	 * @return array Course data.
+	 */
+	public function append_meet_data_in_response( $data, $course, $context, $controller ) {
+		$google_meet_count         = $this->get_google_meet_data( $course->get_id() );
+		$data['google_meet_count'] = $google_meet_count['total'];
+
+		return $data;
+	}
+
+	/**
+	 * Get google meet count.
+	 *
+	 * @since 2.14.4
+	 *
+	 * @param array $course_ids Course IDs.
+	 *
+	 * @return array
+	 */
+	protected function get_google_meet_data( $course_ids ) {
+		$data = array(
+			'total' => 0,
+		);
+
+		if ( $course_ids ) {
+			$query         = new \WP_Query(
+				array(
+					'post_status'    => PostStatus::PUBLISH,
+					'post_type'      => PostType::GOOGLEMEET,
+					'posts_per_page' => 1,
+					'meta_query'     => array(
+						array(
+							'key'     => '_course_id',
+							'value'   => $course_ids,
+							'compare' => 'IN',
+						),
+					),
+					'fields'         => 'ids',
+				)
+			);
+			$data['total'] = $query->found_posts;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Add localization data to admin scripts.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $localized_scripts
 	 * @return array
@@ -324,7 +396,7 @@ class GoogleMeetAddon {
 	/**
 	 * Add google meet data to course builder.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $data Course child data.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -340,6 +412,30 @@ class GoogleMeetAddon {
 		}
 
 		return $data;
+
+	}
+
+	/**
+	 * Add google meet data to course progress item.
+	 *
+	 * @since 1.11.0 [free]
+	 *
+	 * @param array $data Course progress item data.
+	 * @param \Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
+	 * @param string $context The context in which the data is being retrieved.
+	 * @return array
+	 */
+	public function add_google_meet_data_to_course_progress_item( $data, $course_progress_item, $context ) {
+
+		$google_meet_id = '';
+
+		if ( 'google-meet' === $course_progress_item->get_item_type() ) {
+			$google_meet_id         = get_post_meta( $course_progress_item->get_item_id( $context ), '_meeting_id', true );
+			$data['google_meet_id'] = $google_meet_id;
+		}
+
+		return $data;
+
 	}
 
 	/**
@@ -348,7 +444,7 @@ class GoogleMeetAddon {
 	 * This function generates an HTML list item that displays the number of Google Meet meetings
 	 * associated with the given course.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
@@ -374,13 +470,13 @@ class GoogleMeetAddon {
 		echo $html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-	/**
+		/**
 	 * Displays a short information item for the Google Meet addon.
 	 *
 	 * This function generates an HTML span element that displays the number of Google Meet meetings
 	 * associated with the given section.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param \Masteriyo\Models\Section $section The section object.
 	 */
@@ -406,16 +502,16 @@ class GoogleMeetAddon {
 		echo $html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-		/**
-		 * Get google meet count by course.
-		 *
-		 * @since 1.11.0
-		 *
-		 * @param int $course_id Course ID.
-		 * @param string $type The type of section items. Default is 'google-meet'.
-		 *
-		 * @return int
-		 */
+	/**
+		* Get google meet count by course.
+		*
+		* @since 2.11.0
+		*
+		* @param int $course_id Course ID.
+		* @param string $type The type of section items. Default is 'google-meet'.
+		*
+		* @return int
+		*/
 	public function get_google_meet_course_section_children_count_by_course( $course_id, $type = 'google-meet' ) {
 		$children_count = 0;
 
@@ -452,17 +548,16 @@ class GoogleMeetAddon {
 		return $children_count;
 	}
 
-
-		/**
-		 * Get google meet count by section.
-		 *
-		 * @since 1.11.0
-		 *
-		 * @param int $section_id section ID.
-		 * @param string $type The type of section items. Default is 'google-meet'.
-		 *
-		 * @return int
-		 */
+	/**
+		* Get google meet count by section.
+		*
+		* @since 1.11.0 [free]
+		*
+		* @param int $section_id section ID.
+		* @param string $type The type of section items. Default is 'google-meet'.
+		*
+		* @return int
+		*/
 	public function get_google_meet_course_section_children_count_by_section( $section_id, $type = 'google-meet' ) {
 		$count = 0;
 
@@ -481,33 +576,11 @@ class GoogleMeetAddon {
 		return $count;
 	}
 
-	/**
-	 * Add google meet data to course progress item.
-	 *
-	 * @since 1.11.0
-	 *
-	 * @param array $data Course progress item data.
-	 * @param \Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
-	 * @param string $context The context in which the data is being retrieved.
-	 * @return array
-	 */
-	public function add_google_meet_data_to_course_progress_item( $data, $course_progress_item, $context ) {
-
-		$google_meet_id = '';
-
-		if ( 'google-meet' === $course_progress_item->get_item_type() ) {
-			$google_meet_id         = get_post_meta( $course_progress_item->get_item_id( $context ), '_meeting_id', true );
-			$data['google_meet_id'] = $google_meet_id;
-		}
-
-		return $data;
-	}
-
 
 	/**
 	 * Include google meet in single course curriculum.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $summaries Section summaries.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -554,7 +627,7 @@ class GoogleMeetAddon {
 	/**
 	 * Include google meet in single course curriculum.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $summaries Summaries.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -600,7 +673,7 @@ class GoogleMeetAddon {
 	 * When user clicks the Go to google consent screen button in setting of google meet, and provides the google access, it
 	 * redirects to google meet setAPI page in backend page. if the code is valid.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function redirect_google_meet() {
 		if ( ! empty( $_GET['code'] ) && ! empty( $_GET['page'] ) && isset( $_GET['state'] ) && 'masteriyo_google_meet' === $_GET['state'] ) { // phpcs:ignore WordPress.Security.NonceVerification
@@ -632,6 +705,8 @@ class GoogleMeetAddon {
 					$setting->set( 'access_token', $token->access_token );
 					$setting->save();
 
+					// Additional actions after successful authentication, if needed.
+
 				}
 				$site_url = get_site_url();
 				wp_safe_redirect(
@@ -657,7 +732,7 @@ class GoogleMeetAddon {
 	/**
 	 * Include google meet item type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $types Item types.
 	 * @return array
@@ -669,7 +744,7 @@ class GoogleMeetAddon {
 	/**
 	 * Include google meet post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $types post types.
 	 * @return array
@@ -681,7 +756,7 @@ class GoogleMeetAddon {
 	/**
 	 * Register google meet post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $post_types
 	 * @return array
@@ -694,7 +769,7 @@ class GoogleMeetAddon {
 	/**
 	 * Add google meet submenu.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function register_google_meet_submenu( $submenus ) {
 		$submenus['google-meet/meetings'] = array(
@@ -702,6 +777,7 @@ class GoogleMeetAddon {
 			'menu_title' => __( 'Google Meet', 'learning-management-system' ),
 			'capability' => 'get_google-meets',
 			'position'   => 75,
+
 		);
 		return $submenus;
 	}
@@ -709,7 +785,7 @@ class GoogleMeetAddon {
 	/**
 	 * Register namespaces.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $namespaces
 	 * @return array
@@ -724,7 +800,7 @@ class GoogleMeetAddon {
 	/**
 	 * Include google meet status.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param array $status post status.
 	 * @return array

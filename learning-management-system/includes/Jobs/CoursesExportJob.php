@@ -7,48 +7,49 @@ defined( 'ABSPATH' ) || exit;
 
 use ActionScheduler_Store;
 use Masteriyo\Exporter\CourseExporter;
+use Masteriyo\Helper\Utils;
 
 /**
  * Class CoursesExportJob
  *
  * Handles the export of courses in an optimized and efficient manner.
  *
- * @since 1.14.0
+ * @since 2.15.0
  * @package Masteriyo\Jobs
  */
 class CoursesExportJob {
 	/**
 	 * Name of the action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const NAME = 'masteriyo/job/courses_export';
 
 	/**
 	 * Name of the action to append post data.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const NAME_APPEND_POST_DATA = 'masteriyo/job/courses_export/append_post_data';
 
 	/**
 	 * Group name of the action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const GROUP_NAME = 'masteriyo-courses-export';
 
 	/**
 	 * Chunk size.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const CHUNK_SIZE = 50;
 
 	/**
 	 * Remaining post types.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var array
 	 */
@@ -57,7 +58,7 @@ class CoursesExportJob {
 	/**
 	 * Register the action hook handler.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	public function register() {
 		add_action( self::NAME, array( $this, 'handle' ) );
@@ -67,7 +68,7 @@ class CoursesExportJob {
 	/**
 	 * Handle the export action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int $current_user_id The current user ID.
 	 */
@@ -120,7 +121,7 @@ class CoursesExportJob {
 	/**
 	 * Job handler for appending posts data.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	public function handle_append_post_data( $current_user_id ) {
 		$args = json_decode( get_option( 'masteriyo_exporting_post_type_append_args_' . $current_user_id, null ), true );
@@ -172,7 +173,7 @@ class CoursesExportJob {
 	/**
 	 * Finalize the export process.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path for export.
 	 */
@@ -184,7 +185,7 @@ class CoursesExportJob {
 	/**
 	 * Clean up after the export process is complete.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int $current_user_id The current user ID.
 	 */
@@ -195,7 +196,7 @@ class CoursesExportJob {
 	/**
 	 * Export a specific post type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $post_type        The post type.
 	 * @param array  $course_ids       The course IDs.
@@ -217,7 +218,7 @@ class CoursesExportJob {
 	/**
 	 * Start a new section for a post type in the JSON file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path for export.
 	 * @param string $label     The label for the post type.
@@ -229,7 +230,7 @@ class CoursesExportJob {
 	/**
 	 * Append posts data to the export file in chunks.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array  $course_ids The course IDs.
 	 * @param string $post_type  The post type.
@@ -262,7 +263,7 @@ class CoursesExportJob {
 	/**
 	 * End the current section for a post type in the JSON file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path        The file path for export.
 	 */
@@ -276,7 +277,7 @@ class CoursesExportJob {
 	/**
 	 * Check if a task is currently in progress (enqueued or running).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return bool True if a task is in progress, false otherwise.
 	 */
@@ -297,7 +298,7 @@ class CoursesExportJob {
 	/**
 	 * Check if a task has been completed (completed, failed or canceled).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $task_name The name of the task to check.
 	 *

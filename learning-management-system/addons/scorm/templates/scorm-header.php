@@ -3,7 +3,7 @@
 /**
  * Scorm learn page header template content.
  *
- * @version 1.8.3
+ * @version 2.3.2 [free]
  */
 
 use Masteriyo\Enums\CourseProgressStatus;
@@ -19,10 +19,10 @@ defined( 'ABSPATH' ) || exit;
 	<div>
 		<?php
 		if ( is_user_logged_in() ) :
-			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() && $is_certificate_addon_enabled ) :
+			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) :
 				$enabled        = get_post_meta( $course->get_id(), '_certificate_enabled', true );
 				$certificate_id = get_post_meta( $course->get_id(), '_certificate_id', true );
-				if ( $enabled && $certificate_id ) :
+				if ( $enabled && $certificate_id && $is_certificate_addon_enabled ) :
 					?>
 					<a style="margin-right: 10px;" class="masteriyo-scorm-course-header__button-download" href="<?php echo esc_url( $certificate_url ); ?>"><?php esc_html_e( 'Download Certificate', 'learning-management-system' ); ?></a>
 				<?php endif; ?>
@@ -34,6 +34,7 @@ defined( 'ABSPATH' ) || exit;
 				<a href="<?php echo esc_url( get_home_url() . '?masteriyo_scorm_complete=' . $course->get_id() ); ?>" class="masteriyo-scorm-course-header__button-continue"><?php esc_html_e( 'Complete Course', 'learning-management-system' ); ?></a>
 			<?php endif; ?>
 		<?php endif; ?>
-		<a href="<?php echo esc_url( $course->get_permalink() ); ?>" class="masteriyo-scorm-course-header__button-exit"><?php esc_html_e( 'Exit', 'learning-management-system' ); ?></a>
+
+		<a href="<?php echo esc_url( masteriyo_get_learner_home_url( $course ) ); ?>" class="masteriyo-scorm-course-header__button-exit"><?php esc_html_e( 'Exit', 'learning-management-system' ); ?></a>
 	</div>
 </div>

@@ -1299,7 +1299,6 @@ return array(
 		'VS' => __( 'Vaslui', 'learning-management-system' ),
 		'VN' => __( 'Vrancea', 'learning-management-system' ),
 	),
-	'RS' => array(),
 	'SG' => array(),
 	'SK' => array(),
 	'SI' => array(),
@@ -1743,7 +1742,6 @@ return array(
 		'NW'  => __( 'North West', 'learning-management-system' ),
 		'WC'  => __( 'Western Cape', 'learning-management-system' ),
 	),
-
 	'VE' => array( // Venezuela states.
 		'VE-A' => __( 'Capital', 'learning-management-system' ),
 		'VE-B' => __( 'Anzoátegui', 'learning-management-system' ),

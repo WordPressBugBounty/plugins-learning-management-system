@@ -2,7 +2,7 @@
 /**
  * Style archive course list components.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @package Masteriyo
  */
@@ -18,7 +18,7 @@ class ArchiveCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Style course list components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */
@@ -29,7 +29,7 @@ class ArchiveCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Should print if course archive page.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return bool
 	 */
@@ -37,4 +37,3 @@ class ArchiveCourseComponentStyles extends CourseComponentStyles {
 		return masteriyo_is_courses_page( true );
 	}
 }
-

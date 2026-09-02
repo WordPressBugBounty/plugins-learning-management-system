@@ -12,7 +12,7 @@ namespace Masteriyo\Blocks;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Abstracts\BlockHandler;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 /**
  * Class CourseAuthor
  *
@@ -67,12 +67,13 @@ class CourseComingSoon extends BlockHandler {
 
 		$course            = $this->get_block_preview_course( $course_id );
 		$GLOBALS['course'] = $course;
+
 		ob_start();
 
 		if ( ! empty( $block_css ) ) {
 			?>
 		<style>
-			<?php echo wp_strip_all_tags( $block_css ); ?>
+			<?php echo wp_strip_all_tags( $block_css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS sanitized via wp_strip_all_tags(); HTML-escaping would corrupt the CSS. ?>
 		</style>
 			<?php
 		}

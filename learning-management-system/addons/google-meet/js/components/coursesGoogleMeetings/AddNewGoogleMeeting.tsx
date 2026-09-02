@@ -24,7 +24,6 @@ import {
 } from '../../../../../assets/js/back-end/utils/utils';
 import GoogleMeetUrls from '../../../constants/urls';
 import { GoogleMeetSchema } from '../../schemas';
-import AddAttendees from '../AddAttendees';
 import Description from '../Description';
 import EndTime from '../EndTime';
 import GoogleMeetActionButton from '../GoogleMeetActionButton';
@@ -54,7 +53,6 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 
 	const addGoogleMeetMutation = useMutation({
 		mutationFn: (data: GoogleMeetSchema) => googleMeetAPI.store(data),
-		mutationKey: ['addGoogleMeet'],
 		...{
 			onSuccess: (data: GoogleMeetSchema) => {
 				methods.reset(methods.getValues());
@@ -93,7 +91,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 						'Could not create google meeting.',
 						'learning-management-system',
 					),
-					// description: message ? `${message}` : undefined,
+					description: message ? `${message}` : undefined,
 					status: 'error',
 					isClosable: true,
 				});
@@ -102,12 +100,11 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		const all_users = usersQuery?.data?.data?.map((user: any) => user?.id);
+		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
 
 		const newData = {
 			course_id: courseId,
 			section_id: sectionId,
-			// time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 			time_zone: 'UTC',
 			starts_at: new Date(data.starts_at).toISOString(),
 			ends_at: new Date(data.ends_at).toISOString(),
@@ -151,32 +148,34 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 									flexDirection="column"
 									justifyContent="space-between"
 								>
-									<Stack direction="column" spacing="6">
-										<Title />
-										<Description />
+									<Stack direction="column" spacing="8">
+										<Stack direction="column" spacing="6">
+											<Title />
+											<Description />
 
-										<ButtonGroup>
-											<GoogleMeetActionButton
-												methods={methods}
-												onSubmit={onSubmit}
-												isLoading={addGoogleMeetMutation.isPending}
-												type="add"
-											/>
-											<Button
-												variant="outline"
-												onClick={() =>
-													navigate({
-														pathname: routes.courses.edit.replace(
-															':courseId',
-															courseId,
-														),
-														search: '?page=builder',
-													})
-												}
-											>
-												{__('Cancel', 'learning-management-system')}
-											</Button>
-										</ButtonGroup>
+											<ButtonGroup>
+												<GoogleMeetActionButton
+													methods={methods}
+													onSubmit={onSubmit}
+													isLoading={addGoogleMeetMutation.isPending}
+													type="add"
+												/>
+												<Button
+													variant="outline"
+													onClick={() =>
+														navigate({
+															pathname: routes.courses.edit.replace(
+																':courseId',
+																courseId,
+															),
+															search: '?page=builder',
+														})
+													}
+												>
+													{__('Cancel', 'learning-management-system')}
+												</Button>
+											</ButtonGroup>
+										</Stack>
 									</Stack>
 								</Box>
 
@@ -186,7 +185,7 @@ const AddNewGoogleMeeting: React.FC<Props> = () => {
 
 										<EndTime />
 
-										<AddAttendees defaultValue={true} />
+										{/* <AddAttendees defaultValue={true} /> */}
 									</Stack>
 								</Box>
 							</Stack>

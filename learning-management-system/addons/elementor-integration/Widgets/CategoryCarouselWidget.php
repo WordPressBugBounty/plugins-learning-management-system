@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.13.0
+ * @since 1.13.0 [Free]
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -20,14 +20,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.13.0
+ * @since 1.13.0 [Free]
  */
 class CategoryCarouselWidget extends CourseCategoriesWidget {
 
 	/**
 	 * Get widget script dependencies.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -38,7 +38,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Get widget style dependencies.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -50,7 +50,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -61,7 +61,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -72,7 +72,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Get icon class for the widget.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -83,7 +83,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Register controls for configuring widget content.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function register_content_controls() {
 		$this->register_general_content_controls_section();
@@ -94,7 +94,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Register general content controls section.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function register_general_content_controls_section() {
 		$this->start_controls_section(
@@ -190,7 +190,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	 * enabling/disabling arrows and dots, setting the transition duration, enabling
 	 * centered slides, smooth scrolling, reverse direction, autoplay, and more.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * The controls are added to the 'Category Carousel' section in the Elementor widget
 	 * settings panel.
@@ -276,9 +276,12 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 		$this->add_control(
 			'category_carousel_autoplay_speed',
 			array(
-				'label'   => __( 'Auto Play Speed', 'learning-management-system' ),
-				'type'    => Controls_Manager::NUMBER,
-				'default' => 2500,
+				'label'     => __( 'Auto Play Speed', 'learning-management-system' ),
+				'type'      => Controls_Manager::NUMBER,
+				'default'   => 2500,
+				'condition' => array(
+					'category_carousel_autoplay' => 'yes',
+				),
 			)
 		);
 
@@ -369,7 +372,7 @@ class CategoryCarouselWidget extends CourseCategoriesWidget {
 	/**
 	 * Render HTML for frontend.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function render() {
 		$settings = $this->get_settings();

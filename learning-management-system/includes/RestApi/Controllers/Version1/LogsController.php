@@ -7,13 +7,12 @@
  *
  * @category API
  * @package Masteriyo\RestApi
- * @since 1.12.2
+ * @since 2.12.2
  */
 
 namespace Masteriyo\RestApi\Controllers\Version1;
 
 use Masteriyo\Helper\Permission;
-use WP_REST_Controller;
 use WP_REST_Request;
 use WP_Error;
 
@@ -31,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @category API
  * @package Masteriyo\RestApi
- * @since 1.12.2
+ * @since 2.12.2
  */
 class LogsController extends CrudController {
 
@@ -52,7 +51,7 @@ class LogsController extends CrudController {
 	/**
 	 * Object type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @var string
 	 */
@@ -61,7 +60,7 @@ class LogsController extends CrudController {
 	/**
 	 * Permission class instance.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 * @var Permission
 	 */
 	protected $permission;
@@ -71,7 +70,7 @@ class LogsController extends CrudController {
 	 *
 	 * Sets up the Logs controller.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 * @param Permission|null $permission The permission handler instance.
 	 */
 	public function __construct( ?Permission $permission = null ) {
@@ -81,7 +80,7 @@ class LogsController extends CrudController {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -151,7 +150,7 @@ class LogsController extends CrudController {
 	/**
 	 * Check if a given request has access to read/delete item(s).
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 *
@@ -171,7 +170,7 @@ class LogsController extends CrudController {
 	/**
 	 * Get the query parameters for the log collection.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param array $params The default query parameters.
 	 *
@@ -210,7 +209,7 @@ class LogsController extends CrudController {
 		/**
 		 * Filters the query parameters for the log collection.
 		 *
-		 * @since 1.12.2
+		 * @since 2.12.2
 		 *
 		 * @param array $params The query parameters.
 		 * @return array The filtered query parameters.
@@ -221,7 +220,7 @@ class LogsController extends CrudController {
 	/**
 	 * Retrieves a collection of items.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -281,7 +280,7 @@ class LogsController extends CrudController {
 		/**
 		 * Filters the prepared response for the log items.
 		 *
-		 * @since 1.12.2
+		 * @since 2.12.2
 		 *
 		 * @param WP_REST_Response $response The prepared response.
 		 * @param array $items The log items.
@@ -297,7 +296,7 @@ class LogsController extends CrudController {
 	 *
 	 * The log files are sorted in descending order by their modification time.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @return string[] The list of log file paths.
 	 */
@@ -314,7 +313,7 @@ class LogsController extends CrudController {
 	/**
 	 * Retrieves the URL of a log file.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param string $file_name The name of the log file.
 	 *
@@ -335,7 +334,7 @@ class LogsController extends CrudController {
 	 *
 	 * The log files are sorted in descending order by their modification time.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @param array $log_files Optional. The list of log file paths. If not provided, the list will be retrieved using `get_log_files()`.
@@ -368,7 +367,7 @@ class LogsController extends CrudController {
 		/**
 		 * Filters rest prepared log items.
 		 *
-		 * @since 1.12.2
+		 * @since 2.12.2
 		 *
 		 * @param array $items Items data.
 		 * @param \WP_REST_Request $request Request.
@@ -379,7 +378,7 @@ class LogsController extends CrudController {
 	/**
 	 * Retrieves a single log item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -415,7 +414,7 @@ class LogsController extends CrudController {
 	/**
 	 * Deletes a single log item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -438,7 +437,7 @@ class LogsController extends CrudController {
 	/**
 	 * Deletes a single log item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.

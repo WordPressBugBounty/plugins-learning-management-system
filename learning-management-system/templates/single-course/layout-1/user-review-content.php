@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 	/**
 	 * Fires to render user reviews content on single course page layout 1.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */

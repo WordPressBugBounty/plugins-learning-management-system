@@ -27,7 +27,7 @@ const AddAttendees: React.FC<Props> = (props) => {
 		<FormControl isInvalid={!!errors.add_all_students_as_attendee}>
 			<Flex justifyContent="space-between">
 				<FormLabel>
-					{__('Add all students as attendees', 'learning-management-system')}{' '}
+					{__('Add all students as attendees', 'learning-management-system')}
 					<ToolTip
 						label={__(
 							'By activating this feature, you are allowing all the enrolled student as attendees for the meeting.',

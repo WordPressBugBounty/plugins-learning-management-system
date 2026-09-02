@@ -7,6 +7,7 @@ import {
 	Switch,
 	useToast,
 } from '@chakra-ui/react';
+import { Slot } from '@registry';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -14,7 +15,8 @@ import { useForm, useFormContext } from 'react-hook-form';
 import { BiImport } from 'react-icons/bi';
 import IndividualSectionSettingsWrapper from '../../../../../assets/js/back-end/components/IndividualSectionSettingsWrapper';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { ProText } from '../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
+import { ProText } from '../../../../../assets/js/back-end/components/common/upsell/ProShowcaseComponent';
+import { CERTIFICATE_SLOTS } from '../../../../../assets/js/back-end/constants/slots';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import API from '../../../../../assets/js/back-end/utils/api';
 import http from '../../../../../assets/js/back-end/utils/http';
@@ -58,8 +60,8 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		certificateAddonUrls.importCertificateFonts,
 	);
 
-	const additionalCertificateFontsSettingQuery = useQuery({
-		queryKey: ['additionalCertificateFontsSetting'],
+	const certificatesFontSettingQuery = useQuery({
+		queryKey: ['certificatesFontSetting'],
 		queryFn: () => certificatesFontAPI.get(),
 	});
 
@@ -72,11 +74,11 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		...{
 			onSuccess(data: any) {
 				queryClient.invalidateQueries({
-					queryKey: ['additionalCertificateFontsSetting'],
+					queryKey: ['certificatesFontSetting'],
 				});
 				toast({
 					title: __(
-						'Certificate fonts installed',
+						'Certificate fonts installed.',
 						'learning-management-system',
 					),
 					description: data?.message,
@@ -104,7 +106,6 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		if (certificateSetting && isSuccess) {
 			methods.reset(methods.getValues());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [certificateSetting]);
 
 	return (
@@ -114,7 +115,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 		>
 			<Stack spacing="6">
 				<FormControlTwoCol>
-					<FormLabel>
+					<FormLabel display="flex" alignItems="center">
 						{__('Use Image Absolute Path', 'learning-management-system')}
 						<ToolTip
 							label={__(
@@ -130,7 +131,7 @@ const CertificateSetting: React.FC<Props> = (props) => {
 				</FormControlTwoCol>
 
 				<FormControlTwoCol>
-					<FormLabel>
+					<FormLabel display="flex" alignItems="center">
 						{__('Use SSL Verify Host', 'learning-management-system')}
 						<ToolTip
 							label={__(
@@ -164,30 +165,37 @@ const CertificateSetting: React.FC<Props> = (props) => {
 							leftIcon={<Icon as={BiImport} fontSize="md" />}
 							onClick={() => importAllCertificateFonts.mutate()}
 						>
-							{additionalCertificateFontsSettingQuery?.data
+							{certificatesFontSettingQuery?.data
 								? __('Reinstall', 'learning-management-system')
 								: __('Install', 'learning-management-system')}
 						</Button>
 					</Flex>
 				</FormControlTwoCol>
-
-				<FormControlTwoCol>
-					<FormLabel display="flex" alignItems="center" color="gray.400">
-						{__('Install Custom Fonts', 'learning-management-system')}
-						<ProText ml={2} />
-					</FormLabel>
-					<Flex>
-						<Button
-							colorScheme="primary"
-							variant="outline"
-							type="button"
-							isDisabled
-							leftIcon={<Icon as={BiImport} fontSize="md" />}
-						>
-							{__('Upload', 'learning-management-system')}
-						</Button>
-					</Flex>
-				</FormControlTwoCol>
+				{/*
+				 * Uploading a font of your own is pro's. Free 2.3.2 has no route,
+				 * no handler and no client for it — what it ships is exactly the
+				 * locked control below, so that is this slot's fallback rather
+				 * than nothing.
+				 */}
+				<Slot name={CERTIFICATE_SLOTS.SETTINGS_CUSTOM_FONTS}>
+					<FormControlTwoCol>
+						<FormLabel display="flex" alignItems="center" color="gray.400">
+							{__('Install Custom Fonts', 'learning-management-system')}
+							<ProText ml={2} />
+						</FormLabel>
+						<Flex>
+							<Button
+								colorScheme="primary"
+								variant="outline"
+								type="button"
+								isDisabled
+								leftIcon={<Icon as={BiImport} fontSize="md" />}
+							>
+								{__('Upload', 'learning-management-system')}
+							</Button>
+						</Flex>
+					</FormControlTwoCol>
+				</Slot>
 			</Stack>
 		</IndividualSectionSettingsWrapper>
 	);

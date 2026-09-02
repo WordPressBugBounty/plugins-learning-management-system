@@ -2,7 +2,7 @@
 /**
  * Style course list components.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @package Masteriyo
  */
@@ -19,7 +19,7 @@ class CategoryCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Style category course list components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */
@@ -30,13 +30,11 @@ class CategoryCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Should print if category course page.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return bool
 	 */
 	protected function should_print(): bool {
 		return is_tax( 'course_cat' );
 	}
-
 }
-

@@ -18,13 +18,17 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Notice;
+
+$field = isset( $field ) ? $field : array();
 ?>
 <div class="masteriyo-checkout----state">
 	<label for="billing-state" class="masteriyo-label">
 		<?php esc_html_e( 'State', 'learning-management-system' ); ?>
-		<span>*</span>
+		<?php if ( ! empty( $field['required'] ) ) : ?>
+			<span>*</span>
+		<?php endif; ?>
 	</label>
-	<select id="billing-state" class="masteriyo-input" name="billing_state">
+	<select id="billing-state" class="masteriyo-input" name="billing_state" <?php masteriyo_checkout_field_required_attributes( $field ); ?>>
 		<option value="">
 			<?php esc_html_e( 'Select States', 'learning-management-system' ); ?>
 		</option>

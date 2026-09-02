@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Course Features
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_SCORM_FILE', __FILE__ );
 define( 'MASTERIYO_SCORM_BASENAME', plugin_basename( __FILE__ ) );

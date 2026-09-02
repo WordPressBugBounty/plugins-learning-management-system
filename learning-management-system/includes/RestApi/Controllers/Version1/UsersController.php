@@ -16,6 +16,7 @@ use WP_HTTP_Response;
 use Masteriyo\Enums\InstructorApplyStatus;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Helper\Permission;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\WPUserQuery;
 use Masteriyo\Roles;
 use WP_Error;
@@ -109,7 +110,7 @@ class UsersController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_logged_in_user' ),
-					'permission_callback' => function ( $request ) {
+					'permission_callback' => function( $request ) {
 						return is_user_logged_in();
 					},
 					'args'                => array(
@@ -123,7 +124,7 @@ class UsersController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_logged_in_user' ),
-					'permission_callback' => function ( $request ) {
+					'permission_callback' => function( $request ) {
 						return is_user_logged_in();
 					},
 					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
@@ -191,7 +192,7 @@ class UsersController extends CrudController {
 			'/' . $this->rest_base . '/logout',
 			array(
 				array(
-					'methods'             => \WP_REST_Server::READABLE,
+					'methods'             => array( \WP_REST_Server::READABLE, \WP_REST_Server::CREATABLE ),
 					'callback'            => array( $this, 'logout' ),
 					'permission_callback' => 'is_user_logged_in',
 				),
@@ -299,11 +300,6 @@ class UsersController extends CrudController {
 			)
 		);
 
-		/**
-		 * Registers REST API routes for managing session data for user login.
-		 *
-		 * @since 1.9.3
-		 */
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/preview-link',
@@ -344,6 +340,11 @@ class UsersController extends CrudController {
 			)
 		);
 
+		/**
+		 * Registers REST API routes for managing session data for user login.
+		 *
+		 * @since 1.9.3
+		 */
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/session-update',
@@ -361,17 +362,14 @@ class UsersController extends CrudController {
 						'umeta_id' => array(
 							'description' => __( 'meta id for user meta information about device information.', 'learning-management-system' ),
 							'type'        => 'string',
-						// 'validate_callback' => 'rest_validate_request_arg',
 						),
 						'token'    => array(
 							'description' => __( 'Token for users session that is used to delete the user information.', 'learning-management-system' ),
 							'type'        => 'string',
-						// 'validate_callback' => 'rest_validate_request_arg',
 						),
 						'meta_key' => array(
 							'description' => __( 'Token for users session that is used to delete the user information.', 'learning-management-system' ),
 							'type'        => 'string',
-						// 'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),
@@ -382,7 +380,6 @@ class UsersController extends CrudController {
 	/**
 	 * Check permissions for GET /users/{id}/preview-link.
 	 *
-	 * @since x.x.x
 	 * @param WP_REST_Request $request
 	 * @return bool
 	 */
@@ -395,7 +392,6 @@ class UsersController extends CrudController {
 	 *
 	 * Returns { preview_url, preview_email } — the frontend opens preview_url in a new tab.
 	 *
-	 * @since x.x.x
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -449,7 +445,6 @@ class UsersController extends CrudController {
 	 *
 	 * POST /masteriyo/v1/users/{id}/start-preview
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response|\WP_Error
 	 */
@@ -588,8 +583,10 @@ class UsersController extends CrudController {
 			} else {
 				$id = is_a( $object, '\WP_User' ) ? $object->ID : $object->get_id();
 			}
+			/** @var Masteriyo\Database\Model $user */
 			$user = masteriyo( 'user' );
 			$user->set_id( $id );
+			/** @var Masteriyo\Repository\UserRepository $user_repo */
 			$user_repo = masteriyo( 'user.store' );
 			$user_repo->read( $user );
 		} catch ( \Exception $e ) {
@@ -663,10 +660,12 @@ class UsersController extends CrudController {
 
 			$file_name = $uploaded_file['file'];
 			$local_url = $uploaded_file['url'];
-			$mime_type = mime_content_type( $file_name );
+			$mime_type = $uploaded_file['type'];
 			$is_image  = strpos( $mime_type, 'image/' ) === 0;
 
 			if ( $is_image ) {
+				$stripped = false;
+
 				// Strip EXIF metadata using Imagick
 				if ( extension_loaded( 'imagick' ) ) {
 					try {
@@ -674,49 +673,28 @@ class UsersController extends CrudController {
 						$imagick->stripImage();
 						$imagick->writeImage( $file_name );
 						$imagick->clear();
-					} catch ( Exception $e ) {
-						return new \WP_Error(
-							'masteriyo_rest_cannot_strip_exif',
-							'EXIF stripping failed with Imagick: ' . $e->getMessage(),
-							array( 'status' => 400 )
-						);
+
+						$stripped = true;
+					} catch ( \Throwable $e ) {
+						// Imagick names the absolute upload path in its errors; the caller gets none of it.
+						// A loaded Imagick still fails on ordinary photos (missing decode delegates,
+						// resource limits), so this is no reason to refuse yet — GD gets its turn.
+						masteriyo_get_logger()->error( 'EXIF stripping failed with Imagick: ' . $e->getMessage(), array( 'source' => 'profile-image' ) );
 					}
-				} else {
-					if ( 'image/jpeg' === $mime_type && function_exists( 'imagecreatefromjpeg' ) ) {
-						$image = imagecreatefromjpeg( $file_name );
-						if ( false !== $image ) {
-							$width     = imagesx( $image );
-							$height    = imagesy( $image );
-							$new_image = imagecreatetruecolor( $width, $height );
+				}
 
-							imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
-							imagejpeg( $new_image, $file_name, 90 );
+				if ( ! $stripped ) {
+					$stripped = $this->strip_exif_with_gd( $file_name, $mime_type );
+				}
 
-							imagedestroy( $image );
-							imagedestroy( $new_image );
-						}
-					}
+				if ( ! $stripped ) {
+					wp_delete_file( $file_name );
 
-					// Strip EXIF for PNG
-					if ( 'image/png' === $mime_type && function_exists( 'imagecreatefrompng' ) ) {
-						$image = imagecreatefrompng( $file_name );
-						if ( false !== $image ) {
-							$width     = imagesx( $image );
-							$height    = imagesy( $image );
-							$new_image = imagecreatetruecolor( $width, $height );
-
-							// Preserve alpha channel
-							imagesavealpha( $new_image, true );
-							$transparent = imagecolorallocatealpha( $new_image, 0, 0, 0, 127 );
-							imagefill( $new_image, 0, 0, $transparent );
-
-							imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
-							imagepng( $new_image, $file_name, 9 );
-
-							imagedestroy( $image );
-							imagedestroy( $new_image );
-						}
-					}
+					return new \WP_Error(
+						'masteriyo_rest_cannot_strip_exif',
+						__( 'The image could not be processed. Please try another file.', 'learning-management-system' ),
+						array( 'status' => 400 )
+					);
 				}
 			}
 
@@ -724,7 +702,8 @@ class UsersController extends CrudController {
 			$media_id = wp_insert_attachment(
 				array(
 					'guid'           => $file_name,
-					'post_mime_type' => mime_content_type( $file_name ),
+					'post_author'    => get_current_user_id(),
+					'post_mime_type' => $mime_type,
 					'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $local_url ) ),
 					'post_content'   => '',
 					'post_status'    => 'inherit',
@@ -741,8 +720,12 @@ class UsersController extends CrudController {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 			wp_update_attachment_metadata( $media_id, wp_generate_attachment_metadata( $media_id, $file_name ) );
 
+			// Provenance marker: only attachments created through this upload
+			// flow may ever be hard-deleted by the profile-image cleanup.
+			update_post_meta( $media_id, '_masteriyo_profile_image_of', get_current_user_id() );
+
 			$user = masteriyo_get_current_user();
-			wp_delete_attachment( $user->get_profile_image_id(), true );
+			$this->delete_owned_profile_image_attachment( $user );
 			$user->set_profile_image_id( $media_id );
 			$user->save();
 
@@ -755,6 +738,83 @@ class UsersController extends CrudController {
 		}
 	}
 
+	/**
+	 * Strip EXIF metadata with GD by re-encoding the image in place.
+	 *
+	 * @param string $file_name Absolute path to the uploaded file.
+	 * @param string $mime_type The upload's MIME type.
+	 *
+	 * @return bool True when the file is safe to keep, false when it could not be decoded.
+	 */
+	private function strip_exif_with_gd( $file_name, $mime_type ) {
+		if ( 'image/jpeg' === $mime_type ) {
+			if ( ! function_exists( 'imagecreatefromjpeg' ) ) {
+				return false;
+			}
+
+			$image = @imagecreatefromjpeg( $file_name ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a corrupt file is answered with a 400, the warning adds nothing.
+			if ( false === $image ) {
+				return false;
+			}
+
+			$width     = imagesx( $image );
+			$height    = imagesy( $image );
+			$new_image = imagecreatetruecolor( $width, $height );
+
+			imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
+
+			return imagejpeg( $new_image, $file_name, 90 );
+		}
+
+		if ( 'image/png' === $mime_type ) {
+			if ( ! function_exists( 'imagecreatefrompng' ) ) {
+				return false;
+			}
+
+			$image = @imagecreatefrompng( $file_name ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a corrupt file is answered with a 400, the warning adds nothing.
+			if ( false === $image ) {
+				return false;
+			}
+
+			$width     = imagesx( $image );
+			$height    = imagesy( $image );
+			$new_image = imagecreatetruecolor( $width, $height );
+
+			// Preserve alpha channel
+			imagesavealpha( $new_image, true );
+			$transparent = imagecolorallocatealpha( $new_image, 0, 0, 0, 127 );
+			imagefill( $new_image, 0, 0, $transparent );
+
+			imagecopyresampled( $new_image, $image, 0, 0, 0, 0, $width, $height, $width, $height );
+
+			return imagepng( $new_image, $file_name, 9 );
+		}
+
+		// Other image types (GIF, WebP) are kept as they are, which is what the
+		// GD path has always done for them: EXIF stripping here is best effort.
+		return true;
+	}
+
+	/**
+	 * Delete the current user's uploaded profile image.
+	 *
+	 * @param \Masteriyo\Models\User $user User model.
+	 * @return void
+	 */
+	protected function delete_owned_profile_image_attachment( $user ) {
+		$image_id = $user->get_profile_image_id();
+
+		// Authorship alone is not delete authorization: without the provenance
+		// marker, any image the user authored (an assignment upload, a media
+		// file) could be repurposed as a profile image and hard-deleted here.
+		// Images uploaded before the marker existed are left in place.
+		if ( $image_id
+			&& (int) $user->get_id() === (int) get_post_field( 'post_author', $image_id )
+			&& wp_attachment_is_image( $image_id )
+			&& (int) get_post_meta( $image_id, '_masteriyo_profile_image_of', true ) === (int) $user->get_id() ) {
+			wp_delete_attachment( $image_id, true );
+		}
+	}
 
 	/**
 	 * Delete User's profile image.
@@ -764,10 +824,9 @@ class UsersController extends CrudController {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function delete_profile_image() {
-		$user     = masteriyo_get_current_user();
-		$image_id = $user->get_profile_image_id();
+		$user = masteriyo_get_current_user();
 
-		wp_delete_attachment( $image_id, true );
+		$this->delete_owned_profile_image_attachment( $user );
 
 		$user->set_profile_image_id( 0 );
 		$user->save();
@@ -791,7 +850,8 @@ class UsersController extends CrudController {
 	 */
 	public function update_instructor_update_status( $request ) {
 		$current_user_id = get_current_user_id();
-		$user_id         = absint( $request->get_param( 'user_id' ) );
+
+		$user_id = absint( $request->get_param( 'user_id' ) );
 
 		if ( $user_id !== $current_user_id ) {
 			return new \WP_Error( 'forbidden', 'You can only apply for an instructor account for yourself.', array( 'status' => 403 ) );
@@ -809,6 +869,15 @@ class UsersController extends CrudController {
 			return new \WP_Error( 'invalid_user', 'Invalid user ID.', array( 'status' => 404 ) );
 		}
 
+		// The gates every UI applies before offering the action must hold here too.
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'accounts_page.display.enable_instructor_apply' ) ) ) {
+			return new \WP_Error( 'applications_closed', __( 'Instructor applications are currently closed.', 'learning-management-system' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! in_array( 'masteriyo_student', (array) $user->get_roles(), true ) ) {
+			return new \WP_Error( 'not_a_student', __( 'Only students can apply to become an instructor.', 'learning-management-system' ), array( 'status' => 403 ) );
+		}
+
 		// Check application attempts limit.
 		$attempt_count = $user->get_instructor_application_attempts();
 		$max_attempts  = masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' ) ?? 3;
@@ -817,7 +886,7 @@ class UsersController extends CrudController {
 		 * Filter the maximum number of instructor application attempts.
 		 * This filter allows customization of the maximum attempts a user can make to apply for an instructor role.
 		 *
-		 * @since 2.0.0
+		 * @since 3.0.0
 		 *
 		 * @param int $max_attempts The maximum number of application attempts. Default is retrieved from settings.
 		 * @return int The modified maximum number of application attempts.
@@ -831,6 +900,11 @@ class UsersController extends CrudController {
 		// Check if user is already approved.
 		if ( InstructorApplyStatus::APPROVED === $user->get_instructor_apply_status() ) {
 			return new \WP_Error( 'already_approved', 'You are already approved as an instructor.', array( 'status' => 400 ) );
+		}
+
+		// A pending application must not consume attempts or repeat side effects.
+		if ( InstructorApplyStatus::APPLIED === $user->get_instructor_apply_status() ) {
+			return new \WP_Error( 'already_applied', __( 'Your instructor application is already pending review.', 'learning-management-system' ), array( 'status' => 400 ) );
 		}
 
 		// Increment attempt count.
@@ -864,22 +938,13 @@ class UsersController extends CrudController {
 	/**
 	 * Check if user can apply for instructor status.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @param User $user User object.
 	 * @return bool True if user can apply, false otherwise.
 	 */
 	private function can_user_apply_for_instructor( $user ) {
-		// If user is already approved, they can't apply again
-		if ( InstructorApplyStatus::APPROVED === $user->get_instructor_apply_status() ) {
-			return false;
-		}
-
-		$attempt_count = $user->get_instructor_application_attempts();
-		$max_attempts  = masteriyo_get_setting( 'accounts_page.display.instructor_max_attempts' );
-		$max_attempts  = apply_filters( 'masteriyo_instructor_max_application_attempts', $max_attempts );
-
-		return $attempt_count < $max_attempts;
+		return masteriyo_can_user_apply_for_instructor( $user );
 	}
 
 	/**
@@ -973,7 +1038,7 @@ class UsersController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Models\User $user User instance.
+	 * @param \Masteriyo\Models\User $user User instance.
 	 * @param string $context Request context.
 	 *                        Options: 'view' and 'edit'.
 	 *
@@ -1001,7 +1066,7 @@ class UsersController extends CrudController {
 			'use_ssl'                         => $user->get_use_ssl( $context ),
 			'show_admin_bar_front'            => $user->get_show_admin_bar_front( $context ),
 			'locale'                          => $user->get_locale( $context ),
-			'roles'                           => $user->get_roles( $context ),
+			'roles'                           => array_values( $user->get_roles( $context ) ),
 			'formatted_roles'                 => $this->get_formatted_roles( $user->get_roles( $context ) ),
 			'profile_image'                   => array(
 				'id'  => $user->get_profile_image_id( $context ),
@@ -1026,6 +1091,22 @@ class UsersController extends CrudController {
 			'avatar_url'                      => $user->get_avatar_url(),
 			'is_demo_student'                 => (bool) get_user_meta( $user->get_id(), '_masteriyo_is_demo_student', true ),
 			'auto_created'                    => (bool) get_user_meta( $user->get_id(), '_masteriyo_auto_created', true ),
+			'public_profile'                  => ( new Addons() )->is_active( 'public-profile' ) ? array(
+				'biographical_info'  => $user->get_public_profile_biographical_info( $context ),
+				'phone'              => $user->get_public_profile_phone( $context ),
+				'address_1'          => $user->get_public_profile_address_1( $context ),
+				'address_2'          => $user->get_public_profile_address_2( $context ),
+				'city'               => $user->get_public_profile_city( $context ),
+				'postcode'           => $user->get_public_profile_postcode( $context ),
+				'country'            => $user->get_public_profile_country( $context ),
+				'state'              => $user->get_public_profile_state( $context ),
+				'facebook_url'       => $user->get_public_profile_facebook_url( $context ),
+				'linkedin_url'       => $user->get_public_profile_linkedin_url( $context ),
+				'website_url'        => $user->get_public_profile_website_url( $context ),
+				'behance_url'        => $user->get_public_profile_behance_url( $context ),
+				'show_email'         => $user->get_public_profile_show_email( $context ),
+				'public_profile_url' => masteriyo_get_user_public_profile_url( $user->get_username( $context ) ),
+			) : array( 'public_profile_url' => '' ),
 			'instructor_apply_status'         => $user->get_instructor_apply_status( $context ),
 			'instructor_application_attempts' => array(
 				'used'      => $user->get_instructor_application_attempts(),
@@ -1057,6 +1138,13 @@ class UsersController extends CrudController {
 	 * @return array
 	 */
 	public function get_formatted_roles( $user_roles ) {
+		// Admin-only include: REST requests don't load it, and relying on some other
+		// code path having pulled in wp-admin/includes/admin.php is what made this a
+		// host-dependent fatal (undefined get_editable_roles) on plain REST calls.
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
 		$roles  = get_editable_roles();
 		$result = array();
 		foreach ( $roles as $key => $role ) {
@@ -1069,7 +1157,6 @@ class UsersController extends CrudController {
 		}
 		return $result;
 	}
-
 
 	/**
 	 * Prepare objects query.
@@ -1356,6 +1443,92 @@ class UsersController extends CrudController {
 						),
 					),
 				),
+				'public_profile'          => array(
+					'description' => __( 'User public profile details.', 'learning-management-system' ),
+					'type'        => 'object',
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'              => 'object',
+						'biographical_info' => array(
+							'description' => __( 'User public profile biographical info.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'address_1'         => array(
+							'description' => __( 'User public profile address 1.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'address_2'         => array(
+							'description' => __( 'User public profile address 2.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'city'              => array(
+							'description' => __( 'User public profile city.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'postcode'          => array(
+							'description' => __( 'User public profile post code.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'country'           => array(
+							'description' => __( 'User public profile country code.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'state'             => array(
+							'description' => __( 'User public profile state code.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'country_name'      => array(
+							'description' => __( 'Formatted User public profile country.', 'learning-management-system' ),
+							'type'        => 'string',
+							'readonly'    => true,
+							'context'     => array( 'view', 'edit' ),
+						),
+						'state_name'        => array(
+							'description' => __( 'Formatted User public profile state.', 'learning-management-system' ),
+							'type'        => 'string',
+							'readonly'    => true,
+							'context'     => array( 'view', 'edit' ),
+						),
+						'phone'             => array(
+							'description' => __( 'User public profile phone number.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'facebook_url'      => array(
+							'description' => __( 'User public profile facebook URL.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'website_url'       => array(
+							'description' => __( 'User public profile website URL.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'linkedin_url'      => array(
+							'description' => __( 'User public profile linkedin URL.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'behance_url'       => array(
+							'description' => __( 'User public profile behance URL.', 'learning-management-system' ),
+							'type'        => 'string',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'show_email'        => array(
+							'description' => __( 'Whether to show the user email on the public profile.', 'learning-management-system' ),
+							'type'        => 'boolean',
+							'context'     => array( 'view', 'edit' ),
+						),
+
+					),
+				),
 				'created_via'             => array(
 					'description' => __( 'How the user was created.', 'learning-management-system' ),
 					'type'        => 'string',
@@ -1405,7 +1578,8 @@ class UsersController extends CrudController {
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
 		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
-		/** @var Masteriyo\Database\Model $user */
+
+		/** @var \Masteriyo\Models\User $user */
 		$user = masteriyo( 'user' );
 
 		if ( 0 !== $id ) {
@@ -1514,7 +1688,7 @@ class UsersController extends CrudController {
 
 		// User's profile_image.
 		if ( isset( $request['profile_image'] ) ) {
-			$user->set_profile_image( $request['profile_image'] );
+			$user->set_profile_image_id( $request['profile_image'] );
 		}
 
 		// User's instructor_apply_status.
@@ -1573,6 +1747,59 @@ class UsersController extends CrudController {
 
 		if ( isset( $request['created_via'] ) && 'admin' === $request['created_via'] ) {
 			$user->set_auto_create_user( true );
+		}
+
+		// User public profile details.
+		if ( isset( $request['public_profile']['biographical_info'] ) ) {
+			$user->set_public_profile_biographical_info( $request['public_profile']['biographical_info'] );
+		}
+
+		if ( isset( $request['public_profile']['address_1'] ) ) {
+			$user->set_public_profile_address_1( $request['public_profile']['address_1'] );
+		}
+
+		if ( isset( $request['public_profile']['address_2'] ) ) {
+			$user->set_public_profile_address_2( $request['public_profile']['address_2'] );
+		}
+
+		if ( isset( $request['public_profile']['city'] ) ) {
+			$user->set_public_profile_city( $request['public_profile']['city'] );
+		}
+
+		if ( isset( $request['public_profile']['postcode'] ) ) {
+			$user->set_public_profile_postcode( $request['public_profile']['postcode'] );
+		}
+
+		if ( isset( $request['public_profile']['country'] ) ) {
+			$user->set_public_profile_country( $request['public_profile']['country'] );
+		}
+
+		if ( isset( $request['public_profile']['state'] ) ) {
+			$user->set_public_profile_state( $request['public_profile']['state'] );
+		}
+
+		if ( isset( $request['public_profile']['phone'] ) ) {
+			$user->set_public_profile_phone( $request['public_profile']['phone'] );
+		}
+
+		if ( isset( $request['public_profile']['facebook_url'] ) ) {
+			$user->set_public_profile_facebook_url( $request['public_profile']['facebook_url'] );
+		}
+
+		if ( isset( $request['public_profile']['website_url'] ) ) {
+			$user->set_public_profile_website_url( $request['public_profile']['website_url'] );
+		}
+
+		if ( isset( $request['public_profile']['linkedin_url'] ) ) {
+			$user->set_public_profile_linkedin_url( $request['public_profile']['linkedin_url'] );
+		}
+
+		if ( isset( $request['public_profile']['behance_url'] ) ) {
+			$user->set_public_profile_behance_url( $request['public_profile']['behance_url'] );
+		}
+
+		if ( isset( $request['public_profile']['show_email'] ) ) {
+			$user->set_public_profile_show_email( $request['public_profile']['show_email'] );
 		}
 
 		// Allow set meta_data, but block privileged keys for non-admins (defense-in-depth against privilege escalation).
@@ -1817,6 +2044,19 @@ class UsersController extends CrudController {
 	}
 
 	/**
+	 * Get the reassign target for a bulk user delete.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 *
+	 * @return int|null
+	 */
+	protected function get_reassign_target( $request ) {
+		$reassign = absint( $request->get_param( 'reassign' ) );
+
+		return $reassign > 0 ? $reassign : null;
+	}
+
+	/**
 	 * Delete multiple items.
 	 *
 	 * @since 1.6.5
@@ -1830,11 +2070,11 @@ class UsersController extends CrudController {
 
 		$request->set_param( 'context', 'edit' );
 
-		$reassign_id = 1 === count( $request['ids'] ) ? ( $request['reassign'] ?? null ) : null;
+		$reassign_id = $this->get_reassign_target( $request );
 
 		$ids = array_filter(
 			$request['ids'],
-			function ( $id ) {
+			function( $id ) {
 				return get_current_user_id() !== absint( $id );
 			}
 		);
@@ -1929,7 +2169,21 @@ class UsersController extends CrudController {
 			);
 		}
 
-		if ( isset( $request['old_password'] ) && ! wp_check_password( $request['old_password'], $user->user_pass, $user->ID ) ) {
+		if ( get_current_user_id() === $user->ID ) {
+			if ( ! current_user_can( 'edit_users' ) ) {
+				$this->restrict_to_account_fields( $request );
+
+				// The email-change confirmation flow only exists on /users/me,
+				// so the numeric route must not change email unverified.
+				$request->offsetUnset( 'email' );
+			}
+
+			$password_error = $this->validate_self_password_change( $request, $user );
+
+			if ( $password_error ) {
+				return $password_error;
+			}
+		} elseif ( isset( $request['old_password'] ) && ! wp_check_password( $request['old_password'], $user->user_pass, $user->ID ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_update',
 				__( 'Sorry, invalid old password.', 'learning-management-system' ),
@@ -1945,6 +2199,10 @@ class UsersController extends CrudController {
 				__( 'Sorry, you are not allowed to change roles.', 'learning-management-system' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
+		}
+
+		if ( isset( $request['roles'], $request['id'] ) && get_current_user_id() === (int) $request['id'] && ! $this->roles_have_capability( $request['roles'], 'manage_options' ) ) {
+			return $this->cannot_remove_own_admin_access_error();
 		}
 
 		if ( isset( $request['status'] ) && ! current_user_can( 'edit_users' ) ) {
@@ -2000,6 +2258,12 @@ class UsersController extends CrudController {
 	public function update_logged_in_user( $request ) {
 		$user = wp_get_current_user();
 
+		if ( isset( $request['roles'] ) && current_user_can( 'manage_options' ) && ! $this->roles_have_capability( $request['roles'], 'manage_options' ) ) {
+			return $this->cannot_remove_own_admin_access_error();
+		}
+
+		$this->restrict_to_account_fields( $request );
+
 		if ( isset( $user->user_email, $request['email'] ) && $user->user_email !== $request['email'] ) {
 			$token = wp_hash( $user->ID . $request['email'] . time() );
 			update_user_meta( $user->ID, '_email_change_token', $token );
@@ -2046,6 +2310,37 @@ class UsersController extends CrudController {
 			}
 		}
 
+		$password_error = $this->validate_self_password_change( $request, $user );
+
+		if ( $password_error ) {
+			return $password_error;
+		}
+
+		$request->set_param( 'id', $user->ID );
+
+		return $this->update_item( $request );
+	}
+
+	/**
+	 * Validate a self-targeted password change: the current password is
+	 * required, must match, and the new password must be confirmed and differ.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @param \WP_User         $user    User whose password would change.
+	 *
+	 * @return WP_Error|null Error when the change is invalid, null otherwise.
+	 */
+	protected function validate_self_password_change( $request, $user ) {
+		if ( isset( $request['password'] ) && ! isset( $request['old_password'] ) ) {
+			return new WP_Error(
+				'masteriyo_rest_user_old_password_required',
+				__( 'Current password is required.', 'learning-management-system' ),
+				array(
+					'status' => 400,
+				)
+			);
+		}
+
 		if ( isset( $request['old_password'], $request['password'] ) && wp_check_password( $request['password'], $user->user_pass, $user->ID ) ) {
 			return new WP_Error(
 				'masteriyo_rest_user_old_password_same_as_new_password',
@@ -2069,41 +2364,81 @@ class UsersController extends CrudController {
 		if ( isset( $request['password'] ) && ( ! isset( $request['confirm_password'] ) || $request['password'] !== $request['confirm_password'] ) ) {
 			return new WP_Error(
 				'masteriyo_rest_new_password_mismatch',
-				__( 'Old password does not match. Please verify your current password and try again.', 'learning-management-system' ),
+				__( 'New password and its confirmation do not match. Please retype them and try again.', 'learning-management-system' ),
 				array(
 					'status' => 400,
 				)
 			);
 		}
 
-		$request->set_param( 'id', $user->ID );
+		return null;
+	}
 
-		// Only managers/admins may change status via /users/me (mirrors the edit_users gate elsewhere).
-		if ( ! current_user_can( 'edit_users' ) ) {
-			$request->offsetUnset( 'status' );
+	/**
+	 * Strip every request field a user may not set on their own account.
+	 *
+	 * The list mirrors the account form; anything else (roles, status, email
+	 * meta, profile_image, instructor_apply_status, ...) is silently dropped.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return void
+	 */
+	protected function restrict_to_account_fields( $request ) {
+		$allowed_fields = array(
+			'id',
+			'first_name',
+			'last_name',
+			'email',
+			'old_password',
+			'password',
+			'confirm_password',
+			'billing',
+			'public_profile',
+		);
+
+		foreach ( array_keys( $request->get_params() ) as $field ) {
+			if ( ! in_array( $field, $allowed_fields, true ) ) {
+				$request->offsetUnset( $field );
+			}
+		}
+	}
+
+	/**
+	 * Check whether at least one of the supplied roles grants a capability.
+	 *
+	 * @param string[] $roles      Role slugs.
+	 * @param string   $capability Capability to check.
+	 *
+	 * @return bool
+	 */
+	protected function roles_have_capability( $roles, $capability ) {
+		if ( ! is_array( $roles ) ) {
+			return false;
 		}
 
-		// Deny role changes and privilege-escalation via meta_data for non-admins.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			$request->offsetUnset( 'role' );
-			$request->offsetUnset( 'roles' );
+		foreach ( $roles as $role_name ) {
+			$role = get_role( $role_name );
 
-			// Strip privileged keys from meta_data to prevent escalation via the meta_data bypass.
-			if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
-				$privileged_meta_keys = $this->get_privileged_meta_keys();
-				$filtered_meta        = array_values(
-					array_filter(
-						$request['meta_data'],
-						function ( $meta ) use ( $privileged_meta_keys ) {
-							return isset( $meta['key'] ) && ! in_array( sanitize_key( $meta['key'] ), $privileged_meta_keys, true );
-						}
-					)
-				);
-				$request->set_param( 'meta_data', $filtered_meta );
+			if ( $role && $role->has_cap( $capability ) ) {
+				return true;
 			}
 		}
 
-		return $this->update_item( $request );
+		return false;
+	}
+
+	/**
+	 * Build the shared self-demotion error.
+	 *
+	 * @return \WP_Error
+	 */
+	protected function cannot_remove_own_admin_access_error() {
+		return new \WP_Error(
+			'masteriyo_rest_cannot_update',
+			__( 'Sorry, you are not allowed to remove your own administrative access.', 'learning-management-system' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
@@ -2191,14 +2526,14 @@ class UsersController extends CrudController {
 	}
 
 	/**
+	 * Generates a unique login token for a user and stores it as user meta.
+	 *
 	 * Returns the list of user meta keys that non-admins must not write via meta_data.
 	 *
 	 * Blocks both the Masteriyo internal setter path (roles → set_roles()) and
 	 * the raw WordPress capability keys written directly to the user meta table, including
 	 * multisite table-prefixed variants. session_tokens is included to prevent
 	 * session fixation attacks via the meta_data parameter.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string[]
 	 */
@@ -2219,8 +2554,6 @@ class UsersController extends CrudController {
 	}
 
 	/**
-	 * Generates a unique login token for a user and stores it as user meta.
-	 *
 	 * @since 1.9.0
 	 *
 	 * @param int $user_id The user ID for which to generate the login token.

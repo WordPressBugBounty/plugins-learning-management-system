@@ -80,7 +80,13 @@ class SingleCoursePageDocumentType extends PageBase {
 	 * @return string
 	 */
 	public static function get_title() {
-		return esc_html__( 'Masteriyo Single Course Page', 'learning-management-system' );
+		return esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Single Course Page', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 	}
 
 	/**
@@ -91,7 +97,13 @@ class SingleCoursePageDocumentType extends PageBase {
 	 * @return string
 	 */
 	public static function get_plural_title() {
-		return esc_html__( 'Masteriyo Single Course Pages', 'learning-management-system' );
+		return esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Single Course Pages', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 	}
 
 	/**

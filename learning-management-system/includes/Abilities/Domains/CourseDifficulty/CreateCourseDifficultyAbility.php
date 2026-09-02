@@ -3,7 +3,6 @@
  * Create Course Difficulty ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseDifficulty
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseDifficulty;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Creates a taxonomy term under `course_difficulty`.
  * Common values are Beginner, Intermediate, and Expert, but custom levels are supported.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class CreateCourseDifficultyAbility extends RestProxyAbility {
 

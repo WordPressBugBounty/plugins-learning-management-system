@@ -11,7 +11,6 @@
  * the readme will list any important changes.
  *
  * @package masteriyo\Templates\Emails\HTML
- * @version 2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -19,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires before rendering email header.
  *
- * @since 2.0.0
+ * @since 2.6.10
  *
  * @param \Masteriyo\Emails\Student\CourseCompletionReminderEmailToStudent $email Email object.
  */
@@ -30,7 +29,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 /**
  * Action hook fired in email's footer section.
  *
- * @since 2.0.0
+ * @since 2.6.10
  *
  * @param \Masteriyo\Emails\Student\CourseCompletionReminderEmailToStudent $email Email object.
  */

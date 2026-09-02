@@ -37,7 +37,9 @@ const Edit: React.FC<any> = (props) => {
 	const { editorCSS } = useBlockCSS(props);
 	const [shouldRender, setShouldRender] = useState(false);
 	const [emotionCache, setEmotionCache] = useState(null);
-	const blockProps = useBlockProps({ className: 'masteriyo-block-editor-wrapper' });
+	const blockProps = useBlockProps({
+		className: 'masteriyo-block-editor-wrapper',
+	});
 
 	useEffect(() => {
 		setAttributes({ courseId: singleCourseId });
@@ -93,10 +95,7 @@ const Edit: React.FC<any> = (props) => {
 				<BlockSettings setSingleCourseId={setSingleCourseId} {...props} />
 			</InspectorControls>
 			<Fragment>
-				<div
-					{...blockProps}
-					onClick={(e) => e.preventDefault()}
-				>
+				<div {...blockProps} onClick={(e) => e.preventDefault()}>
 					{shouldRender ? (
 						<ServerSideRender
 							key={`course-enroll-button-${singleCourseId || courseId || context['masteriyo/course_id'] || 0}`}
@@ -123,10 +122,7 @@ const Edit: React.FC<any> = (props) => {
 										textAlign="center"
 									>
 										<Box mb={3} fontSize="14px" fontWeight="600">
-											{__(
-												'Select Course',
-												'learning-management-system',
-											)}
+											{__('Select Course', 'learning-management-system')}
 										</Box>
 										<Box maxW="400px" margin="0 auto">
 											<CourseFilterForBlocks

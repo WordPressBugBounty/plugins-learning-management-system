@@ -37,6 +37,4 @@ class ShowHideInstructorCourseComponents extends ShowHideCourseComponents {
 	protected function should_print(): bool {
 		return masteriyo_is_courses_page();
 	}
-
 }
-

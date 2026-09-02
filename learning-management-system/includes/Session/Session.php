@@ -22,6 +22,15 @@ defined( 'ABSPATH' ) || exit;
 class Session extends AbstractSession {
 
 	/**
+	 * Contains a reference to the data store for this class.
+	 *
+	 * @since 2.5.12
+	 *
+	 * @var \Masteriyo\Repository\SessionRepository
+	 */
+	protected $repository;
+
+	/**
 	 * Cookie name used for the session.
 	 *
 	 * @since 1.0.0
@@ -51,7 +60,7 @@ class Session extends AbstractSession {
 	/**
 	 * Constructor for the session class.
 	 *
-	 * @param Masteriyo\Repository\SessionRepository $session_repository Session repository.
+	 * @param \Masteriyo\Repository\SessionRepository $session_repository Session repository.
 	 *
 	 * @since 1.0.0
 	 */

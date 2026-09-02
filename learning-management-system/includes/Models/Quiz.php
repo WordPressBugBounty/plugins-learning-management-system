@@ -13,6 +13,8 @@ use Masteriyo\Database\Model;
 use Masteriyo\Repository\QuizRepository;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Cache\CacheInterface;
+use Masteriyo\Enums\QuizPassMarkType;
+use Masteriyo\Query\QuestionQuery;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -67,23 +69,29 @@ class Quiz extends Model {
 	 * @var array
 	 */
 	protected $data = array(
-		'name'                       => '',
-		'slug'                       => '',
-		'date_created'               => null,
-		'date_modified'              => null,
-		'parent_id'                  => 0,
-		'course_id'                  => 0,
-		'author_id'                  => 0,
-		'menu_order'                 => 0,
-		'status'                     => false,
-		'description'                => '',
-		'short_description'          => '',
-		'pass_mark'                  => 0,
-		'full_mark'                  => 0,
-		'duration'                   => 0, // Seconds
-		'attempts_allowed'           => 0,
-		'reveal_mode'                => false,
-		'questions_display_per_page' => 0,
+		'name'                            => '',
+		'slug'                            => '',
+		'date_created'                    => null,
+		'date_modified'                   => null,
+		'parent_id'                       => 0,
+		'course_id'                       => 0,
+		'author_id'                       => 0,
+		'menu_order'                      => 0,
+		'status'                          => false,
+		'description'                     => '',
+		'short_description'               => '',
+		'pass_mark'                       => 0,
+		'full_mark'                       => 0,
+		'duration'                        => 0, // Seconds
+		'attempts_allowed'                => 0,
+		'reveal_mode'                     => false,
+		'questions_display_per_page'      => 0,
+
+		// Pro
+		'pass_mark_type'                  => QuizPassMarkType::POINT,
+		'randomize'                       => false,
+		'show_details'                    => true,
+		'require_all_questions_attempted' => false,
 	);
 
 	/**
@@ -95,6 +103,43 @@ class Quiz extends Model {
 	 */
 	public function __construct( QuizRepository $quiz_repository ) {
 		$this->repository = $quiz_repository;
+	}
+
+
+	/*
+	|--------------------------------------------------------------------------
+	| Conditional
+	|--------------------------------------------------------------------------
+	*/
+	public function need_manual_review() {
+		$query = new QuestionQuery(
+			array(
+				'limit'     => -1,
+				'parent_id' => $this->get_id(),
+			)
+		);
+
+		$questions = $query->get_questions();
+
+		$need_manual_review = false;
+		foreach ( $questions as $question ) {
+			if ( $question->is_reviewable() ) {
+				$need_manual_review = true;
+				break;
+			}
+		}
+
+		/**
+		 * Filter need manual review for quiz.
+		 *
+		 * @since 2.5.20
+		 *
+		 * @param boolean $need_manual_review
+		 * @param \Masteriyo\Models\Question[] $question
+		 * @param \Masteriyo\Model\Quiz $quiz
+		 */
+		return apply_filters( 'masteriyo_quiz_need_manual_review', $need_manual_review, $questions, $this );
+
 	}
 
 	/**
@@ -287,6 +332,20 @@ class Quiz extends Model {
 		return apply_filters( 'masteriyo_quiz_icon', $icon, $context );
 	}
 
+	/**
+		 * Returns reveal mode.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $context What the value is for. Valid values are view and edit.
+		 *
+		 * @return int Reveal mode.
+		 */
+	public function get_reveal_mode( $context = 'view' ) {
+		return $this->get_prop( 'reveal_mode', $context );
+	}
+
+
 	/*
 	|--------------------------------------------------------------------------
 	| Getters
@@ -323,10 +382,9 @@ class Quiz extends Model {
 	 * Get quiz created date.
 	 *
 	 * @since  1.0.0
-	 * @since Return \Masteriyo\DateTime|null
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
-	 * @return Masteriyo\DateTime|null object if the date is set or null if there is no date.
+	 * @return \Masteriyo\DateTime|null object if the date is set or null if there is no date.
 	 */
 	public function get_date_created( $context = 'view' ) {
 		return $this->get_prop( 'date_created', $context );
@@ -520,19 +578,6 @@ class Quiz extends Model {
 	}
 
 	/**
-	 * Returns reveal mode.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $context What the value is for. Valid values are view and edit.
-	 *
-	 * @return int Reveal mode.
-	 */
-	public function get_reveal_mode( $context = 'view' ) {
-		return $this->get_prop( 'reveal_mode', $context );
-	}
-
-	/**
 	 * Returns quiz questions display per page.
 	 *
 	 * @since 1.0.0
@@ -543,6 +588,56 @@ class Quiz extends Model {
 	 */
 	public function get_questions_display_per_page( $context = 'view' ) {
 		return $this->get_prop( 'questions_display_per_page', $context );
+	}
+
+	/**
+	 * Returns pass marks metric (unit or percentage);
+	 *
+	 * @since 2.2.7
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_pass_mark_type( $context = 'view' ) {
+		return $this->get_prop( 'pass_mark_type', $context );
+	}
+
+	/**
+	 * Check whether the questions of the quiz should be randomized or not.
+	 *
+	 * @since  2.2.8
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return bool
+	 */
+	public function get_randomize( $context = 'view' ) {
+		return $this->get_prop( 'randomize', $context );
+	}
+
+	/**
+	 * Show quiz details after attempt or not.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return bool
+	 */
+	public function get_show_details( $context = 'view' ) {
+		return $this->get_prop( 'show_details', $context );
+	}
+
+	/**
+	 * Returns whether all questions must be attempted before submission.
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return bool
+	 */
+	public function get_require_all_questions_attempted( $context = 'view' ) {
+		return $this->get_prop( 'require_all_questions_attempted', $context );
 	}
 
 	/*
@@ -756,6 +851,50 @@ class Quiz extends Model {
 	}
 
 	/**
+	 * Set the quiz question display per page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $questions_display_per_page Question display per page.
+	 */
+	public function set_questions_display_per_page( $questions_display_per_page ) {
+		$this->set_prop( 'questions_display_per_page', absint( $questions_display_per_page ) );
+	}
+
+	/**
+	 * Set pass mark metric (unit or percentage).
+	 *
+	 * @since 2.2.7
+	 *
+	 * @param string $pass_mark_type Pass mark metric (unit or percentage).
+	 */
+	public function set_pass_mark_type( $pass_mark_type ) {
+		$this->set_prop( 'pass_mark_type', $pass_mark_type );
+	}
+
+	/**
+	 * Randomize the questions of the quiz.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param string $randomize Randomize.
+	 */
+	public function set_randomize( $randomize ) {
+		$this->set_prop( 'randomize', masteriyo_string_to_bool( $randomize ) );
+	}
+
+	/**
+	 * Show quiz details.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @param string $randomize Randomize.
+	 */
+	public function set_show_details( $show_details ) {
+		$this->set_prop( 'show_details', masteriyo_string_to_bool( $show_details ) );
+	}
+
+	/**
 		 * Set the reveal mode.
 		 *
 		 * @since 1.0.0
@@ -767,13 +906,11 @@ class Quiz extends Model {
 	}
 
 	/**
-	 * Set the quiz question display per page.
+	 * Set whether all questions must be attempted before submission.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @param int $questions_display_per_page Question display per page.
+	 * @param bool|string $value
 	 */
-	public function set_questions_display_per_page( $questions_display_per_page ) {
-		$this->set_prop( 'questions_display_per_page', absint( $questions_display_per_page ) );
+	public function set_require_all_questions_attempted( $value ) {
+		$this->set_prop( 'require_all_questions_attempted', masteriyo_string_to_bool( $value ) );
 	}
 }

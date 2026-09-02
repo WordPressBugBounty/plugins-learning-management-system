@@ -37,6 +37,4 @@ class ShowHideCategoryCourseComponents extends ShowHideCourseComponents {
 	protected function should_print(): bool {
 		return is_tax( 'course_cat' );
 	}
-
 }
-

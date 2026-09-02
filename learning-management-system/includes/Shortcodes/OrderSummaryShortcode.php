@@ -1,7 +1,9 @@
 <?php
 /**
- * @since 2.1.0
- * @class OrderSummaryShortcode
+ * @since 2.1.0 [Free]
+ *
+ * OrderSummaryShortcode
+ *
  */
 
 namespace Masteriyo\Shortcodes;
@@ -13,14 +15,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Order Summary Shortcode.
  *
- * @since 2.1.0
+ * @since 3.1.0
  */
 class OrderSummaryShortcode extends Shortcode {
 
 	/**
 	 * Shortcode tag.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @var string
 	 */
@@ -29,7 +31,7 @@ class OrderSummaryShortcode extends Shortcode {
 	/**
 	 * Get shortcode content.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @return string
 	 */
@@ -47,14 +49,14 @@ class OrderSummaryShortcode extends Shortcode {
 		$order_key = isset( $_GET['key'] ) && empty( $_GET['key'] ) ? '' : masteriyo_clean( wp_unslash( $_GET['key'] ?? '' ) );
 
 		/**
-		 * @since 2.1.0
+		 * @since 3.1.0
 		 *
 		 * @param integer $order_id
 		 */
 		$order_id = apply_filters( 'masteriyo_thankyou_order_id', $order_id );
 
 		/**
-		 * @since 2.1.0
+		 * @since 3.1.0
 		 *
 		 * @param string $order_key
 		 */

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Addons\BuddyPress\Helper;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_BUDDY_PRESS_FILE', __FILE__ );
 define( 'MASTERIYO_BUDDY_PRESS_BASENAME', plugin_basename( __FILE__ ) );
@@ -29,7 +29,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_BUDDY_PRESS_SLUG ) && ! Helper::is_b
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'BuddyPress Integration addon requires BuddyPress plugin to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);
@@ -37,7 +37,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_BUDDY_PRESS_SLUG ) && ! Helper::is_b
 	);
 }
 
-// Bail early if Elementor is not activated.
+// Bail early if BuddyPress is not activated.
 if ( ! Helper::is_bp_active() ) {
 	add_filter(
 		'masteriyo_pro_addon_' . MASTERIYO_BUDDY_PRESS_SLUG . '_activation_requirements',
@@ -71,7 +71,7 @@ if ( ! ( new Addons() )->is_active( MASTERIYO_BUDDY_PRESS_SLUG ) ) {
 }
 
 /**
- * Include service providers for BuddyPress Integration
+ * Include service providers for BuddyPress
  */
 add_filter(
 	'masteriyo_service_providers',

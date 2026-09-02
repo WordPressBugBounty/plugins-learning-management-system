@@ -2,7 +2,6 @@
 /**
  * Student preview helper functions.
  *
- * @since x.x.x
  * @package Masteriyo\Helper
  */
 
@@ -13,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Build the raw pipe-delimited payload string for token signing.
  *
- * @since x.x.x
  * @param int $course_id
  * @param int $user_id
  * @param int $target_user_id  0 = demo student (omitted from payload).
@@ -34,7 +32,6 @@ function masteriyo_build_preview_token_data( int $course_id, int $user_id, int $
  *
  * course_id = 0 means global preview (not tied to a specific course).
  *
- * @since x.x.x
  * @param int $course_id      0 for global preview, positive for course-specific.
  * @param int $user_id        The admin/instructor who is launching the preview.
  * @param int $target_user_id Optional. User to impersonate. 0 = demo student.
@@ -51,7 +48,6 @@ function masteriyo_generate_student_preview_token( int $course_id, int $user_id,
 /**
  * Validate a student preview token for the current user and course.
  *
- * @since x.x.x
  * @param string $token     base64-encoded signed token.
  * @param int    $course_id Expected course ID (0 = global preview).
  * @return bool
@@ -101,7 +97,6 @@ function masteriyo_validate_student_preview_token( string $token, int $course_id
 /**
  * Check if the current page load is a validated student preview session.
  *
- * @since x.x.x
  * @return bool
  */
 function masteriyo_is_student_preview_mode(): bool {
@@ -111,7 +106,6 @@ function masteriyo_is_student_preview_mode(): bool {
 /**
  * Persist preview state as a signed browser cookie.
  *
- * @since x.x.x
  * @param int $course_id      0 for global preview, positive for course-specific.
  * @param int $user_id
  * @param int $target_user_id Optional. 0 = use demo student.
@@ -140,8 +134,6 @@ function masteriyo_set_student_preview_cookie( int $course_id, int $user_id, int
 
 /**
  * Clear the student preview cookie on exit.
- *
- * @since x.x.x
  */
 function masteriyo_clear_student_preview_cookie(): void {
 	$expired = array(
@@ -165,7 +157,6 @@ function masteriyo_clear_student_preview_cookie(): void {
  * Returns 0 for a valid global preview (not course-specific).
  * Returns a positive course ID for a course-specific preview.
  *
- * @since x.x.x
  * @param int $admin_id The authenticated admin/instructor user ID to validate against.
  * @return int -1 on failure, 0 for global preview, positive course ID for course-specific.
  */
@@ -182,8 +173,8 @@ function masteriyo_validate_student_preview_cookie_for_user( int $admin_id ): in
 
 	if ( 4 === $count ) {
 		[ $course_id, $user_id, $expiry, $signature ] = $parts;
-		$data                                          = "{$course_id}|{$user_id}|{$expiry}";
-		$target_user_id                                = 0;
+		$data           = "{$course_id}|{$user_id}|{$expiry}";
+		$target_user_id = 0;
 	} elseif ( 5 === $count ) {
 		[ $course_id, $user_id, $target_user_id, $expiry, $signature ] = $parts;
 		$data = "{$course_id}|{$user_id}|{$target_user_id}|{$expiry}";
@@ -209,7 +200,6 @@ function masteriyo_validate_student_preview_cookie_for_user( int $admin_id ): in
  * Validate the student preview cookie and return the course ID it covers.
  * Uses get_current_user_id() — only call this after WordPress has set the current user.
  *
- * @since x.x.x
  * @return int -1 on failure, 0 for global preview, positive course ID for course-specific.
  */
 function masteriyo_validate_student_preview_cookie(): int {
@@ -219,7 +209,6 @@ function masteriyo_validate_student_preview_cookie(): int {
 /**
  * Get or create the single site-wide demo student account.
  *
- * @since x.x.x
  * @return int Demo student user ID, or 0 on failure.
  */
 function masteriyo_get_or_create_preview_student(): int {
@@ -265,7 +254,6 @@ function masteriyo_get_or_create_preview_student(): int {
  * Return the email address of the user currently being previewed.
  * Must be called after determine_current_user has set the globals.
  *
- * @since x.x.x
  * @return string
  */
 function masteriyo_get_preview_as_email(): string {
@@ -277,7 +265,6 @@ function masteriyo_get_preview_as_email(): string {
 /**
  * Return the email address of the site-wide demo student.
  *
- * @since x.x.x
  * @return string
  */
 function masteriyo_get_demo_student_email(): string {
@@ -290,7 +277,6 @@ function masteriyo_get_demo_student_email(): string {
  *
  * Prefers the Masteriyo account page, then My Courses, then site home.
  *
- * @since x.x.x
  * @return string
  */
 function masteriyo_get_preview_landing_url(): string {
@@ -310,7 +296,6 @@ function masteriyo_get_preview_landing_url(): string {
 /**
  * Generate a preview magic link for an arbitrary registered user identified by email.
  *
- * @since x.x.x
  * @param int    $course_id
  * @param int    $admin_id
  * @param string $email     The registered user's email to preview as.
@@ -363,7 +348,6 @@ function masteriyo_generate_preview_link_for_email( int $course_id, int $admin_i
  * Cookie is httponly to prevent JS theft — this is effectively a
  * "switch-back-to-admin" capability token.
  *
- * @since x.x.x
  * @param int    $admin_id      The admin/instructor launching the preview.
  * @param string $session_token Raw WP session token from wp_get_session_token().
  */
@@ -394,7 +378,6 @@ function masteriyo_set_preview_originator_cookie( int $admin_id, string $session
  * Returns null on any failure (missing, tampered, expired).
  * Returns an array with 'admin_id' (int) and 'session_token' (string) on success.
  *
- * @since x.x.x
  * @return array{admin_id:int,session_token:string}|null
  */
 function masteriyo_validate_preview_originator_cookie(): ?array {
@@ -432,8 +415,6 @@ function masteriyo_validate_preview_originator_cookie(): ?array {
 
 /**
  * Clear the originator cookie.
- *
- * @since x.x.x
  */
 function masteriyo_clear_preview_originator_cookie(): void {
 	setcookie(
@@ -455,8 +436,6 @@ function masteriyo_clear_preview_originator_cookie(): void {
  * Clear the JS-set return-to cookie.
  *
  * The cookie is set by JS with Path=/ so we clear with Path=/ as well.
- *
- * @since x.x.x
  */
 function masteriyo_clear_preview_return_to_cookie(): void {
 	setcookie(
@@ -475,67 +454,108 @@ function masteriyo_clear_preview_return_to_cookie(): void {
 }
 
 /**
+ * Whether this request is authenticated as the reserved demo student.
+ *
+ * The identity, not a cookie: the preview cookies last 4 hours while the demo
+ * student's auth cookie lasts 2 days, and direct login to the account is blocked.
+ *
+ * @return bool
+ */
+function masteriyo_is_current_user_demo_student(): bool {
+	$user_id = get_current_user_id();
+
+	return $user_id > 0 && (bool) get_user_meta( $user_id, '_masteriyo_is_demo_student', true );
+}
+
+/**
+ * End the preview: clear its cookies and restore the original admin session.
+ *
+ * Validates via the signed originator cookie, not the current WP auth state, so
+ * it is safe to call whoever the request is currently authenticated as.
+ *
+ * @param string $return_url Where to land afterwards; the dashboard by default.
+ * @return string The URL to redirect to.
+ */
+function masteriyo_end_student_preview( string $return_url = '' ): string {
+	$originator = masteriyo_validate_preview_originator_cookie();
+	$previewing = $originator || masteriyo_is_current_user_demo_student();
+
+	masteriyo_clear_student_preview_cookie();
+	masteriyo_clear_preview_originator_cookie();
+	masteriyo_clear_preview_return_to_cookie();
+
+	// Nobody is previewing, so there is no session to end. The exit URL carries no
+	// nonce and answers on any request, so clearing auth here would sign out any
+	// administrator who followed a stale or hostile link.
+	if ( ! $previewing ) {
+		if ( $return_url ) {
+			return $return_url;
+		}
+
+		return is_user_logged_in() ? admin_url() : home_url( '/' );
+	}
+
+	// The demo student's session is never the one to keep. Drop it before either
+	// branch below decides where to land, or a failed restore leaves the browser
+	// signed in as the demo student and the wp-admin guard traps it again.
+	wp_clear_auth_cookie();
+
+	// Nobody to restore, or the admin's own session is gone: fail closed to login.
+	// We do not resurrect a session the admin ended elsewhere.
+	if ( ! $originator || ! \WP_Session_Tokens::get_instance( $originator['admin_id'] )->verify( $originator['session_token'] ) ) {
+		return wp_login_url( $return_url ? $return_url : admin_url() );
+	}
+
+	// Mint fresh auth cookies for the original admin (the original session stays
+	// valid for other devices; this creates an additional session).
+	wp_set_auth_cookie( $originator['admin_id'], false, is_ssl() );
+
+	return $return_url ? $return_url : admin_url();
+}
+
+/**
+ * Read the frontend banner's return-to cookie, constrained to this origin.
+ *
+ * @return string Empty when absent or off-origin.
+ */
+function masteriyo_get_preview_return_to(): string {
+	if ( empty( $_COOKIE['mto_preview_return_to'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return '';
+	}
+
+	// wp_validate_redirect preserves URL fragments and constrains to same-origin.
+	return (string) wp_validate_redirect( urldecode( wp_unslash( $_COOKIE['mto_preview_return_to'] ) ), '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+}
+
+/**
  * Validate the URL token on the first page load, set the preview cookie,
  * swap the auth session to the demo student, and redirect to the clean URL.
  *
- * Also handles the exit flow: restores the original admin session.
+ * Also handles both exit flows: the banner's Switch to Admin button, and a
+ * preview session navigating to wp-admin.
  *
- * Priority 5 on 'init' — runs before handle_learn_page().
- *
- * @since x.x.x
+ * Priority -1 on 'init' — Masteriyo's own student guard runs at priority 0 and
+ * bounces any student request for wp-admin to the home page, which would
+ * swallow the wp-admin exit below.
  */
 function masteriyo_handle_student_preview_token(): void {
 
-	// -------------------------------------------------------------------------
-	// EXIT: clear preview cookies and restore original admin session.
-	// No is_user_logged_in() check needed here — we validate via the signed
-	// originator cookie, not the current WP auth state.
-	// -------------------------------------------------------------------------
 	if ( isset( $_GET['mto-exit-student-preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$originator = masteriyo_validate_preview_originator_cookie();
+		wp_safe_redirect( masteriyo_end_student_preview( masteriyo_get_preview_return_to() ) );
+		exit;
+	}
 
-		if ( ! $originator ) {
-			// Missing or tampered originator: clear any stale preview cookies and redirect safely.
-			masteriyo_clear_student_preview_cookie();
-			masteriyo_clear_preview_originator_cookie();
-			masteriyo_clear_preview_return_to_cookie();
-			wp_safe_redirect( is_user_logged_in() ? admin_url() : home_url( '/' ) );
-			exit;
-		}
-
-		$admin_id      = $originator['admin_id'];
-		$session_token = $originator['session_token'];
-
-		// Verify the admin's original session is still active in the DB.
-		// If the admin logged out elsewhere or the session expired, we do not
-		// resurrect it — fail closed and land on the login screen.
-		$sessions     = \WP_Session_Tokens::get_instance( $admin_id );
-		$session_live = $sessions->verify( $session_token );
-
-		// Capture return URL before clearing cookies.
-		$return_url = '';
-		if ( ! empty( $_COOKIE['mto_preview_return_to'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$decoded_url = urldecode( wp_unslash( $_COOKIE['mto_preview_return_to'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			// wp_validate_redirect preserves URL fragments and constrains to same-origin.
-			$return_url = wp_validate_redirect( $decoded_url, '' );
-		}
-
-		masteriyo_clear_student_preview_cookie();
-		masteriyo_clear_preview_originator_cookie();
-		masteriyo_clear_preview_return_to_cookie();
-
-		// Drop the demo student's auth cookies.
-		wp_clear_auth_cookie();
-
-		if ( $session_live ) {
-			// Mint fresh auth cookies for the original admin (original session stays
-			// valid for other devices; this creates an additional session).
-			wp_set_auth_cookie( $admin_id, false, is_ssl() );
-			wp_safe_redirect( $return_url ? $return_url : admin_url() );
-		} else {
-			// Admin session was destroyed — redirect to login, pre-filling the return URL.
-			wp_safe_redirect( wp_login_url( $return_url ? $return_url : admin_url() ) );
-		}
+	// -------------------------------------------------------------------------
+	// EXIT: a preview session asked for wp-admin. The frontend banner is the
+	// only switch-back control and wp_footer never runs there, so end the
+	// preview here — before any capability check — and continue to the screen
+	// that was asked for.
+	// -------------------------------------------------------------------------
+	// Keyed on the demo-student identity alone, not on a preview cookie: those last
+	// 4 hours while the auth cookie lasts 2 days, and in between there is no pill
+	// and no recovery — the trap again.
+	if ( is_admin() && ! wp_doing_ajax() && masteriyo_is_current_user_demo_student() ) {
+		wp_safe_redirect( masteriyo_end_student_preview( add_query_arg( 'mto-preview-ended', '1' ) ) );
 		exit;
 	}
 
@@ -571,8 +591,8 @@ function masteriyo_handle_student_preview_token(): void {
 
 	if ( 4 === $count ) {
 		[ $tok_course_id, $tok_user_id, $tok_expiry, $tok_sig ] = $parts;
-		$tok_target_user_id                                      = 0;
-		$sign_data                                               = "{$tok_course_id}|{$tok_user_id}|{$tok_expiry}";
+		$tok_target_user_id                                     = 0;
+		$sign_data = "{$tok_course_id}|{$tok_user_id}|{$tok_expiry}";
 	} elseif ( 5 === $count ) {
 		[ $tok_course_id, $tok_user_id, $tok_target_user_id, $tok_expiry, $tok_sig ] = $parts;
 		$sign_data = "{$tok_course_id}|{$tok_user_id}|{$tok_target_user_id}|{$tok_expiry}";
@@ -640,12 +660,95 @@ function masteriyo_handle_student_preview_token(): void {
 /**
  * Whether the current user may launch or generate a student preview.
  *
- * @since x.x.x
  * @return bool
  */
 function masteriyo_current_user_can_student_preview(): bool {
 	return masteriyo_is_current_user_admin() || masteriyo_is_current_user_instructor();
 }
+
+/**
+ * During a validated student preview session, let the impersonated demo
+ * student view the covered course even when it is unpublished.
+ *
+ * WP core lets a singular query pass its status check when the query names
+ * the post status explicitly — the same mechanism the private-course filter
+ * in FrontendQuery uses. No capability is granted anywhere, so the session
+ * changes nothing outside this one main query: not edit checks, not
+ * purchasability, not catalog visibility.
+ *
+ * The scope is strict. The query must be the frontend main query for the
+ * exact course the preview cookie covers. The current user must be a demo
+ * student account.
+ *
+ * @param \WP_Query $query The WordPress query object.
+ */
+function masteriyo_student_preview_show_covered_course( $query ): void {
+	if ( is_admin() || ! $query->is_main_query() || empty( $_COOKIE['mto_preview_originator'] ) ) {
+		return;
+	}
+
+	$post_type = isset( $query->query_vars['post_type'] ) ? $query->query_vars['post_type'] : '';
+	if ( 'mto-course' !== $post_type ) {
+		return;
+	}
+
+	if ( ! get_user_meta( get_current_user_id(), '_masteriyo_is_demo_student', true ) ) {
+		return;
+	}
+
+	$originator = masteriyo_validate_preview_originator_cookie();
+	if ( ! $originator ) {
+		return;
+	}
+
+	// Match the exit flow: a revoked originator session — logout elsewhere,
+	// password change — invalidates the preview now, not at cookie expiry.
+	if ( ! \WP_Session_Tokens::get_instance( $originator['admin_id'] )->verify( $originator['session_token'] ) ) {
+		return;
+	}
+
+	$covered_course_id = masteriyo_validate_student_preview_cookie_for_user( $originator['admin_id'] );
+	if ( $covered_course_id <= 0 ) {
+		return;
+	}
+
+	$covered = get_post( $covered_course_id );
+	if ( ! $covered || 'mto-course' !== $covered->post_type ) {
+		return;
+	}
+
+	// The cookie stays valid for four hours, but the originator's rights can
+	// change inside that window — the owner can unpublish, a role can go away.
+	// Re-check at request time: the session only shows what its originator
+	// can still edit.
+	if ( ! user_can( $originator['admin_id'], 'edit_post', $covered_course_id ) ) {
+		return;
+	}
+	$status = $covered->post_status;
+	if ( in_array( $status, array( \Masteriyo\Enums\PostStatus::PUBLISH, \Masteriyo\Enums\PostStatus::TRASH ), true ) ) {
+		return;
+	}
+
+	// Drafts and pending courses resolve by ID; private and scheduled courses
+	// resolve by their pretty permalink. Slug matching is safe only for the
+	// statuses wp_unique_post_slug() uniquifies — a shared draft/pending slug
+	// could resolve the forced-status query to a different course.
+	$slug_safe    = in_array(
+		$status,
+		array( \Masteriyo\Enums\PostStatus::PVT, \Masteriyo\Enums\PostStatus::FUTURE ),
+		true
+	);
+	$queried_id   = isset( $query->query_vars['p'] ) ? (int) $query->query_vars['p'] : 0;
+	$queried_name = isset( $query->query_vars['name'] ) ? (string) $query->query_vars['name'] : '';
+	$is_covered   = $queried_id === $covered_course_id
+		|| ( $slug_safe && '' !== $queried_name && $queried_name === $covered->post_name );
+	if ( ! $is_covered ) {
+		return;
+	}
+
+	$query->set( 'post_status', array( $status ) );
+}
+add_action( 'pre_get_posts', 'masteriyo_student_preview_show_covered_course' );
 
 /**
  * Force wp-auth-check:false in every Heartbeat response while a student preview
@@ -658,8 +761,6 @@ function masteriyo_current_user_can_student_preview(): bool {
  *
  * The client JS (wp-auth-check.js) listens to heartbeat-tick and calls show()
  * when it sees wp-auth-check:false, which opens the "session expired" overlay.
- *
- * @since x.x.x
  */
 add_filter(
 	'heartbeat_send',
@@ -674,6 +775,28 @@ add_filter(
 );
 
 /**
+ * Confirm the preview ended, and that other tabs went with it — auth cookies are
+ * shared across the browser, so ending it here ends it everywhere.
+ *
+ * On `masteriyo_admin_notices`, not `admin_notices`: Masteriyo pages clear every
+ * `admin_notices` callback (Masteriyo::display_masteriyo_notices_only) and fire
+ * this action instead, and it is forwarded on every other admin screen.
+ */
+add_action(
+	'masteriyo_admin_notices',
+	static function (): void {
+		if ( ! isset( $_GET['mto-preview-ended'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+			esc_html__( 'Student Preview ended because you returned to wp-admin. Any other tab still showing the preview is signed out of it too.', 'learning-management-system' )
+		);
+	}
+);
+
+/**
  * Admin pages: clear any stale localStorage preview signal on load, then attach
  * a cross-tab listener. When the frontend preview page writes a new timestamp to
  * localStorage, the 'storage' event fires here immediately (sub-millisecond) and
@@ -683,8 +806,6 @@ add_filter(
  * removeItem() runs on every admin page load so the key is always absent — this
  * ensures the next setItem() from the frontend is always a value change, which
  * is required for the browser to actually fire the storage event.
- *
- * @since x.x.x
  */
 add_action(
 	'admin_footer',
@@ -718,8 +839,6 @@ add_action(
  * browser to fire the storage event — a repeated identical value is a no-op.
  *
  * Priority 20 runs after the preview banner at default priority 10.
- *
- * @since x.x.x
  */
 add_action(
 	'wp_footer',
@@ -740,8 +859,6 @@ add_action(
  * The message comes from wp-login.php as a 'message'-severity WP_Error entry
  * and is assembled into HTML before login_messages fires (line ~300 of wp-login.php).
  * wp-login.php loads all plugins via wp-load.php, so this filter is available.
- *
- * @since x.x.x
  */
 add_filter(
 	'login_messages',
@@ -756,8 +873,6 @@ add_filter(
 /**
  * Exclude demo/preview students from enrolled-user counts so they do not
  * consume course seats or inflate student analytics.
- *
- * @since x.x.x
  */
 add_filter(
 	'masteriyo_count_enrolled_users',
@@ -812,8 +927,6 @@ add_filter(
 /**
  * Prevent the demo student from receiving password-reset emails.
  * The account is only accessible via the signed preview-token flow.
- *
- * @since x.x.x
  */
 add_filter(
 	'allow_password_reset',
@@ -832,8 +945,6 @@ add_filter(
  *
  * Runs at priority 30 (after WP's own credential check at priority 20).
  * If authentication succeeded for a demo student, reject it.
- *
- * @since x.x.x
  */
 add_filter(
 	'authenticate',

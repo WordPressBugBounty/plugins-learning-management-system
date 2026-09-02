@@ -28,7 +28,6 @@ async function run() {
 	}
 
 	try {
-
 		const fontsRaw = data.json.fonts;
 		const fontsMap: Map<string, unknown> =
 			fontsRaw && typeof fontsRaw === 'object' && !Array.isArray(fontsRaw)
@@ -67,7 +66,9 @@ async function run() {
 
 		await Promise.all(fontPreloadPromises);
 
-		const exporter: PDFExporter = new (PDFExporter as any)({ renderDelay: 2000 });
+		const exporter: PDFExporter = new (PDFExporter as any)({
+			renderDelay: 2000,
+		});
 		const url = await exporter.getPreviewUrl({
 			pages: data.json.pages,
 			settings: data.json.settings,

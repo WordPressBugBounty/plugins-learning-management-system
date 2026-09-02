@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\EmailMarketingAndCRM
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 namespace Masteriyo\EmailMarketingAndCRM;
 
@@ -14,14 +14,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * IntegrationSettings class.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 abstract class IntegrationSettings {
 
 	/**
 	 * Settings data.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var array
 	 */
@@ -30,7 +30,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Get the option name for the settings.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return string
 	 */
@@ -39,7 +39,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Read the settings from the database.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return array The settings.
 	 */
@@ -53,7 +53,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $exclude_keys The keys to exclude from the returned settings.
 	 *
@@ -76,7 +76,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Return a specific setting value.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $key The key to retrieve.
 	 *
@@ -84,7 +84,6 @@ abstract class IntegrationSettings {
 	 */
 	public static function get( $key ) {
 		static::read();
-
 		return masteriyo_array_get( static::$data, $key, null );
 
 	}
@@ -92,7 +91,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Set a specific setting value.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $key The key to set.
 	 * @param mixed $value The value to set.
@@ -106,7 +105,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $args The settings to set.
 	 */
@@ -118,7 +117,7 @@ abstract class IntegrationSettings {
 	/**
 	 * Save the settings to the database.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 */
 	public static function save() {
 		update_option( static::get_option_name(), static::$data );

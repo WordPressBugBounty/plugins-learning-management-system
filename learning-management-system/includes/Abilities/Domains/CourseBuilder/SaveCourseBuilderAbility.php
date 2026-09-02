@@ -3,7 +3,6 @@
  * Save Course Builder ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseBuilder
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseBuilder;
@@ -19,8 +18,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * The caller must provide the complete desired structure — partial trees will
  * overwrite existing content. Marked destructive and non-idempotent because
  * successive calls with different inputs produce different results.
- *
- * @since x.x.x
  */
 class SaveCourseBuilderAbility extends RestProxyAbility {
 

@@ -13,7 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * Category: Commerce
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\Addons\MultipleCurrency\MultipleCurrencyAddon;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_BASENAME', plugin_basename( __FILE__ ) );
@@ -41,9 +42,4 @@ add_filter(
 	}
 );
 
-add_action(
-	'masteriyo_before_init',
-	function() {
-		masteriyo( 'addons.multiple-currency' )->init();
-	}
-);
+MultipleCurrencyAddon::instance()->init();

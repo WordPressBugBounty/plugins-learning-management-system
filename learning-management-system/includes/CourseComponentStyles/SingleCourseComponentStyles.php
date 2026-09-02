@@ -2,7 +2,7 @@
 /**
 * Style single course list components.
 *
-* @since 1.11.3
+* @since 1.11.3 [Free]
 *
 * @package Masteriyo
 */
@@ -17,7 +17,7 @@ class SingleCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Style single course components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */
@@ -28,7 +28,7 @@ class SingleCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Should print if single course page.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return bool
 	 */
@@ -39,7 +39,7 @@ class SingleCourseComponentStyles extends CourseComponentStyles {
 	/**
 	 * Get styles to course list components in single course page.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */
@@ -88,6 +88,4 @@ class SingleCourseComponentStyles extends CourseComponentStyles {
 
 		return $styles;
 	}
-
 }
-

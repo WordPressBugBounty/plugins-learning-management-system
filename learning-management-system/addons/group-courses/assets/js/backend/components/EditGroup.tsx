@@ -145,7 +145,6 @@ const EditGroup: React.FC = () => {
 			};
 			methods.reset(formData);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [groupQuery?.data]);
 
 	const FormButton = () => (

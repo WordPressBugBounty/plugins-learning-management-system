@@ -110,7 +110,7 @@ class WebhookRepository extends AbstractRepository implements RepositoryInterfac
 		$webhook_post = get_post( $webhook->get_id() );
 
 		if ( ! $webhook->get_id() || ! $webhook_post || PostType::WEBHOOK !== $webhook_post->post_type ) {
-			throw new \Exception( __( 'Invalid webhook.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid webhook.', 'learning-management-system' ) );
 		}
 
 		$webhook->set_props(

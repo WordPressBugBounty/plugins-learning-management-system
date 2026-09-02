@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Google Meet
  *
- * @since 1.11.0
+ * @since 2.5.19
  */
 
 namespace Masteriyo\Addons\GoogleMeet\Models;
@@ -35,7 +35,7 @@ class GoogleMeetSetting {
 	/**
 	 * Setting data.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 * @var array
 	 */
@@ -53,7 +53,7 @@ class GoogleMeetSetting {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 */
 	public function __construct() {
 		$this->read();
@@ -62,7 +62,7 @@ class GoogleMeetSetting {
 	/**
 	 * Return data.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 * @return array
 	 */
@@ -73,7 +73,7 @@ class GoogleMeetSetting {
 	/**
 	 * Store client settings.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 * @param Model         $setting  Object object.
 	 * @param WP_REST_Request $request  Request object.
@@ -86,7 +86,7 @@ class GoogleMeetSetting {
 	/**
 	 * Store client settings.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 * @param Model         $setting  Object object.
 	 * @param WP_REST_Request $request  Request object.
@@ -100,7 +100,7 @@ class GoogleMeetSetting {
 	/**
 	 * Read the settings from database.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 */
 	public function read() {
@@ -111,7 +111,7 @@ class GoogleMeetSetting {
 	/**
 	 * Return setting value.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 * @param string $key Setting key.
 	 * @param string $default Setting default value.
 	 * @return mixed
@@ -123,7 +123,7 @@ class GoogleMeetSetting {
 	/**
 	 * Save setting value.
 	 *
-	 * @since 1.11.0
+	 * @since 2.5.19
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting default.

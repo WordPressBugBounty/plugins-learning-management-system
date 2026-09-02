@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\FluentCRM
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 
 namespace Masteriyo\Addons\FluentCRM;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class Masteriyo\Addons\FluentCRM
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 
 class FluentCrmAddon {
@@ -32,7 +32,7 @@ class FluentCrmAddon {
 	/**
 	 * The single instance of the class.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @var \Masteriyo\Addons\FluentCRM\FluentCrmAddon|null
 	 */
@@ -41,14 +41,14 @@ class FluentCrmAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	protected function __construct() {}
 
 	/**
 	 * Get class instance.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return \Masteriyo\Addons\FluentCRM\FluentCrmAddon Instance.
 	 */
@@ -63,21 +63,21 @@ class FluentCrmAddon {
 	/**
 	 * Prevent cloning.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function __clone() {}
 
 	/**
 	 * Prevent unserializing.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function __wakeup() {}
 
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -86,7 +86,7 @@ class FluentCrmAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function init_hooks() {
 		add_action(

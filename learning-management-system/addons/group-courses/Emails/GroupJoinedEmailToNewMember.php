@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  */
 
 namespace Masteriyo\Addons\GroupCourses\Emails;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Group joining email to the user class. Used for sending new account email.
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +24,7 @@ class GroupJoinedEmailToNewMember extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @var String
 	 */
@@ -33,7 +33,7 @@ class GroupJoinedEmailToNewMember extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class GroupJoinedEmailToNewMember extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @param int $student_id User ID.
 	 * @param int $group_id Group ID.
@@ -78,7 +78,7 @@ class GroupJoinedEmailToNewMember extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return bool
 	 */
@@ -88,32 +88,13 @@ class GroupJoinedEmailToNewMember extends Email {
 		/**
 		 * Filters boolean-like value: 'yes' if group joining email should be disabled, otherwise 'no'.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $is_disabled 'yes' if group joining email should be disabled, otherwise 'no'.
 		 */
 		$is_disabled = masteriyo_string_to_bool( apply_filters( 'masteriyo_disable_group_joining_email_to_new_member', $enabled ? 'no' : 'yes' ) );
 
 		return ! $is_disabled;
-	}
-
-	/**
-	 * Return subject.
-	 *
-	 * @since 1.9.0s
-	 *
-	 * @return string
-	 */
-	public function get_subject() {
-		/**
-		 * Filter group joining email subject to the user.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $subject.
-		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['group_joining']['subject'] );
-		return $this->format_string( $subject );
 	}
 
 	/**
@@ -139,7 +120,7 @@ class GroupJoinedEmailToNewMember extends Email {
 			$placeholders['{student_nickname}']     = $student->get_nickname();
 			$placeholders['{student_email}']        = $student->get_email();
 			$placeholders['{account_login_link}']   = wp_kses_post(
-				'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Login to Your Account</a>'
+				'<a href="' . $this->get_account_url() . '" class="email-template--button">Login to Your Account</a>'
 			);
 		}
 
@@ -154,9 +135,30 @@ class GroupJoinedEmailToNewMember extends Email {
 	}
 
 	/**
+	 * Return subject.
+	 *
+	 * @since 1.9.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_subject() {
+		/**
+		 * Filter group joining email subject to the user.
+		 *
+		 * @since 1.9.0 [Free]
+		 *
+		 * @param string $subject.
+		 */
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.group_joining.subject' ) );
+		$subject = empty( trim( $subject ) ) ? masteriyo_get_default_email_contents()['student']['group_joining']['subject'] : $subject;
+
+		return $this->format_string( $subject );
+	}
+
+	/**
 	 * Return heading.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -164,19 +166,40 @@ class GroupJoinedEmailToNewMember extends Email {
 		/**
 		 * Filter group joining email heading to the user.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $heading.
 		 */
-		$heading = apply_filters( $this->get_full_id() . '_heading', '' );
+		$heading = apply_filters( $this->get_full_id() . '_heading', masteriyo_get_setting( 'emails.student.group_joining.heading' ) );
 
 		return $this->format_string( $heading );
 	}
 
 	/**
+	 * Get email content.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_content() {
+		$content = masteriyo_get_setting( 'emails.student.group_joining.content' );
+
+		if ( empty( trim( $content ) ) ) {
+			$content = masteriyo_get_default_email_contents()['student']['group_joining']['content'];
+		}
+
+		$content = $this->format_string( $content );
+
+		$this->set( 'content', $content );
+
+		return parent::get_content();
+	}
+
+	/**
 	 * Return additional content.
 	 *
-	 * @since 1.9.0
+	 * @since 1.9.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -185,29 +208,92 @@ class GroupJoinedEmailToNewMember extends Email {
 		/**
 		 * Filter group joining email additional content to the user.
 		 *
-		 * @since 1.9.0
+		 * @since 1.9.0 [Free]
 		 *
 		 * @param string $additional_content.
 		 */
-		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', '' );
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.student.group_joining.additional_content' ) );
 
 		return $this->format_string( $additional_content );
 	}
 
 	/**
-	 * Get email content.
+	 * Get the reply_to_name.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return string
 	 */
-	public function get_content() {
-		$content = masteriyo_get_default_email_contents()['student']['group_joining']['content'];
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.group_joining.reply_to_name' ) );
 
-		$content = $this->format_string( $content );
+		return ! empty( trim( $reply_to_name ) ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
 
-		$this->set( 'content', $content );
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.group_joining.reply_to_address' ) );
 
-		return parent::get_content();
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.group_joining.from_name' ) );
+
+		return ! empty( trim( $from_name ) ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 1.15.0 [Free]
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.group_joining.from_address' ) );
+
+		return ! empty( trim( $from_address ) ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

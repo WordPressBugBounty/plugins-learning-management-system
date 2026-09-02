@@ -2,7 +2,7 @@
 /**
  * Course Coming Soon service provider.
  *
- * @since 2.1.0
+ * @since 3.1.0
  * @package Masteriyo\CoreFeatures\CourseComingSoon
  */
 
@@ -18,7 +18,7 @@ use Masteriyo\CoreFeatures\CourseComingSoon\CourseComingSoon;
  *
  * Registers the Course Coming Soon feature inside the service container.
  *
- * @since 2.1.0
+ * @since 3.1.0
  */
 class CourseComingSoonServiceProvider extends AbstractServiceProvider {
 
@@ -27,7 +27,7 @@ class CourseComingSoonServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Every service registered in {@see register()} must be declared here.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if this provider provides the service.
@@ -45,7 +45,7 @@ class CourseComingSoonServiceProvider extends AbstractServiceProvider {
 	/**
 	 * Register services into the container.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @return void
 	 */

@@ -14,7 +14,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import routes from '../../../../../assets/js/back-end/constants/routes';
 import { googleClassroomCourses, newData } from '../GoogleClassroom';
-
 import Buttons from './Buttons';
 
 interface Props {
@@ -94,7 +93,7 @@ const GoogleClassroomCoursesRow: React.FC<Props> = (props) => {
 					</Badge>
 				) : (
 					<Badge textTransform="uppercase" colorScheme="blue">
-						{__('Not imported')}
+						{__('Not imported', 'learning-management-system')}
 					</Badge>
 				)}
 			</Td>
@@ -110,6 +109,7 @@ const GoogleClassroomCoursesRow: React.FC<Props> = (props) => {
 				) : (
 					<Button
 						colorScheme="primary"
+						variant="outline"
 						onClick={() => onImportClick(course)}
 						size="xs"
 						isLoading={

@@ -188,7 +188,7 @@ class OrderItemRepository extends AbstractRepository {
 		}
 
 		if ( ! $data ) {
-			throw new \Exception( __( 'Invalid order item.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid order item.', 'learning-management-system' ) );
 		}
 
 		$item->set_props(

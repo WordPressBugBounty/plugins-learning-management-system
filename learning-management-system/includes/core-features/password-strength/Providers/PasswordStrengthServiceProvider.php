@@ -15,7 +15,7 @@ use Masteriyo\CoreFeatures\PasswordStrength\PasswordStrength;
 /**
  * Registers the Password Strength addon in the container.
  *
- * @since 2.1.0
+ * @since 3.1.0
  */
 class PasswordStrengthServiceProvider extends AbstractServiceProvider {
 
@@ -39,7 +39,7 @@ class PasswordStrengthServiceProvider extends AbstractServiceProvider {
 	/**
 	 * Register the service.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function register(): void {
 		// Bind using the container reference, no closure argument.

@@ -3,7 +3,6 @@
  * Update Course Progress ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseProgress
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseProgress;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: update a student's course progress record.
- *
- * @since x.x.x
  */
 class UpdateCourseProgressAbility extends RestProxyAbility {
 

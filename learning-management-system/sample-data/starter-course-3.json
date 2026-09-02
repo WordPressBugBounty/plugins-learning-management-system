@@ -1,0 +1,2091 @@
+{
+ "manifest": {
+  "version": "1.0",
+  "created_at": "2026-01-01 00:00:00",
+  "base_url": ""
+ },
+ "terms": [
+  {
+   "slug": "business",
+   "name": "Business",
+   "taxonomy": "course_cat",
+   "description": "",
+   "parent": 0
+  }
+ ],
+ "courses": [
+  {
+   "ID": 900000,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>This course is for people who are serious about turning freelance work into a real business, not a side project they keep avoiding. Over six weeks you will move from having a vague idea about freelancing to having a concrete offer, a portfolio, a pitch, a pipeline of prospects, and a way to get paid. The entire program is built around one goal: getting you to your first retainer or recurring client with the confidence and systems to keep going. You are not here to learn theory; you are here to produce the actual assets your freelance business needs.</p>\n<p>Because this is a cohort, you are not learning alone. Every week there is a live session where you can ask questions, share your work, and hear how other people are solving the same problems. You will also get feedback on the deliverables you create during the course, such as your rate sheet, your offer, and your pitch. The schedule is fixed. There is no drip content you can binge ahead of time; the cohort moves at one pace, and that deliberate pace is what keeps you accountable and moving forward week by week.</p>\n<p>There is a level of self-direction expected of you. Everything is taught in plain international English, and every process is broken into steps you can actually follow, but the energy you bring is what determines the result. You should arrive with a clear skill you can already deliver, even if you have never sold it to a stranger. The live sessions, the weekly deliverables, and the community are the acceleration; your commitment is the engine.</p>\n<p>When you finish, you will walk away with a documented business: a niche and offer, a rate card, a starter portfolio, a pitch, a scope and contract checklist, an invoicing system, and a repeatable plan for finding your next client. The real measure of this course is not the certificate or the number of lessons you watch. It is the quality of the assets you build here and whether you actually send that first pitch before week six ends.</p>",
+   "post_title": "Launch Your Freelance Career: 6-Week Cohort",
+   "post_excerpt": "A paid 6-week cohort to launch your freelance business, with live sessions, group feedback, and a clear plan.",
+   "post_status": "publish",
+   "comment_status": "open",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "launch-your-freelance-career-6-week-cohort",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 0,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-course",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_price": [
+     ""
+    ],
+    "_access_mode": [
+     "open"
+    ],
+    "_duration": [
+     "360"
+    ],
+    "_difficulty_id": [
+     "0"
+    ],
+    "_show_curriculum": [
+     "1"
+    ],
+    "_reviews_allowed": [
+     "1"
+    ],
+    "_enrollment_limit": [
+     "0"
+    ],
+    "_is_sample_content": [
+     "1"
+    ]
+   },
+   "terms": [
+    {
+     "slug": "business",
+     "name": "Business",
+     "taxonomy": "course_cat"
+    },
+    {
+     "slug": "free",
+     "name": "free",
+     "taxonomy": "course_visibility"
+    }
+   ],
+   "attachments": []
+  }
+ ],
+ "sections": [
+  {
+   "ID": 900001,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 1 - Foundations of Freelancing",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-1-foundations-of-freelancing",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900018,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 2 - Positioning and Portfolio",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-2-positioning-and-portfolio",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900022,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 3 - Getting Clients",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-3-getting-clients",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900025,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 4 - Contracts and Scope",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-4-contracts-and-scope",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900041,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 5 - Communication and Payment",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-5-communication-and-payment",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900044,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 6 - Delivery, Growth, and Next Steps",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-6-delivery-growth-and-next-steps",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "lessons": [
+  {
+   "ID": 900002,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Freelancing is not a lighter version of a job. It is a business, and the sooner you treat it like one, the sooner it starts paying you like one. Many people approach freelancing as \"do the work I like, when I like, and hope someone pays me.\" That framing mistakes the craft for the business. The craft is the part you already know. The business is everything around it: who you serve, what you sell, how you price it, how you find buyers, and how you stay paid. In this course you will treat all of those as equal priorities.</p>\n<p>The first mental shift is from employee to business owner. As an employee you are paid for a defined set of duties within fixed hours. As a freelancer you are paid for an outcome, and you are responsible for the entire pipeline that leads to that outcome. When the work is quiet, you cannot wait for someone to assign you a task; you must generate your own work by reaching out to prospects. That responsibility is the single biggest difference, and it is also the biggest source of fear for newcomers. The good news is that the pipeline is a learnable system, not a personality trait.</p>\n<p>A second shift is moving from hourly thinking to value thinking. You will learn rate setting in detail later this week, but the underlying idea matters now: clients do not buy your time, they buy a solved problem. A logo that stops a business from looking amateur is worth more to that business than the twelve hours it took you to design it. When you price for outcome instead of hours, you both communicate confidence and leave room to earn properly for the value you create.</p>\n<blockquote><p>Callout: If you find yourself saying \"I just want to do the work,\" you have not yet decided to run a business. A freelancer who refuses to market, price, and chase invoices is a hobbyist with a high hourly rate.</p></blockquote>\n<p>Here is what the next six weeks are built on. First, your offer: a clear statement of what you do, for whom, and what result it produces. Second, your presence: a portfolio and a pitch that make that offer believable. Third, your pipeline: a repeatable way to meet and convert prospects. Fourth, your process: scope, contracts, communication, and payment. Each week in this course moves you through one of these blocks, and each week you hand in a small deliverable that builds on the last.</p>\n<p>To make the shift concrete, do the following now. Write one sentence that names the skill you can reliably deliver. Write one more sentence that names the type of client who needs it. If you cannot write both sentences in under two lines each, that is fine; refining them is exactly what Week 1 is for. Starting with an honest draft matters more than starting with a perfect one, because every other asset in this business hangs off those two sentences.</p>",
+   "post_title": "What Freelancing Really Is",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-freelancing-really-is",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900003,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A niche is the intersection of what you are good at, what you enjoy, and what a specific group of buyers will pay for. Too many new freelancers resist choosing a niche because it feels like giving up opportunity. In reality, a narrow niche is what makes you memorable, searchable, and able to charge more. A generalist competing with the whole internet has nothing to lead with. A specialist who clearly serves one type of client in one type of situation has a story, and stories win work.</p>\n<p>Start with the skill you wrote down in the previous lesson. Now ask who has a painful, frequent, urgent version of the problem that skill solves. If you are a writer, who needs writing badly enough to pay repeatedly and quickly? If you are a designer, who gets penalized daily by a substandard look? Focus on the pain, the frequency, and the urgency. Clients who feel the problem every day are the ones who move fastest and complain least about budget. That combination, daily pain plus urgency, is the single strongest signal that a niche will pay.</p>\n<p>Once you have a shortlist of candidates, narrow by three tests. First, the \"who\" test: can you name the type of person, their situation, and their goal in one sentence? Second, the \"proof\" test: can you build a believable sample for that niche even without past clients? Third, the \"pay\" test: does that niche have money in it, meaning real businesses with real budgets? A niche that is fun but broke will frustrate you; a niche that is dull but wealthy could still be the best first market because it funds your learning while you grow toward work you love more.</p>\n<p>Your offer is more than a description of your service. It is a promise of a specific outcome in a specific time for a specific type of client, plus a low-friction way for that client to say yes. A weak offer is \"I do social media.\" A strong offer is \"I set up and run content calendars for local clinics that in the first 60 days get patient questions flowing to the front desk through a form that is easy to manage.\" Notice what changed: a named client, a named deliverable, a deadline, and a stated benefit.</p>\n<blockquote><p>Callout: The offer is not about you. It is about the result the client can hold. When you explain your offer and the client's first reaction is \"that's exactly what I need,\" you have found the right formula. If their reaction is \"so what do you do exactly,\" the offer is too vague.</p></blockquote>\n<p>Here is the exercise for this lesson. Take the service from your earlier draft and rewrite it into the strong-offer formula: named client, named deliverable, a timeframe, and a stated benefit. Then run the \"who, proof, pay\" tests and write one sentence each. You do not need this to be perfect yet; the live session this week gives you feedback from other learners that will sharpen it into something you can put on a page. The version you hold today is the raw material, and refining it is part of the process, not a failure.</p>",
+   "post_title": "Choosing Your Niche and Offer",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "choosing-your-niche-and-offer",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900004,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Rates are one of the most emotional and most fixable parts of freelancing, because they are entirely within your control once you do the arithmetic. The most common mistake is to start from what you earned at your last job and add a little, or worse, to guess a number that feels bold enough. Both approaches ignore the two numbers that actually matter: your target income and your realistic billable capacity. When you compute from those two numbers, your rate stops feeling like a guess and becomes a fact you can defend in any negotiation.</p>\n<p>Start with your target take-home pay for the year, after tax, that genuinely supports the life you want. Add a realistic amount for business overhead: software, insurance, equipment, and the gap between when you invoice and when you get paid. Divide that yearly total by the number of billable hours you can honestly sell. Add half for marketing, admin, and unpaid client calls, and subtract holidays and illness. A common reality is that a freelancer bills only about 40 to 60 percent of their working hours; the rest goes to finding work and running the business. Most newcomers dramatically overestimate their billable hours, which pushes their computed rate too low.</p>\n<p>Let us do the arithmetic with example numbers, and you repeat it with your own. Target take-home of 60,000 per year. Add 12,000 for overhead, giving 72,000. Estimate 48 working weeks after holidays and illness. Within those weeks, assume 60 percent is billable, which is optimistic but workable, and that is about 23 hours a week billable, or roughly 1,100 hours a year. Dividing 72,000 by 1,100 gives about 65 per hour. If your real billable rate is lower, say 40 percent, then the honest rate is closer to 90 per hour. The lesson is not the specific number; it is that the number comes from your life and your reality, not from a market average you copied.</p>\n<blockquote><p>Callout: A client asking your rate is not asking a trick question. It is a filter. State a clear number early and calmly. The clients you want will not flee from a well-reasoned rate, and the clients who flee were not going to become reliable payers anyway.</p></blockquote>\n<p>Now consider moving away from pure hourly pricing. Hourly pricing punishes you for getting fast and rewards you for being slow, which is backwards. As you gain confidence, price by project or by weekly retainer, where the value to the client, not the clock, sets the number. A project price lets the client budget and lets you profit from efficiency. A retainer gives you predictable income and reduces the constant hunt for new work. For this week, your deliverable is a simple rate card with three entries: your hourly rate, your baseline project price, and your baseline weekly retainer, each with one sentence of the value they cover.</p>\n<p>Your task now is to do this computation with your own numbers and write down three defensible numbers: hourly, project, and retainer. Bring these to the live session. Expect to be challenged on the assumptions, especially on billable hours. That challenge is the point. A rate you have computed, written down, and defended once is far easier to say out loud to a real client two weeks from now than a number you have never examined.</p>",
+   "post_title": "Setting Your Rates",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "setting-your-rates",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900019,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A portfolio exists for one reason: to make a stranger believe you can deliver the result. You do not need dozens of live client projects to do that. You need a small, focused set of samples that look like the exact work your target client would pay for. When you have no clients yet, the honest and effective answer is a set of spec projects built specifically for that niche. A well-made sample aimed at your target market is worth far more than a scattered collection of unrelated work from years ago.</p>\n<p>Before you make anything, define the destination. Look at the offer you wrote in Week 1. Your portfolio should show three to five pieces, each of which mirrors the deliverable in that offer. If your offer is content calendars for clinics, make a sample calendar for a fictional clinic. If it is landing pages for podcasters, build a sample landing page. Every sample should answer the same unspoken question your buyer has: can this person solve my exact problem? A sample that resembles the buyer's own situation answers it in their brain almost without them thinking about it.</p>\n<p>Do not try to be comprehensive. One or two strong pieces beat ten weak ones. Pick the three to five pieces that together tell one coherent story, each showing a different part of your offer. For each piece, write a short case note: what the fictional problem was, what you delivered, and what real result it produced, such as a page that converts or a calendar that keeps posting consistent. That note converts a pretty image into proof of process, which is the part most portfolios miss.</p>\n<blockquote><p>Callout: Real clients hire based on resemblance. When a sample looks like their industry at a glance, they mentally insert themselves into it. When a portfolio is a random pile of hobbies, they have to translate your work into their world, and most of them will not do that work.</p></blockquote>\n<p>Here is a practical guide to making samples quickly. Reuse a past bit of work if it fits, otherwise create something new in a tool you already own. Give the sample a believable name and details so it feels real, because a sample titled \"sample project 1\" shouts \"I have no clients.\" Name the fictional business, describe its situation, and show the before and after where you can. That small act of realism does more credibility work than any amount of polish on an anonymous file.</p>\n<p>Your deliverable this week is a portfolio document with three to five samples, each with a case note. Aim for the minimum viable set for your niche, not an exhaustive archive. When you are done, check every sample against one question: would this make my specific buyer pause and think this person gets me. If any piece does not, replace it. The live session this week includes a portfolio share, so bring your best two pieces and be ready to explain the problem each one solves in two sentences.</p>",
+   "post_title": "Building a Starter Portfolio",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "building-a-starter-portfolio",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900018,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900020,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>An ideal client is not a slogan; it is a specific person or type of business you can picture, describe, and reach. The more concrete your picture, the easier every later step becomes: your portfolio targets them, your pitch speaks to them, and your pricing reflects them. The risk of skipping this step is that you build a generic business that appeals to no one. A sharply defined ideal client is a business advantage you carry into every conversation for the rest of your career.</p>\n<p>Build the picture from two directions. Start with facts about the buyer: their industry, company size, the job title of the person who decides, and the pain they feel most often. Then add their situation: what they tried before, why it failed, and what would make them say yes quickly. The rich detail is what makes the difference. \"A solo physiotherapist with no time to write social posts\" is actionable in a way that \"small businesses\" is not. Every concrete detail is a hook you can use later in outreach and a filter that keeps you from wasting weeks on the wrong crowd.</p>\n<p>Once you can picture this client, write their likely objections before they do. What will they worry about: price, your experience, reliability, or whether you understand their field? Write each objection as a question, then give a one-line answer. This objection list is gold, because the same objections will appear in almost every first call. When a prospect raises one, you will not be improvising; you will be pulling a thought you already had. Preparation like this is what separates confident freelancers from nervous ones.</p>\n<blockquote><p>Callout: A niche is what you do; an offer is what you promise; an ideal client is who you promise it to. If you can only remember one rule this week, remember this: everything in your business becomes easier when you can answer, in one sentence, exactly who you serve.</p></blockquote>\n<p>For this lesson, produce two linked assets. First, a one-paragraph profile of your ideal client with facts and situation. Second, a list of their top three objections, each with a one-line answer. Use the live session to have another learner role-play that client and ask those objections. Hearing your own answers spoken out loud will reveal which are strong and which need work. Refine after the session, then keep the profile somewhere you will see every week, because you will reference it constantly.</p>\n<p>Why does all this matter for earnings? A clear ideal client lets you raise your rates with confidence, because you are no longer selling generic work to anonymous buyers. When you know exactly who you help and the specific result they get, you state prices that reflect value, not fear of rejection. Positioning done well is not a one-time writing task; it is the foundation that makes the rest of the course, your pitch, your outreach, and your contract work, far more effective.</p>",
+   "post_title": "Defining Your Ideal Client and Offer",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "defining-your-ideal-client-and-offer",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900018,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900021,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A pitch is a short, written, one-page statement that captures your offer so clearly that the reader immediately knows who you help and what happens next. It is distinct from fishing for specific clients; this week you build the reusable asset, and in Week 3 you learn the outreach that puts it in front of people. The pitch is your professional backbone: clear on the page, and therefore clear in your head, in a call, and in a follow-up email.</p>\n<p>Keep the pitch to four short parts. First, the hook: one line naming your ideal client and the pain you solve. Second, the proof: one or two sentences that make you believable, drawn from your portfolio samples or your relevant experience. Third, the offer: what you deliver, for whom, and the outcome they get. Fourth, the next step: a single, easy action the reader can take, such as booking a short call. Four parts, one page, no filler. If a sentence does not do one of those four jobs, cut it.</p>\n<p>Write plainly. Avoid jargon and puffery. A sentence like \"I help local clinics get more and better patient questions through predictable content\" communicates a result. A sentence like \"I synergize omnichannel engagement to drive lead acceleration\" communicates nothing, and it also makes you less trustworthy. Your reader is busy and mildly skeptical. Plain, specific, concrete language is not boring; it is how you earn their trust in a page that they will read for less than a minute.</p>\n<blockquote><p>Callout: A pitch is not a list of your skills. It is an answer to three questions your reader is silently asking: Do you understand my problem? Can you solve it? What do I do next? If your one page answers all three, it is doing its job.</p></blockquote>\n<p>Here is a strong structure to adapt. \"I help [ideal client] who struggle with [pain] get [outcome] through [your method]. I have [one proof]. I would love to [offer] for you. If that sounds useful, reply to this message or book a quick 15 minute call here.\" Personalize the brackets for your field, keep the length to one page, and finish with one obvious action. The single next step matters a lot; a pitch that ends without a clear action invites the reader to do nothing.</p>\n<p>Your deliverable is the one-page pitch in the four-part structure, written in plain language, ending with one clear next step. Read it out loud and cut every sentence that sounds stiff. Then show it to the group in the live session and collect honest reactions on one specific question: is the first line strong enough to make someone keep reading? Revise until the hook is sharp. This draft becomes the foundation you adapt in Week 3 when you learn how to send it as targeted outreach.</p>",
+   "post_title": "Writing Your One-Page Pitch",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "writing-your-one-page-pitch",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900018,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900023,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Finding prospects is a numbers game with a skill component. The skill is identifying who fits your ideal client profile; the numbers come from reaching enough of them. Most new freelancers fail not because their pitch is weak but because they simply do not contact enough people. So this week you build a pipeline: a running list of candidates you contact steadily, week after week, until opportunities appear. Predictable income comes from a predictable pipeline that never stops being fed.</p>\n<p>Start by generating a list of candidates who match your ideal client. Think about where they gather: local directories, industry forums, social media groups, business directories, and your own network. The goal is fifty or more names of people who could reasonably hire you, gathered from several sources. Do not judge or pre-reject anyone while listing. Filling the list and filtering it are separate steps, and mixing them is the fastest way to end up with an empty list and a discouraged freelancer.</p>\n<blockquote><p>Callout: Outreach is a pipeline, not a one-time mailing list. If you only reach out when you are desperate for money, you will be desperate often. A healthy habit is to contact a small, set number of new prospects every single week, so the pipeline never runs dry.</p></blockquote>\n<p>When you contact someone, personalize genuinely. Reference something real about their business, show you understand their specific situation, and connect it to the exact problem you solve. A single concrete sentence beats a paragraph of generic praise. Then make your ask small and clear: a short call, a quick reply, or a sample. The goal of the first message is not a signed contract; it is a conversation. Removing pressure from the first step makes it far easier for you to send and for them to answer.</p>\n<p>Plan your follow-up before you send anything. Most yeses come after two or three contacts, not one. Decide your cadence, for example, a first message, a follow-up after about a week, and one last gentle nudge after another week. Keep each follow-up short, valuable, and respectful, and stop after the third touch unless they respond. A polite, persistent freelancer is memorable; a pestering one is blocked. Write your follow-up templates now so that when silence lands, you do not have to think under pressure.</p>\n<p>Your deliverable this week is three things: a list of at least fifty prospects, a personalized draft message to the first twenty of them, and a follow-up template. Then send them. Sending is the point; a pipeline you never activate is just a list. In the live session, share the response rate you are seeing and troubleshoot together. Expect responses to be slow and low at first; that is normal. What matters is that you keep feeding the pipeline and keep improving the message based on what the group learns works.</p>",
+   "post_title": "Finding Prospects and Outreach",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "finding-prospects-and-outreach",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900022,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900024,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>The first call is where trust is built and where most newcomers lose momentum, not because the work is hard but because the role is unfamiliar. You are not there to be judged or to beg. You are there to help a real person decide whether you can solve their problem. The call has one job: gather enough information to propose a fit and move to a clear next step. If you keep that job in mind, the nerves recede and the conversation becomes useful for both of you.</p>\n<p>Open with light structure. Introduce yourself briefly, confirm the time you have, and ask them to describe their situation in their own words. Then genuinely listen. The single most valuable thing you can do on a first call is ask good questions and stay quiet long enough to hear the answers. Ask how the problem started, what they have tried, what is at stake if it continues, their timeline, and how they make decisions. Their answers give you everything you need to propose something specific instead of pitching a generic service.</p>\n<blockquote><p>Callout: Selling on a call is not talking more; it is understanding more. The prospect who feels understood is already halfway to yes. Your questions are your best sales tool, and silence is part of good questioning.</p></blockquote>\n<p>When you understand the problem, reflect it back before proposing anything. Say \"so if I understand, the issue is X, and you have tried Y, and the reason it matters is Z.\" This confirmation does two things: it shows you were listening, and it gives them a chance to correct you, which tightens your own understanding. Only after that reflection do you propose a fit, framed around the outcome they described, not around your service features. Then set a clear next step, such as a follow-up with a written proposal and price by a specific date.</p>\n<p>Keep the call tight and the questions purposeful, and resist the urge to solve everything in the first conversation. Your job is to learn enough to write a focused proposal and to leave the prospect clear on what happens next. If the call runs long, that is usually because you are over-explaining instead of asking. End with a written recap so both of you hold the same picture. A short recap email that restates the problem, your proposed fit, and the agreed next step is professional and moves you forward.</p>\n<p>Your deliverable this week is a one-page call script with your opening, a question list, a reflection template, and a closing with a clear next step. Then run at least two first calls, even if they are practice role-plays with a peer. After the calls, write a short note on what you learned and what you will adjust. In the live session you will practice with the group and hear how different freelancers handle the same moment. Every call sharpens you, and the script you build here is reusable for your entire career.</p>",
+   "post_title": "Handling the First Call",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "handling-the-first-call",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900022,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900026,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A contract protects both you and the client, and it is a sign of professionalism, not distrust. New freelancers often skip contracts to seem easygoing, only to discover that unclear scope, late payment, and endless revisions are the predictable results. A good contract is not a wall of legal terror; it is a short, plain document that names the work, the price, the timeline, and what happens if things change. Even a one-page agreement removes most of the disputes that burn new freelancers.</p>\n<p>Scope is the first thing a contract must nail down. List the specific deliverables you will produce, in enough detail that both of you agree on what \"done\" means. State what is included and, just as importantly, what is not included. A project that says \"website\" is a source of arguments; a project that says \"landing page with four sections, contact form, and responsive layout, not including copywriting, not including stock photos\" is a source of clarity. Vague scope is the single largest cause of freelancer frustration, and it is completely avoidable.</p>\n<blockquote><p>Callout: Scope creep is not mysterious, it is expected. The fix is not to resent the client, it is to write scope clearly and make every addition visible. A change request that is written down and priced is a sales opportunity; the same change left unspoken is a loss.</p></blockquote>\n<p>Price and payment terms belong in the contract pages too. Name the total price and the payment schedule, such as a deposit before work begins, a midpoint payment, and a final payment on delivery. A deposit is standard and protects you from building for someone who does not pay. Set a clear timeline with both start and end dates, plus a short buffer, and state how you handle delays. Then add two short sections that save endless pain: a fixed allowance for revisions, and a rate or approach for work beyond it.</p>\n<p>The last essential part is how changes are handled. Agree that any new or changed request goes through a simple written change process that states the impact on price and timeline before you do the work. This one mechanism converts the most common freelancer nightmare, \"can you just add this one small thing,\" into a calm, professional exchange. You will practice this exact sequence in Week 5, but the key skill is deciding on this week. A freelancer who can say \"yes, happy to, here is what it adds and when\" is rare, valuable, and protected.</p>\n<p>Your deliverable is a one-page contract checklist that you can adapt for every project. Include scope, deliverables, exclusions, price, payment schedule, timeline, revision allowance, and the change process. Then take your own checklist and fill it in for your current offer so you see how it reads in practice. Bring both to the live session and compare with others. You are not required to be a lawyer, you are required to be clear, and this document is the clearest way to protect your income and your reputation.</p>",
+   "post_title": "Contracts and Scope",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "contracts-and-scope",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900025,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900027,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Revisions and scope creep are not signs of a bad client; they are a normal part of the work that you can manage with structure. The skill is not to avoid them, it is to make them visible, countable, and priced, so that extra work stays under your control instead of silently eroding your income. The clearer your revision policy, the more respectful every client interaction becomes, because both sides know the rules in advance.</p>\n<p>Start from your contract's revision allowance. Decide a number of revision rounds that is generous enough to feel fair, usually one to three depending on the deliverable, and define what counts as a round. A round is a set of connected feedback that comes back together, not a trickle of individual emails. State this clearly upfront: you will do X rounds of revisions within the agreed price, and additional rounds are charged separately. This simple sentence removes the classic trap where a project drags on through a long series of small requests.</p>\n<blockquote><p>Callout: An unmanaged revision is a gift you give by mistake. The moment a client adds a request beyond the agreed scope, the professional move is not to sigh and do it, it is to thank them, confirm the change, and state the impact on time and price. You convert a leak into income, and you build respect.</p></blockquote>\n<p>When a client makes a request, respond with a calm, standard sequence before touching any work. Acknowledge the request, confirm exactly what is being changed or added, and state the impact: the added cost, the new date, or both. If they agree, proceed and update your records. If they say it should be free, you can refer to the contract's scope and revision terms without any awkwardness, because you already agreed on them. Applied once, this pattern feels strange; applied three times, it becomes your business superpower.</p>\n<p>Keep a running record of every change and extra. A short log with the date, the request, and the impact on price and time turns a vague sense of overload into a precise, evidence-based picture. At project close, review the log with the client. Most reasonable clients accept the extra charges they approved in writing, and the review gives you a chance to thank them for the additional work. This practice also tells you whether your initial estimates were accurate, so you can price the next engagement better.</p>\n<p>Your deliverable this week is a revision policy you can paste into your email and your contract, plus a simple change-log template. Then apply it on at least one live project or a thorough role-play. Bring an example, real or practiced, of a change you handled well to the live session. Managing scope is a quiet, high-leverage skill; freelancers who do it well are trusted more, not less, and they protect the income they worked hard to earn.</p>",
+   "post_title": "Managing Revisions and Scope Creep",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "managing-revisions-and-scope-creep",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900025,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900042,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Client communication is the difference between a project that feels chaotic and one that feels calm, and calm is what makes clients come back. The anxiety clients feel is almost always about unknowing: they cannot see your progress, they do not know what happens next, and they worry the money is going nowhere. Your job is to remove that unknowing with steady, regular updates and a habit of over-communication around anything that could surprise them.</p>\n<p>Set a communication rhythm from the very first day. Agree on how often you will update, for example, a short progress note at the end of each week, and on which channel, email, a shared doc, or a call. Then keep the rhythm no matter what. Even a thin update on a quiet week is valuable, because it reassures the client the work is moving. Consistency beats brilliance here. A freelancer who sends a predictable Friday update is remembered as reliable, which is the reputation that generates referrals.</p>\n<blockquote><p>Callout: Bad news delivered early is a plan; bad news delivered late is a crisis. The moment you see a risk to your date or your scope, surface it immediately, along with your proposed fix. Clients forgive delays they are told about in advance; they do not forgive being surprised.</p></blockquote>\n<p>When you give updates, focus on outcomes and next steps, not on effort. Instead of \"I worked on the design for three days,\" say \"the first design draft is ready for your review, and I expect your feedback by Thursday so we can hit the delivery date.\" Frame every update around the plan, the progress, and the next decision the client needs to make. This makes you look organized and keeps the client engaged as a partner rather than a passive observer waiting for the final reveal.</p>\n<p>Set clear expectations for how feedback should come back. Ask clients to consolidate their feedback into a single document or message rather than scattered comments, and give them a deadline for it. This protects your revision allowance and your timeline, and it is a fair request that most clients accept. Whenever a milestone completes, confirm it briefly in writing so there is a shared record of what was approved. Written confirmation prevents later arguments about what was agreed.</p>\n<p>Your deliverable this week is a communication plan for a typical project: your update rhythm, your feedback request template, and your risk-communication habit, your promise to surface surprises early. Then apply it during a live project or a thorough role-play. In the live session, share one situation where clear communication saved a project, and learn from the examples of others. Strong communication is a skill you can learn, and it reliably raises both your client satisfaction and your repeat business.</p>",
+   "post_title": "Client Communication and Expectations",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "client-communication-and-expectations",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900041,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900043,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Getting paid reliably is a business process, not a hope. The freelancers who struggle with money are rarely the ones doing bad work; they are the ones who never built a system for turning completed work into collected payment. A simple, consistent invoicing and follow-up system removes almost all payment stress and makes you look professionally organized. This week you build that system and the habits to run it.</p>\n<p>Invoice correctly and on time. Send the invoice the moment the work or milestone is complete, never days later. Put the essentials at the top: both names and contact details, the invoice date, a clear line for each deliverable, the total, the due date, and your payment details. Use a numbered invoice and note your payment terms, such as \"net 15\" or \"net 30\", in plain language. A clean, professional invoice speeds up payment because it makes approving and paying you easy for the person on the other side.</p>\n<blockquote><p>Callout: The invoice is not a formality; it is your income. Send it immediately at completion, state a clear due date, and make paying you a one-click experience. Every day you delay invoicing is a day of revenue sitting uncollected.</p></blockquote>\n<p>Plan for late payment before it happens. The professional default is a calm follow-up, not anger. Decide your follow-up cadence in advance: a friendly reminder a day or two after the due date, a firmer reminder a week later, and a final notice after that. Keep every follow-up polite, factual, and clear about the amount and the overdue date. Many freelancers lose money not to hostile clients but to good clients who simply forgot, and a gentle, timely reminder is all it takes to recover most of that.</p>\n<p>When you take a deposit or get a rejection of payment, stay calm and professional while protecting your position. Remind the client of the agreed terms, confirm the amount, and offer to resolve any confusion or dispute about the work itself. Most payment friction is a misunderstanding, and patient, clear communication resolves it. If a client genuinely will not pay despite the work being delivered and agreed, your invoices, your contract, and your written confirmations are your evidence and your protection.</p>\n<p>Your deliverable this week is an invoicing kit: a clean invoice template, your payment terms, a follow-up email sequence, and a simple record of what you have sent and what is owed. Then send an invoice, even a small one, and run the follow-up process on it. In the live session, share your template and learn from how others handle late payment. A reliable money system is the quiet foundation of a sustainable freelance business, and it is fully within your control to build it.</p>",
+   "post_title": "Invoicing and Getting Paid",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "invoicing-and-getting-paid",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900041,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900045,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Delivery is where promises become trust, and trust is what turns a one-off project into a stream of repeat work and referrals. The work itself matters, but how you deliver it, your finish quality, your final handover, and your follow-up, controls whether the client hires you again and tells others about you. This week you plan the finish line so that every project ends with the strongest possible relationship.</p>\n<p>Plan your finish to match the polish of your work. Before you hand over anything, review it against the scope you agreed, confirm every deliverable is complete and tested, and fix anything you would not want a client to see. Then deliver everything in one clear handover: the finished work, a short note on what was done and how it meets their goals, and instructions or documentation they might need. A client who receives a clean, complete, well-explained finish does not need to ask fifteen questions, and that ease is what they remember.</p>\n<blockquote><p>Callout: The end of a project is not the end of the relationship; it is the beginning of the next one. The question to ask in your final handover is not just \"anything else needed?\" but \"was there anything about working together I could improve for next time?\"</p></blockquote>\n<p>Ask for the referral and the testimonial while the good feeling is fresh. A satisfied client is genuinely happy to help, and the ask is easier than you think: \"Thanks again, if you know anyone who could use this, send them my way, and would you mind leaving a short recommendation?\" Timing matters, so ask close to delivery while the value is top of mind. Collect the testimonial while your work is present, because a request three months later lands flat. Referrals and repeat work are your cheapest marketing, and they only come if you ask.</p>\n<p>Build a simple relationship cadence for after the project. Send a handover confirmation, a short check-in a few weeks later to ask how things are going and whether the result is holding up, and a lighter touch every few months. These touches keep you top of mind without being pushy, and they surface natural opportunities for repeat work or upgrades. The freelancer who returns with, \"a couple of months ago I built X for you, and I am checking in,\" is not annoying; they are memorable, and memorable freelancers get the next call.</p>\n<p>Your deliverable this week is a finish-line checklist: pre-handover review, the handover pack, the referral and testimonial ask, and a six-month check-in plan. Then apply it to a current or recent project. In the live session, share your experience asking for a referral or testimonial and collect tips from the group. Delivery done well is the fastest path to the business you actually want, steady, trusted, and built on relationships instead of endless cold outreach.</p>",
+   "post_title": "Delivering, Getting Referrals, and Repeat Work",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "delivering-getting-referrals-and-repeat-work",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900044,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900046,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Growth is not simply doing more; it is building a business that produces consistent income without constant chaos. Once you have clients, the challenge shifts from getting work to managing it well, keeping quality high, protecting your time, and deciding deliberately what your work looks like next year. This lesson gives you the tools to run a sustainable practice and to grow from \"busy freelancer\" to \"owner of a freelancing business.\"</p>\n<p>Start by managing your capacity honestly. Track how many hours of paying work you take on, how much time each project really consumes, and how much of your week goes to marketing and admin. When you know your true numbers, you can say no without panic, book the next project, and set delivery dates you can actually meet. Most freelancers burn out not because they work too hard but because they do not know their own limits until they are already exhausted.</p>\n<blockquote><p>Callout: The best growth is sometimes a slower yes. Turning down a project that does not fit or that overloads you is not lost income; it is protecting your reputation, because a project delivered badly, or late, hurts you more than one you declined.</p></blockquote>\n<p>As you gather history, raise your prices deliberately. Every finished project is evidence. When you have proof you deliver well and on time, your fee for the next client goes up. Review your rate card at regular intervals, for example every few months, and adjust based on results, not on fear. Referral clients and repeat clients typically accept a higher rate more easily than strangers do, because your proven track record speaks for you. Rising rates are the honest reward for doing the work well.</p>\n<p>Make deliberate choices about the shape of your business. Decide how much you want in regular retainer income versus one-off projects, how many clients you can serve well at once, and what kind of work you want to do more or less of next year. A practice built mostly on retainers is calmer and more predictable than one chasing a new project every week. Use your client history to steer toward the work you find most valuable and away from the work that drains you.</p>\n<p>Your final deliverable for this course, and for the whole program, is a simple business plan for your next 90 days: your target income, your monthly client or project count, your rate adjustments, your marketing habit, and one growth goal. This plan is your compass after the cohort ends. In the final live session, present your plan to the group and commit to your first action in the next seven days. You have built the assets and systems; the plan turns them into a business that keeps growing after this course is done.</p>",
+   "post_title": "Managing Capacity and Growing Your Business",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "managing-capacity-and-growing-your-business",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900044,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "quizzes": [
+  {
+   "ID": 900005,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 1 - Foundations Quiz",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-1-foundations-quiz",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "12"
+    ],
+    "_pass_mark": [
+     "7"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900028,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Week 4 - Contracts and Scope Quiz",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "week-4-contracts-and-scope-quiz",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900025,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "12"
+    ],
+    "_pass_mark": [
+     "7"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "questions": [
+  {
+   "ID": 900006,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"A freelancer is paid for hours attended rather than for results delivered.\", \"correct\": false}, {\"name\": \"A freelancer is paid for an outcome and owns the full pipeline that leads to that outcome.\", \"correct\": true}, {\"name\": \"A freelancer always earns more than an employee.\", \"correct\": false}, {\"name\": \"Freelancing requires no business skills, only craft skills.\", \"correct\": false}]",
+   "post_title": "What is the core difference between freelancing and holding a job?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-core-difference-between-freelancing-and-holding-a-job",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900007,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The widest possible audience with no specialty.\", \"correct\": false}, {\"name\": \"The skill the freelancer enjoys most, regardless of demand.\", \"correct\": false}, {\"name\": \"Clients with frequent, urgent, painful problems and the budget to solve them.\", \"correct\": true}, {\"name\": \"A niche with many competitors all racing to the lowest price.\", \"correct\": false}]",
+   "post_title": "Which combination best predicts a niche that will pay well?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-combination-best-predicts-a-niche-that-will-pay-well",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900008,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It gives the freelancer more kinds of projects to chase.\", \"correct\": false}, {\"name\": \"It removes the need for a portfolio.\", \"correct\": false}, {\"name\": \"It makes the freelancer memorable and lets them charge more for a clear specialty.\", \"correct\": true}, {\"name\": \"It guarantees higher revenue without any marketing.\", \"correct\": false}]",
+   "post_title": "Why does a narrow niche usually beat being a generalist?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-does-a-narrow-niche-usually-beat-being-a-generalist",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900009,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"\\\"I do social media for small businesses.\\\"\", \"correct\": false}, {\"name\": \"\\\"I am a social media manager.\\\"\", \"correct\": false}, {\"name\": \"\\\"I build content calendars for local clinics that bring patient questions to the front desk within 60 days.\\\"\", \"correct\": true}, {\"name\": \"\\\"I offer general marketing services at low prices.\\\"\", \"correct\": false}]",
+   "post_title": "Which is the strongest version of a freelance offer?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-is-the-strongest-version-of-a-freelance-offer",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900010,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It means you should always charge hourly.\", \"correct\": false}, {\"name\": \"It signals that freelancers work fewer hours than employees.\", \"correct\": false}, {\"name\": \"Marketing, admin, and unpaid calls are real costs that your rate must cover.\", \"correct\": true}, {\"name\": \"It proves your rate should match your previous salary exactly.\", \"correct\": false}]",
+   "post_title": "Why does billing only a portion of your working hours matter when setting rates?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-does-billing-only-a-portion-of-your-working-hours-matter-when-setting-rates",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900011,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It is harder to explain to clients.\", \"correct\": false}, {\"name\": \"It is illegal in most countries.\", \"correct\": false}, {\"name\": \"It punishes you for improving at the work.\", \"correct\": true}, {\"name\": \"It always leads to lower income than a salary.\", \"correct\": false}]",
+   "post_title": "What is the main disadvantage of pricing only by the hour?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-main-disadvantage-of-pricing-only-by-the-hour",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900012,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Who, what, and why.\", \"correct\": false}, {\"name\": \"When, where, and how much.\", \"correct\": false}, {\"name\": \"A clear buyer, buildable proof, and real budget.\", \"correct\": true}, {\"name\": \"Speed, volume, and contact price.\", \"correct\": false}]",
+   "post_title": "Which combination of questions defines a good niche for a new freelancer?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-combination-of-questions-defines-a-good-niche-for-a-new-freelancer",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 6,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900013,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Ask a friend what they would charge.\", \"correct\": false}, {\"name\": \"Copy the average rate from a listings website.\", \"correct\": false}, {\"name\": \"Calculate from your target income and true billable capacity.\", \"correct\": true}, {\"name\": \"Match your previous salary exactly plus ten percent.\", \"correct\": false}]",
+   "post_title": "What is the essential first step for setting a defensible rate?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-essential-first-step-for-setting-a-defensible-rate",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 7,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900014,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Hourly, invoiced after every task.\", \"correct\": false}, {\"name\": \"Project-based, paid only on completion.\", \"correct\": false}, {\"name\": \"A retainer that produces recurring income.\", \"correct\": true}, {\"name\": \"Payment released by milestone only.\", \"correct\": false}]",
+   "post_title": "Which payment model gives a freelancer the most predictable income?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-payment-model-gives-a-freelancer-the-most-predictable-income",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 8,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900015,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It impresses every client without exception.\", \"correct\": false}, {\"name\": \"It forces the client to negotiate immediately.\", \"correct\": false}, {\"name\": \"It filters for the clients you actually want.\", \"correct\": true}, {\"name\": \"It guarantees you get the highest possible price.\", \"correct\": false}]",
+   "post_title": "Why is stating a clear rate early good practice?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-is-stating-a-clear-rate-early-good-practice",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 9,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900016,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Lowering prices below everyone else.\", \"correct\": false}, {\"name\": \"Offering every possible service.\", \"correct\": false}, {\"name\": \"A specific niche with a clear outcome and a believable proof.\", \"correct\": true}, {\"name\": \"Advertising as a complete generalist.\", \"correct\": false}]",
+   "post_title": "What should a new freelancer focus on to become memorable to clients?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-should-a-new-freelancer-focus-on-to-become-memorable-to-clients",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 10,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900017,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"They buy hours of availability.\", \"correct\": false}, {\"name\": \"They buy an on-demand employee.\", \"correct\": false}, {\"name\": \"They buy solved problems and outcomes.\", \"correct\": true}, {\"name\": \"They buy the cheapest option available.\", \"correct\": false}]",
+   "post_title": "Which phrase best describes how clients actually buy freelance work?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-phrase-best-describes-how-clients-actually-buy-freelance-work",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 11,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900029,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"To make the client feel distrustful.\", \"correct\": false}, {\"name\": \"To overwhelm the client with legal language.\", \"correct\": false}, {\"name\": \"To protect both sides by setting clear terms and scope.\", \"correct\": true}, {\"name\": \"To make the freelancer seem difficult to work with.\", \"correct\": false}]",
+   "post_title": "What is the main purpose of a freelance contract?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-main-purpose-of-a-freelance-contract",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900030,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The freelancer's hourly rate.\", \"correct\": false}, {\"name\": \"The number of clients a freelancer has.\", \"correct\": false}, {\"name\": \"The clearly listed deliverables and their boundaries.\", \"correct\": true}, {\"name\": \"The length of the contract document.\", \"correct\": false}]",
+   "post_title": "What is scope in a freelance project?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-scope-in-a-freelance-project",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900031,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It discourages clients from ever asking for anything.\", \"correct\": false}, {\"name\": \"It is required by law everywhere.\", \"correct\": false}, {\"name\": \"It makes added work visible, countable, and priced.\", \"correct\": true}, {\"name\": \"It guarantees every project stays free of changes.\", \"correct\": false}]",
+   "post_title": "Why is a written change process important?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-is-a-written-change-process-important",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900032,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Clear scope, late payment, and endless revisions.\", \"correct\": false}, {\"name\": \"Faster payments and simpler projects.\", \"correct\": false}, {\"name\": \"Unclear scope, late payment, and endless revisions.\", \"correct\": true}, {\"name\": \"More referrals from happy clients.\", \"correct\": false}]",
+   "post_title": "What is the main risk of skipping a contract?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-main-risk-of-skipping-a-contract",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900033,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"To make the client hesitate before committing.\", \"correct\": false}, {\"name\": \"To increase the final price by itself.\", \"correct\": false}, {\"name\": \"To protect against non-payment.\", \"correct\": true}, {\"name\": \"To replace the need for a contract.\", \"correct\": false}]",
+   "post_title": "What is the purpose of a deposit before starting work?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-purpose-of-a-deposit-before-starting-work",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900034,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Silently do it to keep the client happy.\", \"correct\": false}, {\"name\": \"Refuse angrily and end the relationship.\", \"correct\": false}, {\"name\": \"Confirm the change and state its impact on time and price.\", \"correct\": true}, {\"name\": \"Ignore the request completely.\", \"correct\": false}]",
+   "post_title": "How should a freelancer respond to a request beyond the agreed scope?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "how-should-a-freelancer-respond-to-a-request-beyond-the-agreed-scope",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900035,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"They get slower and charge less over time.\", \"correct\": false}, {\"name\": \"They lose their longest-standing clients first.\", \"correct\": false}, {\"name\": \"Getting faster reduces the hours they can bill.\", \"correct\": true}, {\"name\": \"It is illegal in most countries.\", \"correct\": false}]",
+   "post_title": "Why does hourly pricing punish experienced freelancers?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-does-hourly-pricing-punish-experienced-freelancers",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 6,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900036,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Using a detailed written contract.\", \"correct\": false}, {\"name\": \"Charging a deposit upfront.\", \"correct\": false}, {\"name\": \"Unclear or unwritten scope and boundaries.\", \"correct\": true}, {\"name\": \"Agreeing on a fixed revision count.\", \"correct\": false}]",
+   "post_title": "What makes scope-related disagreements most likely?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-makes-scope-related-disagreements-most-likely",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 7,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900037,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Each individual email from the client.\", \"correct\": false}, {\"name\": \"The total project timeline.\", \"correct\": false}, {\"name\": \"A batch of connected feedback handled in one pass.\", \"correct\": true}, {\"name\": \"Any message that changes project details.\", \"correct\": false}]",
+   "post_title": "What is the best definition of a revision round?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-best-definition-of-a-revision-round",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 8,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900038,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Forget it ever happened.\", \"correct\": false}, {\"name\": \"Charge the client the full project price again.\", \"correct\": false}, {\"name\": \"Log the change and its impact on time and price.\", \"correct\": true}, {\"name\": \"Stop working on the project immediately.\", \"correct\": false}]",
+   "post_title": "What should a freelancer do after any scope change?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-should-a-freelancer-do-after-any-scope-change",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 9,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900039,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"\\\"I will help with everything.\\\"\", \"correct\": false}, {\"name\": \"\\\"This is a simple website project.\\\"\", \"correct\": false}, {\"name\": \"\\\"Excludes copywriting and stock photo sourcing.\\\"\", \"correct\": true}, {\"name\": \"\\\"Happy to add anything for free.\\\"\", \"correct\": false}]",
+   "post_title": "Which sentence best states a strong scope exclusion?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-sentence-best-states-a-strong-scope-exclusion",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 10,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900040,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Revisions and scope creep are rare and always reasonable.\", \"correct\": false}, {\"name\": \"Clients never ask for changes after a contract is signed.\", \"correct\": false}, {\"name\": \"Changes are normal and manageable with clear terms.\", \"correct\": true}, {\"name\": \"Every change is a deliberate attempt to underpay.\", \"correct\": false}]",
+   "post_title": "What best describes how clients actually change projects?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-best-describes-how-clients-actually-change-projects",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 11,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ]
+}

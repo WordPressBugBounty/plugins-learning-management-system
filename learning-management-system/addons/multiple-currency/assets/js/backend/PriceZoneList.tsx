@@ -18,16 +18,14 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import {
-	BiCalendar,
-	BiDotsVerticalRounded,
-	BiEdit,
-	BiShow,
-} from 'react-icons/bi';
+import { BiCalendar, BiDotsVerticalRounded, BiShow } from 'react-icons/bi';
 import { Link as RouterLink } from 'react-router-dom';
 import { Td, Tr } from 'react-super-responsive-table';
 import { CustomIcon } from '../../../../../assets/js/back-end/components/common/CustomIcon';
-import { Trash } from '../../../../../assets/js/back-end/constants/images';
+import {
+	EditIcon,
+	Trash,
+} from '../../../../../assets/js/back-end/constants/images';
 import API from '../../../../../assets/js/back-end/utils/api';
 import localized from '../../../../../assets/js/back-end/utils/global';
 import { getWordpressLocalTime } from '../../../../../assets/js/back-end/utils/utils';
@@ -226,7 +224,9 @@ const PriceZoneList: React.FC<Props> = (props) => {
 							<Button
 								colorScheme="primary"
 								variant="outline"
-								leftIcon={<BiEdit />}
+								leftIcon={
+									<EditIcon width="12px" height="12px" fill="currentColor" />
+								}
 								size="xs"
 							>
 								{__('Edit', 'learning-management-system')}

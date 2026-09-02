@@ -199,7 +199,7 @@ class CourseCurriculumWidget extends SingleCourseWidgetBase {
 			return;
 		}
 
-		if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
+		if ( masteriyo_can_view_curriculum( $course ) ) {
 			$sections = masteriyo_get_course_structure( $course->get_id() );
 
 			masteriyo_get_template(
@@ -226,7 +226,7 @@ class CourseCurriculumWidget extends SingleCourseWidgetBase {
 			return;
 		}
 
-		if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) {
+		if ( masteriyo_can_view_curriculum( $course ) ) {
 			$sections = masteriyo_get_course_structure( $course->get_id() );
 
 			masteriyo_get_template(
@@ -238,7 +238,7 @@ class CourseCurriculumWidget extends SingleCourseWidgetBase {
 				)
 			);
 		} else {
-			$this->render_feature_disabled_notice( __( 'Curriculum will display here when it is enabled for the course.', 'learning-management-system' ) );
+			$this->render_feature_disabled_notice( __( 'Curriculum will display here when the curriculum visibility setting allows it.', 'learning-management-system' ) );
 		}
 	}
 }

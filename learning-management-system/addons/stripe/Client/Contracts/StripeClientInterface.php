@@ -45,6 +45,21 @@ interface StripeClientInterface {
 	public function retrieve_payment_intent( string $intent_id );
 
 	/**
+	 * Retrieve a charge.
+	 *
+	 * @param string $charge_id Charge ID.
+	 * @return array|\WP_Error
+	 */
+	public function retrieve_charge( string $charge_id );
+
+	/**
+	 * Register a payment method domain.
+	 * @param array $data Domain data.
+	 * @return array|\WP_Error
+	 */
+	public function create_payment_method_domain( array $data );
+
+	/**
 	 * Create customer.
 	 * @param array $data Customer data.
 	 * @return array|\WP_Error
@@ -69,9 +84,10 @@ interface StripeClientInterface {
 	/**
 	 * Create price.
 	 * @param array $data Price data.
+	 * @param array $headers Additional headers, e.g. an Idempotency-Key.
 	 * @return array|\WP_Error
 	 */
-	public function create_price( array $data );
+	public function create_price( array $data, array $headers = array() );
 
 	/**
 	 * Retrieve price.
@@ -83,9 +99,10 @@ interface StripeClientInterface {
 	/**
 	 * Create subscription.
 	 * @param array $data Subscription data.
+	 * @param array $headers Additional headers, e.g. an Idempotency-Key.
 	 * @return array|\WP_Error
 	 */
-	public function create_subscription( array $data );
+	public function create_subscription( array $data, array $headers = array() );
 
 	/**
 	 * Retrieve subscription.

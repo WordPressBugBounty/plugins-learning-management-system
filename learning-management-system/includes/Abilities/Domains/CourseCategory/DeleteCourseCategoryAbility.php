@@ -3,7 +3,6 @@
  * Delete Course Category ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseCategory
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseCategory;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Taxonomy terms have no trash state — this operation is always permanent.
  * Courses previously assigned to the deleted category will have that assignment removed.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class DeleteCourseCategoryAbility extends RestProxyAbility {
 

@@ -1,3 +1,4 @@
+import AuthorList from '../../../../assets/js/back-end/components/common/AuthorList';
 import {
 	AlertDialog,
 	AlertDialogBody,
@@ -5,7 +6,6 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogOverlay,
-	Avatar,
 	Badge,
 	Button,
 	ButtonGroup,
@@ -34,6 +34,7 @@ import {
 } from '../../../../assets/js/back-end/constants/images';
 import { AuthorMap } from '../../../../assets/js/back-end/types/course';
 import API from '../../../../assets/js/back-end/utils/api';
+import { isEmpty } from '../../../../assets/js/back-end/utils/utils';
 import googleMeetRoutes from '../../constants/routes';
 import GoogleMeetUrls from '../../constants/urls';
 import { GoogleMeetStatus } from '../Enums/Enum';
@@ -106,6 +107,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 	const googleMeetMeetingsAPI = new API(GoogleMeetUrls.googleMeets);
 	const queryClient = useQueryClient();
 	const toast = useToast();
+
 	const onEditPress = () => {
 		navigate(
 			googleMeetRoutes.googleMeet.edit
@@ -159,6 +161,10 @@ const MeetingRow: React.FC<Props> = (props) => {
 		deleteCourseId ? deleteGoogleMeet.mutate(deleteCourseId) : null;
 	};
 
+	const authorList = !isEmpty(additional_authors)
+		? [author, ...additional_authors]
+		: [author];
+
 	const googleMeetStatus = () => {
 		if (start_at >= new Date()) {
 			setStatus(GoogleMeetStatus.UpComing);
@@ -203,12 +209,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 			</Td>
 
 			<Td>
-				<Stack direction="row" spacing="2" alignItems="center">
-					<Avatar src={author?.avatar_url} size="xs" />
-					<Text fontSize="xs" fontWeight="medium" color="gray.600">
-						{author?.display_name}
-					</Text>
-				</Stack>
+				<AuthorList authors={authorList} />
 			</Td>
 
 			<Td>
@@ -289,8 +290,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 							isExternal
 						>
 							<Button
-								colorScheme="primary"
-								variant="outline"
+								colorScheme="blue"
 								size="xs"
 								gap="2"
 								fontWeight="semibold"
@@ -335,7 +335,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 				<AlertDialogOverlay>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							{__('Delete Google Meeting', 'learning-management-system')}
+							{__('Delete Google Meet Meeting', 'learning-management-system')}
 						</AlertDialogHeader>
 						<AlertDialogBody>
 							{__(

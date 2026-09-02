@@ -22,4 +22,3 @@ masteriyo_get_template_part( 'content', 'account' );
  * @since 1.0.0
  */
 do_action( 'masteriyo_after_account' );
-

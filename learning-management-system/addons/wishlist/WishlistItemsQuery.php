@@ -2,7 +2,7 @@
 /**
  * Class for parameter-based wishlist items query.
  *
- * @since 1.12.2
+ * @since 2.3.4
  * @package Masteriyo\Addons\WishList
  */
 
@@ -18,7 +18,7 @@ class WishlistItemsQuery extends ObjectQuery {
 	/**
 	 * Valid query vars for the query.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return array
 	 */
@@ -36,7 +36,7 @@ class WishlistItemsQuery extends ObjectQuery {
 	/**
 	 * Get wishlist items matching the current query vars.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return array The queried wishlist items.
 	 */
@@ -44,7 +44,7 @@ class WishlistItemsQuery extends ObjectQuery {
 		/**
 		 * Filters query args for querying wishlist items.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $query_args The object query args.
 		 */
@@ -54,7 +54,7 @@ class WishlistItemsQuery extends ObjectQuery {
 		/**
 		 * Filters wishlist item object query result.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $result The query result.
 		 * @param array $query_args The object query args.

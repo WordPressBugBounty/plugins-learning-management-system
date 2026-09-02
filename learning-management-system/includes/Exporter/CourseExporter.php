@@ -11,10 +11,10 @@ namespace Masteriyo\Exporter;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\FileHandler;
-use Masteriyo\Addons\GoogleMeet\Enums\GoogleMeetStatus;
 use Masteriyo\AdminFileDownloadHandler;
 use Masteriyo\Enums\CourseChildrenPostType;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\VideoSource;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Jobs\CoursesExportJob;
 use Masteriyo\PostType\PostType;
@@ -31,14 +31,14 @@ class CourseExporter {
 	/**
 	 * The directory where export files will be stored.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const EXPORT_DIRECTORY = 'export/courses';
 
 	/**
 	 * The ID used to generate download URL for exported courses file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const FILE_PATH_ID = 'export_courses_json';
 
@@ -167,7 +167,7 @@ class CourseExporter {
 	/**
 	 * Write posts data to the export file in chunks.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $course_ids The course IDs.
 	 * @param array $post_types The post types to export.
@@ -215,7 +215,7 @@ class CourseExporter {
 	/**
 	 * Schedule batches for background processing.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $course_ids List of course IDs.
 	 * @param array $post_types List of post types to export.
@@ -235,7 +235,7 @@ class CourseExporter {
 	/**
 	 * Fetches posts and their metadata based on given post types.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array  $course_ids      The course IDs to fetch posts for.
 	 * @param string $post_type       The post type to fetch.
@@ -248,7 +248,7 @@ class CourseExporter {
 			return;
 		}
 
-		$get_attachments = in_array( $post_type, array( PostType::COURSE, PostType::LESSON ), true ) ? true : $get_attachments;
+		$get_attachments = in_array( $post_type, array( PostType::COURSE, PostType::ASSIGNMENT, PostType::LESSON ), true ) ? true : $get_attachments;
 
 		if ( PostType::COURSE === $post_type || '' === $post_type ) {
 			foreach ( $course_ids as $course_id ) {
@@ -292,7 +292,7 @@ class CourseExporter {
 	/**
 	 * Fetch post data, including meta, terms, and attachments (if requested).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int    $post_id      Post ID.
 	 * @param bool   $get_attachments Whether to fetch attachments.
@@ -318,7 +318,7 @@ class CourseExporter {
 	/**
 	 * Prepare query arguments for fetching posts associated with courses.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $course_ids Course IDs.
 	 * @param string $post_type Post type.
@@ -347,9 +347,7 @@ class CourseExporter {
 			$args['author'] = $current_user_id;
 		}
 
-		if ( PostType::GOOGLEMEET === $post_type ) {
-			$args['post_status'] = array_merge( GoogleMeetStatus::all(), $args['post_status'] );
-		}
+		$args['post_status'] = masteriyo_get_exportable_post_statuses( $args['post_status'], $post_type );
 
 		return $args;
 	}
@@ -357,7 +355,7 @@ class CourseExporter {
 	/**
 	 * Get the IDs and count of items for a given post type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array  $course_ids List of course IDs.
 	 * @param string $post_type  The post type.
@@ -373,7 +371,7 @@ class CourseExporter {
 	/**
 	 * Get all course IDs.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array Array of course IDs.
 	 */
@@ -385,6 +383,12 @@ class CourseExporter {
 			'posts_per_page' => -1,
 		);
 
+		if ( masteriyo_is_current_user_admin() ) {
+			return get_posts( $args );
+		}
+
+		$current_user_id = get_current_user_id();
+		$args['author']  = $current_user_id;
 		return get_posts( $args );
 	}
 
@@ -435,7 +439,7 @@ class CourseExporter {
 	/**
 	 * Append content to a file using core PHP functions.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $filepath The file path.
 	 * @param array|string $contents The content to append.
@@ -492,11 +496,11 @@ class CourseExporter {
 	/**
 	 * Clean up old files to avoid clutter.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param FileHandler $file_handler
-	 * @param string      $prefix
-	 * @param string      $directory
+	 * @param string $prefix
+	 * @param string $directory
 	 */
 	protected function cleanup_old_files( $file_handler, $prefix, $directory = '' ) {
 		$old_files = $file_handler->search_files( $prefix, $directory );
@@ -515,7 +519,7 @@ class CourseExporter {
 	/**
 	 * Get the download URL for the exported courses file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string|false The download URL if exists, otherwise false.
 	 */
@@ -544,7 +548,7 @@ class CourseExporter {
 	/**
 	 * Get the full path of the exported courses file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string|false The full path of the exported courses file if exists, otherwise false.
 	 */
@@ -568,7 +572,7 @@ class CourseExporter {
 	/**
 	 * Return the folder name where exported courses files are stored.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string
 	 */
@@ -582,21 +586,22 @@ class CourseExporter {
 	/**
 	 * Get the export file creation time.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string
 	 */
 	public static function get_file_creation_time() {
 		$file_path = self::get_full_file_path();
 
-		if ( ! is_string( $file_path ) || ! file_exists( $file_path ) ) {
-			return null;
+		if ( ! $file_path || ! file_exists( $file_path ) ) {
+			return masteriyo_rest_prepare_date_response( time() );
 		}
 
 		$file_time = filemtime( $file_path );
 
 		return masteriyo_rest_prepare_date_response( $file_time );
 	}
+
 
 	/**
 	 * Return all the terms associated with taxonomies.
@@ -704,11 +709,11 @@ class CourseExporter {
 			'_thumbnail_id',
 		);
 
-		if ( 'self-hosted' === get_post_meta( $post_id, '_video_source', true ) ) {
+		if ( VideoSource::SELF_HOSTED === get_post_meta( $post_id, '_video_source', true ) ) {
 			$meta_keys[] = '_video_source_url';
 		}
 
-		if ( 'self-hosted' === get_post_meta( $post_id, '_featured_video_source', true ) ) {
+		if ( VideoSource::SELF_HOSTED === get_post_meta( $post_id, '_featured_video_source', true ) ) {
 			$meta_keys[] = '_featured_video_url';
 		}
 
@@ -749,7 +754,7 @@ class CourseExporter {
 	/**
 	 * End the current section for a post type in the JSON file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path        The file path for export.
 	 * @param bool   $is_last_post_type If this is the last post type in the export.

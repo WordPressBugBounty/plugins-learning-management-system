@@ -3,7 +3,6 @@
  * Update Course ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Partial updates are supported — only supplied fields are changed.
  * Requires the `edit_masteriyo_courses` capability on the target course.
- *
- * @since x.x.x
  */
 class UpdateCourseAbility extends RestProxyAbility {
 

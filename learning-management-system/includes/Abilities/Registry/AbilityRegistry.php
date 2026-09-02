@@ -6,7 +6,6 @@
  * Pro addons to append their own abilities, and freezes after registration.
  *
  * @package Masteriyo\Abilities\Registry
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Registry;
@@ -17,15 +16,12 @@ use Masteriyo\Abilities\Contracts\AbilityInterface;
 
 /**
  * Collection of registered abilities.
- *
- * @since x.x.x
  */
 class AbilityRegistry {
 
 	/**
 	 * Registered ability instances keyed by their namespaced name.
 	 *
-	 * @since x.x.x
 	 * @var AbilityInterface[]
 	 */
 	private $abilities = array();
@@ -33,7 +29,6 @@ class AbilityRegistry {
 	/**
 	 * Whether the registry has been frozen (i.e. registration is complete).
 	 *
-	 * @since x.x.x
 	 * @var bool
 	 */
 	private $frozen = false;
@@ -43,8 +38,6 @@ class AbilityRegistry {
 	 *
 	 * Emits an E_USER_WARNING (visible when WP_DEBUG is true) if called after freeze,
 	 * giving addon developers an actionable signal rather than a silent no-op.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param AbilityInterface $ability The ability instance to register.
 	 * @return void
@@ -70,7 +63,6 @@ class AbilityRegistry {
 	/**
 	 * Return all registered abilities.
 	 *
-	 * @since x.x.x
 	 * @return AbilityInterface[]
 	 */
 	public function all(): array {
@@ -80,7 +72,6 @@ class AbilityRegistry {
 	/**
 	 * Check if the registry contains an ability by name.
 	 *
-	 * @since x.x.x
 	 * @param string $name The ability slug to look up.
 	 * @return bool
 	 */
@@ -91,7 +82,6 @@ class AbilityRegistry {
 	/**
 	 * Count of registered abilities.
 	 *
-	 * @since x.x.x
 	 * @return int
 	 */
 	public function count(): int {
@@ -101,7 +91,6 @@ class AbilityRegistry {
 	/**
 	 * Prevent further additions.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function freeze(): void {
@@ -111,7 +100,6 @@ class AbilityRegistry {
 	/**
 	 * Whether the registry has been frozen.
 	 *
-	 * @since x.x.x
 	 * @return bool
 	 */
 	public function is_frozen(): bool {

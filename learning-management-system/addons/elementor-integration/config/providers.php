@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Masteriyo elementor integration service providers.
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 use Masteriyo\Addons\ElementorIntegration\Providers\ElementorIntegrationServiceProvider;

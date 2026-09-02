@@ -11,6 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -187,9 +188,8 @@ class CourseHighlightsWidget extends SingleCourseWidgetBase {
 	}
 
 	/**
-	 * Render highlights, suppressing the social-share output core adds after them.
-	 *
-	 * @since x.x.x
+	 * Render highlights without the social share hook that fires on masteriyo_after_single_course_highlights.
+	 * Social share has its own dedicated widget.
 	 *
 	 * @param \Masteriyo\Models\Course $course
 	 */

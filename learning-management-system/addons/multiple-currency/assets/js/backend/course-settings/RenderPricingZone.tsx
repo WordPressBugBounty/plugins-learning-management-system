@@ -106,7 +106,13 @@ const PricingZonesData: React.FC<Props> = ({
 			<Collapse in={expanded} animateOpacity>
 				<Divider color="gray.200" my={3} />
 				<Box>
-					<FormControlTwoCol mb={4} alignItems="flex-start">
+					<FormControlTwoCol
+						mb={4}
+						alignItems="flex-start"
+						gap={isCourseBundle ? 2 : 0}
+						flexDirection={isCourseBundle ? 'column' : undefined}
+						applyLabelStyles={!isCourseBundle}
+					>
 						<FormLabel mb={0} fontSize="sm" fontWeight="medium">
 							{__('Pricing Method', 'learning-management-system')}
 							<ToolTip
@@ -187,7 +193,6 @@ const PricingZonesData: React.FC<Props> = ({
 													/>
 												</FormControl>
 											)}
-
 										</SimpleGrid>
 									);
 								})()}

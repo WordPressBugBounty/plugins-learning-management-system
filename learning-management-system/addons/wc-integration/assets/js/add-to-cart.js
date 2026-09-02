@@ -1,7 +1,7 @@
 /**
  * WooCommerce add to cart functionality for courses archive/single course page.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @param {Object} $ - The jQuery object.
  * @param {Object} masteriyoData - Global data object ajaxURL, nonce, WC cart url, and various texts.
@@ -18,7 +18,7 @@
 		/**
 		 * Initialize WC add to cart functionality.
 		 *
-		 * @since 1.11.3
+		 * @since 1.11.3 [Free]
 		 */
 		init: function () {
 			this.bindUIActions();
@@ -27,7 +27,7 @@
 		/**
 		 * Returns the AJAX URL for making requests.
 		 *
-		 * @since 1.11.3
+		 * @since 1.11.3 [Free]
 		 *
 		 * @param {Object} data - The global data object ajaxURL, nonce, WC cart url, and various texts.
 		 * @returns {string} The AJAX URL.
@@ -39,7 +39,7 @@
 		/**
 		 * Returns the nonce for the "add to cart" action.
 		 *
-		 * @since 1.11.3
+		 * @since 1.11.3 [Free]
 		 *
 		 * @param {Object} data - The global data object ajaxURL, nonce, WC cart url, and various texts.
 		 * @returns {string} The nonce for the "add to cart" action.
@@ -51,7 +51,7 @@
 		/**
 		 * Bind event listeners to UI elements.
 		 *
-		 * @since 1.11.3
+		 * @since 1.11.3 [Free]
 		 */
 		bindUIActions: function () {
 			$(document).on(
@@ -66,7 +66,7 @@
 		 *
 		 * This function is triggered when the user clicks the "Add to Cart" button for a product.
 		 *
-		 * @since 1.11.3
+		 * @since 1.11.3 [Free]
 		 *
 		 * @param {Event} e - The click event object.
 		 * @returns {void}
@@ -74,12 +74,22 @@
 		addToCart: function (e) {
 			e.preventDefault();
 
-			var $button = $(e.target);
-			var url = new URL($button.attr('href'));
+			// Resolve the anchor from the event target rather than using it directly: the
+			// button can contain child elements (the lock icon rendered by enroll-button.php
+			// for password-protected and cohort-locked courses), and a click landing on one
+			// of those makes e.target the <svg>/<path>, which has no href.
+			var $button = $(e.target).closest('.masteriyo-enroll-btn');
+			var href = $button.attr('href');
+
+			if (!href) {
+				return;
+			}
+
+			var url = new URL(href, window.location.href);
 			var productID = url.searchParams.get('add-to-cart');
 
 			if (!productID) {
-				window.location.href = $button.attr('href');
+				window.location.href = href;
 				return;
 			}
 
@@ -118,7 +128,11 @@
 						window.location.href = jqXHR.responseJSON.data.redirect;
 						return;
 					}
-					console.warn( 'Masteriyo add-to-cart error', jqXHR.status, jqXHR.responseJSON );
+					console.warn(
+						'Masteriyo add-to-cart error',
+						jqXHR.status,
+						jqXHR.responseJSON,
+					);
 				},
 				complete: function () {
 					$button.prop('disabled', false);

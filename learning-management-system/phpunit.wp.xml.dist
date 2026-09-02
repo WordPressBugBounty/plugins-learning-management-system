@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The WordPress-backed suite: real core, real database, the plugin loaded the
+  way WordPress loads it. Runs inside the wp-env pro stack's cli container via
+  `yarn test:wp`; the shim-based suites stay in phpunit.xml.dist.
+-->
+<phpunit
+  bootstrap="tests/bootstrap-wp.php"
+  colors="true"
+  stopOnFailure="false"
+  beStrictAboutOutputDuringTests="true"
+  beStrictAboutTestsThatDoNotTestAnything="true">
+
+  <php>
+    <!-- The bundled test library reads its database settings from the
+         environment, and the container's defaults are the live site's
+         database and its wp_ prefix - the test install drops and reinstalls
+         whatever prefix it is given. wptests_ keeps its tables beside the
+         site's, never over them. -->
+    <env name="WORDPRESS_TABLE_PREFIX" value="wptests_" />
+  </php>
+
+  <testsuites>
+    <testsuite name="WordPress">
+      <directory suffix="Test.php">tests/wp</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

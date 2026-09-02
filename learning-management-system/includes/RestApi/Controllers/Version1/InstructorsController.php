@@ -195,8 +195,6 @@ class InstructorsController extends UsersController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
 	 */
@@ -217,6 +215,7 @@ class InstructorsController extends UsersController {
 
 		return true;
 	}
+
 
 	/**
 	 * Prepare a single user object for create or update.
@@ -329,10 +328,9 @@ class InstructorsController extends UsersController {
 		}
 
 		// User's role.
-			if ( isset( $request['roles'] ) && current_user_can( 'manage_options' ) ) {
+		if ( isset( $request['roles'] ) && current_user_can( 'manage_options' ) ) {
 			$instructor->set_roles( $request['roles'] );
 		}
-
 
 		// User's instructor_apply_status.
 		if ( isset( $request['instructor_apply_status'] ) ) {

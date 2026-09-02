@@ -2,7 +2,6 @@
 /**
  * MasterStudy migrator.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool\Migrators
  */
 
@@ -17,45 +16,42 @@ use Masteriyo\Addons\MigrationTool\LMS\MasterStudy;
  *
  * Thin adapter that wires MasterStudy into the MigratorInterface contract.
  * All migration logic lives in the original MasterStudy static class.
- *
- * @since x.x.x
  */
 class MasterStudyMigrator extends AbstractLMSMigrator {
 
 	/**
-	 * @since x.x.x
 	 * @return class-string
 	 */
 	protected static function get_lms_class(): string {
 		return MasterStudy::class;
 	}
 
-	/**
-	 * @since x.x.x
-	 */
 	public function get_slug(): string {
 		return 'masterstudy';
 	}
 
-	/**
-	 * @since x.x.x
-	 */
 	public function get_label(): string {
 		return 'MasterStudy';
 	}
 
-	/**
-	 * @since x.x.x
-	 */
 	public function get_plugin_file(): string {
 		return 'masterstudy-lms-learning-management-system/masterstudy-lms-learning-management-system.php';
 	}
 
-	/**
-	 * @since x.x.x
-	 */
 	public function get_steps(): array {
-		return array( 'users', 'courses', 'enrollments', 'orders', 'reviews', 'lesson_progress', 'quiz_attempts', 'wishlists' );
+		/**
+		 * Filters the ordered migration steps for this migrator.
+		 *
+		 * Contributed steps are appended after the shared ones.
+		 *
+		 * @param string[] $steps Ordered step names.
+		 * @param string   $slug  Migrator slug, e.g. 'masterstudy'.
+		 */
+		return (array) apply_filters(
+			'masteriyo_migration_tool_steps',
+			array( 'users', 'courses', 'enrollments', 'orders', 'reviews', 'lesson_progress', 'quiz_attempts', 'wishlists' ),
+			$this->get_slug()
+		);
 	}
 
 	/**
@@ -63,15 +59,22 @@ class MasterStudyMigrator extends AbstractLMSMigrator {
 	 *
 	 * Wishlists are stored in core MasterStudy user meta — activate whenever data exists.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return string[]
 	 */
 	public function get_addons_to_activate( string $step ): array {
-		if ( 'wishlists' === $step ) {
-			return array( 'wishlist' );
-		}
-
-		return array();
+		/**
+		 * Filters the Masteriyo addon slugs to activate for a migration step.
+		 *
+		 * @param string[] $addons Addon slugs.
+		 * @param string   $step   Step name.
+		 * @param string   $slug   Migrator slug, e.g. 'masterstudy'.
+		 */
+		return (array) apply_filters(
+			'masteriyo_migration_tool_addons_to_activate',
+			'wishlists' === $step ? array( 'wishlist' ) : array(),
+			$step,
+			$this->get_slug()
+		);
 	}
 }

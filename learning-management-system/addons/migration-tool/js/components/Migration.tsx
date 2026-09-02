@@ -27,11 +27,12 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomAlert from '../../../../assets/js/back-end/components/common/CustomAlert';
 import routes from '../../../../assets/js/back-end/constants/routes';
+import { getPluginName } from '../../../../assets/js/back-end/utils/plugin-name';
 import backendUrls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
 import { urls } from '../constants/urls';
@@ -101,6 +102,7 @@ const LMS_DESCRIPTIONS: Record<string, string[]> = {
 		'Orders',
 		'Course Progress',
 		'Quiz Attempts',
+		'Assignments',
 	],
 	learnpress: [
 		'Courses',
@@ -128,7 +130,10 @@ const LMS_DESCRIPTIONS: Record<string, string[]> = {
 		'Reviews',
 		'Course Progress',
 		'Quiz Attempts',
+		'Assignments',
 		'Wishlists',
+		'Zoom',
+		'Course Bundles',
 	],
 	tutor: [
 		'Courses',
@@ -140,8 +145,12 @@ const LMS_DESCRIPTIONS: Record<string, string[]> = {
 		'Announcements',
 		'Course Progress',
 		'Quiz Attempts',
-		'Google Meet',
+		'Assignments',
 		'Wishlists',
+		'Google Meet',
+		'Zoom',
+		'Course Bundles',
+		'Gradebook',
 	],
 };
 
@@ -441,9 +450,13 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 								<Text as="strong">
 									{lastCompleted.lms_label || lastCompleted.lms_slug}
 								</Text>{' '}
-								{__(
-									'was successfully migrated into Masteriyo',
-									'learning-management-system',
+								{sprintf(
+									// translators: %s: the product's name.
+									__(
+										'was successfully migrated into %s',
+										'learning-management-system',
+									),
+									getPluginName(),
 								)}
 								{lastCompleted.completed_at
 									? ` ${__('on', 'learning-management-system')} ${new Date(lastCompleted.completed_at * 1000).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
@@ -585,9 +598,13 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 								<>
 									{__('All data from', 'learning-management-system')}{' '}
 									<Text as="strong">{selectedLMS?.label}</Text>{' '}
-									{__(
-										'has been successfully migrated into Masteriyo.',
-										'learning-management-system',
+									{sprintf(
+										// translators: %s: the product's name.
+										__(
+											'has been successfully migrated into %s.',
+											'learning-management-system',
+										),
+										getPluginName(),
 									)}
 									{hasLogsLink && (
 										<>
@@ -635,12 +652,12 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 								activeSessionQuery.isLoading)
 					}
 					isLoading={startMutation.isPending && !resumableSession}
-					loadingText={__('Starting...', 'learning-management-system')}
+					loadingText={__('Starting…', 'learning-management-system')}
 					colorScheme="primary"
 					boxShadow="none"
 				>
 					{sessionId
-						? __('Migrating...', 'learning-management-system')
+						? __('Migrating…', 'learning-management-system')
 						: resumableSession
 							? __('View Progress', 'learning-management-system')
 							: __('Start Migration', 'learning-management-system')}
@@ -670,7 +687,11 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 										'learning-management-system',
 									)}{' '}
 									<Text as="strong">{selectedLMS?.label}</Text>{' '}
-									{__('into Masteriyo. Always', 'learning-management-system')}{' '}
+									{sprintf(
+										// translators: %s: the product's name.
+										__('into %s. Always', 'learning-management-system'),
+										getPluginName(),
+									)}{' '}
 									<Text as="strong">
 										{__('back up your database', 'learning-management-system')}
 									</Text>{' '}

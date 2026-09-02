@@ -10,7 +10,7 @@ abstract class Migration {
 	/**
 	 * The name of the database connection to use.
 	 *
-	 * @var wpdb
+	 * @var \wpdb
 	 */
 	protected $connection;
 
@@ -79,5 +79,4 @@ abstract class Migration {
 	 * Reverse the migration
 	 */
 	abstract public function down();
-
 }

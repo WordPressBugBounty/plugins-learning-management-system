@@ -354,7 +354,7 @@ class WithdrawsController extends PostsController {
 	/**
 	 * Get a collection of withdraws.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -382,7 +382,7 @@ class WithdrawsController extends PostsController {
 		/**
 		 * Filters objects collection before processing.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param array $objects Objects collection.
 		 * @param array $query_vars Query vars.
@@ -397,7 +397,7 @@ class WithdrawsController extends PostsController {
 		/**
 		 * Filters objects collection after processing.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param array $objects Objects collection.
 		 * @param array $query_vars Query vars.
@@ -430,7 +430,6 @@ class WithdrawsController extends PostsController {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -520,6 +519,39 @@ class WithdrawsController extends PostsController {
 
 		if ( isset( $request['withdraw_method'] ) ) {
 			$withdraw->set_withdraw_method( $request['withdraw_method'] );
+		}
+
+		if ( $creating ) {
+			global $wpdb;
+
+			// The balance read and the insert are separate statements, so two
+			// concurrent requests could both pass the check on the same balance.
+			// A per-user advisory lock serializes them; MySQL releases it when
+			// this request's connection closes, after the insert has committed.
+			$lock = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 5 )', 'masteriyo_withdraw_' . get_current_user_id() ) );
+
+			if ( '1' !== (string) $lock ) {
+				return new WP_Error(
+					'masteriyo_rest_withdraw_in_progress',
+					__( 'Another withdraw request is being processed. Please try again.', 'learning-management-system' ),
+					array( 'status' => 409 )
+				);
+			}
+
+			$earning_summary = masteriyo_get_earning_summary( get_current_user_id() );
+
+			// Rounded to cents on both sides: the balance arrives from a SQL
+			// double, so an exact remainder must not lose to representation noise.
+			$amount       = round( (float) $withdraw->get_withdraw_amount(), 2 );
+			$withdrawable = round( (float) $earning_summary['withdrawable_amount'], 2 );
+
+			if ( $amount <= 0 || $amount > $withdrawable ) {
+				return new WP_Error(
+					'masteriyo_rest_invalid_withdraw_amount',
+					__( 'The withdraw amount must be greater than zero and cannot exceed your withdrawable balance.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $withdraw, $request, $creating );

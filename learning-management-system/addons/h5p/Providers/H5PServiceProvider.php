@@ -1,8 +1,6 @@
 <?php
 /**
  * H5P addon service provider.
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\H5P\Providers;
@@ -14,15 +12,11 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 
 /**
  * H5PServiceProvider class.
- *
- * @since x.x.x
  */
 class H5PServiceProvider extends AbstractServiceProvider {
 
 	/**
 	 * Check if the service provider provides a specific service.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool
@@ -40,8 +34,6 @@ class H5PServiceProvider extends AbstractServiceProvider {
 
 	/**
 	 * Register services with the container.
-	 *
-	 * @since x.x.x
 	 */
 	public function register(): void {
 		$this->getContainer()->addShared( 'addons.h5p', H5PAddon::class );

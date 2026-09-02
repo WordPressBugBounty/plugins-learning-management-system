@@ -3,7 +3,6 @@
  * Update User ability.
  *
  * @package Masteriyo\Abilities\Domains\User
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\User;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: update a user's profile.
- *
- * @since x.x.x
  */
 class UpdateUserAbility extends RestProxyAbility {
 

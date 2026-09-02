@@ -2,7 +2,7 @@
 /**
 * Fluent CRM Integration add to course action.
 *
-* @since 1.14.0
+* @since 1.14.0 [free]
 * @package Masteriyo\Addons\FluentCRM
 */
 // phpcs:ignoreFile
@@ -22,7 +22,7 @@ class AddToCourseAction extends BaseAction {
 	/**
 	 * AddToCourseAction constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function __construct() {
 		$this->actionName = 'masteriyo_lms_add_to_course';
@@ -31,15 +31,19 @@ class AddToCourseAction extends BaseAction {
 	}
 
 	/**
-	 * Get the block settings.
+	 * Get block settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
 	public function getBlock() {
 		return array(
-			'category'    => __( 'Masteriyo LMS', 'learning-management-system' ),
+			'category'    => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s LMS', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'title'       => __( 'Enroll To Course', 'learning-management-system' ),
 			'description' => __( 'Enroll the contact to a specific LMS Course', 'learning-management-system' ),
 			'icon'        => 'dashicons dashicons-welcome-learn-more',
@@ -52,9 +56,9 @@ class AddToCourseAction extends BaseAction {
 	}
 
 	/**
-	 * Get the block fields.
+	 * Get block fields.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return array
 	 */
@@ -101,7 +105,7 @@ class AddToCourseAction extends BaseAction {
 	/**
 	 * Handle the action.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param mixed $subscriber
 	 * @param mixed $sequence

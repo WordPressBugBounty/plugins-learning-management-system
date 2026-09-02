@@ -39,7 +39,13 @@ class YoastSeo {
 	 */
 	public function update_simple_page_id( $page_id ) {
 		if ( masteriyo_is_courses_page() ) {
-			$page_id = masteriyo_get_page_id( 'courses' );
+			$courses_page_id = masteriyo_get_page_id( 'courses' );
+
+			// Sites without a Courses page (#665) read -1 here, and handing a truthy
+			// bogus ID to Yoast is worse than leaving its own value alone.
+			if ( 0 < $courses_page_id ) {
+				$page_id = $courses_page_id;
+			}
 		}
 
 		return $page_id;

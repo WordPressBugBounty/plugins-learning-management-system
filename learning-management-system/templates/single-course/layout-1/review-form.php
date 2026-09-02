@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Fires before rendering author and rating section in single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_before_single_course_review_form' );
 
@@ -78,7 +78,13 @@ do_action( 'masteriyo_before_single_course_review_form' );
 						class="masteriyo-single--review-cancel masteriyo-btn masteriyo-btn-secondary"
 						id="masteriyo-cancel-review-form"
 					>
-						<?php esc_html_e( 'Cancel', 'learning-management-system' ); ?>
+						<?php
+						echo esc_html_x(
+							'Cancel',
+							'button label to cancel course review form',
+							'learning-management-system'
+						);
+						?>
 					</button>
 					<button
 						type="submit"
@@ -125,6 +131,6 @@ do_action( 'masteriyo_before_single_course_review_form' );
 /**
  * Fires after rendering author and rating section in single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_after_single_course_review_form' );

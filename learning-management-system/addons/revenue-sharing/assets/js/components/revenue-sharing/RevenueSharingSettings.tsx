@@ -57,6 +57,8 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 
 	const watchFeeEnable = useWatch({
 		name: 'payments.revenue_sharing.deductible_fee.enable',
+		// `?? false` is load-bearing: the effect below tests `=== false`, and
+		// `undefined` would not match it on a never-configured site.
 		defaultValue: props.data?.deductible_fee?.enable ?? false,
 		control,
 	});
@@ -80,6 +82,12 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 			setValue('payments.revenue_sharing.instructor_rate', 100 - admin_rate);
 		}
 	}, [admin_rate, setValue]);
+
+	useEffect(() => {
+		if (watchFeeEnable === false) {
+			setValue('payments.revenue_sharing.deductible_fee.amount', 0);
+		}
+	}, [watchFeeEnable, setValue]);
 
 	return (
 		<SingleComponentsWrapper
@@ -221,8 +229,12 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 												display="flex"
 												gap="2"
 											>
-												<Radio value="percentage">{__('Percentage')}</Radio>
-												<Radio value="fixed">{__('Fixed')}</Radio>
+												<Radio value="percentage">
+													{__('Percentage', 'learning-management-system')}
+												</Radio>
+												<Radio value="fixed">
+													{__('Fixed', 'learning-management-system')}
+												</Radio>
 											</RadioGroup>
 										)}
 									/>
@@ -385,5 +397,4 @@ const RevenueSharingSettings: React.FC<Props> = (props) => {
 		</SingleComponentsWrapper>
 	);
 };
-
 export default RevenueSharingSettings;

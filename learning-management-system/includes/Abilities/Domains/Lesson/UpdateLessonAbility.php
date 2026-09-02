@@ -3,7 +3,6 @@
  * Update Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports partial updates — only the supplied fields are changed.
  * Commonly used to update lesson content, title, video URL, or duration.
- *
- * @since x.x.x
  */
 class UpdateLessonAbility extends RestProxyAbility {
 

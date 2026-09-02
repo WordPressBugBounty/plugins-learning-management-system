@@ -15,6 +15,7 @@ use JsonMachine\JsonDecoder\ExtJsonDecoder;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Jobs\CoursesImportJob;
 use Masteriyo\PostType\PostType;
+use WP_Error;
 
 /**
  * Course Importer class.
@@ -54,7 +55,7 @@ class CourseImporter {
 	/**
 	 * Starts the import process.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file The file to import.
 	 *
@@ -145,11 +146,10 @@ class CourseImporter {
 		do_action( 'masteriyo_after_import', $items, $this->history );
 	}
 
-
 	/**
 	 * Schedule a job.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	protected function schedule_tasks( $file ) {
 		as_enqueue_async_action( CoursesImportJob::NAME, array( $file ), CoursesImportJob::GROUP_NAME );
@@ -159,7 +159,7 @@ class CourseImporter {
 	 * Import all types of posts.
 	 *
 	 * @since 1.6.0
-	 *
+	 * @param array $posts Array of posts.
 	 * @param bool  $lesson_only Lesson only. Default is false.
 	 *
 	 * @return void
@@ -172,6 +172,7 @@ class CourseImporter {
 			) {
 				continue;
 			}
+
 			if ( $lesson_only && ( in_array( $post['post_type'], array( PostType::QUIZ, PostType::QUESTION ), true ) ) ) {
 				continue;
 			}
@@ -363,7 +364,7 @@ class CourseImporter {
 	/**
 	 * Set post attachments.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param array $attachments_to_set Array of attachments data.
 	 */
@@ -373,6 +374,211 @@ class CourseImporter {
 		}
 
 		$this->import_posts( $attachments_to_set );
+	}
+
+	/**
+	 * Mime types that must never be republished from the site's own origin.
+	 *
+	 * @var string[]
+	 */
+	const UNSAFE_MIME_TYPES = array(
+		'text/html',
+		'application/xhtml+xml',
+		'text/javascript',
+		'application/javascript',
+		'application/x-javascript',
+		'image/svg+xml',
+		'text/xml',
+		'application/xml',
+	);
+
+	/**
+	 * Redirect hops followed while fetching a remote file, matching WordPress' own default.
+	 *
+	 * @var int
+	 */
+	const MAX_REDIRECTS = 5;
+
+	/**
+	 * Check whether a remote file may be fetched and stored as an attachment.
+	 *
+	 * @param string $url Remote URL.
+	 * @param string $file_name File name derived from the URL.
+	 *
+	 * @return true|\WP_Error
+	 */
+	protected function validate_remote_file_url( $url, $file_name ) {
+		$target = $this->validate_remote_url_target( $url );
+
+		if ( is_wp_error( $target ) ) {
+			return $target;
+		}
+
+		$file_type = wp_check_filetype( $file_name );
+
+		if ( empty( $file_type['type'] ) || in_array( $file_type['type'], self::UNSAFE_MIME_TYPES, true ) ) {
+			return new \WP_Error(
+				'import_file_error',
+				__( 'The attachment file type is not allowed for import.', 'learning-management-system' )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * The name a remote file is stored under, taken from the URL path.
+	 *
+	 * A signed or CDN media URL carries its token in the query string, which
+	 * basename() would keep — leaving a name with no recognisable extension.
+	 *
+	 * @param string $url Remote URL.
+	 *
+	 * @return string
+	 */
+	protected function remote_file_name( $url ) {
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+
+		return wp_basename( '' === $path ? $url : $path );
+	}
+
+	/**
+	 * Check whether a URL is one the server may request at all.
+	 *
+	 * Applied to the URL the import file names and again to every redirect it
+	 * answers with, since a public URL can redirect to a private one.
+	 *
+	 * @param string $url Remote URL.
+	 *
+	 * @return true|\WP_Error
+	 */
+	protected function validate_remote_url_target( $url ) {
+		if ( ! wp_http_validate_url( $url ) ) {
+			return new \WP_Error(
+				'import_file_error',
+				__( 'Only public http and https attachment URLs can be imported.', 'learning-management-system' )
+			);
+		}
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( ! $this->is_site_host( $host ) && ! $this->is_public_host( $host ) ) {
+			return new \WP_Error(
+				'import_file_error',
+				__( 'Attachment URLs pointing to a private or reserved address cannot be imported.', 'learning-management-system' )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check whether a host is this site's own host.
+	 *
+	 * @param string $host Host name.
+	 *
+	 * @return boolean
+	 */
+	protected function is_site_host( $host ) {
+		$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		return ! empty( $site_host ) && strtolower( $site_host ) === strtolower( trim( $host, '.[]' ) );
+	}
+
+	/**
+	 * Check whether every address a host resolves to is routable and public.
+	 *
+	 * One answer is not enough: a host can publish a public A record beside a
+	 * private or link-local one and the transport can connect to either. Same
+	 * shape as CertificatePDF::is_safe_remote_image_url().
+	 *
+	 * @param string $host Host name or IP address.
+	 *
+	 * @return boolean
+	 */
+	protected function is_public_host( $host ) {
+		$host = trim( (string) $host, '.[]' );
+		$ips  = array();
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			$ips[] = $host;
+		} else {
+			$records = function_exists( 'dns_get_record' ) ? @dns_get_record( $host, DNS_A | DNS_AAAA ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+			if ( is_array( $records ) ) {
+				foreach ( $records as $record ) {
+					if ( ! empty( $record['ip'] ) ) {
+						$ips[] = $record['ip'];
+					}
+					if ( ! empty( $record['ipv6'] ) ) {
+						$ips[] = $record['ipv6'];
+					}
+				}
+			}
+
+			if ( empty( $ips ) ) {
+				$resolved = gethostbyname( $host );
+
+				if ( $resolved && $resolved !== $host ) {
+					$ips[] = $resolved;
+				}
+			}
+		}
+
+		if ( empty( $ips ) ) {
+			return false;
+		}
+
+		foreach ( $ips as $ip ) {
+			if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Stream a remote file, validating each redirect target before following it.
+	 *
+	 * @param string $url Remote URL.
+	 * @param string $filename Local file to stream into.
+	 *
+	 * @return array|\WP_Error
+	 */
+	protected function request_remote_file( $url, $filename ) {
+		for ( $hop = 0; $hop <= self::MAX_REDIRECTS; $hop++ ) {
+			$response = wp_remote_get(
+				$url,
+				array(
+					'stream'      => true,
+					'filename'    => $filename,
+					'redirection' => 0,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$location = wp_remote_retrieve_header( $response, 'location' );
+
+			if ( ! in_array( intval( wp_remote_retrieve_response_code( $response ) ), array( 301, 302, 303, 307, 308 ), true ) || empty( $location ) ) {
+				return $response;
+			}
+
+			$url    = \WP_Http::make_absolute_url( $location, $url );
+			$target = $this->validate_remote_url_target( $url );
+
+			if ( is_wp_error( $target ) ) {
+				return $target;
+			}
+		}
+
+		return new \WP_Error(
+			'import_file_error',
+			__( 'The attachment URL redirected too many times.', 'learning-management-system' )
+		);
 	}
 
 	/**
@@ -387,7 +593,13 @@ class CourseImporter {
 	 * @return array|\WP_Error
 	 */
 	protected function fetch_remote_file( $url, $post ) {
-		$file_name  = basename( $url );
+		$file_name  = $this->remote_file_name( $url );
+		$validation = $this->validate_remote_file_url( $url, $file_name );
+
+		if ( is_wp_error( $validation ) ) {
+			return $validation;
+		}
+
 		$filesystem = masteriyo_get_filesystem();
 
 		if ( ! $filesystem ) {
@@ -402,13 +614,7 @@ class CourseImporter {
 			return new \WP_Error( 'upload_dir_error', $upload['error'] );
 		}
 
-		$response = wp_remote_get(
-			$url,
-			array(
-				'stream'   => true,
-				'filename' => $upload['file'],
-			)
-		);
+		$response = $this->request_remote_file( $url, $upload['file'] );
 
 		if ( is_wp_error( $response ) ) {
 			$filesystem->delete( $upload['file'] );
@@ -440,6 +646,18 @@ class CourseImporter {
 			return new \WP_Error( 'import_file_error', __( 'Zero size file downloaded', 'learning-management-system' ) );
 		}
 
+		// The name promised a media file; the bytes have to agree. Same check
+		// every human upload passes through.
+		$verified = wp_check_filetype_and_ext( $upload['file'], wp_basename( $upload['file'] ) );
+
+		if ( empty( $verified['type'] ) || in_array( $verified['type'], self::UNSAFE_MIME_TYPES, true ) ) {
+			$filesystem->delete( $upload['file'] );
+			return new \WP_Error(
+				'import_file_error',
+				__( 'The downloaded attachment does not match its file type.', 'learning-management-system' )
+			);
+		}
+
 		return $upload;
 	}
 
@@ -452,7 +670,6 @@ class CourseImporter {
 	 */
 	protected function import_terms( $terms ) {
 		$terms = isset( $terms['terms'] ) ? $terms['terms'] : $terms;
-
 		foreach ( $terms as $term ) {
 			$term_id = term_exists( $term['slug'], $term['taxonomy'] );
 

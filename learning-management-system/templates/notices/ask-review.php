@@ -11,19 +11,36 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <div class="masteriyo-notice masteriyo-review-notice updated">
 	<div class="masteriyo-notice-main-content">
-		<?php masteriyo_get_svg( 'heart', true ); ?>
+		<?php masteriyo_get_svg( 'heart-outline', true ); ?>
 		<div class="masteriyo-notice-main-content-wrapper">
 			<p class="masteriyo-notice__title">
-				<?php esc_html_e( 'Love using LMS by Masteriyo?', 'learning-management-system' ); ?>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( 'Love using LMS by %s?', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				);
+				?>
 			</p>
 			<div class="masteriyo-notice__description">
-				Please do us a favor by providing 5-star <div class="star-icons">
+				<?php esc_html_e( 'Please do us a favor by providing 5-star', 'learning-management-system' ); ?> <div class="star-icons">
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
 					<?php masteriyo_get_svg( 'full_star', true ); ?>
-				</div> rating at WordPress.org. Let us know <a href="https://masteriyo.com/contact/" class="masteriyo-notice-link" target="_blank">here</a> if you have any query. - Masteriyo Team
+				</div>
+				<?php
+				printf(
+					/* translators: %1$s, %2$s: link markup around "here", %3$s: the product's name */
+					esc_html__( 'rating at WordPress.org. Let us know %1$shere%2$s if you have any query. - %3$s Team', 'learning-management-system' ),
+					'<a href="https://masteriyo.com/contact/" class="masteriyo-notice-link" target="_blank" rel="noopener noreferrer">',
+					'</a>',
+					esc_html( masteriyo_get_plugin_name() )
+				);
+				?>
 			</div>
 		</div>
 		<div class="masteriyo-x-icon-container">

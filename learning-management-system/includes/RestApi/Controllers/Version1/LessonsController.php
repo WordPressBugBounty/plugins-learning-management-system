@@ -11,10 +11,16 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\AudioSource;
+use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use Masteriyo\Enums\SectionChildrenPostType;
+use Masteriyo\Enums\VideoSource;
 use Masteriyo\Helper\Permission;
-use Masteriyo\Pro\Addons;
+use Masteriyo\PostType\PostType;
+use Masteriyo\AddonsFramework\Addons;
+use WP_Error;
 
 class LessonsController extends PostsController {
 	/**
@@ -141,7 +147,69 @@ class LessonsController extends PostsController {
 			)
 		);
 
-		// @since 1.9.3 Added clone endpoint to lessons REST API.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/bulk-update',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'bulk_update_items' ),
+					'permission_callback' => array( $this, 'bulk_update_items_permissions_check' ),
+					'args'                => array(
+						'ids'        => array(
+							'description' => __( 'IDs of the lessons to update.', 'learning-management-system' ),
+							'type'        => 'array',
+							'items'       => array( 'type' => 'integer' ),
+							'required'    => true,
+						),
+						'video_meta' => array(
+							'description'          => __( 'Video settings to apply to every lesson.', 'learning-management-system' ),
+							'type'                 => 'object',
+							'properties'           => array(
+								'enable_video_share' => array( 'type' => 'boolean' ),
+								'enable_right_button_click' => array( 'type' => 'boolean' ),
+							),
+							'additionalProperties' => false,
+							'validate_callback'    => 'rest_validate_request_arg',
+							'sanitize_callback'    => 'rest_sanitize_request_arg',
+						),
+						'status'     => array(
+							'description'       => __( 'Status to apply to every lesson.', 'learning-management-system' ),
+							'type'              => 'string',
+							'enum'              => array( PostStatus::DRAFT, PostStatus::PUBLISH ),
+							'validate_callback' => 'rest_validate_request_arg',
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/delete',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_items' ),
+					'permission_callback' => array( $this, 'delete_items_permissions_check' ),
+					'args'                => array(
+						'ids'   => array(
+							'required'    => true,
+							'description' => __( 'Lesson IDs.', 'learning-management-system' ),
+							'type'        => 'array',
+						),
+						'force' => array(
+							'default'     => false,
+							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'type'        => 'boolean',
+						),
+					),
+				),
+			)
+		);
+
+		// @since 2.5.7 Added clone endpoint to lessons REST API.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/clone',
@@ -189,8 +257,6 @@ class LessonsController extends PostsController {
 	/**
 	 * Restore a trashed lesson.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|WP_REST_Response
 	 */
@@ -212,8 +278,6 @@ class LessonsController extends PostsController {
 		/**
 		 * Fires after a lesson is restored from trash.
 		 *
-		 * @since x.x.x
-		 *
 		 * @param int                      $id     Lesson ID.
 		 * @param \Masteriyo\Models\Lesson $object Lesson object.
 		 */
@@ -227,7 +291,118 @@ class LessonsController extends PostsController {
 	}
 
 	/**
-	 * Get the query params for collections of attachments.
+	 * Gate the bulk update on the collection cap; each ID is re-checked in the loop.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_Error|boolean
+	 */
+	public function bulk_update_items_permissions_check( $request ) {
+		$permission = $this->update_item_permissions_check( $request );
+
+		if ( true !== $permission ) {
+			return $permission;
+		}
+
+		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'batch' ) ) {
+			return new WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Apply one set of settings to many lessons.
+	 *
+	 * Fields sit at the top level so raw-request addons (content drip) run per lesson.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function bulk_update_items( $request ) {
+		$ids = array_unique( array_filter( array_map( 'absint', (array) $request['ids'] ) ) );
+
+		if ( empty( $ids ) ) {
+			return new WP_Error(
+				'masteriyo_rest_lesson_invalid_ids',
+				__( 'No lesson was selected.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$video_meta = $request['video_meta'];
+		$fields     = is_array( $video_meta ) ? array( 'video_meta' => $video_meta ) : array();
+
+		if ( ! empty( $request['status'] ) ) {
+			$fields['status'] = $request['status'];
+		}
+
+		$updated = array();
+		$failed  = array();
+
+		foreach ( $ids as $id ) {
+			$item = new \WP_REST_Request( 'PUT' );
+			$item->set_body_params( array( 'id' => $id ) );
+
+			/** @var \WP_Error|bool $permission */
+			$permission = $this->update_item_permissions_check( $item );
+
+			if ( true !== $permission ) {
+				$failed[] = array(
+					'id'      => $id,
+					'message' => is_wp_error( $permission )
+						? $permission->get_error_message()
+						: __( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				);
+				continue;
+			}
+
+			$lesson = $this->get_object( $id );
+
+			if ( ! $lesson || 0 === $lesson->get_id() ) {
+				$failed[] = array(
+					'id'      => $id,
+					'message' => __( 'Invalid ID', 'learning-management-system' ),
+				);
+				continue;
+			}
+
+			$body = array_merge( $fields, array( 'id' => $id ) );
+
+			// set_video_meta() replaces the whole array, so carry over the keys the bulk form does not touch.
+			if ( isset( $fields['video_meta'] ) ) {
+				$body['video_meta'] = array_merge( (array) $lesson->get_video_meta( 'edit' ), $fields['video_meta'] );
+			}
+
+			$item->set_body_params( $body );
+
+			/** @var \WP_Error|\WP_REST_Response $response */
+			$response = $this->update_item( $item );
+
+			if ( is_wp_error( $response ) ) {
+				$failed[] = array(
+					'id'      => $id,
+					'message' => $response->get_error_message(),
+				);
+				continue;
+			}
+
+			$updated[] = $id;
+		}
+
+		return rest_ensure_response(
+			array(
+				'updated' => $updated,
+				'failed'  => $failed,
+			)
+		);
+	}
+
+	/**
+	 * Get the query params for collections of download_materials.
 	 *
 	 * @since 1.0.0
 	 *
@@ -353,15 +528,25 @@ class LessonsController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $lesson, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-		$description           = '';
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $lesson->get_description() ) ) ) : $lesson->get_description( $context );
+		if ( 'view' === $context ) {
+			/**
+			 * Filters the raw lesson description before shortcodes are processed.
+			 *
+			 * Compatibility layers (e.g. H5P) use this to replace shortcodes that
+			 * require server-side script enqueueing (like [h5p]) with iframe-based
+			 * equivalents before do_shortcode() runs, so the original shortcode
+			 * tags are still present and matchable by regex.
+			 *
+			 * @param string $raw_description Raw lesson description with shortcode tags.
+			 * @param \Masteriyo\Models\Lesson $lesson Lesson instance.
+			 * @param string $context Request context ('view' or 'edit').
+			 */
+			$raw = apply_filters( 'masteriyo_lesson_description_pre_shortcode', wp_kses_post( $lesson->get_description() ), $lesson, $context );
+
+			return masteriyo_format_content_for_view( $raw );
 		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( wp_kses_post( $lesson->get_description() ) ) : $lesson->get_description( $context );
-		}
-		return $description;
+
+		return $lesson->get_description( $context );
 	}
 
 	/**
@@ -394,37 +579,45 @@ class LessonsController extends PostsController {
 		);
 
 		$data = array(
-			'id'                        => $lesson->get_id(),
-			'name'                      => wp_specialchars_decode( $lesson->get_name( $context ) ),
-			'slug'                      => $lesson->get_slug( $context ),
-			'permalink'                 => $lesson->get_permalink(),
-			'preview_link'              => $lesson->get_preview_link(),
-			'status'                    => $lesson->get_status( $context ),
-			'description'               => $this->description_data( $lesson, $context ),
-			'short_description'         => $short_description,
-			'date_created'              => masteriyo_rest_prepare_date_response( $lesson->get_date_created( $context ) ),
-			'date_modified'             => masteriyo_rest_prepare_date_response( $lesson->get_date_modified( $context ) ),
-			'menu_order'                => $lesson->get_menu_order( $context ),
-			'parent_menu_order'         => $section ? $section->get_menu_order( $context ) : 0,
-			'reviews_allowed'           => $lesson->get_reviews_allowed( $context ),
-			'parent_id'                 => $lesson->get_parent_id( $context ),
-			'course_id'                 => $course ? $course->get_id() : 0,
-			'course_name'               => $course ? wp_specialchars_decode( $course->get_name( $context ) ) : '',
-			'featured_image'            => $lesson->get_featured_image( $context ),
-			'video_source'              => $lesson->get_video_source( $context ),
-			'video_source_url'          => $lesson->get_video_source_url( $context ),
-			'video_source_id'           => $lesson->get_video_source_id( $context ),
-			'video_playback_time'       => $lesson->get_video_playback_time( $context ),
-			'download_materials'        => $this->get_download_materials( $lesson, $context ),
-			'video_meta'                => $lesson->get_video_meta( $context ),
-			'user_progress_videos_meta' => $user_progress_videos_meta,
-			'navigation'                => $this->get_navigation_items( $lesson, $context ),
-			'ends_at'                   => masteriyo_rest_prepare_date_response( $lesson->get_ends_at( $context ) ),
-			'starts_at'                 => masteriyo_rest_prepare_date_response( $lesson->get_starts_at( $context ) ),
-			'live_chat_enabled'         => $lesson->get_live_chat_enabled( $context ),
-			'enable_lesson_comment'     => masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ),
-			'custom_fields'             => $lesson->get_custom_fields( $context ),
-			'lesson_type'               => $lesson->get_lesson_type( $context ),
+			'id'                         => $lesson->get_id(),
+			'name'                       => wp_specialchars_decode( $lesson->get_name( $context ) ),
+			'slug'                       => $lesson->get_slug( $context ),
+			'permalink'                  => $lesson->get_permalink(),
+			'preview_link'               => $lesson->get_preview_link(),
+			'status'                     => $lesson->get_status( $context ),
+			'description'                => $this->description_data( $lesson, $context ),
+			'short_description'          => $short_description,
+			'date_created'               => masteriyo_rest_prepare_date_response( $lesson->get_date_created( $context ) ),
+			'date_modified'              => masteriyo_rest_prepare_date_response( $lesson->get_date_modified( $context ) ),
+			'menu_order'                 => $lesson->get_menu_order( $context ),
+			'parent_menu_order'          => $section ? $section->get_menu_order( $context ) : 0,
+			'reviews_allowed'            => $lesson->get_reviews_allowed( $context ),
+			'parent_id'                  => $lesson->get_parent_id( $context ),
+			'course_id'                  => $course ? $course->get_id() : 0,
+			'course_name'                => $course ? wp_specialchars_decode( $course->get_name( $context ) ) : '',
+			'featured_image'             => $lesson->get_featured_image( $context ),
+			'video_source'               => $this->get_video_source( $lesson->get_video_source( $context ) ),
+			'video_source_url'           => $this->get_video_source_url( $lesson, $context ),
+			'video_source_id'            => $lesson->get_video_source_id( $context ),
+			'video_playback_time'        => $lesson->get_video_playback_time( $context ),
+			'download_materials'         => $this->get_download_materials( $lesson, $context, $course ),
+			'download_materials_message' => $this->get_download_materials_message( $lesson, $context, $course ),
+			'video_meta'                 => $lesson->get_video_meta( $context ),
+			'user_progress_videos_meta'  => $user_progress_videos_meta,
+			'navigation'                 => $this->get_navigation_items( $lesson, $context ),
+			'ends_at'                    => masteriyo_rest_prepare_date_response( $lesson->get_ends_at( $context ) ),
+			'starts_at'                  => masteriyo_rest_prepare_date_response( $lesson->get_starts_at( $context ) ),
+			'live_chat_enabled'          => $lesson->get_live_chat_enabled( $context ),
+			'pdf'                        => $lesson->get_pdf( $context ) ? $lesson->get_pdf( $context ) : null,
+			'pdf_downloadable'           => $lesson->get_pdf_downloadable( $context ),
+			'enable_lesson_comment'      => masteriyo_get_setting( 'learn_page.display.enable_lesson_comment' ),
+			'audio_source'               => $lesson->get_audio_source( $lesson, $context ),
+			'audio_source_url'           => $lesson->get_audio_source_url( $lesson, $context ),
+			'audio_source_files'         => $this->get_audio_source_files( $lesson, $context ),
+			'transform_live_to_video'    => $lesson->get_transform_live_to_video( $context ),
+			'subtitle_meta'              => $lesson->get_subtitle_meta( $context, $lesson->get_id() ),
+			'custom_fields'              => $lesson->get_custom_fields( $context ),
+			'lesson_type'                => $lesson->get_lesson_type( $context ),
 		);
 
 		$video_type       = $lesson->get_video_source( $context );
@@ -458,7 +651,7 @@ class LessonsController extends PostsController {
 	/**
 	 * Get video source.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Models\Lesson $lesson Lesson instance.
 	 * @param string $context Request context.
@@ -477,7 +670,7 @@ class LessonsController extends PostsController {
 	/**
 	 * Get video source url.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Models\Lesson $lesson Lesson instance.
 	 * @param string $context Request context.
@@ -534,139 +727,139 @@ class LessonsController extends PostsController {
 			'title'      => $this->object_type,
 			'type'       => 'object',
 			'properties' => array(
-				'id'                  => array(
+				'id'                         => array(
 					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'name'                => array(
+				'name'                       => array(
 					'description' => __( 'Lesson name', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'slug'                => array(
+				'slug'                       => array(
 					'description' => __( 'Lesson slug', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'permalink'           => array(
+				'permalink'                  => array(
 					'description' => __( 'Lesson URL', 'learning-management-system' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'date_created'        => array(
+				'date_created'               => array(
 					'description' => __( "The date the lesson was created, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_created_gmt'    => array(
+				'date_created_gmt'           => array(
 					'description' => __( 'The date the lesson was created, as GMT.', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'date_modified'       => array(
+				'date_modified'              => array(
 					'description' => __( "The date the lesson was last modified, in the site's timezone.", 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'date_modified_gmt'   => array(
+				'date_modified_gmt'          => array(
 					'description' => __( 'The date the lesson was last modified, as GMT.', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'status'              => array(
+				'status'                     => array(
 					'description' => __( 'Lesson status (post status).', 'learning-management-system' ),
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
-				'catalog_visibility'  => array(
+				'catalog_visibility'         => array(
 					'description' => __( 'Catalog visibility', 'learning-management-system' ),
 					'type'        => 'string',
 					'default'     => 'visible',
 					'enum'        => array( 'visible', 'catalog', 'search', 'hidden' ),
 					'context'     => array( 'view', 'edit' ),
 				),
-				'description'         => array(
+				'description'                => array(
 					'description' => __( 'Lesson description', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'short_description'   => array(
+				'short_description'          => array(
 					'description' => __( 'Lesson short description', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'reviews_allowed'     => array(
+				'reviews_allowed'            => array(
 					'description' => __( 'Allow reviews.', 'learning-management-system' ),
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'average_rating'      => array(
+				'average_rating'             => array(
 					'description' => __( 'Reviews average rating.', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'rating_count'        => array(
+				'rating_count'               => array(
 					'description' => __( 'Amount of reviews that the lesson has.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'parent_id'           => array(
+				'parent_id'                  => array(
 					'description' => __( 'Lesson parent ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'course_id'           => array(
+				'course_id'                  => array(
 					'description' => __( 'Course ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'course_name'         => array(
+				'course_name'                => array(
 					'description' => __( 'Course name', 'learning-management-system' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
-				'menu_order'          => array(
+				'menu_order'                 => array(
 					'description' => __( 'Menu order, used to custom sort lessons.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'featured_image'      => array(
+				'featured_image'             => array(
 					'description' => __( 'Course featured image.', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'video_source'        => array(
+				'video_source'               => array(
 					'description' => __( 'Video source', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
-					'default'     => 'self-hosted',
+					'default'     => VideoSource::SELF_HOSTED,
 					'enum'        => array_keys( masteriyo_get_lesson_video_sources() ),
 				),
-				'video_source_url'    => array(
+				'video_source_url'           => array(
 					'description' => __( 'Video source URL', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'video_playback_time' => array(
+				'video_playback_time'        => array(
 					'description' => __( 'Video playback time', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'download_materials'  => array(
+				'download_materials'         => array(
 					'description' => __( 'download_materials', 'learning-management-system' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
@@ -687,6 +880,13 @@ class LessonsController extends PostsController {
 							),
 							'url'                 => array(
 								'description' => __( 'Download material URL', 'learning-management-system' ),
+								'type'        => 'string',
+								'format'      => 'uri',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'preview_url'         => array(
+								'description' => __( 'Download material preview URL (served inline).', 'learning-management-system' ),
 								'type'        => 'string',
 								'format'      => 'uri',
 								'context'     => array( 'view', 'edit' ),
@@ -720,7 +920,80 @@ class LessonsController extends PostsController {
 						),
 					),
 				),
-				'video_meta'          => array(
+				'download_materials_message' => array(
+					'description' => __( 'Message shown when the current user cannot access the download materials.', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'audio_source'               => array(
+					'description' => __( 'Audio source', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'default'     => AudioSource::SELF_HOSTED,
+					'enum'        => array_keys( masteriyo_get_lesson_audio_sources() ),
+				),
+				'audio_source_url'           => array(
+					'description' => __( 'Audio source URL', 'learning-management-system' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'audio_source_files'         => array(
+					'description' => __( 'Audio Lesson Files', 'learning-management-system' ),
+					'type'        => 'array',
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'                  => array(
+								'description' => __( 'Audio file ID', 'learning-management-system' ),
+								'type'        => 'integer',
+								'default'     => 0,
+								'context'     => array( 'view', 'edit' ),
+							),
+							'title'               => array(
+								'description' => __( 'Audio material title', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'url'                 => array(
+								'description' => __( 'Audio material URL', 'learning-management-system' ),
+								'type'        => 'string',
+								'format'      => 'uri',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'mime_type'           => array(
+								'description' => __( 'Audio material mime type', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'file_size'           => array(
+								'description' => __( 'Audio material file size', 'learning-management-system' ),
+								'type'        => 'integer',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'formatted_file_size' => array(
+								'description' => __( 'Audio material formatted file size', 'learning-management-system' ),
+								'type'        => 'string',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'created_at'          => array(
+								'description' => __( 'Audio material creation/upload date.', 'learning-management-system' ),
+								'type'        => 'string',
+								'format'      => 'date-time',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+						),
+					),
+				),
+
+				'video_meta'                 => array(
 					'description' => __( 'Video metadata', 'learning-management-system' ),
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
@@ -771,7 +1044,44 @@ class LessonsController extends PostsController {
 						),
 					),
 				),
-				'meta_data'           => array(
+
+				'subtitle_meta'              => array(
+					'description' => __( 'subtitle metadata', 'learning-management-system' ),
+					'type'        => 'object',
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'subtitle_source' => array(
+								'description' => __( 'source of subtitle file', 'learning-management-system' ),
+								'type'        => 'array',
+								'default'     => array(),
+								'context'     => array( 'view', 'edit' ),
+							),
+							'subtitle_label'  => array(
+								'description' => __( 'Readable Label for Subtitle', 'learning-management-system' ),
+								'type'        => 'string',
+								'default'     => '',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'subtitle_type'   => array(
+								'description' => __( 'Type of subtitle file', 'learning-management-system' ),
+								'type'        => 'string',
+								'default'     => '',
+								'context'     => array( 'view', 'edit' ),
+							),
+
+							'subtitle_kind'   => array(
+								'description' => __( 'Kind of subtitle file like (subtitle/caption/description) etc', 'learning-management-system' ),
+								'type'        => 'string',
+								'default'     => '',
+								'context'     => array( 'view', 'edit' ),
+							),
+						),
+					),
+				),
+
+				'meta_data'                  => array(
 					'description' => __( 'Meta data', 'learning-management-system' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
@@ -797,13 +1107,13 @@ class LessonsController extends PostsController {
 						),
 					),
 				),
-				'custom_fields'       => array(
+				'custom_fields'              => array(
 					'description' => __( 'Custom fields', 'learning-management-system' ),
 					'type'        => 'object',
 					'default'     => '',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'lesson_type'         => array(
+				'lesson_type'                => array(
 					'description' => __( 'Lesson Type', 'learning-management-system' ),
 					'type'        => 'string',
 					'default'     => '',
@@ -826,7 +1136,9 @@ class LessonsController extends PostsController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id     = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+
+		/** @var \Masteriyo\Models\Lesson $lesson */
 		$lesson = masteriyo( 'lesson' );
 
 		if ( 0 !== $id ) {
@@ -853,6 +1165,17 @@ class LessonsController extends PostsController {
 		// Post status.
 		if ( isset( $request['status'] ) ) {
 			$lesson->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : 'draft' );
+		}
+
+		// Publishing must drop a still-pending future date, otherwise
+		// wp_insert_post() flips the status straight back to `future`. Reachable
+		// for content scheduled outside the outline, e.g. from the post editor.
+		if ( isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] ) {
+			$date_created = $lesson->get_date_created( 'edit' );
+
+			if ( $date_created && $date_created->getTimestamp() > time() ) {
+				$lesson->set_date_created( time() );
+			}
 		}
 
 		// Post slug.
@@ -914,6 +1237,11 @@ class LessonsController extends PostsController {
 			}
 
 			$lesson->set_video_source_url( $new_video_source_url );
+
+		}
+
+		if ( isset( $request['subtitle_ids'] ) && ! empty( $request['subtitle_ids'] ) ) {
+				$this->delete_video_subtitle_meta_data( $request['subtitle_ids'], $lesson );
 		}
 
 		// Lesson video playback time.
@@ -925,6 +1253,35 @@ class LessonsController extends PostsController {
 		if ( isset( $request['download_materials'] ) ) {
 			$lesson->set_download_materials( wp_list_pluck( $request['download_materials'], 'id' ) );
 		}
+
+		// Lesson audio source.
+		if ( isset( $request['audio_source'] ) ) {
+			$lesson->set_audio_source( $request['audio_source'] );
+		}
+
+		// Lesson audio source url.
+		if ( isset( $request['audio_source_url'] ) ) {
+			$old_audio_source_url = $lesson->get_audio_source_url();
+			$new_audio_source_url = $request['audio_source_url'];
+
+			$lesson->set_audio_source_url( $new_audio_source_url );
+		}
+
+		// Lesson audio source.
+		if ( isset( $request['audio_source_files'] ) ) {
+			$lesson->set_audio_source_files( wp_list_pluck( $request['audio_source_files'], 'id' ) );
+		}
+
+		// Video meta.
+		if ( isset( $request['video_meta'] ) ) {
+			$lesson->set_video_meta( $request['video_meta'] );
+		}
+
+		// Subtitle meta.
+		if ( $request['subtitle_meta'] && is_array( $request['subtitle_meta'] ) ) {
+			$lesson->set_subtitle_meta( $request['subtitle_meta'] );
+		}
+
 		// Lesson starts_at.
 		if ( isset( $request['starts_at'] ) ) {
 			$lesson->set_starts_at( $request['starts_at'], 'id' );
@@ -947,10 +1304,19 @@ class LessonsController extends PostsController {
 			$lesson->set_live_chat_enabled( $request['live_chat_enabled'] );
 		}
 
-		// Video meta.
-		if ( isset( $request['video_meta'] ) ) {
-			$lesson->set_video_meta( $request['video_meta'] );
+		// Allow Live to Normal Video.
+		if ( isset( $request['transform_live_to_video'] ) ) {
+			$lesson->set_transform_live_to_video( $request['transform_live_to_video'] );
+		}
 
+		// PDF.
+		if ( isset( $request['pdf'] ) ) {
+			$lesson->set_pdf( $request['pdf'] );
+		}
+
+		// PDF Downloadable.
+		if ( isset( $request['pdf_downloadable'] ) ) {
+			$lesson->set_pdf_downloadable( $request['pdf_downloadable'] );
 		}
 
 		// Custom Fields.
@@ -958,25 +1324,25 @@ class LessonsController extends PostsController {
 			$lesson->set_custom_fields( $request['custom_fields'] );
 		}
 
-		// lesson type.
+		// Lesson type.
 		if ( isset( $request['lesson_type'] ) ) {
 			$lesson->set_lesson_type( $request['lesson_type'] );
 		}
-			/**
-			 * Filters an object before it is inserted via the REST API.
-			 *
-			 * The dynamic portion of the hook name, `$this->object_type`,
-			 * refers to the object type slug.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param Masteriyo\Database\Model $lesson Lesson object.
-			 * @param WP_REST_Request $request  Request object.
-			 * @param bool            $creating If is creating a new object.
-			 */
-			return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $lesson, $request, $creating );
-	}
 
+		/**
+		 * Filters an object before it is inserted via the REST API.
+		 *
+		 * The dynamic portion of the hook name, `$this->object_type`,
+		 * refers to the object type slug.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param Masteriyo\Database\Model $lesson Lesson object.
+		 * @param WP_REST_Request $request  Request object.
+		 * @param bool            $creating If is creating a new object.
+		 */
+		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $lesson, $request, $creating );
+	}
 
 	/**
 	 * Prepare links for the request.
@@ -996,18 +1362,18 @@ class LessonsController extends PostsController {
 	}
 
 	/**
-	 * Get lesson download_materials.
+	 * Get lesson audio_lesson_source.
 	 *
-	 * @since 1.9.0
+	 * @since 2.17.0
 	 *
 	 * @param Masteriyo\Models\Lesson $lesson Lesson object.
 	 * @param string $context Request context.
 	 *
 	 * @return array
 	 */
-	protected function get_download_materials( $lesson, $context ) {
-		// Filter invalid download_materials.
-		$download_materials = array_filter(
+	protected function get_audio_source_files( $lesson, $context ) {
+		// Filter invalid audio lesson source.
+		$audio_lesson_source = array_filter(
 			array_map(
 				function( $attachment ) {
 					$post = get_post( $attachment );
@@ -1018,13 +1384,13 @@ class LessonsController extends PostsController {
 
 					return false;
 				},
-				$lesson->get_download_materials( $context )
+				$lesson->get_audio_source_files( $context )
 			)
 		);
 
-		// Convert the download_materials to the response format.
-		$download_materials = array_reduce(
-			$download_materials,
+		// Convert the audio_lesson_source to the response format.
+		$audio_lesson_source = array_reduce(
+			$audio_lesson_source,
 			function( $result, $attachment ) {
 				$file_size = absint( filesize( get_attached_file( $attachment->ID ) ) );
 
@@ -1045,13 +1411,177 @@ class LessonsController extends PostsController {
 		/**
 		 * Lesson attachment filter.
 		 *
-		 * @since 1.9.0
+		 * @since 2.17.0
+		 *
+		 * @return array[] $audio_lesson_source Download materials.
+		 * @param Masteriyo\Models\Lesson $lesson Lesson object.
+		 * @param string $context Context.
+		 */
+		return apply_filters( "masteriyo_rest_{$this->object_type}_audio_source_files", $audio_lesson_source, $lesson, $context );
+	}
+
+	/**
+	 * Get lesson download_materials.
+	 *
+	 * Returns an empty array when the current user cannot access the materials
+	 * (see user_can_access_download_materials()).
+	 *
+	 * API contract note for external consumers (mobile apps, Zapier, headless, etc.):
+	 * for non-open courses the `url`/`preview_url` are nonce-signed admin-ajax
+	 * endpoints, NOT direct file URLs. Those URLs are bound to the requesting
+	 * user's session and expire with the WordPress nonce (~12-24h), so they are
+	 * not portable and should not be stored long-term. Open-access courses still
+	 * return the direct attachment URL. Integrations that need a stable URL should
+	 * authenticate as an authorized user (admin/instructor) and rely on the
+	 * `masteriyo_rest_lesson_download_materials` filter to reshape the URLs.
+	 *
+	 * @since 2.0.2
+	 *
+	 * @param Masteriyo\Models\Lesson $lesson Lesson object.
+	 * @param string $context Request context.
+	 *
+	 * @return array
+	 */
+	protected function get_download_materials( $lesson, $context, $course = null ) {
+		if ( is_null( $course ) ) {
+			$course = masteriyo_get_course( $lesson->get_course_id( $context ) );
+		}
+
+		// Only return materials if the current user has access.
+		if ( ! $this->user_can_access_download_materials( $lesson, $context, $course ) ) {
+			return array();
+		}
+
+		$is_open_course = $course && CourseAccessMode::OPEN === $course->get_access_mode();
+
+		// Filter invalid download_materials.
+		$download_materials = array_filter(
+			array_map(
+				function( $attachment ) {
+					$post = get_post( $attachment );
+
+					if ( $post && 'attachment' === $post->post_type ) {
+						return $post;
+					}
+
+					return false;
+				},
+				$lesson->get_download_materials( $context )
+			)
+		);
+
+		// Convert the download_materials to the response format.
+		$download_materials = array_reduce(
+			$download_materials,
+			function( $result, $attachment ) use ( $lesson, $is_open_course ) {
+				$file_size = absint( filesize( get_attached_file( $attachment->ID ) ) );
+
+				// For open courses, expose the direct URL for both download and preview.
+				// For protected courses, route through the nonce-signed endpoint so the
+				// raw attachment URL is never exposed. The preview variant streams the
+				// file inline instead of forcing a download.
+				if ( $is_open_course ) {
+					$direct_url   = wp_get_attachment_url( $attachment->ID );
+					$download_url = $direct_url;
+					$preview_url  = $direct_url;
+				} else {
+					$download_url = add_query_arg(
+						array(
+							'action'        => 'masteriyo_download_material',
+							'lesson_id'     => $lesson->get_id(),
+							'attachment_id' => $attachment->ID,
+							'_nonce'        => wp_create_nonce( 'masteriyo_download_material_' . $lesson->get_id() ),
+						),
+						admin_url( 'admin-ajax.php' )
+					);
+					$preview_url  = add_query_arg( array( 'preview' => 1 ), $download_url );
+				}
+
+				$result[] = array(
+					'id'                  => $attachment->ID,
+					'url'                 => $download_url,
+					'preview_url'         => $preview_url,
+					'title'               => $attachment->post_title,
+					'mime_type'           => $attachment->post_mime_type,
+					'file_size'           => $file_size,
+					'formatted_file_size' => size_format( $file_size ),
+					'created_at'          => masteriyo_rest_prepare_date_response( $attachment->post_date_gmt ),
+				);
+				return $result;
+			},
+			array()
+		);
+
+		/**
+		 * Lesson attachment filter.
+		 *
+		 * @since 2.0.2
 		 *
 		 * @return array[] $download_materials Download materials.
 		 * @param Masteriyo\Models\Lesson $lesson Lesson object.
 		 * @param string $context Context.
 		 */
 		return apply_filters( "masteriyo_rest_{$this->object_type}_download_materials", $download_materials, $lesson, $context );
+	}
+
+	/**
+	 * Check whether the current user can access download materials for the lesson.
+	 *
+	 * @param \Masteriyo\Models\Lesson $lesson Lesson object.
+	 * @param string $context Request context.
+	 *
+	 * @return bool
+	 */
+	protected function user_can_access_download_materials( $lesson, $context, $course = null ) {
+		if ( is_null( $course ) ) {
+			$course = masteriyo_get_course( $lesson->get_course_id( $context ) );
+		}
+
+		return masteriyo_can_access_lesson_download_materials( $lesson, $course );
+	}
+
+	/**
+	 * Get a message explaining why download materials are restricted and how to get access.
+	 *
+	 * Returns an empty string when the current user already has access.
+	 *
+	 * @param \Masteriyo\Models\Lesson $lesson Lesson object.
+	 * @param string $context Request context.
+	 *
+	 * @return string
+	 */
+	protected function get_download_materials_message( $lesson, $context, $course = null ) {
+		if ( is_null( $course ) ) {
+			$course = masteriyo_get_course( $lesson->get_course_id( $context ) );
+		}
+
+		if ( $this->user_can_access_download_materials( $lesson, $context, $course ) ) {
+			return '';
+		}
+
+		if ( empty( $lesson->get_download_materials( $context ) ) ) {
+			return '';
+		}
+
+		if ( ! $course ) {
+			return '';
+		}
+
+		$user_id     = get_current_user_id();
+		$access_mode = $course->get_access_mode();
+
+		if ( ! $user_id ) {
+			if ( CourseAccessMode::NEED_REGISTRATION === $access_mode ) {
+				return __( 'Register and enroll to access download materials.', 'learning-management-system' );
+			}
+			return __( 'Log in and enroll to access download materials.', 'learning-management-system' );
+		}
+
+		if ( in_array( $access_mode, array( CourseAccessMode::ONE_TIME, CourseAccessMode::RECURRING ), true ) ) {
+			return __( 'Purchase this course to access download materials.', 'learning-management-system' );
+		}
+
+		return __( 'Enroll in this course to access download materials.', 'learning-management-system' );
 	}
 
 	/**
@@ -1063,6 +1593,31 @@ class LessonsController extends PostsController {
 	 * @return WP_Error|boolean
 	 */
 	public function create_item_permissions_check( $request ) {
+		$course_id = absint( $request['course_id'] );
+		$post      = get_post( $course_id );
+
+		if ( is_null( $post ) || PostType::COURSE !== $post->post_type ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->post_type}_invalid_id",
+				__( 'Invalid Course ID', 'learning-management-system' ),
+				array(
+					'status' => 404,
+				)
+			);
+		}
+
+		return parent::create_item_permissions_check( $request );
+	}
+
+	/**
+	 * Checks if a given request has access to get a specific item.
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return boolean|\WP_Error True if the request has read access for the item, WP_Error object otherwise.
+	 */
+	public function get_item_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
 			return new \WP_Error(
 				'masteriyo_null_permission',
@@ -1070,73 +1625,71 @@ class LessonsController extends PostsController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
+		$lesson = masteriyo_get_lesson( $request['id'] );
 
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'create' ) ) {
+		if ( is_null( $lesson ) ) {
 			return new \WP_Error(
-				'masteriyo_rest_cannot_create',
-				__( 'Sorry, you are not allowed to create resources.', 'learning-management-system' ),
+				'masteriyo_rest_invalid_lesson_id',
+				__( 'Invalid lesson ID.', 'learning-management-system' ),
 				array(
-					'status' => rest_authorization_required_code(),
+					'status' => 400,
 				)
 			);
 		}
 
-		$course_id = absint( $request['course_id'] );
-		$course    = masteriyo_get_course( $course_id );
+		$course = masteriyo_get_course( $lesson->get_course_id() );
 
 		if ( is_null( $course ) ) {
 			return new \WP_Error(
-				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid course ID', 'learning-management-system' ),
+				'masteriyo_rest_invalid_course_id',
+				__( 'Invalid course ID.', 'learning-management-system' ),
 				array(
-					'status' => 404,
+					'status' => 400,
 				)
 			);
 		}
 
-		return true;
-	}
+		// Restrict access to other course content while a quiz attempt is in progress.
+		// Placed before the open-access/preview short-circuits so it always applies to enrolled students.
+		$restriction = masteriyo_check_content_restriction_during_quiz( $course, $request['id'] );
+		if ( is_wp_error( $restriction ) ) {
+			return $restriction;
+		}
 
-	/**
-	 * Check if a given request has access to delete an item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|boolean
-	 */
-	public function delete_item_permissions_check( $request ) {
-		if ( is_null( $this->permission ) ) {
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+			if ( masteriyo_is_instructor_or_additional_instructor( $course->get_id() ) ) {
+				return true;
+			}
+		}
+
+		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
 			return new \WP_Error(
-				'masteriyo_null_permission',
-				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+		if ( CourseAccessMode::OPEN === $course->get_access_mode() || $lesson->get_enable_preview() ) {
 			return true;
 		}
 
-		$id     = absint( $request['id'] );
-		$lesson = masteriyo_get_lesson( $id );
-
-		if ( is_null( $lesson ) ) {
+		if ( is_user_logged_in() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() && ! masteriyo_can_start_course( $course ) ) {
 			return new \WP_Error(
-				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				'masteriyo_rest_cannot_start_course',
+				__( 'Sorry, you have not bought the course.', 'learning-management-system' ),
 				array(
-					'status' => 404,
+					'status' => rest_authorization_required_code(),
 				)
 			);
 		}
 
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'delete', $id ) ) {
+		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'read', $request['id'] ) ) {
 			return new \WP_Error(
-				'masteriyo_rest_cannot_delete',
-				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1147,60 +1700,14 @@ class LessonsController extends PostsController {
 	}
 
 	/**
-	 * Check if a given request has access to update an item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|boolean
-	 */
-	public function update_item_permissions_check( $request ) {
-		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
-				'masteriyo_null_permission',
-				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
-			);
-		}
-
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
-
-		$id     = absint( $request['id'] );
-		$lesson = masteriyo_get_lesson( $id );
-
-		if ( is_null( $lesson ) ) {
-			return new \WP_Error(
-				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
-				array(
-					'status' => 404,
-				)
-			);
-		}
-
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'update', $id ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_update',
-				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Deletes the video metadata for a given video source URL.
-	 *
-	 * @since 1.12.0
-	 *
-	 * @param string $old_video_source_url The old video source URL.
-	 * @param string $new_video_source_url The new video source URL.
-	 * @param \Masteriyo\Models\Lesson $lesson The lesson object.
-	 */
+		 * Deletes the video metadata for a given video source URL.
+		 *
+		 * @since 2.13.0
+		 *
+		 * @param string $old_video_source_url The old video source URL.
+		 * @param string $new_video_source_url The new video source URL.
+		 * @param \Masteriyo\Models\Lesson $lesson The lesson object.
+		 */
 	private function delete_video_video_meta_data( $old_video_source_url, $new_video_source_url, &$lesson ) {
 		global $wpdb;
 
@@ -1243,11 +1750,33 @@ class LessonsController extends PostsController {
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}
 	}
+	/**
+		 * Deletes subtitle metadata for a given lesson and for specific subtitle id.
+		 *
+		 * @since 2.17.0
+		 * @param $subtitle_id Subtitle Unique Id.
+		 * @param \Masteriyo\Models\Lesson $lesson The lesson object.
+		 */
+
+	private function delete_video_subtitle_meta_data( $subtitle_ids, &$lesson ) {
+
+		$existing_data = (array) $lesson->get_subtitle_meta( 'view' );
+
+		$filtered_subtitles = array();
+		foreach ( $existing_data as $subtitle ) {
+			if ( ! in_array( $subtitle['subtitle_id'], $subtitle_ids ) ) {
+				$filtered_subtitles[] = $subtitle;
+			}
+		}
+		$lesson->set_subtitle_meta( 'subtitle_meta', $filtered_subtitles );
+	}
+
+
 
 	/**
 	 * Retrieve all users related to a specific lesson.
 	 *
-	 * @since 1.12.0
+	 * @since 2.13.0
 	 *
 	 * @param int $lesson_id The lesson ID.
 	 *

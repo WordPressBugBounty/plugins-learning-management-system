@@ -15,14 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Masteriyo\Activation;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Enums\CourseAccessMode;
-use Masteriyo\Query\CourseProgressQuery;
-use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\CourseChildrenPostType;
+use Masteriyo\Exporter\CoursePdfExporter;
 
 /**
  * For a given course, and optionally price/qty, work out the price with tax excluded, based on store settings.
@@ -100,6 +101,20 @@ function masteriyo_can_start_course( $course, $user = null ) {
 				if ( 'active' === $user_course->get_status() && $user_course->get_date_start() ) {
 					$can_start_course = true;
 				}
+
+				if ( $order && CourseAccessMode::RECURRING === $course->get_access_mode() ) {
+					/**
+					 * Filters whether a recurring-access course can be started for an order.
+					 *
+					 * Recurring access is a subscription concept, which core does not have.
+					 * Pro answers this against the order's subscription status; without pro
+					 * a recurring course is never startable, and no order can create one.
+					 *
+					 * @param bool                          $can_start_course Whether the course can be started.
+					 * @param \Masteriyo\Models\Order\Order $order            Order the enrolment came from.
+					 */
+					$can_start_course = (bool) apply_filters( 'masteriyo_can_start_recurring_course', false, $order );
+				}
 			}
 		}
 	}
@@ -113,18 +128,51 @@ function masteriyo_can_start_course( $course, $user = null ) {
 			$can_start_course = masteriyo_check_course_content_access_for_current_user( $course );
 		}
 	}
+	if ( $course && method_exists( $course, 'get_enable_cohort_mode' ) && $course->get_enable_cohort_mode() && ! masteriyo_check_course_content_access_for_current_user( $course ) ) {
+
+		$course_start_date = $course->get_course_start_date();
+		$course_end_date   = $course->get_end_date();
+		$enrollment_close  = $course->get_enrollment_closes_on();
+
+		$now_ts = current_time( 'timestamp' );
+
+		$start_ts = $course_start_date ? $course_start_date->getTimestamp() : null;
+		$end_ts   = $course_end_date ? $course_end_date->getTimestamp() : null;
+		$close_ts = $enrollment_close ? $enrollment_close->getTimestamp() : null;
+
+		if ( $start_ts && $now_ts < $start_ts ) {
+			$can_start_course = false;
+		}
+
+		if ( $end_ts && $now_ts > $end_ts ) {
+			$can_start_course = false;
+		}
+
+		if ( $close_ts && $start_ts && $now_ts > $close_ts && $now_ts >= $start_ts ) {
+
+			$current_user_id = get_current_user_id();
+			$is_enrolled     = $current_user_id
+			? masteriyo_is_user_enrolled_in_course( $course->get_id(), $current_user_id )
+			: false;
+
+			if ( ! $is_enrolled ) {
+				$can_start_course = false;
+			}
+		}
+	}
 
 	/**
 	 * Filters boolean: true if given user can start the given course.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param boolean $can_start_course true if given user can start the given course.
-	 * @param Masteriyo\Models\Course $course Course object.
-	 * @param Masteriyo\Models\User $user User object.
+	 * @param boolean                $can_start_course true if given user can start the given course.
+	 * @param \Masteriyo\Models\Course $course         Course object.
+	 * @param \Masteriyo\Models\User   $user           User object.
 	 */
 	return apply_filters( 'masteriyo_can_start_course', $can_start_course, $course, $user );
 }
+
 
 /**
  * Get the placeholder image.
@@ -331,6 +379,7 @@ function masteriyo_trim_course_highlights( $highlights, $limit = 3 ) {
  * @since 1.0.0
  * @since 1.5.15 $course parameter can be WP_Post or Course Object.
  * @since 1.5.15 Added $status parameter.
+ * @since 2.6.5 Return course contents in hierarchial order according to the course builder in a flat array.
  * @since 1.6.10 Return course contents in hierarchial order according to the course builder in a flat array.
  *
  * @param WP_Post|\Masteriyo\Models\Course|integer $course Course object or Course Post or Course ID.
@@ -430,6 +479,55 @@ function masteriyo_get_course_contents( $course, $status = PostStatus::PUBLISH )
 	 * @param WP_Post|\Masteriyo\Models\Course|integer $course Course ID or WP Post or Course object.
 	 */
 	return apply_filters( 'masteriyo_course_contents', array_values( $result ), $course );
+}
+
+/**
+ * Check whether a course has anything to learn.
+ *
+ * Sections alone are not content — only lessons, quizzes and other learnable
+ * items count. A SCORM course carries its content in the package, not in
+ * child posts, so it always has content.
+ *
+ * @param int|WP_Post|\Masteriyo\Models\Course $course Course ID or object.
+ *
+ * @return boolean
+ */
+function masteriyo_course_has_content( $course ) {
+	$course = masteriyo_get_course( $course );
+
+	if ( ! $course ) {
+		return false;
+	}
+
+	if ( function_exists( 'masteriyo_is_scorm_course' ) && masteriyo_is_scorm_course( $course->get_id() ) ) {
+		return true;
+	}
+
+	$items = get_posts(
+		array(
+			'post_type'      => array_diff( CourseChildrenPostType::all(), array( CourseChildrenPostType::SECTION ) ),
+			'posts_per_page' => 1,
+			// Both status extension points: the canonical helper the player queries
+			// through, seeded into the legacy filter masteriyo_get_course_contents()
+			// applies. Addon items (Google Meet, Zoom) carry addon-registered
+			// statuses (upcoming/active/expired), not publish.
+			'post_status'    => apply_filters( 'masteriyo_course_contents_post_status', masteriyo_get_course_content_post_statuses() ),
+			'fields'         => 'ids',
+			'meta_key'       => '_course_id',
+			'meta_value'     => $course->get_id(),
+			'meta_compare'   => 'numeric',
+		)
+	);
+
+	$has_content = ! empty( $items );
+
+	/**
+	 * Filters whether a course has learnable content.
+	 *
+	 * @param boolean $has_content Whether the course has content.
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	return apply_filters( 'masteriyo_course_has_content', $has_content, $course );
 }
 
 /**
@@ -561,6 +659,162 @@ function masteriyo_count_posts( $type, $user_id ) {
 	return apply_filters( 'masteriyo_count_posts', $counts, $type, $user_id );
 }
 
+if ( ! function_exists( 'masteriyo_get_course_buy_button' ) ) {
+	/**
+	 * Get buy button information for a course.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
+	 * @param mixed $user_id
+	 *
+	 * @return array
+	 */
+	function masteriyo_get_course_buy_button( $course_id, $user_id = null ) {
+		$button = array(
+			'text' => '',
+			'url'  => '',
+		);
+		$course = masteriyo_get_course( $course_id );
+
+		if ( is_null( $course ) || ! $course->is_purchasable() ) {
+			return $button;
+		}
+
+		$query      = new CourseProgressQuery(
+			array(
+				'course_id' => $course->get_id(),
+				'user_id'   => $user_id ? $user_id : get_current_user_id(),
+			)
+		);
+		$progresses = $query->get_course_progress();
+		$progress   = empty( $progresses ) ? null : $progresses[0];
+
+		if ( masteriyo_can_start_course( $course ) ) {
+			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
+				$button['text'] = wp_kses_post( $course->single_course_completed_text() );
+				$button['url']  = esc_url( $course->start_course_url() );
+			} elseif ( $progress && CourseProgressStatus::PROGRESS === $progress->get_status() ) {
+				$button['text'] = wp_kses_post( $course->single_course_continue_text() );
+				$button['url']  = esc_url( $course->start_course_url() );
+			} else {
+				$button['text'] = wp_kses_post( $course->single_course_start_text() );
+				$button['url']  = esc_url( $course->start_course_url() );
+			}
+		} else {
+			$button['text'] = wp_kses_post( $course->add_to_cart_text() );
+			$button['url']  = esc_url( $course->add_to_cart_url() );
+		}
+
+		/**
+		 * Filters course buy button information.
+		 *
+		 * @since 2.3.4
+		 *
+		 * @param array $button
+		 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
+		 * @param mixed $user_id
+		 */
+		return apply_filters( 'masteriyo_course_buy_button', $button, $course_id, $user_id );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_instructor_lesson_ids' ) ) {
+	/**
+	 * Retrieves the lesson IDs associated with a given instructor.
+	 *
+	 * @since 2.15.0
+	 *
+	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
+	 *
+	 * @return array An array of lesson IDs associated with the specified instructor.
+	 */
+	function masteriyo_get_instructor_lesson_ids( $instructor_id = null ) {
+		if ( is_null( $instructor_id ) ) {
+			$instructor_id = masteriyo_is_current_user_instructor() ? get_current_user_id() : 0;
+		}
+
+		if ( ! $instructor_id ) {
+			return array();
+		}
+
+		$course_ids = masteriyo_get_instructor_course_ids( $instructor_id );
+
+		if ( empty( $course_ids ) ) {
+			return array();
+		}
+
+		$args = array(
+			'post_type'      => PostType::LESSON,
+			'post_status'    => PostStatus::PUBLISH,
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_query'     => array(
+				array(
+					'key'     => '_course_id',
+					'value'   => $course_ids,
+					'compare' => 'IN',
+				),
+			),
+		);
+
+		$lesson_ids = get_posts( $args );
+
+		/**
+		 * Filter the list of lesson IDs for an instructor.
+		 *
+		 * @since 2.15.0
+		 *
+		 * @param array $lesson_ids The array of lesson IDs.
+		 * @param int $instructor_id The instructor ID.
+		 */
+		$lesson_ids = apply_filters( 'masteriyo_get_instructor_lesson_ids', $lesson_ids, $instructor_id );
+
+		return $lesson_ids;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_user_has_completed_course' ) ) {
+	/**
+	 * Check if a user has completed a course.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
+	 * @param integer $user_id
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_user_has_completed_course( $course_id, $user_id ) {
+		$course       = masteriyo_get_course( $course_id );
+		$is_completed = false;
+
+		if ( $course ) {
+			$query    = new CourseProgressQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => $user_id,
+				)
+			);
+			$progress = current( $query->get_course_progress() );
+
+			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
+				$is_completed = true;
+			}
+		}
+
+		/**
+		 * Filters boolean: true if the given user has completed the given course.
+		 *
+		 * @since 2.3.7
+		 *
+		 * @param boolean $is_completed True if the given user has completed the given course.
+		 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
+		 * @param integer $user_id
+		 */
+		return apply_filters( 'masteriyo_has_user_completed_course', $is_completed, $course_id, $user_id );
+	}
+}
 
 if ( ! function_exists( 'masteriyo_get_courses_view_mode' ) ) {
 	/**
@@ -628,63 +882,29 @@ if ( ! function_exists( 'masteriyo_check_course_content_access_for_current_user'
 	}
 }
 
-if ( ! function_exists( 'masteriyo_get_course_buy_button' ) ) {
+if ( ! function_exists( 'masteriyo_check_course_content_access_for_current_user' ) ) {
 	/**
-	 * Get buy button information for a course.
+	 * Check whether the current user can start taking the course based on the course content access settings.
 	 *
-	 * @since 1.12.2
+	 * @since 1.6.15
 	 *
-	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
-	 * @param mixed $user_id
+	 * @param \Masteriyo\Models\Course $course Course object or Course ID.
 	 *
-	 * @return array
+	 * @return boolean
 	 */
-	function masteriyo_get_course_buy_button( $course_id, $user_id = null ) {
-		$button = array(
-			'text' => '',
-			'url'  => '',
-		);
-		$course = masteriyo_get_course( $course_id );
+	function masteriyo_check_course_content_access_for_current_user( $course ) {
+		$can_start_course = false;
 
-		if ( is_null( $course ) || ! $course->is_purchasable() ) {
-			return $button;
-		}
-
-		$query      = new CourseProgressQuery(
-			array(
-				'course_id' => $course->get_id(),
-				'user_id'   => $user_id ? $user_id : get_current_user_id(),
-			)
-		);
-		$progresses = $query->get_course_progress();
-		$progress   = empty( $progresses ) ? null : $progresses[0];
-
-		if ( masteriyo_can_start_course( $course ) ) {
-			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
-				$button['text'] = wp_kses_post( $course->single_course_completed_text() );
-				$button['url']  = esc_url( $course->start_course_url() );
-			} elseif ( $progress && CourseProgressStatus::PROGRESS === $progress->get_status() ) {
-				$button['text'] = wp_kses_post( $course->single_course_continue_text() );
-				$button['url']  = esc_url( $course->start_course_url() );
-			} else {
-				$button['text'] = wp_kses_post( $course->single_course_start_text() );
-				$button['url']  = esc_url( $course->start_course_url() );
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'general.course_access.enable_course_content_access_without_enrollment' ) ) ) {
+			if ( masteriyo_is_current_user_admin() ) {
+				$can_start_course = true;
+			} elseif ( masteriyo_is_current_user_instructor() ) {
+				$restrict         = masteriyo_string_to_bool( masteriyo_get_setting( 'general.course_access.restrict_instructors' ) );
+				$can_start_course = $restrict ? masteriyo_is_current_user_post_author( $course->get_id() ) : true;
 			}
-		} else {
-			$button['text'] = wp_kses_post( $course->add_to_cart_text() );
-			$button['url']  = esc_url( $course->add_to_cart_url() );
 		}
 
-		/**
-		 * Filters course buy button information.
-		 *
-		 * @since 2.3.4
-		 *
-		 * @param array $button
-		 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
-		 * @param mixed $user_id
-		 */
-		return apply_filters( 'masteriyo_course_buy_button', $button, $course_id, $user_id );
+		return $can_start_course;
 	}
 }
 
@@ -699,6 +919,10 @@ if ( ! function_exists( 'masteriyo_get_remaining_days_for_course_end' ) ) {
 	 * @throws Exception If the date format is invalid.
 	 */
 	function masteriyo_get_remaining_days_for_course_end( $course, $format = false ) {
+
+		if ( ! $course || $course->get_enable_cohort_mode() || ! $course->get_enable_end_date() ) {
+				return null;
+		}
 
 		$raw_end_date = $course->get_end_date();
 		if ( ! $raw_end_date ) {
@@ -750,11 +974,233 @@ if ( ! function_exists( 'masteriyo_get_remaining_days_for_course_end' ) ) {
 	}
 }
 
+
+/**
+ * Cohort button rules application.
+ *@since 3.1.0
+ * @param \Masteriyo\Models\Course $course
+ * @param bool   $cohort_enabled
+ * @param bool   $enrollment_open
+ * @param int    $now_ts
+ * @param int|null $close_ts
+ * @param bool   $show_lock (by reference)
+ * @param string $button_url (by reference)
+ * @param string $button_text (by reference)
+ * @param string $notice (by reference)
+ * @return void
+ */
+if ( ! function_exists( 'masteriyo_apply_cohort_button_rules' ) ) {
+	function masteriyo_apply_cohort_button_rules( $course, $cohort_enabled, $enrollment_open, $now_ts, $close_ts, &$show_lock, &$button_url, &$button_text, &$notice ) {
+		$is_cohort_locked_for_user = (
+			$cohort_enabled
+			&& ! masteriyo_check_course_content_access_for_current_user( $course )
+		);
+
+		if ( ! $is_cohort_locked_for_user ) {
+			return;
+		}
+
+		$is_free = (
+			'free' === $course->get_price_type()
+			|| (float) $course->get_price() <= 0
+		);
+
+		$course_start_date = $course->get_course_start_date();
+		$start_ts          = $course_start_date ? $course_start_date->getTimestamp() : null;
+		$course_started    = $start_ts ? ( $now_ts >= $start_ts ) : false;
+
+		$course_open = $course_started;
+
+		if ( masteriyo_is_courses_page() ) {
+			$preview_url  = get_permalink( $course->get_id() );
+			$preview_text = __( 'Preview', 'learning-management-system' );
+
+			if ( ! $enrollment_open ) {
+				$button_url  = $preview_url;
+				$button_text = $preview_text;
+				$show_lock   = false;
+			}
+			return;
+		}
+
+		if ( $course_started || ( $close_ts && $now_ts > $close_ts ) ) {
+			$notice = __( 'Enrollment for this course is already closed.', 'learning-management-system' );
+		}
+
+		if ( ! is_user_logged_in() ) {
+			$enroll_closed = ( $close_ts && $now_ts > $close_ts );
+
+			$button_text = $is_free ? $course->single_course_enroll_text() : $course->add_to_cart_text();
+			$button_url  = $is_free ? masteriyo_get_page_permalink( 'account' ) : $course->add_to_cart_url();
+
+			if ( $course_started || $enroll_closed ) {
+				$show_lock  = true;
+				$button_url = '';
+			}
+
+			return;
+		}
+
+		$current_user_id = get_current_user_id();
+		$is_enrolled     = masteriyo_is_user_enrolled_in_course( $course->get_id(), $current_user_id );
+
+		if ( $course_started && ! $is_enrolled ) {
+			$show_lock = true;
+		}
+
+		if ( $is_free ) {
+
+			if ( $is_enrolled && ! $course_open ) {
+				$button_url  = get_permalink( $course->get_id() );
+				$button_text = $course->single_course_start_text();
+			} elseif ( ! $is_enrolled && ! $course_open ) {
+				$button_url  = get_permalink( $course->get_id() );
+				$button_text = $course->single_course_enroll_text();
+			} elseif ( $is_enrolled && $course_open ) {
+				$button_url  = $course->start_course_url();
+				$button_text = $course->single_course_start_text();
+			} else {
+				$button_url  = get_permalink( $course->get_id() );
+				$button_text = $course->single_course_enroll_text();
+			}
+		} elseif ( $is_enrolled && ! $course_open ) {
+
+			$button_url  = get_permalink( $course->get_id() );
+			$button_text = $course->single_course_start_text();
+
+		} elseif ( $enrollment_open && ! $course_open ) {
+
+			$button_url  = $course->add_to_cart_url();
+			$button_text = $course->add_to_cart_text();
+
+		} elseif ( $course_open ) {
+
+			if ( $is_enrolled ) {
+				$button_url  = $course->start_course_url();
+				$button_text = $course->single_course_start_text();
+			} elseif ( $enrollment_open ) {
+				$button_url  = $course->add_to_cart_url();
+				$button_text = $course->add_to_cart_text();
+			} else {
+				$button_url  = get_permalink( $course->get_id() );
+				$button_text = $course->single_course_enroll_text();
+			}
+		}
+	}
+}
+
+
+
+
+/**
+ * Check if the cohort is currently active (between start and end date).
+ *
+ * @param \Masteriyo\Models\Course|\Masteriyo\Abstracts\Data $course Course object.
+ *
+ * @return bool
+ */
+function is_cohort_active_now( $course ) {
+	if ( ! $course || ! $course->get_enable_cohort_mode() ) {
+		return false;
+	}
+
+	$start = $course->get_course_start_date();
+	$end   = $course->get_end_date();
+
+	if ( ! $start || ! $end ) {
+		return false;
+	}
+
+	$now_ts = current_time( 'timestamp' );
+
+	$start_ts = $start->getTimestamp();
+	$end_ts   = $end->getTimestamp();
+
+	return ( $now_ts >= $start_ts && $now_ts <= $end_ts );
+}
+
+
+
+/**
+ * Check if enrollment is currently open for the course.
+ *
+ * @param \Masteriyo\Models\Course|\Masteriyo\Abstracts\Data $course Course object.
+ *
+ * @return bool
+ */
+function is_enrollment_open_now( $course ) {
+	if ( ! $course || ! $course->get_enable_cohort_mode() ) {
+		return false;
+	}
+
+	$open  = $course->get_enrollment_opens_on();
+	$close = $course->get_enrollment_closes_on();
+
+	if ( ! $open && ! $close ) {
+		return false;
+	}
+
+	$now_ts = current_time( 'timestamp' );
+
+	$open_ts  = $open ? $open->getTimestamp() : null;
+	$close_ts = $close ? $close->getTimestamp() : null;
+
+	if ( $open_ts && $close_ts ) {
+		return ( $now_ts >= $open_ts && $now_ts <= $close_ts );
+	}
+
+	if ( $open_ts && ! $close_ts ) {
+		return ( $now_ts >= $open_ts );
+	}
+
+	if ( ! $open_ts && $close_ts ) {
+		return ( $now_ts <= $close_ts );
+	}
+
+	return false;
+}
+
+
+
+
+/**
+ * Convert a UTC DateTime object to site local timezone
+ * and format it for display.
+ *
+ * @param DateTimeInterface|null $dt
+ * @param string                 $format
+ *
+ * @return string
+ */
+if ( ! function_exists( 'masteriyo_format_datetime' ) ) {
+	function masteriyo_format_datetime( $dt, $format = 'M j, Y g:i A' ) {
+		if ( ! $dt instanceof DateTimeInterface ) {
+			return '';
+		}
+
+		$local_tz = new DateTimeZone( wp_timezone_string() );
+
+		if ( method_exists( $dt, 'date_i18n' ) ) {
+			$utc_date_str = $dt->date_i18n( 'Y-m-d H:i:s', false );
+			$date         = new DateTime( $utc_date_str, new DateTimeZone( 'UTC' ) );
+			$date->setTimezone( $local_tz );
+			return $date->format( $format );
+		}
+
+		$tz   = $dt->getTimezone();
+		$date = new DateTime( $dt->format( 'Y-m-d H:i:s' ), $tz ? $tz : new DateTimeZone( 'UTC' ) );
+		$date->setTimezone( $local_tz );
+
+		return $date->format( $format );
+	}
+}
+
+
 if ( ! function_exists( 'masteriyo_get_youtube_thumbnail' ) ) {
 	/**
 	 * Extract the video ID from the YouTube embed URL and construct the max resolution thumbnail URL.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @param string $embed_url The YouTube embed URL.
 	 *
@@ -777,7 +1223,7 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 	/**
 	 * Retrieves the course IDs associated with a given instructor.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
 	 *
@@ -802,10 +1248,28 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 
 		$course_ids = get_posts( $args );
 
+		$additional_author_course_ids = get_posts(
+			array(
+				'post_type'      => PostType::COURSE,
+				'post_status'    => PostStatus::PUBLISH,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					array(
+						'key'     => '_additional_authors',
+						'value'   => $instructor_id,
+						'compare' => 'IN',
+					),
+				),
+			)
+		);
+
+		$course_ids = array_unique( array_merge( $course_ids, $additional_author_course_ids ) );
+
 		/**
 		 * Filter the list of course IDs for an instructor.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $course_ids The array of course IDs.
 		 * @param int $instructor_id The instructor ID.
@@ -816,97 +1280,11 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_get_instructor_lesson_ids' ) ) {
-	/**
-	 * Retrieves the lesson IDs associated with a given instructor.
-	 *
-	 * @since 1.14.0
-	 *
-	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
-	 *
-	 * @return array An array of lesson IDs associated with the specified instructor.
-	 */
-	function masteriyo_get_instructor_lesson_ids( $instructor_id = null ) {
-		if ( is_null( $instructor_id ) ) {
-			$instructor_id = masteriyo_is_current_user_instructor() ? get_current_user_id() : 0;
-		}
-
-		if ( ! $instructor_id ) {
-			return array();
-		}
-
-		$args = array(
-			'post_type'      => PostType::LESSON,
-			'post_status'    => PostStatus::PUBLISH,
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			'author'         => $instructor_id,
-		);
-
-		$lesson_ids = get_posts( $args );
-
-		/**
-		 * Filter the list of lesson IDs for an instructor.
-		 *
-		 * @since 1.14.0
-		 *
-		 * @param array $lesson_ids The array of lesson IDs.
-		 * @param int $instructor_id The instructor ID.
-		 */
-		$lesson_ids = apply_filters( 'masteriyo_get_instructor_lesson_ids', $lesson_ids, $instructor_id );
-
-		return $lesson_ids;
-	}
-}
-
-if ( ! function_exists( 'masteriyo_user_has_completed_course' ) ) {
-	/**
-	 * Check if a user has completed a course.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
-	 * @param integer $user_id
-	 *
-	 * @return boolean
-	 */
-	function masteriyo_user_has_completed_course( $course_id, $user_id ) {
-		$course       = masteriyo_get_course( $course_id );
-		$is_completed = false;
-
-		if ( $course ) {
-			$query    = new CourseProgressQuery(
-				array(
-					'course_id' => $course->get_id(),
-					'user_id'   => $user_id,
-				)
-			);
-			$progress = current( $query->get_course_progress() );
-
-			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
-				$is_completed = true;
-			}
-		}
-
-		/**
-		 * Filters boolean: true if the given user has completed the given course.
-		 *
-		 * @since 1.13.0
-		 *
-		 * @param boolean $is_completed True if the given user has completed the given course.
-		 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
-		 * @param integer $user_id
-		 */
-		return apply_filters( 'masteriyo_has_user_completed_course', $is_completed, $course_id, $user_id );
-	}
-}
-
-
 if ( ! function_exists( 'masteriyo_can_user_review_course' ) ) {
 	/**
 	 * Retrieves the enrolled users for a course.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param int $course_id The ID of the course.
 	 *
@@ -931,5 +1309,93 @@ if ( ! function_exists( 'masteriyo_can_user_review_course' ) ) {
 		}
 
 		return true;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_generate_course_pdf_download_url' ) ) {
+	/**
+	 * Generates a secure URL for downloading the course PDF.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 * @return string The generated download URL or an empty string if the course is invalid.
+	 */
+	function masteriyo_generate_course_pdf_download_url( $course ) {
+		if ( ! is_a( $course, 'Masteriyo\Models\Course' ) ) {
+			return '';
+		}
+
+		$url = add_query_arg(
+			array(
+				'masteriyo_download_course_pdf' => true,
+				'course_id'                     => $course->get_id(),
+				'nonce'                         => wp_create_nonce( 'masteriyo_download_course_pdf' ),
+			),
+			home_url( '/' )
+		);
+
+		/**
+		 * Filters course PDF download URL.
+		 *
+		 * @since 2.21.0
+		 *
+		 * @param string $url The download URL.
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 */
+		return apply_filters( 'masteriyo_course_pdf_download_url', $url, $course );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_course_pdf_download_handler' ) ) {
+	/**
+	 * Handle course PDF download request.
+	 *
+	 * Validates request, checks permissions, and initiates PDF download.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @return void
+	 */
+	function masteriyo_course_pdf_download_handler() {
+		try {
+			// Verify request parameters.
+			if ( ! isset( $_GET['masteriyo_download_course_pdf'] ) ) {
+				return;
+			}
+
+			// Validate nonce first for security.
+			if ( ! isset( $_GET['nonce'] ) ) {
+				throw new Exception( __( 'Nonce is required.', 'learning-management-system' ) );
+			}
+
+			if ( ! wp_verify_nonce( sanitize_key( $_GET['nonce'] ), 'masteriyo_download_course_pdf' ) ) {
+				throw new Exception( __( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
+			}
+
+			// Validate course ID.
+			$course_id = isset( $_GET['course_id'] ) ? absint( $_GET['course_id'] ) : 0;
+			if ( ! $course_id ) {
+				throw new Exception( __( 'Invalid course specified. Please try again.', 'learning-management-system' ) );
+			}
+
+			// Check permissions.
+			if ( ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_post_author( $course_id ) ) ) {
+				throw new Exception( __( 'You do not have permission to download this course PDF. Please contact the administrator.', 'learning-management-system' ) );
+			}
+
+			// Get course and validate.
+			$course = masteriyo_get_course( $course_id );
+			if ( is_null( $course ) || ! $course->exists() ) {
+				throw new Exception( __( 'The requested course could not be found.', 'learning-management-system' ) );
+			}
+
+			// Initialize and process PDF download.
+			$exporter = new CoursePdfExporter( $course );
+			$exporter->download();
+			exit;
+		} catch ( Exception $e ) {
+			wp_die( esc_html( $e->getMessage() ), esc_html__( 'Course PDF Download Error', 'learning-management-system' ) );
+		}
 	}
 }

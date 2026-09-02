@@ -2,7 +2,7 @@
 /**
  * Price zone status enum class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  * @package Masteriyo\Addons\MultipleCurrency
  */
 
@@ -15,14 +15,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Price zone status enum class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class PriceZoneStatus extends PostStatus {
 
 	/**
 	 * Price zone active status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -31,7 +31,7 @@ class PriceZoneStatus extends PostStatus {
 	/**
 	 * Price zone inactive status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -40,7 +40,7 @@ class PriceZoneStatus extends PostStatus {
 	/**
 	 * Return all the price zone statuses.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -49,7 +49,7 @@ class PriceZoneStatus extends PostStatus {
 			/**
 			 * Filters price zone status list.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param string[] $statuses Coupon status list.
 			 */
@@ -69,7 +69,7 @@ class PriceZoneStatus extends PostStatus {
 	/**
 	 * List pricing zone status primarily used for registering status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -81,8 +81,14 @@ class PriceZoneStatus extends PostStatus {
 				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				// translators: %s: number of price zones
-				'label_count'               => _n_noop( 'Active <span class="count">(%s)</span>', 'Active <span class="count">(%s)</span>', 'learning-management-system' ),
+				/* translators: %s: number of price zones */
+				'label_count'               => _nx_noop(
+					'Active <span class="count">(%s)</span>',
+					'Active <span class="count">(%s)</span>',
+					'price zone status label count',
+					'learning-management-system'
+				),
+
 			),
 			'inactive' => array(
 				'label'                     => _x( 'Inactive', 'Price zone status', 'learning-management-system' ),
@@ -90,15 +96,20 @@ class PriceZoneStatus extends PostStatus {
 				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				/* translators: %s: number of price zones */
-				'label_count'               => _n_noop( 'Inactive <span class="count">(%s)</span>', 'Inactive <span class="count">(%s)</span>', 'learning-management-system' ),
+				/* translators: %s: number of inactive price zones */
+				'label_count'               => _nx_noop(
+					'Inactive <span class="count">(%s)</span>',
+					'Inactive <span class="count">(%s)</span>',
+					'price zone status label count',
+					'learning-management-system'
+				),
 			),
 		);
 
 		/**
 		 * Filters pricing zone statuses.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $price_zone_statuses The pricing zone statuses and its parameters.
 		 */

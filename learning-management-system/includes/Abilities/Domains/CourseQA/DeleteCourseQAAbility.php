@@ -3,7 +3,6 @@
  * Delete Course Q&A ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Trashed entries can be restored via the masteriyo/course-qa-restore ability.
  * Requires the `edit_course_qas` capability.
- *
- * @since x.x.x
  */
 class DeleteCourseQAAbility extends RestProxyAbility {
 

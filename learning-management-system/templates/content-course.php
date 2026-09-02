@@ -15,6 +15,8 @@
  * @version 1.5.9
  */
 
+use Masteriyo\Enums\VideoSource;
+
 defined( 'ABSPATH' ) || exit;
 
 global $course;
@@ -24,9 +26,12 @@ if ( empty( $course ) || ! $course->is_visible() ) {
 	return;
 }
 
-$author     = masteriyo_get_user( $course->get_author_id() );
-$difficulty = $course->get_difficulty();
-$categories = $course->get_categories( 'name' );
+$author                = masteriyo_get_user( $course->get_author_id() );
+$difficulty            = $course->get_difficulty();
+$categories            = $course->get_categories( 'name' );
+$featured_video_source = $course->get_featured_video_source();
+$card_class            = isset( $card_class ) ? $card_class : '';
+
 
 $is_slider_enabled = masteriyo_is_course_carousel_enabled();
 $slider_class      = '';
@@ -34,33 +39,35 @@ if ( $is_slider_enabled ) {
 	$slider_class = 'swiper-slide';
 }
 
-/**
- * Filters the course object before rendering it in the course archive.
- *
- * @since 1.11.0
- *
- * @param \Masteriyo\Models\Course $course The course object.
- *
- * @return \Masteriyo\Models\Course The filtered course object.
- */
-$course = apply_filters( 'masteriyo_course_archive_course', $course );
 
+	/**
+	 * Filters the course object before rendering it in the course archive.
+	 *
+	 * @since 1.11.0 [free]
+	 *
+	 * @param \Masteriyo\Models\Course $course The course object.
+	 *
+	 * @return \Masteriyo\Models\Course The filtered course object.
+	 */
+	$course = apply_filters( 'masteriyo_course_archive_course', $course );
 ?>
 <div class="masteriyo-col <?php echo esc_attr( $slider_class ); ?>">
-	<div class="masteriyo-course-item--wrapper masteriyo-course--card">
-	<?php
-	if ( masteriyo_should_show_component( 'showThumbnail', 'course_archive.components_visibility.thumbnail' ) ) :
-		?>
+	<div class="masteriyo-course-item--wrapper masteriyo-course--card <?php echo esc_attr( $card_class ); ?>">
+		<?php if ( masteriyo_should_show_component( 'showThumbnail', 'course_archive.components_visibility.thumbnail' ) ) : ?>
 		<div class="masteriyo-course--img-wrap">
-			<a href="<?php echo esc_attr( $course->get_permalink() ); ?>">
+			<a class="masteriyo-course--img-wrap" href="<?php echo esc_attr( $course->get_permalink() ); ?>">
+				<?php if ( $course->is_featured() ) : ?>
+					<div class="course-featured">
+						<?php echo esc_html( $course->featured_text() ); ?>
+					</div>
+				<?php endif; ?>
 
-				<!-- Difficulty Badge -->
 			<?php if ( masteriyo_should_show_component( 'showDifficultyBadge', 'course_archive.components_visibility.difficulty_badge' ) && $difficulty ) : ?>
 		<div class="masteriyo-course--badges">
 			<div class="difficulty-badge <?php echo esc_attr( $difficulty['slug'] ); ?>" data-id="<?php echo esc_attr( $difficulty['id'] ); ?>">
-				<?php if ( $difficulty['color'] ) : ?>
+						<?php if ( $difficulty['color'] ) : ?>
 					<span class="masteriyo-badge" style="background-color: <?php echo esc_attr( $difficulty['color'] ); ?>">
-						<?php echo esc_html( $difficulty['name'] ); ?>
+							<?php echo esc_html( $difficulty['name'] ); ?>
 					</span>
 				<?php else : ?>
 					<span class="masteriyo-badge <?php echo esc_attr( masteriyo_get_difficulty_badge_css_class( $difficulty['slug'] ) ); ?>">
@@ -68,24 +75,54 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					</span>
 				<?php endif; ?>
 			</div>
-
-				<?php
-				if (
-					masteriyo_get_setting( 'course_archive.components_visibility.course_badge' ) &&
-					masteriyo_get_setting( 'course_archive.components_visibility.thumbnail' ) &&
+					<?php
+					if (
+					masteriyo_should_show_component( 'showCourseBadge', 'course_archive.components_visibility.course_badge' ) &&
+					masteriyo_should_show_component( 'showThumbnail', 'course_archive.components_visibility.thumbnail' ) &&
 					! empty( $course->get_course_badge() )
-				) :
-					?>
+					) :
+						?>
 				<div class="masteriyo-single-course--badge">
 					<span class="masteriyo-badge"><?php echo esc_html( $course->get_course_badge() ); ?></span>
 				</div>
-				<?php endif; ?>
+					<?php endif; ?>
 
 		</div><!-- /.masteriyo-course--badges -->
-	<?php endif; ?>
+					<?php endif; ?>
 
-				<!-- Featured Image -->
-				<?php echo wp_kses( $course->get_image( 'masteriyo_thumbnail' ), 'masteriyo_image' ); ?>
+				<?php if ( empty( $course->get_featured_image() ) && $course->has_featured_video() ) : ?>
+					<?php
+					if ( VideoSource::SELF_HOSTED === $featured_video_source || VideoSource::EXTERNAL === $featured_video_source ) {
+						masteriyo_get_video_html(
+							array(
+								'width'    => '100%',
+								'src'      => esc_attr( $course->get_featured_video_embed_url() ),
+								'controls' => true,
+							),
+							true
+						);
+					} else {
+						masteriyo_get_iframe_html(
+							array(
+								'width'           => '100%',
+								'style'           => 'min-height: 230px;',
+								'src'             => esc_attr( $course->get_featured_video_embed_url() ),
+								'allowFullScreen' => true,
+							),
+							true
+						);
+					}
+					?>
+				<?php else : ?>
+					<div class="masteriyo-feature-img">
+						<?php echo wp_kses( $course->get_image( 'masteriyo_thumbnail' ), 'masteriyo_image' ); ?>
+						<?php if ( $course->has_featured_video() ) : ?>
+							<div class="masteriyo-play-featured-video-btn masteriyo-sm">
+								<?php masteriyo_get_svg( 'play', true ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
 			</a>
 		</div>
 		<?php endif; ?>
@@ -103,7 +140,7 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					/**
 					 * Fires right before rendering the course title link in course archive page.
 					 *
-					 * @since 1.12.2
+					 * @since 2.3.4
 					 *
 					 * @param \Masteriyo\Models\Course $course Course object.
 					 */
@@ -119,7 +156,7 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					/**
 					 * Fires right after rendering the course title link in course archive page.
 					 *
-					 * @since 1.12.2
+					 * @since 2.3.4
 					 *
 					 * @param \Masteriyo\Models\Course $course Course object.
 					 */
@@ -128,8 +165,12 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 				</h2>
 				<?php endif; ?>
 
+
+				<!-- Course Expiration Info -->
+
 				<!-- Course author and course rating -->
 				<div class="masteriyo-course--content__rt masteriyo-course-author-rating-wrapper">
+					<!-- Course author -->
 					<div class="masteriyo-course-author">
 						<?php if ( $author && ! is_wp_error( $author ) ) : ?>
 							<a href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">
@@ -158,6 +199,7 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 						<?php endif; ?>
 					</div>
 				<?php
+
 				if ( masteriyo_should_show_component( 'showRating', 'course_archive.components_visibility.rating' ) && $course->is_review_allowed() ) :
 					$review_count  = $course->get_review_count();
 					$visibility_on = masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' );
@@ -213,52 +255,66 @@ endif;
 				<?php if ( masteriyo_should_show_component( 'showCourseDescription', 'course_archive.components_visibility.course_description' ) ) : ?>
 				<div class="masteriyo-course--content__description masteriyo-course-highlights">
 					<?php if ( empty( $course->get_highlights() ) || empty( trim( wp_strip_all_tags( $course->get_highlights(), true ) ) ) ) : ?>
-						<span class="masteriyo-course-highlights--description"><?php echo wp_kses_post( $course->get_excerpt() ); ?><span>
+					<span class="masteriyo-course-highlights--description"><?php echo wp_kses_post( $course->get_excerpt() ); ?><span>
 					<?php else : ?>
 						<?php echo wp_kses_post( masteriyo_trim_course_highlights( $course->get_highlights() ) ); ?>
 					<?php endif; ?>
 				</div>
 				<?php endif; ?>
-					<!-- Four Column( Course duration, comments, student enrolled and curriculum ) -->
-					<?php
-					/**
-					 * Fire for masteriyo archive course meta data.
-					 *
-					 * @since 1.11.0
-					 *
-					 * @param \Masteriyo\Models\Course $course Course object.
-					 */
-					do_action( 'masteriyo_course_meta_data', $course );
-					?>
 
+				<!-- Four Column (Course duration, comments, student enrolled and curriculum) -->
+				<?php
+				/**
+				 * Fire for masteriyo archive course meta data.
+				 *
+				 * @since 1.11.0 [free]
+				 *
+				 * @param \Masteriyo\Models\Course $course Course object.
+				 */
+				do_action( 'masteriyo_course_meta_data', $course );
+				?>
 			</div>
-			<!-- Price and Enroll Now Button -->
 			<div class="masteriyo-course-archive--aside">
-			<?php
+				<?php
 				/**
 				 * Fire for masteriyo archive course Progress.
 				 *
-				 * @since 1.20.0
+				 * @since 1.20.0 [Free]
 				 *
 				 * @param \Masteriyo\Models\Course $course Course object.
 				 */
 				do_action( 'masteriyo_course_progress', $course );
-			?>
+				?>
+					<!-- Price and Enroll Now Button -->
 			<div class="masteriyo-course-card-footer masteriyo-time-btn masteriyo-course-pricing--wrapper">
 				<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
-						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
-							<?php
-							if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
-								?>
+					<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+						<?php
+						if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
+							?>
 				<div class="masteriyo-course-price">
 							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
-						<del class="old-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></del>
+						<del class="old-amount">
+								<?php
+								echo wp_kses_post(
+									masteriyo_price(
+										$course->get_regular_price(),
+										array(
+											'currency' => $course->get_currency(),
+											'disable_tax_inclusive_label' => true,
+										)
+									)
+								);
+								?>
+												</del>
 					<?php endif; ?>
-					<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
+					<span class="current-amount"><?php echo wp_kses_post( $course->price_html() ); ?></span>
 				</div>
+					<?php endif; ?>
 				<?php endif; ?>
 				<?php endif; ?>
-			<?php endif; ?>
+
+
 				<?php
 				/**
 				 * Action hook for rendering enroll button template.
@@ -272,9 +328,39 @@ endif;
 				}
 				?>
 			</div>
-				</div>
+
+			</div>
+
 		</div>
+
+		<?php if ( $course->has_featured_video() ) : ?>
+			<div class="masteriyo-overlay masteriyo-v-center masteriyo-featured-video-modal" style="display:none;">
+				<div class="masteriyo--modal masteriyo-modal-featured-video masteriyo-transparent width-lg">
+					<?php
+					if ( VideoSource::SELF_HOSTED === $featured_video_source || VideoSource::EXTERNAL === $featured_video_source ) {
+						masteriyo_get_video_html(
+							array(
+								'width'    => '100%',
+								'data-src' => esc_attr( $course->get_featured_video_embed_url() ),
+								'controls' => true,
+							),
+							true
+						);
+					} else {
+						masteriyo_get_iframe_html(
+							array(
+								'width'           => '100%',
+								'style'           => 'height: calc(9 * 800px / 16);',
+								'data-src'        => esc_attr( $course->get_featured_video_embed_url() ),
+								'allowFullScreen' => true,
+							),
+							true
+						);
+					}
+					?>
+				</div>
+			</div>
+		<?php endif; ?>
 	</div>
 </div>
-
 <?php

@@ -10,15 +10,17 @@ interface Props {
 	isLoading?: boolean;
 	onSubmit: (data: any) => void;
 	type?: string;
+	isDisabled?: boolean;
 }
 
 const GoogleMeetActionButton: React.FC<Props> = (props) => {
-	const { methods, isLoading, onSubmit, type } = props;
+	const { methods, isLoading, onSubmit, type, isDisabled = false } = props;
 	const buttonSize = useBreakpointValue(['sm', 'md']);
 
 	return (
 		<>
 			<Button
+				isDisabled={isDisabled}
 				size={buttonSize}
 				colorScheme="primary"
 				isLoading={isLoading}

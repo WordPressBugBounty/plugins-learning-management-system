@@ -171,8 +171,13 @@
 						}
 					}
 				},
-				error: function ( xhr, status, error ) {
-					window.console && window.console.error( 'Masteriyo: failed to activate template', status, error );
+				error: function (xhr, status, error) {
+					window.console &&
+						window.console.error(
+							'Masteriyo: failed to activate template',
+							status,
+							error,
+						);
 				},
 			});
 		},
@@ -207,7 +212,7 @@
 
 		syncViewModeControl: function () {
 			$('#elementor-panel .elementor-control-show_view_mode').toggle(
-				!mto.pageHasNonDefaultCourseList()
+				!mto.pageHasNonDefaultCourseList(),
 			);
 		},
 
@@ -217,7 +222,7 @@
 				'panel/open_editor/widget/masteriyo-courses-toolbar',
 				function () {
 					setTimeout(mto.syncViewModeControl);
-				}
+				},
 			);
 
 			// After any element-settings change (covers panel edits, undo/redo and

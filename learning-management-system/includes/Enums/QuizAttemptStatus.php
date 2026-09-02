@@ -25,6 +25,14 @@ class QuizAttemptStatus {
 	const STARTED = 'attempt_started';
 
 	/**
+	 * Quiz Attempt pending status.
+	 *
+	 * @since 1.5.37
+	 * @var string
+	 */
+	const PENDING = 'attempt_pending';
+
+	/**
 	 * Quiz Attempt ended status.
 	 *
 	 * @since 1.5.37
@@ -52,6 +60,7 @@ class QuizAttemptStatus {
 				'masteriyo_quiz_attempt_statuses',
 				array(
 					self::STARTED,
+					self::PENDING,
 					self::ENDED,
 				)
 			)

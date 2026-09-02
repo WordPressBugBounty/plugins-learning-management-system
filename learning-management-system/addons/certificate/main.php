@@ -7,14 +7,15 @@ defined( 'ABSPATH' ) || exit;
  * Addon URI: https://masteriyo.com/wordpress-lms/
  * Description: Provide certificates to encourage students in completing the course.
  * Author: Masteriyo
- * Version: 1.13.0
+ * Version: 2.3.7
  * Author URI: https://masteriyo.com
  * Plan: Free
+ * Addon Type: feature
  * Category: Course Features
  */
 
 use Masteriyo\Addons\Certificate\CertificateAddon;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_CERTIFICATE_BUILDER_ADDON_BASENAME', plugin_basename( __FILE__ ) );

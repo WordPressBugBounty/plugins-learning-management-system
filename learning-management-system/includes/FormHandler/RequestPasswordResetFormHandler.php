@@ -2,7 +2,9 @@
 /**
  * Password reset request form handler class.
  *
- * @package Masetriyo\Classes\
+ * @since 1.0.0
+ *
+ * @package Masteriyo\Classes
  */
 
 namespace Masteriyo\FormHandler;
@@ -43,7 +45,7 @@ class RequestPasswordResetFormHandler {
 			if ( empty( $nonce_value ) ) {
 				throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
-			if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-password-reset-request' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-password-reset-request' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
@@ -126,6 +128,7 @@ class RequestPasswordResetFormHandler {
 			 * Fires after triggering password reset request email.
 			 *
 			 * @since 1.0.0
+			 * @since 2.5.29 Added $data From data parameter.
 			 * @since 1.6.1 Added $data Form data parameter.
 			 *
 			 * @param \Masteriyo\Models\User $user User object.
@@ -153,7 +156,7 @@ class RequestPasswordResetFormHandler {
 		$data = $this->get_form_data();
 
 		if ( empty( $data['user_login'] ) ) {
-			throw new \Exception( __( 'Enter a username or email address.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Enter a username or email address.', 'learning-management-system' ) );
 		}
 
 		$validation_error = new \WP_Error();
@@ -188,10 +191,10 @@ class RequestPasswordResetFormHandler {
 		$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
 		if ( empty( $nonce_value ) ) {
-			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Nonce is missing.', 'learning-management-system' ) );
 		}
-		if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-password-reset-request' ) ) {
-			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
+		if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-password-reset-request' ) ) {
+			throw new \Exception( esc_html__( 'Invalid nonce', 'learning-management-system' ) );
 		}
 
 		if ( isset( $_POST['user_login'] ) ) {

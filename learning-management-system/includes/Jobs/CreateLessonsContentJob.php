@@ -5,8 +5,6 @@ namespace Masteriyo\Jobs;
 defined( 'ABSPATH' ) || exit;
 
 
-use ThemeGrill\OpenAI\ChatGPT;
-
 /**
  * Class CreateLessonsContentJob
  *
@@ -41,7 +39,6 @@ class CreateLessonsContentJob {
 	 * @since 1.6.15
 	 *
 	 * @param  int $num_lesson_description_paragraphs
-	 * @param mixed  $chatgpt      The ChatGPT instance.
 	 * @param string $course_title The title of the course.
 	 * @param string $course_idea  The main idea behind the course.
 	 * @param int  $course_id      The course ID.
@@ -54,9 +51,9 @@ class CreateLessonsContentJob {
 			return;
 		}
 
-		$chatgpt = ChatGPT::get_instance( masteriyo_get_setting( 'advance.openai.api_key' ) );
+		$ai = masteriyo_ai();
 
-		if ( null === $chatgpt ) {
+		if ( ! $ai->is_configured() ) {
 			return;
 		}
 
@@ -73,13 +70,14 @@ class CreateLessonsContentJob {
 
 			foreach ( $lessons as $lesson ) {
 				$lessons_content_prompt = masteriyo_generate_lesson_content_prompt( $lesson, $course_title, $course_idea, $num_lesson_description_paragraphs );
-				$response_text          = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $lessons_content_prompt ), 2 ); // Max retry time 2.
-				$response_text          = wp_unslash( $response_text );
+				$response_text          = $ai->generate_text( $lessons_content_prompt, array( 'max_attempts' => 2 ) );
 
-				if ( ! is_null( $response_text ) || ! is_wp_error( $response_text ) || ! empty( $response_text ) ) {
-					$lesson->set_description( wp_kses_post( $response_text ) );
-					$lesson->save();
+				if ( is_wp_error( $response_text ) ) {
+					continue;
 				}
+
+				$lesson->set_description( wp_kses_post( $response_text ) );
+				$lesson->save();
 			}
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		}

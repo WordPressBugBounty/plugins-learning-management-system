@@ -15,15 +15,14 @@ use League\OAuth2\Client\Grant\RefreshToken;
 use Masteriyo\Addons\GoogleClassroomIntegration\Models\GoogleClassroomSetting;
 use Masteriyo\Enums\CourseProgressStatus;
 use WP_Error;
-use Masteriyo\ModelException;
-use Masteriyo\RestApi\Controllers\Version1\CoursesController;
-
 
 use Masteriyo\Helper\Permission;
+use Masteriyo\ModelException;
+use Masteriyo\PostType\PostType;
+use Masteriyo\RestApi\Controllers\Version1\CoursesController;
 use WP_REST_Response;
 
 class GoogleClassroomIntegrationController extends CoursesController {
-
 
 	/**
 	 * Endpoint namespace.
@@ -102,6 +101,26 @@ class GoogleClassroomIntegrationController extends CoursesController {
 		);
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)',
+			array(
+				'args'   => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_item' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/students',
 			array(
 				array(
@@ -112,26 +131,6 @@ class GoogleClassroomIntegrationController extends CoursesController {
 				),
 			)
 		);
-			register_rest_route(
-				$this->namespace,
-				'/' . $this->rest_base . '/(?P<id>[\d]+)',
-				array(
-					'args'   => array(
-						'id' => array(
-							'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
-							'type'        => 'integer',
-						),
-					),
-					array(
-						'methods'             => \WP_REST_Server::EDITABLE,
-						'callback'            => array( $this, 'update_item' ),
-						'permission_callback' => array( $this, 'update_item_permissions_check' ),
-						'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
-					),
-					'schema' => array( $this, 'get_public_item_schema' ),
-				)
-			);
-
 	}
 
 
@@ -167,10 +166,11 @@ class GoogleClassroomIntegrationController extends CoursesController {
 	/**
 	 * Sync data from google classroom.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return void
 	 */
+
 	public function sync_from_classroom() {
 
 		$google_setting_data = ( new GoogleClassroomSetting() )->get_data();
@@ -201,21 +201,21 @@ class GoogleClassroomIntegrationController extends CoursesController {
 		if ( ! empty( $data_from_classroom['courses'] ) ) {
 			$google_courses = array();
 			foreach ( $data_from_classroom['courses'] as $google_course ) {
-						$post = current(
-							get_posts(
-								array(
-									'post_type'   => 'mto-course',
-									'post_status' => 'any',
-									'meta_query'  => array(
+								$post = current(
+									get_posts(
 										array(
-											'key'     => '_google_classroom_course_id',
-											'value'   => $google_course['id'],
-											'compare' => '==',
-										),
-									),
-								)
-							)
-						);
+											'post_type'   => 'mto-course',
+											'post_status' => 'any',
+											'meta_query'  => array(
+												array(
+													'key' => '_google_classroom_course_id',
+													'value' => $google_course['id'],
+													'compare' => '==',
+												),
+											),
+										)
+									)
+								);
 
 				if ( ! empty( $post ) ) {
 					$course                          = masteriyo_get_course( $post->ID );
@@ -224,13 +224,13 @@ class GoogleClassroomIntegrationController extends CoursesController {
 					$google_course['edit_post_link'] = $course->get_edit_post_link();
 					$google_course['permalink']      = $course->get_permalink();
 				}
+
 				$google_courses[] = $google_course;
 			}
 			return $google_courses;
 		}
 
 		return array();
-
 	}
 
 
@@ -245,7 +245,7 @@ class GoogleClassroomIntegrationController extends CoursesController {
 		$data      = $request->get_json_params();
 		$course_id = $data['course_id'];
 
-		// sync Classroom Data.
+		// Sync data from google classroom
 
 		$this->sync_from_classroom();
 
@@ -317,7 +317,6 @@ class GoogleClassroomIntegrationController extends CoursesController {
 			);
 		}
 	}
-
 
 	/**
 	 * Sync and Update a single course.
@@ -419,10 +418,20 @@ class GoogleClassroomIntegrationController extends CoursesController {
 			return true;
 		}
 
-		if ( current_user_can( 'publish_google_classrooms' ) ) {
-			return true;
+		if ( ! current_user_can( 'publish_google_classrooms' ) ) {
+			return false;
 		}
 
-			return false;
+		$course_id = isset( $request['course_id'] ) ? absint( $request['course_id'] ) : 0;
+
+		if ( ! masteriyo_is_instructor_or_additional_instructor( $course_id ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_create',
+				__( 'Sorry, you are not allowed to enroll students into a course you do not own.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 }

@@ -3,7 +3,6 @@
  * List Course Tags ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseTag
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseTag;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns taxonomy terms registered under `course_tag`, including
  * name, slug, description, and course count.
- *
- * @since x.x.x
  */
 class ListCourseTagsAbility extends RestProxyAbility {
 

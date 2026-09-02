@@ -176,6 +176,11 @@ class LifterLMS {
 					}
 
 					update_post_meta( $item_id, '_pass_mark', floatval( $quiz->get( 'passing_percent' ) ) );
+
+					// Migrate quiz randomize and answer reveal settings.
+					update_post_meta( $item_id, '_randomize', $quiz->get( 'random_questions' ) );
+					$reveal_mode = ( 'yes' === $quiz->get( 'show_correct_answer' ) ) ? 'reveal' : 'no_reveal';
+					update_post_meta( $item_id, '_reveal_mode', $reveal_mode );
 				} elseif ( PostType::LESSON === $item['post_type'] ) {
 					$url = get_post_meta( $item_id, '_llms_video_embed', true );
 
@@ -187,6 +192,13 @@ class LifterLMS {
 
 					update_post_meta( $item_id, '_video_source', $source );
 					update_post_meta( $item_id, '_video_source_url', $url );
+
+					// Migrate free lesson preview flag.
+					if ( 'yes' === get_post_meta( $item_id, '_llms_free_lesson', true ) ) {
+						update_post_meta( $item_id, '_enable_preview', 1 );
+					}
+
+					self::migrate_single_content_drip( $item_id );
 				}
 			}
 		}
@@ -271,6 +283,7 @@ class LifterLMS {
 		} else {
 			update_post_meta( $course_id, '_price', $regular_price );
 		}
+
 	}
 
 	/**
@@ -543,7 +556,6 @@ class LifterLMS {
 	/**
 	 * Count total source items for a given migration step. Fast COUNT query — no records loaded.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return int
 	 */
@@ -644,10 +656,9 @@ class LifterLMS {
 	 * Enrollments and lesson_progress rows are deleted after migration, so they also self-remove.
 	 * Users use OFFSET because user rows persist after role assignment.
 	 *
-	 * @since x.x.x
 	 * @param string $step   Step name.
 	 * @param int    $limit  Batch size.
-	 * @param int    $offset Number of records already processed (used only for users).
+	 * @param int    $cursor Last processed ID (0 = first batch).
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
@@ -832,7 +843,6 @@ class LifterLMS {
 	 * Called by MigrationProcessJob inside a START TRANSACTION / COMMIT wrapper.
 	 * Must be idempotent — safe to call twice for the same (step, item_id) pair.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name matching a key in LifterLMSMigrator::get_steps().
 	 * @param int    $item_id Source item ID.
 	 * @throws \Exception Triggers ROLLBACK in the job engine; item is added to the failed list.
@@ -875,7 +885,6 @@ class LifterLMS {
 	 *
 	 * Idempotent: LifterLMS roles are removed and Masteriyo roles added; safe to call twice.
 	 *
-	 * @since x.x.x
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If the WP user record does not exist.
 	 */
@@ -934,7 +943,6 @@ class LifterLMS {
 	 *
 	 * Idempotent: returns early if post_type is already mto-course.
 	 *
-	 * @since x.x.x
 	 * @param int $course_id LifterLMS course post ID.
 	 * @throws \Exception If the post does not exist or is not a LifterLMS course.
 	 */
@@ -964,6 +972,15 @@ class LifterLMS {
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_cat' );
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_difficulty', 'course_difficulty' );
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_tag', 'course_tag' );
+
+		// Migrate course prerequisites.
+		if ( 'yes' === get_post_meta( $course_id, '_llms_has_prerequisite', true ) ) {
+			$prereq_id = (int) get_post_meta( $course_id, '_llms_prerequisite', true );
+			if ( $prereq_id > 0 ) {
+				update_post_meta( $course_id, '_prerequisites_courses', array( $prereq_id ) );
+			}
+			// Track-level prerequisite (_llms_prerequisite_track) has no Masteriyo equivalent — skip.
+		}
 	}
 
 	/**
@@ -972,7 +989,6 @@ class LifterLMS {
 	 * Operates on one lifterlms_user_postmeta row by its meta_id primary key.
 	 * Deletes the source row after migration so it self-removes from paginated queries.
 	 *
-	 * @since x.x.x
 	 * @param int $meta_id Primary key of the lifterlms_user_postmeta row (meta_key = '_status').
 	 * @throws \Exception If the row does not exist or the DB insert fails.
 	 */
@@ -1097,7 +1113,6 @@ class LifterLMS {
 	 * Writes a course_progress activity (if missing) and a lesson or quiz activity.
 	 * Deletes the source row after migrating so it self-removes from paginated queries.
 	 *
-	 * @since x.x.x
 	 * @param int $meta_id Primary key of the lifterlms_user_postmeta row (meta_key = '_is_complete').
 	 * @throws \Exception If the row does not exist.
 	 */
@@ -1244,7 +1259,6 @@ class LifterLMS {
 	 *
 	 * Idempotent: returns early if post_type is already mto-order.
 	 *
-	 * @since x.x.x
 	 * @param int $order_id LifterLMS llms_order post ID.
 	 * @throws \Exception If the post does not exist or is not an llms_order post.
 	 */
@@ -1275,7 +1289,6 @@ class LifterLMS {
 	 *
 	 * Deletes the source post after inserting the WP comment so it self-removes from paginated queries.
 	 *
-	 * @since x.x.x
 	 * @param int $review_id LifterLMS llms_review post ID.
 	 * @throws \Exception If the post does not exist or is not an llms_review post.
 	 */
@@ -1501,7 +1514,6 @@ class LifterLMS {
 	 *
 	 * Cursor-based — source rows are not deleted (historical records are preserved).
 	 *
-	 * @since x.x.x
 	 * @param int $attempt_id Primary key of the lifterlms_quiz_attempts row.
 	 */
 	private static function migrate_single_quiz_attempt( int $attempt_id ): void {
@@ -1598,7 +1610,6 @@ class LifterLMS {
 	 * LifterLMS certificate designs cannot be converted — a starter template is auto-assigned.
 	 * Students who completed the course will be able to download the certificate immediately.
 	 *
-	 * @since x.x.x
 	 * @param int $course_id Masteriyo course post ID.
 	 */
 	private static function migrate_single_earned_certificate( int $course_id ): void {
@@ -1614,11 +1625,51 @@ class LifterLMS {
 	}
 
 	/**
+	 * Migrate content drip settings for a single lesson from LifterLMS to Masteriyo Pro.
+	 *
+	 * Runs after the courses step so all lessons already have _course_id meta set.
+	 *
+	 * @param int $lesson_id Masteriyo mto-lesson post ID.
+	 */
+	private static function migrate_single_content_drip( int $lesson_id ): void {
+		$drip_method = get_post_meta( $lesson_id, '_llms_drip_method', true );
+
+		if ( empty( $drip_method ) || 'prerequisite' === $drip_method ) {
+			// No drip or no Masteriyo equivalent for prerequisite-based drip.
+			return;
+		}
+
+		$course_id = (int) get_post_meta( $lesson_id, '_course_id', true );
+
+		if ( 'enrollment' === $drip_method || 'start' === $drip_method ) {
+			$days = absint( get_post_meta( $lesson_id, '_llms_days_before_available', true ) );
+			update_post_meta( $lesson_id, '_content_drip_days', $days );
+			if ( $course_id ) {
+				update_post_meta( $course_id, '_flow', 'days' );
+			}
+		} elseif ( 'date' === $drip_method ) {
+			$date = sanitize_text_field( get_post_meta( $lesson_id, '_llms_date_available', true ) );
+			$time = sanitize_text_field( get_post_meta( $lesson_id, '_llms_time_available', true ) );
+			if ( $date ) {
+				$drip_date = $time ? "{$date} {$time}:00" : "{$date} 00:00:00";
+				update_post_meta( $lesson_id, '_content_drip_date', $drip_date );
+				if ( $course_id ) {
+					update_post_meta( $course_id, '_flow', 'date' );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Bulk-update course_progress status once all lesson_progress items are migrated.
+	 * Replaces the per-item recount queries — runs once after the step completes.
+	 *
+	 * @param string $step Step name.
+	 */
+	/**
 	 * Assign starter certificate templates to all migrated LifterLMS courses that had
 	 * earned certificates. Runs once as a single batch after the 'courses' step completes —
 	 * avoids one extra DB query per course during migration.
-	 *
-	 * @since x.x.x
 	 */
 	private static function assign_certificate_templates_for_lifterlms_courses(): void {
 		global $wpdb;
@@ -1648,10 +1699,9 @@ class LifterLMS {
 	}
 
 	/**
-	 * Bulk-update course_progress status once all lesson_progress items are migrated.
-	 * Replaces the per-item recount queries — runs once after the step completes.
+	 * Bulk post-step operations: assign certificate templates after 'courses',
+	 * recalculate course_progress status after 'lesson_progress'.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {

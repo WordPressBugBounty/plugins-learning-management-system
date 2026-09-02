@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\Addons\FluentCRM
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  */
 //phpcs:ignoreFile
 namespace Masteriyo\Addons\FluentCRM;
@@ -20,7 +20,7 @@ class AutomationConditions {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 */
 	public function init() {
 		add_filter( 'fluentcrm_automation_condition_groups', array( $this, 'add_automation_conditions' ), 10, 1 );
@@ -36,13 +36,19 @@ class AutomationConditions {
 	/**
 	 * Add automation conditions.
 	 *
-	 * @param array $groups The groups.
+	 * @since 1.14.0 [free]
+	 *
+	 * @param array $groups Groups.
 	 *
 	 * @return array
 	 */
 	public function add_automation_conditions( $groups ) {
 		$groups['masteriyolms'] = array(
-			'label'    => __( 'Masteriyo LMS', 'learning-management-system' ),
+			'label'    => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s LMS', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'value'    => 'masteriyolms',
 			'children' => array(
 				array(
@@ -69,9 +75,11 @@ class AutomationConditions {
 	/**
 	 * Assess automation conditions.
 	 *
-	 * @param bool   $result     The result.
-	 * @param array  $conditions The conditions.
-	 * @param object $subscriber The subscriber.
+	 * @since 1.14.0 [free]
+	 *
+	 * @param bool   $result     Result.
+	 * @param array  $conditions Conditions.
+	 * @param object $subscriber Subscriber.
 	 *
 	 * @return bool
 	 */
@@ -98,9 +106,11 @@ class AutomationConditions {
 	}
 
 	/**
-	 * Get the courses.
+	 * Get courses.
 	 *
-	 * @param array $memberships The memberships.
+	 * @since 1.14.0 [free]
+	 *
+	 * @param array $memberships Memberships.
 	 *
 	 * @return array
 	 */

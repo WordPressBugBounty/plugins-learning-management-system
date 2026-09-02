@@ -2,7 +2,7 @@
 /**
  * Masteriyo student name block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -15,7 +15,7 @@ class MasteriyoStudentName extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -40,12 +40,16 @@ class MasteriyoStudentName extends BlockBuilder {
 			} else {
 				$student_name = $full_name;
 			}
+
+			if ( '' === trim( $student_name ) ) {
+				$student_name = $student->get_display_name();
+			}
 		}
 
 		/**
 		 * Filter student name before using.
 		 *
-		 * @since 1.13.0
+		 * @since 2.4.8
 		 *
 		 * @param string $student_name Student name.
 		 * @param string $name_format Name format.

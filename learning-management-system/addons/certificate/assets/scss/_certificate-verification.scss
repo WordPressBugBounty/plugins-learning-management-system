@@ -1,0 +1,64 @@
+.masteriyo-qr-certificate {
+	min-height: calc(100vh - 32px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #e3e3e3;
+
+	@media screen and (width <= 600px) {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	&--wrapper {
+		width: 550px;
+		max-width: 100%;
+		padding: 100px 40px 40px;
+		border-radius: 8px;
+		background: #fff;
+		position: relative;
+	}
+
+	&__avatar {
+		position: absolute;
+		top: -72px;
+		left: 40px;
+		background: #e3e3e3;
+		padding: 12px;
+		border-radius: 50%;
+
+		img {
+			width: 120px;
+			height: 120px;
+			object-fit: cover;
+			border-radius: 50%;
+		}
+	}
+
+	&__desc {
+		display: flex;
+		flex-direction: column;
+		gap: 30px;
+
+		&--content {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+			align-items: center;
+
+			label {
+				color: #222;
+				font-size: 16px;
+				font-weight: 500;
+				line-height: 150%;
+			}
+
+			p {
+				color: #383838;
+				font-size: 16px;
+				font-weight: 400;
+				line-height: 150%;
+				margin-top: 0;
+			}
+		}
+	}
+}

@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\GoogleClassroomIntegration
  *
- * @since 1.11.0
+ * @since 2.11.0
  */
 
 namespace Masteriyo\Addons\GoogleClassroomIntegration;
@@ -12,7 +12,7 @@ namespace Masteriyo\Addons\GoogleClassroomIntegration;
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,14 +21,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\GoogleClassroomIntegration
  *
- * @since 1.11.0
+ * @since 2.11.0
  */
 class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -39,7 +39,7 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @return string
 	 */
@@ -50,7 +50,7 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget icon.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @return string Widget icon.
 	 */
@@ -61,7 +61,7 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget keywords.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @return string[]
 	 */
@@ -72,14 +72,14 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Register controls configuring widget content.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 */
 	protected function register_content_controls() {}
 
 	/**
 	 * Register controls for customizing widget styles.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 */
 	protected function register_style_controls() {
 		$this->start_controls_section(
@@ -131,7 +131,7 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	 *
 	 * Written as a Backbone JavaScript template and used to generate the live preview.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 */
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
@@ -148,7 +148,7 @@ class CourseGoogleClassroomMetaWidget extends SingleCourseWidgetBase {
 	/**
 	 * Render the widget output on the frontend.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();

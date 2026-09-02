@@ -5,7 +5,6 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogOverlay,
-	Badge,
 	Box,
 	Button,
 	ButtonGroup,
@@ -22,6 +21,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useRef, useState } from 'react';
 import { BiGroup } from 'react-icons/bi';
 import { RxDividerVertical } from 'react-icons/rx';
+import StatusBadge from '../../../../../../assets/js/account/common/StatusBadge';
 import {
 	EditIcon,
 	Trash,
@@ -128,11 +128,12 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 				</AlertDialogOverlay>
 			</AlertDialog>
 			<Box
-				bgColor="muted"
-				border="1px"
-				borderColor="gray.200"
-				rounded={'md'}
+				bg="white"
+				borderWidth="1px"
+				borderColor="icy-blue-gray"
+				rounded={'xl'}
 				position={'relative'}
+				mb={4}
 			>
 				<Flex
 					justifyContent={'space-between'}
@@ -151,26 +152,15 @@ const Group: React.FC<GroupProps> = ({ group, onExpandedGroupsChange }) => {
 							{group.title}
 						</Text>
 						{isPending && (
-							<Badge
-								color="yellow.500"
-								p={1}
-								borderRadius="base"
-								variant={'link'}
-							>
+							<StatusBadge status="pending">
 								{__('Pending', 'learning-management-system')}
-							</Badge>
+							</StatusBadge>
 						)}
 						{isInactive && (
 							<Tooltip label={inactiveTooltip}>
-								<Badge
-									color="gray.500"
-									p={1}
-									borderRadius="base"
-									variant={'link'}
-									cursor="default"
-								>
+								<StatusBadge status="inactive" cursor="default">
 									{__('Inactive', 'learning-management-system')}
-								</Badge>
+								</StatusBadge>
 							</Tooltip>
 						)}
 					</Flex>

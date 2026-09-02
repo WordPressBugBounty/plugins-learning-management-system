@@ -107,7 +107,6 @@ class CourseFilterAndSortingAjaxHandler extends AjaxHandler {
 				foreach ( $courses as $course ) {
 					$GLOBALS['course'] = $course;
 					$course_part       = 'course' . ( '' !== $layout ? '-' . $layout : '' );
-
 					\masteriyo_get_template_part( 'content', $course_part );
 				}
 
@@ -185,7 +184,7 @@ class CourseFilterAndSortingAjaxHandler extends AjaxHandler {
 	 */
 	protected function prepare_query_args() {
 		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'masteriyo_course_filter_and_sorting_nonce' ) ) {
-			throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 		}
 
 		$args = array(
@@ -298,9 +297,9 @@ class CourseFilterAndSortingAjaxHandler extends AjaxHandler {
 	 * @param array $args
 	 */
 	protected function add_rating_filter_args( &$args ) {
-		if ( ! empty( $_POST['rating'] ) && is_array( $_POST['rating'] ) ) {
+		if ( ! empty( $_POST['rating'] ) && is_array( $_POST['rating'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in process().
 			$ratings = array_filter(
-				array_map( 'intval', $_POST['rating'] ),
+				array_map( 'intval', $_POST['rating'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in process().
 				function( $val ) {
 					return $val > 0;
 				}

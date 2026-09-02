@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.0.0
+ * @version 3.4.0
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -33,7 +33,6 @@ $remaining    = max( 0, $total - $completed );
 $progress_raw = $total > 0 ? ( $completed / $total ) * 100 : 0;
 $progress_pct = max( 0, min( 100, $progress_raw ) );
 
-
 $show_overview_active = false;
 
 if (
@@ -44,35 +43,18 @@ if (
 	$show_overview_active = true;
 }
 
-$sections        = masteriyo_get_course_structure( $course->get_id() );
-$reviews_enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) );
-$reviews_allowed = $course->is_review_allowed();
-$review_count    = (int) $course->get_review_count();
-$has_reviews     = $review_count > 0;
-$is_logged_in    = is_user_logged_in();
-$visibility_on   = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' ) );
+$sections      = masteriyo_get_course_structure( $course->get_id() );
+$has_reviews   = (int) $course->get_review_count() > 0;
+$visibility_on = masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' ) );
 
-if ( $visibility_on ) {
-	if ( ! $is_logged_in ) {
-		if ( $has_reviews ) {
-			$show_tab = true;
-		} else {
-			$show_tab = false;
-		}
-	} elseif ( $has_reviews ) {
-			$show_tab = true;
-	} else {
-		$show_tab = true;
-	}
-} else {
-	$show_tab = true;
-}
+// Same condition as the reviews panel, or the tab opens an empty container.
+$show_tab = $course->is_review_allowed() && ( ! $visibility_on || $has_reviews || is_user_logged_in() );
 
 ?>
 
 <div class="tab-menu masteriyo-stab masteriyo-course-curriculum-tabs">
 
-	<?php if ( $show_overview_active && ! empty( $sections ) ) : ?>
+	<?php if ( $show_overview_active ) : ?>
 		<div class="masteriyo-tab active-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-overview');">
 			<?php echo esc_html__( 'Overview', 'learning-management-system' ); ?>
 		</div>
@@ -80,7 +62,7 @@ if ( $visibility_on ) {
 
 	<?php
 	if ( $show_curriculum ) :
-		if ( $course->get_show_curriculum() || masteriyo_can_start_course( $course ) ) :
+		if ( masteriyo_can_view_curriculum( $course ) && ! empty( $sections ) ) :
 			$curriculum_class = $show_overview_active ? 'masteriyo-tab' : 'masteriyo-tab active-tab';
 			?>
 			<div class="<?php echo esc_attr( $curriculum_class ); ?>" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-curriculum');">
@@ -96,10 +78,10 @@ if ( $visibility_on ) {
 	<?php endif; ?>
 
 	<?php if ( $show_tab ) : ?>
-			<div class="masteriyo-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-reviews');">
-				<?php echo esc_html__( 'Reviews', 'learning-management-system' ); ?>
-			</div>
-		<?php endif; ?>
+		<div class="masteriyo-tab" onClick="masteriyo_select_single_course_page_tab(event, '.tab-content.course-reviews');">
+			<?php echo esc_html__( 'Reviews', 'learning-management-system' ); ?>
+		</div>
+	<?php endif; ?>
 
 	<?php
 	/**

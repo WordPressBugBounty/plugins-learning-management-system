@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 
 use WP_Error;
+use Masteriyo\AddonsFramework\Addons;
 
 class Request {
 	/**
@@ -115,44 +116,52 @@ class Request {
 	 *
 	 * @since 1.9.3
 	 *
-	 * @param \Masteriyo\Models\Course|int $course The Masteriyo course ID.
+	 * @param object $item The Masteriyo course or course bundle object.
 	 * @param array  $options    (Optional) Checkout URL options (e.g., 'redirect_url', 'failure_url').
 	 *
 	 * @return string|WP_Error The checkout URL or a WP_Error object on failure.
 	 */
-	public function create_checkout_url( $course, $checkout_data, $options = array() ) {
+	public function create_checkout_url( $item, $checkout_data, $options = array() ) {
 
-		$course = masteriyo_get_course( $course );
+		$item_name_key = '';
+		if ( masteriyo_is_bundle_product( $item ) ) {
+			$item_name_key = 'course_bundle';
+			$item          = masteriyo_get_bundle_product( $item );
+		} elseif ( $item instanceof \Masteriyo\Models\Course ) {
+			$item_name_key = 'course';
+			$item          = masteriyo_get_course( $item );
+		} else {
+			return new WP_Error( 'invalid_course_data', __( 'Item not found.', 'learning-management-system' ) );
+		}
 
-		if ( ! $course ) {
+		if ( ! $item ) {
 			return new WP_Error( 'invalid_course_data', __( 'Course does not exist.', 'learning-management-system' ) );
 		}
 
-		$lemon_squeezy_product_id = get_post_meta( $course->get_id(), '_lemon_squeezy_product_id', true );
+		$lemon_squeezy_product_id = get_post_meta( $item->get_id(), '_lemon_squeezy_product_id', true );
 
 		if ( ! $lemon_squeezy_product_id ) {
 			return new WP_Error( 'invalid_course_data', __( 'Course does not have a linked Lemon Squeezy product.', 'learning-management-system' ) );
 		}
 
 		if ( isset( $checkout_data['custom'] ) ) {
-			$checkout_data['custom']['course_name'] = $course->get_name();
+			$checkout_data['custom'][ $item_name_key ] = $item->get_name();
 		}
 
 		$checkout_data['variant_quantities'] = array();
 
 		$product_options = array(
-			'name'             => $course->get_name(),
+			'name'             => $item->get_name(),
 			'enabled_variants' => array( $lemon_squeezy_product_id ),
 		);
 
-		if ( ! empty( trim( $course->get_description() ) ) ) {
-			$product_options['description'] = $course->get_description();
+		if ( ! empty( trim( $item->get_description() ) ) ) {
+			$product_options['description'] = $item->get_description();
 		}
 
 		if ( isset( $options['redirect_url'] ) && ! empty( $options['redirect_url'] ) ) {
 			$product_options['redirect_url'] = $options['redirect_url'];
 		}
-
 		$data = array(
 			'data' => array(
 				'type'          => 'checkouts',
@@ -178,6 +187,20 @@ class Request {
 				),
 			),
 		);
+
+		// To make compatible with Masteriyo Coupons addon. The addon is pro's, so on
+		// free it can never be active — the second test says so in the one vocabulary
+		// the free-safety analysis reads.
+		if ( ( new Addons() )->is_active( 'coupons' ) && masteriyo_service_provider_exists( 'coupons' ) ) {
+
+			$applied_coupons = masteriyo( 'coupons' )->get_discount_totals_by_coupon();
+
+			if ( ! empty( $applied_coupons ) ) {
+				$discount_code = key( $applied_coupons );
+				// Coupon code must be same as the Lemon Squeezy discount code.
+				$data['data']['attributes']['checkout_data']['discount_code'] = $discount_code;
+			}
+		}
 
 		$response = $this->make_request( 'checkouts', 'POST', $data );
 

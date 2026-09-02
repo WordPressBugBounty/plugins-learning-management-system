@@ -1,6 +1,9 @@
 <?php
 
 //As this files autoload from composer.
+
+use Masteriyo\Helper\Utils;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }

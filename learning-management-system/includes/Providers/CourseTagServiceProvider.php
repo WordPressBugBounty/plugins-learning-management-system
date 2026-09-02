@@ -13,7 +13,32 @@ use Masteriyo\Repository\CourseTagRepository;
 use Masteriyo\RestApi\Controllers\Version1\CourseTagsController;
 
 class CourseTagServiceProvider extends AbstractServiceProvider {
-
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'course_tag',
+				'course_tag.store',
+				'course_tag.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\CourseTagsController',
+			),
+			true
+		);
+	}
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -34,32 +59,5 @@ class CourseTagServiceProvider extends AbstractServiceProvider {
 
 		$this->getContainer()->add( 'course_tag', CourseTag::class )
 			->addArgument( 'course_tag.store' );
-	}
-
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * Check if the service provider provides a specific service.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id Service identifier.
-	 * @return bool True if the service is provided, false otherwise.
-	 */
-	public function provides( string $id ): bool {
-		return in_array(
-			$id,
-			array(
-				'course_tag',
-				'course_tag.store',
-				'course_tag.rest',
-				'\Masteriyo\RestApi\Controllers\Version1\CourseTagsController',
-			),
-			true
-		);
 	}
 }

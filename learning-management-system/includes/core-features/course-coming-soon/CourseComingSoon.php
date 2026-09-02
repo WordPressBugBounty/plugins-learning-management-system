@@ -47,6 +47,7 @@ class CourseComingSoon {
 		add_action( 'masteriyo_new_course', array( $this, 'save_course_coming_soon_data' ), 10, 2 );
 		add_action( 'masteriyo_update_course', array( $this, 'save_course_coming_soon_data' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_course_coming_soon_data_in_response' ), 10, 4 );
+		add_filter( 'masteriyo_rest_response_user_course_data', array( $this, 'append_course_coming_soon_data_in_user_course_response' ), 10, 2 );
 		add_action( 'masteriyo_single_course_sidebar_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
 		add_action( 'masteriyo_single_course_minimal_sidebar_content', array( $this, 'render_course_coming_soon_sidebar_content' ), 15 );
@@ -240,6 +241,28 @@ class CourseComingSoon {
 	}
 
 	/**
+	 * Add coming-soon data to the course inside a user-course REST response (My Courses).
+	 *
+	 * @param array $data User course response data.
+	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
+	 *
+	 * @return array
+	 */
+	public function append_course_coming_soon_data_in_user_course_response( $data, $user_course ) {
+		if ( empty( $data['course'] ) ) {
+			return $data;
+		}
+
+		$course = masteriyo_get_course( $user_course->get_course_id() );
+
+		if ( $course ) {
+			$data['course'] = $this->append_course_coming_soon_data_in_response( $data['course'], $course, 'view', null );
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Change template for courses template in single course page.
 	 *
 	 * @since 1.11.0 [free]
@@ -417,7 +440,7 @@ class CourseComingSoon {
 	 */
 	public function is_enabled( $course ) {
 
-		if ( ! $course ) {
+		if ( ! $course || $course->get_enable_cohort_mode() ) {
 			return false;
 		}
 

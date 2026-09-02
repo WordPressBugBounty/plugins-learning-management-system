@@ -9,8 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\PostStatus;
-use Masteriyo\Enums\QuestionType;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Enums\QuestionType;
+use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use WP_Error;
 
 class QuestionsController extends PostsController {
@@ -226,6 +227,25 @@ class QuestionsController extends PostsController {
 				),
 			)
 		);
+
+		// @since 2.5.7 Added clone endpoint to lessons REST API.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/clone',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'clone_item' ),
+					'permission_callback' => array( $this, 'clone_item_permissions_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -332,12 +352,21 @@ class QuestionsController extends PostsController {
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
-		$params['tag']      = array(
+
+		$params['tag'] = array(
 			'description'       => __( 'Limit result set to courses assigned a specific tag ID.', 'learning-management-system' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
+
+		$params['random_id'] = array(
+			'description'       => __( 'Random ID.', 'learning-management-system' ),
+			'type'              => 'integer',
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+
 		$params['per_page'] = array(
 			'description'       => __( 'Maximum number of items to be returned in result set.', 'learning-management-system' ),
 			'type'              => 'integer',
@@ -426,7 +455,7 @@ class QuestionsController extends PostsController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Models\Question\Question $question Question instance.
+	 * @param \Masteriyo\Models\Question\Question $question Question instance.
 	 * @param string   $context Request context.
 	 *                          Options: 'view' and 'edit'.
 	 *
@@ -440,8 +469,9 @@ class QuestionsController extends PostsController {
 		 *
 		 * @param string $description Question description.
 		 */
-		$description = 'view' === $context ? apply_filters( 'masteriyo_description', $question->get_description() ) : $question->get_description();
-		$name        = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
+		$description        = 'view' === $context ? apply_filters( 'masteriyo_description', $question->get_description() ) : $question->get_description();
+		$name               = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
+		$answer_explanation = 'view' === $context ? apply_filters( 'the_content', $question->get_answer_explanation() ) : $question->get_answer_explanation();
 
 		$data = array(
 			'id'                     => $question->get_id(),
@@ -463,19 +493,33 @@ class QuestionsController extends PostsController {
 			'feedback'               => $question->get_feedback( $context ),
 			'answers_decode_success' => $question->is_answers_decoded(),
 			'enable_description'     => $question->get_enable_description( $context ),
+			'answer_explanation'     => $answer_explanation,
 		);
 
 		$answers          = $question->get_answers( $context );
 		$filtered_answers = array();
 
+		// Other question type might doesn't have answer correct key or array type answer.
+		$filter_question_type = array(
+			'true-false',
+			'single-choice',
+			'multiple-choice',
+		);
+
 		// Remove answer correct key for view context.
-		if ( ! $show_correct_answer && is_array( $answers ) ) {
+		if ( ! $show_correct_answer && is_array( $answers ) && in_array( $question->get_type( $context ), $filter_question_type, true ) ) {
 			$filtered_answers = array_map(
 				function ( $obj ) {
 					return (object) array( 'name' => $obj->name );
 				},
 				$answers
 			);
+		} else {
+			$filtered_answers = $answers;
+		}
+
+		if ( $question->get_randomize( $context ) ) {
+			shuffle( $filtered_answers );
 		}
 
 		$data['answers'] = ! $show_correct_answer ? $filtered_answers : $answers;
@@ -506,20 +550,32 @@ class QuestionsController extends PostsController {
 	 * @param \Masteriyo\Models\Question\Question $question Question object.
 	 */
 	protected function process_answers( $answers, $question ) {
+		if ( QuestionType::FILL_IN_THE_BLANKS === $question->get_type() ) {
+			$answers = is_array( $answers ) ? join( '', $answers ) : $answers;
+			$pattern = '/{{.+}}/mU';
+			$answers = preg_replace( $pattern, '{{blanks}}', $answers );
+		}
+
 		return $answers;
 	}
 
 	/**
 	 * Prepare objects query.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
 	 * @since  1.0.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
 	 *
 	 * @return array
 	 */
 	protected function prepare_objects_query( $request ) {
 		$args = parent::prepare_objects_query( $request );
+
+		// Support quiz's question randomization for only single quiz.
+		if ( isset( $request['random_id'] ) && 'rand' === $args['orderby'] ) {
+			$args['orderby']   = $args['orderby'] . '(' . $request['random_id'] . ')';
+			$args['random_id'] = $request['random_id'];
+		}
 
 		// Set post_status.
 		$args['post_status'] = $request['status'];
@@ -553,47 +609,6 @@ class QuestionsController extends PostsController {
 			'value'   => QuestionType::all(),
 			'compare' => 'IN',
 		);
-
-		// Taxonomy query to filter questions by type, category,
-		// tag, shipping class, and attribute.
-		$tax_query = array();
-
-		// Map between taxonomy name and arg's key.
-		$taxonomies = array(
-			'question_cat'        => 'category',
-			'question_tag'        => 'tag',
-			'question_difficulty' => 'difficulty',
-		);
-
-		// Set tax_query for each passed arg.
-		foreach ( $taxonomies as $taxonomy => $key ) {
-			if ( ! empty( $request[ $key ] ) ) {
-				$tax_query[] = array(
-					'taxonomy' => $taxonomy,
-					'field'    => 'term_id',
-					'terms'    => $request[ $key ],
-				);
-			}
-		}
-
-		// Filter question type by slug.
-		if ( ! empty( $request['type'] ) ) {
-			$tax_query[] = array(
-				'taxonomy' => 'question_type',
-				'field'    => 'slug',
-				'terms'    => $request['type'],
-			);
-		}
-
-		// Filter featured.
-		if ( is_bool( $request['featured'] ) ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'question_visibility',
-				'field'    => 'name',
-				'terms'    => 'featured',
-				'operator' => true === $request['featured'] ? 'IN' : 'NOT IN',
-			);
-		}
 
 		// Filter by question type.
 		if ( ! empty( $request['question_types'] ) ) {
@@ -715,7 +730,7 @@ class QuestionsController extends PostsController {
 				),
 				'answers'                => array(
 					'description' => __( 'Given answer list for the question.', 'learning-management-system' ),
-					'type'        => 'object',
+					'type'        => 'object|string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answers_decode_success' => array(
@@ -730,13 +745,18 @@ class QuestionsController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'randomize'              => array(
-					'description' => __( 'Whether to the answers.', 'learning-management-system' ),
+					'description' => __( 'Whether to randomize answers.', 'learning-management-system' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enable_description'     => array(
-					'description' => __( 'Whether to enable question description.', 'learning-management-system' ),
+					'description' => __( 'Whether to enable points.', 'learning-management-system' ),
 					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'answer_explanation'     => array(
+					'description' => __( 'Description for answer.', 'learning-management-system' ),
+					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'              => array(
@@ -783,8 +803,7 @@ class QuestionsController extends PostsController {
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
 		$id       = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
-		$type     = isset( $request['type'] ) ? $request['type'] : 'true-false';
-		$question = masteriyo( "question.$type" );
+		$question = masteriyo( 'question' );
 
 		if ( 0 !== $id ) {
 			$question->set_id( $id );
@@ -816,7 +835,7 @@ class QuestionsController extends PostsController {
 
 		// Post status.
 		if ( isset( $request['status'] ) ) {
-			$question->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : 'draft' );
+			$question->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : PostStatus::DRAFT );
 		}
 
 		// Post slug.
@@ -829,8 +848,7 @@ class QuestionsController extends PostsController {
 			$quiz_id     = absint( $request['parent_id'] );
 			$found_posts = masteriyo_get_all_questions_count_by_quiz( $quiz_id );
 
-			$question->set_menu_order( $found_posts + 1 );
-		}
+			$question->set_menu_order( $found_posts + 1 );      }
 
 		// Post type.
 		if ( isset( $request['type'] ) ) {
@@ -872,9 +890,13 @@ class QuestionsController extends PostsController {
 			$question->set_feedback( $request['feedback'] );
 		}
 
-		// Question enable description.
+		// Question enable points.
 		if ( isset( $request['enable_description'] ) ) {
 			$question->set_enable_description( $request['enable_description'] );
+		}
+
+		if ( isset( $request['answer_explanation'] ) ) {
+			$question->set_answer_explanation( $request['answer_explanation'] );
 		}
 
 		// Allow set meta_data.
@@ -1091,7 +1113,7 @@ class QuestionsController extends PostsController {
 		$quizzes          = get_posts( array( 'include' => $request['parent'] ) );
 		$courses          = array_filter(
 			array_map(
-				function ( $quiz ) {
+				function( $quiz ) {
 					$course_id = get_post_meta( $quiz->ID, '_course_id', true );
 					return masteriyo_get_course( $course_id );
 				},
@@ -1100,7 +1122,7 @@ class QuestionsController extends PostsController {
 		);
 		$all_open_courses = array_reduce(
 			$courses,
-			function ( $result, $course ) {
+			function( $result, $course ) {
 				return $result && CourseAccessMode::OPEN === $course->get_access_mode();
 			},
 			true
@@ -1158,13 +1180,13 @@ class QuestionsController extends PostsController {
 	}
 
 	/**
-	 * Check if a given request has access to create questions from bank.
-	 *
-	 * @since 1.17.0
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|boolean
-	 */
+		 * Check if a given request has access to create questions from bank.
+		 *
+		 * @since 1.17.0 [Free]
+		 *
+		 * @param  WP_REST_Request $request Full details about the request.
+		 * @return WP_Error|boolean
+		 */
 	public function update_bank_questions_permissions_check( $request ) {
 		if ( ! isset( $request['ids'], $request['quiz_id'] ) ) {
 			return new \WP_Error(
@@ -1263,7 +1285,7 @@ class QuestionsController extends PostsController {
 	/**
 	 * Get objects.
 	 *
-	 * @since  1.17.0
+	 * @since  1.17.0 [Free]
 	 *
 	 * @param  array $query_args Query args.
 	 *
@@ -1290,12 +1312,12 @@ class QuestionsController extends PostsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.5.15
+	 * @since 2.2.8
 	 *
-	 * @param array $objects Courses data.
+	 * @param array $objects Questions data.
 	 * @param array $query_args Query arguments.
-	 * @param array $query_results Courses query result data.
-	 *
+	 * @param array $query_results Questions query result data.
+	*
 	 * @return array
 	 */
 	protected function process_objects_collection( $objects, $query_args, $query_results ) {
@@ -1308,6 +1330,7 @@ class QuestionsController extends PostsController {
 				'pages'        => $query_results['pages'],
 				'current_page' => $query_args['paged'],
 				'per_page'     => $query_args['posts_per_page'],
+				'random_id'    => ( isset( $query_args['random_id'] ) && masteriyo_starts_with( $query_args['orderby'], 'rand' ) ) ? $query_args['random_id'] : current_time( 'timestamp' ),
 			),
 		);
 	}
@@ -1315,7 +1338,7 @@ class QuestionsController extends PostsController {
 	/**
 	 * Delete a single item.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -1343,10 +1366,9 @@ class QuestionsController extends PostsController {
 		if ( $is_from_bank && $quiz_id ) {
 			$result = masteriyo_remove_question_from_quiz( $quiz_id, $object->get_id() );
 
-			// Fallback case if the question is not removed from the quiz bank it means it directly linked to the quiz.
+			// Fallback case if the question is not removed from the bank it means it directly linked to the quiz.
 			if ( ! $result ) {
-				$linked_quiz_id = $object->get_parent_id();
-				if ( absint( $linked_quiz_id ) === absint( $quiz_id ) ) {
+				if ( absint( $object->get_parent_id() ) === absint( $quiz_id ) ) {
 					$object->set_parent_id( 0 );
 					$object->set_menu_order( 0 );
 					$object->save();
@@ -1363,7 +1385,7 @@ class QuestionsController extends PostsController {
 	/**
 	 * Update bank questions by associating them with a quiz.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param WP_REST_Request $request Request object containing 'ids' of questions and 'quiz_id' as quiz ID.
 	 * @return WP_REST_Response|WP_Error REST response containing the updated question data or error object.
@@ -1377,7 +1399,7 @@ class QuestionsController extends PostsController {
 		}
 
 		$responses  = array();
-		$menu_order = masteriyo_get_all_questions_count_by_quiz( $quiz_id ) + 1;
+		$menu_order = masteriyo_get_all_questions_count_by_quiz( $quiz_id );
 
 		foreach ( $question_ids as $question_id ) {
 			$question = masteriyo_get_question( $question_id );
@@ -1389,6 +1411,11 @@ class QuestionsController extends PostsController {
 			if ( ! $question->get_is_from_bank() ) {
 				$question->set_is_from_bank( true );
 			}
+
+			// Advance per question, so a batch does not write one menu order to every
+			// row it links. The increment sits below the guards above so a skipped
+			// question leaves no gap in the sequence.
+			++$menu_order;
 
 			masteriyo_add_question_to_quiz( $quiz_id, $question_id, $menu_order );
 

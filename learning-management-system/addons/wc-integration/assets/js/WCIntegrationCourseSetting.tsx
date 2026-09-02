@@ -20,7 +20,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import { BiLinkExternal } from 'react-icons/bi';
 import AsyncSelect from '../../../../assets/js/back-end/components/common/AsyncSelect';
@@ -28,7 +28,10 @@ import FormControlTwoCol from '../../../../assets/js/back-end/components/common/
 import ToolTip from '../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { WCIntegrationSchema } from '../../../../assets/js/back-end/types/course';
 import API from '../../../../assets/js/back-end/utils/api';
-import { deepClean } from '../../../../assets/js/back-end/utils/utils';
+import {
+	deepClean,
+	getPluginName,
+} from '../../../../assets/js/back-end/utils/utils';
 import { WC_COURSE_PRODUCT_TYPES } from './constants/productTypes';
 import { urls } from './constants/urls';
 
@@ -54,11 +57,12 @@ interface WcProductOption {
 
 interface Props {
 	WCIntegrationData?: WCIntegrationSchema;
+	isCourseBundle?: boolean;
 	regularPrice?: string;
 }
 
 const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
-	const { WCIntegrationData, regularPrice } = props;
+	const { WCIntegrationData, isCourseBundle, regularPrice } = props;
 	const isFree = !regularPrice || parseFloat(regularPrice) <= 0;
 
 	const toast = useToast();
@@ -67,7 +71,11 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 	const courseId = WCIntegrationData?.course_id || 0;
 	const hasExistingProduct = WCIntegrationData?.product_create || false;
 
-	const createProductAPI = new API(urls.create_wc_product);
+	const createProductAPI = new API(
+		WCIntegrationData?.is_course_bundle
+			? urls.create_bundle_wc_product
+			: urls.create_wc_product,
+	);
 
 	const createProductMutation = useMutation<WCIntegrationSchema>({
 		mutationFn: (data) => createProductAPI.store(data),
@@ -88,6 +96,7 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 					isClosable: true,
 				});
 				queryClient.invalidateQueries({ queryKey: [`course${courseId}`] });
+				queryClient.invalidateQueries({ queryKey: [`bundle${courseId}`] });
 			},
 
 			onError: (error: any) => {
@@ -197,7 +206,11 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 		staleTime: 5 * 60 * 1000,
 	});
 
-	const targetTypeLabel = __('Masteriyo Course', 'learning-management-system');
+	const targetTypeLabel = sprintf(
+		// translators: %s: the product's name.
+		__('%s Course', 'learning-management-system'),
+		getPluginName(),
+	);
 
 	const handleLinkClick = () => {
 		if (
@@ -226,7 +239,7 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 				{__('Create as a Product', 'learning-management-system')}
 				<ToolTip
 					label={__(
-						'Create a new product in WooCommerce for this course. Ensure this course is set to be paid.',
+						'Create a new product in WooCommerce for this item. Ensure this item is set to be paid.',
 						'learning-management-system',
 					)}
 				/>
@@ -255,13 +268,16 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 							handleCreateProduct({
 								course_id: courseId,
 								product_create: true,
+								is_course_bundle: WCIntegrationData?.is_course_bundle
+									? true
+									: false,
 							})
 						}
 						colorScheme={'primary'}
 						isDisabled={hasExistingProduct || isFree || !!linkedProductId}
 					>
 						{createProductMutation.isPending
-							? __('Creating Product...', 'learning-management-system')
+							? __('Creating Product…', 'learning-management-system')
 							: __('Create Product', 'learning-management-system')}
 					</Button>
 				</Tooltip>
@@ -416,9 +432,13 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 						<ModalBody>
 							<Stack spacing={4}>
 								<Text fontSize="sm" color="gray.600">
-									{__(
-										'To link this product to the course, its type will be changed to Masteriyo Course.',
-										'learning-management-system',
+									{sprintf(
+										// translators: %s: the product's name.
+										__(
+											'To link this product to the course, its type will be changed to %s Course.',
+											'learning-management-system',
+										),
+										getPluginName(),
 									)}
 								</Text>
 								<Box
@@ -486,9 +506,18 @@ const WCIntegrationCourseSetting: React.FC<Props> = (props) => {
 
 	return (
 		<Stack direction="column" spacing="8">
-			<FormControlTwoCol>{details(hasExistingProduct)}</FormControlTwoCol>
+			{WCIntegrationData?.is_course_bundle || isCourseBundle ? (
+				<Flex flexDir={'row'} justify="space-between">
+					{details(hasExistingProduct)}
+				</Flex>
+			) : (
+				<FormControlTwoCol>{details(hasExistingProduct)}</FormControlTwoCol>
+			)}
 
-			<FormControlTwoCol>{linkSection()}</FormControlTwoCol>
+			{/* Link existing product section — only for non-bundle courses */}
+			{!WCIntegrationData?.is_course_bundle && !isCourseBundle && (
+				<FormControlTwoCol>{linkSection()}</FormControlTwoCol>
+			)}
 		</Stack>
 	);
 };

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Social Engagement
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\GamiPressIntegration\Helper;
 
 define( 'MASTERIYO_GAMIPRESS_INTEGRATION_FILE', __FILE__ );
@@ -28,7 +28,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_GAMIPRESS_INTEGRATION_SLUG ) && ! He
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'GamiPress Integration addon requires GamiPress plugin to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

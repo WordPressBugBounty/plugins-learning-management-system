@@ -3,7 +3,6 @@
  * Get Course Category ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseCategory
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseCategory;
@@ -16,8 +15,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Ability: retrieve a single course category by ID.
  *
  * Returns the term object including name, slug, description, and course count.
- *
- * @since x.x.x
  */
 class GetCourseCategoryAbility extends RestProxyAbility {
 

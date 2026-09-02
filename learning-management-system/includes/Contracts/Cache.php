@@ -64,7 +64,7 @@ interface Cache {
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $data, $group = '', $expire = 0  );
+	public function set( $key, $data, $group = '', $expire = 0 );
 
 	/**
 	 * Adds data to the cache, if the cache key doesn’t already exist.
@@ -116,5 +116,4 @@ interface Cache {
 	 * @return bool True on success, false on failure.
 	 */
 	public function flush();
-
 }

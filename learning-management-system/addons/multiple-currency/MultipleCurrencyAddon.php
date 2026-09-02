@@ -2,7 +2,7 @@
 /**
  * Multiple Currency Addon for Masteriyo.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 namespace Masteriyo\Addons\MultipleCurrency;
@@ -11,18 +11,21 @@ use Masteriyo\Addons\MultipleCurrency\Controllers\MultipleCurrencySettingsContro
 use Masteriyo\Addons\MultipleCurrency\Controllers\PriceZonesController;
 use Masteriyo\Addons\MultipleCurrency\MaxMind\DatabaseService;
 use Masteriyo\Addons\MultipleCurrency\PostType\PriceZone;
+use Masteriyo\Constants;
+use Masteriyo\Traits\Singleton;
 
 /**
  * Multiple Currency Addon main class for Masteriyo.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class MultipleCurrencyAddon {
+	use Singleton;
 
 	/**
 	 * Initialize.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -36,7 +39,7 @@ class MultipleCurrencyAddon {
 	 * currency and prices based on the user's country, registering a multiple currency submenu,
 	 * registering a price zone post type, and registering REST API namespaces.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'register_multiple_currency_submenu' ) );
@@ -47,10 +50,16 @@ class MultipleCurrencyAddon {
 		add_action( 'masteriyo_new_course', array( $this, 'save_multiple_currency_data' ), 10, 2 );
 		add_action( 'masteriyo_update_course', array( $this, 'save_multiple_currency_data' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_multiple_currency_data_in_response' ), 10, 4 );
-
+		add_filter( 'masteriyo_rest_response_course_bundle_data', array( $this, 'append_multiple_currency_data_in_response' ), 10, 4 );
+		add_action( 'masteriyo_new_course_bundle', array( $this, 'save_multiple_currency_data' ), 10, 2 );
+		add_action( 'masteriyo_update_course_bundle', array( $this, 'save_multiple_currency_data' ), 10, 2 );
 		add_filter( 'masteriyo_setup_course_data', array( $this, 'modify_price_on_frontend_page' ) ); // For single course page.
 		add_filter( 'masteriyo_course_archive_course', array( $this, 'modify_price_on_frontend_page' ) ); // For course archive page.
 		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'modify_price_on_frontend_page' ) ); // For order summary page.
+		add_filter( 'masteriyo_checkout_modify_course_details', array( $this, 'modify_price_on_frontend_page_for_course_bundle' ) ); // For order summary page.
+		add_filter( 'masteriyo_course_archive_bundle', array( $this, 'modify_price_on_frontend_page_for_course_bundle' ) ); // For course bundle archive page.
+		add_filter( 'masteriyo_single_course_bundle', array( $this, 'modify_price_on_frontend_page_for_course_bundle' ) ); // For single course bundle page.
+		add_filter( 'masteriyo_courses_of_course_bundle', array( $this, 'modify_price_on_frontend_page_for_course_bundle' ), 10, 2 ); // For single course within a specific course bundle page.
 		add_filter( 'masteriyo_group_buy_btn_price', array( $this, 'modify_group_course_price' ), 10, 2 ); // For modification of course price for the group in single course page.
 
 		add_filter( 'masteriyo_cart_contents_changed', array( $this, 'add_multiple_currency_course_content_to_cart_contents' ), 11, 1 );
@@ -60,6 +69,108 @@ class MultipleCurrencyAddon {
 		add_filter( 'masteriyo_get_geolocation', array( $this, 'get_geolocation' ), 10, 2 );
 
 		add_action( 'masteriyo_new_earning', array( $this, 'update_earning' ), 10, 2 );
+
+		add_filter( 'masteriyo_coupon_get_apply_discount_amount', array( $this, 'modify_discount_amount' ), 10, 4 );
+
+		add_action( 'masteriyo_before_destroy_cart_session', array( $this, 'before_destroy_cart_session' ), 10, 1 );
+
+		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
+
+		/**
+		 * Fires once the multiple currency addon has initialised.
+		 *
+		 * The checkout currency switcher — its template, its template override and
+		 * the AJAX handler behind it — ships only with pro and joins here. Reaching
+		 * this point already means the addon is active, because `main.php` returns
+		 * before it otherwise.
+		 *
+		 * @param \Masteriyo\Addons\MultipleCurrency\MultipleCurrencyAddon $addon The addon instance.
+		 */
+		do_action( 'masteriyo_multiple_currency_addon_initialized', $this );
+	}
+
+	/**
+	 * Enqueue scripts.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param array $scripts
+	 */
+	public function enqueue_scripts( $scripts ) {
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		$scripts['multiple-currency'] = array(
+			'src'      => Constants::get( 'MASTERIYO_MULTIPLE_CURRENCY_ADDON_ASSETS_URL' ) . '/js/frontend/multiple-currency' . $suffix . '.js',
+			'deps'     => array( 'jquery', 'masteriyo-jquery-block-ui' ),
+			'context'  => 'public',
+			'callback' => 'masteriyo_is_checkout_page',
+		);
+
+		return $scripts;
+	}
+
+	/**
+	 * Removes the selected currency from the session when the cart is destroyed.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param \Masteriyo\Cart\Cart $cart
+	 */
+	public function before_destroy_cart_session( $cart ) {
+		masteriyo_create_session_object()->put( 'selected_currency', null );
+	}
+
+	/**
+	 * Modifies the discount amount for an item.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param float $amount The amount to apply the coupon to.
+	 * @param objet $item The item data.
+	 * @param object $coupon    The coupon object.
+	 * @param object $discounts The CouponDiscounts instance.
+	 */
+	public function modify_discount_amount( $discount, $item, $coupon, $discounts ) {
+
+		if ( ! masteriyo_is_coupon( $coupon ) ) {
+			return $discount;
+		}
+
+		if ( 'fixed-cart' !== $coupon->get_discount_type() ) {
+			return $discount;
+		}
+
+		if ( ! isset( $item->object, $item->object['data'] ) ) {
+			return $discount;
+		}
+
+		$course = $item->object['data'];
+
+		if ( ! $course instanceof \Masteriyo\Models\Course || ! masteriyo_is_coupon( $coupon ) ) {
+			return $discount;
+		}
+
+		if ( ! $course->get_currency() || ! $course->get_exchange_rate() ) {
+			return $discount;
+		}
+
+		$selected_currency = masteriyo_create_session_object()->get( 'selected_currency', '' );
+
+		if ( masteriyo_get_currency() === $selected_currency ) {
+			return $discount;
+		}
+
+		$discount = masteriyo_remove_number_precision( $discount );
+
+		$discount *= floatval( $course->get_exchange_rate() );
+
+		if ( $discount > floatval( $course->get_price() ) ) {
+			$discount = floatval( $course->get_price() );
+		}
+
+		$discount = masteriyo_add_number_precision( $discount );
+
+		return $discount;
 	}
 
 	/**
@@ -68,7 +179,7 @@ class MultipleCurrencyAddon {
 	 * This function is fired after creating an earning and checks if the earning is in local currency.
 	 * If the earning is in local currency, it converts the amounts to the base currency using the provided exchange rate.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\RevenueSharing\Models\Earning $earning The earning object.
 	 * @param integer $id The earning ID.
@@ -106,7 +217,7 @@ class MultipleCurrencyAddon {
 	/**
 	 * Performs a geolocation lookup against the MaxMind database for the given IP address.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array  $data       Geolocation data.
 	 * @param string $ip_address The IP address to geolocate.
@@ -139,7 +250,7 @@ class MultipleCurrencyAddon {
 	 *
 	 * If the request is from the multiple currency context, this function will return the list of countries that are not yet assigned to any pricing zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array           $countries      The list of countries.
 	 * @param \WP_REST_Request $request The current REST request.
@@ -169,7 +280,7 @@ class MultipleCurrencyAddon {
 	/**
 	 * Adjusts the price of multiple currency courses in the cart.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $cart_contents The current contents of the cart.
 	 *
@@ -193,9 +304,20 @@ class MultipleCurrencyAddon {
 					return $cart_item;
 				}
 
-				$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+				$selected_currency = masteriyo_create_session_object()->get( 'selected_currency', '' );
+
+				if ( $selected_currency ) {
+					if ( masteriyo_get_currency() === $selected_currency ) {
+						return $cart_item;
+					}
+
+					$pricing_zone = masteriyo_get_price_zone_by_currency( $selected_currency );
+				} else {
+					$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+				}
 
 				if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
+
 					return $cart_item;
 				}
 
@@ -205,8 +327,14 @@ class MultipleCurrencyAddon {
 					return $cart_item;
 				}
 
-				// Check if the cart item is a group course.
-				if ( isset( $cart_item['group_ids'] ) && isset( $cart_item['group_price'] ) ) {
+				$regular_price = null;
+				$sale_price    = null;
+
+				if ( ( $course instanceof \Masteriyo\Models\Course && 'mto-course-bundle' === $course->get_post_type() ) ) {
+					$regular_price = masteriyo_get_country_based_price_for_for_course_bundle( $course, $pricing_zone );
+					$sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone );
+				} elseif ( isset( $cart_item['group_ids'] ) && isset( $cart_item['group_price'] ) ) {
+					// Check if the cart item is a group course.
 					$group_price = $cart_item['group_price'];
 					if ( ! empty( $cart_item['group_ids'] ) && ! empty( $group_price ) ) {
 
@@ -224,15 +352,15 @@ class MultipleCurrencyAddon {
 				}
 
 				if ( ! is_null( $regular_price ) ) {
-					$regular_price = $regular_price ? $regular_price : 0;
 					$course->set_regular_price( $regular_price );
-					$course->set_sale_price( $sale_price );
 				}
 
 				if ( ! is_null( $sale_price ) ) {
+					$course->set_sale_price( $sale_price );
 					$course->set_price( $sale_price );
 				} else {
 					$course->set_price( $regular_price );
+					$course->set_sale_price( '' );
 				}
 
 				if ( ! is_null( $regular_price ) ) {
@@ -253,10 +381,163 @@ class MultipleCurrencyAddon {
 		return $cart_contents;
 	}
 
-		/**
+	/**
+	 * Modifies the price and sale price of a course based on the user's current country.
+	 *
+	 * This function checks if the course object is valid, then retrieves the country-based regular price and sale price for the course. It sets the course's price and regular price to the country-based regular price, and sets the course's sale price to the country-based sale price.
+	 *
+	 * @since 1.11.0 [free]
+	 *
+	 * @param \Masteriyo\Models\Course $course The course object.
+	 *
+	 * @return \Masteriyo\Models\Course The modified course object with updated prices.
+	 */
+	public function modify_price_on_frontend_page( $course, $is_courses_bundle = false ) {
+		if ( ! $course instanceof \Masteriyo\Models\Course ) {
+			return $course;
+		}
+
+		if ( ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), '_multiple_currency_enabled', true ) ) ) {
+			return $course;
+		}
+
+		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page( true ) || masteriyo_is_checkout_page() ||
+		masteriyo_is_bundle_page() ||
+		masteriyo_is_bundles_archive_page( true ) ||
+		$this->is_page_builder_context() ) {
+
+			$selected_currency = masteriyo_create_session_object()->get( 'selected_currency', '' );
+
+			if ( $selected_currency ) {
+				if ( masteriyo_get_currency() === $selected_currency ) {
+					return $course;
+				}
+
+				$pricing_zone = masteriyo_get_price_zone_by_currency( $selected_currency );
+			} else {
+				$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+			}
+
+			if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
+				return $course;
+			}
+
+			$currency = $pricing_zone->get_currency();
+
+			if ( empty( $currency ) || masteriyo_get_currency() === $currency ) {
+				return $course;
+			}
+
+			// if ( $is_courses_bundle ) {
+			//  $regular_price = masteriyo_get_country_based_price( $course, $pricing_zone, true );
+			//  $sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone, true );
+			//  if ( ! is_null( $sale_price ) ) {
+			//      return $sale_price;
+			//  } else {
+			//      return $regular_price;
+			//  }
+			// }
+			$regular_price = masteriyo_get_country_based_price( $course, $pricing_zone );
+			$sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone );
+			if ( ! is_null( $regular_price ) ) {
+				$course->set_regular_price( $regular_price );
+			}
+
+			if ( ! is_null( $sale_price ) ) {
+				$course->set_sale_price( $sale_price );
+				$course->set_price( $sale_price );
+			} else {
+				$course->set_price( $regular_price );
+				$course->set_sale_price( '' );
+			}
+
+			if ( ! is_null( $regular_price ) || ! is_null( $sale_price ) ) {
+				if ( ! empty( $currency ) && ! is_null( $currency ) ) {
+					$course->set_currency( $currency );
+				}
+			}
+		}
+
+		return $course;
+	}
+
+	/**
+	 * Modifies the price and sale price of a course bundle based on the user's current country.
+	 *
+	 * This function checks if the course object is valid, then retrieves the country-based regular price and sale price for the course. It sets the course's price and regular price to the country-based regular price, and sets the course's sale price to the country-based sale price.
+	 *
+	 * @since 2.14.0
+	 *
+	 * @param \Masteriyo\Models\CourseBundle $course The course bundle object.
+	 *
+	 * @return \Masteriyo\Models\CourseBundle The modified course bundle object with updated prices.
+	 */
+	public function modify_price_on_frontend_page_for_course_bundle( $course_bundle, $total_price_for_course = false ) {
+
+		if ( ! masteriyo_is_bundle_product( $course_bundle ) ) {
+			return $course_bundle;
+		}
+
+		if ( ! masteriyo_string_to_bool( get_post_meta( $course_bundle->get_id(), '_multiple_currency_enabled', true ) ) ) {
+			return $course_bundle;
+		}
+
+		if ( masteriyo_is_bundle_page() || masteriyo_is_bundles_archive_page( true ) || masteriyo_is_checkout_page() ) {
+
+			$selected_currency = masteriyo_create_session_object()->get( 'selected_currency', '' );
+
+			if ( $selected_currency ) {
+				if ( masteriyo_get_currency() === $selected_currency ) {
+					return $course_bundle;
+				}
+
+				$pricing_zone = masteriyo_get_price_zone_by_currency( $selected_currency );
+			} else {
+				$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
+			}
+
+			if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course_bundle->get_id(), "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
+
+				return $course_bundle;
+			}
+
+			$currency = $pricing_zone->get_currency();
+
+			if ( $total_price_for_course ) {
+				return masteriyo_get_country_based_price_for_for_course_bundle( $course_bundle, $pricing_zone, $total_price_for_course );
+			}
+			if ( empty( $currency ) || masteriyo_get_currency() === $currency ) {
+				return $course_bundle;
+			}
+
+			$regular_price = masteriyo_get_country_based_price_for_for_course_bundle( $course_bundle, $pricing_zone );
+			$sale_price    = masteriyo_get_country_based_sale_price( $course_bundle, $pricing_zone );
+			if ( ! is_null( $regular_price ) ) {
+				$course_bundle->set_regular_price( $regular_price );
+			}
+
+			if ( ! is_null( $sale_price ) ) {
+				$course_bundle->set_sale_price( $sale_price );
+				$course_bundle->set_price( $sale_price );
+			} else {
+				$course_bundle->set_price( $regular_price );
+				$course_bundle->set_sale_price( '' );
+			}
+
+			if ( ! is_null( $regular_price ) || ! is_null( $sale_price ) ) {
+				if ( ! empty( $currency ) && ! is_null( $currency ) ) {
+					$course_bundle->set_currency( $currency );
+				}
+			}
+		}
+
+		return $course_bundle;
+	}
+
+	/**
 	 * Modify group course price based on multiple currency settings.
 	 *
-	 * @since 1.17.1
+	 * @since 1.17.1 [free]
 	 *
 	 * @param float $group_price Group course price.
 	 * @param int   $course_id   Course ID.
@@ -284,67 +565,9 @@ class MultipleCurrencyAddon {
 	}
 
 	/**
-	 * Modifies the price and sale price of a course based on the user's current country.
-	 *
-	 * This function checks if the course object is valid, then retrieves the country-based regular price and sale price for the course. It sets the course's price and regular price to the country-based regular price, and sets the course's sale price to the country-based sale price.
-	 *
-	 * @since 1.11.0
-	 *
-	 * @param \Masteriyo\Models\Course $course The course object.
-	 *
-	 * @return \Masteriyo\Models\Course The modified course object with updated prices.
-	 */
-	public function modify_price_on_frontend_page( $course ) {
-		if ( ! $course instanceof \Masteriyo\Models\Course ) {
-			return $course;
-		}
-
-		if ( ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), '_multiple_currency_enabled', true ) ) ) {
-			return $course;
-		}
-
-		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page( true ) || masteriyo_is_checkout_page() || $this->is_page_builder_context() ) {
-			$pricing_zone = masteriyo_get_price_zone_by_country( masteriyo_get_user_current_country() );
-
-			if ( ! $pricing_zone || ! masteriyo_string_to_bool( get_post_meta( $course->get_id(), "_multiple_currency__{$pricing_zone->get_id()}_enabled", true ) ) ) {
-				return $course;
-			}
-
-			$currency = $pricing_zone->get_currency();
-
-			if ( empty( $currency ) || masteriyo_get_currency() === $currency ) {
-				return $course;
-			}
-
-			$regular_price = masteriyo_get_country_based_price( $course, $pricing_zone );
-			$sale_price    = masteriyo_get_country_based_sale_price( $course, $pricing_zone );
-
-			if ( ! is_null( $regular_price ) ) {
-				$regular_price = $regular_price ? $regular_price : 0;
-				$course->set_regular_price( $regular_price );
-				$course->set_sale_price( $sale_price );
-			}
-
-			if ( ! is_null( $sale_price ) ) {
-				$course->set_price( $sale_price );
-			} else {
-				$course->set_price( $regular_price );
-			}
-
-			if ( ! is_null( $regular_price ) ) {
-				if ( ! empty( $currency ) && ! is_null( $currency ) ) {
-					$course->set_currency( $currency );
-				}
-			}
-		}
-
-		return $course;
-	}
-
-	/**
 	 * Append multiple currency to course response.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $data Course data.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -395,7 +618,7 @@ class MultipleCurrencyAddon {
 	/**
 	 * Save multiple currency data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param integer $id The course ID.
 	 * @param \Masteriyo\Models\Course $object The course object.
@@ -458,7 +681,7 @@ class MultipleCurrencyAddon {
 	/**
 	 * Add multiple currency fields to course schema.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $schema
 	 * @return array
@@ -552,7 +775,7 @@ class MultipleCurrencyAddon {
 		$submenus['multiple-currency/pricing-zones'] = array(
 			'page_title' => __( 'Currencies', 'learning-management-system' ),
 			'menu_title' => '↳ ' . __( 'Currencies', 'learning-management-system' ),
-			'position'   => 81,
+			'position'   => 82,
 			'hide'       => true,
 		);
 
@@ -562,7 +785,7 @@ class MultipleCurrencyAddon {
 	/**
 	 * Check if we're in a page builder context.
 	 *
-	 * @since 1.20.0
+	 * @since 1.20.0 [Free]
 	 *
 	 * @return bool
 	 */

@@ -28,7 +28,7 @@ const UserGoogleMeetSessions = () => {
 	});
 
 	return (
-		<Stack gap={'30px'} className="mto-zoom-sessions-wrapper">
+		<Stack gap={8} className="mto-google-meet-sessions-wrapper">
 			<PageTitle
 				title={__('Google Meet Sessions', 'learning-management-system')}
 			/>

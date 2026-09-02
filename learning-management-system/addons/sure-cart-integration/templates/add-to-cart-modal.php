@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Dialog modals for surecart courses for courses page.
  *
  * @package Masteriyo\Addons\SureCartIntegration\Templates
- * @version 1.12.0
+ * @version 2.13.0
  *
  */
 

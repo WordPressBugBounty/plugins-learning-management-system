@@ -5,8 +5,6 @@
  * Provides a standalone render endpoint (?masteriyo_h5p=<id>) that boots H5P in a
  * minimal page for iframe embedding, and overrides the [h5p] shortcode during REST
  * so the learn page receives an iframe while editors keep the raw shortcode.
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\H5P\Compatibility;
@@ -35,8 +33,6 @@ class H5PRenderer {
 	/**
 	 * Original [h5p] shortcode callback, captured before we override it.
 	 *
-	 * @since x.x.x
-	 *
 	 * @var callable|null
 	 */
 	protected $original_h5p_shortcode = null;
@@ -44,16 +40,12 @@ class H5PRenderer {
 	/**
 	 * Current REST request, captured via rest_pre_dispatch.
 	 *
-	 * @since x.x.x
-	 *
 	 * @var \WP_REST_Request|null
 	 */
 	protected $current_rest_request = null;
 
 	/**
 	 * Initialize hooks.
-	 *
-	 * @since x.x.x
 	 */
 	public function init() {
 		add_filter( 'query_vars', array( $this, 'add_query_var' ) );
@@ -66,8 +58,6 @@ class H5PRenderer {
 	/**
 	 * Register the custom query var.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string[] $vars Existing query vars.
 	 * @return string[]
 	 */
@@ -78,8 +68,6 @@ class H5PRenderer {
 
 	/**
 	 * Override the [h5p] shortcode during REST requests.
-	 *
-	 * @since x.x.x
 	 */
 	public function hook_rest_content_filters() {
 		add_filter( 'rest_pre_dispatch', array( $this, 'capture_rest_request' ), 10, 3 );
@@ -96,8 +84,6 @@ class H5PRenderer {
 	/**
 	 * Capture the current REST request for the shortcode handler.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param mixed            $result   Pre-emptive response.
 	 * @param \WP_REST_Server  $_server  REST server instance.
 	 * @param \WP_REST_Request $request  Current REST request.
@@ -110,8 +96,6 @@ class H5PRenderer {
 
 	/**
 	 * Resolve [h5p]: iframe for the learn page, raw shortcode for editors.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array|string $atts Shortcode attributes.
 	 * @return string
@@ -135,8 +119,6 @@ class H5PRenderer {
 	/**
 	 * Whether the current request targets a Masteriyo REST route.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	protected function is_masteriyo_rest_request() {
@@ -146,8 +128,6 @@ class H5PRenderer {
 	/**
 	 * Whether the request originates from the interactive learn page.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	protected function is_learn_page_request() {
@@ -156,8 +136,6 @@ class H5PRenderer {
 
 	/**
 	 * Render [h5p id="N"] as the learn-page iframe.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array|string $atts Shortcode attributes.
 	 * @return string
@@ -171,8 +149,6 @@ class H5PRenderer {
 
 	/**
 	 * Build the learn-page iframe markup (height is resized by the parent).
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $h5p_id H5P content ID.
 	 * @return string
@@ -202,8 +178,6 @@ class H5PRenderer {
 
 	/**
 	 * Disable the admin bar on the render endpoint so its 32px offset never clips the iframe.
-	 *
-	 * @since x.x.x
 	 */
 	public function maybe_disable_admin_bar() {
 		$h5p_id = get_query_var( self::QUERY_VAR );
@@ -215,8 +189,6 @@ class H5PRenderer {
 
 	/**
 	 * Render a minimal HTML page with the H5P content when the query var is set.
-	 *
-	 * @since x.x.x
 	 */
 	public function maybe_render_h5p() {
 		$h5p_id = get_query_var( self::QUERY_VAR );
@@ -309,8 +281,6 @@ class H5PRenderer {
 
 	/**
 	 * Whether the [h5p] shortcode is registered (by H5P, H5P.com or a compatible plugin).
-	 *
-	 * @since x.x.x
 	 *
 	 * @return bool
 	 */

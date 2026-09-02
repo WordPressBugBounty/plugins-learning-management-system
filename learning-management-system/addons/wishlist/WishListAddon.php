@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\WishList
  *
- * @since 1.12.2
+ * @since 2.3.4
  */
 
 namespace Masteriyo\Addons\WishList;
@@ -14,7 +14,7 @@ use Masteriyo\Addons\WishList\AjaxHandlers\AddCourseToWishlistAjaxHandler;
 use Masteriyo\Addons\WishList\AjaxHandlers\RemoveCourseFromWishlistAjaxHandler;
 use Masteriyo\Addons\WishList\RestApi\Controllers\Version1\WishListItemsController;
 use Masteriyo\Traits\Singleton;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,7 +25,7 @@ class WishListAddon {
 	/**
 	 * Initialize the application.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -37,7 +37,7 @@ class WishListAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function init_hooks() {
 		add_action( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_routes' ), 10 );
@@ -57,33 +57,28 @@ class WishListAddon {
 	/**
 	 * Render wishlist toggle button beside the course title.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Models\Course $course
 	 */
 	public function render_wishlist_toggle_button( $course ) {
-
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
 		$added_to_wishlist = masteriyo_current_user_has_course_in_wishlist( $course->get_id() );
-
-		$class = array(
+		$class             = array(
 			'masteriyo-icon-svg',
 			'masteriyo-wishlist-toggle',
 		);
 
 		$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
-		
 		if ( 'layout2' === $layout ) {
 			return;
 		}
 
 		if ( 'layout1' === $layout ) {
 			$class[] = 'masteriyo-archive-card__image-favorite-icon';
-		} elseif ( 'layout2' === $layout ) {
-			$class[] = 'masteriyo-course-card__favorite-icon';
 		} else {
 			$class[] = 'masteriyo-single-course__favorite-icon';
 		}
@@ -106,7 +101,7 @@ class WishListAddon {
 	/**
 	 * Register rest routes.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function register_routes( $namespaces ) {
 		$namespaces['masteriyo/v1']['wishlist-items'] = WishListItemsController::class;
@@ -117,14 +112,13 @@ class WishListAddon {
 	/**
 	 * Register ajax handlers.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string[] $handlers Ajax handler classes.
 	 *
 	 * @return array
 	 */
 	public function register_ajax_handlers( $handlers ) {
-
 		$handlers[] = AddCourseToWishlistAjaxHandler::class;
 		$handlers[] = RemoveCourseFromWishlistAjaxHandler::class;
 
@@ -132,47 +126,19 @@ class WishListAddon {
 	}
 
 	/**
-	 * Register admin menus.
-	 *
-	 * @since 1.12.2
-	 */
-	public function init_admin_menus() {
-		// Bail early if the admin menus is not visible.
-		if ( ! masteriyo_is_admin_menus_visible() ) {
-			return true;
-		}
-
-		add_submenu_page(
-			'masteriyo',
-			esc_html__( 'Wishlists', 'learning-management-system' ),
-			esc_html__( 'Wishlists', 'learning-management-system' ),
-			'manage_masteriyo_settings',
-			'masteriyo#/wishlist-items',
-			array( $this, 'display_main_page' )
-		);
-	}
-
-	/**
-	 * Display main page.
-	 *
-	 * @since 1.12.2
-	 */
-	public static function display_main_page() {
-		masteriyo_get_template( 'masteriyo.php' );
-	}
-
-	/**
 	 * Enqueue necessary scripts.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $scripts
 	 *
 	 * @return array
 	 */
 	public function enqueue_scripts( $scripts ) {
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
 		$scripts['wishlist'] = array(
-			'src'      => plugin_dir_url( MASTERIYO_WISHLIST_ADDON_FILE ) . '/assets/js/frontend/wishlist.js',
+			'src'      => plugin_dir_url( MASTERIYO_WISHLIST_ADDON_FILE ) . '/assets/js/frontend/wishlist' . $suffix . '.js',
 			'deps'     => array( 'jquery', 'wp-i18n' ),
 			'context'  => 'public',
 			'callback' => function() {
@@ -188,7 +154,7 @@ class WishListAddon {
 	/**
 	 * Localize public scripts.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $scripts
 	 *
@@ -217,7 +183,7 @@ class WishListAddon {
 	 *
 	 * Sync wishlist items with the updated course.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer $course_id Course ID.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -229,7 +195,7 @@ class WishListAddon {
 	/**
 	 * Register post types.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string[] $post_types Post type classes.
 	 *

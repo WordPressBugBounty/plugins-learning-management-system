@@ -19,12 +19,20 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <div class="masteriyo-confirm-delete-course-review-modal-content masteriyo-hidden">
-	<div class="masteriyo-overlay">
+	<div class="masteriyo-overlay masteriyo-v-center">
 		<div class="masteriyo--modal masteriyo-modal-confirm-delete-course-review">
 			<h4 class="masteriyo--title"><?php esc_html_e( 'Deleting Course Review', 'learning-management-system' ); ?></h4>
 			<div class="masteriyo--content"><?php esc_html_e( 'Are you sure? You can\'t restore this back', 'learning-management-system' ); ?></div>
 			<div class="masteriyo-actions">
-				<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel"><?php esc_html_e( 'Cancel', 'learning-management-system' ); ?></button>
+				<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel">
+					<?php
+					echo esc_html_x(
+						'Cancel',
+						'button label to cancel current action',
+						'learning-management-system'
+					);
+					?>
+				</button>
 				<button class="masteriyo-btn masteriyo-btn-warning masteriyo-delete"><?php esc_html_e( 'Delete', 'learning-management-system' ); ?></button>
 			</div>
 		</div>

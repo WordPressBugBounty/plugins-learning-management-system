@@ -49,9 +49,6 @@ interface FilterParams {
 	author_id?: string;
 }
 
-const shareYourIdeaLink =
-	'https://masteriyo.com/support/?utm_source=masteriyo&utm_medium=plugin&utm_campaign=sell+to+group+feature+improvement&utm_content=contact+us';
-
 export const tabButtons: FilterTabs = [
 	{
 		status: 'any',
@@ -76,6 +73,9 @@ export const tabButtons: FilterTabs = [
 		icon: <Gear height="20px" width="20px" fill="currentColor" />,
 	},
 ];
+
+const shareYourIdeaLink =
+	'https://masteriyo.com/support/?utm_source=masteriyo&utm_medium=plugin&utm_campaign=sell+to+group+feature+improvement&utm_content=contact+us';
 
 type FilterTabs = FilterTab[];
 const AllGroups = () => {
@@ -363,6 +363,7 @@ const AllGroups = () => {
 							<Text>
 								{__(
 									'Now when someone buys a course for a group, the group is created instantly, no extra setup required. We’re working to make ‘Sell to Groups’ even better, and we’d love your input.',
+									'learning-management-system',
 								)}
 								<Link
 									isExternal
@@ -382,7 +383,7 @@ const AllGroups = () => {
 							setFilterParams={setFilterParams}
 							filterParams={filterParams}
 						/>
-						<Stack direction="column" spacing="8">
+						<Stack direction="column" spacing="10">
 							<Table>
 								{groupQuery.isLoading || !groupQuery.isFetched ? (
 									<SkeletonList />
@@ -395,9 +396,8 @@ const AllGroups = () => {
 										)}
 										isResultFiltered={Boolean(
 											filterParams?.search ||
-												filterParams?.author_id ||
-												(filterParams?.status &&
-													filterParams?.status !== 'any'),
+											filterParams?.author_id ||
+											(filterParams?.status && filterParams?.status !== 'any'),
 										)}
 									/>
 								) : (
@@ -434,7 +434,7 @@ const AllGroups = () => {
 												<Th>
 													<Stack direction="row" alignItems="center">
 														<Text fontSize="xs">
-															{__('Title', 'learning-management-system')}
+															{__('Group Name', 'learning-management-system')}
 														</Text>
 														<Sorting
 															filterParams={filterParams}
@@ -443,7 +443,9 @@ const AllGroups = () => {
 														/>
 													</Stack>
 												</Th>
-												<Th>{__('Author', 'learning-management-system')}</Th>
+												<Th>
+													{__('Group Leader', 'learning-management-system')}
+												</Th>
 												<Th>{__('Members', 'learning-management-system')}</Th>
 												<Th>
 													<Stack direction="row" alignItems="center">
@@ -538,7 +540,10 @@ const AllGroups = () => {
 					},
 					delete: {
 						header: __('Deleting Groups', 'learning-management-system'),
-						body: __('Are you sure? You can’t restore after deleting.'),
+						body: __(
+							'Are you sure? You can’t restore after deleting.',
+							'learning-management-system',
+						),
 						confirm: __('Delete', 'learning-management-system'),
 					},
 					restore: {

@@ -2,7 +2,7 @@
 /**
  * Abstract Masteriyo Log Handler Class.
  *
- * @since 1.12.2
+ * @since 2.12.2
  */
 
 namespace Masteriyo\Abstracts;

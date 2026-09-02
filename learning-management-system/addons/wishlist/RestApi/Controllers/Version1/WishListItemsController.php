@@ -2,7 +2,7 @@
 /**
  * Wishlist items controller class.
  *
- * @since 1.12.2
+ * @since 2.3.4
  *
  * @package \Masteriyo\Addons\WishList\RestApi\Controllers\Version1
  */
@@ -20,7 +20,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Endpoint namespace.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -29,7 +29,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Route base.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -38,7 +38,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -47,7 +47,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * If object is hierarchical.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var bool
 	 */
@@ -56,7 +56,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Object type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -65,7 +65,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var \Masteriyo\Helper\Permission
 	 */
@@ -74,7 +74,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Helper\Permission $permission
 	 */
@@ -85,7 +85,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return void
 	 */
@@ -168,7 +168,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Get the query params for collections of attachments.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return array
 	 */
@@ -191,7 +191,7 @@ class WishListItemsController extends PostsController {
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
-	 * @since 1.12.2
+	 * @since  2.3.4
 	 *
 	 * @return array
 	 */
@@ -212,7 +212,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Get wishlist item object.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer|\Masteriyo\Addons\WishList\Models\WishListItem|\WP_Post $object Object ID or WishListItem or WP_Post object.
 	 *
@@ -225,7 +225,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Prepares the object for the REST response.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $object Model object.
 	 * @param \WP_REST_Request $request Request object.
@@ -247,7 +247,7 @@ class WishListItemsController extends PostsController {
 		 * The dynamic portion of the hook name, $this->post_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \WP_REST_Response $response The response object.
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $object Model object.
@@ -259,7 +259,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Get wishlist item data.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item instance.
 	 * @param string  $context Request context. Options: 'view' and 'edit'.
@@ -310,7 +310,7 @@ class WishListItemsController extends PostsController {
 			/**
 			 * Filters short description of a course.
 			 *
-			 * @since 1.12.2
+			 * @since 1.0.0
 			 *
 			 * @param string $short_description Short description of a course.
 			 */
@@ -342,7 +342,7 @@ class WishListItemsController extends PostsController {
 				'enrollment_limit'   => $course->get_enrollment_limit( $context ),
 				'duration'           => $course->get_duration( $context ),
 				'access_mode'        => $course->get_access_mode( $context ),
-				'billing_cycle'      => $course->get_billing_cycle( $context ),
+				'billing_cycle'      => $course->get_billing_interval( $context ),
 				'show_curriculum'    => $course->get_show_curriculum( $context ),
 				'highlights'         => $course->get_highlights( $context ),
 				'edit_post_link'     => get_edit_post_link( $course->get_id(), $context ),
@@ -368,7 +368,7 @@ class WishListItemsController extends PostsController {
 		/**
 		 * Filter wishlist item rest response data.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $data Wishlist item data.
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
@@ -381,7 +381,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Get the wishlist item schema, conforming to JSON Schema.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @return array
 	 */
@@ -427,7 +427,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Prepare a single course wishlist item to create or update.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \WP_REST_Request $request Request object.
 	 * @param bool $creating True if creating a new object.
@@ -485,7 +485,7 @@ class WishListItemsController extends PostsController {
 		 * The dynamic portion of the hook name, `$this->object_type`,
 		 * refers to the object type slug.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item  Wishlist item object.
 		 * @param \WP_REST_Request $request Request object.
@@ -497,7 +497,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -546,7 +546,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Check if a given request has access to delete an item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -593,7 +593,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Check if a given request has access to update an item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -640,7 +640,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Check permissions for an item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $object_type Object type.
 	 * @param string $context Request context.
@@ -655,7 +655,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $objects Wishlist items.
 	 * @param array $query_args Query arguments.
@@ -679,7 +679,7 @@ class WishListItemsController extends PostsController {
 	/**
 	 * Get taxonomy terms of a course.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 * @param string $taxonomy Taxonomy slug.

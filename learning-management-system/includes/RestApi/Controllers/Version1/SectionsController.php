@@ -11,9 +11,11 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Enums\PostStatus;
-use Masteriyo\Helper\Permission;
 use WP_CLI\Fetchers\Post;
+use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\SectionChildrenPostType;
+use Masteriyo\Helper\Permission;
+use Masteriyo\PostType\PostType;
 
 /**
  * SectionsController class.
@@ -147,6 +149,25 @@ class SectionsController extends PostsController {
 					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		// @since 2.5.7 Added clone endpoint to lessons REST API.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/clone',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'clone_item' ),
+					'permission_callback' => array( $this, 'clone_item_permissions_check' ),
+				),
 			)
 		);
 	}
@@ -496,52 +517,31 @@ class SectionsController extends PostsController {
 	}
 
 	/**
-	 * Check if a given request has access to create an item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|boolean
-	 */
+		 * Check if a given request has access to create an item.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param  WP_REST_Request $request Full details about the request.
+		 * @return WP_Error|boolean
+		 */
 	public function create_item_permissions_check( $request ) {
-		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
-				'masteriyo_null_permission',
-				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
-			);
-		}
-
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
-
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'create' ) ) {
-			return new \WP_Error(
-				'masteriyo_rest_cannot_create',
-				__( 'Sorry, you are not allowed to create resources.', 'learning-management-system' ),
-				array(
-					'status' => rest_authorization_required_code(),
-				)
-			);
-		}
-
 		$course_id = absint( $request['course_id'] );
-		$course    = masteriyo_get_course( $course_id );
+		$post      = get_post( $course_id );
 
-		if ( is_null( $course ) ) {
+		if ( is_null( $post ) || PostType::COURSE !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid course ID', 'learning-management-system' ),
+				__( 'Invalid Course ID', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
 			);
 		}
 
-		return true;
+		return parent::create_item_permissions_check( $request );
 	}
 
-	/**
+		/**
 	 * Check if a given request has access to delete an item.
 	 *
 	 * @since 1.0.0
@@ -631,5 +631,88 @@ class SectionsController extends PostsController {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Clone one item/post from the collection.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function clone_item( $request ) {
+		$response = parent::clone_item( $request );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$new_section = get_post( masteriyo_array_get( $response->get_data(), 'id' ) );
+
+		if ( is_null( $new_section ) ) {
+			return $response;
+		}
+
+		$children = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => SectionChildrenPostType::all(),
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $request['id'],
+			)
+		);
+
+		foreach ( $children as $child ) {
+			/**
+			 * Fires before cloning section children.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post $child Section child.
+			 */
+			do_action( 'masteriyo_rest_pro_before_section_children_clone', $child );
+
+			$new_child = $this->clone( $child->ID, array( 'post_parent' => $new_section->ID ) );
+
+			if ( $new_child && PostType::QUIZ === $new_child->post_type ) {
+				$this->clone_questions( $child, $new_child );
+			}
+
+			/**
+			 * Fires after cloning section children.
+			 *
+			 * @since 2.5.7
+			 *
+			 * @param \WP_Post|null $new_child
+			 * @param \WP_Post $child Section child.
+			 */
+			do_action( 'masteriyo_rest_pro_after_section_children_clone', $new_child, $child );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Clone questions.
+	 *
+	 * @since 2.5.7
+	 *
+	 * @param \WP_Post $old_quiz Old Quiz post
+	 * @param \WP_post $new_quiz New cloned quiz post.
+	 */
+	protected function clone_questions( $old_quiz, $new_quiz ) {
+		$questions = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'post_type'      => PostType::QUESTION,
+				'post_status'    => PostStatus::all(),
+				'post_parent'    => $old_quiz->ID,
+			)
+		);
+
+		foreach ( $questions as $question ) {
+			$this->clone( $question->ID, array( 'post_parent' => $new_quiz->ID ) );
+		}
 	}
 }

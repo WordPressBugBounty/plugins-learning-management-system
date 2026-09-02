@@ -13,11 +13,9 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { BiMoney, BiMoneyWithdraw } from 'react-icons/bi';
 import { BsPersonFillGear } from 'react-icons/bs';
-import AccountCountBox from '../../../../../../../assets/js/account/common/AccountCountBox';
+import StatCard from '../../../../../../../assets/js/account/common/StatCard';
 import localized from '../../../../../../../assets/js/account/utils/global';
-import urls from '../../../../../../../assets/js/back-end/constants/urls';
 import { UserSchema } from '../../../../../../../assets/js/back-end/schemas';
-import API from '../../../../../../../assets/js/back-end/utils/api';
 import SkeletonWithdrawDetails from './SkeletonWithdrawDetails';
 import WithdrawMethodForm from './WithdrawMethodForm';
 
@@ -32,8 +30,6 @@ interface Props {
 }
 
 const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
-	const userAPI = new API(urls.currentUser);
-
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const withdrawPreference =
@@ -49,51 +45,37 @@ const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
 			<Stack>
 				<Grid
 					gridTemplateColumns="repeat(auto-fill, minmax(290px, 1fr))"
-					gridGap="30px"
+					gridGap={6}
 					mb="4"
 				>
 					<GridItem>
-						<AccountCountBox
-							title={__('Total Balance', 'learning-management-system')}
-							description={
+						<StatCard
+							label={__('Total Balance', 'learning-management-system')}
+							value={
 								userDataQuery.data?.revenue_sharing
 									?.available_amount_formatted ??
-								localized?.currency?.symbol + '0'
+								localized.currency.symbol + '0'
 							}
-							icon={
-								<Icon
-									as={BiMoney}
-									color="primary.500"
-									fontSize="xl"
-									height="1.5em"
-									width="1.5em"
-								/>
-							}
+							icon={<Icon as={BiMoney} fontSize="xl" fill="currentColor" />}
 						/>
 					</GridItem>
 					<GridItem>
-						<AccountCountBox
-							title={__('Withdrawable Balance', 'learning-management-system')}
-							description={
+						<StatCard
+							label={__('Withdrawable Balance', 'learning-management-system')}
+							value={
 								userDataQuery.data?.revenue_sharing
 									?.withdrawable_amount_formatted ??
-								localized?.currency?.symbol + '0'
+								localized.currency.symbol + '0'
 							}
 							icon={
-								<Icon
-									as={BiMoneyWithdraw}
-									color="primary.500"
-									fontSize="xl"
-									height="1.5em"
-									width="1.5em"
-								/>
+								<Icon as={BiMoneyWithdraw} fontSize="xl" fill="currentColor" />
 							}
 						/>
 					</GridItem>
 					<GridItem>
-						<AccountCountBox
-							title={__('Withdraw Method', 'learning-management-system')}
-							description={
+						<StatCard
+							label={__('Withdraw Method', 'learning-management-system')}
+							value={
 								<Stack direction="row" align="center" spacing="2">
 									<Text>
 										{withdrawMethods?.[withdrawPreference] ??
@@ -103,7 +85,7 @@ const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
 										fontWeight="normal"
 										size="xs"
 										onClick={onOpen}
-										colorScheme="primary"
+										colorScheme="button"
 										variant="outline"
 									>
 										{__('Edit', 'learning-management-system')}
@@ -111,13 +93,7 @@ const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
 								</Stack>
 							}
 							icon={
-								<Icon
-									as={BsPersonFillGear}
-									color="primary.500"
-									fontSize="xl"
-									height="1.5em"
-									width="1.5em"
-								/>
+								<Icon as={BsPersonFillGear} fontSize="xl" fill="currentColor" />
 							}
 						/>
 					</GridItem>

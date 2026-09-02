@@ -46,6 +46,7 @@ interface Props {
 	onRemove?: (file: DownloadMaterial) => void;
 	docPreviewNotice: string;
 	hidePreviewNotice?: boolean;
+	fontSize?: string;
 }
 
 export const getIcon = (file: DownloadMaterial) => {
@@ -79,7 +80,9 @@ const DocPreview: React.FC<Props> = (props) => {
 		isPreviewable = true,
 		docPreviewNotice,
 		hidePreviewNotice = false,
+		fontSize,
 	} = props;
+
 	const [currentFile, setCurrentFile] = useState<DownloadMaterial>();
 
 	const onPreviewPress = (file: DownloadMaterial) => {
@@ -127,6 +130,13 @@ const DocPreview: React.FC<Props> = (props) => {
 		'image/webp',
 	];
 
+	// The document viewer's iframe is height:100%; media sizes itself.
+	const isDocument = ![
+		...audioMimeType,
+		...videoMimeType,
+		...imageMimeType,
+	].includes(currentFile?.mime_type as string);
+
 	return (
 		<>
 			<List>
@@ -134,14 +144,28 @@ const DocPreview: React.FC<Props> = (props) => {
 					files?.map((file, index) => (
 						<ListItem
 							key={index}
-							borderBottom="1px"
+							border="1px"
 							borderColor="gray.100"
-							py="1"
-							_last={{ border: 'none' }}
+							rounded="base"
+							bg="white"
+							px="3"
+							py="2"
+							mb="3"
+							_last={{ mb: 0 }}
+							_hover={{ bg: 'gray.50' }}
 						>
 							<Stack direction="row" align="center" justify="space-between">
-								<Stack direction="row" align="center" justify={'center'}>
-									<Center fontSize="md">{getIcon(file)}</Center>
+								<Stack
+									direction="row"
+									align="center"
+									spacing="2"
+									minW="0"
+									flex="1"
+								>
+									<Center fontSize={fontSize || 'md'} flexShrink={0}>
+										{getIcon(file)}
+									</Center>
+
 									<Tooltip
 										hasArrow
 										fontSize="xs"
@@ -155,8 +179,10 @@ const DocPreview: React.FC<Props> = (props) => {
 										}
 									>
 										<Text
-											fontSize="xs"
+											fontSize={fontSize || 'sm'}
 											fontWeight="normal"
+											noOfLines={1}
+											minW="0"
 											cursor={isDownloadable ? 'pointer' : 'inherit'}
 											_hover={{
 												color: isDownloadable ? 'blue.500' : 'inherit',
@@ -164,49 +190,66 @@ const DocPreview: React.FC<Props> = (props) => {
 											onClick={
 												isDownloadable ? () => onDownloadPress(file) : undefined
 											}
-											color={'saint-blue'}
+											color="gray.700"
 											lineHeight={'24px'}
 										>
-											{getFileNameFromURL(file?.url)}
+											{file?.title || getFileNameFromURL(file?.url)}
 										</Text>
 									</Tooltip>
+									<Text
+										fontSize={fontSize || 'xs'}
+										color="gray.400"
+										flexShrink={0}
+									>
+										{file?.formatted_file_size}
+									</Text>
 								</Stack>
-								<ButtonGroup size="md">
-									<Text fontSize="x-small">{file?.formatted_file_size}</Text>
+								<ButtonGroup size="sm" spacing="0.5" color="gray.400">
 									{file?.mime_type !== 'application/zip' && isPreviewable ? (
-										<IconButton
-											w="auto"
-											minW="auto"
-											variant="link"
-											_hover={{ color: 'blue' }}
-											aria-label={__(
-												'Delete download attachment file',
-												'learning-management-system',
-											)}
-											icon={<BiShow />}
-											onClick={() => onPreviewPress(file)}
-										/>
+										<Tooltip
+											label={__('Preview', 'learning-management-system')}
+										>
+											<IconButton
+												w="auto"
+												minW="auto"
+												variant="icon"
+												// The icon variant sets no bg/color, so on frontend
+												// pages the site theme's own button CSS leaks in
+												// (white icon, theme bg on hover) — pin them.
+												bg="transparent"
+												border="none"
+												color="gray.400"
+												_hover={{ color: 'gray.900', bg: 'transparent' }}
+												aria-label={__(
+													'Preview file',
+													'learning-management-system',
+												)}
+												icon={<BiShow fontSize={fontSize} />}
+												onClick={() => onPreviewPress(file)}
+											/>
+										</Tooltip>
 									) : null}
 									{onRemove ? (
-										<IconButton
-											w="auto"
-											minW="auto"
-											variant="link"
-											_hover={{ color: 'red' }}
-											aria-label={__(
-												'Delete download attachment file',
-												'learning-management-system',
-											)}
-											icon={<CustomIcon icon={Trash} boxSize="12px" />}
-											onClick={() => onRemove(file)}
-										/>
+										<Tooltip label={__('Remove', 'learning-management-system')}>
+											<IconButton
+												minW="auto"
+												variant="icon"
+												_hover={{ color: 'red.500' }}
+												aria-label={__(
+													'Remove file',
+													'learning-management-system',
+												)}
+												icon={<CustomIcon icon={Trash} boxSize="16px" />}
+												onClick={() => onRemove(file)}
+											/>
+										</Tooltip>
 									) : null}
 								</ButtonGroup>
 							</Stack>
 						</ListItem>
 					))}
 			</List>
-			{!isEmpty(files) && !hidePreviewNotice ? (
+			{!isEmpty(files) && docPreviewNotice.length > 0 && !hidePreviewNotice ? (
 				<>
 					<Spacer h="10px" />
 					<Text fontSize={'x-small'} color="gray.400">
@@ -214,12 +257,15 @@ const DocPreview: React.FC<Props> = (props) => {
 					</Text>
 				</>
 			) : null}
-			<Modal isOpen={isOpen} onClose={onClose} size="5xl">
+			<Modal isOpen={isOpen} onClose={onClose} size="5xl" isCentered>
 				<ModalOverlay />
-				<ModalContent h="calc(100vh - 100px)">
+				<ModalContent
+					h={isDocument ? 'calc(100vh - 100px)' : undefined}
+					maxH="calc(100vh - 100px)"
+				>
 					<ModalHeader>{currentFile?.title}</ModalHeader>
 					<ModalCloseButton />
-					<ModalBody>
+					<ModalBody overflow="auto" pb="6">
 						{audioMimeType.includes(currentFile?.mime_type as string) ? (
 							<audio
 								controls
@@ -249,7 +295,7 @@ const DocPreview: React.FC<Props> = (props) => {
 										? 'https://docs.google.com/gview?url=%URL%&embedded=true'
 										: undefined
 								}
-								url={currentFile?.url}
+								url={currentFile?.preview_url || currentFile?.url}
 								viewer="url"
 							/>
 						)}

@@ -4,9 +4,8 @@
  *
  * @package Masteriyo\Addons\BeaverIntegration
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
-
 
 namespace Masteriyo\Addons\BeaverIntegration;
 
@@ -21,14 +20,14 @@ use Masteriyo\Roles;
  *
  * @package Masteriyo\Addons\BeaverIntegration
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 class Helper {
 
 	/**
 	 * Return if Beaver is active.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @return boolean
 	 */
@@ -45,7 +44,7 @@ class Helper {
 	/**
 	 * Returns the courses categories.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -71,7 +70,7 @@ class Helper {
 	/**
 	 * Retrieves the page number from a given URL.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param string $url The URL to extract the page number from.
 	 *
@@ -100,7 +99,7 @@ class Helper {
 	/**
 	 * Get instructors options.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -127,7 +126,7 @@ class Helper {
 	/**
 	 * Return all the array data for courses settings.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -1082,7 +1081,7 @@ class Helper {
 	/**
 	 * Return all the array data for courses categories settings.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -1436,5 +1435,4 @@ class Helper {
 			),
 		);
 	}
-
 }

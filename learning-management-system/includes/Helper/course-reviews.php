@@ -159,7 +159,8 @@ if ( ! function_exists( 'masteriyo_get_new_course_reviews_count' ) ) {
 	 * class to perform this operation.
 	 *
 	 * @since 1.9.0
-	 * @deprecated 1.14.4
+	 *
+	 * @deprecated 1.15.0 [Free]
 	 *
 	 * @return int The count of new course reviews. Returns 0 on failure or if there are no new reviews.
 	 */
@@ -214,7 +215,7 @@ if ( ! function_exists( 'masteriyo_get_course_review_distribution_by_rating' ) )
 	 *
 	 * Retrieves the percentage of reviews that were rated 1, 2, 3, 4, or 5 stars for the given course ID.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 *
 	 * @param int $course_id The ID of the course to get the review rating distribution for.
 	 *
@@ -275,7 +276,7 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 	/**
 	 * Retrieves the count of pending course reviews.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return int The count of pending course reviews. Returns 0 if there are no pending reviews.
 	 */
@@ -289,6 +290,7 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 				return 0;
 			}
 			$course_ids_placeholders = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $course_ids_placeholders is a list of %d placeholders.
 			$prepared_query          = $wpdb->prepare(
 				"
 							SELECT COUNT(*) FROM $wpdb->comments
@@ -301,9 +303,10 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 					$course_ids
 				)
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			$course_review_count = $wpdb->get_var(
-				$prepared_query
+				$prepared_query // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above with dynamically built IN() placeholders.
 			);
 
 			$lesson_ids = masteriyo_get_instructor_lesson_ids( get_current_user_id() );
@@ -312,6 +315,7 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 
 			if ( ! empty( $lesson_ids ) ) {
 				$lesson_ids_placeholders     = implode( ',', array_fill( 0, count( $lesson_ids ), '%d' ) );
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $lesson_ids_placeholders is a list of %d placeholders.
 				$prepared_query_lesson_count = $wpdb->prepare(
 					"
 								SELECT COUNT(*) FROM $wpdb->comments
@@ -324,8 +328,9 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 						$lesson_ids
 					)
 				);
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$lesson_comment_count        = $wpdb->get_var(
-					$prepared_query_lesson_count
+					$prepared_query_lesson_count // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above with dynamically built IN() placeholders.
 				);
 
 					return absint( $course_review_count ) + absint( $lesson_comment_count );
@@ -353,11 +358,47 @@ if ( ! function_exists( 'masteriyo_get_pending_course_reviews_and_lesson_comment
 	}
 }
 
+if ( ! function_exists( 'masteriyo_should_ask_review_after_completion' ) ) {
+	/**
+	 * Check if a finished course must ask the student for a review.
+	 *
+	 * The site settings decide this for every course. The course carries a
+	 * review_after_course_completion flag that this replaced, and that flag has
+	 * no control in the admin, so it must not decide anything.
+	 *
+	 * Give the course object where the caller holds one. The course player builds
+	 * a response for every request, and reading the course again costs a second
+	 * hydration of the same record.
+	 *
+	 * @param int|\Masteriyo\Models\Course $course  Course object or course ID.
+	 * @param int                          $user_id The ID of the student.
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_should_ask_review_after_completion( $course, $user_id ) {
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) ) {
+			return false;
+		}
+
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.review_after_course_completion' ) ) ) {
+			return false;
+		}
+
+		$course = is_a( $course, 'Masteriyo\Models\Course' ) ? $course : masteriyo_get_course( $course );
+
+		if ( ! $course ) {
+			return false;
+		}
+
+		return ! masteriyo_has_user_already_reviewed_course( $course->get_id(), $user_id );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_has_user_already_reviewed_course' ) ) {
 	/**
 	 * Check if a user has already submitted a review for a course.
 	 *
-	 * @since 1.20.0
+	 * @since 1.20.0 [Free]
 	 *
 	 * @param int $course_id The ID of the course.
 	 * @param int $user_id The ID of the user. If not provided, uses current user.
@@ -397,7 +438,7 @@ if ( ! function_exists( 'masteriyo_user_has_pending_review_for_course' ) ) {
 	/**
 	 * Check if a user has a pending review for a course.
 	 *
-	 * @since 1.20.0
+	 * @since 1.20.0 [Free]
 	 *
 	 * @param int $course_id The ID of the course.
 	 * @param int $user_id The ID of the user. If not provided, uses current user.

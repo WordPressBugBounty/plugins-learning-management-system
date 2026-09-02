@@ -36,7 +36,7 @@ class SessionRepository implements RepositoryInterface {
 				'session_key'    => $session->get_key(),
 				'session_data'   => maybe_serialize( $session->all() ),
 				'session_expiry' => $session->get_expiry(),
-				'user_agent'     => $session->get_user_agent( 'edit ' ),
+				'user_agent'     => $session->get_user_agent( 'edit' ),
 			),
 			array( '%s', '%s', '%d', '%s' )
 		);
@@ -161,7 +161,7 @@ class SessionRepository implements RepositoryInterface {
 					'session_key'    => $session->get_key(),
 					'session_data'   => maybe_serialize( $session->all() ),
 					'session_expiry' => $session->get_expiry(),
-					'user_agent'     => $session->get_user_agent( 'edit ' ),
+					'user_agent'     => $session->get_user_agent( 'edit' ),
 				),
 				array( '%s', '%s', '%d', '%s' )
 			);

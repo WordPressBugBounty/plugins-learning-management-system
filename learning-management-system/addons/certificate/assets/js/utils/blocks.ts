@@ -27,6 +27,6 @@ export function addSupportedBlocks() {
 
 			return canInsert;
 		},
-		100,
+		11,
 	);
 }

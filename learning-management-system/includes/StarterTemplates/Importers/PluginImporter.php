@@ -10,7 +10,7 @@ use Exception;
  * Handles the installation and activation of plugins.
  *
  * @package Masteriyo\StarterTemplates\Importer\Importers
- * @since 2.0.0
+ * @since 3.0.0
  */
 class PluginImporter {
 
@@ -19,7 +19,7 @@ class PluginImporter {
 	 *
 	 * Initializes the required files for plugin installation and activation.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function __construct() {
 		$this->includes();
@@ -28,7 +28,7 @@ class PluginImporter {
 	/**
 	 * Includes required WordPress files for plugin installation and activation.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function includes() {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -40,20 +40,30 @@ class PluginImporter {
 	/**
 	 * Installs and activates a list of plugins.
 	 *
+	 * Silently drops Masteriyo's own basenames (free and pro) since a template's remote plugin
+	 * list isn't guaranteed to name the slug actually running, and Masteriyo is always active already.
+	 *
 	 * @param array $plugins List of plugin slugs to install and activate.
 	 * @return array An array containing the installation results of each plugin.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function installPlugins( $plugins ) {
-		$results = array();
+		$masteriyo_basenames = array( 'learning-management-system/lms.php', 'learning-management-system-pro/lms.php' );
+		$plugins             = array_values(
+			array_filter(
+				$plugins,
+				function ( $plugin ) use ( $masteriyo_basenames ) {
+					return ! in_array( $plugin, $masteriyo_basenames, true );
+				}
+			)
+		);
 
-		$results = array_map(
+		return array_map(
 			function ( $plugin ) {
 				return $this->installActivatePlugin( $plugin );
 			},
 			$plugins
 		);
-		return $results;
 	}
 
 	/**
@@ -61,7 +71,7 @@ class PluginImporter {
 	 *
 	 * @param string $plugin The plugin slug.
 	 * @return array The result of the plugin installation and activation.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	private function installActivatePlugin( $plugin ) {
 		$pg          = explode( '/', $plugin );
@@ -158,7 +168,7 @@ class PluginImporter {
 			$results[ $pg[0] ] = array(
 				'status'  => 'success',
 				'message' => sprintf(
-					/* translators: %s: plugin name */
+				/* translators: %s: plugin name */
 					__( '%s installed and activated.', 'learning-management-system' ),
 					$api->name
 				),

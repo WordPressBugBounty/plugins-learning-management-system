@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.20.0
+ * @since 2.30.0
  */
 
 namespace Masteriyo\Addons\GroupCourses\Emails;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Group published email to author class. Used for sending group activation notification to group creators.
  *
- * @since 1.20.0
+ * @since 2.30.0
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +24,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @var String
 	 */
@@ -33,7 +33,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param int $author_id Group author ID.
 	 * @param int $group_id Group ID.
@@ -78,7 +78,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return bool
 	 */
@@ -88,7 +88,7 @@ class GroupPublishedEmailToAuthor extends Email {
 		/**
 		 * Filters boolean-like value: 'yes' if group published email should be disabled, otherwise 'no'.
 		 *
-		 * @since 1.20.0
+		 * @since 2.30.0
 		 *
 		 * @param string $is_disabled 'yes' if group published email should be disabled, otherwise 'no'.
 		 */
@@ -100,7 +100,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return array
 	 */
@@ -120,10 +120,10 @@ class GroupPublishedEmailToAuthor extends Email {
 			$placeholders['{author_nickname}']        = $author->get_nickname();
 			$placeholders['{author_email}']           = $author->get_email();
 			$placeholders['{account_login_link}']     = wp_kses_post(
-				'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">Manage Your Groups</a>'
+				'<a href="' . $this->get_account_url() . '" class="email-template--button">Manage Your Groups</a>'
 			);
 			$placeholders['{groups_management_link}'] = wp_kses_post(
-				'<a href="' . masteriyo_get_page_permalink( 'account' ) . '#/groups" style="text-decoration: none;">Go to Groups</a>'
+				'<a href="' . masteriyo_get_page_permalink( 'account' ) . '#/groups" class="email-template--button">Go to Groups</a>'
 			);
 		}
 
@@ -141,7 +141,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return string
 	 */
@@ -149,7 +149,7 @@ class GroupPublishedEmailToAuthor extends Email {
 		/**
 		 * Filter group published email subject to the author.
 		 *
-		 * @since 1.20.0
+		 * @since 2.30.0
 		 *
 		 * @param string $subject.
 		 */
@@ -162,7 +162,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return string
 	 */
@@ -170,7 +170,7 @@ class GroupPublishedEmailToAuthor extends Email {
 		/**
 		 * Filter group published email heading to the author.
 		 *
-		 * @since 1.20.0
+		 * @since 2.30.0
 		 *
 		 * @param string $heading.
 		 */
@@ -182,7 +182,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Get email content.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return string
 	 */
@@ -203,7 +203,7 @@ class GroupPublishedEmailToAuthor extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @return string
 	 */
@@ -211,12 +211,92 @@ class GroupPublishedEmailToAuthor extends Email {
 		/**
 		 * Filter group published email additional content to the author.
 		 *
-		 * @since 1.20.0
+		 * @since 2.30.0
 		 *
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.student.group_published.additional_content' ) );
 
 		return $this->format_string( $additional_content );
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter group published email reply_to_name.
+		 *
+		 * @since 2.30.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.group_published.reply_to_name' ) );
+
+		return ! empty( trim( $reply_to_name ) ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter group published email reply_to_address.
+		 *
+		 * @since 2.30.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.group_published.reply_to_address' ) );
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter group published email from_name.
+		 *
+		 * @since 2.30.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.group_published.from_name' ) );
+
+		return ! empty( trim( $from_name ) ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter group published email from_address.
+		 *
+		 * @since 2.30.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.group_published.from_address' ) );
+
+		return ! empty( trim( $from_address ) ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

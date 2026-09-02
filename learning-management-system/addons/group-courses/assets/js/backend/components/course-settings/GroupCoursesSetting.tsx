@@ -1,3 +1,7 @@
+import {
+	activateAddon,
+	addAndRemoveMenuItem,
+} from '@addons/add-ons/api/addons';
 import { useAddonsStore } from '@addons/add-ons/store/useAddons';
 import {
 	Alert,
@@ -20,11 +24,10 @@ import React, { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { BiPlus } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
-import { ProText } from '../../../../../../../assets/js/back-end/components/common/pro/ProShowcaseComponent';
-import { activateAddon } from '../../../../../../../assets/js/back-end/screens/add-ons/addons-api';
-import { addAndRemoveMenuItem } from '../../../../../../../assets/js/back-end/screens/add-ons/api/addons';
+import { ProText } from '../../../../../../../assets/js/back-end/components/common/upsell/ProShowcaseComponent';
 import ToolTip from '../../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { CourseDataMap } from '../../../../../../../assets/js/back-end/types/course';
+import { isProPlan } from '../../../../../../../assets/js/back-end/utils/utils';
 import PricingTierCard from './PricingTierCard';
 
 interface Props {
@@ -63,6 +66,8 @@ const GroupCoursesSetting: React.FC<Props> = ({
 
 	const [isAddonActive, setIsAddonActive] = useState(initialAddonActive);
 	const [isActivating, setIsActivating] = useState(false);
+	// Track if we just activated to prevent useEffect from resetting the toggle
+	const justActivatedRef = React.useRef(false);
 
 	const { fields, append, remove } = useFieldArray({
 		control,
@@ -85,9 +90,16 @@ const GroupCoursesSetting: React.FC<Props> = ({
 	useEffect(() => {
 		if (courseData?.group_courses) {
 			const isEnabled = !!courseData.group_courses.enabled;
-			setValue('group_courses.enabled', isEnabled, {
-				shouldDirty: false,
-			});
+
+			// Don't reset the toggle if we just activated the addon
+			// The server data is stale (enabled: false) but we want to keep it ON
+			if (!justActivatedRef.current) {
+				setValue('group_courses.enabled', isEnabled, {
+					shouldDirty: false,
+				});
+			}
+			// Clear the flag after first render with new data
+			justActivatedRef.current = false;
 
 			// Handle pricing_tiers - either from new format or migrated from legacy
 			const pricingTiers = courseData.group_courses.pricing_tiers;
@@ -141,8 +153,12 @@ const GroupCoursesSetting: React.FC<Props> = ({
 			setIsActivating(false);
 			setValue('group_courses.enabled', true, { shouldDirty: true });
 
+			// Set flag to prevent useEffect from resetting the toggle when course refetches
+			justActivatedRef.current = true;
+
 			queryClient.invalidateQueries({ queryKey: ['allAddons'] });
 			addAndRemoveMenuItem(data);
+			// Invalidate course query to fetch group_courses data from server
 			if (courseData?.id) {
 				queryClient.invalidateQueries({ queryKey: [`course${courseData.id}`] });
 			}
@@ -251,7 +267,7 @@ const GroupCoursesSetting: React.FC<Props> = ({
 					<Stack spacing={4} align="center">
 						<Spinner size="lg" color="blue.500" thickness="4px" />
 						<Text>
-							{__('Activating Groups addon...', 'learning-management-system')}
+							{__('Activating Groups addon…', 'learning-management-system')}
 						</Text>
 					</Stack>
 				</Center>
@@ -262,7 +278,7 @@ const GroupCoursesSetting: React.FC<Props> = ({
 					<Stack spacing={4} align="center">
 						<Spinner size="md" color="blue.500" />
 						<Text>
-							{__('Loading group settings...', 'learning-management-system')}
+							{__('Loading group settings…', 'learning-management-system')}
 						</Text>
 					</Stack>
 				</Center>
@@ -283,16 +299,23 @@ const GroupCoursesSetting: React.FC<Props> = ({
 					{/* Add Another Group Pricing Button */}
 					<ButtonGroup justifyContent="center">
 						<Button
-							onClick={fields?.length >= 1 ? undefined : addNewPricingTier}
+							onClick={
+								isProPlan()
+									? addNewPricingTier
+									: fields?.length < 1
+										? addNewPricingTier
+										: undefined
+							}
 							variant="outline"
 							size="md"
+							isDisabled={isFree}
 							leftIcon={<BiPlus />}
 						>
 							{fields?.length >= 1
 								? __('Add Another Group Pricing', 'learning-management-system')
 								: __('Add Group Pricing', 'learning-management-system')}
 
-							{fields?.length >= 1 && <ProText />}
+							{!isProPlan() && fields?.length >= 1 && <ProText />}
 						</Button>
 					</ButtonGroup>
 				</Stack>

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires before rendering email header.
  *
- * @since 1.15.0
+ * @since 2.6.10
  *
  * @param \Masteriyo\Emails\Instructor\CourseCompletionEmailToInstructor $email Email object.
  */
@@ -29,7 +29,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 /**
  * Action hook fired in email's footer section.
  *
- * @since 1.15.0
+ * @since 2.6.10
  *
  * @param \Masteriyo\Emails\Instructor\CourseCompletionEmailToInstructor $email Email object.
  */

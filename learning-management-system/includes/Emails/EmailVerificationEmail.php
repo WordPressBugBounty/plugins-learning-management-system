@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.15.0
+ * @since 2.16.0
  */
 
 namespace Masteriyo\Emails;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  *  Email verification class.
  *
- * @since 1.15.0
+ * @since 2.16.0
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +24,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @var String
 	 */
@@ -33,7 +33,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @param \Masteriyo\Models\User $user The user user object.
 	 */
@@ -58,9 +58,16 @@ class EmailVerificationEmail extends Email {
 			return;
 		}
 
-		$user_email = $user->get_email();
+		$user_email           = $user->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.everyone.email_verification.to_address' );
+		$to_address           = array();
 
-		$this->set_recipients( $user_email );
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{user_email}', $user_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $user_email );
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'user', $user );
 
@@ -76,7 +83,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return bool
 	 */
@@ -87,7 +94,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return array
 	 */
@@ -103,7 +110,7 @@ class EmailVerificationEmail extends Email {
 			$placeholders['{first_name}']              = $user->get_first_name();
 			$placeholders['{last_name}']               = $user->get_last_name();
 			$placeholders['{email_verification_link}'] = wp_kses_post(
-				'<a href="' . esc_url( masteriyo_generate_email_verification_link( $user, wp_create_nonce( 'masteriyo_email_verification_nonce' ) ) ) . '" style="text-decoration: none;">' . __( 'Verify Your Email', 'learning-management-system' ) . '</a>'
+				'<a href="' . esc_url( masteriyo_generate_email_verification_link( $user, wp_create_nonce( 'masteriyo_email_verification_nonce' ) ) ) . '" class="email-template--button">' . __( 'Verify Your Email', 'learning-management-system' ) . '</a>'
 			);
 		}
 
@@ -113,7 +120,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
@@ -121,11 +128,13 @@ class EmailVerificationEmail extends Email {
 		/**
 		 * Filter email verification subject.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['everyone']['email_verification']['subject'] );
+		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.everyone.email_verification.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['everyone']['email_verification']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -133,7 +142,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
@@ -141,7 +150,7 @@ class EmailVerificationEmail extends Email {
 		/**
 		 * Filter email verification heading.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $heading.
 		 */
@@ -153,7 +162,7 @@ class EmailVerificationEmail extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
@@ -162,7 +171,7 @@ class EmailVerificationEmail extends Email {
 		/**
 		 * Filter email verification additional content.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $additional_content.
 		 */
@@ -175,16 +184,100 @@ class EmailVerificationEmail extends Email {
 		/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.everyone.email_verification.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['everyone']['email_verification']['content'] );
+		$content = masteriyo_string_translation( 'emails.everyone.email_verification.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.everyone.email_verification.content' ) );
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', trim( $content ) );
 
 		return parent::get_content();
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter email verification reply_to_name.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.everyone.email_verification.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter email verification reply_to_address.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.everyone.email_verification.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter email verification from_name.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.everyone.email_verification.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter email verification from_address.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.everyone.email_verification.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

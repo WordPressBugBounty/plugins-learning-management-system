@@ -3,7 +3,6 @@
  * Clone Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Creates an identical copy of the lesson — title, content, and video settings —
  * appended after the original in the same parent section.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CloneLessonAbility extends RestProxyAbility {
 

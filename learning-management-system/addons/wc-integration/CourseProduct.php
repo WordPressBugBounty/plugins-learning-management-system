@@ -2,7 +2,7 @@
 /**
  * Course product type for WooCommerce.
  *
- * @since 1.8.1
+ * @since 2.2.0
  * @package Masteriyo\Addons\WcIntegration
  */
 
@@ -16,7 +16,7 @@ class CourseProduct extends \WC_Product_Simple {
 	/**
 	 * Get internal type.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @return string
 	 */
@@ -27,7 +27,7 @@ class CourseProduct extends \WC_Product_Simple {
 	/**
 	 * Check if a product is sold individually (no quantities).
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @return bool
 	 */
@@ -38,7 +38,7 @@ class CourseProduct extends \WC_Product_Simple {
 	/**
 	 * Return if product manage stock.
 	 *
-	 * @since 1.8.1
+	 * @since  2.2.0
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 * @return boolean
 	 */
@@ -49,7 +49,7 @@ class CourseProduct extends \WC_Product_Simple {
 	/**
 	 * Get virtual.
 	 *
-	 * @since 1.8.1
+	 * @since  2.2.0
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 * @return bool
 	 */
@@ -60,7 +60,7 @@ class CourseProduct extends \WC_Product_Simple {
 	/**
 	 * Get downloadable.
 	 *
-	 * @since 1.8.1
+	 * @since  2.2.0
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 * @return bool
 	 */

@@ -18,14 +18,15 @@ const Withdraw: React.FC = () => {
 		queryKey: ['userProfile'],
 		queryFn: () => userAPI.get(),
 	});
+
 	return (
 		<Stack gap={10}>
-			<Stack gap={'30px'}>
+			<Stack gap={8}>
 				<PageTitle title={__('Withdraw', 'learning-management-system')} />
 				<WithdrawDetail userDataQuery={userDataQuery} />
 			</Stack>
 
-			<Stack gap={'30px'}>
+			<Stack gap={8}>
 				<PageSecondaryHeading
 					title={__('Withdraw Requests History', 'learning-management-system')}
 				>

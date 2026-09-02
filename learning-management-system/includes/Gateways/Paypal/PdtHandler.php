@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Constants;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Gateways\Paypal\Response;
+use Masteriyo\Pro\Enums\SubscriptionStatus;
+use Masteriyo\Models\Order\Order;
 
 /**
  * Handle PDT Responses from PayPal.
@@ -129,16 +131,57 @@ class PdtHandler extends Response {
 
 					$this->payment_complete( $order, $transaction, __( 'PDT payment completed.', 'learning-management-system' ) );
 				}
-			} else {
-				if ( 'authorization' === $transaction_result['pending_reason'] ) {
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+				$pending_reason = $transaction_result['pending_reason'] ?? '';
+				if ( 'authorization' === $pending_reason ) {
 					$this->payment_on_hold( $order, __( 'Payment authorized. Change payment status to processing or complete to capture funds.', 'learning-management-system' ) );
 				} else {
 					/* translators: %s: Pending reason. */
-					$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'learning-management-system' ), $transaction_result['pending_reason'] ) );
+					$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'learning-management-system' ), $pending_reason ) );
 				}
+			}
+
+			if ( masteriyo_starts_with( $transaction_result['txn_type'], 'subscr_' ) ) {
+				$this->update_subscription( $order, $transaction_result );
 			}
 		} else {
 			Paypal::log( 'Received invalid response from PayPal PDT' );
+		}
+	}
+
+	/**
+	 * Update subscription.
+	 *
+	 * @since 2.6.10
+	 * @param Order $order Order Object.
+	 * @param array $transaction_result PDT data.
+	 */
+	protected function update_subscription( $order, $transaction_result ) {
+		if ( ! masteriyo_order_has_recurring_courses( $order ) ) {
+			Paypal::log( "Order: #{$order->get_id()} does not contain recurring courses" );
+			return;
+		}
+		$subscription = masteriyo_get_order_subscription( $order );
+
+		// The statuses below are pro's. `masteriyo_get_order_subscription()` already
+		// answers null without pro, so the second test only restates that for the
+		// analysis — a free site has no subscription to be paid.
+		if ( ! $subscription || ! masteriyo_service_provider_exists( 'subscription' ) ) {
+			Paypal::log( "Order: #{$order->get_id()} does not have a subscription" );
+			return;
+		}
+
+		$txn_type = masteriyo_strtolower( $transaction_result['txn_type'] );
+		if ( 'subscr_payment' === $txn_type ) {
+			$subscription->set_props(
+				array(
+					'status'          => SubscriptionStatus::ACTIVE,
+					'transaction_id'  => $transaction_result['txn_id'],
+					'subscription_id' => $transaction_result['subscr_id'],
+				)
+			);
+			$subscription->save();
+			Paypal::log( "Subscription: #{$subscription->get_id()} updated" );
 		}
 	}
 }

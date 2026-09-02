@@ -114,7 +114,7 @@ class CourseDifficultyRepository extends AbstractRepository implements Repositor
 		$term = get_term( $course_difficulty->get_id() );
 
 		if ( ! $course_difficulty->get_id() || ! $term || 'course_difficulty' !== $term->taxonomy ) {
-			throw new \Exception( __( 'Invalid course_difficulty.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course_difficulty.', 'learning-management-system' ) );
 		}
 
 		$course_difficulty->set_props(

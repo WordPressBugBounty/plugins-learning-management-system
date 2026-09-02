@@ -40,54 +40,59 @@ class Order extends AbstractOrder {
 	 */
 	protected $data = array(
 		// Abstract order props.
-		'parent_id'            => 0,
-		'status'               => '',
-		'currency'             => '',
-		'version'              => '',
-		'prices_include_tax'   => false,
-		'date_created'         => null,
-		'date_modified'        => null,
-		'total'                => 0,
+		'parent_id'                 => 0,
+		'status'                    => '',
+		'currency'                  => '',
+		'version'                   => '',
+		'prices_include_tax'        => false,
+		'date_created'              => null,
+		'date_modified'             => null,
+		'total'                     => 0,
 
 		// Order props.
-		'expiry_date'          => '',
-		'customer_id'          => null,
-		'payment_method'       => '',
-		'payment_method_title' => '',
-		'transaction_id'       => '',
-		'date_paid'            => '',
-		'date_completed'       => '',
-		'created_via'          => '',
-		'customer_ip_address'  => '',
-		'customer_user_agent'  => '',
-		'order_key'            => '',
-		'customer_note'        => '',
-		'cart_hash'            => '',
+		'expiry_date'               => '',
+		'customer_id'               => null,
+		'payment_method'            => '',
+		'payment_method_title'      => '',
+		'transaction_id'            => '',
+		'date_paid'                 => '',
+		'date_completed'            => '',
+		'created_via'               => '',
+		'customer_ip_address'       => '',
+		'customer_user_agent'       => '',
+		'order_key'                 => '',
+		'customer_note'             => '',
+		'cart_hash'                 => '',
+
+		'discount_total'            => '',
+		'conversion_discount_total' => '',
+
+		'tax_total'                 => 0,
 
 		// Billing details.
-		'billing_first_name'   => '',
-		'billing_last_name'    => '',
-		'billing_company'      => '',
-		'billing_address_1'    => '',
-		'billing_address_2'    => '',
-		'billing_city'         => '',
-		'billing_postcode'     => '',
-		'billing_country'      => '',
-		'billing_state'        => '',
-		'billing_email'        => '',
-		'billing_phone'        => '',
+		'billing_first_name'        => '',
+		'billing_last_name'         => '',
+		'billing_company'           => '',
+		'billing_address_1'         => '',
+		'billing_address_2'         => '',
+		'billing_city'              => '',
+		'billing_postcode'          => '',
+		'billing_country'           => '',
+		'billing_state'             => '',
+		'billing_email'             => '',
+		'billing_phone'             => '',
 
 		// Attachment.
-		'attachment_id'        => null,
+		'attachment_id'             => null,
 
 		// Group Courses
-		'group_ids'            => array(),
+		'group_ids'                 => array(),
 
 		// Multiple Currency
-		'conversion_total'     => '',
-		'base_currency'        => '',
-		'exchange_rate'        => '',
-		'pricing_method'       => '',
+		'conversion_total'          => '',
+		'base_currency'             => '',
+		'exchange_rate'             => '',
+		'pricing_method'            => '',
 	);
 
 	/**
@@ -140,8 +145,7 @@ class Order extends AbstractOrder {
 		try {
 			$this->set_status( $new_status, $note, $manual );
 			$this->save();
-		} catch ( Exception $e ) {
-			// TODO: Write Logger class.
+		} catch ( \Exception $e ) {
 			$logger = masteriyo_get_logger();
 			$logger->error(
 				sprintf(
@@ -432,6 +436,45 @@ class Order extends AbstractOrder {
 	}
 
 	/**
+	 * Get discount_total.
+	 *
+	 * @since  1.0.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_discount_total( $context = 'view' ) {
+		return $this->get_prop( 'discount_total', $context );
+	}
+
+	/**
+	 * Get the conversion discount total for the order.
+	 *
+	 * @since 1.13.0 [Free]
+	 *
+	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
+	 *
+	 * @return string The base currency for the order.
+	 */
+	public function get_conversion_discount_total( $context = 'view' ) {
+		return $this->get_prop( 'conversion_discount_total', $context );
+	}
+
+	/**
+	 * Get tax_total.
+	 *
+	 * @since  2.21.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_tax_total( $context = 'view' ) {
+		return $this->get_prop( 'tax_total', $context );
+	}
+
+	/**
 	 * Get user's billing first name.
 	 *
 	 * @since  1.0.0
@@ -590,7 +633,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Retrieves the attachment ID associated with the order.
 	 *
-	 * @since 1.12.2
+	 * @since 1.12.1 [Free]
 	 *
 	 * @return string The attachment ID.
 	 */
@@ -696,7 +739,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Get the conversion total for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -709,7 +752,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Get the base currency for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -722,7 +765,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Get the exchange rate for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -735,7 +778,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Get the pricing method for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $context The context for the property value. Accepts 'view' or 'edit'.
 	 *
@@ -792,6 +835,8 @@ class Order extends AbstractOrder {
 			if ( $payment_gateway ) {
 				$payment_method_name  = $payment_gateway->get_name();
 				$payment_method_title = $payment_gateway->get_title();
+			} elseif ( 'ideal' === $payment_method ) {
+				$payment_method_name = $payment_method;
 			}
 		}
 
@@ -896,6 +941,39 @@ class Order extends AbstractOrder {
 	 */
 	public function set_cart_hash( $cart_hash ) {
 		$this->set_prop( 'cart_hash', $cart_hash );
+	}
+
+	/**
+	 * Set discount_total.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $discount_total discount_total.
+	 */
+	public function set_discount_total( $discount_total ) {
+		$this->set_prop( 'discount_total', $discount_total );
+	}
+
+	/**
+	 * Set the conversion discount total for the order.
+	 *
+	 * @since 1.13.0 [Free]
+	 *
+	 * @param string $conversion_discount_total The conversion discount total.
+	 */
+	public function set_conversion_discount_total( $conversion_discount_total ) {
+		$this->set_prop( 'conversion_discount_total', $conversion_discount_total );
+	}
+
+	/**
+	 * Set tax_total.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @param string $tax_total tax_total.
+	 */
+	public function set_tax_total( $tax_total ) {
+		$this->set_prop( 'tax_total', $tax_total );
 	}
 
 	/**
@@ -1028,7 +1106,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Set the attachment ID for the order.
 	 *
-	 * @since 1.12.2
+	 * @since 1.12.1 [Free]
 	 *
 	 * @param int $attachment_id The ID of the attachment.
 	 * @return void
@@ -1118,7 +1196,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Set the conversion total for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $base_currency The conversion total.
 	 */
@@ -1129,7 +1207,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Set the base currency for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $base_currency The base currency.
 	 */
@@ -1140,7 +1218,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Set the exchange rate for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $exchange_rate the exchange rate.
 	 */
@@ -1151,7 +1229,7 @@ class Order extends AbstractOrder {
 	/**
 	 * Set the pricing method for the order.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param string $pricing_method The pricing method.
 	 */
@@ -1166,11 +1244,11 @@ class Order extends AbstractOrder {
 	|
 	*/
 	/**
-	 * Save data to the database.
-	 *
-	 * @since 1.0.0
-	 * @return int order ID
-	 */
+	* Save data to the database.
+	*
+	* @since 1.0.0
+	* @return int order ID
+	*/
 	public function save() {
 		$this->maybe_set_user_billing_email();
 		parent::save();
@@ -1180,10 +1258,10 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Maybe set empty billing email to that of the user who owns the order.
-	 *
-	 * @since 1.0.0
-	 */
+	* Maybe set empty billing email to that of the user who owns the order.
+	*
+	* @since 1.0.0
+	*/
 	protected function maybe_set_user_billing_email() {
 		$user = $this->get_user();
 
@@ -1207,137 +1285,185 @@ class Order extends AbstractOrder {
 	*/
 
 	/**
-	 * Returns true if the order has a billing address.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return boolean
-	 */
+	* Returns true if the order has a billing address.
+	*
+	* @since 1.0.0
+	*
+	* @return boolean
+	*/
 	public function has_billing_address() {
 		return $this->get_billing_address_1() || $this->get_billing_address_2();
 	}
 
 	/**
-	 * Check if an order key is valid.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $key Order key.
-	 *
-	 * @return bool
-	 */
+	* Check if an order key is valid.
+	*
+	* @since 1.0.0
+	*
+	* @param string $key Order key.
+	*
+	* @return bool
+	*/
 	public function key_is_valid( $key ) {
 		return hash_equals( $this->get_order_key(), $key );
 	}
 
 	/**
-	 * See if order matches cart_hash.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $cart_hash Cart hash.
-	 *
-	 * @return bool
-	 */
+	* See if order matches cart_hash.
+	*
+	* @since 1.0.0
+	*
+	* @param string $cart_hash Cart hash.
+	*
+	* @return bool
+	*/
 	public function has_cart_hash( $cart_hash = '' ) {
-		return hash_equals( $this->get_cart_hash(), $cart_hash ); // @codingStandardsIgnoreLine
+	return hash_equals( $this->get_cart_hash(), $cart_hash ); // @codingStandardsIgnoreLine
 	}
 
 	/**
-	 * Checks if an order can be edited, specifically for use on the Edit Order screen.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool
-	 */
+	* Checks if an order can be edited, specifically for use on the Edit Order screen.
+	*
+	* @since 1.0.0
+	*
+	* @return bool
+	*/
 	public function is_editable() {
 		/**
-		 * Filters boolean: true if order is editable.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param boolean $bool true if order is editable.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters boolean: true if order is editable.
+		*
+		* @since 1.0.0
+		*
+		* @param boolean $bool true if order is editable.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_order_is_editable', in_array( $this->get_status(), array( 'masteriyo-pending', 'masteriyo-on-hold' ), true ), $this );
 	}
 
 	/**
-	 * Returns if an order has been paid for based on the order status.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool
-	 */
+	* Returns if an order has been paid for based on the order status.
+	*
+	* @since 1.0.0
+	*
+	* @return bool
+	*/
 	public function is_paid() {
 		/**
-		 * Filters boolean: true if an order has been paid for.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param boolean $bool true if an order has been paid for.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters boolean: true if an order has been paid for.
+		*
+		* @since 1.0.0
+		*
+		* @param boolean $bool true if an order has been paid for.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_order_is_paid', $this->has_status( masteriyo_get_is_paid_statuses() ), $this );
 	}
 
 	/**
-	 * Checks if an order needs payment, based on status and order total.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool
-	 */
+	* Checks if an order needs payment, based on status and order total.
+	*
+	* @since 1.0.0
+	*
+	* @return bool
+	*/
 	public function needs_payment() {
 		/**
-		 * Filters valid order statuses for payment.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string[] $statuses The order statuses for payment.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters valid order statuses for payment.
+		*
+		* @since 1.0.0
+		*
+		* @param string[] $statuses The order statuses for payment.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		$valid_order_statuses = apply_filters( 'masteriyo_valid_order_statuses_for_payment', array( OrderStatus::PENDING, OrderStatus::FAILED ), $this );
 
 		/**
-		 * Filters boolean: true if an order needs payment, based on status and order total.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param boolean $bool true if an order needs payment, based on status and order total.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 * @param string[] $payment_statuses Valid order statuses for payment
-		 */
+		* Filters boolean: true if an order needs payment, based on status and order total.
+		*
+		* @since 1.0.0
+		*
+		* @param boolean $bool true if an order needs payment, based on status and order total.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		* @param string[] $payment_statuses Valid order statuses for payment
+		*/
 		return apply_filters( 'masteriyo_order_needs_payment', ( $this->has_status( $valid_order_statuses ) && $this->get_total() > 0 ), $this, $valid_order_statuses );
 	}
 
 	/**
-	 * When a payment is complete this function is called.
-	 *
-	 * Most of the time this should mark an order as 'processing' so that admin can process/post the items.
-	 * If the cart contains only downloadable items then the order is 'completed' since the admin needs to take no action.
-	 * Stock levels are reduced at this point.
-	 * Sales are also recorded for products.
-	 * Finally, record the date of payment.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $transaction_id Optional transaction id to store in post meta.
-	 * @return bool success
-	 */
+	* When a payment is complete this function is called.
+	*
+	* Most of the time this should mark an order as 'processing' so that admin can process/post the items.
+	* If the cart contains only downloadable items then the order is 'completed' since the admin needs to take no action.
+	* Stock levels are reduced at this point.
+	* Sales are also recorded for products.
+	* Finally, record the date of payment.
+	*
+	* @since 1.0.0
+	*
+	* @param string $transaction_id Optional transaction id to store in post meta.
+	* @return bool success
+	*/
 	public function payment_complete( $transaction_id = '' ) {
+		global $wpdb;
+
 		if ( ! $this->get_id() ) { // Order must exist.
 			return false;
 		}
 
+		// The webhook, its redeliveries and the customer's return can all try to
+		// complete the same order at once. The named lock serializes them, and the
+		// status re-read below makes the losers see the winner's completed status,
+		// so the completion side-effects (status transition, emails, enrollment)
+		// run once. MySQL releases the lock when the connection dies, so a fatal
+		// here cannot leave the order locked.
+		$lock_name = 'masteriyo_order_payment_complete_' . $this->get_id();
+
+		/**
+		 * Filters how many seconds payment_complete() waits for the per-order lock.
+		 *
+		 * @param integer $timeout Seconds GET_LOCK waits before giving up.
+		 * @param Masteriyo\Models\Order\Order $order Order object.
+		 */
+		$lock_timeout = absint( apply_filters( 'masteriyo_order_payment_complete_lock_timeout', 15, $this ) );
+		$lock_result  = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $lock_name, $lock_timeout ) );
+
+		if ( null === $lock_result ) {
+			// A database without GET_LOCK (a SQLite drop-in returns null).
+			// Refusing to complete here would stop every payment on such
+			// installs, so continue: the status re-read below still closes the
+			// realistic race, because a lock holder persists the new status within
+			// milliseconds of acquiring — long before its slow work (emails) runs.
+			masteriyo_get_logger()->warning(
+				sprintf( 'payment_complete() proceeding without the order lock for order #%d.', $this->get_id() )
+			);
+		} elseif ( '1' !== (string) $lock_result ) {
+			// '0': the wait timed out with another request still holding the lock,
+			// possibly before it persisted its completion — so the status re-read
+			// proves nothing and completing here could run the side-effects twice.
+			// Fail instead: the webhook answers 500 and Stripe redelivers, the
+			// return leaves the order pending for the webhook to complete.
+			masteriyo_get_logger()->warning(
+				sprintf( 'payment_complete() could not take the order lock for order #%d; refusing to complete.', $this->get_id() )
+			);
+			return false;
+		}
+
+		// Straight from the posts table, not get_post_status(): the object cache was
+		// primed when this request loaded the order — before the wait — so it cannot
+		// see a completion that happened while we queued for the lock.
+		$fresh_status = $wpdb->get_var( $wpdb->prepare( "SELECT post_status FROM {$wpdb->posts} WHERE ID = %d", $this->get_id() ) );
+		if ( $fresh_status && $fresh_status !== $this->get_status() ) {
+			$this->set_prop( 'status', $fresh_status );
+		}
+
 		try {
 			/**
-			 * Fires before payment of an order is complete.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param integer $id Order ID.
-			 */
+					 * Fires before payment of an order is complete.
+					 *
+					 * @since 1.0.0
+					 *
+					 * @param integer $id Order ID.
+					 */
 			do_action( 'masteriyo_pre_payment_complete', $this->get_id() );
 
 			if ( ! is_null( masteriyo( 'session' ) ) ) {
@@ -1345,13 +1471,13 @@ class Order extends AbstractOrder {
 			}
 
 			/**
-			 * Filters valid order statuses for payment completion.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param string[] $statuses Valid order statuses for payment completion.
-			 * @param Masteriyo\Models\Order\Order $order Order object.
-			 */
+					 * Filters valid order statuses for payment completion.
+					 *
+					 * @since 1.0.0
+					 *
+					 * @param string[] $statuses Valid order statuses for payment completion.
+					 * @param Masteriyo\Models\Order\Order $order Order object.
+					 */
 			$statuses = apply_filters(
 				'masteriyo_valid_order_statuses_for_payment_complete',
 				array( OrderStatus::ON_HOLD, OrderStatus::PENDING, OrderStatus::FAILED, OrderStatus::CANCELLED ),
@@ -1405,7 +1531,7 @@ class Order extends AbstractOrder {
 			$logger = masteriyo_get_logger();
 			$logger->error(
 				sprintf(
-					'Status transition of order #%d errored!',
+					'Error completing payment for order #%d',
 					$this->get_id()
 				),
 				array(
@@ -1414,29 +1540,33 @@ class Order extends AbstractOrder {
 				)
 			);
 			return false;
+		} finally {
+			if ( '1' === (string) $lock_result ) {
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock_name ) );
+			}
 		}
 		return true;
 	}
 
 	/**
-	 * See if the order needs processing before it can be completed.
-	 *
-	 * @since 1.0.0
-	 * @return bool
-	 */
+	* See if the order needs processing before it can be completed.
+	*
+	* @since 1.0.0
+	* @return bool
+	*/
 	public function needs_processing() {
 		return false;
 	}
 
 	/**
-	 * Set order status.
-	 *
-	 * @since 1.0.0
-	 * @param string $new_status    Status to change the order to. No internal masteriyo- prefix is required.
-	 * @param string $note          Optional note to add.
-	 * @param bool   $manual_update Is this a manual order status change?.
-	 * @return array
-	 */
+	* Set order status.
+	*
+	* @since 1.0.0
+	* @param string $new_status    Status to change the order to. No internal masteriyo- prefix is required.
+	* @param string $note          Optional note to add.
+	* @param bool   $manual_update Is this a manual order status change?.
+	* @return array
+	*/
 	public function set_status( $new_status, $note = '', $manual_update = false ) {
 		$result = parent::set_status( $new_status );
 
@@ -1468,11 +1598,11 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Get amount already refunded.
-	 *
-	 * @since 1.0.0
-	 * @return string
-	 */
+	* Get amount already refunded.
+	*
+	* @since 1.0.0
+	* @return string
+	*/
 	public function get_total_refunded() {
 		$cache_key   = masteriyo( 'cache' )->get_prefix( 'orders' ) . 'total_refunded' . $this->get_id();
 		$cached_data = masteriyo( 'cache' )->get( $cache_key, $this->cache_group );
@@ -1489,15 +1619,69 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Gets order total - formatted for display.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $tax_display      Type of tax display.
-	 * @param bool   $display_refunded If should include refunded value.
-	 *
-	 * @return string
-	 */
+	* Gets order discount total - formatted for display.
+	*
+	* @since 2.5.12
+	*
+	* @return string
+	*/
+	public function get_formatted_discount_total() {
+		$formatted_total = masteriyo_price(
+			$this->get_discount_total(),
+			array(
+				'currency'             => $this->get_currency(),
+				'show_price_free_text' => false,
+			)
+		);
+
+		/**
+		* Filter Masteriyo formatted discount total.
+		*
+		* @since 2.5.12
+		*
+		* @param string $formatted_total Total to display.
+		* @param \Masteriyo\Models\Order\Order $order Order data.
+		*/
+		return apply_filters( 'masteriyo_get_formatted_order_total', $formatted_total, $this );
+	}
+
+	/**
+	* Gets order tax total - formatted for display.
+	*
+	* @since 2.21.0
+	*
+	* @return string
+	*/
+	public function get_formatted_tax_total() {
+		$formatted_total = masteriyo_price(
+			$this->get_tax_total(),
+			array(
+				'currency'             => $this->get_currency(),
+				'show_price_free_text' => false,
+			)
+		);
+
+		/**
+		* Filter Masteriyo formatted tax total.
+		*
+		* @since 2.21.0
+		*
+		* @param string $formatted_total Total to display.
+		* @param \Masteriyo\Models\Order\Order $order Order data.
+		*/
+		return apply_filters( 'masteriyo_get_formatted_order_tax_total', $formatted_total, $this );
+	}
+
+	/**
+	* Gets order total - formatted for display.
+	*
+	* @since 1.0.0
+	*
+	* @param string $tax_display      Type of tax display.
+	* @param bool   $display_refunded If should include refunded value.
+	*
+	* @return string
+	*/
 	public function get_formatted_order_total( $display_refunded = true ) {
 		$formatted_total = masteriyo_price( $this->get_total(), array( 'currency' => $this->get_currency() ) );
 		$order_total     = $this->get_total();
@@ -1508,55 +1692,55 @@ class Order extends AbstractOrder {
 		}
 
 		/**
-		 * Filter Masteriyo formatted order total.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string   $formatted_total  Total to display.
-		 * @param Masteriyo\Models\Order\Order    $order            Order data.
-		 * @param bool     $display_refunded If should include refunded value.
-		 */
+		* Filter Masteriyo formatted order total.
+		*
+		* @since 1.0.0
+		*
+		* @param string   $formatted_total  Total to display.
+		* @param Masteriyo\Models\Order\Order    $order            Order data.
+		* @param bool     $display_refunded If should include refunded value.
+		*/
 		return apply_filters( 'masteriyo_get_formatted_order_total', $formatted_total, $this, $display_refunded );
 	}
 
 	/**
-	 * Gets the order number for display (by default, order ID).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
+	* Gets the order number for display (by default, order ID).
+	*
+	* @since 1.0.0
+	*
+	* @return string
+	*/
 	public function get_order_number() {
 		/**
-		 * Filters order number.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $order_number Order number.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters order number.
+		*
+		* @since 1.0.0
+		*
+		* @param string $order_number Order number.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return (string) apply_filters( 'masteriyo_order_number', $this->get_id(), $this );
 	}
 
 	/**
-	 * Check if order has been created via admin, checkout, or in another way.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $modus Way of creating the order to test for.
-	 *
-	 * @return boolean
-	 */
+	* Check if order has been created via admin, checkout, or in another way.
+	*
+	* @since 1.0.0
+	*
+	* @param string $modus Way of creating the order to test for.
+	*
+	* @return boolean
+	*/
 	public function is_created_via( $modus ) {
 		/**
-		 * Filters boolean: true if order creation medium (like admin, checkout etc) matches with the given medium.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $medium true if order creation medium (like admin, checkout etc) matches with the given medium.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 * @param string $modus Way of creating the order to test for.
-		 */
+		* Filters boolean: true if order creation medium (like admin, checkout etc) matches with the given medium.
+		*
+		* @since 1.0.0
+		*
+		* @param string $medium true if order creation medium (like admin, checkout etc) matches with the given medium.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		* @param string $modus Way of creating the order to test for.
+		*/
 		return apply_filters( 'masteriyo_order_is_created_via', $modus === $this->get_created_via(), $this, $modus );
 	}
 
@@ -1567,43 +1751,43 @@ class Order extends AbstractOrder {
 	*/
 
 	/**
-	 * Generates a URL for the thanks page (order received).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
+	* Generates a URL for the thanks page (order received).
+	*
+	* @since 1.0.0
+	*
+	* @return string
+	*/
 	public function get_checkout_order_received_url() {
 		$order_received_url = masteriyo_get_endpoint_url( 'order-received', $this->get_id(), masteriyo_get_checkout_url() );
 		$order_received_url = add_query_arg( 'key', $this->get_order_key(), $order_received_url );
 
 		/**
-		 * Filters generated URL for the thanks page (order received).
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $url The generated URL for the thanks page (order received).
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters generated URL for the thanks page (order received).
+		*
+		* @since 1.0.0
+		*
+		* @param string $url The generated URL for the thanks page (order received).
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_get_checkout_order_received_url', $order_received_url, $this );
 	}
 
 	/**
-	 * Generates a URL so that a customer can cancel their (unpaid - pending) order.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $redirect Redirect URL.
-	 * @return string
-	 */
+	* Generates a URL so that a customer can cancel their (unpaid - pending) order.
+	*
+	* @since 1.0.0
+	*
+	* @param string $redirect Redirect URL.
+	* @return string
+	*/
 	public function get_cancel_order_url( $redirect = '' ) {
 		/**
-		 * Filters cancel order URL.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $url Order cancel URL.
-		 */
+		* Filters cancel order URL.
+		*
+		* @since 1.0.0
+		*
+		* @param string $url Order cancel URL.
+		*/
 		return apply_filters(
 			'masteriyo_get_cancel_order_url',
 			wp_nonce_url(
@@ -1622,73 +1806,73 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Generates a URL to view an order from the account page.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
+	* Generates a URL to view an order from the account page.
+	*
+	* @since 1.0.0
+	*
+	* @return string
+	*/
 	public function get_view_order_url() {
 		$url = masteriyo_get_endpoint_url( 'view-order', $this->get_id(), masteriyo_get_page_permalink( 'account' ) );
 
 		/**
-		 * Filters view order URL.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $url View order URL.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters view order URL.
+		*
+		* @since 1.0.0
+		*
+		* @param string $url View order URL.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_get_view_order_url', $url, $this );
 	}
 
 	/**
-	 * Get a checkout page URL.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string
-	 */
+	* Get a checkout page URL.
+	*
+	* @since 1.0.0
+	*
+	* @return string
+	*/
 	public function get_checkout_payment_url() {
 		return masteriyo_get_page_permalink( 'checkout' );
 	}
 
 	/**
-	 * Get's the URL to edit the order in the backend.
-	 *
-	 * @since 1.0.0
-	 * @return string
-	 */
+	* Get's the URL to edit the order in the backend.
+	*
+	* @since 1.0.0
+	* @return string
+	*/
 	public function get_edit_order_url() {
 		$url = get_admin_url( null, 'post.php?post=' . $this->get_id() . '&action=edit' );
 
 		/**
-		 * Filters edit order URL.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $url Edit order URL.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters edit order URL.
+		*
+		* @since 1.0.0
+		*
+		* @param string $url Edit order URL.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_get_edit_order_url', $url, $this );
 	}
 
 	/**
-	 * Generates a raw (unescaped) cancel-order URL for use by payment gateways.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $redirect Redirect URL.
-	 * @return string The unescaped cancel-order URL.
-	 */
+	* Generates a raw (unescaped) cancel-order URL for use by payment gateways.
+	*
+	* @since 1.0.0
+	*
+	* @param string $redirect Redirect URL.
+	* @return string The unescaped cancel-order URL.
+	*/
 	public function get_cancel_order_url_raw( $redirect = '' ) {
 		/**
-		 * Filters generated raw (unescaped) cancel-order URL for use by payment gateways.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $url The generated raw (unescaped) cancel-order URL for use by payment gateways.
-		 */
+		* Filters generated raw (unescaped) cancel-order URL for use by payment gateways.
+		*
+		* @since 1.0.0
+		*
+		* @param string $url The generated raw (unescaped) cancel-order URL for use by payment gateways.
+		*/
 		return apply_filters(
 			'masteriyo_get_cancel_order_url_raw',
 			add_query_arg(
@@ -1705,12 +1889,12 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Helper method to return the cancel endpoint.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string the cancel endpoint; either the cart page or the home page.
-	 */
+	* Helper method to return the cancel endpoint.
+	*
+	* @since 1.0.0
+	*
+	* @return string the cancel endpoint; either the cart page or the home page.
+	*/
 	public function get_cancel_endpoint() {
 		$cancel_endpoint = masteriyo_get_cart_url();
 		if ( ! $cancel_endpoint ) {
@@ -1725,12 +1909,12 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Add total row for the payment method.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array  $total_rows  Total rows.
-	 */
+	* Add total row for the payment method.
+	*
+	* @since 1.0.0
+	*
+	* @param array  $total_rows  Total rows.
+	*/
 	protected function add_order_item_totals_payment_method_row( &$total_rows ) {
 		if ( $this->get_total() > 0 && $this->get_payment_method_title() && 'other' !== $this->get_payment_method_title() ) {
 			$total_rows['payment_method'] = array(
@@ -1741,12 +1925,12 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Add total row for refunds.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array  $total_rows  Total rows.
-	 */
+	* Add total row for refunds.
+	*
+	* @since 1.0.0
+	*
+	* @param array  $total_rows  Total rows.
+	*/
 	protected function add_order_item_totals_refund_rows( &$total_rows ) {
 		$refunds = $this->get_refunds();
 		if ( $refunds ) {
@@ -1760,59 +1944,91 @@ class Order extends AbstractOrder {
 	}
 
 	/**
-	 * Get totals for display on pages and in emails.
+	 * Add total row for discounts.
 	 *
-	 * @since 1.0.0
+	 * @since 2.16.0
 	 *
-	 * @return array
+	 * @param array $total_rows Total rows.
 	 */
+	protected function add_order_item_totals_discount_row( &$total_rows ) {
+		if ( $this->get_discount_total() > 0 ) {
+			$total_rows['discount'] = array(
+				'label' => __( 'Discount:', 'learning-management-system' ),
+				'value' => masteriyo_price( '-' . $this->get_discount_total(), array( 'currency' => $this->get_currency() ) ),
+			);
+		}
+	}
+
+	/**
+	 * Add total row for taxes.
+	 *
+	 * @param array $total_rows Total rows.
+	 */
+	protected function add_order_item_totals_tax_row( &$total_rows ) {
+		if ( $this->get_tax_total() > 0 ) {
+			$total_rows['tax'] = array(
+				'label' => __( 'Tax:', 'learning-management-system' ),
+				'value' => $this->get_formatted_tax_total(),
+			);
+		}
+	}
+
+	/**
+	* Get totals for display on pages and in emails.
+	*
+	* @since 1.0.0
+	*
+	* @return array
+	*/
 	public function get_order_item_totals() {
 		$total_rows = array();
 
 		$this->add_order_item_totals_refund_rows( $total_rows );
+		$this->add_order_item_totals_discount_row( $total_rows );
+		$this->add_order_item_totals_tax_row( $total_rows );
 		$this->add_order_item_totals_total_row( $total_rows );
 		$this->add_order_item_totals_payment_method_row( $total_rows );
 
 		/**
-		 * Filters totals for display on pages and in emails.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array $totals The totals for display on pages and in emails.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters totals for display on pages and in emails.
+		*
+		* @since 1.0.0
+		*
+		* @param array $totals The totals for display on pages and in emails.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_get_order_item_totals', $total_rows, $this );
 	}
 
 	/**
-	 * Get a formatted billing address for the order.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $empty_content Content to show if no address is present. @since 3.3.0.
-	 * @return string
-	 */
+	* Get a formatted billing address for the order.
+	*
+	* @since 1.0.0
+	*
+	* @param string $empty_content Content to show if no address is present. @since 3.3.0.
+	* @return string
+	*/
 	public function get_formatted_billing_address( $empty_content = '' ) {
 		/**
-		 * Filters formatted billing address.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $billing_address The formatted billing address.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filters formatted billing address.
+		*
+		* @since 1.0.0
+		*
+		* @param string $billing_address The formatted billing address.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		$raw_address = apply_filters( 'masteriyo_order_formatted_billing_address', $this->get_address( 'billing' ), $this );
 		$address     = masteriyo( 'countries' )->get_formatted_address( $raw_address );
 
 		/**
-		 * Filter orders formatted billing address.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string   $address     Formatted billing address string.
-		 * @param array    $raw_address Raw billing address.
-		 * @param Masteriyo\Models\Order\Order $order Order object.
-		 */
+		* Filter orders formatted billing address.
+		*
+		* @since 1.0.0
+		*
+		* @param string   $address     Formatted billing address string.
+		* @param array    $raw_address Raw billing address.
+		* @param Masteriyo\Models\Order\Order $order Order object.
+		*/
 		return apply_filters( 'masteriyo_order_get_formatted_billing_address', $address ? $address : $empty_content, $raw_address, $this );
 	}
 
@@ -1823,15 +2039,15 @@ class Order extends AbstractOrder {
 	*/
 
 	/**
-	 * Adds a note (comment) to the order. Order must exist.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string $note              Note to add.
-	 * @param  int    $is_customer_note  Is this a note for the customer?.
-	 * @param  bool   $added_by_user     Was the note added by a user?.
-	 * @return int                       Comment ID.
-	 */
+	* Adds a note (comment) to the order. Order must exist.
+	*
+	* @since 1.0.0
+	*
+	* @param  string $note              Note to add.
+	* @param  int    $is_customer_note  Is this a note for the customer?.
+	* @param  bool   $added_by_user     Was the note added by a user?.
+	* @return int                       Comment ID.
+	*/
 	public function add_order_note( $note, $is_customer_note = 0, $added_by_user = false ) {
 		if ( ! $this->get_id() ) {
 			return 0;
@@ -1842,21 +2058,28 @@ class Order extends AbstractOrder {
 			$comment_author       = $user->display_name;
 			$comment_author_email = $user->user_email;
 		} else {
-			$comment_author        = __( 'Masteriyo', 'learning-management-system' );
-			$comment_author_email  = strtolower( __( 'Masteriyo', 'learning-management-system' ) ) . '@';
-			$http_host             = str_replace( 'www.', '', sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) );
-			$comment_author_email .= isset( $_SERVER['HTTP_HOST'] ) ? $http_host : 'noreply.com';
-			$comment_author_email  = sanitize_email( $comment_author_email );
+			// The host has to be tested before it is read, not after. An order note
+			// added without a request behind it — WP-CLI, cron — has no HTTP_HOST,
+			// and reading it first warned on every one of them.
+			$comment_author       = masteriyo_get_plugin_name();
+			$host                 = isset( $_SERVER['HTTP_HOST'] )
+				? str_replace( 'www.', '', sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) )
+				: 'noreply.com';
+			// The local part is a machine identifier, like comment_agent below:
+			// a brand with a space is no valid local part — sanitize_email()
+			// returns '' for it — and the stored value must never depend on
+			// the display name.
+			$comment_author_email = sanitize_email( 'masteriyo@' . $host );
 		}
 
 		/**
-		 * Filters new order note data.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array $new_order_note_data New order note data.
-		 * @param array $args Arguments.
-		 */
+		* Filters new order note data.
+		*
+		* @since 1.0.0
+		*
+		* @param array $new_order_note_data New order note data.
+		* @param array $args Arguments.
+		*/
 		$comment_data = apply_filters(
 			'masteriyo_new_order_note_data',
 			array(
@@ -1882,12 +2105,12 @@ class Order extends AbstractOrder {
 			add_comment_meta( $comment_id, 'is_customer_note', 1 );
 
 			/**
-			 * Fires after adding new customer note to an order.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array $note The customer note data.
-			 */
+					 * Fires after adding new customer note to an order.
+					 *
+					 * @since 1.0.0
+					 *
+					 * @param array $note The customer note data.
+					 */
 			do_action(
 				'masteriyo_new_customer_note',
 				array(
@@ -1898,38 +2121,38 @@ class Order extends AbstractOrder {
 		}
 
 		/**
-		 * Action hook fired after an order note is added.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param integer $order_note_id Order note ID.
-		 * @param \Masteriyo\Models\Order\Order $order Order data.
-		 */
+		* Action hook fired after an order note is added.
+		*
+		* @since 1.0.0
+		*
+		* @param integer $order_note_id Order note ID.
+		* @param \Masteriyo\Models\Order\Order $order Order data.
+		*/
 		do_action( 'masteriyo_order_note_added', $comment_id, $this );
 
 		return $comment_id;
 	}
 
 	/**
-	 * Add an order note for status transition
-	 *
-	 * @since 1.0.0
-	 * @uses Order::add_order_note()
-	 * @param string $note          Note to be added giving status transition from and to details.
-	 * @param bool   $transition    Details of the status transition.
-	 * @return int                  Comment ID.
-	 */
+	* Add an order note for status transition
+	*
+	* @since 1.0.0
+	* @uses Order::add_order_note()
+	* @param string $note          Note to be added giving status transition from and to details.
+	* @param bool   $transition    Details of the status transition.
+	* @return int                  Comment ID.
+	*/
 	private function add_status_transition_note( $note, $transition ) {
 		return $this->add_order_note( trim( $transition['note'] . ' ' . $note ), 0, $transition['manual'] );
 	}
 
 	/**
-	 * List order notes (public) for the customer.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return array
-	 */
+	* List order notes (public) for the customer.
+	*
+	* @since 1.0.0
+	*
+	* @return array
+	*/
 	public function get_customer_order_notes() {
 		$notes = array();
 		$args  = array(

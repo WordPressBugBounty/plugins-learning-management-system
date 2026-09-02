@@ -3,7 +3,6 @@
  * List Sections ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -16,8 +15,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Ability: retrieve a paginated list of sections.
  *
  * Supports filtering by course ID. Results are ordered by menu_order (display order).
- *
- * @since x.x.x
  */
 class ListSectionsAbility extends RestProxyAbility {
 

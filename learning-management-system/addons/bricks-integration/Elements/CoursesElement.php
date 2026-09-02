@@ -1180,7 +1180,6 @@ class CoursesElement extends \Bricks\Element {
 			'tax_query'      => $tax_query,
 			'page'           => absint( $current_page ), // Add the current page number to the query args.
 			'pagination'     => true,
-			'page'           => absint( $current_page ), // Add the current page number to the query args.
 			'offset'         => ( absint( $current_page ) - 1 ) * absint( $limit ),
 		);
 

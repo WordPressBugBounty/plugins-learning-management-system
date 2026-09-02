@@ -3,8 +3,6 @@
  * New lesson comment reply to student email class.
  *
  * @package Masteriyo\Emails
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Emails\Student;
@@ -18,8 +16,6 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since x.x.x
-	 *
 	 * @var string
 	 */
 	protected $id = 'new-lesson-comment-reply/to/student';
@@ -27,16 +23,12 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since x.x.x
-	 *
 	 * @var string
 	 */
 	protected $html_template = 'emails/student/new-lesson-comment-reply.php';
 
 	/**
 	 * Send this email.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Models\LessonReview $reply Reply object.
 	 */
@@ -89,8 +81,6 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	public function is_enabled() {
@@ -104,20 +94,21 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_subject() {
-		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.subject' ) );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+
+		if ( empty( $subject ) ) {
+			$subject = masteriyo_get_default_email_contents()['student']['new_lesson_comment_reply']['subject'];
+		}
 
 		return $this->format_string( $subject );
 	}
 
 	/**
 	 * Return heading.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -130,8 +121,6 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_additional_content() {
@@ -143,21 +132,24 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 	/**
 	 * Get email content.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_content() {
 		$content = masteriyo_string_translation( 'emails.student.new_lesson_comment_reply.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['student']['new_lesson_comment_reply']['content'];
+		}
+
 		$content = $this->format_string( $content );
 		$this->set( 'content', $content );
+
 		return parent::get_content();
 	}
 
 	/**
 	 * Get placeholders.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return array
 	 */
@@ -229,5 +221,53 @@ class NewLessonCommentReplyEmailToStudent extends Email {
 		}
 
 		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.new_lesson_comment_reply.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

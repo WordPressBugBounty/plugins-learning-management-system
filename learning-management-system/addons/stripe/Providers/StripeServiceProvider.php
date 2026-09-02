@@ -2,7 +2,7 @@
 /**
  * Stripe service provider.
  *
- * @since 1.14.0
+ * @since 2.0.0
  */
 
 namespace Masteriyo\Addons\Stripe\Providers;
@@ -15,22 +15,10 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 /**
  * Stripe service provider.
  *
- * @since 1.14.0
+ * @since 2.0.0
+ * @since 2.0.5 Changed Modules to Addons
  */
 class StripeServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.14.0
-	 */
-	public function register(): void {
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -40,7 +28,7 @@ class StripeServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -51,5 +39,16 @@ class StripeServiceProvider extends AbstractServiceProvider {
 			array(),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 2.0.0
+	 */
+	public function register(): void {
 	}
 }

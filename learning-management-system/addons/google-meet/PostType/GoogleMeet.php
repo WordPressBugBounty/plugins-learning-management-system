@@ -2,7 +2,7 @@
 /**
  * GoogleMeet class.
  *
- * @since 1.11.0
+ * @since 2.5.19
  *
  * @package Masteriyo\PostType;
  */
@@ -21,7 +21,7 @@ class GoogleMeet extends PostType {
 	/**
 	 * Post slug.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */

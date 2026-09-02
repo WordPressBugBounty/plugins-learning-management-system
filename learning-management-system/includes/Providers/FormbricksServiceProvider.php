@@ -1,8 +1,8 @@
 <?php
 /**
- * Formbricks class service provider.
+ *Formbricks class service provider.
  *
- * @since 1.20.0
+ * @since 1.20.0 [Free]
  * @package Masteriyo\Providers
  */
 
@@ -17,7 +17,7 @@ use Masteriyo\Constants;
 /**
  * Registers and initializes formbricks types and categories for Masteriyo LMS.
  *
- * @since 1.20.0
+ * @since 1.20.0 [Free]
  */
 class FormbricksServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
@@ -25,18 +25,6 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * Environment ID for Formbricks.
 	 */
 	const ENVIRONMENT_ID = 'cmcn73ighcqgkwk017mrq94f8';
-
-
-
-	/**
-	 * Register services in the container.
-	 *
-	 * @since 1.20.0
-	 * @return void
-	 */
-	public function register(): void {
-		// No container services to register for now.
-	}
 
 	/**
 	 * The provided array is a way to let the container
@@ -47,7 +35,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.20.0 [Free]
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -61,10 +49,20 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	}
 
 	/**
+	 * Register services in the container.
+	 *
+	 * @since 1.20.0 [Free]
+	 * @return void
+	 */
+	public function register(): void {
+		// No container services to register for now.
+	}
+
+	/**
 	 * Boot the formbricks service provider.
 	 * Registers block types, categories, and editor assets.
 	 *
-	 * @since 1.20.0
+	 * @since 1.20.0 [Free]
 	 * @return void
 	 */
 	public function boot(): void {
@@ -78,7 +76,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * This method fires the 'themeisle_internal_page' action hook with the plugin's slug and
 	 * the top-level page identifier. It is used to register or declare internal admin pages
 	 * for the plugin within the WordPress admin dashboard.
-	 *@since 1.20.0
+	 *@since 1.20.0 [Free]
 	 * @return void
 	 */
 	public function declare_internal_pages() {
@@ -92,7 +90,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 *
 	 * @param array  $data      Existing data to be configured.
 	 * @param string $page_slug The slug of the current page.
-	 *@since 1.20.0
+	 *@since 1.20.0 [Free]
 	 * @return array Modified data with Formbricks survey information if applicable.
 	 */
 	public function configure_formbricks( $data, $page_slug ) {
@@ -100,12 +98,21 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 		if ( empty( $page_slug ) ) {
 			return $data;
 		}
+		/*
+		 * This file ships to both products, so the version attribute cannot name one of
+		 * them. Free reports `free_version` and pro reports `pro_version`, derived from the
+		 * same value that populates `is_premium` below so the two can never disagree.
+		 */
+		$is_premium  = $this->is_premium();
+		$version_key = $is_premium ? 'pro_version' : 'free_version';
+
 		$survey_data = array(
 			'environmentId' => self::ENVIRONMENT_ID,
 			'attributes'    => array(
-				'free_version'        => MASTERIYO_VERSION,
+				$version_key          => MASTERIYO_VERSION,
 				'install_days_number' => $this->get_install_days(),
-				'is_premium'          => $this->is_premium(),
+				'is_premium'          => $is_premium,
+				'license_key'         => $this->get_license_key(),
 			),
 		);
 		return $survey_data;
@@ -118,7 +125,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * If the value is not numeric, it attempts to convert it to a timestamp.
 	 * Returns the number of full days elapsed since installation.
 	 *
-	 *  @since 1.20.0
+	 *  @since 1.20.0 [Free]
 	 * @return int Number of days since the plugin was installed.
 	 */
 	private function get_install_days() {
@@ -137,7 +144,7 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 	 * This method determines whether the 'learning-management-system-pro/lms.php' plugin
 	 * is currently active. Returns true if the premium plugin is active, otherwise false.
 	 *
-	 * @since 1.20.0
+	 * @since 1.20.0 [Free]
 	 * @return bool True if the premium plugin is active, false otherwise.
 	 */
 	private function is_premium() {
@@ -146,5 +153,16 @@ class FormbricksServiceProvider extends AbstractServiceProvider implements Boota
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Get product license key.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @return string|null
+	 */
+	private function get_license_key() {
+		return get_option( 'masteriyo_pro_license_key', null );
 	}
 }

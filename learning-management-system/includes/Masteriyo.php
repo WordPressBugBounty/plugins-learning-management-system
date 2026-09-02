@@ -9,7 +9,10 @@
 
 namespace Masteriyo;
 
+use Masteriyo\Activation;
 use Masteriyo\AdminMenu;
+use Masteriyo\Constants;
+use Masteriyo\CoursesPagePrompt;
 use Masteriyo\ScriptStyle;
 use Masteriyo\Capabilities;
 use Masteriyo\CourseComponentStyles\ArchiveCourseComponentStyles;
@@ -17,6 +20,8 @@ use Masteriyo\CourseComponentStyles\CategoryCourseComponentStyles;
 use Masteriyo\CourseComponentStyles\InstructorCourseComponentStyles;
 use Masteriyo\CourseComponentStyles\SingleCourseComponentStyles;
 use Masteriyo\Setup\Onboard;
+use Masteriyo\Setup\HomeGuide;
+use Masteriyo\Setup\SampleContent;
 use Masteriyo\RestApi\RestApi;
 use Masteriyo\Emails\EmailHooks;
 use Masteriyo\Enums\OrderStatus;
@@ -25,13 +30,14 @@ use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\Emails\EmailScheduleActions;
+use Masteriyo\Enums\PostStatus;
+use Masteriyo\FileRestrictions\FileRestrictions;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Exporter\CourseExporter;
+use Masteriyo\Exporter\CoursePdfExporter;
 use Masteriyo\Exporter\QuizExporter;
-use Masteriyo\FileRestrictions\FileRestrictions;
 use Masteriyo\ShowHideComponents\ShowHideCategoryCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideInstructorCourseComponents;
-use Masteriyo\ShowHideComponents\ShowHideSingleCourseComponents;
 use Masteriyo\Roles;
 
 defined( 'ABSPATH' ) || exit;
@@ -72,7 +78,7 @@ class Masteriyo {
 	 */
 	protected function init() {
 		/**
-	 * Fire before masteriyo is initialized.
+		 * Fire before masteriyo is initialized.
 		 *
 		 * @use Initialize addon using this hook.
 		 *
@@ -82,6 +88,10 @@ class Masteriyo {
 		 */
 		do_action( 'masteriyo_before_init', $this );
 
+		// Unconditional on purpose: REST/front-end-only sites (disabled WP-Cron, no
+		// admin visits after an auto-update) must still get schema migrations. The
+		// GET_LOCK in Migrator keeps concurrent requests from piling up, and the one
+		// heavy migration defers its own table work to admin/cron/CLI requests itself.
 		masteriyo( 'migrator' )->migrate();
 
 		Capabilities::init();
@@ -101,21 +111,26 @@ class Masteriyo {
 		// ( new ShowHideSingleCourseComponents() )->init();
 		( new RestAPIAuth() )->init();
 		( new CourseRetake() )->init();
+		( new Privacy() )->init();
+		( new CourseStarterCurriculum() )->init();
 		( new ArchiveCourseComponentStyles() )->init();
 		( new CategoryCourseComponentStyles() )->init();
 		( new InstructorCourseComponentStyles() )->init();
 		( new SingleCourseComponentStyles() )->init();
-
 		( new AdminFileDownloadHandler() )->init();
 
 		// Register file paths.
 		AdminFileDownloadHandler::register_file_path( CourseExporter::FILE_PATH_ID, CourseExporter::get_file_path() );
 		AdminFileDownloadHandler::register_file_path( QuizExporter::FILE_PATH_ID, QuizExporter::get_file_path() );
+		AdminFileDownloadHandler::register_file_path( CoursePdfExporter::FILE_PATH_ID, CoursePdfExporter::get_file_path() );
 
 		$this->define_tables();
 
 		// Initialize the hooks.
 		$this->init_hooks();
+
+		// Initialize tax functionality.
+		( new Tax() )->init();
 
 		/**
 		 * Fire after masteriyo is initialized.
@@ -125,6 +140,7 @@ class Masteriyo {
 		 * @param \Masteriyo\Masteriyo $masteriyo Masteriyo class object.
 		 */
 		do_action( 'masteriyo_after_init', $this );
+
 	}
 
 	/**
@@ -133,10 +149,19 @@ class Masteriyo {
 	 * @since 1.0.0
 	 */
 	protected function init_hooks() {
+		ThemeCompat::init();
+
 		add_action( 'init', array( $this, 'after_wp_init' ), 0 );
-		add_action( 'init', 'masteriyo_handle_student_preview_token', 5 );
+		// Before after_wp_init(): its student guard bounces any student request for
+		// wp-admin to the home page, and a preview session has to exit first.
+		add_action( 'init', 'masteriyo_handle_student_preview_token', -1 );
+		add_action( 'masteriyo_new_course', array( Activation::class, 'maybe_create_checkout_page' ), 10, 2 );
+		add_action( 'masteriyo_update_course', array( Activation::class, 'maybe_create_checkout_page' ), 10, 2 );
+		add_filter( 'masteriyo_new_setting', array( Activation::class, 'maybe_create_checkout_for_settings' ) );
 		add_action( 'wp_footer', array( $this, 'render_student_preview_banner' ) );
+		add_action( 'wp_footer', array( $this, 'render_single_course_layout_notice' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_courses_page_link' ), 35 );
+		add_action( 'admin_bar_menu', array( $this, 'add_edit_course_link' ), 80 );
 		add_action( 'masteriyo_admin_notices', array( $this, 'masteriyo_display_compatibility_notice' ) );
 
 		add_filter( 'plugin_row_meta', array( $this, 'add_plugin_links' ), 10, 2 );
@@ -173,10 +198,6 @@ class Masteriyo {
 		add_filter( 'post_type_archive_title', array( $this, 'update_courses_page_title_tag' ), 0, 2 );
 
 		add_filter( 'masteriyo_start_course_url', array( $this, 'modify_start_url' ), 10, 3 );
-		add_filter( 'masteriyo_single_course_start_text', array( $this, 'prepped_lock_sign' ), 10, 2 );
-		add_filter( 'masteriyo_single_course_add_to_cart_text', array( $this, 'prepped_lock_sign' ), 10, 2 );
-		add_filter( 'masteriyo_single_course_continue_text', array( $this, 'prepped_lock_sign' ), 10, 2 );
-		add_filter( 'masteriyo_single_course_completed_text', array( $this, 'prepped_lock_sign' ), 10, 2 );
 
 		// Resolve item metadata insertion issue with WooCommerce plugin active.
 		add_action( 'masteriyo_after_order_item_created', array( $this, 'add_order_item_meta' ), 10, 3 );
@@ -191,13 +212,13 @@ class Masteriyo {
 
 		// Add the lock icon to course items.
 		add_filter( 'masteriyo_single_course_curriculum_section_content_html', array( $this, 'add_lock_icon_template_1' ), 11, 2 );
-
 		add_action( 'masteriyo_after_layout_1_single_course_curriculum_accordion_body_item_title', array( $this, 'add_lock_icon_template_1' ) );
 
 		// Check for first time course start.
 		add_action( 'masteriyo_after_learn_page_process', array( $this, 'check_for_first_time_course_start' ), 999, 1 );
 
-		add_filter( 'customize_changeset_save_data', array( $this, 'sync_theme_global_colors' ) );
+		add_action( 'init', 'masteriyo_course_pdf_download_handler' );
+		add_action( 'customize_save_after', array( $this, 'sync_theme_global_colors' ) );
 	}
 
 	/**
@@ -206,7 +227,7 @@ class Masteriyo {
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 */
 	public function check_for_first_time_course_start( $course ) {
 		if ( ! is_user_logged_in() || ! $course instanceof \Masteriyo\Models\Course ) {
@@ -243,7 +264,7 @@ class Masteriyo {
 		return $title;
 	}
 
-	/**
+	/**P
 	 * Initialization after WordPress is initialized.
 	 *
 	 * @since 1.0.0
@@ -252,6 +273,9 @@ class Masteriyo {
 
 		$this->load_text_domain();
 		Install::init();
+		SampleContent::init();
+		CoursesPagePrompt::init();
+		HomeGuide::init();
 
 		$this->restrict_wp_dashboard_and_admin_bar();
 		$this->register_order_status();
@@ -259,7 +283,14 @@ class Masteriyo {
 
 		$this->handle_paypal_ipn();
 
-		masteriyo_notify_pages_missing();
+		// Admin-notice output only, but this hook runs on every request — and the
+		// check behind it now resolves the payment-gateway registry. Not on the
+		// front end for a notice no front-end visitor can see. Same reasoning for
+		// the migration notice, whose probes hit the user_items table.
+		if ( is_admin() ) {
+			masteriyo_notify_pages_missing();
+			masteriyo_notify_user_items_migration_incomplete();
+		}
 		// masteriyo_show_onboarding_completion_notice();
 
 		// Download the fonts.
@@ -341,6 +372,75 @@ class Masteriyo {
 	}
 
 	/**
+	 * Add an "Edit Course" link to the admin bar on front-end course, lesson and quiz pages.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
+	 */
+	public function add_edit_course_link( $wp_admin_bar ) {
+		if ( is_admin() || ! is_admin_bar_showing() ) {
+			return;
+		}
+
+		$course_id = $this->get_admin_bar_course_id();
+
+		if ( ! $course_id ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_masteriyo_settings' ) && ! current_user_can( 'edit_course', $course_id ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			array(
+				'id'    => 'masteriyo-edit-course',
+				'title' => __( 'Edit Course', 'learning-management-system' ),
+				'href'  => admin_url( "admin.php?page=masteriyo#/courses/{$course_id}/edit" ),
+			)
+		);
+	}
+
+	/**
+	 * Resolve the course ID for the current front-end single course, lesson or quiz (learn) page.
+	 *
+	 * @return int Course ID, or 0 when the current page is neither.
+	 */
+	protected function get_admin_bar_course_id() {
+		if ( masteriyo_is_single_course_page() ) {
+			return (int) get_queried_object_id();
+		}
+
+		if ( ! masteriyo_is_learn_page() ) {
+			return 0;
+		}
+
+		// Resolve exactly as handle_learn_page() does: the endpoint carries the
+		// numeric ID in preview or plain-permalink mode, and the slug otherwise.
+		$preview     = masteriyo_string_to_bool( get_query_var( 'mto-preview', false ) );
+		$course_name = get_query_var( 'course_name', '' );
+
+		if ( '' === get_option( 'permalink_structure' ) || $preview ) {
+			return absint( $course_name );
+		}
+
+		if ( '' === $course_name ) {
+			return 0;
+		}
+
+		$courses = get_posts(
+			array(
+				'post_type'   => PostType::COURSE,
+				'name'        => sanitize_title( $course_name ),
+				'numberposts' => 1,
+				'fields'      => 'ids',
+				'post_status' => array( PostStatus::PUBLISH, PostStatus::PVT ),
+			)
+		);
+
+		return empty( $courses ) ? 0 : (int) $courses[0];
+	}
+
+	/**
 	 * Add plugin links on the plugins screen.
 	 *
 	 * @since 1.0.0
@@ -355,17 +455,33 @@ class Masteriyo {
 			return $links;
 		}
 
+		// This file ships to both products, so the support destination is derived rather than
+		// hardcoded: free users belong on the wordpress.org forum, licence holders on the
+		// priority desk. Deriving it from the same signal the tracking info uses means the two
+		// can never disagree.
+		$is_premium = \Masteriyo\Tracking\MasteriyoTrackingInfo::is_premium();
+
 		$masteriyo_links = array(
 			'docs'    => array(
 				'url'        => 'https://docs.masteriyo.com/',
 				'label'      => __( 'Docs', 'learning-management-system' ),
-				'aria-label' => __( 'View Masteriyo documentation', 'learning-management-system' ),
+				'aria-label' => sprintf(
+					/* translators: %s: the product's name */
+					__( 'View %s documentation', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				),
 			),
-			'support' => array(
-				'url'        => 'https://wordpress.org/support/plugin/learning-management-system/',
-				'label'      => __( 'Community Support', 'learning-management-system' ),
-				'aria-label' => __( 'Visit community forums', 'learning-management-system' ),
-			),
+			'support' => $is_premium
+				? array(
+					'url'        => 'https://masteriyo.com/support/',
+					'label'      => __( 'Support', 'learning-management-system' ),
+					'aria-label' => __( 'Visit support', 'learning-management-system' ),
+				)
+				: array(
+					'url'        => 'https://wordpress.org/support/plugin/learning-management-system/',
+					'label'      => __( 'Community Support', 'learning-management-system' ),
+					'aria-label' => __( 'Visit community forums', 'learning-management-system' ),
+				),
 			'review'  => array(
 				'url'        => 'https://wordpress.org/support/plugin/learning-management-system/reviews/#new-post',
 				'label'      => __( 'Rate the plugin ★★★★★', 'learning-management-system' ),
@@ -399,7 +515,11 @@ class Masteriyo {
 			'settings' => array(
 				'url'        => admin_url( 'admin.php?page=masteriyo#/settings' ),
 				'label'      => __( 'Settings', 'learning-management-system' ),
-				'aria-label' => __( 'View Masteriyo settings', 'learning-management-system' ),
+				'aria-label' => sprintf(
+					/* translators: %s: the product's name */
+					__( 'View %s settings', 'learning-management-system' ),
+					masteriyo_get_plugin_name()
+				),
 			),
 		);
 		$action_links_html = array();
@@ -440,6 +560,8 @@ class Masteriyo {
 				$layout_template = 'single-course-1.php';
 			} elseif ( 'minimal' === $layout ) {
 				$layout_template = 'single-course-minimal.php';
+			} elseif ( 'immersive' === $layout ) {
+				$layout_template = 'single-course-immersive.php';
 			}
 
 			$template = masteriyo( 'template' )->locate( $layout_template );
@@ -635,6 +757,7 @@ class Masteriyo {
 		EmailHooks::schedule_email_verification_email( $uid, $user );
 
 		masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
+
 	}
 
 	/**
@@ -680,7 +803,7 @@ class Masteriyo {
 	/**
 	 * Handle email change confirmation.
 	 *
-	 * @since 1.16.1
+	 * @since 1.16.1 [Free]
 	 *
 	 * This function checks if a valid token is present in the URL or if the current page is the account page.
 	 * If a valid token is found, it retrieves the user ID associated with the token and updates the user's email
@@ -711,10 +834,11 @@ class Masteriyo {
 		}
 	}
 
+
 	/**
 	 * Retrieve user ID by email change token.
 	 *
-	 * @since 1.16.1
+	 * @since 1.16.1 [Free]
 	 *
 	 * This function queries the database to
 	 *
@@ -731,7 +855,6 @@ class Masteriyo {
 	 *
 	 * @since 1.0.0
 	 */
-
 	public function admin_redirects() {
 
 		if ( wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
@@ -760,12 +883,11 @@ class Masteriyo {
 		}
 	}
 
+
 	/**
 	 * Register order status.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
 	private function register_order_status() {
 		$order_statuses = \masteriyo_get_order_statuses();
@@ -782,11 +904,16 @@ class Masteriyo {
 	 */
 	public function masteriyo_display_compatibility_notice() {
 		if ( version_compare( get_bloginfo( 'version' ), '5.0', '<' ) ) {
-			// translators: %s: Dismiss link
 			echo wp_sprintf(
 				'<div class="notice notice-warning"><p><strong>%s</strong>: %s</p></div>',
-				'Masteriyo',
-				esc_html__( 'Minimum WordPress version required for Masteriyo to work is v5.0.', 'learning-management-system' )
+				esc_html( masteriyo_get_plugin_name() ),
+				esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( 'Minimum WordPress version required for %s to work is v5.0.', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				)
 			);
 		}
 	}
@@ -800,6 +927,12 @@ class Masteriyo {
 		if ( ! masteriyo_is_show_review_notice() ) {
 			return;
 		}
+
+		// The backend react app renders its own review notice (ReviewNotice.tsx) on Masteriyo screens.
+		if ( masteriyo_is_admin_page() ) {
+			return;
+		}
+
 		masteriyo_get_template( 'notices/ask-review.php' );
 	}
 
@@ -841,7 +974,7 @@ class Masteriyo {
 		/**
 		 * Trigger the 'masteriyo_admin_notices' action.
 		 *
-		 * @since 1.15.0
+		 * @since 1.15.0 [Free]
 		 */
 		do_action( 'masteriyo_admin_notices' );
 	}
@@ -932,9 +1065,10 @@ class Masteriyo {
 	 */
 	public function register_custom_kses_allowed_html( $allowed_tags, $context ) {
 
-		// Add iframe to the list of allowed tags in 'post' context.
+		// Add iframe and style to the list of allowed tags in 'post' context.
 		if ( 'post' === $context ) {
 			$allowed_tags = masteriyo_add_iframe_to_post_context( $allowed_tags );
+			$allowed_tags = masteriyo_add_style_to_post_context( $allowed_tags );
 		}
 
 		$custom_context = array( 'masteriyo_image', 'masteriyo_pagination' );
@@ -1003,53 +1137,6 @@ class Masteriyo {
 	}
 
 	/**
-	 * Render the floating preview pill on every frontend page via wp_footer.
-	 *
-	 * @since x.x.x
-	 */
-	public function render_student_preview_banner(): void {
-		if ( masteriyo_validate_preview_originator_cookie() === null ) {
-			return;
-		}
-		masteriyo_get_template( 'student-preview-frontend-banner.php', $this->get_student_preview_banner_args() );
-	}
-
-	/**
-	 * Build the template args for the frontend preview banner.
-	 *
-	 * @since x.x.x
-	 *
-	 * @return array{exit_url: string, switcher_label: string, button_color: string, button_hover_color: string}
-	 */
-	private function get_student_preview_banner_args(): array {
-		$originator  = masteriyo_validate_preview_originator_cookie();
-		$admin_id    = $originator ? $originator['admin_id'] : 0;
-		$admin_user  = $admin_id ? get_userdata( $admin_id ) : null;
-		$admin_roles = $admin_user ? (array) $admin_user->roles : array();
-
-		$switcher_label = in_array( Roles::INSTRUCTOR, $admin_roles, true )
-			? __( 'Switch to Instructor', 'learning-management-system' )
-			: __( 'Switch to Admin', 'learning-management-system' );
-
-		$button_color = (string) masteriyo_get_setting( 'general.styling.button_color' );
-		if ( '' === trim( $button_color ) ) {
-			$button_color = '#4584FF';
-		}
-
-		$button_hover_color = (string) masteriyo_get_setting( 'general.styling.button_hover_color' );
-		if ( '' === trim( $button_hover_color ) ) {
-			$button_hover_color = '#2B6CB0';
-		}
-
-		return array(
-			'exit_url'           => add_query_arg( 'mto-exit-student-preview', '1', home_url( '/' ) ),
-			'switcher_label'     => $switcher_label,
-			'button_color'       => $button_color,
-			'button_hover_color' => $button_hover_color,
-		);
-	}
-
-	/**
 	 * Return learn page template.
 	 *
 	 * @since 1.4.1
@@ -1066,7 +1153,7 @@ class Masteriyo {
 			$course_slug = get_query_var( 'course_name', '' );
 
 			if ( empty( $course_slug ) ) {
-				wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_courses_url() ), 307 );
+				wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_learner_home_url() ), 307 );
 				exit();
 			}
 
@@ -1076,6 +1163,7 @@ class Masteriyo {
 					'name'        => $course_slug,
 					'numberposts' => 1,
 					'fields'      => 'ids',
+					'post_status' => array( PostStatus::PUBLISH, PostStatus::PVT ),
 				)
 			);
 
@@ -1086,13 +1174,35 @@ class Masteriyo {
 
 		// Bail early if the course doesn't exits.
 		if ( is_null( $course ) ) {
-			wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_courses_url() ), 307 );
+			wp_safe_redirect( add_query_arg( 'masteriyo_error', 'course_not_found', \masteriyo_get_learner_home_url() ), 307 );
 			exit();
 		}
 
+		/**
+		 * Enrolls a member in a course based on their membership status.
+		 *
+		 * This action hook triggers the process of enrolling a user directly into a course,
+		 * bypassing the standard checkout page, based on their membership level/status.
+		 * It should be used in conjunction with a membership management system.
+		 *
+		 * @since 2.7.3
+		 *
+		 * @param int $course_id The ID of the course to enroll the user in.
+		 * @param int $user_id The ID of the user to enroll in the course.
+		 */
+		do_action( 'masteriyo_enroll_member_in_course', $course_id, get_current_user_id() );
+
 		if ( ! ( $preview && masteriyo_is_course_previewable( $course ) ) ) {
 			if ( CourseAccessMode::OPEN === $course->get_access_mode() && ! is_user_logged_in() ) {
+				// Bail early if the course status is private.
+				if ( PostStatus::PVT === $course->get_status() ) {
+					wp_safe_redirect( add_query_arg( 'masteriyo_error', 'access_denied', \masteriyo_get_learner_home_url( $course ) ), 307 );
+					exit();
+				}
+
 				masteriyo( 'session' )->set_user_session_cookie( true );
+			} elseif ( ! masteriyo_can_start_course( $course_id ) && masteriyo_course_has_previewable_lessons( $course_id ) ) {
+					masteriyo( 'session' )->set_user_session_cookie( true );
 			} else {
 				$query = new UserCourseQuery(
 					array(
@@ -1102,6 +1212,12 @@ class Masteriyo {
 				);
 
 				$user_courses = $query->get_user_courses();
+
+				// Bail early if the user course doesn't exists and course status is private.
+				if ( empty( $user_courses ) && PostStatus::PVT === $course->get_status() && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() ) {
+					wp_safe_redirect( add_query_arg( 'masteriyo_error', 'not_enrolled', \masteriyo_get_learner_home_url( $course ) ), 307 );
+					exit();
+				}
 
 				if (
 					empty( $user_courses ) &&
@@ -1130,7 +1246,7 @@ class Masteriyo {
 
 				if ( empty( $user_courses ) || ! masteriyo_can_start_course( $course_id, get_current_user_id() ) ) {
 					$error = empty( $user_courses ) ? 'not_enrolled' : 'access_denied';
-					wp_safe_redirect( add_query_arg( 'masteriyo_error', $error, \masteriyo_get_courses_url() ), 307 );
+					wp_safe_redirect( add_query_arg( 'masteriyo_error', $error, \masteriyo_get_learner_home_url( $course ) ), 307 );
 					exit();
 				}
 			}
@@ -1173,6 +1289,10 @@ class Masteriyo {
 	/**
 	 * Update user course status.
 	 *
+	 * Status changes from an order older than the enrollment's current order
+	 * are ignored: a stale order must not re-activate or deactivate an
+	 * enrollment that a newer purchase owns.
+	 *
 	 * @since 1.5.4
 	 *
 	 * @param integer $id order ID.
@@ -1183,9 +1303,19 @@ class Masteriyo {
 	public function update_user_course_status( $order_id, $from, $to, $order ) {
 
 		foreach ( $order->get_items() as $order_item ) {
+			if ( masteriyo_is_bundle_order_item( $order_item ) ) {
+				return;
+			}
+
 			$user_course = masteriyo_get_user_course_by_user_and_course( $order->get_customer_id(), $order_item->get_course_id() );
 
 			if ( $user_course ) {
+				// Stale: a newer order owns this enrollment.
+				$enrollment_order_id = absint( $user_course->get_order_id( 'edit' ) );
+				if ( $enrollment_order_id && absint( $order_id ) < $enrollment_order_id ) {
+					continue;
+				}
+
 				$status = OrderStatus::COMPLETED === $order->get_status() ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE;
 				$user_course->set_status( $status );
 				$user_course->save();
@@ -1218,63 +1348,7 @@ class Masteriyo {
 		}
 
 		return $url;
-	}
 
-	/**
-	 * Prepend lock sign to enroll button if the course is password protected.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @return string
-	 */
-	public function prepped_lock_sign( $text, $course ) {
-		$modified_text = '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
-  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
-  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
-</svg>' . sanitize_text_field( $text );
-
-		// for making private course feature with the prerequisites addon.
-		if ( $course && post_password_required( get_post( $course->get_id() ) ) ) {
-
-			if ( $text === $modified_text ) {
-				return $text;
-			}
-
-			return $modified_text;
-		}
-
-		return $text;
-	}
-
-
-
-	/**
-	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
-	 *
-	 * @since 1.13.0 [Free]
-	 *
-	 * @param string $html The HTML to modify.
-	 * @param mixed $object The object to check for enrollment and lesson preview.
-	 *
-	 * @return string The modified HTML with the lock icon added if applicable.
-	 */
-	public function add_lock_icon( $object ) {
-		if ( is_null( $object ) || is_wp_error( $object ) ) {
-			return;
-		}
-
-		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
-			return;
-		}
-
-		if ( $object instanceof \Masteriyo\Models\Lesson && is_callable( 'masteriyo_course_preview_is_lesson_preview_enabled' ) && masteriyo_course_preview_is_lesson_preview_enabled( $object ) ) {
-			return;
-		}
-
-		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
-		<path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
-		<path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
-		</svg>';
 	}
 
 	/**
@@ -1327,7 +1401,7 @@ class Masteriyo {
 	/**
 	 * Updates the status to 'inactive' for users who do not exist.
 	 *
-	 * @since 1.9.3
+	 * @since 1.9.3 [Free]
 	 *
 	 * @param int $user_id
 	 *
@@ -1351,9 +1425,66 @@ class Masteriyo {
 	}
 
 	/**
+	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
+	 *
+	 * @since 1.13.0 [Free]
+	 *
+	 * @param string $html The HTML to modify.
+	 * @param mixed $object The object to check for enrollment and lesson preview.
+	 *
+	 * @return string The modified HTML with the lock icon added if applicable.
+	 */
+	public function add_lock_icon( $object ) {
+		if ( is_null( $object ) || is_wp_error( $object ) ) {
+			return;
+		}
+
+		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
+			return;
+		}
+
+		if ( $object instanceof \Masteriyo\Models\Lesson && masteriyo_is_lesson_previewable( $object ) ) {
+			return;
+		}
+
+		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
+  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
+</svg>';
+	}
+
+	/**
+	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
+	 *
+	 * @since 1.13.0 [Free]
+	 *
+	 * @param mixed $object The object to check for enrollment and lesson preview.
+	 *
+	 * @return void
+	 */
+	public function add_lock_icon_template_1( $object ) {
+		if ( is_null( $object ) || is_wp_error( $object ) ) {
+			return;
+		}
+
+		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
+			return;
+		}
+
+		if ( $object instanceof \Masteriyo\Models\Lesson && masteriyo_is_lesson_previewable( $object ) ) {
+			return;
+		}
+
+		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
+  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
+</svg>';
+	}
+
+	/**
 	 * Ensures fatal errors are logged so they can be picked up in the status report.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 */
 	public function log_errors() {
 		$error = error_get_last();
@@ -1371,39 +1502,10 @@ class Masteriyo {
 		}
 	}
 
-
-	/**
-	 * Adds a lock icon to the course items if the user is not enrolled in the course and the lesson preview is not enabled.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param mixed $object The object to check for enrollment and lesson preview.
-	 *
-	 * @return void
-	 */
-	public function add_lock_icon_template_1( $object ) {
-		if ( is_null( $object ) || is_wp_error( $object ) ) {
-			return;
-		}
-
-		if ( ! method_exists( $object, 'get_course_id' ) || masteriyo_is_user_enrolled_in_course( $object->get_course_id() ) ) {
-			return;
-		}
-
-		if ( $object instanceof \Masteriyo\Models\Lesson && is_callable( 'masteriyo_course_preview_is_lesson_preview_enabled' ) && masteriyo_course_preview_is_lesson_preview_enabled( $object ) ) {
-			return;
-		}
-
-		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
-  <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
-  <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
-</svg>';
-	}
-
 	/**
 	 * Filter for _doing_it_wrong() calls.
 	 *
-	 * @since 1.18.1
+	 * @since 2.18.2
 	 *
 	 * @param bool|mixed $trigger       Whether to trigger the error for _doing_it_wrong() calls. Default true.
 	 * @param string     $function_name The function that was called.
@@ -1412,6 +1514,87 @@ class Masteriyo {
 	 *
 	 * @return bool
 	 */
+	/**
+	 * Render the floating preview pill on every frontend page via wp_footer.
+	 */
+	public function render_student_preview_banner(): void {
+		if ( masteriyo_validate_preview_originator_cookie() === null ) {
+			return;
+		}
+		masteriyo_get_template( 'student-preview-frontend-banner.php', $this->get_student_preview_banner_args() );
+	}
+
+	/**
+	 * Render the dismissible layout hint card on the single course page for
+	 * users who can manage Masteriyo settings.
+	 *
+	 * Rendered as a floating overlay via wp_footer, not a template hook, so it
+	 * works on every layout — including theme overrides and future layouts
+	 * whose templates never fire masteriyo_before_single_course.
+	 */
+	public function render_single_course_layout_notice(): void {
+		if ( ! masteriyo_is_single_course_page() ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_masteriyo_settings' ) ) {
+			return;
+		}
+
+		if ( get_user_meta( get_current_user_id(), 'masteriyo_dismissed_single_course_layout_notice', true ) ) {
+			return;
+		}
+
+		/**
+		 * Filters whether the single course layout hint is shown to settings managers.
+		 *
+		 * @param bool $show Whether to show the hint. Default true.
+		 */
+		if ( ! apply_filters( 'masteriyo_show_single_course_layout_notice', true ) ) {
+			return;
+		}
+
+		masteriyo_get_template(
+			'single-course/layout-hint.php',
+			array(
+				'settings_url' => admin_url( 'admin.php?page=masteriyo#/courses?status=settings&first=single-course-page&second=display' ),
+			)
+		);
+	}
+
+	/**
+	 * Build the template args for the frontend preview banner.
+	 *
+	 * @return array{exit_url: string, switcher_label: string, button_color: string, button_hover_color: string}
+	 */
+	private function get_student_preview_banner_args(): array {
+		$originator  = masteriyo_validate_preview_originator_cookie();
+		$admin_id    = $originator ? $originator['admin_id'] : 0;
+		$admin_user  = $admin_id ? get_userdata( $admin_id ) : null;
+		$admin_roles = $admin_user ? (array) $admin_user->roles : array();
+
+		$switcher_label = in_array( Roles::INSTRUCTOR, $admin_roles, true )
+			? __( 'Switch to Instructor', 'learning-management-system' )
+			: __( 'Switch to Admin', 'learning-management-system' );
+
+		$button_color = (string) masteriyo_get_setting( 'general.styling.button_color' );
+		if ( '' === trim( $button_color ) ) {
+			$button_color = '#4584FF';
+		}
+
+		$button_hover_color = (string) masteriyo_get_setting( 'general.styling.button_hover_color' );
+		if ( '' === trim( $button_hover_color ) ) {
+			$button_hover_color = '#2B6CB0';
+		}
+
+		return array(
+			'exit_url'           => add_query_arg( 'mto-exit-student-preview', '1', home_url( '/' ) ),
+			'switcher_label'     => $switcher_label,
+			'button_color'       => $button_color,
+			'button_hover_color' => $button_hover_color,
+		);
+	}
+
 	public function masteriyo_filter_doing_it_wrong_trigger_error( $trigger, $function_name, $message, $version ) {
 
 		$trigger       = (bool) $trigger;
@@ -1425,22 +1608,21 @@ class Masteriyo {
 	/**
 	 * Synchronizes the theme's global colors with Masteriyo.
 	 *
-	 * Dispatches to a theme-specific color extractor based on the active theme
-	 * slug, then applies the resolved primary/secondary colors to Masteriyo.
+	 * Runs on customize_save_after, so only when a changeset actually
+	 * publishes — never on draft or scheduled saves. Dispatches to a
+	 * theme-specific color extractor based on the parent theme slug, then
+	 * applies the resolved primary/secondary colors to Masteriyo.
 	 *
-	 * @since x.x.x [Free]
-	 *
-	 * @param array $data The customizer changeset save data.
-	 *
-	 * @return array The customizer changeset save data.
+	 * @param \WP_Customize_Manager $manager The customize manager.
 	 */
-	public function sync_theme_global_colors( $data ) {
+	public function sync_theme_global_colors( $manager ) {
 		$theme = wp_get_theme();
 
-		if ( ! $theme ) {
-			return $data;
+		if ( ! $theme || ! $manager instanceof \WP_Customize_Manager ) {
+			return;
 		}
 
+		$data = (array) $manager->changeset_data();
 		$slug = $theme->get_template();
 
 		$colors = array();
@@ -1452,35 +1634,57 @@ class Masteriyo {
 		}
 
 		if ( empty( $colors['primary'] ) && empty( $colors['secondary'] ) ) {
-			return $data;
+			return;
 		}
 
-		if ( ! empty( $colors['primary'] ) ) {
-			masteriyo_set_setting( 'general.styling.primary_color', $colors['primary'] );
-			masteriyo_set_setting( 'general.styling.primary_color_for_learn_page', $colors['primary'] );
-			masteriyo_set_setting( 'general.styling.button_color', $colors['primary'] );
+		// Raw writes (a full save would persist every default, blocking currency
+		// inference) skip the model's sanitizers, and these values land in front-end
+		// inline CSS — sanitize here like Setting::sanitize() did.
+		$primary   = is_string( $colors['primary'] ?? null ) ? sanitize_text_field( $colors['primary'] ) : '';
+		$secondary = is_string( $colors['secondary'] ?? null ) ? sanitize_text_field( $colors['secondary'] ) : '';
+
+		if ( $primary ) {
+			masteriyo_set_raw_setting( 'general.styling.primary_color', $primary );
+			masteriyo_set_raw_setting( 'general.styling.primary_color_for_learn_page', $primary );
+			masteriyo_set_raw_setting( 'general.styling.button_color', $primary );
 		}
 
-		if ( ! empty( $colors['secondary'] ) ) {
-			masteriyo_set_setting( 'general.styling.button_hover_color', $colors['secondary'] );
+		if ( $secondary ) {
+			masteriyo_set_raw_setting( 'general.styling.button_hover_color', $secondary );
+		}
+	}
+
+	/**
+	 * Look up a theme_mod entry in changeset data.
+	 *
+	 * Core namespaces theme_mod changeset keys with the stylesheet slug, so a
+	 * child theme's key is e.g. `neve-child::neve_global_colors`. Falls back
+	 * to the template slug for changesets written under the parent theme.
+	 *
+	 * @param array  $data       The changeset data.
+	 * @param string $setting_id The un-namespaced setting ID.
+	 *
+	 * @return array The changeset entry, or an empty array.
+	 */
+	private function get_changeset_theme_mod( $data, $setting_id ) {
+		foreach ( array_unique( array( get_stylesheet(), get_template() ) ) as $slug ) {
+			if ( isset( $data[ "{$slug}::{$setting_id}" ] ) && is_array( $data[ "{$slug}::{$setting_id}" ] ) ) {
+				return $data[ "{$slug}::{$setting_id}" ];
+			}
 		}
 
-		return $data;
+		return array();
 	}
 
 	/**
 	 * Extract primary and secondary colors from the Elearning theme changeset.
-	 *
-	 * @since x.x.x [Free]
 	 *
 	 * @param array $data The customizer changeset save data.
 	 *
 	 * @return array { primary: string|null, secondary: string|null }
 	 */
 	private function extract_elearning_colors( $data ) {
-		$palette = isset( $data['elearning::elearning_color_palette'] ) && is_array( $data['elearning::elearning_color_palette'] )
-			? $data['elearning::elearning_color_palette']
-			: array();
+		$palette = $this->get_changeset_theme_mod( $data, 'elearning_color_palette' );
 
 		$colors = isset( $palette['value']['colors'] ) && is_array( $palette['value']['colors'] )
 			? $palette['value']['colors']
@@ -1495,16 +1699,12 @@ class Masteriyo {
 	/**
 	 * Extract primary and secondary colors from the Neve theme changeset.
 	 *
-	 * @since x.x.x [Free]
-	 *
 	 * @param array $data The customizer changeset save data.
 	 *
 	 * @return array { primary: string|null, secondary: string|null }
 	 */
 	private function extract_neve_colors( $data ) {
-		$setting = isset( $data['neve::neve_global_colors'] ) && is_array( $data['neve::neve_global_colors'] )
-			? $data['neve::neve_global_colors']
-			: array();
+		$setting = $this->get_changeset_theme_mod( $data, 'neve_global_colors' );
 
 		$palettes = isset( $setting['value']['palettes'] ) && is_array( $setting['value']['palettes'] )
 			? $setting['value']['palettes']

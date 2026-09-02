@@ -3,7 +3,6 @@
  * Get Enrollment ability.
  *
  * @package Masteriyo\Abilities\Domains\Enrollment
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Enrollment;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a single course enrollment by ID.
- *
- * @since x.x.x
  */
 class GetEnrollmentAbility extends RestProxyAbility {
 

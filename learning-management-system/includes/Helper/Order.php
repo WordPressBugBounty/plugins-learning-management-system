@@ -107,13 +107,18 @@ function masteriyo_get_order_statuses() {
 		'pending'   => array(
 			'label'                     => _x( 'Pending payment', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
-			'public'                    => false,
 			'exclude_from_search'       => false,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
-			// translators: %s: number of orders
-			'label_count'               => _n_noop( 'Pending payment <span class="count">(%s)</span>', 'Pending payment <span class="count">(%s)</span>', 'learning-management-system' ),
+			/* translators: %s: number of orders */
+			'label_count'               => _nx_noop(
+				'Pending payment <span class="count">(%s)</span>',
+				'Pending payment <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
+
 		'on-hold'   => array(
 			'label'                     => _x( 'On hold', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
@@ -121,8 +126,14 @@ function masteriyo_get_order_statuses() {
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			/* translators: %s: number of orders */
-			'label_count'               => _n_noop( 'On hold <span class="count">(%s)</span>', 'On hold <span class="count">(%s)</span>', 'learning-management-system' ),
+			'label_count'               => _nx_noop(
+				'On hold <span class="count">(%s)</span>',
+				'On hold <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
+
 		'completed' => array(
 			'label'                     => _x( 'Completed', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
@@ -130,8 +141,14 @@ function masteriyo_get_order_statuses() {
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			/* translators: %s: number of orders */
-			'label_count'               => _n_noop( 'Completed <span class="count">(%s)</span>', 'Completed <span class="count">(%s)</span>', 'learning-management-system' ),
+			'label_count'               => _nx_noop(
+				'Completed <span class="count">(%s)</span>',
+				'Completed <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
+
 		'cancelled' => array(
 			'label'                     => _x( 'Cancelled', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
@@ -139,17 +156,29 @@ function masteriyo_get_order_statuses() {
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			/* translators: %s: number of orders */
-			'label_count'               => _n_noop( 'Cancelled <span class="count">(%s)</span>', 'Cancelled <span class="count">(%s)</span>', 'learning-management-system' ),
+			'label_count'               => _nx_noop(
+				'Cancelled <span class="count">(%s)</span>',
+				'Cancelled <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
+
 		'refunded'  => array(
 			'label'                     => _x( 'Refunded', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
 			'exclude_from_search'       => false,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
-			/* translators: %s: number of orders */
-			'label_count'               => _n_noop( 'Refunded <span class="count">(%s)</span>', 'Refunded <span class="count">(%s)</span>', 'learning-management-system' ),
+			/* translators: %s: number of refunded orders */
+			'label_count'               => _nx_noop(
+				'Refunded <span class="count">(%s)</span>',
+				'Refunded <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
+
 		'failed'    => array(
 			'label'                     => _x( 'Failed', 'Order status', 'learning-management-system' ),
 			'public'                    => false,
@@ -157,7 +186,12 @@ function masteriyo_get_order_statuses() {
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			/* translators: %s: number of orders */
-			'label_count'               => _n_noop( 'Failed <span class="count">(%s)</span>', 'Failed <span class="count">(%s)</span>', 'learning-management-system' ),
+			'label_count'               => _nx_noop(
+				'Failed <span class="count">(%s)</span>',
+				'Failed <span class="count">(%s)</span>',
+				'order status label count',
+				'learning-management-system'
+			),
 		),
 	);
 
@@ -376,13 +410,15 @@ function masteriyo_get_account_orders_actions( $order ) {
 		),
 		'view'   => array(
 			'url'  => $order->get_view_order_url(),
-			'url'  => '#',
 			'name' => __( 'View', 'learning-management-system' ),
 		),
 		'cancel' => array(
 			'url'  => $order->get_cancel_order_url( masteriyo_get_page_permalink( 'account' ) ),
-			'url'  => '#',
-			'name' => __( 'Cancel', 'learning-management-system' ),
+			'name' => _x(
+				'Cancel',
+				'order action button label',
+				'learning-management-system'
+			),
 		),
 	);
 
@@ -458,7 +494,7 @@ if ( ! function_exists( 'masteriyo_get_pending_and_on_hold_orders_count' ) ) {
 	 * This function retrieves the count of orders that are marked as 'pending'
 	 * and 'on hold' from the WordPress posts count, using the custom order post type.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return int The total number of orders with 'pending' and 'on hold' status.
 	 */

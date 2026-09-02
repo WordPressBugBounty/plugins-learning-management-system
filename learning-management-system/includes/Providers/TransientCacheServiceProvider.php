@@ -2,7 +2,7 @@
 /**
  * Transient cache service provider.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 namespace Masteriyo\Providers;
@@ -13,18 +13,6 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 use Masteriyo\Cache\TransientCache;
 
 class TransientCacheServiceProvider extends AbstractServiceProvider {
-	/**
-	 * This is where the magic happens, within the method you can
-	* access the container and register or retrieve anything
-	* that you need to, but remember, every alias registered
-	* within this method must be declared in the `$provides` array.
-	*
-	* @since 1.11.0
-	*/
-	public function register(): void {
-		$this->getContainer()->addShared( 'transient-cache', TransientCache::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -48,5 +36,17 @@ class TransientCacheServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	* access the container and register or retrieve anything
+	* that you need to, but remember, every alias registered
+	* within this method must be declared in the `$provides` array.
+	*
+	* @since 1.11.0 [free]
+	*/
+	public function register(): void {
+		$this->getContainer()->addShared( 'transient-cache', TransientCache::class );
 	}
 }

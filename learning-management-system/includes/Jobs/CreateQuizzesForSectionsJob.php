@@ -7,7 +7,6 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
-use ThemeGrill\OpenAI\ChatGPT;
 use WP_Query;
 
 /**
@@ -58,9 +57,9 @@ class CreateQuizzesForSectionsJob {
 			return;
 		}
 
-		$chatgpt = ChatGPT::get_instance( masteriyo_get_setting( 'advance.openai.api_key' ) );
+		$ai = masteriyo_ai();
 
-		if ( null === $chatgpt ) {
+		if ( ! $ai->is_configured() ) {
 			return;
 		}
 
@@ -80,15 +79,9 @@ class CreateQuizzesForSectionsJob {
 
 		foreach ( $sections as $section ) {
 			$sections_content_prompt = masteriyo_generate_section_quizzes_prompt( $section->get_name(), $course_title, $course_idea, $num_quizzes, $num_questions_per_quiz );
-			$response_text           = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $sections_content_prompt ), 2 ); // Max retry time 2.
+			$section_quizzes         = $ai->generate_json( $sections_content_prompt, array( 'max_attempts' => 2 ) );
 
-			if ( is_null( $response_text ) || is_wp_error( $response_text ) || empty( $response_text ) ) {
-				continue;
-			}
-
-			$section_quizzes = is_string( $response_text ) ? json_decode( $response_text, true ) : $response_text;
-
-			if ( ! isset( $section_quizzes['quizzes'] ) ) {
+			if ( is_wp_error( $section_quizzes ) || ! isset( $section_quizzes['quizzes'] ) ) {
 				continue;
 			}
 
@@ -105,11 +98,10 @@ class CreateQuizzesForSectionsJob {
 			$lessons_count = $query->found_posts;
 
 			if ( ! empty( $section_quizzes ) ) {
-
 				$i = $lessons_count;
 
 				foreach ( $section_quizzes as $section_quiz ) {
-					$i++;
+					++$i;
 
 					masteriyo_openai_create_quiz( $course, $section, $section_quiz, $i );
 				}

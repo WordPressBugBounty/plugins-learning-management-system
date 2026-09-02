@@ -122,15 +122,6 @@ const EditAnnouncement: React.FC = () => {
 		updateAnnouncement.mutate(deepClean(data));
 	};
 
-	useWarnUnsavedChanges(methods.formState.isDirty);
-
-	useEffect(() => {
-		if (announcementQuery?.isSuccess && announcementQuery?.data) {
-			methods.reset(methods.getValues());
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [announcementQuery?.data]);
-
 	const FormButton = () => (
 		<ButtonGroup>
 			<AnnouncementActionBtn
@@ -153,6 +144,14 @@ const EditAnnouncement: React.FC = () => {
 			</Button>
 		</ButtonGroup>
 	);
+
+	useWarnUnsavedChanges(methods.formState.isDirty);
+
+	useEffect(() => {
+		if (announcementQuery?.isSuccess && announcementQuery?.data) {
+			methods.reset(methods.getValues());
+		}
+	}, [announcementQuery?.data]);
 
 	return (
 		<Stack direction="column" spacing="8" alignItems="center">

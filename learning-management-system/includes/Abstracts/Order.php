@@ -1,6 +1,6 @@
 <?php
 /**
- * Abstracr order
+ * Abstract order
  *
  * @package Masteriyo\Order
  * @since 1.0.0
@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 use DateTime;
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Repository\AbstractRepository;
 use Masteriyo\Traits\ItemTotals;
 use Masteriyo\Repository\OrderRepository;
 
@@ -105,9 +106,9 @@ abstract class Order extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param OrderRepository $order_repository Order Repository.
+	 * @param \Masteriyo\Repository\AbstractRepository $order_repository Order Repository.
 	 */
-	public function __construct( OrderRepository $order_repository ) {
+	public function __construct( AbstractRepository $order_repository ) {
 		parent::__construct();
 
 		$this->repository = $order_repository;
@@ -240,33 +241,36 @@ abstract class Order extends Model {
 	 * @return array
 	 */
 	public function get_invoice_data( $order ) {
+
 		$data = array(
-			'first_name'     => $order->get_billing_first_name(),
-			'last_name'      => $order->get_billing_last_name(),
-			'customer_id'    => $order->get_customer_id(),
-			'payment_method' => $order->get_payment_method(),
-			'transaction_id' => $order->get_transaction_id(),
-			'customer_note'  => $order->get_customer_note(),
-			'company_name'   => $order->get_billing_company(),
-			'address_one'    => $order->get_billing_address_1(),
-			'address_two'    => $order->get_billing_address_2(),
-			'city_name'      => $order->get_billing_city(),
-			'postcode'       => $order->get_billing_postcode(),
-			'country_name'   => masteriyo( 'countries' )->get_country_from_code( $order->get_billing_country() ),
-			'phone'          => $order->get_billing_phone(),
-			'user_id'        => $order->get_user_id(),
-			'status'         => $order->get_status(),
-			'created_at'     => $this->get_time_format( $order->get_date_created() ),
-			'state'          => masteriyo( 'countries' )->get_state_from_code( $order->get_billing_country(), $order->get_billing_state() ),
-			'order_id'       => $order->get_id(),
-			'course_data'    => $this->get_order_item_course( $this->get_items(), 'view' ),
-			'total'          => $order->get_rest_formatted_total(),
+			'first_name'          => $order->get_billing_first_name(),
+			'last_name'           => $order->get_billing_last_name(),
+			'customer_id'         => $order->get_customer_id(),
+			'payment_method'      => $order->get_payment_method(),
+			'transaction_id'      => $order->get_transaction_id(),
+			'customer_note'       => $order->get_customer_note(),
+			'company_name'        => $order->get_billing_company(),
+			'address_one'         => $order->get_billing_address_1(),
+			'address_two'         => $order->get_billing_address_2(),
+			'city_name'           => $order->get_billing_city(),
+			'postcode'            => $order->get_billing_postcode(),
+			'country_name'        => masteriyo( 'countries' )->get_country_from_code( $order->get_billing_country() ),
+			'phone'               => $order->get_billing_phone(),
+			'user_id'             => $order->get_user_id(),
+			'status'              => $order->get_status(),
+			'created_at'          => $this->get_time_format( $order->get_date_created() ),
+			'state'               => masteriyo( 'countries' )->get_state_from_code( $order->get_billing_country(), $order->get_billing_state() ),
+			'order_id'            => $order->get_id(),
+			'course_data'         => $this->get_order_item_course( $this->get_items(), 'view' ),
+			'total'               => $order->get_rest_formatted_total(),
+			'tax_total'           => $order->get_tax_total(),
+			'formatted_tax_total' => $order->get_formatted_tax_total(),
 		);
 
 		/**
 		 * Get all order data for invoice in array format.
 		 *
-		 * @since 1.20.0
+		 * @since 2.12.0
 		 * @param array $data An array containing all the order data for the invoice.
 		 * @param \Masteriyo\Models\Order\Order $order Order object.
 		 *
@@ -345,7 +349,7 @@ abstract class Order extends Model {
 	 *
 	 * @return int
 	 */
-	public function get_parent_id( $context ) {
+	public function get_parent_id( $context = 'view' ) {
 		return $this->get_prop( 'parent_id', $context );
 	}
 
@@ -756,7 +760,7 @@ abstract class Order extends Model {
 	 * @param string|array $types Types of line items to get (array or string).
 	 * @return OrderItem[]
 	 */
-	public function get_items( $types = 'course' ) {
+	public function get_items( $types = array( 'course', 'course-bundle' ) ) {
 		$items = array();
 		$types = array_filter( (array) $types );
 
@@ -767,8 +771,13 @@ abstract class Order extends Model {
 				if ( ! isset( $this->items[ $group ] ) ) {
 					$this->items[ $group ] = array_filter( $this->repository->read_items( $this, $type ) );
 				}
-				// Don't use array_merge here because keys are numeric.
-				$items = $items + $this->items[ $group ];
+				// array_merge is required here, not `+`. OrderItemRepository::query() returns
+				// rows from $wpdb->get_results() through array_map(), so each group is keyed
+				// sequentially from 0 rather than by order_item_id. With `+` the second group's
+				// items collide with the first's keys and are silently dropped -- which, now
+				// that this method reads both `course` and `course-bundle` by default, would
+				// lose every bundle line from an order that also has a course.
+				$items = array_merge( $items, $this->items[ $group ] );
 			}
 		}
 
@@ -817,14 +826,11 @@ abstract class Order extends Model {
 	 *
 	 * @since  1.0.0
 	 * @param  int  $item_id ID of item to get.
-	 * @param  bool $load_from_db Prior to 3.2 this item was loaded direct from MASTERIYO_Order_Factory, not this object. This param is here for backwards compatility with that. If false, uses the local items variable instead.
+	 * @param  bool $load_from_db Unused. Kept for backward compatibility with callers that pass it;
+	 *                            items are always resolved from the locally loaded set.
 	 * @return OrderItem|false
 	 */
 	public function get_item( $item_id, $load_from_db = true ) {
-		if ( $load_from_db ) {
-			return MASTERIYO_Order_Factory::get_order_item( $item_id );
-		}
-
 		// Search for item id.
 		if ( $this->items ) {
 			foreach ( $this->items as $group => $items ) {
@@ -856,6 +862,10 @@ abstract class Order extends Model {
 	protected function get_items_key( $item ) {
 		if ( is_a( $item, '\Masteriyo\Models\Order\OrderItemCourse' ) ) {
 			return 'course_lines';
+		}
+
+		if ( masteriyo_is_bundle_order_item( $item ) ) {
+			return 'course_bundle_lines';
 		}
 
 		/**

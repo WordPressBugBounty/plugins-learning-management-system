@@ -23,21 +23,30 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
-		'featured_image'      => '_thumbnail_id',
-		'video_source'        => '_video_source',
-		'video_source_url'    => '_video_source_url',
-		'video_playback_time' => '_video_playback_time',
-		'rating_counts'       => '_rating_counts',
-		'average_rating'      => '_average_rating',
-		'review_count'        => '_review_count',
-		'course_id'           => '_course_id',
-		'download_materials'  => '_download_materials',
-		'video_meta'          => '_video_meta',
-		'starts_at'           => '_starts_at',
-		'ends_at'             => '_ends_at',
-		'live_chat_enabled'   => '_live_chat_enabled',
-		'custom_fields'       => '_custom_fields',
-		'lesson_type'         => '_lesson_type',
+		'featured_image'          => '_thumbnail_id',
+		'video_source'            => '_video_source',
+		'video_source_url'        => '_video_source_url',
+		'video_playback_time'     => '_video_playback_time',
+		'rating_counts'           => '_rating_counts',
+		'average_rating'          => '_average_rating',
+		'review_count'            => '_review_count',
+		'course_id'               => '_course_id',
+		'download_materials'      => '_download_materials',
+		'video_meta'              => '_video_meta',
+		'enable_preview'          => '_enable_preview',
+		'enable_video_preview'    => '_enable_video_preview',
+		'starts_at'               => '_starts_at',
+		'ends_at'                 => '_ends_at',
+		'live_chat_enabled'       => '_live_chat_enabled',
+		'pdf'                     => '_pdf',
+		'pdf_downloadable'        => '_pdf_downloadable',
+		'transform_live_to_video' => '_transform_live_to_video',
+		'subtitle_meta'           => '_subtitle_meta',
+		'audio_source'            => '_audio_source',
+		'audio_source_url'        => '_audio_source_url',
+		'audio_source_files'      => '_audio_source_files',
+		'custom_fields'           => '_custom_fields',
+		'lesson_type'             => '_lesson_type',
 	);
 
 	/**
@@ -111,7 +120,6 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 			 */
 			do_action( 'masteriyo_new_lesson', $id, $lesson );
 		}
-
 	}
 
 	/**
@@ -126,7 +134,7 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 		$lesson_post = get_post( $lesson->get_id() );
 
 		if ( ! $lesson->get_id() || ! $lesson_post || PostType::LESSON !== $lesson_post->post_type ) {
-			throw new \Exception( __( 'Invalid lesson.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid lesson.', 'learning-management-system' ) );
 		}
 
 		$lesson->set_props(
@@ -200,6 +208,15 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 				'post_type'      => PostType::LESSON,
 			);
 
+			// Write the date only when it actually changed. `edit_date` marks it
+			// deliberate: without it wp_update_post() discards dates passed for
+			// a draft and flips a future-dated lesson to `publish`.
+			if ( array_key_exists( 'date_created', $changes ) && $lesson->get_date_created( 'edit' ) ) {
+				$post_data['post_date']     = gmdate( 'Y-m-d H:i:s', $lesson->get_date_created( 'edit' )->getOffsetTimestamp() );
+				$post_data['post_date_gmt'] = gmdate( 'Y-m-d H:i:s', $lesson->get_date_created( 'edit' )->getTimestamp() );
+				$post_data['edit_date']     = true;
+			}
+
 			/**
 			 * When updating this object, to prevent infinite loops, use $wpdb
 			 * to update data, since wp_update_post spawns more calls to the
@@ -209,6 +226,8 @@ class LessonRepository extends AbstractRepository implements RepositoryInterface
 			 * or an update purely from CRUD.
 			 */
 			if ( doing_action( 'save_post' ) ) {
+				// `edit_date` is a wp_update_post() flag, not a posts-table column.
+				unset( $post_data['edit_date'] );
 				// TODO Abstract the $wpdb WordPress class.
 				$GLOBALS['wpdb']->update( $GLOBALS['wpdb']->posts, $post_data, array( 'ID' => $lesson->get_id() ) );
 				clean_post_cache( $lesson->get_id() );

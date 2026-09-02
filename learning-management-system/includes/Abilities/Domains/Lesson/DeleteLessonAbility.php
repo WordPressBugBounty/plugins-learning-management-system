@@ -3,7 +3,6 @@
  * Delete Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Without `force=true` the lesson is trashed and can be restored.
  * With `force=true` the lesson is permanently removed.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class DeleteLessonAbility extends RestProxyAbility {
 

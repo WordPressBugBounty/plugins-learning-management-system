@@ -36,8 +36,6 @@ class LearnPress {
 	/**
 	 * Return the total number of source items for a migration step.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $step Step name.
 	 * @return int
 	 */
@@ -113,6 +111,7 @@ class LearnPress {
 					     ON lur.user_item_id = lui.user_item_id
 					 WHERE lui.item_type = 'lp_quiz'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				);
+
 		}
 
 		return 0;
@@ -124,8 +123,6 @@ class LearnPress {
 	 * Self-cleaning steps ignore $cursor — processed rows vanish from the WHERE clause
 	 * automatically. The users step uses WHERE user_id > $cursor because role removal
 	 * does not remove the user from the UNION result set.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $step   Step name.
 	 * @param int    $limit  Batch size.
@@ -275,6 +272,7 @@ class LearnPress {
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
+
 		}
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
@@ -286,8 +284,6 @@ class LearnPress {
 	 *
 	 * Called by MigrationProcessJob inside a START TRANSACTION / COMMIT wrapper.
 	 * Must be idempotent — safe to call twice for the same (step, item_id) pair.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $step    Step name.
 	 * @param int    $item_id Source item ID.
@@ -327,8 +323,6 @@ class LearnPress {
 	 * Assign Masteriyo roles to a single LearnPress user.
 	 *
 	 * lp_teacher → Masteriyo instructor; enrolled students receive the student role.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If the WP user record does not exist.
@@ -401,8 +395,6 @@ class LearnPress {
 	 * Renames lp_lesson → mto-lesson and lp_quiz → mto-quiz in-place, creates
 	 * sections, migrates questions, and updates all course meta. Idempotent.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $course_id LearnPress lp_course post ID.
 	 * @throws \Exception If the post does not exist or is not an lp_course post.
 	 */
@@ -435,8 +427,6 @@ class LearnPress {
 	 * Operates on one learnpress_user_items row (item_type = 'lp_course').
 	 * Idempotent: skips insert if the user is already enrolled in Masteriyo.
 	 * Deletes the source row after successful migration.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $user_item_id Primary key of the learnpress_user_items row.
 	 * @throws \Exception If the row is not found or the DB insert fails.
@@ -510,8 +500,6 @@ class LearnPress {
 	 * the courses step). Writes a course_progress parent activity if one does not exist,
 	 * then writes the lesson/quiz activity. Recounts completed items to keep
 	 * course_progress status accurate. Deletes the source row after migrating.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $user_item_id Primary key of the learnpress_user_items row.
 	 * @throws \Exception If the row is not found.
@@ -611,8 +599,6 @@ class LearnPress {
 	 * Renames lp_order → mto-order in-place with accurate status mapping.
 	 * Idempotent: returns early if already an mto-order.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $order_id LearnPress lp_order post ID.
 	 * @throws \Exception If the post does not exist or is not an lp_order post.
 	 */
@@ -669,8 +655,6 @@ class LearnPress {
 	 *
 	 * Updates comment_type in-place. Idempotent: returns early if already migrated.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $comment_id WP comment ID.
 	 * @throws \Exception If the comment does not exist.
 	 */
@@ -707,8 +691,6 @@ class LearnPress {
 
 	/**
 	 * Build Masteriyo sections from the LearnPress curriculum and rename lesson/quiz posts.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $course_id LearnPress course post ID.
 	 */
@@ -780,6 +762,7 @@ class LearnPress {
 
 				if ( 'lp_lesson' === $raw_type ) {
 					update_post_meta( $item_id, '_duration', self::parse_lp_duration( $item_id ) );
+					self::migrate_single_lesson_preview( $item_id );
 				} elseif ( 'lp_quiz' === $raw_type ) {
 					self::migrate_single_quiz_meta( $item_id );
 				}
@@ -789,8 +772,6 @@ class LearnPress {
 
 	/**
 	 * Migrate all questions for a LearnPress quiz.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $quiz_id   Quiz post ID.
 	 * @param int $course_id Course post ID.
@@ -863,7 +844,7 @@ class LearnPress {
 				}
 
 				update_post_meta( $question_id, '_course_id', $course_id );
-				update_post_meta( $question_id, '_type', 'fill-in-the-blanks' );
+				update_post_meta( $question_id, '_type', QuestionType::FILL_IN_THE_BLANKS );
 				update_post_meta( $question_id, '_points', $question->question_mark );
 				update_post_meta( $question_id, '_parent_id', $quiz_id );
 
@@ -921,8 +902,6 @@ class LearnPress {
 	/**
 	 * Fetch formatted answers for a LearnPress question.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $question_id LearnPress question post ID.
 	 * @return array<int, array{name: string, correct: bool}>
 	 */
@@ -950,8 +929,6 @@ class LearnPress {
 
 	/**
 	 * Rename the lp_course post and migrate all course-level meta.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $course_id Course post ID.
 	 */
@@ -1020,12 +997,12 @@ class LearnPress {
 			}
 			update_post_meta( $course_id, '_highlights', $highlights );
 		}
+
+		self::migrate_single_course_faqs( $course_id );
 	}
 
 	/**
 	 * Get LearnPress order items.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $order_id Order post ID.
 	 * @return array Order item objects.
@@ -1048,8 +1025,6 @@ class LearnPress {
 
 	/**
 	 * Insert one LP order item into masteriyo_order_items and copy its meta.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param object $lp_item  LP order item object (id, name, course_id).
 	 * @param int    $order_id Order post ID.
@@ -1110,8 +1085,6 @@ class LearnPress {
 	/**
 	 * Copy LP order postmeta to Masteriyo postmeta keys.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $order_id Order post ID.
 	 */
 	private static function migrate_order_meta( int $order_id ): void {
@@ -1151,8 +1124,6 @@ class LearnPress {
 	 * Returns $fallback if the value is empty, NULL, or the MySQL zero datetime
 	 * ('0000-00-00 00:00:00'), which LP uses as "not set".
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string|null $value    Raw value from the learnpress_user_items table.
 	 * @param string      $fallback Value to return when $value is absent or zero.
 	 * @return string
@@ -1167,8 +1138,6 @@ class LearnPress {
 
 	/**
 	 * Convert the _lp_duration meta string to minutes.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $post_id Post ID with _lp_duration meta.
 	 * @return int Duration in minutes, 0 if not parseable.
@@ -1205,7 +1174,6 @@ class LearnPress {
 	 * Bulk-update course_progress status once all lesson_progress items are migrated.
 	 * Replaces the per-item recount queries — runs once after the step completes.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {
@@ -1254,8 +1222,6 @@ class LearnPress {
 	/**
 	 * Copy LearnPress quiz-level settings to Masteriyo postmeta.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $quiz_id Quiz post ID (already renamed to mto-quiz).
 	 */
 	private static function migrate_single_quiz_meta( int $quiz_id ): void {
@@ -1287,8 +1253,6 @@ class LearnPress {
 
 	/**
 	 * Migrate one LearnPress quiz result row to masteriyo_quiz_attempts.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $result_id Primary key of the learnpress_user_item_results row.
 	 * @throws \Exception If the row is not found.
@@ -1371,5 +1335,68 @@ class LearnPress {
 		}
 
 		$wpdb->delete( $wpdb->prefix . 'learnpress_user_item_results', array( 'id' => $result_id ), array( '%d' ) );
+	}
+
+	/**
+	 * Enable preview on a single migrated lesson that had _lp_preview = 'yes'.
+	 *
+	 * @param int $lesson_id mto-lesson post ID.
+	 */
+	private static function migrate_single_lesson_preview( int $lesson_id ): void {
+		$lp_preview = get_post_meta( $lesson_id, '_lp_preview', true );
+		if ( 'yes' === $lp_preview ) {
+			update_post_meta( $lesson_id, '_enable_preview', 1 );
+		}
+		delete_post_meta( $lesson_id, '_lp_preview' );
+	}
+
+	/**
+	 * Migrate _lp_faqs from a course to mto_course_faq comments.
+	 *
+	 * Each FAQ entry becomes one wp_comments row (comment_type = mto_course_faq)
+	 * with the answer in comment_content and the question stored in _title commentmeta.
+	 *
+	 * @param int $course_id mto-course post ID.
+	 */
+	private static function migrate_single_course_faqs( int $course_id ): void {
+		$faqs = maybe_unserialize( get_post_meta( $course_id, '_lp_faqs', true ) );
+
+		if ( ! is_array( $faqs ) || empty( $faqs ) ) {
+			delete_post_meta( $course_id, '_lp_faqs' );
+			return;
+		}
+
+		$now        = gmdate( 'Y-m-d H:i:s' );
+		$menu_order = 0;
+
+		foreach ( $faqs as $faq ) {
+			$question = isset( $faq['question'] ) ? sanitize_text_field( $faq['question'] ) : '';
+			$answer   = isset( $faq['answer'] ) ? wp_kses_post( $faq['answer'] ) : '';
+
+			if ( ! $question && ! $answer ) {
+				continue;
+			}
+
+			$comment_id = wp_insert_comment(
+				array(
+					'comment_post_ID'  => $course_id,
+					'comment_content'  => $answer,
+					'comment_karma'    => $menu_order,
+					'comment_approved' => 'approve',
+					'comment_type'     => 'mto_course_faq',
+					'comment_parent'   => 0,
+					'comment_date'     => $now,
+					'comment_date_gmt' => $now,
+				)
+			);
+
+			if ( $comment_id && ! is_wp_error( $comment_id ) ) {
+				add_comment_meta( $comment_id, '_title', $question );
+			}
+
+			++$menu_order;
+		}
+
+		delete_post_meta( $course_id, '_lp_faqs' );
 	}
 }

@@ -5,11 +5,29 @@ import { reactSelectStyles } from '../../../back-end/config/styles';
 import { formatParams } from '../../../back-end/utils/utils';
 import AsyncSelect from './async-select';
 
-function CourseFilterForBlocks(props) {
-	const { value: selectedCourseId, setAttributes, setCourseId } = props;
+interface CourseOption {
+	value: number;
+	label: string;
+}
 
-	const [defaultCourses, setDefaultCourses] = useState([]);
-	const [selectedCourse, setSelectedCourse] = useState(null);
+interface CourseRow {
+	id: number;
+	name: string;
+}
+
+interface Props {
+	value?: number;
+	setAttributes: (attributes: Record<string, any>) => void;
+	setCourseId: (courseId: number) => void;
+}
+
+function CourseFilterForBlocks(props: Props) {
+	const { value: selectedCourseId, setCourseId } = props;
+
+	const [defaultCourses, setDefaultCourses] = useState<CourseOption[]>([]);
+	const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
+		null,
+	);
 
 	useEffect(() => {
 		fetchCoursesFromAPI().then(setDefaultCourses);
@@ -40,12 +58,18 @@ function CourseFilterForBlocks(props) {
 		}
 	}, [selectedCourseId]);
 
-	const handleChange = (selectedOption) => {
-		setSelectedCourse(selectedOption);
-		setCourseId(selectedOption.value);
+	// forwardRef erases the AsyncSelect generic, so the option arrives as unknown.
+	const handleChange = (selectedOption: unknown) => {
+		const course = selectedOption as CourseOption;
+
+		setSelectedCourse(course);
+		setCourseId(course.value);
 	};
 
-	const loadOptions = (inputValue, callback) => {
+	const loadOptions = (
+		inputValue: string,
+		callback: (options: CourseOption[]) => void,
+	) => {
 		fetchCoursesFromAPI(inputValue).then(callback);
 	};
 
@@ -54,7 +78,7 @@ function CourseFilterForBlocks(props) {
 			<AsyncSelect
 				onChange={handleChange}
 				value={selectedCourse}
-				placeholder={__('Search Courses', 'masteriyo')}
+				placeholder={__('Type to search courses', 'learning-management-system')}
 				isClearable={false}
 				cacheOptions={true}
 				styles={reactSelectStyles}
@@ -67,30 +91,32 @@ function CourseFilterForBlocks(props) {
 
 export default CourseFilterForBlocks;
 
-const fetchCoursesFromAPI = async (search = '') => {
+const fetchCoursesFromAPI = async (search = ''): Promise<CourseOption[]> => {
 	const params = formatParams({
-		order_by: 'name',
-		order: 'asc',
-		per_page: 5,
+		orderby: 'date',
+		order: 'desc',
+		per_page: 15,
+		// Without this, drafts fill the cap and get discarded in the browser.
+		status: 'publish',
 		search,
 	});
 
-	const response = await http({
+	const response = await http<{ data?: CourseRow[] }>({
 		path: `/masteriyo/v1/courses?${params}`,
 		method: 'get',
 	});
 
-	return (response?.data ?? [])
-		.filter((course) => course.status === 'publish')
-		.map((course) => ({
-			value: course.id,
-			label: `#${course.id} ${course.name}`,
-		}));
+	return (response?.data ?? []).map((course) => ({
+		value: course.id,
+		label: `#${course.id} ${course.name}`,
+	}));
 };
 
-const fetchSingleCourseById = async (id) => {
+const fetchSingleCourseById = async (
+	id: number,
+): Promise<CourseOption | null> => {
 	try {
-		const response = await http({
+		const response = await http<Partial<CourseRow>>({
 			path: `/masteriyo/v1/courses/${id}`,
 			method: 'get',
 		});

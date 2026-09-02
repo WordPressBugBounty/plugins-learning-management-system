@@ -9,6 +9,8 @@ namespace Masteriyo\Gateways\Paypal;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Models\Order\Order;
+
 /**
  * Handles Refunds and other API requests such as capture.
  *
@@ -161,7 +163,6 @@ class ApiHandler {
 		}
 
 		masteriyo_get_logger()->info( 'Capture request completed', array( 'source' => 'payment-paypal' ) );
-
 		parse_str( $raw_response['body'], $response );
 
 		return (object) $response;
@@ -201,7 +202,6 @@ class ApiHandler {
 		}
 
 		masteriyo_get_logger()->info( 'Refund request completed', array( 'source' => 'payment-paypal' ) );
-
 		parse_str( $raw_response['body'], $response );
 
 		return (object) $response;

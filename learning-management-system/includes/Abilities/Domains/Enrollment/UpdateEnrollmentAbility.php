@@ -3,7 +3,6 @@
  * Update Enrollment ability.
  *
  * @package Masteriyo\Abilities\Domains\Enrollment
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Enrollment;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: update the status of a course enrollment.
- *
- * @since x.x.x
  */
 class UpdateEnrollmentAbility extends RestProxyAbility {
 

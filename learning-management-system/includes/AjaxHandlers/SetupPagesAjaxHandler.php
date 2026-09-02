@@ -2,7 +2,7 @@
 /**
  * Setup Pages Ajax Handler.
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  * @package Masteriyo\AjaxHandlers
  */
 
@@ -17,14 +17,14 @@ use Masteriyo\Activation;
 /**
  * Setup Pages Ajax Handler.
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  */
 class SetupPagesAjaxHandler extends AjaxHandler {
 
 	/**
-	 * The ajax action.
+	 * The AJAX action name.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 * @var string
 	 */
 	public $action = 'masteriyo_setup_pages';
@@ -33,7 +33,7 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 	/**
 	 * Register the AJAX action for setting up pages.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public function register() {
 		add_action( "wp_ajax_{$this->action}", array( $this, 'masteriyo_setup_pages' ) );
@@ -42,12 +42,12 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 	/**
 	 * Sets up the specified pages via an AJAX request.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return void
 	 */
 	public function masteriyo_setup_pages() {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash($_POST['nonce'])), 'masteriyo-setup-pages' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'] ) ), 'masteriyo-setup-pages' ) ) {
 			wp_send_json_error( __( 'Invalid nonce.', 'learning-management-system' ) );
 		}
 
@@ -75,7 +75,7 @@ class SetupPagesAjaxHandler extends AjaxHandler {
 		);
 
 		// Trigger the page creation process using the Activation class.
-		Activation::create_pages();
+		Activation::create_pages( array( 'instructor-registration', 'instructors-list' ) );
 
 		wp_send_json_success( __( 'Pages set up successfully.', 'learning-management-system' ) );
 	}

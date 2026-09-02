@@ -2,6 +2,7 @@ import { registerBlockType } from '@wordpress/blocks';
 import { createElement } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { blockIcons } from './../components/icon';
+import { masteriyoLogo } from './../components/icon/logo';
 
 import courseAuthor from './course-author';
 import courseCategories from './course-categories';
@@ -20,6 +21,7 @@ import courseTitle from './course-title';
 import courseUserProgress from './course-user-progress';
 import courses from './courses';
 import groupPriceButton from './group-price-button';
+import loginLink from './login-link';
 import singleCourse from './single-course';
 
 // @ts-ignore
@@ -99,6 +101,7 @@ let blocks = [
 	courseCategory,
 	groupPriceButton,
 	courseUserProgress,
+	loginLink,
 ];
 
 blocks = applyFilters('masteriyo.blocks', blocks);
@@ -110,6 +113,8 @@ export const registerBlocks = () => {
 
 		if (blockIcons[slug]) {
 			settings.icon = blockIcons[slug];
+		} else if (!settings.icon) {
+			settings.icon = masteriyoLogo;
 		}
 
 		if (previewImages[slug]) {

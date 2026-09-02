@@ -27,6 +27,11 @@
 			hash = '#/courses/categories';
 		}
 
+		// Fix for when user goes to grade builder tab and reloads.
+		if ('#/gradebook/grading' === hash) {
+			hash = '#/gradebook/results';
+		}
+
 		$topLevelMenu.find('li').removeClass('current');
 		$topLevelMenu
 			.find('a[href$="' + hash + '"]')

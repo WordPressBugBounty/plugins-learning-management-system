@@ -31,7 +31,7 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 			<?php if ( ! $course_review->get_author() || is_wp_error( $course_review->get_author() ) ) : ?>
 				<img src="<?php echo esc_attr( $pp_placeholder ); ?>" />
 			<?php else : ?>
-				<img src="<?php echo esc_attr( $course_review->get_author()->get_avatar_url() ); ?>" />
+				<img src="<?php echo esc_attr( $course_review->get_author()->profile_image_url() ); ?>" />
 			<?php endif; ?>
 		</div>
 		<div class="masteriyo-right">

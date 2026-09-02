@@ -27,8 +27,18 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'masteriyo_email_header', $email ); ?>
 
 <p class="email-template--info">
-	<?php /* translators: %s: Customer username */ ?>
-	<?php printf( esc_html__( 'Hi %s,', 'learning-management-system' ), esc_html( $user->get_display_name() ) ); ?>
+	<?php
+	printf(
+		/* translators: %s: recipient name */
+		esc_html_x(
+			'Hi %s,',
+			'email greeting',
+			'learning-management-system'
+		),
+		esc_html( $user->get_display_name() )
+	);
+	?>
+
 </p>
 
 <p class="email-template--info">

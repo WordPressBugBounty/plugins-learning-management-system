@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.15.0
+ * @since 2.16.0
  */
 
 namespace Masteriyo\Emails\Student;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Student registration email to student class. Used for sending new account email.
  *
- * @since 1.15.0
+ * @since 2.16.0
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +24,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @var string
 	 */
@@ -33,7 +33,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @param \Masteriyo\Models\User $student
 	 * @param string $password_generated The generated password.
@@ -59,9 +59,16 @@ class AutomaticRegistrationEmailToStudent extends Email {
 			return;
 		}
 
-		$student_email = $student->get_email();
+		$student_email        = $student->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.student.automatic_registration.to_address' );
+		$to_address           = array();
 
-		$this->set_recipients( $student_email );
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{student_email}', $student_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $student_email );
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'student', $student );
 		$this->set( 'password_generated', $password_generated );
@@ -79,7 +86,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return bool
 	 */
@@ -90,19 +97,21 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
 	public function get_subject() {
 		/**
-		 * Filter automatic registration email subject to admin.
+		 * Filter automatic registration email subject to student.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['automatic_registration']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.automatic_registration.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['student']['automatic_registration']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -110,7 +119,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
@@ -118,7 +127,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 		/**
 		 * Filter automatic registration email heading to student.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $heading.
 		 */
@@ -130,7 +139,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string
 	 */
@@ -139,7 +148,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 		/**
 		 * Filter automatic registration email additional content to student.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @param string $additional_content.
 		 */
@@ -157,7 +166,7 @@ class AutomaticRegistrationEmailToStudent extends Email {
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.student.automatic_registration.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['student']['automatic_registration']['content'] );
+		$content = masteriyo_string_translation( 'emails.student.automatic_registration.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.student.automatic_registration.content' ) );
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', trim( $content ) );
@@ -189,10 +198,94 @@ class AutomaticRegistrationEmailToStudent extends Email {
 			$placeholders['{student_email}']        = $student->get_email();
 			$placeholders['{generated_password}']   = $this->get( 'password_generated' );
 			$placeholders['{password_reset_link}']  = wp_kses_post(
-				'<a href="' . $this->get( 'reset_link' ) . '" style="text-decoration: none;">' . __( 'Reset Your Password', 'learning-management-system' ) . '</a>'
+				'<a href="' . $this->get( 'reset_link' ) . '" class="email-template--button">' . __( 'Reset Your Password', 'learning-management-system' ) . '</a>'
 			);
 		}
 
 		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter automatic registration email reply_to_name to student.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.automatic_registration.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter automatic registration email reply_to_address to student.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.automatic_registration.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter automatic registration email from_name to student.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.automatic_registration.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter automatic registration email from_address to student.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.automatic_registration.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

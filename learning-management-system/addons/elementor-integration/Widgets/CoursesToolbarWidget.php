@@ -6,8 +6,6 @@
  * per-widget show/hide toggles. Supersedes the Course Search Form widget.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -23,15 +21,11 @@ defined( 'ABSPATH' ) || exit;
  * Masteriyo courses toolbar elementor widget class.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Get widget name.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -42,8 +36,6 @@ class CoursesToolbarWidget extends WidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_title() {
@@ -52,8 +44,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Get widget icon.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string Widget icon.
 	 */
@@ -64,8 +54,6 @@ class CoursesToolbarWidget extends WidgetBase {
 	/**
 	 * Get widget keywords.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string[]
 	 */
 	public function get_keywords() {
@@ -74,8 +62,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls configuring widget content.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_content_controls() {
 		$this->start_controls_section(
@@ -153,8 +139,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls for customizing widget styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_style_controls() {
 		$this->register_container_style_controls();
@@ -165,8 +149,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls for customizing container styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_container_style_controls() {
 		$this->start_controls_section(
@@ -191,8 +173,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls for customizing search icon styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_search_icon_style_controls() {
 		$this->start_controls_section(
@@ -297,8 +277,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls for customizing search input styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_search_input_style_controls() {
 		$this->start_controls_section(
@@ -318,8 +296,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Register controls for customizing search button styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_search_button_style_controls() {
 		$this->start_controls_section(
@@ -373,8 +349,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Render widget output in the editor.
-	 *
-	 * @since x.x.x
 	 */
 	protected function content_template() {
 		// Intentionally empty: an empty JS template makes the editor fall back to
@@ -383,8 +357,6 @@ class CoursesToolbarWidget extends WidgetBase {
 
 	/**
 	 * Render the widget output on the frontend.
-	 *
-	 * @since x.x.x
 	 */
 	protected function render() {
 		// get_settings_for_display() drops conditional controls (sort_by_* depend
@@ -441,8 +413,6 @@ class CoursesToolbarWidget extends WidgetBase {
 	 *
 	 * Checks the current Elementor document first (covers the editor and its AJAX
 	 * widget re-renders), then falls back to the queried page's saved Elementor data.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string|null Layout key ('default', 'layout1', 'layout2') or null if no Course List widget found.
 	 */

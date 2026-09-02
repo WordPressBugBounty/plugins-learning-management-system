@@ -12,6 +12,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;

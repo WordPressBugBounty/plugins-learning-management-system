@@ -34,9 +34,9 @@ const GroupFilter: React.FC<Props> = ({ filterParams, setFilterParams }) => {
 		queryKey: ['userList'],
 		queryFn: () =>
 			userAPI.list({
-				order_by: 'name',
-				order: 'asc',
-				per_page: 5,
+				orderby: 'registered',
+				order: 'desc',
+				per_page: 15,
 			}),
 	});
 
@@ -83,18 +83,21 @@ const GroupFilter: React.FC<Props> = ({ filterParams, setFilterParams }) => {
 							setValue('author_id', selectedOption?.value.toString());
 							handleSubmit(onChange)();
 						}}
-						placeholder={__('Filter by Author', 'learning-management-system')}
+						placeholder={__(
+							'Filter by Group Leader',
+							'learning-management-system',
+						)}
 						isClearable={true}
 						styles={reactSelectStyles}
 						cacheOptions={true}
 						loadingMessage={() =>
-							__('Searching author...', 'learning-management-system')
+							__('Searching author…', 'learning-management-system')
 						}
 						noOptionsMessage={({ inputValue }) =>
 							inputValue.length > 0
 								? __('Author not found.', 'learning-management-system')
 								: userQueries.isLoading
-									? __('Loading...', 'learning-management-system')
+									? __('Loading…', 'learning-management-system')
 									: __(
 											'Please enter 1 or more characters.',
 											'learning-management-system',

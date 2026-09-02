@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Masteriyo wishlist service providers.
  *
- * @since 1.12.2
+ * @since 2.3.4
  */
 
 use Masteriyo\Addons\WishList\Providers\WishListServiceProvider;

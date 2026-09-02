@@ -1,0 +1,109 @@
+@use "../../../../assets/scss/variable/structure";
+
+.masteriyo-certificate-share {
+	&-container {
+		margin-top: structure.$spacing_16px;
+		width: 100%;
+	}
+
+	&__share-button {
+		border-radius: structure.$border_radius_4;
+		background: var(--masteriyo-color-primary);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: structure.$spacing_8px;
+		padding: 0 structure.$spacing_16px;
+		min-height: 40px;
+		color: var(--masteriyo-color-white);
+		font-size: 15px;
+		font-weight: 500;
+		line-height: 25px;
+		width: 100%;
+		border: 0;
+		outline: none;
+		box-shadow: none;
+		transition: all .3s ease-in-out;
+
+		svg {
+			width: 18px;
+			height: 18px;
+		}
+	}
+}
+
+.masteriyo-certificate-share-modal {
+	.masteriyo-overlay {
+		align-items: center;
+	}
+}
+
+.masteriyo-certificate-share-popup {
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 0 25px 0 rgb(10 10 10 / 10%);
+	display: flex;
+	width: 60%;
+	height: auto;
+	padding: 28px 28px 30px;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.masteriyo-certificate-share {
+	&__wrapper {
+		position: relative;
+	}
+
+	&__heading {
+		color: #222;
+		font-size: 24px;
+		font-weight: 700;
+		line-height: 32px;
+		padding-bottom: 16px;
+		border-bottom: 1px solid #e5e5e5;
+		margin-bottom: 18px;
+		margin-top: 0;
+	}
+
+	&__exit-popup {
+		position: absolute;
+		top: 0;
+		right: 0;
+		border-radius: 60px;
+		background: #eef1f7;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 7px;
+		cursor: pointer;
+
+		svg {
+			width: 14px;
+			height: 14px;
+		}
+	}
+
+	&__title {
+		color: #111;
+		font-size: 16px;
+		font-weight: 300;
+		line-height: 26px;
+		margin-top: 0;
+		margin-bottom: structure.$spacing_16px;
+	}
+
+	&__share-link {
+		text-decoration: none;
+	}
+
+	&__share-link a {
+		text-decoration: none;
+	}
+}
+
+.masteriyo-share-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}

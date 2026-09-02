@@ -3,7 +3,6 @@
  * List Course Categories ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseCategory
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseCategory;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns taxonomy terms registered under `course_cat`, including name,
  * slug, description, and course count.
- *
- * @since x.x.x
  */
 class ListCourseCategoriesAbility extends RestProxyAbility {
 

@@ -19,13 +19,16 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Notice;
 
+$field = isset( $field ) ? $field : array( 'required' => true );
 ?>
 
 <div class="masteriyo-checkout---email-wrapper">
 	<div class="masteriyo-checkout----email">
 		<label for="billing-email" class="masteriyo-label">
 			<?php esc_html_e( 'Email Address', 'learning-management-system' ); ?>
-			<span>*</span>
+			<?php if ( ! empty( $field['required'] ) ) : ?>
+				<span>*</span>
+			<?php endif; ?>
 		</label>
 
 		<input
@@ -34,6 +37,7 @@ use Masteriyo\Notice;
 			class="masteriyo-input"
 			name="billing_email"
 			value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_email() ); ?>"
+			<?php masteriyo_checkout_field_required_attributes( $field ); ?>
 		/>
 	</div>
 	<?php if ( masteriyo_notice_exists( 'billing_email', Notice::ERROR ) ) : ?>

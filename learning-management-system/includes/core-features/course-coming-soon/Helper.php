@@ -36,7 +36,6 @@ class Helper {
 	 * @return boolean
 	 */
 	public static function course_coming_soon_satisfied( $course, $user = null ) {
-
 		$course_meta = get_post_meta( $course->get_id() );
 
 		$ending_date = isset( $course_meta['_course_coming_soon_ending_date'] ) ? $course_meta['_course_coming_soon_ending_date'] : null;
@@ -63,8 +62,6 @@ class Helper {
 
 	/**
 	 * Check if the course meta data should be hidden.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 *

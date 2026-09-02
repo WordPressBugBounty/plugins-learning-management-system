@@ -2,7 +2,7 @@
 /**
  * Masteriyo course Author Bricks element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -16,7 +16,7 @@ use Masteriyo\Addons\BricksIntegration\Helper;
 /**
 * Masteriyo Single Course Author Elements class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CourseAvatarElement extends \Bricks\Element {
 
@@ -27,7 +27,7 @@ class CourseAvatarElement extends \Bricks\Element {
 	/**
 	* Bricks Single Course Author Label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Single Course Author', 'learning-management-system' );
@@ -36,7 +36,7 @@ class CourseAvatarElement extends \Bricks\Element {
 	/**
 	* Bricks set controls groups for course Author CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['course_author'] = array(
@@ -275,7 +275,7 @@ class CourseAvatarElement extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		// Get the current page URL.
@@ -287,7 +287,7 @@ class CourseAvatarElement extends \Bricks\Element {
 			if ( ! $author ) {
 				return;
 			}
-			echo "<div {$this->render_attributes( '_root' )}>";
+			echo "<div {$this->render_attributes( '_root' )}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks render_attributes() returns pre-escaped attribute markup.
 			?>
 			<div class="masteriyo-course-author" style="display: block !important;">
 				<a style="display: inline-flex;" href="<?php echo esc_url( $author->get_course_archive_url() ); ?>">

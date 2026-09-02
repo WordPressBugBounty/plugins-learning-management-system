@@ -13,7 +13,7 @@ use Masteriyo\Constants;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Enums\CommentStatus;
-
+use Masteriyo\Setup\HomeGuide;
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -48,8 +48,8 @@ class AdminMenu {
 			return true;
 		}
 
-	  // phpcs:disable
-	  if ( isset( $_GET['page'] ) && 'masteriyo' === $_GET['page'] ) {
+		// phpcs:disable
+		if ( isset( $_GET['page'] ) && 'masteriyo' === $_GET['page'] ) {
 			$dashicon = 'data:image/svg+xml;base64,' . base64_encode( masteriyo_get_svg( 'dashicon-white' ) );
 
 			/**
@@ -58,7 +58,7 @@ class AdminMenu {
 			 * @since 1.5.7
 			 */
 			$dashicon = apply_filters( 'masteriyo_active_admin_menu_icon', $dashicon );
-	  } else {
+		} else {
 			$dashicon = 'data:image/svg+xml;base64,' . base64_encode( masteriyo_get_svg( 'dashicon-grey' ) );
 
 			/**
@@ -67,15 +67,15 @@ class AdminMenu {
 			 * @since 1.5.7
 			 */
 			$dashicon = apply_filters( 'masteriyo_inactive_admin_menu_icon', $dashicon );
-	  }
-	  // phpcs:enable
+		}
+		// phpcs:enable
 
 		/**
 		 * Filter admin menu title.
 		 *
 		 * @since 1.5.7
 		 */
-		$admin_menu_title = apply_filters( 'masteriyo_admin_menu_title', __( 'Masteriyo', 'learning-management-system' ) );
+		$admin_menu_title = apply_filters( 'masteriyo_admin_menu_title', masteriyo_get_plugin_name() );
 
 		add_menu_page(
 			$admin_menu_title,
@@ -137,11 +137,23 @@ class AdminMenu {
 	 * @return array
 	 */
 	public static function get_submenus() {
+
+		// Dashboard points at whichever screen is the landing screen right now:
+		// Home while the setup guide still has work, Analytics once the guide is
+		// done and Home stops existing. WordPress resolves the parent Masteriyo
+		// link to the first submenu, so this one entry steers both.
+		//
+		// The recorded answer, never a fresh one: this runs on every wp-admin page
+		// load, and computing it costs about twenty queries. Masteriyo's own
+		// screens refresh the flag as a side effect of rendering.
+		$dashboard_slug = HomeGuide::was_complete() ? 'analytics' : 'home';
+
 		$submenus = array(
-			'analytics'          => array(
+			$dashboard_slug      => array(
 				'page_title' => __( 'Dashboard', 'learning-management-system' ),
 				'menu_title' => __( 'Dashboard', 'learning-management-system' ),
 				'position'   => 5,
+
 			),
 			'courses'            => array(
 				'page_title' => __( 'Courses', 'learning-management-system' ),
@@ -162,6 +174,13 @@ class AdminMenu {
 				'menu_title' => __( 'Orders', 'learning-management-system' ),
 				'position'   => 15,
 			),
+			'enrollments'        => array(
+				'page_title' => __( 'Enrollments', 'learning-management-system' ),
+				'menu_title' => __( 'Enrollments', 'learning-management-system' ),
+				'capability' => 'manage_masteriyo_enrollments',
+				// 20 collides with pro's Coupons submenu; 16/17 are pro's hidden Subscriptions/Withdraws. 21 is free, still between Courses (10) and Users (25).
+				'position'   => 21,
+			),
 			'users/students'     => array(
 				'page_title' => __( 'Users', 'learning-management-system' ),
 				'menu_title' => __( 'Users', 'learning-management-system' ),
@@ -169,10 +188,13 @@ class AdminMenu {
 			),
 			'webhooks'           => array(
 				'page_title' => __( 'Webhooks', 'learning-management-system' ),
-				'menu_title' => '↳ ' . __( 'Webhooks', 'learning-management-system' ),
-				'position'   => 81,
+				'menu_title' => ( masteriyo_is_current_user_admin()
+				? '↳ ' . __( 'Webhooks', 'learning-management-system' )
+				: __( 'Webhooks', 'learning-management-system' )
+					),
 				'capability' => 'edit_courses',
-				'hide'       => true,
+				'position'   => 81,
+				'hide'       => masteriyo_is_current_user_admin(),
 			),
 			'starter-templates'  => array(
 				'page_title' => __( 'Starter Templates', 'learning-management-system' ),
@@ -202,6 +224,17 @@ class AdminMenu {
 			if ( ! empty( $attempts ) ) {
 				$quiz_attempts_exist = true;
 			}
+
+			/**
+			 * Filters whether any quiz attempt exists, for the Quiz Attempts menu item.
+			 *
+			 * Core counts its own quiz attempts. A kind of quiz that only pro has —
+			 * the H5P quiz — answers here, so this file need not name a function it
+			 * does not ship.
+			 *
+			 * @param bool $quiz_attempts_exist True when core already found one.
+			 */
+			$quiz_attempts_exist = apply_filters( 'masteriyo_quiz_attempts_exist', $quiz_attempts_exist );
 
 			// Review types to check
 			$review_types = array(
@@ -271,6 +304,10 @@ class AdminMenu {
 		/**
 		 * Filter admin submenus.
 		 *
+		 * Commerce-gated submenus (Orders, Coupons, Subscriptions, Withdraws) are removed by
+		 * self::hide_commerce_submenus_when_disabled(), hooked onto this same filter at
+		 * PHP_INT_MAX so it runs after every submenu registration regardless of call order.
+		 *
 		 * @since 1.5.12
 		 */
 		$submenus = apply_filters( 'masteriyo_admin_submenus', $submenus );
@@ -296,9 +333,34 @@ class AdminMenu {
 	}
 
 	/**
+	 * Remove commerce-gated submenus when masteriyo_commerce_enabled() is false.
+	 *
+	 * Hooked onto `masteriyo_admin_submenus` at PHP_INT_MAX (see init_hooks()) so it runs
+	 * after every submenu is registered, no matter what priority registered it.
+	 *
+	 * @since 2.31.0
+	 *
+	 * @param array $submenus Submenus keyed by slug.
+	 * @return array
+	 */
+	public static function hide_commerce_submenus_when_disabled( $submenus ) {
+		if ( masteriyo_commerce_enabled() ) {
+			return $submenus;
+		}
+
+		// orders: core. coupons: pro/addons/coupons. subscriptions: pro/Pro.php.
+		// withdraws: addons/revenue-sharing (revenue-sharing withdraws).
+		foreach ( array( 'orders', 'coupons', 'subscriptions', 'withdraws' ) as $commerce_slug ) {
+			unset( $submenus[ $commerce_slug ] );
+		}
+
+		return $submenus;
+	}
+
+	/**
 	 * Add some divider css.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [Free]
 	 *
 	 * @return void
 	 */
@@ -322,7 +384,7 @@ class AdminMenu {
 
 			$inline_css .= '
             #toplevel_page_masteriyo li a[href="admin.php?page=masteriyo#/' . esc_attr( $slug ) . '"] .awaiting-mod{
-        float: right;
+				float: right;
             }
             ';
 
@@ -330,7 +392,7 @@ class AdminMenu {
 				$inline_css .= '
             #toplevel_page_masteriyo li a[href="admin.php?page=masteriyo#/' . esc_attr( $slug ) . '"] {
                 display: none;
-        margin-bottom: 0px;
+				margin-bottom: 0px;
             }
             ';
 			}
@@ -346,7 +408,7 @@ class AdminMenu {
             ';
 			}
 
-				$inline_css .= '
+			$inline_css .= '
 			.masteriyo-new-badge {
 				background-color: #38a169; /* Chakra green.500 */
 				color: white;
@@ -358,10 +420,12 @@ class AdminMenu {
 				text-transform: uppercase;
 			}
 		';
+
 		}
 
 		wp_add_inline_style( $handle, $inline_css );
 	}
+
 
 
 	/**
@@ -375,6 +439,8 @@ class AdminMenu {
 		add_action( 'admin_menu', array( __CLASS__, 'init_menus' ), 10 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_menu_css' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'add_status_counts_to_menu_items' ), 9999 );
+		// PHP_INT_MAX: must run after Coupons (priority 10), Withdraws (priority 10), and Subscriptions (priority 20) register their submenus, or it won't actually hide them.
+		add_filter( 'masteriyo_admin_submenus', array( __CLASS__, 'hide_commerce_submenus_when_disabled' ), PHP_INT_MAX );
 		add_action( 'admin_footer', array( __CLASS__, 'inject_submenu_visibility_script' ) );
 	}
 
@@ -392,7 +458,7 @@ class AdminMenu {
 	/**
 	 * Adds counts to specific menu items.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public static function add_status_counts_to_menu_items() {
 		global $submenu;
@@ -403,20 +469,20 @@ class AdminMenu {
 
 		foreach ( $submenu['masteriyo'] as &$menu_item ) {
 			if ( ! isset( $menu_item[0] ) ) {
-				continue;
+					continue;
 			}
 
 			$status = 'pending';
 
 			if ( 'Orders' === $menu_item[0] && current_user_can( 'edit_orders' ) ) {
-				self::add_menu_count(
-					$menu_item,
-					masteriyo_get_pending_and_on_hold_orders_count(),
-					'Order in pending',
-					'Orders in pending',
-					$status,
-					'orders'
-				);
+					self::add_menu_count(
+						$menu_item,
+						masteriyo_get_pending_and_on_hold_orders_count(),
+						'Order in pending',
+						'Orders in pending',
+						$status,
+						'orders'
+					);
 			} elseif ( 'Reviews & Comments' === $menu_item[0] && current_user_can( 'edit_courses' ) ) {
 				self::add_menu_count(
 					$menu_item,
@@ -435,6 +501,15 @@ class AdminMenu {
 					$status,
 					'users'
 				);
+			} elseif ( 'Subscriptions' === $menu_item[0] && current_user_can( 'edit_mto_subscriptions' ) ) {
+				self::add_menu_count(
+					$menu_item,
+					masteriyo_get_moderated_subscriptions_count(),
+					'Subscriptions in moderation',
+					'Subscriptions in moderation',
+					$status,
+					'subscriptions'
+				);
 			}
 		}
 	}
@@ -442,7 +517,7 @@ class AdminMenu {
 	/**
 	 * Adds a count badge to a menu item.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param array  $menu_item The menu item array (passed by reference).
 	 * @param int    $count The count to display.
@@ -454,7 +529,7 @@ class AdminMenu {
 	private static function add_menu_count( array &$menu_item, int $count, string $singular_label, string $plural_label, $status, $type ) {
 		$count_i18n = number_format_i18n( $count );
 		$text       = sprintf(
-		/* translators: %1$s: count, %2$s: label (singular/plural) */
+			/* translators: %1$s: count, %2$s: label (singular/plural) */
 			_n( '%1$s %2$s', '%1$s %2$s', $count, 'learning-management-system' ),
 			$count_i18n,
 			1 === $count ? $singular_label : $plural_label
@@ -472,14 +547,13 @@ class AdminMenu {
 		);
 	}
 
-
 	/**
 	 * Injects a JavaScript snippet into the admin page to dynamically control the visibility
 	 * of submenu items based on the current URL hash. The script maps parent menu paths to
 	 * their respective submenu paths and toggles the display of submenu links depending on
 	 * the active hash. This ensures that only relevant submenu items are visible to the user
 	 * as they navigate different sections of the admin interface.
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 * Usage:
 	 * Call this method to output the script in the appropriate admin page context.
 	 */
@@ -487,6 +561,25 @@ class AdminMenu {
 		if ( ! masteriyo_is_admin_page() ) {
 			return;
 		}
+		/**
+		 * Filters the extra hash paths listed under the Settings submenu entry.
+		 *
+		 * Pro adds its licence screen here; core has no screen to add.
+		 *
+		 * @param string[] $paths Hash paths, e.g. `#/license`.
+		 */
+		$extra_setting_paths = (array) apply_filters( 'masteriyo_admin_settings_submenu_paths', array() );
+
+		$extra_setting_paths = implode(
+			'',
+			array_map(
+				function( $path ) {
+					return wp_json_encode( $path ) . ',';
+				},
+				$extra_setting_paths
+			)
+		);
+
 		?>
 		<script>
 		jQuery(document).ready(function($) {
@@ -498,19 +591,26 @@ class AdminMenu {
 				'certificates': [
 					'#/certificates-v2',
 				],
+				// Harmless when commerce is hidden: the Orders menu isn't in the DOM, so these entries simply never match.
 				'orders': [
 					'#/subscriptions',
 					'#/withdraws',
 				],
 				'users/students': [
 					'#/groups',
-					'#/manual-enrollment',
 				],
 				'settings': [
-					'#/webhooks',
+					<?php
+
+					if ( masteriyo_is_current_user_admin() ) {
+						echo "'#/webhooks'";
+					}
+					?>
+					,
 					'#/zapier',
 					'#/multiple-currency/pricing-zones',
 					'#/starter-templates',
+					<?php echo $extra_setting_paths; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				],
 			};
 
@@ -565,8 +665,42 @@ class AdminMenu {
 			}
 
 
+			/*
+			 * Keep the sidebar highlight in step with the SPA hash. WordPress paints the
+			 * `current` classes once, server-side, so hash navigation left the old item lit.
+			 */
+			function updateMenuHighlight() {
+				const hash  = window.location.hash;
+				const $links = $('#toplevel_page_masteriyo .wp-submenu a[href*="admin.php?page=masteriyo#/"]');
+
+				let $best = null;
+				let bestLen = -1;
+
+				$links.each(function() {
+					const href = $(this).attr('href') || '';
+					const at   = href.indexOf('#/');
+					if (-1 === at) return;
+					const slug = href.slice(at); // e.g. "#/enrollments"
+
+					if ((hash === slug || hash.startsWith(slug + '/') || hash.startsWith(slug + '?')) && slug.length > bestLen) {
+						$best   = $(this);
+						bestLen = slug.length;
+					}
+				});
+
+				if (!$best) return; // unknown hash: leave WordPress's own choice alone
+
+				$links.closest('li').removeClass('current').find('a').removeAttr('aria-current');
+				$best.closest('li').addClass('current');
+				$best.attr('aria-current', 'page');
+			}
+
 			updateMenuVisibility();
-			$(window).on('hashchange', updateMenuVisibility);
+			updateMenuHighlight();
+			$(window).on('hashchange', function() {
+				updateMenuVisibility();
+				updateMenuHighlight();
+			});
 		});
 		</script>
 

@@ -30,17 +30,19 @@ class LessonQuery extends ObjectQuery {
 		return array_merge(
 			parent::get_default_query_vars(),
 			array(
-				'slug'                => '',
-				'date_created'        => null,
-				'date_modified'       => null,
-				'status'              => array( PostStatus::DRAFT, PostStatus::PENDING, PostStatus::PVT, PostStatus::PUBLISH ),
-				'menu_order'          => '',
-				'description'         => '',
-				'short_description'   => '',
-				'parent_id'           => '',
-				'course_id'           => '',
-				'video_playback_time' => '',
-				'average_rating'      => '',
+				'slug'                 => '',
+				'date_created'         => null,
+				'date_modified'        => null,
+				'status'               => array( PostStatus::DRAFT, PostStatus::PENDING, PostStatus::PVT, PostStatus::PUBLISH ),
+				'menu_order'           => '',
+				'description'          => '',
+				'short_description'    => '',
+				'parent_id'            => '',
+				'course_id'            => '',
+				'video_playback_time'  => '',
+				'average_rating'       => '',
+				'enable_preview'       => '',
+				'enable_video_preview' => '',
 			)
 		);
 	}

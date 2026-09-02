@@ -3,7 +3,6 @@
  * Update Order ability.
  *
  * @package Masteriyo\Abilities\Domains\Order
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Order;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: update an existing order.
- *
- * @since x.x.x
  */
 class UpdateOrderAbility extends RestProxyAbility {
 

@@ -110,7 +110,7 @@ class WithdrawRepository extends AbstractRepository {
 		$withdraw_post = get_post( $withdraw->get_id() );
 
 		if ( ! $withdraw->get_id() || ! $withdraw_post || $withdraw->get_post_type() !== $withdraw_post->post_type ) {
-			throw new \Exception( __( 'Invalid withdraw.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid withdraw.', 'learning-management-system' ) );
 		}
 
 		$withdraw->set_props(

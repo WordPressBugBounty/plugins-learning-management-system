@@ -2,7 +2,7 @@
 /**
  * StarterTemplateServiceProvider Class.
  *
- * @since 2.0.0
+ * @since 3.0.0
  * @package Masteriyo\Providers
  */
 
@@ -16,26 +16,20 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
 /**
  * Registers and initializes block types and categories for Masteriyo LMS.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 class StarterTemplateServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
 	/**
-	 * Register services in the container.
-	 *
-	 * @since 2.0.0
-	 * @return void
-	 */
-	public function register(): void {
-		// No container services to register for now.
-	}
-
-	/**
-	 * Services provided by this service provider.
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -49,10 +43,20 @@ class StarterTemplateServiceProvider extends AbstractServiceProvider implements 
 	}
 
 	/**
+	 * Register services in the container.
+	 *
+	 * @since 3.0.0
+	 * @return void
+	 */
+	public function register(): void {
+		// No container services to register for now.
+	}
+
+	/**
 	 * Boot the block service provider.
 	 * Registers block types, categories, and editor assets.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 * @return void
 	 */
 	public function boot(): void {

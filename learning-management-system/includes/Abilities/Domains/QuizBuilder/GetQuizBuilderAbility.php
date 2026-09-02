@@ -3,7 +3,6 @@
  * Get Quiz Builder ability.
  *
  * @package Masteriyo\Abilities\Domains\QuizBuilder
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\QuizBuilder;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns every question with its type, answers, correct answer flag,
  * and display order — the same representation consumed by the quiz builder UI.
- *
- * @since x.x.x
  */
 class GetQuizBuilderAbility extends RestProxyAbility {
 

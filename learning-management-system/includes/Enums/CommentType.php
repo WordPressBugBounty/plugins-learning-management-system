@@ -49,9 +49,18 @@ class CommentType {
 	const COURSE_QA = 'mto_course_qa';
 
 	/**
+	 * Subscription note type.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @var string
+	 */
+	const SUBSCRIPTION_NOTE = 'mto_subscription_note';
+
+	/**
 	 * Lesson review type.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @var string
 	 */
@@ -79,8 +88,8 @@ class CommentType {
 				self::COURSE_REVIEW,
 				self::ORDER_NOTE,
 				self::COURSE_QA,
+				self::SUBSCRIPTION_NOTE,
 				self::QUIZ_REVIEW,
-				self::LESSON_REVIEW,
 			)
 		);
 

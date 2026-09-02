@@ -60,17 +60,36 @@ class Offline extends PaymentGateway implements PaymentGatewayInterface {
 		 *
 		 * @param string $icon Icon html.
 		 */
-		$this->icon = apply_filters( 'masteriyo_offline_icon', '' );
+		$this->icon = apply_filters( 'masteriyo_offline_icon', masteriyo_get_plugin_url() . '/includes/Gateways/Offline/offline.png' );
 
 		$this->method_title       = __( 'Offline', 'learning-management-system' );
 		$this->method_description = __( 'Have your customers pay with cash (or by other means) upon delivery.', 'learning-management-system' );
-		$this->has_fields         = false;
+
+		// The wire transfer instructions are the fields this gateway renders. Saying
+		// so is what gives the card a body on a store that cleared the description
+		// but still wants the bank details shown.
+		$this->has_fields = masteriyo_string_to_bool( $this->get_option( 'wire_transfer.enable' ) );
 
 		$this->set_order_button_text( __( 'Confirm Payment', 'learning-management-system' ) );
 
 		$this->title        = $this->get_option( 'title' );
 		$this->description  = $this->get_option( 'description' );
 		$this->instructions = $this->get_option( 'instructions' );
+	}
+
+	/**
+	 * Display the gateway's own content inside its payment method card.
+	 *
+	 * The description, then the wire transfer instructions — which is where a
+	 * buyer choosing this method is looking, rather than in a box of their own
+	 * further down the page.
+	 *
+	 * @since 1.0.0
+	 */
+	public function payment_fields() {
+		parent::payment_fields();
+
+		masteriyo_template_payment_wire_transfer();
 	}
 
 	/**

@@ -10,6 +10,7 @@ export function saveFrontedCSS() {
 
 	if (!hasMasteriyoBlocks(allBlocks)) return;
 	css = generateFrontEndCSS(allBlocks);
+
 	return apiFetch({
 		path: '/masteriyo/v1/blocks/save_css',
 		method: 'POST',

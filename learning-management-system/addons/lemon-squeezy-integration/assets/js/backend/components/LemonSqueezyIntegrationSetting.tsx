@@ -34,7 +34,7 @@ const UNENROLLMENT_STATUS_OPTIONS = [
 const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 	lemon_squeezy_integration,
 }) => {
-	const { register, control } = useFormContext();
+	const { control, register } = useFormContext();
 
 	const { hasCopied, onCopy } = useClipboard(
 		lemon_squeezy_integration?.webhook_url || '',
@@ -50,7 +50,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			w="full"
 		>
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('Title', 'learning-management-system')}
 				</FormLabel>
 				<Input
@@ -61,7 +61,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('Description', 'learning-management-system')}
 				</FormLabel>
 				<Textarea
@@ -71,7 +71,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 				/>
 			</FormControlTwoCol>
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('API Key', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -86,24 +86,23 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 						{...register('payments.lemon_squeezy_integration.api_key')}
 						defaultValue={lemon_squeezy_integration?.api_key}
 					/>
+
 					<InputRightAddon bg={'gray.100'}>
-						{
-							<Icon
-								cursor="pointer"
-								as={!show.apiKey ? BiShow : BiHide}
-								onClick={() =>
-									setShow({ ...show, apiKey: Boolean(!show.apiKey) })
-								}
-								size="lg"
-								aria-label={!show.apiKey ? 'Show API key' : 'Hide API key'}
-							/>
-						}
+						<Icon
+							cursor="pointer"
+							as={!show.apiKey ? BiShow : BiHide}
+							onClick={() =>
+								setShow({ ...show, apiKey: Boolean(!show.apiKey) })
+							}
+							size="lg"
+							aria-label={!show.apiKey ? 'Show API key' : 'Hide API key'}
+						/>
 					</InputRightAddon>
 				</InputGroup>
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('Store ID', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -161,7 +160,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('Webhook URL', 'learning-management-system')}
 					<ToolTip
 						label={__(
@@ -185,7 +184,7 @@ const LemonSqueezyIntegrationSetting: React.FC<Props> = ({
 			</FormControlTwoCol>
 
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
+				<FormLabel minW="160px" m={0}>
 					{__('Webhook Secret', 'learning-management-system')}
 					<ToolTip
 						label={__(

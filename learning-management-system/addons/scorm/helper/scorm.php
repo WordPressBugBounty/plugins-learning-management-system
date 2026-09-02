@@ -7,7 +7,6 @@
  */
 
 use Masteriyo\Enums\CourseProgressStatus;
-use Masteriyo\Masteriyo;
 use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -158,6 +157,21 @@ if ( ! function_exists( 'masteriyo_get_manifest_scorm_version' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_scorm_lesson_status_to_progress_status' ) ) {
+	/**
+	 * Map a SCORM lesson_status to a progress status. Completion is a whitelist.
+	 *
+	 * @param mixed $value Raw lesson_status from the request body. Not always a string.
+	 *
+	 * @return string A CourseProgressStatus constant.
+	 */
+	function masteriyo_scorm_lesson_status_to_progress_status( $value ) {
+		return is_string( $value ) && in_array( strtolower( trim( $value ) ), array( 'passed', 'completed' ), true )
+			? CourseProgressStatus::COMPLETED
+			: CourseProgressStatus::STARTED;
+	}
+}
+
 if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 	/**
 	 * Update user progress for a SCORM course.
@@ -168,12 +182,9 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 	 * @param int $user_id User id.
 	 * @param string|int $progress Progress percentage.
 	 *
-	 * @return bool|\WP_Error Returns true if successful or false or WP_Error otherwise.
+	 * @return bool True when the progress was written, false when the course is already completed.
 	 */
 	function masteriyo_update_user_scorm_course_progress( $course_id, $user_id, $progress ) {
-
-		global $wpdb;
-		$table = "{$wpdb->prefix}masteriyo_user_activities";
 
 		$progress_status = CourseProgressStatus::STARTED;
 
@@ -183,12 +194,6 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 				$progress_status = CourseProgressStatus::STARTED;
 		} else {
 			$progress_status = CourseProgressStatus::COMPLETED;
-		}
-
-		$progress_args = array( 'activity_status' => $progress_status );
-
-		if ( CourseProgressStatus::COMPLETED === $progress_status ) {
-			$progress_args['completed_at'] = current_time( 'mysql' );
 		}
 
 		$query = new CourseProgressQuery(
@@ -205,7 +210,6 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 		}
 
 		if ( ! $activity ) {
-
 			$course_progress = masteriyo( 'course-progress' );
 			/** @var Masteriyo\Models\CourseProgress $course_progress */
 			$course_progress->set_user_id( $user_id );
@@ -214,7 +218,7 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 			$course_progress->set_status( $progress_status );
 
 			if ( CourseProgressStatus::COMPLETED === $progress_status ) {
-					$course_progress->set_completed_at( current_time( 'mysql' ) );
+				$course_progress->set_completed_at( current_time( 'mysql' ) );
 			}
 
 			$course_progress->save();
@@ -223,17 +227,34 @@ if ( ! function_exists( 'masteriyo_update_user_scorm_course_progress' ) ) {
 
 			do_action( 'masteriyo_course_progress_status_' . $progress_status, $course_progress_id, $course_progress );
 		} else {
-			$update_result = $wpdb->update(
-				$table,
-				$progress_args,
-				array(
-					'id' => $activity->get_id(),
-				)
-			);
+			// Commit() posts without waiting for the previous response, so two
+			// requests can both read this record as started. One conditional
+			// write claims the completion; the loser stops before the hooks.
+			if ( CourseProgressStatus::COMPLETED === $progress_status ) {
+				global $wpdb;
 
-			if ( ! $update_result ) {
-				return new WP_Error( 'unable_to_update', __( 'Sorry!, an error occurred while updating the course progress.', 'learning-management-system' ) );
+				$claimed = $wpdb->query(
+					$wpdb->prepare(
+						'UPDATE ' . $activity->get_table_name() . ' SET activity_status = %s WHERE id = %d AND activity_status != %s', // phpcs:ignore
+						CourseProgressStatus::COMPLETED,
+						$activity->get_id(),
+						CourseProgressStatus::COMPLETED
+					)
+				);
+
+				if ( ! $claimed ) {
+					return false;
+				}
 			}
+
+			$activity->set_status( $progress_status );
+
+			if ( CourseProgressStatus::COMPLETED === $progress_status ) {
+				$activity->set_completed_at( current_time( 'mysql' ) );
+			}
+
+			// The model fires the status transition hooks; a raw update does not.
+			$activity->save();
 
 			$course_progress_id = $activity->get_id();
 		}

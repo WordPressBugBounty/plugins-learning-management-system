@@ -16,9 +16,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$card_class = isset( $card_class ) ? $card_class : '';
+
 ?>
 <div class="masteriyo-col swiper-slide">
-	<div class="masteriyo-category-card">
+	<div class="masteriyo-category-card <?php echo esc_attr( $card_class ); ?>">
 		<a href="<?php echo esc_attr( $category->get_permalink() ); ?>">
 			<div class="masteriyo-category-card__image"><?php echo wp_kses_post( $category->get_image() ); ?></div>
 		</a>

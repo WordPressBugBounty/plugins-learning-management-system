@@ -461,5 +461,4 @@ class CourseAnnouncement extends Model {
 	public function set_menu_order( $menu_order ) {
 		$this->set_prop( 'menu_order', absint( $menu_order ) );
 	}
-
 }

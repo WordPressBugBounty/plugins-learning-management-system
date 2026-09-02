@@ -44,7 +44,6 @@ class Deactivation {
 	 * active breaks user registration. Full cleanup lives in uninstall.php.
 	 *
 	 * @since 1.0.0
-	 * @since x.x.x Skip removal while the sibling plugin is active.
 	 */
 	public static function remove_roles() {
 		if ( self::is_sibling_plugin_active() ) {
@@ -61,8 +60,6 @@ class Deactivation {
 	 *
 	 * WordPress rewrites `active_plugins` only after the deactivation hook runs,
 	 * so the sibling is still listed here.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return bool
 	 */

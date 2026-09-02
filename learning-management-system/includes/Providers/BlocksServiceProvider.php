@@ -22,18 +22,6 @@ use Masteriyo\Blocks;
  */
 class BlocksServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
-
-
-	/**
-	 * Register services in the container.
-	 *
-	 * @since 1.18.2
-	 * @return void
-	 */
-	public function register(): void {
-		// No container services to register for now.
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -43,7 +31,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.18.2
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -54,6 +42,16 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			array(),
 			true
 		);
+	}
+
+	/**
+	 * Register services in the container.
+	 *
+	 * @since 1.18.2
+	 * @return void
+	 */
+	public function register(): void {
+		// No container services to register for now.
 	}
 
 	/**
@@ -91,7 +89,6 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			'wp-components',
 			'react',
 			'react-dom',
-			'tooltipster',
 		);
 
 		if ( 'widgets.php' === $pagenow ) {
@@ -100,7 +97,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 
 		wp_register_script(
 			'masteriyo-blocks-editor',
-			Constants::get( 'MASTERIYO_ASSETS' ) . '/js/build/blocks.js',
+			plugins_url( 'assets/js/build/blocks.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ),
 			$dependencies,
 			MASTERIYO_VERSION,
 			true
@@ -140,7 +137,13 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			$block_categories,
 			array(
 				'slug'  => 'masteriyo-single-course',
-				'title' => esc_html__( 'Masteriyo LMS Single Course', 'learning-management-system' ),
+				'title' => esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( '%s LMS Single Course', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				),
 			)
 		);
 
@@ -148,7 +151,13 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			$block_categories,
 			array(
 				'slug'  => 'masteriyo',
-				'title' => esc_html__( 'Masteriyo LMS', 'learning-management-system' ),
+				'title' => esc_html(
+					sprintf(
+						/* translators: %s: the product's name */
+						__( '%s LMS', 'learning-management-system' ),
+						masteriyo_get_plugin_name()
+					)
+				),
 			)
 		);
 
@@ -194,6 +203,7 @@ class BlocksServiceProvider extends AbstractServiceProvider implements BootableS
 			Blocks\CourseCategory::class,
 			Blocks\GroupPriceButton::class,
 			Blocks\CourseUserProgress::class,
+			Blocks\LoginLink::class,
 		);
 
 		/**

@@ -62,6 +62,7 @@ const StartTime: React.FC<Props> = (props) => {
 				<InputGroup isolation={'auto'}>
 					<Box zIndex="auto" position="relative" width={'100%'}>
 						<style>{customDatePickerStyles}</style>
+
 						<Controller
 							control={control}
 							name="starts_at"
@@ -73,7 +74,7 @@ const StartTime: React.FC<Props> = (props) => {
 							}}
 							defaultValue={defaultValue ? new Date(defaultValue) : undefined}
 							render={({ field: { onChange: onDateChange, value } }) => (
-								<Box zIndex={'auto'}>
+								<Box zIndex="auto">
 									<ReactDatePicker
 										renderCustomHeader={({
 											date,
@@ -98,7 +99,7 @@ const StartTime: React.FC<Props> = (props) => {
 													colorScheme="primary"
 												/>
 												<Select
-													value={date?.getFullYear()}
+													value={date.getFullYear()}
 													onChange={({ target: { value } }: any) =>
 														changeYear(value)
 													}
@@ -109,20 +110,18 @@ const StartTime: React.FC<Props> = (props) => {
 														</option>
 													))}
 												</Select>
-
 												<Select
-													value={months[date?.getMonth()]}
+													value={months[date.getMonth()]}
 													onChange={({ target: { value } }) =>
-														changeMonth(months?.indexOf(value))
+														changeMonth(months.indexOf(value))
 													}
 												>
-													{months?.map((option) => (
+													{months.map((option) => (
 														<option key={option} value={option}>
 															{option}
 														</option>
 													))}
 												</Select>
-
 												<IconButton
 													icon={<BiRightArrow />}
 													size="sm"

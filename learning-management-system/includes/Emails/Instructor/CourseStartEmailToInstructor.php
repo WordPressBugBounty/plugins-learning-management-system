@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.15.0
+ * @since 2.6.10
  */
 
 namespace Masteriyo\Emails\Instructor;
@@ -18,7 +18,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @var string
 	 */
@@ -36,7 +36,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
 	 */
@@ -71,7 +71,15 @@ class CourseStartEmailToInstructor extends Email {
 		$course  = $user_course->get_course();
 		$student = masteriyo_get_user( $user_course->get_user_id() );
 
-		$this->set_recipients( $instructor_emails );
+		$to_addresses_setting = masteriyo_get_setting( 'emails.instructor.course_start.to_address' );
+		$to_address           = array();
+
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{instructor_email}', implode( ', ', $instructor_emails ), $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $instructor_emails );
 		$this->set( 'user_course', $user_course );
 		$this->set( 'course', $course );
 		$this->set( 'student', $student );
@@ -88,7 +96,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return bool
 	 */
@@ -99,7 +107,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -107,11 +115,13 @@ class CourseStartEmailToInstructor extends Email {
 		/**
 		 * Filter course start email subject to instructor.
 		 *
-		 * @since 1.15.0
+		 * @since 2.6.10
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id(), masteriyo_get_default_email_contents()['instructor']['course_start']['subject'] );
+		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.instructor.course_start.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['instructor']['course_start']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -119,7 +129,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -127,7 +137,7 @@ class CourseStartEmailToInstructor extends Email {
 		/**
 		 * Filter course start email heading to instructor.
 		 *
-		 * @since 1.15.0
+		 * @since 2.6.10
 		 *
 		 * @param string $heading.
 		 */
@@ -139,7 +149,7 @@ class CourseStartEmailToInstructor extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -148,33 +158,42 @@ class CourseStartEmailToInstructor extends Email {
 		/**
 		 * Filter course start email additional content to instructor.
 		 *
-		 * @since 1.15.0
+		 * @since 2.6.10
 		 *
 		 * @param string $additional_content.
 		 */
 		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.instructor.course_start.additional_content' ) );
 		$additional_content = masteriyo_string_translation( 'emails.instructor.course_start.additional_content', 'masteriyo-email-message', $additional_content );
+
 		return $this->format_string( $additional_content );
 	}
 
 	/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.instructor.course_start.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['instructor']['course_start']['content'] );
+		$content = masteriyo_string_translation( 'emails.instructor.course_start.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.instructor.course_start.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['instructor']['course_start']['content'];
+		}
+
 		$content = $this->format_string( $content );
+
 		$this->set( 'content', $content );
+
 		return parent::get_content();
 	}
 
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.10
 	 *
 	 * @return array
 	 */
@@ -186,7 +205,6 @@ class CourseStartEmailToInstructor extends Email {
 
 		/** @var \Masteriyo\Models\Course|\WP_Error|null $course */
 		$course = $this->get( 'course' );
-
 
 		if ( $student && ! is_wp_error( $student ) ) {
 			$placeholders = $placeholders + array(
@@ -212,7 +230,6 @@ class CourseStartEmailToInstructor extends Email {
 			);
 		}
 
-
 		if ( $course && ! is_wp_error( $course ) ) {
 			$placeholders = $placeholders + array(
 				'{course_name}' => $course->get_name(),
@@ -221,7 +238,6 @@ class CourseStartEmailToInstructor extends Email {
 
 			$instructor = masteriyo_get_user( absint( $course->get_author_id() ) );
 
-			
 			if ( $instructor && ! is_wp_error( $instructor ) ) {
 				$placeholders = $placeholders + array(
 					'{instructor_display_name}' => $instructor->get_display_name(),
@@ -248,5 +264,89 @@ class CourseStartEmailToInstructor extends Email {
 		}
 
 		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.instructor.course_start.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.instructor.course_start.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.instructor.course_start.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.instructor.course_start.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

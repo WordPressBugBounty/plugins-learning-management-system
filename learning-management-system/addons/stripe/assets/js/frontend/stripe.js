@@ -139,7 +139,7 @@ jQuery(function ($) {
 			).remove();
 
 			stripeForm.$form.prepend(
-				'<div class="masteriyo-NoticeGroup masteriyo-NoticeGroup-checkout">' +
+				'<div class="masteriyo-NoticeGroup masteriyo-NoticeGroup-checkout" role="alert">' +
 					errorMessage +
 					'</div>',
 			); // eslint-disable-line max-len
@@ -164,27 +164,84 @@ jQuery(function ($) {
 		},
 
 		/**
+		 * Whether a fetchPaymentIntent AJAX call is currently in flight.
+		 *
+		 * @type {boolean}
+		 */
+		isFetchingPaymentIntent: false,
+
+		/**
+		 * Whether a fetch arrived while one was in flight.
+		 *
+		 * A dropped call is not always a duplicate: a coupon or currency change
+		 * refetches for a different amount, and discarding it would mount an
+		 * intent priced for the previous cart. The latest ask is queued and
+		 * replayed once the in-flight request completes.
+		 *
+		 * @type {boolean}
+		 */
+		refetchPaymentIntentQueued: false,
+
+		/**
+		 * Hold the payment slot open while there is nothing in it yet.
+		 *
+		 * A skeleton rather than a loading overlay, because until the element mounts
+		 * there is nothing underneath to overlay: the mount container tracks its
+		 * content's height, so an empty one is a few pixels tall and the payment
+		 * section would grow by the height of a card form under a buyer who is
+		 * already reading it. The skeleton gives the slot that height up front and
+		 * hands it back to the real element with nothing to move.
+		 *
+		 * @param {boolean} loading
+		 */
+		setPaymentSlotLoading: function (loading) {
+			$('#masteriyo-stripe-method')
+				.toggleClass('masteriyo-stripe-method--loading', !!loading)
+				.attr('aria-busy', loading ? 'true' : 'false');
+		},
+
+		/**
 		 * Fetch payment intent.
 		 *
 		 * @since 2.0.0
 		 */
 		fetchPaymentIntent: function () {
+			if (stripeForm.isFetchingPaymentIntent) {
+				stripeForm.refetchPaymentIntentQueued = true;
+				return;
+			}
+			stripeForm.isFetchingPaymentIntent = true;
 			$.ajax({
 				url: this.getAjaxURL(),
 				method: 'POST',
 				data: { action: 'masteriyo_stripe_payment_intent' },
 				beforeSend: function (response, textStatus, jqXHR) {
-					$('#masteriyo-stripe-method').block(getBlockLoadingConfiguration());
+					stripeForm.setPaymentSlotLoading(true);
 				},
 				success: function (response, textStatus, jqXHR) {
+					// A 200 that carries no secret is still nothing to mount, and the
+					// slot must not be left holding a place for an element that is
+					// never coming.
+					if (!response || !response.data || !response.data.clientSecret) {
+						stripeForm.setPaymentSlotLoading(false);
+						return;
+					}
+
 					stripeForm.createPaymentElement(response.data.clientSecret);
 				},
 				error: function (jqXHR, textStatus, errorThrown) {
 					stripeForm.removePaymentIntentFromCheckoutForm();
-					$('#masteriyo-stripe-method').unblock();
+
+					// Nothing is coming, so the slot stops pretending something is.
+					stripeForm.setPaymentSlotLoading(false);
 				},
 				complete: function (jqXHR, textStatus) {
-					$('#masteriyo-stripe-method').unblock();
+					stripeForm.isFetchingPaymentIntent = false;
+
+					if (stripeForm.refetchPaymentIntentQueued) {
+						stripeForm.refetchPaymentIntentQueued = false;
+						stripeForm.fetchPaymentIntent();
+					}
 				},
 			});
 		},
@@ -198,10 +255,16 @@ jQuery(function ($) {
 		 */
 		createPaymentElement: function (clientSecret) {
 			elements = stripe.elements({ clientSecret });
-			var paymentElement = elements.create('payment', {
-				wallets: { applePay: 'never', googlePay: 'never' },
-			});
+			var paymentElement = elements.create('payment');
 			paymentElement.mount('#masteriyo-stripe-payment-element');
+
+			// `ready` is the element's own word for "mounted and able to accept
+			// input", which is the moment — and the only moment — the slot can be
+			// handed over without the buyer seeing an empty box. Registered first,
+			// so nothing registered after it can cost the slot its release.
+			paymentElement.on('ready', function () {
+				stripeForm.setPaymentSlotLoading(false);
+			});
 
 			paymentElement.on('change', function (event) {
 				if (event.value && event.value.type) {
@@ -222,6 +285,12 @@ jQuery(function ($) {
 					}
 				}
 			});
+
+			// An element that could not render says so in its own words, and it
+			// cannot do that from behind a placeholder.
+			paymentElement.on('loaderror', function () {
+				stripeForm.setPaymentSlotLoading(false);
+			});
 		},
 
 		/**
@@ -241,9 +310,67 @@ jQuery(function ($) {
 
 			$(document)
 				.on('stripeError', this.onError)
-				.on('checkout_error', this.reset);
+				.on('checkout_error', this.reset)
+				/**
+				 * Binds a handler for the currency switch event during checkout.
+				 *
+				 * Listens for the 'masteriyo_currency_switched' event to trigger updates
+				 * to the Stripe payment intent and elements when the user changes the
+				 * checkout currency.
+				 *
+				 * @since 2.18.1
+				 * @listens masteriyo_currency_switched - Custom event fired after successful currency switch.
+				 */
+				.on('masteriyo_currency_switched', this.handleCurrencySwitch);
+
+			$(document.body).on(
+				'masteriyo_payment_section_updated',
+				this.handlePaymentSectionUpdated,
+			);
 
 			this.fetchPaymentIntent();
+		},
+
+		/**
+		 * Handle payment section update (e.g. after coupon applied/removed).
+		 *
+		 * Refreshes the Stripe payment intent when the cart total changes so the
+		 * amount matches, and cleans up elements when payment is not needed.
+		 *
+		 * @param {Event} event
+		 * @param {boolean} needsPayment Whether the cart requires payment.
+		 */
+		handlePaymentSectionUpdated: function (event, needsPayment) {
+			stripeForm.removePaymentIntentFromCheckoutForm();
+
+			if (needsPayment === false) {
+				elements = null;
+				return;
+			}
+
+			// Cart total changed but payment is still needed — refresh the payment
+			// intent so the amount matches the new total.
+			elements = null;
+			stripeForm.fetchPaymentIntent();
+		},
+
+		/**
+		 * Handle currency switch event and refresh payment intent
+		 *
+		 * @param {object} event - The event object
+		 * @param {object} data - Event data containing currency and response
+		 */
+		handleCurrencySwitch: function (event, data) {
+			// Remove existing payment intent.
+			stripeForm.removePaymentIntentFromCheckoutForm();
+
+			// Unmount existing elements if they exist.
+			if (elements) {
+				stripeForm.unmountElements();
+			}
+
+			// Fetch new payment intent for the new currency.
+			stripeForm.fetchPaymentIntent();
 		},
 
 		/**
@@ -259,21 +386,35 @@ jQuery(function ($) {
 				return;
 			}
 
+			// Bail if elements are not initialized (e.g. zero-amount order after coupon).
+			if (!elements) {
+				return;
+			}
+
 			stripeForm.attachUnloadEventsOnSubmit();
 			stripeForm.$form.block(getBlockLoadingConfiguration());
 
-			var user = stripeForm.getUserDetails();
+			var confirmParams = { return_url: response.redirect };
+
+			// The Payment Element collects the billing fields a method requires
+			// (Klarna's email, SEPA's account holder). Passing the same field
+			// again via payment_method_data makes Stripe reject the confirmation,
+			// so only the card flow — where the Element collects none of them —
+			// sends the checkout form's values. The hidden input records the
+			// method type the element's change handler last saw; card is the
+			// element's default selection.
+			var chosenMethodType =
+				stripeForm.$form.find('input[name="stripe_payment_method"]').val() ||
+				'card';
+
+			if ('card' === chosenMethodType) {
+				confirmParams.payment_method_data = {
+					billing_details: stripeForm.getUserDetails(),
+				};
+			}
 
 			stripe
-				.confirmPayment({
-					elements,
-					confirmParams: {
-						return_url: response.redirect,
-						payment_method_data: {
-							billing_details: user,
-						},
-					},
-				})
+				.confirmPayment({ elements, confirmParams })
 				.then(function (response) {
 					stripeForm.attachUnloadEventsOnSubmit();
 					stripeForm.$form.unblock();
@@ -356,15 +497,15 @@ jQuery(function ($) {
 			}
 
 			var line1 =
-					$('#billing_address_1').val() || _MASTERIYO_STRIPE_.billingAddress1,
+					$('#billing-address-1').val() || _MASTERIYO_STRIPE_.billingAddress1,
 				line2 =
-					$('#address-line-two').val() || _MASTERIYO_STRIPE_.billingAddress2,
+					$('#billing-address-2').val() || _MASTERIYO_STRIPE_.billingAddress2,
 				state = $('#billing-state').val() || _MASTERIYO_STRIPE_.billingState,
-				city = $('#billing-town-city').val() || _MASTERIYO_STRIPE_.billingCity,
+				city = $('#billing-city').val() || _MASTERIYO_STRIPE_.billingCity,
 				postal_code =
-					$('#billing-zip-code').val() || _MASTERIYO_STRIPE_.billingPostcode,
+					$('#billing-postcode').val() || _MASTERIYO_STRIPE_.billingPostcode,
 				country =
-					$('#billing-county').val() || _MASTERIYO_STRIPE_.billingCountry;
+					$('#billing-country').val() || _MASTERIYO_STRIPE_.billingCountry;
 
 			if (line1) user.address.line1 = line1;
 			if (line2) user.address.line2 = line2;

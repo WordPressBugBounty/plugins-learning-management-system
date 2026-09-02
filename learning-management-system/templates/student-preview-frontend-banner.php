@@ -10,7 +10,6 @@
  *   $button_color       (string) Brand button color from settings.
  *   $button_hover_color (string) Brand button hover color from settings.
  *
- * @since x.x.x
  * @package Masteriyo\Templates
  */
 

@@ -8,6 +8,7 @@
 namespace Masteriyo\Gateways\Paypal;
 
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Models\Order\Order;
 
 defined( 'ABSPATH' ) || exit;
 

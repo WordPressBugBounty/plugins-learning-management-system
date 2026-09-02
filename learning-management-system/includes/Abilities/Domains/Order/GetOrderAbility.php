@@ -3,7 +3,6 @@
  * Get Order ability.
  *
  * @package Masteriyo\Abilities\Domains\Order
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Order;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a single order by ID.
- *
- * @since x.x.x
  */
 class GetOrderAbility extends RestProxyAbility {
 

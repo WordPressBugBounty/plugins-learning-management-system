@@ -357,6 +357,7 @@ const Edit = (props) => {
 				</CacheProvider>
 			) : (
 				<BlockContextProvider value={{ courseId }}>
+					<style>{editorCSS}</style>
 					<Container maxW="100%" p={0} {...blockProps}>
 						<InnerBlocks />
 					</Container>

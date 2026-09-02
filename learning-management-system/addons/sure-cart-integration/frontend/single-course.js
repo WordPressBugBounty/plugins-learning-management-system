@@ -1,7 +1,7 @@
 /**
  * Implements functionality for checking surecart courses prices within the Masteriyo platform.
  *
- * @since 1.12.0
+ * @since 1.12.0 [free]
  *
  * @param {Object} $ - The jQuery object.
  * @param {Object} masteriyoData - Global data object containing API endpoints and nonces.
@@ -13,7 +13,7 @@
 		/**
 		 * Initialize surecart courses functionality.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 */
 		init: function () {
 			this.bindUIActions();
@@ -22,7 +22,7 @@
 		/**
 		 * Bind event listeners to UI elements.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 */
 		bindUIActions: function () {
 			$('.masteriyo-surecart-course-btn').on(
@@ -38,7 +38,7 @@
 		/**
 		 * Check for user activity before proceeding to the surecart courses enrollment modal.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 *
 		 * @param {Event} e - The event object.
 		 */
@@ -58,7 +58,7 @@
 		/**
 		 * Show the surecart courses enrollment modal.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 *
 		 * @param {Event} e - The event object.
 		 */
@@ -86,7 +86,7 @@
 		/**
 		 * Show the surecart courses enrollment modal.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 *
 		 * @param {Event} e - The event object.
 		 */
@@ -99,7 +99,7 @@
 		/**
 		 * Fetch prices from the server.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 */
 		fetchPrices: function (e) {
 			var $loadingText = $(
@@ -148,7 +148,7 @@
 		/**
 		 * Render the list of prices in the modal.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 *
 		 * @param {Array} prices - The groups to render.
 		 */
@@ -202,7 +202,7 @@
 		/**
 		 * Hide the surecart courses enrollment modal.
 		 *
-		 * @since 1.12.0
+		 * @since 1.12.0 [free]
 		 */
 		closeSurecartCoursesModal: function () {
 			$('#masteriyoSurecartModal').addClass('masteriyo-hidden');

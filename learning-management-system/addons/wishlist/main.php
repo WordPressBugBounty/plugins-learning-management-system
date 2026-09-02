@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Addons\WishList\WishListAddon;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_WISHLIST_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_WISHLIST_ADDON_BASENAME', plugin_basename( __FILE__ ) );

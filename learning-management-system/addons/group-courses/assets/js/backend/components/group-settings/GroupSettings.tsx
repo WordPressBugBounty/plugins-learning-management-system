@@ -133,7 +133,6 @@ const GroupSettings = () => {
 		if (groupSettingQuery?.isSuccess && groupSettingQuery?.data) {
 			methods.reset(methods.getValues());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [groupSettingQuery?.isSuccess, groupSettingQuery?.data]);
 
 	return groupSettingQuery.isSuccess ? (
@@ -178,7 +177,6 @@ const GroupSettings = () => {
 														?.deactivate_enrollment_on_status_change
 												}
 											/>
-											 
 											<GroupBuyButtonText
 												defaultValue={
 													groupSettingQuery?.data?.group_buy_button_text

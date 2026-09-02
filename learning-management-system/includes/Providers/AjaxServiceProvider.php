@@ -9,19 +9,22 @@ namespace Masteriyo\Providers;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\AjaxHandlers\LoginAjaxHandler;
+use League\Container\ServiceProvider\AbstractServiceProvider;
+use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Masteriyo\AjaxHandlers\CheckoutAjaxHandler;
+use Masteriyo\Addons\GoogleClassroomIntegration\AjaxHandlers\CourseCompletionAjaxHandler;
+use Masteriyo\AjaxHandlers\CalculateTaxesAjaxHandler;
+use Masteriyo\AjaxHandlers\CourseFilterAndSortingAjaxHandler;
+use Masteriyo\AjaxHandlers\CoursePasswordProtectionHandler;
+use Masteriyo\AjaxHandlers\CourseReviewsInfiniteLoadingAjaxHandler;
+use Masteriyo\AjaxHandlers\LoginAjaxHandler;
 use Masteriyo\AjaxHandlers\ReviewNoticeAjaxHandler;
 use Masteriyo\AjaxHandlers\UsageTrackingNoticeHandler;
 use Masteriyo\AjaxHandlers\DeactivationFeedbackAjaxHandler;
-use Masteriyo\AjaxHandlers\CoursePasswordProtectionHandler;
-use League\Container\ServiceProvider\AbstractServiceProvider;
-use Masteriyo\AjaxHandlers\CourseReviewsInfiniteLoadingAjaxHandler;
-use League\Container\ServiceProvider\BootableServiceProviderInterface;
-use Masteriyo\Addons\GoogleClassroomIntegration\AjaxHandlers\CourseCompletionAjaxHandler;
 use Masteriyo\AjaxHandlers\ClearMasteriyoUserSessionAjaxHandler;
+use Masteriyo\AjaxHandlers\CohortAjaxHandler;
+use Masteriyo\AjaxHandlers\ProtectedMaterialDownloadHandler;
 use Masteriyo\AjaxHandlers\SetupPagesAjaxHandler;
-use Masteriyo\AjaxHandlers\CourseFilterAndSortingAjaxHandler;
 
 /**
  * Ajax service provider.
@@ -29,19 +32,6 @@ use Masteriyo\AjaxHandlers\CourseFilterAndSortingAjaxHandler;
  * @since 1.4.3
  */
 class AjaxServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.4.3
-	 */
-	public function register(): void {
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -51,7 +41,7 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.4.3
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -64,6 +54,16 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 		);
 	}
 
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.4.3
+	 */
+	public function register(): void {
+	}
 
 	/**
 	 * In much the same way, this method has access to the container
@@ -100,7 +100,11 @@ class AjaxServiceProvider extends AbstractServiceProvider implements BootableSer
 					CourseCompletionAjaxHandler::class,
 					ClearMasteriyoUserSessionAjaxHandler::class,
 					SetupPagesAjaxHandler::class,
+					CalculateTaxesAjaxHandler::class,
+					// Pro ajax handlers
 					CourseFilterAndSortingAjaxHandler::class,
+					CohortAjaxHandler::class,
+					ProtectedMaterialDownloadHandler::class,
 				)
 			)
 		);

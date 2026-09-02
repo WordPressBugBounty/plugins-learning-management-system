@@ -1,24 +1,26 @@
-import {
-	Avatar,
-	Badge,
-	Button,
-	ButtonGroup,
-	Icon,
-	Link,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
+import { Button, ButtonGroup, Icon, Link, Stack, Text } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { BiCalendar } from 'react-icons/bi';
 import { RiCalendar2Line, RiLiveLine } from 'react-icons/ri';
 import { Td, Tr } from 'react-super-responsive-table';
+import StatusBadge from '../../../../assets/js/account/common/StatusBadge';
+import AuthorList from '../../../../assets/js/back-end/components/common/AuthorList';
 import { GoogleMeetStatus } from '../Enums/Enum';
 import { GoogleMeetSchema } from '../schemas';
 
 interface Props {
 	data: GoogleMeetSchema;
 }
+
+const SessionDate: React.FC<{ value?: string | Date }> = ({ value }) => (
+	<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
+		<Icon as={BiCalendar} />
+		<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
+			{value ? new Date(value).toLocaleString() : null}
+		</Text>
+	</Stack>
+);
 
 const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 	const status = useMemo(() => {
@@ -40,72 +42,25 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 		<Tr>
 			<Td>
 				<Stack direction="column" spacing="2">
-					<Text
-						fontSize="sm"
-						fontWeight="semibold"
-						color={'oxford-night'}
-						lineHeight={'24px'}
-					>
+					<Text fontSize="sm" fontWeight="semibold" color={'oxford-night'}>
 						{data?.name}
 					</Text>
-					<Text
-						color="saint-blue"
-						fontSize="13px"
-						fontWeight={'normal'}
-						lineHeight={'23px'}
-					>
+					<Text color="saint-blue" fontSize="xs" fontWeight={'normal'}>
 						{__('Course:', 'learning-management-system')} {data?.course_name}
 					</Text>
 				</Stack>
 			</Td>
 			<Td>
-				<Stack direction="row">
-					<Avatar src={data.author?.avatar_url} size="xs" />
-					<Text>{data.author?.display_name}</Text>
-				</Stack>
+				<AuthorList authors={[data?.author]} />
 			</Td>
 			<Td>
-				<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
-					<Icon as={BiCalendar} />
-					<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
-						{data?.starts_at
-							? new Date(data?.starts_at).toLocaleString()
-							: null}
-					</Text>
-				</Stack>
+				<SessionDate value={data?.starts_at} />
 			</Td>
 			<Td>
-				<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
-					<Icon as={BiCalendar} />
-					<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
-						{data?.ends_at ? new Date(data?.ends_at).toLocaleString() : null}
-					</Text>
-				</Stack>
+				<SessionDate value={data?.ends_at} />
 			</Td>
 			<Td>
-				<Stack direction="column" spacing="2" justify="flex-start">
-					<Stack
-						direction="row"
-						spacing="2"
-						alignItems="center"
-						color="gray.600"
-					>
-						<Badge
-							color={
-								status === GoogleMeetStatus.UpComing
-									? 'golden-amber'
-									: status === GoogleMeetStatus.Expired
-										? 'orange.500'
-										: 'green.500'
-							}
-							textTransform={'capitalize'}
-							variant="link"
-							fontSize={'sm'}
-						>
-							{status}
-						</Badge>
-					</Stack>
-				</Stack>
+				<StatusBadge status={status} />
 			</Td>
 			<Td>
 				<Stack
@@ -121,15 +76,11 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 							isExternal
 						>
 							<Button
-								colorScheme="primary"
+								colorScheme="button"
 								size="md"
-								fontWeight="semibold"
-								px={4}
-								py={2}
-								fontSize={'sm'}
+								leftIcon={<RiCalendar2Line />}
 							>
-								<RiCalendar2Line />
-								{__('Google Calender', 'learning-management-system')}
+								{__('Google Calendar', 'learning-management-system')}
 							</Button>
 						</Link>
 						{(status === GoogleMeetStatus.UpComing ||
@@ -140,14 +91,10 @@ const UsersGoogleMeetListItem: React.FC<Props> = ({ data }) => {
 								isExternal
 							>
 								<Button
-									colorScheme="primary"
+									colorScheme="button"
 									size="md"
-									fontWeight="semibold"
-									px={4}
-									py={2}
-									fontSize={'sm'}
+									leftIcon={<RiLiveLine />}
 								>
-									<RiLiveLine />
 									{__('Start Meeting', 'learning-management-system')}
 								</Button>
 							</Link>

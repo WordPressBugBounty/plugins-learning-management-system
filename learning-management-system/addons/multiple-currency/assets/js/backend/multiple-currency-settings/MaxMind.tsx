@@ -30,7 +30,7 @@ const MaxMind: React.FC<Props> = (props) => {
 		watch,
 		formState: { errors },
 	} = useFormContext<MultipleCurrencySettingsSchema>();
-	const [show, setShow] = useState({ license_key: false });
+	const [show, setShow] = useState({ apiKey: false });
 
 	const enabledWatch = watch('maxmind.enabled');
 
@@ -83,14 +83,14 @@ const MaxMind: React.FC<Props> = (props) => {
 					</FormLabel>
 					<InputGroup>
 						<Input
-							type={show.license_key ? 'text' : 'password'}
+							type={show.apiKey ? 'text' : 'password'}
 							{...register('maxmind.license_key')}
 							defaultValue={maxmind?.license_key}
 						/>
 						<InputRightElement>
-							{!show.license_key ? (
+							{!show.apiKey ? (
 								<IconButton
-									onClick={() => setShow({ ...show, license_key: true })}
+									onClick={() => setShow({ ...show, apiKey: true })}
 									size="lg"
 									variant="unstyled"
 									aria-label="Show license key."
@@ -98,7 +98,7 @@ const MaxMind: React.FC<Props> = (props) => {
 								/>
 							) : (
 								<IconButton
-									onClick={() => setShow({ ...show, license_key: false })}
+									onClick={() => setShow({ ...show, apiKey: false })}
 									size="lg"
 									variant="unstyled"
 									aria-label="Hide license key."

@@ -84,7 +84,6 @@ class Webhook extends PostType {
 			'capability_type'     => array( 'mto_webhook', 'mto_webhooks' ),
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
-			'can_export'          => true,
 			'delete_with_user'    => true,
 		);
 	}

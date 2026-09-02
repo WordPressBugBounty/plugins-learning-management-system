@@ -118,10 +118,23 @@ abstract class Session extends Model implements SessionInterface {
 	/**
 	 * Set the session ID.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param string $id Set the session ID.
 	 */
 	public function set_id( $id ) {
 		$this->id = absint( $id );
+	}
+
+	/**
+	 * Merge changes with data and clear.
+	 *
+	 * @since 2.5.12
+	 */
+	public function apply_changes() {
+		// NOTE: Used array_replace to fix where coupon was not deleted when multiple coupons are used.
+		$this->data    = array_replace( $this->data, $this->changes );
+		$this->changes = array();
 	}
 
 	/**
@@ -255,7 +268,7 @@ abstract class Session extends Model implements SessionInterface {
 	 */
 	public function all( $context = 'view' ) {
 		$changes = isset( $this->changes['data'] ) ? $this->changes['data'] : array();
-		return array_replace_recursive( $this->data['data'], $changes );
+		return array_replace( $this->data['data'], $changes );
 	}
 
 	/**

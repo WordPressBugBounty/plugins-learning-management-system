@@ -15,7 +15,6 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
 $is_enabled_carousel = isset( $args, $args['swiper_enabled'] ) ? $args['swiper_enabled'] : false;
 $is_slider_enabled   = masteriyo_is_categories_slider_enabled() || $is_enabled_carousel;
 
@@ -24,7 +23,15 @@ if ( $is_slider_enabled ) {
 	$slider_class = 'swiper';
 }
 
+/**
+ * For elementor integration.
+ *
+ * @see render method at addons\elementor-integration\Widgets\CourseCategories.php:793
+ */
+$card_class = isset( $card_class ) ? $card_class : '';
+
 printf( '<div class="masteriyo-course-categories columns-%d %s">', esc_attr( $columns ), esc_attr( $slider_class ) );
+
 if ( $is_slider_enabled ) {
 	echo '<div class="swiper-wrapper">';
 }
@@ -41,7 +48,7 @@ foreach ( $categories as $category ) {
 	 */
 	do_action(
 		'masteriyo_template_shortcode_course_category',
-		compact( 'category', 'hide_courses_count', 'columns', 'count' )
+		compact( 'category', 'hide_courses_count', 'columns', 'count', 'card_class' )
 	);
 }
 

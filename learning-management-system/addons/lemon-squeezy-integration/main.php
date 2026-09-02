@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Payments
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\LemonSqueezyIntegration\LemonSqueezyIntegrationAddon;
 
 define( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_FILE', __FILE__ );

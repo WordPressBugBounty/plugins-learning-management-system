@@ -123,12 +123,25 @@ abstract class CSVExporter {
 
 		$filepath = $export_file_info['filepath'];
 
-		$content = '';
+		$handle = fopen( 'php://temp', 'w+b' );
+
+		if ( ! $handle ) {
+			return null;
+		}
+
 		foreach ( $data as $row ) {
 			$formatted_row = array_map( array( $this, 'format_value_for_csv' ), $row );
-			$line          = implode( $this->delimiter, $formatted_row ) . "\n";
-			$content      .= $line;
+
+			// Escaped after the subclass formatter, so an override cannot drop the guard.
+			$formatted_row = array_map( 'masteriyo_escape_csv_formula', $formatted_row );
+
+			// Empty escape: PHP's backslash escape leaves a quote undoubled.
+			fputcsv( $handle, $formatted_row, $this->delimiter, '"', '' );
 		}
+
+		rewind( $handle );
+		$content = (string) stream_get_contents( $handle );
+		fclose( $handle );
 
 		$filesystem->put_contents( $filepath, $content, FILE_APPEND );
 
@@ -198,10 +211,11 @@ abstract class CSVExporter {
 	 */
 	protected function format_value_for_csv( $value ) {
 		if ( is_array( $value ) ) {
-			return implode( ',', $value );
+			$value = implode( ',', $value );
 		} elseif ( $value instanceof \DateTime ) {
-			return $value->format( 'Y-m-d H:i:s' );
+			$value = $value->format( 'Y-m-d H:i:s' );
 		}
+
 		return (string) $value;
 	}
 }

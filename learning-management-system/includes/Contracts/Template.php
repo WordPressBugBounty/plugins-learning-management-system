@@ -90,4 +90,14 @@ interface Template {
 	 * @return string
 	 */
 	public function locate( $template_name, $template_path = '', $default_path = '' );
+
+	/**
+	 * Get the directories this plugin's own templates are searched in, in order.
+	 *
+	 * A theme override beats every one of them — these are consulted only after the
+	 * theme lookup in `locate()` has found nothing.
+	 *
+	 * @return string[] Absolute directory paths, trailing-slashed, in search order.
+	 */
+	public function get_roots();
 }

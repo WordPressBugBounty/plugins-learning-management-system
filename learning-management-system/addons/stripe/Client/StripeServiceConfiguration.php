@@ -3,7 +3,6 @@
 namespace Masteriyo\Addons\Stripe\Client;
 
 use Masteriyo\Addons\Stripe\Setting;
-use Masteriyo\Addons\Stripe\Client\Exceptions\StripeServiceConfigurationException;
 
 defined( 'ABSPATH' ) || exit;
 

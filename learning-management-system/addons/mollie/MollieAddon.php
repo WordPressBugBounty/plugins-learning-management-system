@@ -4,14 +4,17 @@
  *
  * @package Masteriyo\Addons\Mollie
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  */
 namespace Masteriyo\Addons\Mollie;
 
 use Mollie\Api\MollieApiClient;
 
 use Exception;
+use Masteriyo\Enums\OrderItemType;
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Pro\Enums\SubscriptionStatus;
+use Masteriyo\Pro\Models\Subscription;
 use Mollie\Api\Exceptions\ApiException;
 
 defined( 'ABSPATH' ) || exit;
@@ -24,7 +27,7 @@ class MollieAddon {
 	/**
 	 * Instance
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var \Masteriyo\Addons\Mollie\MollieAddon
 	 */
@@ -33,7 +36,7 @@ class MollieAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	private function __construct() {
 	}
@@ -41,7 +44,7 @@ class MollieAddon {
 	/**
 	 * Return the instance.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return \Masteriyo\Addons\Mollie\MollieAddon
 	 */
@@ -56,7 +59,7 @@ class MollieAddon {
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -65,7 +68,7 @@ class MollieAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
@@ -74,15 +77,16 @@ class MollieAddon {
 		add_filter( 'masteriyo_payment_gateways', array( $this, 'add_payment_gateway' ), 11, 1 );
 		add_action( 'wp_ajax_masteriyo_mollie_webhook', array( $this, 'handle_webhook' ) );
 		add_action( 'wp_ajax_nopriv_masteriyo_mollie_webhook', array( $this, 'handle_webhook' ) );
+
 	}
 
 	/**
 	 * Handle the webhook request from Mollie.
 	 *
+	 *  @since 1.16.0 [Free]
+	 *
 	 * This method processes incoming webhook notifications from Mollie.
 	 * It retrieves payment information and updates the order status accordingly.
-	 *
-	 * @since 1.16.0
 	 */
 	public function handle_webhook() {
 		try {
@@ -105,14 +109,14 @@ class MollieAddon {
 				throw new Exception( 'Missing payment ID in payload.', 400 );
 			}
 
-			$api_key = masteriyo_mollie_get_api_key();
-			if ( empty( $api_key ) ) {
+			$secret = masteriyo_mollie_get_api_key();
+			if ( empty( $secret ) ) {
 				throw new Exception( 'Mollie API key is not configured.', 500 );
 			}
 			$mollie = new MollieApiClient();
 
 			try {
-				$mollie->setApiKey( $api_key );
+				$mollie->setApiKey( $secret );
 				$payment = $mollie->payments->get( $data['id'] );
 			} catch ( ApiException $e ) {
 					masteriyo_get_logger()->error( 'Mollie API error: ' . $e->getMessage(), array( 'source' => 'payment-mollie' ) );
@@ -133,20 +137,91 @@ class MollieAddon {
 				throw new Exception( __( 'Invalid order ID in payment metadata.', 'learning-management-system' ) );
 			}
 
-			$order = masteriyo_get_order( $order_id );
+			// Serialize concurrent webhook deliveries for the same order: false = another
+			// delivery holds the lock (retry), null = lock unavailable (rely on the guard below).
+			$lock      = $this->acquire_processing_lock( $order_id );
+			$lock_held = ( true === $lock );
 
-			if ( ! $order ) {
-				throw new Exception( __( 'Order not found.', 'learning-management-system' ) );
+			if ( false === $lock ) {
+				masteriyo_get_logger()->warning(
+					sprintf( 'Mollie webhook busy for order %s; asking Mollie to retry.', $order_id ),
+					array( 'source' => 'payment-mollie' )
+				);
+				throw new Exception( __( 'Another webhook for this order is still processing. Please retry.', 'learning-management-system' ), 503 );
 			}
 
-			$payment_type = $payment->metadata->payment_type ?? 'one-time';
+			try {
+				// Re-read the order inside the lock so we never act on meta a concurrent delivery just wrote.
+				$order = masteriyo_get_order( $order_id );
 
-			if ( 'one-time' === $payment_type ) {
-				$stored_transaction_id = $order->get_transaction_id();
-				if ( ! empty( $stored_transaction_id ) && $stored_transaction_id !== $payment->id ) {
-					throw new Exception( __( 'Payment ID does not match the stored transaction.', 'learning-management-system' ) );
+				if ( ! $order ) {
+					throw new Exception( __( 'Order not found.', 'learning-management-system' ) );
 				}
-				$this->process_one_time_payment( $order, $payment );
+
+				$payment_type = $payment->metadata->payment_type ?? 'one-time';
+
+				// Idempotency guard keyed by paymentId|status|refunded: repeats are no-ops while
+				// genuine changes (e.g. a later refund) still process.
+				$event_key = $payment->id . '|' . ( $payment->status ?? '' ) . '|' . ( isset( $payment->amountRefunded->value ) ? $payment->amountRefunded->value : '0' );
+				$processed = $order->get_meta( '_mollie_processed_events', true );
+				$processed = is_array( $processed ) ? $processed : array();
+
+				if ( in_array( $event_key, $processed, true ) ) {
+					masteriyo_get_logger()->info(
+						sprintf( 'Mollie webhook duplicate ignored | order_id=%1$s | event=%2$s', $order_id, $event_key ),
+						array( 'source' => 'payment-mollie' )
+					);
+				} else {
+					masteriyo_get_logger()->info(
+						sprintf(
+							'Mollie webhook received | payment_id=%1$s | status=%2$s | payment_type=%3$s | order_id=%4$s | mollie_subscriptionId=%5$s | sequenceType=%6$s',
+							$payment->id,
+							$payment->status ?? 'unknown',
+							$payment_type,
+							$order_id,
+							$payment->subscriptionId ?? 'none',
+							$payment->sequenceType ?? 'none'
+						),
+						array( 'source' => 'payment-mollie' )
+					);
+
+					/**
+					 * Webhook authenticity verification.
+					 *
+					 * Mollie does not sign webhook payloads, so the request body is never
+					 * trusted. The payment has already been re-fetched from Mollie's API
+					 * above using the site's API key; here we additionally confirm the
+					 * payment belongs to this order — by transaction ID for one-time
+					 * payments and by subscription ID for recurring renewals — before
+					 * acting on it. This is Mollie's recommended verification model.
+					 */
+					if ( 'one-time' === $payment_type ) {
+						$stored_transaction_id = $order->get_transaction_id();
+						if ( ! empty( $stored_transaction_id ) && $stored_transaction_id !== $payment->id ) {
+							throw new Exception( __( 'Payment ID does not match the stored transaction.', 'learning-management-system' ) );
+						}
+						$this->process_one_time_payment( $order, $payment );
+					}
+
+					if ( 'recurring' === $payment_type ) {
+						$stored_subscription_id = $order->get_meta( 'mollie_subscription_id', true );
+						if ( ! empty( $stored_subscription_id ) ) {
+							if ( ! isset( $payment->subscriptionId ) || $payment->subscriptionId !== $stored_subscription_id ) {
+								throw new Exception( __( 'Payment subscription ID does not match the stored subscription.', 'learning-management-system' ) );
+							}
+						}
+						$this->process_subscription_payment( $order, $payment, $mollie );
+					}
+
+					// Remember this event, capped so the meta cannot grow unbounded.
+					$processed[] = $event_key;
+					$order->update_meta_data( '_mollie_processed_events', array_slice( $processed, -50 ) );
+					$order->save_meta_data();
+				}
+			} finally {
+				if ( $lock_held ) {
+					$this->release_processing_lock( $order_id );
+				}
 			}
 
 			masteriyo_get_logger()->info( 'Mollie webhook processing completed', array( 'source' => 'payment-mollie' ) );
@@ -162,7 +237,7 @@ class MollieAddon {
 	 *
 	 * Checks the payment status and updates the order to completed, refunded, or other statuses.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param Order   $order   Order object.
 	 * @param Payment $payment Mollie payment object.
@@ -185,9 +260,317 @@ class MollieAddon {
 	}
 
 	/**
-	 * Get the return url (thank you page).
+	 * Process subscription payment and update the order and subscription status.
+	 *
+	 * Handles the creation of new subscriptions, updates status on payment events,
+	 * and manages cancellation or refund for subscription payments.
 	 *
 	 * @since 1.16.0
+	 *
+	 * @param Order   $order   Order object.
+	 * @param Payment $payment Mollie payment object.
+	 * @param MollieApiClient $mollie Mollie API client.
+	 */
+	private function process_subscription_payment( $order, $payment, $mollie ) {
+		// Subscriptions are pro's — the model, the repository and the statuses. A free
+		// site creates no recurring payment, so Mollie never calls back about one.
+		if ( ! masteriyo_service_provider_exists( 'subscription' ) ) {
+			return;
+		}
+
+		$customer_id = $payment->customerId ?? null;
+		if ( ! $customer_id ) {
+			throw new Exception( 'Customer ID missing in payment data.' );
+		}
+
+		$subscription_id = $order->get_meta( 'mollie_subscription_id', true );
+
+		masteriyo_get_logger()->info(
+			sprintf(
+				'Mollie subscription payment | order_id=%1$s | payment_id=%2$s | status=%3$s | stored_mollie_subscription_id=%4$s | decision=%5$s',
+				$order->get_id(),
+				$payment->id,
+				$payment->status ?? 'unknown',
+				$subscription_id ? $subscription_id : 'none',
+				( ! $subscription_id && 'paid' === $payment->status ) ? 'CREATE_NEW_SUBSCRIPTION' : 'SKIP_CREATION'
+			),
+			array( 'source' => 'payment-mollie' )
+		);
+
+		if ( ! $subscription_id && 'paid' === $payment->status ) {
+			try {
+				$customer            = $mollie->customers->get( $customer_id );
+				$subscription_data   = $this->get_subscription_data( $order, $payment );
+				$mollie_subscription = $customer->createSubscription( $subscription_data );
+				$subscription        = $this->create_subscription( $order, $mollie_subscription );
+				$order->update_meta_data( 'mollie_subscription_id', $mollie_subscription->id );
+				$order->update_meta_data( 'subscription_id', $subscription->get_id() );
+				$order->save_meta_data();
+
+				masteriyo_get_logger()->info( 'New subscription created: ' . $mollie_subscription->id, array( 'source' => 'payment-mollie' ) );
+			} catch ( ApiException $e ) {
+				masteriyo_get_logger()->error(
+					'Failed to create subscription for order ' . $order->get_id() . ': ' . $e->getMessage(),
+					array( 'source' => 'payment-mollie' )
+				);
+				throw new Exception( 'Failed to create Mollie subscription: ' . esc_html( $e->getMessage() ), 500 );
+			}
+		}
+
+		if ( $payment->isPaid() ) {
+			if ( $payment->amountRefunded && $payment->amountRefunded->value > 0 ) {
+				$order->set_status( OrderStatus::REFUNDED );
+				$order_subscription_id = $order->get_meta( 'subscription_id', true );
+				if ( $subscription_id ) {
+					$this->change_subscription_status( SubscriptionStatus::CANCELLED, $order_subscription_id );
+				}
+			} else {
+				$order->set_status( OrderStatus::COMPLETED );
+				masteriyo_get_logger()->info( 'Recurring payment successful for order: ' . $order->get_id(), array( 'source' => 'payment-mollie' ) );
+			}
+		} elseif ( 'expired' === $payment->status ) {
+			$order->set_status( OrderStatus::CANCELLED );
+			$order_subscription_id = $order->get_meta( 'subscription_id', true );
+			if ( $subscription_id ) {
+				$this->change_subscription_status( SubscriptionStatus::EXPIRED, $order_subscription_id );
+			}
+		} elseif ( 'failed' === $payment->status ) {
+			$order->set_status( OrderStatus::FAILED );
+			$order_subscription_id = $order->get_meta( 'subscription_id', true );
+			if ( $subscription_id ) {
+				$this->change_subscription_status( SubscriptionStatus::CANCELLED, $order_subscription_id );
+			}
+		} elseif ( 'canceled' === $payment->status ) {
+			$order->set_status( OrderStatus::CANCELLED );
+			$order_subscription_id = $order->get_meta( 'subscription_id', true );
+			if ( $subscription_id ) {
+				$this->change_subscription_status( SubscriptionStatus::FAILED, $order_subscription_id );
+			}
+		}
+		$order->save();
+	}
+
+	/**
+	 * Change subscription status of subscription of order.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string $status
+	 * @param string $order_subscription_id
+	 * @return void
+	 */
+	public function change_subscription_status( $status, $order_subscription_id ) {
+		// The subscription model and its repository are both pro bindings; without
+		// them there is no subscription whose status could change.
+		if ( ! masteriyo_service_provider_exists( 'subscription' ) ) {
+			return;
+		}
+
+		/** @var \Masteriyo\Pro\Models\Subscription */
+		$existing_subscription = masteriyo( 'subscription' );
+		$existing_subscription->set_id( $order_subscription_id );
+		/** @var \Masteriyo\Pro\Repository\SubscriptionRepository */
+		$subscription_repo = masteriyo( 'subscription.store' );
+		$subscription_repo->read( $existing_subscription );
+
+		$existing_subscription->set_status( $status );
+		$existing_subscription->save();
+	}
+
+	/**
+	 * Acquire a per-order advisory lock so concurrent Mollie webhook deliveries for the
+	 * same order are handled one at a time.
+	 *
+	 * @param int $order_id Order ID.
+	 * @param int $timeout  Seconds to wait for the lock.
+	 * @return bool|null True if acquired, false on timeout (another delivery holds it),
+	 *                   null if the lock subsystem is unavailable on this host.
+	 */
+	private function acquire_processing_lock( $order_id, $timeout = 10 ) {
+		global $wpdb;
+
+		$result = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $this->get_lock_name( $order_id ), $timeout ) );
+
+		if ( null === $result ) {
+			masteriyo_get_logger()->warning(
+				'Mollie webhook advisory lock unavailable; relying on idempotency guard.',
+				array( 'source' => 'payment-mollie' )
+			);
+			return null;
+		}
+
+		return 1 === (int) $result;
+	}
+
+	/**
+	 * Release the per-order webhook processing lock.
+	 *
+	 * @param int $order_id Order ID.
+	 * @return void
+	 */
+	private function release_processing_lock( $order_id ) {
+		global $wpdb;
+
+		$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $this->get_lock_name( $order_id ) ) );
+	}
+
+	/**
+	 * Build the advisory lock name, namespaced by table prefix and capped at GET_LOCK's 64-char limit.
+	 *
+	 * @param int $order_id Order ID.
+	 * @return string
+	 */
+	private function get_lock_name( $order_id ) {
+		global $wpdb;
+
+		return substr( 'mas_mollie_wh_' . $wpdb->prefix . $order_id, 0, 64 );
+	}
+
+	/**
+	 * Get the subscription data for creating or updating a subscription.
+	 *
+	 * Constructs and returns the subscription data array with metadata and billing information.
+	 *
+	 * @since 1.16.0
+	 *
+	 * @param Order   $order   Order object.
+	 * @param Payment $payment Mollie payment object.
+	 * @return array Subscription data array.
+	 */
+	private function get_subscription_data( $order, $payment ) {
+		$order_items = $order->get_items();
+		if ( ! empty( $order_items[0] ) && masteriyo_is_bundle_order_item( $order_items[0] ) ) {
+			$courses          = $order_items;
+			$course_bundle_id = $order_items[0]->get_course_bundle_id();
+			$first_course     = masteriyo_get_bundle_product( $course_bundle_id );
+		} else {
+			$courses      = array_map(
+				function( $order_item ) {
+					return $order_item->get_course();
+				},
+				$order_items
+			);
+			$first_course = current( $courses );
+		}
+
+		$receipt_id = get_bloginfo( 'admin_email' );
+
+		$billing_expire_after = $first_course->get_billing_expire_after();
+		$billing_interval     = $first_course->get_billing_interval();
+		$billing_period       = $first_course->get_billing_period();
+
+		$times = null;
+		switch ( $billing_period ) {
+			case 'day':
+					$times = $billing_expire_after > 0 ? ceil( ( $billing_expire_after * 30 ) / $billing_interval ) : null;
+				break;
+			case 'week':
+					$times = $billing_expire_after > 0 ? ceil( ( $billing_expire_after * 4 ) / $billing_interval ) : null;
+				break;
+			case 'month':
+					$times = $billing_expire_after > 0 ? ceil( $billing_expire_after / $billing_interval ) : null;
+				break;
+			case 'year':
+					$times = $billing_expire_after > 0 ? ceil( $billing_expire_after / ( $billing_interval * 12 ) ) : null;
+				break;
+		}
+
+		// The `first` payment already covers cycle one, so run the subscription one cycle fewer.
+		if ( null !== $times ) {
+			$times = (int) max( 1, $times - 1 );
+		}
+
+		// Mollie accepts only "days", "weeks", or "months" (plural). Convert year to months.
+		switch ( $billing_period ) {
+			case 'day':
+				$mollie_interval = $billing_interval . ' days';
+				break;
+			case 'week':
+				$mollie_interval = $billing_interval . ' weeks';
+				break;
+			case 'year':
+				$mollie_interval = ( $billing_interval * 12 ) . ' months';
+				break;
+			case 'month':
+			default:
+				$mollie_interval = $billing_interval . ' months';
+				break;
+		}
+
+		// Mollie charges cycle one on the start date (today if omitted). The `first` payment
+		// already covered it, so start one interval ahead to avoid a same-day double charge.
+		$safe_interval = max( 1, (int) $billing_interval );
+		switch ( $billing_period ) {
+			case 'day':
+				$interval_spec = 'P' . $safe_interval . 'D';
+				break;
+			case 'week':
+				$interval_spec = 'P' . $safe_interval . 'W';
+				break;
+			case 'year':
+				$interval_spec = 'P' . $safe_interval . 'Y';
+				break;
+			case 'month':
+			default:
+				$interval_spec = 'P' . $safe_interval . 'M';
+				break;
+		}
+
+		$start_date = null;
+		try {
+			$start = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
+			$start->add( new \DateInterval( $interval_spec ) );
+			$start_date = $start->format( 'Y-m-d' );
+		} catch ( \Exception $e ) {
+			// Fall back to Mollie's default start date if the interval is unexpectedly invalid.
+			$start_date = null;
+		}
+
+		$subscription_data = array(
+			'amount'      => array(
+				'currency' => $order->get_currency(),
+				'value'    => number_format( $order->get_total(), 2, '.', '' ),
+			),
+			'interval'    => $mollie_interval,
+			/* translators: %s: order id */
+			'description' => sprintf( __( 'Subscription for Order #%s', 'learning-management-system' ), $order->get_id() ),
+			'times'       => $times,
+			'webhookUrl'  => masteriyo_mollie_get_webhook_url(),
+			'metadata'    => array(
+				'order_id'     => $order->get_id(),
+				'payment_type' => 'recurring',
+				'course_id'    => $first_course->get_id(),
+				'receipt'      => $receipt_id,
+			),
+		);
+
+		if ( ! empty( $start_date ) ) {
+			$subscription_data['startDate'] = $start_date;
+		}
+
+		masteriyo_get_logger()->info(
+			sprintf(
+				'Mollie subscription payload built for order #%1$s | period=%2$s interval=%3$s expire_after=%4$s | mollie_interval=%5$s | startDate=%6$s | times=%7$s | amount=%8$s %9$s',
+				$order->get_id(),
+				$billing_period,
+				$billing_interval,
+				$billing_expire_after,
+				$mollie_interval,
+				empty( $start_date ) ? 'DEFAULT(today)' : $start_date,
+				null === $times ? 'unlimited' : $times,
+				$subscription_data['amount']['currency'],
+				$subscription_data['amount']['value']
+			),
+			array( 'source' => 'payment-mollie' )
+		);
+
+		return $subscription_data;
+	}
+
+	/**
+	 * Get the return url (thank you page).
+	 *
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param Order|null $order Order object.
 	 * @return string
@@ -202,7 +585,7 @@ class MollieAddon {
 		/**
 		 * Filters return URL for a payment gateway.
 		 *
-		 * @since 1.16.0
+		 * @since 1.16.0 [Free]
 		 *
 		 * @param string $return_url The return URL.
 		 * @param Masteriyo\Models\Order\Order|null $order The order object.
@@ -210,11 +593,62 @@ class MollieAddon {
 		return apply_filters( 'masteriyo_get_return_url', $return_url, $order );
 	}
 
+	/**
+	 * Create subscription model.
+	 *
+	 * @since 1.16.0
+	 * @param \Masteriyo\Models\Order\Order $order
+	 * @param \Mollie\Subscription $mollie_subscription
+	 */
+	public function create_subscription( $order, $mollie_subscription ) {
+		// Subscriptions are pro's. Nothing hooks the recurring filters in the free
+		// product, so no free order is recurring and this is never reached.
+		if ( ! masteriyo_service_provider_exists( 'subscription' ) ) {
+			return null;
+		}
+
+		masteriyo_get_logger()->info( 'Mollie create_subscription: Start', array( 'source' => 'payment-mollie' ) );
+		$order_data = $order->get_data();
+		unset( $order_data['id'] );
+
+		$subscription = Subscription::instance();
+		$subscription->set_props( $order_data );
+
+		$order_item = current( $order->get_items() );
+		if ( $order_item && masteriyo_is_bundle_order_item( $order_item ) ) {
+			$course = masteriyo_get_bundle_product( $order_item->get_course_bundle_id() );
+		} else {
+			$course = masteriyo_get_course( $order_item->get_course_id() );
+		}
+
+		$subscription->set_props(
+			array(
+				'billing_period'          => $course->get_billing_period(),
+				'billing_interval'        => $course->get_billing_interval(),
+				'billing_expire_after'    => $course->get_billing_expire_after(),
+				'requires_manual_renewal' => false,
+				'status'                  => SubscriptionStatus::ACTIVE,
+				'parent_id'               => $order->get_id(),
+				'subscription_id'         => $mollie_subscription->id,
+				'recurring_amount'        => $order->get_total(),
+			)
+		);
+
+		foreach ( $order->get_items( OrderItemType::all() ) as $order_item ) {
+			$subscription->add_item( $order_item );
+		}
+
+		$subscription->save();
+
+		masteriyo_get_logger()->info( 'Mollie create_subscription: Success', array( 'source' => 'payment-mollie' ) );
+
+		return $subscription;
+	}
 
 	/**
 	 * Append setting to response.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param array $data Setting data.
 	 * @param \Masteriyo\Models\Setting $setting Setting object.
@@ -236,7 +670,7 @@ class MollieAddon {
 	/**
 	 * Save global Mollie settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\Setting $setting Setting object.
 	 */
@@ -272,7 +706,7 @@ class MollieAddon {
 	/**
 	 * Add Mollie payment gateway to available payment gateways.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param Masteriyo\Abstracts\PaymentGateway[]
 	 *
@@ -287,7 +721,7 @@ class MollieAddon {
 	/**
 	 * Validate Mollie API keys based on settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param array $settings Mollie settings array.
 	 * @return string Error message if validation fails, or an empty string if successful.
@@ -315,7 +749,7 @@ class MollieAddon {
 	/**
 	 * Determine if relevant Mollie API key settings have changed.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param array $current_settings The current stored settings.
 	 * @param array $new_settings The new settings from the request.

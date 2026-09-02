@@ -38,8 +38,6 @@ class LearnDash {
 	/**
 	 * Return the total number of source items for the given migration step.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $step
 	 * @return int
 	 */
@@ -107,6 +105,14 @@ class LearnDash {
 					return 0;
 				}
 				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$ref_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			case 'assignments':
+				return (int) $wpdb->get_var(
+					"SELECT COUNT(DISTINCT pm.meta_value)
+					 FROM {$wpdb->postmeta} pm
+					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				);
 		}
 
 		return 0;
@@ -120,8 +126,6 @@ class LearnDash {
 	 * offset is always 0. Users use OFFSET-based pagination since role assignment does not
 	 * remove the user from the query.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $step   Step name.
 	 * @param int    $limit  Batch size.
 	 * @param int    $cursor Last processed ID (0 = first batch).
@@ -130,7 +134,7 @@ class LearnDash {
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
 		global $wpdb;
 
-		// NOT IN clause for ID-column self-cleaning steps.
+		// NOT IN for ID-column self-cleaning steps.
 		$not_in      = '';
 		$not_in_args = array();
 		if ( ! empty( $exclude ) ) {
@@ -139,7 +143,7 @@ class LearnDash {
 			$not_in_args  = array_map( 'intval', $exclude );
 		}
 
-		// NOT IN clause for activity_id-column steps.
+		// NOT IN for activity_id-column steps.
 		$act_not_in      = '';
 		$act_not_in_args = array();
 		if ( ! empty( $exclude ) ) {
@@ -242,6 +246,24 @@ class LearnDash {
 						)
 					)
 				);
+
+			case 'assignments':
+				return array_map(
+					'intval',
+					$wpdb->get_col(
+						$wpdb->prepare(
+							"SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED) AS lesson_id
+							 FROM {$wpdb->postmeta} pm
+							 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+							 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id'
+							   AND CAST(pm.meta_value AS UNSIGNED) > %d
+							 ORDER BY lesson_id ASC
+							 LIMIT %d",
+							$cursor,
+							$limit
+						)
+					)
+				);
 		}
 
 		return array();
@@ -249,8 +271,6 @@ class LearnDash {
 
 	/**
 	 * Migrate a single item for the given step.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $step
 	 * @param int    $item_id
@@ -275,6 +295,9 @@ class LearnDash {
 			case 'quiz_attempts':
 				self::migrate_single_quiz_attempt( $item_id );
 				break;
+			case 'assignments':
+				self::migrate_single_assignment( $item_id );
+				break;
 		}
 	}
 
@@ -284,8 +307,6 @@ class LearnDash {
 
 	/**
 	 * Assign the Masteriyo instructor role to a LearnDash group_leader user.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $user_id
 	 */
@@ -305,8 +326,6 @@ class LearnDash {
 	 *
 	 * The post ID is preserved (rename-in-place) so existing user-progress references
 	 * remain valid.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $course_id
 	 */
@@ -341,8 +360,6 @@ class LearnDash {
 	 * is NOT a direct lesson index. To convert: lesson_index = order − idx, where idx is
 	 * the 0-based position of this section in the sections-sorted-by-order array (i.e.,
 	 * the number of section headings that precede it).
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $course_id
 	 */
@@ -455,8 +472,6 @@ class LearnDash {
 	 * The source row is deleted after a successful insert so that offset-0 pagination
 	 * always returns unseen rows.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $activity_id  Primary key of the wp_learndash_user_activity row.
 	 */
 	private static function migrate_single_enrollment( int $activity_id ): void {
@@ -544,8 +559,6 @@ class LearnDash {
 	 * Finds or creates the parent course_progress row, records the individual item
 	 * completion, then recalculates the overall course-progress status. The source row
 	 * is deleted after a successful write.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $activity_id  Primary key of the wp_learndash_user_activity row.
 	 */
@@ -637,8 +650,6 @@ class LearnDash {
 	 * All LD transactions represent successful payments so they map to
 	 * OrderStatus::COMPLETED.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $order_id
 	 */
 	private static function migrate_single_order( int $order_id ): void {
@@ -674,8 +685,6 @@ class LearnDash {
 	 *
 	 * The source rows are deleted after a successful insert so cursor-based pagination
 	 * always sees fresh rows.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $ref_id  Primary key of the wp_learndash_pro_quiz_statistic_ref row.
 	 */
@@ -785,6 +794,87 @@ class LearnDash {
 		$wpdb->delete( $stat_table, array( 'statistic_ref_id' => $ref_id ), array( '%d' ) );
 	}
 
+	/**
+	 * Migrate all sfwd-assignment submissions for a single lesson into
+	 * mto-assignment + mto-assignment-reply posts.
+	 *
+	 * @param int $lesson_id  The LD lesson that owns the assignment.
+	 */
+	private static function migrate_single_assignment( int $lesson_id ): void {
+		$lesson_meta    = get_post_meta( $lesson_id, '_sfwd-lessons', true );
+		$lesson_meta    = is_array( $lesson_meta ) ? $lesson_meta : array();
+		$points_enabled = ! empty( $lesson_meta['sfwd-lessons_assignment_points_enabled'] );
+		$total_points   = $points_enabled ? (int) ( isset( $lesson_meta['sfwd-lessons_assignment_points_amount'] ) ? $lesson_meta['sfwd-lessons_assignment_points_amount'] : 100 ) : 100;
+		$due_date       = isset( $lesson_meta['sfwd-lessons_assignment_due_date'] ) ? $lesson_meta['sfwd-lessons_assignment_due_date'] : '';
+		$max_upload     = (int) ( isset( $lesson_meta['sfwd-lessons_max_upload_size'] ) ? $lesson_meta['sfwd-lessons_max_upload_size'] : 5 );
+
+		$assignment_id = wp_insert_post(
+			array(
+				'post_type'   => 'mto-assignment',
+				'post_status' => 'publish',
+				'post_title'  => get_the_title( $lesson_id ) . ' Assignment',
+				'post_author' => (int) get_post_field( 'post_author', $lesson_id ),
+				'post_parent' => $lesson_id,
+			)
+		);
+
+		if ( ! $assignment_id || is_wp_error( $assignment_id ) ) {
+			masteriyo_get_logger()->error(
+				'Migration: failed to create mto-assignment for lesson ' . $lesson_id,
+				array( 'source' => 'migration-tool' )
+			);
+			return;
+		}
+
+		update_post_meta( $assignment_id, '_total_points', $total_points );
+		update_post_meta( $assignment_id, '_max_file_upload_size', $max_upload );
+
+		if ( ! empty( $due_date ) ) {
+			update_post_meta( $assignment_id, '_due_date', sanitize_text_field( $due_date ) );
+		}
+
+		$course_id = get_post_meta( $lesson_id, '_course_id', true );
+		if ( $course_id ) {
+			update_post_meta( $assignment_id, '_course_id', (int) $course_id );
+		}
+
+		$submissions = get_posts(
+			array(
+				'post_type'      => 'sfwd-assignment',
+				'posts_per_page' => -1,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => 'lesson_id',
+						'value' => $lesson_id,
+					),
+				),
+			)
+		);
+
+		foreach ( $submissions as $sub ) {
+			$reply_id = wp_insert_post(
+				array(
+					'post_type'    => 'mto-assignment-reply',
+					'post_status'  => 'publish',
+					'post_author'  => $sub->post_author,
+					'post_content' => $sub->post_content,
+					'post_parent'  => $assignment_id,
+					'post_date'    => $sub->post_date,
+				)
+			);
+
+			if ( $reply_id && ! is_wp_error( $reply_id ) ) {
+				$upload_url = get_post_meta( $sub->ID, 'upload', true );
+				if ( $upload_url ) {
+					update_post_meta( $reply_id, '_upload', esc_url_raw( $upload_url ) );
+				}
+				if ( $course_id ) {
+					update_post_meta( $reply_id, '_course_id', (int) $course_id );
+				}
+			}
+		}
+	}
+
 	// ──────────────────────────────────────────────────────────────────────────
 	// Private helpers
 	// ──────────────────────────────────────────────────────────────────────────
@@ -792,9 +882,8 @@ class LearnDash {
 	/**
 	 * Migrate quiz questions for a given quiz post.
 	 *
-	 * Handles single-choice, multiple-choice, and true/false types. Unsupported types
-	 * are skipped with `continue` (not `return`) so sibling questions are not lost;
-	 * their raw answer_type is stored under _migrated_* for reference.
+	 * Handles single-choice, multiple-choice, true/false, text-answer, fill-in-the-blanks,
+	 * sortable, and matching types. Assessment and unknown types are skipped silently.
 	 *
 	 * @since 1.16.0
 	 *
@@ -830,6 +919,11 @@ class LearnDash {
 				update_post_meta( $quiz_id, '_questions_display_per_page', max( 1, (int) $master['questions_per_page'] ) );
 				$attempts = ( '1' === (string) $master['quiz_run_once'] && 'user' === (string) $master['quiz_run_once_type'] ) ? 1 : 0;
 				update_post_meta( $quiz_id, '_attempts_allowed', $attempts );
+
+				// Randomise question order when configured in LearnDash.
+				if ( '1' === (string) $master['question_random'] ) {
+					update_post_meta( $quiz_id, '_randomize', true );
+				}
 			}
 		}
 
@@ -928,7 +1022,7 @@ class LearnDash {
 					// Sortable — correct order comes from _sortString; fall back to _answer.
 					$question_type = 'sortable';
 					foreach ( $answer_objects as $ao ) {
-						$sort = $ao->getSortString();
+						$sort      = $ao->getSortString();
 						$answers[] = array(
 							'name' => '' !== $sort ? $sort : $ao->getAnswer(),
 						);
@@ -1048,6 +1142,18 @@ class LearnDash {
 			if ( $minutes > 0 ) {
 				update_post_meta( $course_id, '_duration', $minutes );
 			}
+		}
+
+		// Prerequisites.
+		$prerequisite_ids = isset( $meta['sfwd-courses_course_prerequisite'] ) ? $meta['sfwd-courses_course_prerequisite'] : array();
+		if ( ! empty( $prerequisite_ids ) && is_array( $prerequisite_ids ) ) {
+			update_post_meta( $course_id, '_prerequisites_courses', array_map( 'intval', $prerequisite_ids ) );
+		}
+
+		// Sequential flow — enforced unless LD explicitly disables progression.
+		$disable_progression = isset( $meta['sfwd-courses_course_disable_lesson_progression'] ) ? $meta['sfwd-courses_course_disable_lesson_progression'] : '';
+		if ( 'on' !== $disable_progression ) {
+			update_post_meta( $course_id, '_flow', 'sequential' );
 		}
 
 		// Auto-assign a certificate template to courses that had one in LearnDash.
@@ -1211,13 +1317,12 @@ class LearnDash {
 	 * Bulk-update course_progress status once all lesson_progress items are migrated.
 	 * Replaces the per-item recount queries — runs once after the step completes.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {
 		if ( 'enrollments' === $step ) {
-			// Catch group-enrolled users who never visited the course
-			// and therefore have no activity row in wp_learndash_user_activity.
+			// Catch group-enrolled users who never visited the course page
+			// and therefore have no row in wp_learndash_user_activity (activity_type='access').
 			self::migrate_group_enrollments();
 			return;
 		}
@@ -1263,8 +1368,6 @@ class LearnDash {
 	 * Reads group membership from `learndash_group_users_{group_id}` post meta and
 	 * course assignments from `ld_auto_enroll_group_course_ids` post meta.
 	 * Inserts into masteriyo_user_items only when the pair is not already enrolled.
-	 *
-	 * @since x.x.x
 	 */
 	private static function migrate_group_enrollments(): void {
 		global $wpdb;

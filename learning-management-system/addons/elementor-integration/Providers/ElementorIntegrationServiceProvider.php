@@ -2,7 +2,7 @@
 /**
  * Password strength service provider.
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Providers;
@@ -15,23 +15,9 @@ use Masteriyo\Addons\ElementorIntegration\ElementorIntegrationAddon;
 /**
  * Password Strength  service provider.
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 class ElementorIntegrationServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.6.12
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'addons.elementor-integration', ElementorIntegrationAddon::class );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -41,7 +27,7 @@ class ElementorIntegrationServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 2.5.14
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -55,5 +41,17 @@ class ElementorIntegrationServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 2.5.14
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons.elementor-integration', ElementorIntegrationAddon::class );
 	}
 }

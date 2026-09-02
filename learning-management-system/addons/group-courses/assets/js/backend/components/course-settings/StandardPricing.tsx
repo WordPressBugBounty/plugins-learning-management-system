@@ -19,12 +19,14 @@ import FormControlTwoCol from '../../../../../../../assets/js/back-end/component
 interface StandardPricingProps {
 	nestIndex: number; // The index of the pricing tier in the main array
 	isFree: boolean;
+	isVariableSeat: boolean;
 	isGroupCoursesEnabled: boolean;
 }
 
 const StandardPricing: React.FC<StandardPricingProps> = ({
 	nestIndex,
 	isFree,
+	isVariableSeat,
 	isGroupCoursesEnabled,
 }) => {
 	const { control } = useFormContext();
@@ -33,7 +35,9 @@ const StandardPricing: React.FC<StandardPricingProps> = ({
 		<Stack spacing={4}>
 			<FormControlTwoCol>
 				<FormLabel>
-					{__('Group Pricing', 'learning-management-system')}
+					{isVariableSeat
+						? __('Pricing', 'learning-management-system')
+						: __('Group Pricing', 'learning-management-system')}
 				</FormLabel>
 
 				{/* Pricing Type Radio */}
@@ -53,7 +57,12 @@ const StandardPricing: React.FC<StandardPricingProps> = ({
 										<Stack spacing={4}>
 											<FormControlTwoCol>
 												<FormLabel>
-													{__('Regular Price', 'learning-management-system')}
+													{isVariableSeat
+														? __(
+																'Regular Price (Per Seat)',
+																'learning-management-system',
+															)
+														: __('Regular Price', 'learning-management-system')}
 												</FormLabel>
 												<Controller
 													name={`group_courses.pricing_tiers.${nestIndex}.regular_price`}
@@ -102,7 +111,12 @@ const StandardPricing: React.FC<StandardPricingProps> = ({
 
 											<FormControlTwoCol>
 												<FormLabel>
-													{__('Sale Price', 'learning-management-system')}
+													{isVariableSeat
+														? __(
+																'Sale Price (Per Seat)',
+																'learning-management-system',
+															)
+														: __('Sale Price', 'learning-management-system')}
 												</FormLabel>
 												<Controller
 													name={`group_courses.pricing_tiers.${nestIndex}.sale_price`}
@@ -131,6 +145,10 @@ const StandardPricing: React.FC<StandardPricingProps> = ({
 										</Stack>
 									</Box>
 								)}
+
+								<Radio value="recurring" isDisabled>
+									{__('Recurring (Coming soon)', 'learning-management-system')}
+								</Radio>
 							</Stack>
 						</RadioGroup>
 					)}

@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates\Emails
- * @version 1.14.4
+ * @version 2.16.0
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * Fires before rendering email header.
  *
- * @since 1.15.0
+ * @since 2.16.0
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */
@@ -31,7 +31,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
 /**
  * Action hook fired in email's footer section.
  *
- * @since 1.15.0
+ * @since 2.16.0
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */

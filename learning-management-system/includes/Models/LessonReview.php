@@ -2,7 +2,7 @@
 /**
  * Comment model.
  *
- * @since 1.14.0
+ * @since 2.15.0
  *
  * @package Masteriyo\Models;
  */
@@ -19,14 +19,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * LessonReview Model.
  *
- * @since 1.14.0
+ * @since 2.15.0
  */
 class LessonReview extends Model {
 
 	/**
 	 * This is the name of this object type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var string
 	 */
@@ -35,7 +35,7 @@ class LessonReview extends Model {
 	/**
 	 * Cache group.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var string
 	 */
@@ -45,7 +45,7 @@ class LessonReview extends Model {
 	/**
 	 * Stores lesson review data.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var array
 	 */
@@ -68,7 +68,7 @@ class LessonReview extends Model {
 	/**
 	 * Get the lesson review if ID.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param LessonReviewRepository $lesson_review_repository Course Review Repository.
 	 */
@@ -85,7 +85,7 @@ class LessonReview extends Model {
 	/**
 	 * Return array of replies with status along with counts.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
@@ -96,7 +96,7 @@ class LessonReview extends Model {
 	/**
 	 * Return  total replies.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
@@ -115,7 +115,7 @@ class LessonReview extends Model {
 	/**
 	 * Get lesson_id.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -128,7 +128,7 @@ class LessonReview extends Model {
 	/**
 	 * Get author_name.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -141,7 +141,7 @@ class LessonReview extends Model {
 	/**
 	 * Get author_email.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -154,7 +154,7 @@ class LessonReview extends Model {
 	/**
 	 * Get author_url.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -167,7 +167,7 @@ class LessonReview extends Model {
 	/**
 	 * Get ip_address.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -180,7 +180,7 @@ class LessonReview extends Model {
 	/**
 	 * Get date_created.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -194,7 +194,7 @@ class LessonReview extends Model {
 	/**
 	 * Get content.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -207,7 +207,7 @@ class LessonReview extends Model {
 	/**
 	 * Get status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -220,7 +220,7 @@ class LessonReview extends Model {
 	/**
 	 * Get agent.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -233,7 +233,7 @@ class LessonReview extends Model {
 	/**
 	 * Get type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -246,7 +246,7 @@ class LessonReview extends Model {
 	/**
 	 * Get parent.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -259,7 +259,7 @@ class LessonReview extends Model {
 	/**
 	 * Check if this is a reply.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return boolean
 	 */
@@ -270,7 +270,7 @@ class LessonReview extends Model {
 	/**
 	 * Get author_id.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -283,7 +283,7 @@ class LessonReview extends Model {
 	/**
 	 * Get author.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return User
 	 */
@@ -294,7 +294,7 @@ class LessonReview extends Model {
 	/**
 	 * Get is_new status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -313,7 +313,7 @@ class LessonReview extends Model {
 	/**
 	 * Set lesson_id.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int $lesson_id lesson_id.
 	 */
@@ -324,7 +324,7 @@ class LessonReview extends Model {
 	/**
 	 * Set author_name.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $author_name Comment author name.
 	 */
@@ -335,7 +335,7 @@ class LessonReview extends Model {
 	/**
 	 * Set author_email.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $author_email Comment author email.
 	 */
@@ -346,7 +346,7 @@ class LessonReview extends Model {
 	/**
 	 * Set author_url.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $author_url Comment author url.
 	 */
@@ -357,7 +357,7 @@ class LessonReview extends Model {
 	/**
 	 * Set ip_address.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $ip_address Comment author IP.
 	 */
@@ -368,7 +368,7 @@ class LessonReview extends Model {
 	/**
 	 * Set date_created.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $date_created Comment date_created.
 	 */
@@ -379,7 +379,7 @@ class LessonReview extends Model {
 	/**
 	 * Set content.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $content Comment content.
 	 */
@@ -390,7 +390,7 @@ class LessonReview extends Model {
 	/**
 	 * Set status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $status Comment status.
 	 */
@@ -401,7 +401,7 @@ class LessonReview extends Model {
 	/**
 	 * Set agent.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $agent Comment Agent.
 	 */
@@ -412,7 +412,7 @@ class LessonReview extends Model {
 	/**
 	 * Set type.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $type Comment Type.
 	 */
@@ -423,7 +423,7 @@ class LessonReview extends Model {
 	/**
 	 * Set parent.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int $parent Comment Parent.
 	 */
@@ -434,7 +434,7 @@ class LessonReview extends Model {
 	/**
 	 * Set author_id.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param int $author_id User ID.
 	 */
@@ -445,12 +445,11 @@ class LessonReview extends Model {
 	/**
 	 * Set is_new status.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $is_new is_new status.
 	 */
 	public function set_is_new( $is_new ) {
 		$this->set_prop( 'is_new', $is_new );
 	}
-
 }

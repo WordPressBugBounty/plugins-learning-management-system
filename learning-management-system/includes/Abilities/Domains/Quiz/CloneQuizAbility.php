@@ -3,7 +3,6 @@
  * Clone Quiz ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Creates an identical copy of the quiz — settings and all questions —
  * appended after the original in the same parent section.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CloneQuizAbility extends RestProxyAbility {
 

@@ -2,7 +2,7 @@
 /**
  * Migration tool helper functions.
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  * @package Masteriyo\Addons\MigrationTool
  */
 
@@ -11,6 +11,12 @@ namespace Masteriyo\Addons\MigrationTool;
 defined( 'ABSPATH' ) || exit;
 
 
+use Masteriyo\Addons\MigrationTool\Migrators\LearnDashMigrator;
+use Masteriyo\Addons\MigrationTool\Migrators\LearnPressMigrator;
+use Masteriyo\Addons\MigrationTool\Migrators\LifterLMSMigrator;
+use Masteriyo\Addons\MigrationTool\Migrators\MasterStudyMigrator;
+use Masteriyo\Addons\MigrationTool\Migrators\TutorLMSMigrator;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
@@ -19,11 +25,41 @@ use Masteriyo\Roles;
 class Helper {
 
 	/**
+	 * Option holding the migrator slugs this site has already auto-activated for.
+	 *
+	 * Never cleared: it records what we did, not what is currently true.
+	 */
+	const AUTO_ACTIVATED_OPTION = 'masteriyo_migration_tool_auto_activated';
+
+	/**
+	 * Option holding the migrator slugs the notice announces.
+	 *
+	 * A subset of AUTO_ACTIVATED_OPTION: only the platforms whose detection
+	 * actually turned the addon on. Finding a platform while the addon is already
+	 * active is still recorded above, so it cannot switch the addon back on later,
+	 * but claiming we enabled something we did not would be a lie.
+	 */
+	const ANNOUNCED_OPTION = 'masteriyo_migration_tool_announced';
+
+	/**
+	 * User meta set when a user dismisses the auto-activation notice.
+	 */
+	const NOTICE_DISMISSED_META = 'masteriyo_dismissed_migration_notice';
+
+	/**
+	 * Admin path the notice's call to action points at.
+	 *
+	 * The `?migration` search is read by the Tools screen, which opens the
+	 * Migration tab rather than its default one.
+	 */
+	const NOTICE_CTA_PATH = 'admin.php?page=masteriyo#/tools?migration';
+
+	/**
 	 * Updates the user role based on the given user ID and desired role.
 	 * If the given role is not already assigned to the user, it will be added.
 	 * If the user does not have any of the valid roles (admin, manager, instructor, student), they will be assigned the student role.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param int $user_id User ID.
 	 * @param string $role Desired role.
@@ -49,7 +85,7 @@ class Helper {
 	/**
 	 * Determine the video source for a given URL.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string $url URL of video.
 	 *
@@ -151,9 +187,8 @@ class Helper {
 	 * @return void This function does not return anything. It operates by side effect, updating the course taxonomy.
 	 */
 	public static function migrate_course_categories_from_to_masteriyo( $course_id, $taxonomy = 'course_category', $target_taxonomy = 'course_cat' ) {
-		// Static cache keyed by target taxonomy: term name → Masteriyo term_id.
-		// Persists for the lifetime of the AS job (reset on next job invocation), eliminating
-		// repeated term_exists() DB queries when many courses share the same categories.
+		// Static cache: "{$target_taxonomy}:{$name}" → Masteriyo term_id.
+		// Persists for the lifetime of the AS job, eliminating repeated term_exists() DB queries.
 		static $masteriyo_cat_cache = array();
 
 		$categories = wp_get_post_terms( $course_id, $taxonomy, array( 'fields' => 'ids' ) );
@@ -172,7 +207,6 @@ class Helper {
 						continue;
 					}
 
-					// Check if the term exists in the target taxonomy.
 					$masteriyo_cat_id = term_exists( $cat->name, $target_taxonomy );
 
 					if ( 0 === $masteriyo_cat_id || null === $masteriyo_cat_id ) {
@@ -201,7 +235,7 @@ class Helper {
 	/**
 	 * Migrate course author from LifterLMS.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param int $course_id LifterLMS course ID.
 	 */
@@ -221,8 +255,6 @@ class Helper {
 	 * Shared by all migrators. Inserts the enrollment row, assigns the student role,
 	 * and writes _order_id / _price to masteriyo_user_itemmeta when provided.
 	 * Returns the new user_item_id on success, null on failure (caller decides how to handle).
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int         $user_id       WordPress user ID.
 	 * @param int         $course_id     Masteriyo course post ID.
@@ -301,8 +333,6 @@ class Helper {
 	 * Fixes TutorLMS bug: uses CourseProgressStatus::STARTED constant and null for
 	 * completed_at (correct for an in-progress course) instead of a zero-date string.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int    $user_id    WordPress user ID.
 	 * @param int    $course_id  Masteriyo course post ID.
 	 * @param string $created_at Row creation timestamp (MySQL datetime, UTC).
@@ -348,8 +378,6 @@ class Helper {
 	 * Shared by all migrators. Looks up the term by slug; inserts it if missing.
 	 * Writes _difficulty_id post meta and sets the taxonomy term on the course.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int    $course_id Masteriyo course post ID.
 	 * @param string $slug      Difficulty slug (e.g. 'beginner'). Empty string is a no-op.
 	 * @return void
@@ -387,8 +415,6 @@ class Helper {
 	 * Certificate Sample 1 is auto-assigned (falls back to the blank template if CDN is
 	 * unreachable). Writes `_certificate_id` and `_certificate_enabled = yes` on the course.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param int $course_id  Masteriyo mto-course post ID.
 	 * @param int $author_id  Post author user ID (used for the certificate post).
 	 * @return void
@@ -418,8 +444,6 @@ class Helper {
 	 * `_masteriyo_migration_certificate = 1`. All migrated courses point to this single
 	 * post via `_certificate_id`, avoiding one certificate post per course. The ID is
 	 * cached in a static variable so only one DB lookup occurs per request.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int $author_id Post author user ID (used only on first creation).
 	 * @return int Certificate post ID, or 0 on failure.
@@ -509,10 +533,7 @@ class Helper {
 	/**
 	 * Preserve a TutorLMS field that has no direct Masteriyo equivalent.
 	 *
-	 * Data is stored under _migrated_{key} so it can be referenced by Pro add-ons
-	 * or cleaned up in bulk after migration.
-	 *
-	 * @since x.x.x
+	 * Stored under _migrated_{key} so Pro add-ons or cleanup routines can find it.
 	 *
 	 * @param int    $post_id Target Masteriyo post ID.
 	 * @param string $key     Original field name (leading underscores are stripped).
@@ -524,5 +545,213 @@ class Helper {
 			return;
 		}
 		update_post_meta( $post_id, '_migrated_' . ltrim( $key, '_' ), $value );
+	}
+
+	/**
+	 * Whether the Migration Tool should be auto-activated for a source LMS.
+	 *
+	 * Acts at most once per source LMS. An admin who deactivates the addon
+	 * afterwards is obeyed, because the slug stays in the already-acted list.
+	 *
+	 * @param string   $slug          Migrator slug, e.g. 'tutor'.
+	 * @param string[] $already_acted Migrator slugs already auto-activated on this site.
+	 * @return bool
+	 */
+	public static function should_auto_activate( string $slug, array $already_acted ): bool {
+		return ! in_array( $slug, $already_acted, true );
+	}
+
+	/**
+	 * Migrators whose source plugin this addon watches for.
+	 *
+	 * Detection order, so a site running two platforms always reports them the
+	 * same way rather than in plugin activation order.
+	 *
+	 * @return string[] Migrator class names.
+	 */
+	public static function source_migrators(): array {
+		return array(
+			TutorLMSMigrator::class,
+			LearnDashMigrator::class,
+			LearnPressMigrator::class,
+			LifterLMSMigrator::class,
+			MasterStudyMigrator::class,
+		);
+	}
+
+	/**
+	 * Every competing LMS currently active on this site.
+	 *
+	 * A site can be leaving more than one platform at a time, so this is a list
+	 * rather than a first match.
+	 *
+	 * @return \Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface[]
+	 */
+	public static function detect_source_lms(): array {
+		$detected = array();
+
+		foreach ( self::source_migrators() as $class ) {
+			$migrator = new $class();
+
+			if ( $migrator->is_source_plugin_active( $migrator->get_plugin_file() ) ) {
+				$detected[] = $migrator;
+			}
+		}
+
+		return $detected;
+	}
+
+	/**
+	 * Whether the auto-activation notice should be rendered for this request.
+	 *
+	 * Shared by the WordPress notice shown outside Masteriyo and the React one
+	 * shown inside it, so the two can never disagree about when to appear.
+	 *
+	 * @return bool
+	 */
+	public static function should_display_activation_notice(): bool {
+		/*
+		 * The administrator check is not redundant next to the capability. The
+		 * Migration tab in Tools renders behind `isCurrentUserAdmin`, which is the
+		 * administrator role, while `manage_masteriyo_settings` also belongs to the
+		 * manager role. Without this a manager is invited to a tab that does not
+		 * exist for them.
+		 */
+		if ( ! current_user_can( 'manage_masteriyo_settings' ) || ! masteriyo_is_current_user_admin() ) {
+			return false;
+		}
+
+		return ! empty( self::notice_source_lms() );
+	}
+
+	/**
+	 * The source LMS platforms the notice announces.
+	 *
+	 * Only those this addon switched itself on for. A platform installed after an
+	 * admin enabled the addon by hand is present on the site but was never
+	 * announced by us, so it is left out.
+	 *
+	 * @return \Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface[]
+	 */
+	public static function notice_source_lms(): array {
+		$dismissed = (bool) get_user_meta( get_current_user_id(), self::NOTICE_DISMISSED_META, true );
+
+		if ( $dismissed ) {
+			return array();
+		}
+
+		$announced = (array) get_option( self::ANNOUNCED_OPTION, array() );
+
+		return array_values(
+			array_filter(
+				self::detect_source_lms(),
+				function( $migrator ) use ( $announced ) {
+					return in_array( $migrator->get_slug(), $announced, true );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Names of the announced source LMS platforms, for the notice text.
+	 *
+	 * @param \Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface[]|null $migrators Defaults to the announced platforms.
+	 * @return string Empty when there is nothing to announce.
+	 */
+	public static function notice_source_labels( ?array $migrators = null ): string {
+		return implode(
+			', ',
+			array_map(
+				function( $migrator ) {
+					return $migrator->get_label();
+				},
+				null === $migrators ? self::notice_source_lms() : $migrators
+			)
+		);
+	}
+
+	/**
+	 * The notice text.
+	 *
+	 * More than one platform can be announced at once, so the verb has to agree
+	 * with how many were found.
+	 *
+	 * @return string
+	 */
+	public static function notice_message(): string {
+		$migrators = self::notice_source_lms();
+
+		return sprintf(
+			/* translators: %1$s: Names of the detected LMS plugins, e.g. Tutor LMS, LifterLMS. %2$s: the product's name */
+			_n(
+				'%1$s was detected on this site, so the Migration Tool has been enabled. You can now move your courses, students and orders over to %2$s.',
+				'%1$s were detected on this site, so the Migration Tool has been enabled. You can now move your courses, students and orders over to %2$s.',
+				count( $migrators ),
+				'learning-management-system'
+			),
+			self::notice_source_labels( $migrators ),
+			masteriyo_get_plugin_name()
+		);
+	}
+
+	/**
+	 * Auto-activate the Migration Tool when a source LMS is on the site.
+	 *
+	 * Hooked on `admin_init` from main.php. See
+	 * docs/adr/0001-auto-activate-migration-tool.md.
+	 */
+	public static function maybe_auto_activate(): void {
+		/*
+		 * Changing addon state needs a real administrator, which is why this runs
+		 * on `admin_init` rather than at plugin load: `current_user_can()` reaches
+		 * `wp_get_current_user()`, and pluggable functions do not exist yet while
+		 * plugins load. `is_admin()` is no gate on its own — it is true for an
+		 * unauthenticated request to /wp-admin/, which WordPress serves through
+		 * plugin load before auth_redirect() sends it to the login screen.
+		 */
+		if ( ! current_user_can( 'manage_masteriyo_settings' ) ) {
+			return;
+		}
+
+		$already_acted = (array) get_option( self::AUTO_ACTIVATED_OPTION, array() );
+		$new_slugs     = array();
+
+		foreach ( self::detect_source_lms() as $migrator ) {
+			if ( self::should_auto_activate( $migrator->get_slug(), $already_acted ) ) {
+				$new_slugs[] = $migrator->get_slug();
+			}
+		}
+
+		if ( empty( $new_slugs ) ) {
+			return;
+		}
+
+		$addons = new Addons();
+
+		// Read before the write below, because that is what decides whether this
+		// detection is the reason the addon is on.
+		$was_already_active = $addons->is_active( MASTERIYO_MIGRATION_TOOL_SLUG );
+
+		/*
+		 * Every platform found is recorded, not only the one that triggered this,
+		 * so a second platform that was already on the site cannot switch the addon
+		 * back on later against an admin who turned it off. A platform installed
+		 * after this point is new, and is meant to trigger again.
+		 *
+		 * Recorded before activating, so a failure part-way through cannot make this
+		 * run again on every admin page load.
+		 */
+		update_option( self::AUTO_ACTIVATED_OPTION, array_merge( $already_acted, $new_slugs ) );
+
+		if ( $was_already_active ) {
+			return;
+		}
+
+		update_option(
+			self::ANNOUNCED_OPTION,
+			array_merge( (array) get_option( self::ANNOUNCED_OPTION, array() ), $new_slugs )
+		);
+
+		$addons->set_active( MASTERIYO_MIGRATION_TOOL_SLUG );
 	}
 }

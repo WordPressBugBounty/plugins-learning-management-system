@@ -5,14 +5,13 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.13.0
+ * @since 1.13.0 [Free]
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
-use Masteriyo\Constants;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Taxonomy\Taxonomy;
@@ -24,14 +23,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.13.0
+ * @since 1.13.0 [Free]
  */
 class CourseCarouselWidget extends CourseListWidget {
 
 	/**
 	 * Get widget script dependencies.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -42,7 +41,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Get widget style dependencies.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return array
 	 */
@@ -54,7 +53,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -65,7 +64,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -76,7 +75,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Get icon class for the widget.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -87,7 +86,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Register controls for configuring widget content.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function register_content_controls() {
 		$this->register_general_content_controls_section();
@@ -99,7 +98,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Register general content controls section.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function register_general_content_controls_section() {
 		$this->start_controls_section(
@@ -124,6 +123,20 @@ class CourseCarouselWidget extends CourseListWidget {
 		);
 
 		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'learning-management-system' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'default',
+				'options' => array(
+					'default' => __( 'Default', 'learning-management-system' ),
+					'layout1' => __( 'Modern', 'learning-management-system' ),
+					'layout2' => __( 'Overlay', 'learning-management-system' ),
+				),
+			)
+		);
+
+		$this->add_control(
 			'limit',
 			array(
 				'label'   => __( 'Limit', 'learning-management-system' ),
@@ -132,20 +145,6 @@ class CourseCarouselWidget extends CourseListWidget {
 				'max'     => 100,
 				'step'    => 1,
 				'default' => 12,
-			)
-		);
-
-		$this->add_control(
-			'layout',
-			array(
-				'label'   => __( 'Layout', 'learning-management-system' ),
-				'type'    => Controls_Manager::SELECT,
-				'options' => array(
-					'default' => __( 'Default', 'learning-management-system' ),
-					'layout1' => __( 'Modern', 'learning-management-system' ),
-					'layout2' => __( 'Overlay', 'learning-management-system' ),
-				),
-				'default' => 'default',
 			)
 		);
 
@@ -212,12 +211,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -233,8 +232,8 @@ class CourseCarouselWidget extends CourseListWidget {
 			__( 'Course Title', 'learning-management-system' ),
 			array(),
 			array(
-				'{{WRAPPER}} .masteriyo-course--content__title a'    => 'display: none !important;',
-				'{{WRAPPER}} .masteriyo-course-title-wrapper'        => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course--content__title a' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-title-wrapper'     => 'display: none !important;',
 			)
 		);
 
@@ -247,12 +246,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -273,7 +272,7 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_author',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -281,12 +280,12 @@ class CourseCarouselWidget extends CourseListWidget {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -309,19 +308,20 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_author',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 					),
 				),
 			),
 			array(
-				'{{WRAPPER}} .masteriyo-course-author .masteriyo-course-author--name' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-author .masteriyo-course-author--name'             => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__body-author .masteriyo-course-author--name' => 'display: none !important;',
 			)
 		);
 
@@ -373,12 +373,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_metadata',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 					),
@@ -398,12 +398,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_metadata',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 					),
@@ -423,12 +423,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_metadata',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 					),
@@ -448,12 +448,12 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -474,7 +474,7 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_card_footer',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -482,12 +482,12 @@ class CourseCarouselWidget extends CourseListWidget {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -524,7 +524,7 @@ class CourseCarouselWidget extends CourseListWidget {
 					'terms'    => array(
 						array(
 							'name'     => 'show_card_footer',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -532,12 +532,12 @@ class CourseCarouselWidget extends CourseListWidget {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -561,7 +561,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	 * enabling/disabling arrows and dots, setting the transition duration, enabling
 	 * centered slides, smooth scrolling, reverse direction, autoplay, and more.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * The controls are added to the 'Course Carousel' section in the Elementor widget
 	 * settings panel.
@@ -743,7 +743,7 @@ class CourseCarouselWidget extends CourseListWidget {
 	/**
 	 * Render HTML for frontend.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 */
 	protected function render() {
 		$settings = $this->get_settings();
@@ -857,6 +857,10 @@ class CourseCarouselWidget extends CourseListWidget {
 		);
 
 		$original_block_template = isset( $GLOBALS['masteriyo_block_template'] ) ? $GLOBALS['masteriyo_block_template'] : null;
+		// Keep masteriyo_block_template null during loop-start so loop-start.php doesn't add
+		// layout-specific grid classes (masteriyo-archive-cards col-X) to the Swiper container.
+		// We set it to the actual layout only for individual card rendering below.
+		$GLOBALS['masteriyo_block_template'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$layout_attr_map = array(
 			'layout1' => 'layout_1',
@@ -864,6 +868,7 @@ class CourseCarouselWidget extends CourseListWidget {
 		);
 		$data_layout     = isset( $layout_attr_map[ $layout ] ) ? $layout_attr_map[ $layout ] : '';
 		$layout_class    = $data_layout ? ' ' . $data_layout : '';
+		$data_attr       = $data_layout ? ' data-layout="' . esc_attr( $data_layout ) . '"' : '';
 
 		$show_carousel_arrows    = 'yes' === $settings['course_carousel_arrows'] ? true : false;
 		$show_carousel_dots      = 'yes' === $settings['course_carousel_dots'] ? true : false;
@@ -902,63 +907,64 @@ class CourseCarouselWidget extends CourseListWidget {
 
 		add_filter( 'masteriyo_is_course_carousel_enabled', '__return_true' );
 
+		// `masteriyo-course-list-display-section` is the ancestor every layout-specific card
+		// rule requires — the layout_1 rules are scoped to
+		// `.masteriyo-course-list-display-section[data-layout=layout_1]` and the layout_2 ones to
+		// `.masteriyo-course-list-display-section.layout_2`. Without it the carousel emits the
+		// layout's card markup and matches none of its styling, which is the whole of issue 33.
+		// The Course List widget (CourseListWidget::render_course_list()) emits the identical
+		// container class plus the identical `$layout_attr_map` value, so the two widgets now
+		// agree; `masteriyo-container` and `masteriyo-course-carousel` stay because the swiper
+		// JS and the carousel's own rules key on them.
 		printf(
-			'<div class="masteriyo masteriyo-container masteriyo-course-carousel%s"%s data-settings="%s">',
+			'<div class="masteriyo masteriyo-container masteriyo-course-list-display-section masteriyo-course-carousel%s" data-settings="%s"%s>',
 			esc_attr( $layout_class ),
-			$data_layout ? ' data-layout="' . esc_attr( $data_layout ) . '"' : '',
-			esc_attr( wp_json_encode( $slider_data ) )
+			esc_attr( wp_json_encode( $slider_data ) ),
+			$data_attr // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 		masteriyo_set_loop_prop( 'columns', $columns );
 
 		if ( count( $courses ) > 0 ) {
 			$original_course = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;
 
+			// Map layout → extra CSS class on the Swiper container so layout-specific
+			// card appearance rules (scoped to .masteriyo-archive-cards / .masteriyo-course-cards) apply.
 			$wrapper_class_map   = array(
 				'layout1' => 'masteriyo-archive-cards',
 				'layout2' => 'masteriyo-course-cards',
 			);
 			$wrapper_extra_class = isset( $wrapper_class_map[ $layout ] ) ? ' ' . $wrapper_class_map[ $layout ] : '';
 
+			// Always output Swiper structure manually so we are never at the mercy of
+			// loop-start template selection (which reads the backend setting and may use
+			// loop-start-1.php / loop-start-2.php that have no Swiper support).
 			$GLOBALS['masteriyo_block_template'] = ( 'default' !== $layout ) ? $layout : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			masteriyo_set_loop_prop( 'loop', 0 );
 
-			if ( 'default' !== $layout ) {
-				printf( '<div class="masteriyo-courses-wrapper%s swiper"><div class="swiper-wrapper">', esc_attr( $wrapper_extra_class ) );
+			printf( '<div class="masteriyo-courses-wrapper%s swiper">', esc_attr( $wrapper_extra_class ) );
+			echo '<div class="swiper-wrapper">';
 
-				foreach ( $courses as $course ) {
-					$GLOBALS['course'] = $course;
-					$card_class        = empty( $settings['card_hover_animation'] ) ? '' : sprintf( 'elementor-animation-%s', $settings['card_hover_animation'] );
+			foreach ( $courses as $course ) {
+				$GLOBALS['course'] = $course;
+				$card_class        = empty( $settings['card_hover_animation'] ) ? '' : sprintf( 'elementor-animation-%s', $settings['card_hover_animation'] );
 
+				if ( 'default' !== $layout ) {
+					// Modern / Overlay: wrap each card in swiper-slide (card templates don't add it).
 					echo '<div class="swiper-slide">';
-					masteriyo_get_template(
-						$card_template,
-						array(
-							'card_class' => $card_class,
-						)
-					);
+					masteriyo_get_template( $card_template, array( 'card_class' => $card_class ) );
 					echo '</div>';
+				} else {
+					// Default: content-course.php adds swiper-slide class to the card element itself.
+					masteriyo_get_template( $card_template, array( 'card_class' => $card_class ) );
 				}
-
-				echo '</div></div>';
-			} else {
-				masteriyo_course_loop_start();
-
-				foreach ( $courses as $course ) {
-					$GLOBALS['course'] = $course;
-					$card_class        = empty( $settings['card_hover_animation'] ) ? '' : sprintf( 'elementor-animation-%s', $settings['card_hover_animation'] );
-
-					masteriyo_get_template(
-						$card_template,
-						array(
-							'card_class' => $card_class,
-						)
-					);
-				}
-
-				masteriyo_course_loop_end();
-				masteriyo_reset_loop();
 			}
 
+			echo '</div>'; // closes swiper-wrapper
+			echo '</div>'; // closes masteriyo-courses-wrapper
+			$GLOBALS['masteriyo_block_template'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 			$GLOBALS['course'] = $original_course;
+			masteriyo_reset_loop();
 
 			if ( $show_carousel_scrollbar ) :
 				?>

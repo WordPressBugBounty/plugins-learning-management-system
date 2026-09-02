@@ -2,7 +2,7 @@
 /**
  * Handles file downloads within the admin area.
  *
- * @since 1.14.0
+ * @since 2.15.0
  *
  * @package Masteriyo
  */
@@ -22,14 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Admin file download handler.
  *
- * @since 1.14.0
+ * @since 2.15.0
  */
 class AdminFileDownloadHandler {
 
 	/**
 	 * Action name for file downloads.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 * @var string
 	 */
 	const FILE_DOWNLOAD_ACTION = 'masteriyo_file_download';
@@ -37,7 +37,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * List of file paths to download.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var array $file_paths [$file_path_id] => $file_path.
 	 */
@@ -46,7 +46,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Registers a file path for download.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path_id Unique ID for the file path.
 	 * @param string $file_path    File path to download.
@@ -57,7 +57,7 @@ class AdminFileDownloadHandler {
 		/**
 		 * Filters the list of file paths to download.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param array  $file_paths    List of file paths to download.
 		 * @param string $file_path_id  Unique ID for the file path.
@@ -69,7 +69,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Generates the download URL for a file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path_id  The file path ID.
 	 * @param string $file_name     The file name.
@@ -81,7 +81,7 @@ class AdminFileDownloadHandler {
 	public static function get_download_url( string $file_path_id, string $file_name ) {
 		if ( ! isset( self::$file_paths[ $file_path_id ] ) ) {
 			/* translators: placeholder: file path ID. */
-			throw new Exception( sprintf( __( 'File path "%s" is not registered', 'learning-management-system' ), $file_path_id ) );
+			throw new Exception( esc_html( sprintf( __( 'File path "%s" is not registered', 'learning-management-system' ), $file_path_id ) ) );
 		}
 
 		$download_url = add_query_arg(
@@ -100,7 +100,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Tries to protect a file path from being downloaded directly.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path.
 	 *
@@ -130,7 +130,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Writes an .htaccess file to protect the given directory.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path.
 	 *
@@ -161,7 +161,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Returns protection message for Apache server.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path    The file path being protected.
 	 * @param string $htaccess_path Path to the .htaccess file.
@@ -183,7 +183,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Returns protection message for Nginx server.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path being protected.
 	 *
@@ -200,7 +200,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Returns a generic protection message for other server types.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path The file path being protected.
 	 *
@@ -217,7 +217,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Returns the current server software name.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string The server software name.
 	 */
@@ -238,7 +238,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Initializes the file download handler.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	public static function init() {
 		add_action( 'admin_post_' . self::FILE_DOWNLOAD_ACTION, array( self::class, 'handle_file_download' ) );
@@ -247,14 +247,14 @@ class AdminFileDownloadHandler {
 	/**
 		 * Handles the file download action.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 */
 	public static function handle_file_download() {
 		$file_path_id = filter_input( INPUT_GET, 'file_path_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$file_name    = filter_input( INPUT_GET, 'file_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$nonce        = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( ! wp_verify_nonce( sanitize_key(wp_unslash($nonce)), self::FILE_DOWNLOAD_ACTION . $file_path_id . $file_name ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $nonce ) ), self::FILE_DOWNLOAD_ACTION . $file_path_id . $file_name ) ) {
 			self::send_error( __( 'URL expired. Please refresh the page and try again.', 'learning-management-system' ) );
 		}
 
@@ -280,7 +280,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Sends the error message and exits.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $message Error message.
 	 */
@@ -292,7 +292,7 @@ class AdminFileDownloadHandler {
 	/**
 	 * Sends the file for download.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path Path of the file to download.
 	 */

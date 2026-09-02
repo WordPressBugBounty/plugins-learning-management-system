@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: User Management
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\UserRegistrationIntegration\Helper;
 
 define( 'MASTERIYO_USER_REGISTRATION_INTEGRATION_FILE', __FILE__ );
@@ -28,7 +28,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_USER_REGISTRATION_INTEGRATION_SLUG )
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'User Registration Integration addon requires User Registration plugin to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

@@ -2,7 +2,7 @@
 /**
  * Masteriyo Single Course Stats Bricks Element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -16,7 +16,7 @@ use Masteriyo\Addons\BricksIntegration\Helper;
 /**
 * Masteriyo Single Course Stats Bricks Element class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CoursePriceElement extends \Bricks\Element {
 
@@ -27,7 +27,7 @@ class CoursePriceElement extends \Bricks\Element {
 	/**
 	* Bricks Single Course Stats Label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Course Price', 'learning-management-system' );
@@ -36,7 +36,7 @@ class CoursePriceElement extends \Bricks\Element {
 	/**
 	* Bricks set controls groups for Single Course Stats CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['single_course_price'] = array(
@@ -81,7 +81,7 @@ class CoursePriceElement extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		// Get the current page URL.
@@ -92,13 +92,13 @@ class CoursePriceElement extends \Bricks\Element {
 			/**
 			 * Filters course data to apply multiple currency conversion in page builder context.
 			 *
-			 * @since 1.20.0
+			 * @since 1.20.0 [Free]
 			 *
 			 * @param \Masteriyo\Models\Course $course The course object.
 			 */
 			$course = apply_filters( 'masteriyo_setup_course_data', $course );
 
-							echo "<div {$this->render_attributes( '_root' )}>";
+			echo "<div {$this->render_attributes( '_root' )}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks render_attributes() returns pre-escaped attribute markup.
 			?>
 							<div class="masteriyo-course-price">
 								<span class="current-amount"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>

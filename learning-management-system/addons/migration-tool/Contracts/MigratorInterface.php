@@ -2,7 +2,6 @@
 /**
  * Migrator interface.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool\Contracts
  */
 
@@ -15,15 +14,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * All LMS migrators must implement this interface so the controller
  * can treat every LMS identically — no LMS-specific branching in the controller.
- *
- * @since x.x.x
  */
 interface MigratorInterface {
 
 	/**
 	 * Unique slug that matches the LMS plugin directory key.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string e.g. 'learnpress', 'sfwd-lms', 'tutor'
 	 */
@@ -32,8 +27,6 @@ interface MigratorInterface {
 	/**
 	 * Human-readable label shown in the UI.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string e.g. 'LearnPress'
 	 */
 	public function get_label(): string;
@@ -41,16 +34,12 @@ interface MigratorInterface {
 	/**
 	 * Plugin file used by is_plugin_active() to detect installation.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string e.g. 'learnpress/learnpress.php'
 	 */
 	public function get_plugin_file(): string;
 
 	/**
 	 * Ordered list of migration step names.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string[] e.g. ['courses', 'orders', 'reviews']
 	 */
@@ -60,11 +49,10 @@ interface MigratorInterface {
 	 * Whether the given step's source data may be migrated.
 	 *
 	 * Free/core steps are always available. Steps backed by a separate source Pro
-	 * plugin (e.g. Tutor Pro) are available only while that Pro plugin is active —
-	 * when it is deactivated its data is treated as absent so the step is skipped
-	 * cleanly (count 0) rather than half-migrated.
+	 * plugin (e.g. Tutor Pro, MasterStudy Pro) are available only while that Pro
+	 * plugin is active — when it is deactivated its data is treated as absent so the
+	 * step is skipped cleanly (count 0) rather than half-migrated.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return bool
 	 */
@@ -73,7 +61,6 @@ interface MigratorInterface {
 	/**
 	 * Count total source items for a step. Fast COUNT query — no records loaded.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return int
 	 */
@@ -92,7 +79,6 @@ interface MigratorInterface {
 	 * cleaned) from permanently blocking later items. Cursor-based steps can ignore it —
 	 * failed IDs never reappear in cursor-based queries.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name.
 	 * @param int    $limit   Batch size.
 	 * @param int    $cursor  Last processed ID (0 = first batch).
@@ -105,7 +91,6 @@ interface MigratorInterface {
 	 * Migrate exactly one item. Called inside START TRANSACTION / COMMIT.
 	 * Must be idempotent — safe to call twice for the same item_id.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name.
 	 * @param int    $item_id Source item ID.
 	 * @throws \Exception Triggers ROLLBACK; item added to failed list.
@@ -116,7 +101,6 @@ interface MigratorInterface {
 	 * Called once after a step fully completes. Perform bulk recalculation here
 	 * instead of per-item. No-op by default.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public function finalize_step( string $step ): void;
@@ -129,7 +113,6 @@ interface MigratorInterface {
 	 * is_step_available()), so the matching slug is returned unconditionally — the
 	 * presence of data is sufficient proof the feature was used.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return string[] Masteriyo addon slugs to activate (e.g. ['assignment', 'zoom']).
 	 */

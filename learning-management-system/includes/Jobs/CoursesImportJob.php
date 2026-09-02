@@ -6,6 +6,7 @@ defined( 'ABSPATH' ) || exit;
 
 
 use ActionScheduler_Store;
+use Masteriyo\Helper\Utils;
 use Masteriyo\Importer\CourseImporter;
 
 /**
@@ -13,28 +14,28 @@ use Masteriyo\Importer\CourseImporter;
  *
  * Handles the import of courses.
  *
- * @since 1.14.0
+ * @since 2.15.0
  * @package Masteriyo\Jobs
  */
 class CoursesImportJob {
 	/**
 	 * Name of the action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const NAME = 'masteriyo/job/courses_import';
 
 	/**
 	 * Group name of the action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	const GROUP_NAME = 'masteriyo-courses-import';
 
 	/**
 	 * Register the action hook handler.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	public function register() {
 		add_action( self::NAME, array( $this, 'handle' ) );
@@ -43,7 +44,7 @@ class CoursesImportJob {
 	/**
 	 * Handle the export action.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	public function handle( $file_path ) {
 		try {
@@ -58,7 +59,7 @@ class CoursesImportJob {
 	/**
 	 * Check if a task is currently in progress (enqueued or running).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return bool True if a task is in progress, false otherwise.
 	 */
@@ -79,7 +80,7 @@ class CoursesImportJob {
 	/**
 	 * Check if a task has been completed (completed, failed or canceled).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $task_name The name of the task to check.
 	 *

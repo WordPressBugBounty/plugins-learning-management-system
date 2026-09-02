@@ -92,7 +92,7 @@ class CoursePrice extends BlockHandler {
 			esc_attr( $class_name )
 		);
 		?>
-		<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+		<?php if ( ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) && ! masteriyo_course_order_awaiting_payment( $course->get_id() ) ) : ?>
 				<?php if ( ! $satisfied && $is_free ) : ?>
 				<?php else : ?>
 					<div class="masteriyo-course-price">

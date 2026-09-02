@@ -3,7 +3,6 @@
  * Update Course Review ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseReview
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseReview;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Supports partial updates. Moderators use this to approve or reject reviews
  * (update `status`), or to edit the comment body.
  * Requires the `edit_course_reviews` capability for other authors' reviews.
- *
- * @since x.x.x
  */
 class UpdateCourseReviewAbility extends RestProxyAbility {
 

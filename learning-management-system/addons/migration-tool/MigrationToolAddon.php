@@ -30,6 +30,18 @@ class MigrationToolAddon {
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_rest_namespaces' ) );
+
+		/**
+		 * Fires once the migration tool addon has initialised.
+		 *
+		 * The migration steps whose destination is a pro addon — assignment,
+		 * course-bundle, zoom and gradebook — ship only with pro and register here,
+		 * rather than being named from this file. Reaching this point already means
+		 * the addon is active, because `main.php` returns before it otherwise.
+		 *
+		 * @param \Masteriyo\Addons\MigrationTool\MigrationToolAddon $addon The addon instance.
+		 */
+		do_action( 'masteriyo_migration_tool_addon_initialized', $this );
 	}
 
 	/**
@@ -42,7 +54,8 @@ class MigrationToolAddon {
 	 * @return array Modified REST namespaces including migration tool endpoints.
 	 */
 	public function register_rest_namespaces( $namespaces ) {
-		$namespaces['masteriyo/v1']['migration-tool'] = 'migration-tool.rest';
+		$namespaces['masteriyo/v1']['migration-tool']        = 'migration-tool.rest';
+		$namespaces['masteriyo/v1']['migration-tool-notice'] = 'migration-tool.notice.rest';
 		return $namespaces;
 	}
 }

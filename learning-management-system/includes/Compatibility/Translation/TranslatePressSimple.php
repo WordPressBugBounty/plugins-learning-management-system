@@ -6,7 +6,7 @@
  * TranslatePress handles everything else automatically.
  *
  * @package Masteriyo\Compatibility\Translation
- * @since 2.1.0
+ * @since 2.1.0 [Free]
  */
 
 namespace Masteriyo\Compatibility\Translation;
@@ -19,14 +19,14 @@ use Masteriyo\Taxonomy\Taxonomy;
 /**
  * TranslatePress compatibility class - SIMPLE VERSION
  *
- * @since 2.1.0
+ * @since 2.1.0 [Free]
  */
 class TranslatePressSimple {
 
 	/**
 	 * Initialize.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function init() {
 		if ( ! $this->is_plugin_active() ) {
@@ -72,7 +72,7 @@ class TranslatePressSimple {
 	/**
 	 * Check if TranslatePress is active.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @return bool
 	 */
 	protected function is_plugin_active() {
@@ -82,7 +82,7 @@ class TranslatePressSimple {
 	/**
 	 * Register Masteriyo post types with TranslatePress.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param array $post_types Existing post types.
 	 * @return array
 	 */
@@ -99,7 +99,7 @@ class TranslatePressSimple {
 	/**
 	 * Register Masteriyo taxonomies with TranslatePress.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param array $taxonomies Existing taxonomies.
 	 * @return array
 	 */
@@ -118,7 +118,7 @@ class TranslatePressSimple {
 	 *
 	 * Ensures REST API requests include language context.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function add_rest_api_translation() {
 		// Allow TranslatePress to translate REST API responses.
@@ -128,7 +128,7 @@ class TranslatePressSimple {
 	/**
 	 * Translate REST API response.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param mixed            $result Response to send.
 	 * @param WP_REST_Server   $server Server instance.
 	 * @param WP_REST_Request  $request Request used to generate the response.
@@ -150,7 +150,7 @@ class TranslatePressSimple {
 	/**
 	 * Localize TranslatePress data to JavaScript.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function localize_scripts() {
 		if ( ! class_exists( 'TRP_Translate_Press' ) ) {
@@ -192,7 +192,7 @@ class TranslatePressSimple {
 	/**
 	 * Enable AJAX translation.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param bool   $skip Skip gettext processing.
 	 * @param string $translation Translated text.
 	 * @param string $text Original text.
@@ -211,7 +211,7 @@ class TranslatePressSimple {
 	/**
 	 * Register Masteriyo gettext domain with TranslatePress.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param array $domains Registered domains.
 	 * @return array
 	 */
@@ -229,7 +229,7 @@ class TranslatePressSimple {
 	/**
 	 * Maybe flush rewrite rules on first load.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function maybe_flush_rewrite_rules() {
 		$flushed = get_option( 'masteriyo_translatepress_rewrite_flushed' );
@@ -245,7 +245,7 @@ class TranslatePressSimple {
 	 *
 	 * This ensures JavaScript strings from React are translatable.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 * @param array  $strings Translatable strings.
 	 * @param string $language Language code.
 	 * @param array  $context Translation context.
@@ -287,7 +287,7 @@ class TranslatePressSimple {
 	/**
 	 * AJAX handler to get translatable strings.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function ajax_get_translatable_strings() {
 		// This endpoint helps TranslatePress discover strings from AJAX requests.

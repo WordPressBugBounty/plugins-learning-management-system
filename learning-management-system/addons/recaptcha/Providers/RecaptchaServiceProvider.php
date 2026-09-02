@@ -2,7 +2,7 @@
 /**
  * Recaptcha service provider.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 
 namespace Masteriyo\Addons\Recaptcha\Providers;
@@ -17,29 +17,9 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 /**
  * Recaptcha service provider.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 class RecaptchaServiceProvider extends AbstractServiceProvider {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.18.2
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'addons.recaptcha.global_setting', GlobalSetting::class );
-
-		$this->getContainer()->add( 'addons.recaptcha.request', Request::class );
-
-		$this->getContainer()->addShared( 'addons.recaptcha', RecaptchaAddon::class )
-			->addArgument( 'addons.recaptcha.global_setting' )
-			->addArgument( 'addons.recaptcha.request' );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -49,7 +29,7 @@ class RecaptchaServiceProvider extends AbstractServiceProvider {
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 2.3.0
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -67,5 +47,23 @@ class RecaptchaServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 2.3.0
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'addons.recaptcha.global_setting', GlobalSetting::class );
+
+		$this->getContainer()->add( 'addons.recaptcha.request', Request::class );
+
+		$this->getContainer()->addShared( 'addons.recaptcha', RecaptchaAddon::class )
+			->addArgument( 'addons.recaptcha.global_setting' )
+			->addArgument( 'addons.recaptcha.request' );
 	}
 }

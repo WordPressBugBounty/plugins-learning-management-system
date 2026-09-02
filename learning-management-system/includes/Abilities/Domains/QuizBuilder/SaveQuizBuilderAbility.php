@@ -3,7 +3,6 @@
  * Save Quiz Builder ability.
  *
  * @package Masteriyo\Abilities\Domains\QuizBuilder
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\QuizBuilder;
@@ -19,8 +18,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * The caller must provide the full desired question order; omitting questions
  * will remove them. Marked non-idempotent because question IDs assigned
  * for new questions differ between calls.
- *
- * @since x.x.x
  */
 class SaveQuizBuilderAbility extends RestProxyAbility {
 

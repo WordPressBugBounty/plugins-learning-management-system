@@ -3,7 +3,6 @@
  * Get Course Review ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseReview
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseReview;
@@ -16,8 +15,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Ability: retrieve a single course review by ID.
  *
  * Returns the full review including reviewer, rating, comment body, and status.
- *
- * @since x.x.x
  */
 class GetCourseReviewAbility extends RestProxyAbility {
 

@@ -57,7 +57,8 @@ class NotificationQuery extends ObjectQuery {
 		 *
 		 * @param array $query_args The object query args.
 		 */
-		$args    = apply_filters( 'masteriyo_notification_object_query_args', $this->get_query_vars() );
+		$args = apply_filters( 'masteriyo_notification_object_query_args', $this->get_query_vars() );
+
 		$results = masteriyo( 'notification.store' )->query( $args, $this );
 
 		/**

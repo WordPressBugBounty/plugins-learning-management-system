@@ -198,7 +198,7 @@ const GoogleMeetMeetings: React.FC = () => {
 														}
 														isResultFiltered={Boolean(
 															filterParams?.search ||
-																filterParams?.status !== 'any',
+															filterParams?.status !== 'any',
 														)}
 													/>
 												) : (
@@ -374,7 +374,10 @@ const GoogleMeetMeetings: React.FC = () => {
 							'Deleting Google Meetings',
 							'learning-management-system',
 						),
-						body: __('Are you sure? You can’t restore after deleting.'),
+						body: __(
+							'Are you sure? You can’t restore after deleting.',
+							'learning-management-system',
+						),
 						confirm: __('Delete', 'learning-management-system'),
 					},
 				}}

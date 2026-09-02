@@ -2,7 +2,7 @@
 /**
  * Certificate Repository
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\Repository;
@@ -20,7 +20,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Data stored in meta keys, but not considered "meta".
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var array
 	 */
@@ -32,7 +32,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Create a certificate in the database.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 	 */
@@ -45,20 +45,23 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			$certificate->set_author_id( get_current_user_id() );
 		}
 
+		// wp_insert_post() unslashes the array it gets, so slash it before the filter.
 		$id = wp_insert_post(
 			apply_filters(
 				'masteriyo_new_certificate_data',
-				array(
-					'post_type'     => 'mto-certificate',
-					'post_status'   => $certificate->get_status() ? $certificate->get_status() : PostStatus::PUBLISH,
-					'post_author'   => $certificate->get_author_id(),
-					'post_title'    => $certificate->get_name() ? $certificate->get_name() : __( 'Certificate', 'learning-management-system' ),
-					'post_content'  => wp_slash( $certificate->get_html_content() ),
-					'post_parent'   => $certificate->get_parent_id(),
-					'ping_status'   => 'closed',
-					'post_date'     => gmdate( 'Y-m-d H:i:s', $certificate->get_date_created( 'edit' )->getOffsetTimestamp() ),
-					'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $certificate->get_date_created( 'edit' )->getTimestamp() ),
-					'post_name'     => $certificate->get_slug( 'edit' ),
+				wp_slash(
+					array(
+						'post_type'     => 'mto-certificate',
+						'post_status'   => $certificate->get_status() ? $certificate->get_status() : PostStatus::PUBLISH,
+						'post_author'   => $certificate->get_author_id(),
+						'post_title'    => $certificate->get_name() ? $certificate->get_name() : __( 'Certificate', 'learning-management-system' ),
+						'post_content'  => $certificate->get_html_content(),
+						'post_parent'   => $certificate->get_parent_id(),
+						'ping_status'   => 'closed',
+						'post_date'     => gmdate( 'Y-m-d H:i:s', $certificate->get_date_created( 'edit' )->getOffsetTimestamp() ),
+						'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $certificate->get_date_created( 'edit' )->getTimestamp() ),
+						'post_name'     => $certificate->get_slug( 'edit' ),
+					)
 				),
 				$certificate
 			)
@@ -75,19 +78,22 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			/**
 			 * Fire after new certificate is created.
 			 *
-			 * @since 1.13.0
+			 * @since 2.3.7
 			 *
 			 * @param int $id Certificate ID.
 			 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 			 */
 			do_action( 'masteriyo_new_certificate', $id, $certificate );
+
+			delete_transient( 'masteriyo_has_gutenberg_certs' );
+			delete_transient( 'masteriyo_has_any_certs' );
 		}
 	}
 
 	/**
 	 * Read a certificate.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @throws \Exception If invalid certificate.
 	 *
@@ -121,7 +127,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 		/**
 		 * Fire after certificate is read.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param integer $id Certificate ID.
 		 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -132,7 +138,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Update a certificate in the database.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 	 */
@@ -173,7 +179,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 				$GLOBALS['wpdb']->update( $GLOBALS['wpdb']->posts, $post_data, array( 'ID' => $certificate->get_id() ) );
 				clean_post_cache( $certificate->get_id() );
 			} else {
-				wp_update_post( array_merge( array( 'ID' => $certificate->get_id() ), $post_data ) );
+				wp_update_post( array_merge( array( 'ID' => $certificate->get_id() ), wp_slash( $post_data ) ) );
 			}
 			$certificate->read_meta_data( true ); // Refresh internal meta data, in case things were hooked into `save_post` or another WP hook.
 		} else { // Only update post modified time to record this save event.
@@ -197,18 +203,21 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 		/**
 		 * Fire after certificate is updated.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param int $id Certificate ID.
 		 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 		 */
 		do_action( 'masteriyo_update_certificate', $certificate->get_id(), $certificate );
+
+		delete_transient( 'masteriyo_has_gutenberg_certs' );
+			delete_transient( 'masteriyo_has_any_certs' );
 	}
 
 	/**
 	 * Delete a certificate from the database.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 	 * @param array $args   Array of args to pass
@@ -232,7 +241,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			/**
 			 * Fire before certificate is deleted.
 			 *
-			 * @since 1.13.0
+			 * @since 2.3.7
 			 *
 			 * @param integer $id Certificate ID.
 			 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -245,7 +254,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			/**
 			 * Fire after certificate is deleted.
 			 *
-			 * @since 1.13.0
+			 * @since 2.3.7
 			 *
 			 * @param integer $id Certificate ID.
 			 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -255,7 +264,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			/**
 			 * Fire before certificate is trashed.
 			 *
-			 * @since 1.13.0
+			 * @since 2.3.7
 			 *
 			 * @param integer $id Certificate ID.
 			 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -268,7 +277,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 			/**
 			 * Fire after certificate is trashed.
 			 *
-			 * @since 1.13.0
+			 * @since 2.3.7
 			 *
 			 * @param integer $id Certificate ID.
 			 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -280,7 +289,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Read certificate data. Can be overridden by child classes to load other props.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate certificate object.
 	 */
@@ -311,7 +320,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Read extra data associated with the certificate, like button text or certificate URL for external certificates.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate certificate object.
 	 */
@@ -330,7 +339,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Query certificates.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $query_vars Query vars.
 	 *
@@ -370,7 +379,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Get valid WP_Query args from a CertificateQuery's query variables.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $query_vars Query vars from a CertificateQuery.
 	 *
@@ -433,7 +442,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 		/**
 		 * Filters certificate repository wp query vars.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param array $wp_query_args WP query args.
 		 * @param array $query_vars Query vars.

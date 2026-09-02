@@ -2,7 +2,7 @@
 /**
  * Starter Templates class service provider.
  *
- * @since 2.0.0
+ * @since 3.0.0
  * @package Masteriyo\Providers
  */
 
@@ -16,15 +16,23 @@ use WP_Query;
 /**
  * Registers and initializes block types and categories for Masteriyo LMS.
  *
- * @since 2.0.0
+ * @since 3.0.0
  */
 class StarterServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
 	/**
-	 * Services provided by this service provider.
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
 	 *
-	 * @since 2.0.0
-	 * @var array
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
 	 */
 	public function provides( string $id ): bool {
 		return in_array(
@@ -37,7 +45,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	/**
 	 * Register services in the container.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 * @return void
 	 */
 	public function register(): void {
@@ -48,12 +56,14 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * Boot the starter template service provider.
 	 * Wires Masteriyo page setup after ThemeGrill demo import.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 * @return void
 	 */
 	public function boot(): void {
 		add_action( 'admin_init', array( $this, 'tg_update_demo_importer_options' ) );
 
+		// Disable Masteriyo setup wizard, for the duration of a demo import only.
+		add_action( 'themegrill_ajax_before_demo_import', array( $this, 'disable_setup_wizard' ), 5 );
 		add_action( 'themegrill_ajax_before_demo_import', array( $this, 'reset_widgets' ), 10 );
 		add_action( 'themegrill_ajax_before_demo_import', array( $this, 'delete_nav_menus' ), 20 );
 		add_action( 'themegrill_ajax_before_demo_import', array( $this, 'remove_theme_mods' ), 30 );
@@ -75,8 +85,6 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 		add_action( 'themegrill_import_post_data_processed', array( $this, 'import_post_data_processed' ), 10, 2 );
 
 		add_filter( 'themegrill_widget_import_settings', array( $this, 'update_widget_data' ), 10, 2 );
-		// Disable Masteriyo setup wizard.
-		add_filter( 'masteriyo_enable_setup_wizard', '__return_false' );
 
 		// Disable BlockArt redirection.
 		add_filter( 'blockart_activation_redirect', '__return_false' );
@@ -89,7 +97,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 				) {
 					return;
 				}
-				if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '2.0.0', '>=' ) ) {
+				if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.0.0', '>=' ) ) {
 					$query = new WP_Query(
 						array(
 							'post_type' => 'elementor_library',
@@ -143,7 +151,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * each pair. If 'elementor_settings' is empty or not present, the method
 	 * returns early without performing updates.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * Note: The $id parameter is accepted for compatibility with the caller but is
 	 * not used by this implementation.
@@ -206,6 +214,21 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	}
 
 	/**
+	 * Suppress the Masteriyo setup wizard while a demo is being imported.
+	 *
+	 * Bound to `themegrill_ajax_before_demo_import` rather than added in `boot()`.
+	 * `boot()` runs on every request, and `Install::install()` fires this filter on
+	 * the first request after activation — so an unconditional binding suppresses the
+	 * activation redirect on every fresh install rather than only during an import,
+	 * which leaves the onboarding wizard permanently unreachable.
+	 *
+	 * @return void
+	 */
+	public function disable_setup_wizard() {
+		add_filter( 'masteriyo_enable_setup_wizard', '__return_false' );
+	}
+
+	/**
 	 * Reset existing active widgets.
 	 */
 	public function reset_widgets() {
@@ -257,7 +280,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	public function set_elementor_active_kit() {
 		$elementor_version = defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : false;
 
-		if ( version_compare( $elementor_version, '2.0.0', '>=' ) ) {
+		if ( version_compare( $elementor_version, '3.0.0', '>=' ) ) {
 			$query = new WP_Query(
 				array(
 					'post_type' => 'elementor_library',
@@ -334,7 +357,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 					$delete_ids = array();
 
 					// Retrieve page with greater id and delete others.
-					if ( sizeof( $page_ids ) > 1 ) {
+					if ( count( $page_ids ) > 1 ) {
 
 						foreach ( $page_ids as $page ) {
 							if ( $page->ID > $page_id ) {
@@ -722,7 +745,7 @@ class StarterServiceProvider extends AbstractServiceProvider implements Bootable
 	 * stored in the `themegrill_demo_importer_mapping` option and replaces
 	 * the old IDs in the widget settings with their corresponding new IDs.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param array  $widget      Widget instance settings.
 	 * @param string $widget_type Type of widget (e.g. 'nav_menu').

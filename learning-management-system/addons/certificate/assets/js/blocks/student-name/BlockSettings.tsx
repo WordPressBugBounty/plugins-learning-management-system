@@ -8,8 +8,17 @@ import {
 	Select,
 	Slider,
 } from '../../../../../../assets/js/blocks/components';
-
 const BlockSettings: React.FC<any> = (props) => {
+	interface FontOption {
+		label: string;
+		value: string;
+	}
+
+	const LocalizedBlock = (window as any).masteriyo_certificate_blocks;
+	const dynamicFontOptions = Object.values(
+		LocalizedBlock.font_data as Record<string, FontOption>,
+	).filter(Boolean);
+
 	const {
 		attributes: {
 			alignment,
@@ -118,22 +127,7 @@ const BlockSettings: React.FC<any> = (props) => {
 							label: __('Roboto', 'learning-management-system'),
 							value: 'Roboto',
 						},
-						{
-							label: __('Abhaya Libre', 'learning-management-system'),
-							value: 'AbhayaLibre',
-						},
-						{
-							label: __('Adine Kirnberg', 'learning-management-system'),
-							value: 'AdineKirnberg',
-						},
-						{
-							label: __('Alex Brush', 'learning-management-system'),
-							value: 'AlexBrush',
-						},
-						{
-							label: __('Allura', 'learning-management-system'),
-							value: 'Allura',
-						},
+						...dynamicFontOptions,
 					]}
 					onChange={(val) => setAttributes({ fontFamily: val })}
 					inline={false}

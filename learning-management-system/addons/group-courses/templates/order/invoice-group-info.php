@@ -2,7 +2,7 @@
 /**
  * Group information section for order invoice.
  *
- * @since 1.20.0
+ * @since 2.30.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -77,6 +77,18 @@ $group_info = $invoice_data['group_info'];
 
 		<div class="masteriyo-invoice-body--form-data__content" style="float: right; color: #383838; font-size: 14px; font-weight: 400; line-height: 24px;">
 			<?php echo esc_html( sprintf( '%d', $group_info['seats'] ) ); ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $group_info['per_seat_price'] ) ) : ?>
+	<div class="masteriyo-invoice-body--form-data" style="margin-bottom: 10px;">
+		<div style="float: left; width: 180px; color: #222222; font-size: 14px; font-weight: 500; line-height: 24px;">
+			<?php echo esc_html( __( 'Per Seat Price:', 'learning-management-system' ) ); ?>
+		</div>
+
+		<div class="masteriyo-invoice-body--form-data__content" style="float: right; color: #383838; font-size: 14px; font-weight: 400; line-height: 24px;">
+			<?php echo wp_kses_post( masteriyo_price( $group_info['per_seat_price'] ) ); ?>
 		</div>
 	</div>
 	<?php endif; ?>

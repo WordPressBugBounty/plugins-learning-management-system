@@ -2,7 +2,7 @@
 /**
  * WordPress core Image block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -18,7 +18,7 @@ class CoreImage extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -33,7 +33,7 @@ class CoreImage extends BlockBuilder {
 		/**
 		 * Added setting to enable absolute image path due to the issue with the image not showing in the PDF.
 		 *
-		 * @since 1.13.0
+		 * @since 2.11.0
 		 */
 		$use_absolute_path = masteriyo_bool_to_string( Setting::get( 'use_absolute_img_path' ) );
 

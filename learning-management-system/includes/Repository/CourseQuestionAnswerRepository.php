@@ -141,7 +141,7 @@ class CourseQuestionAnswerRepository extends AbstractRepository implements Repos
 		$course_qa_obj = get_comment( $course_qa->get_id() );
 
 		if ( ! $course_qa_obj || 'mto_course_qa' !== $course_qa_obj->comment_type ) {
-			throw new \Exception( __( 'Invalid Course Question Answer.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Course Question Answer.', 'learning-management-system' ) );
 		}
 
 		// Map the comment status from numerical to word.

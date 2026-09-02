@@ -3,7 +3,7 @@
 /**
  * Google Meet Controller class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\GoogleMeet\RestApi
  */
@@ -20,7 +20,6 @@ use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Helper\Permission;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
-use GuzzleHttp\Client;
 use Masteriyo\DateTime;
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\CourseChildrenPostType;
@@ -36,7 +35,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Endpoint namespace.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -45,7 +44,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Route base.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -54,7 +53,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -63,7 +62,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -72,7 +71,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * If object is hierarchical.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var bool
 	 */
@@ -81,7 +80,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var Masteriyo\Helper\Permission;
 	 */
@@ -90,7 +89,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Scopes for google calender event.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @var array
 	 */
@@ -102,7 +101,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Permission $permission
 	 */
@@ -113,7 +112,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -221,7 +220,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get a collection of user's google meet meetings.
 	 *
-	 * @since 1.18.0
+	 * @since 1.18.0 [Free]
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @param string  $context Request context. Default is 'view'.
@@ -238,7 +237,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -271,7 +270,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -323,7 +322,7 @@ class GoogleMeetController extends PostsController {
 				);
 			}
 
-			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( PostStatus::PUBLISH !== $course->get_status() || post_password_required( get_post( $course->get_id() ) ) ) ) {
+			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
 					__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -350,7 +349,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -363,11 +362,28 @@ class GoogleMeetController extends PostsController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_instructor() ) {
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
 			return true;
 		}
 
 		if ( ! current_user_can( 'edit_google-meets' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		/**
+		 * On this route the URL parameter carries the Google Calendar event ID, not the post ID;
+		 * the post ID arrives in the body as `meeting_id`. Scope the check to the object being
+		 * acted on, otherwise `edit_google-meets` alone lets any instructor update any meeting.
+		 */
+		$meeting_id = isset( $request['meeting_id'] ) ? absint( $request['meeting_id'] ) : 0;
+
+		if ( ! $meeting_id || ! $this->permission->rest_check_post_permissions( $this->post_type, 'update', $meeting_id ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_update',
 				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
@@ -383,7 +399,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -396,8 +412,8 @@ class GoogleMeetController extends PostsController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_instructor() ) {
-			return true;
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+				return true;
 		}
 
 		if ( ! current_user_can( 'edit_google-meets' ) ) {
@@ -420,13 +436,31 @@ class GoogleMeetController extends PostsController {
 			);
 		}
 
+		/**
+		 * The `batch` context above maps to the class-level capability, which every instructor
+		 * holds. Each requested ID still has to be one this user may delete.
+		 */
+		$meeting_ids = isset( $request['ids'] ) && is_array( $request['ids'] ) ? array_map( 'absint', $request['ids'] ) : array();
+
+		foreach ( $meeting_ids as $meeting_id ) {
+			if ( ! $meeting_id || ! $this->permission->rest_check_post_permissions( $this->post_type, 'delete', $meeting_id ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_cannot_delete',
+					__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+		}
+
 		return true;
 	}
 
 	/**
 	 * Check if a given request has access to delete an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -439,11 +473,27 @@ class GoogleMeetController extends PostsController {
 			);
 		}
 
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_instructor() ) {
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
 			return true;
 		}
 
 		if ( ! current_user_can( 'edit_google-meets' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_delete',
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		/**
+		 * On this route the URL parameter is the post ID. Scope the check to it, otherwise
+		 * `edit_google-meets` alone lets any instructor delete any meeting.
+		 */
+		$meeting_id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+
+		if ( ! $meeting_id || ! $this->permission->rest_check_post_permissions( $this->post_type, 'delete', $meeting_id ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
 				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
@@ -459,7 +509,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get the Google Meet meetings from Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function get_google_meet( $request ) {
 		if ( $request ) {
@@ -486,7 +536,6 @@ class GoogleMeetController extends PostsController {
 			$google_meetings = array();
 			foreach ( $data_from_calendar['meetings'] as $google_meeting ) {
 				if ( isset( $google_meeting['id'] ) && $google_meeting['id'] === $request['id'] ) {
-
 					$new_request = new WP_REST_Request( 'GET' );
 					$new_request->set_query_params(
 						array(
@@ -521,7 +570,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get the Google Meet meetings from Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function get_google_meetings( $request ) {
 		if ( $request ) {
@@ -565,7 +614,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get course child data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Model $course_item Course instance.
 	 * @param string     $context Request context.
@@ -595,7 +644,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Create a Google Meet meeting in Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function create_meeting( $request ) {
 		$google_setting_data = ( new GoogleMeetSetting() )->get_data();
@@ -622,7 +671,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Delete a Google Meet meeting in Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function delete_meeting( $request ) {
 		$meta_meeting_id               = array();
@@ -644,11 +693,6 @@ class GoogleMeetController extends PostsController {
 			$data_from_calender = $this->get_google_meet( $meta_meeting_id );
 
 			if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-				wp_delete_post( $meta_meeting_id['meeting_id'] );
-				masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
-			}
-
-			if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
 					wp_delete_post( $meta_meeting_id['meeting_id'] );
 					masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
 			}
@@ -664,7 +708,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Delete a Google Meet meeting in Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function delete_items( $request ) {
 
@@ -697,8 +741,8 @@ class GoogleMeetController extends PostsController {
 				$data_from_calender = $this->get_google_meet( $meta_meeting_id );
 
 				if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-					wp_delete_post( $meta_meeting_id['meeting_id'] );
-					masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
+						wp_delete_post( $meta_meeting_id['meeting_id'] );
+						masteriyo_get_logger()->info( 'Google meeting deleted by admin/manager', array( 'source' => 'google-meet' ) );
 				}
 
 				$response = $this->delete_google_calendar_events( $token, $google_provider, $meta_meeting_id, $data_from_calender );
@@ -710,7 +754,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Create a Google Meet meeting in Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function update_meeting( $request ) {
 
@@ -738,10 +782,19 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Delete a Google Meet event in Google Calendar by ID.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function update_google_calendar_event( $token, $provider, $request ) {
-		$course = masteriyo_get_course( $request['course_id'] );
+		/**
+		 * Derive the course from the meeting being updated rather than from the request. The
+		 * attendee list below is every enrolled student's email address, and the event is
+		 * patched with `sendUpdates=all`, so a request-supplied course would let the caller
+		 * invite — and read back — the students of a course that is not this meeting's.
+		 * `create_google_calendar_event` reads `course_id` legitimately: there it is the target
+		 * `create_item_permissions_check` has already validated.
+		 */
+		$google_meet = $this->get_object( absint( $request['meeting_id'] ) );
+		$course      = $google_meet ? masteriyo_get_course( $google_meet->get_course_id() ) : null;
 
 		if ( empty( $course ) ) {
 			return false;
@@ -779,9 +832,7 @@ class GoogleMeetController extends PostsController {
 			urlencode( $request['id'] )
 		);
 
-			$client = new Client();
-
-			$response = $client->request(
+			$response = masteriyo_google_calendar_request(
 				'PATCH',
 				$endpoint,
 				array(
@@ -823,7 +874,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Delete a Google Meet event in Google Calendar by ID.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function delete_google_calendar_event( $token, $provider, $event_id, $data_from_calendar ) {
 		$calendar_id = 'primary';
@@ -833,26 +884,46 @@ class GoogleMeetController extends PostsController {
 			$event_id['id']
 		);
 
-		$client = new Client();
+		// Guzzle raises on every non-2xx, so an event Google no longer holds arrives
+		// here as an exception rather than as a status code. Uncaught, it is a fatal
+		// on the single-delete route. The bulk sibling below already guards the same
+		// request the same way; the two paths must not differ.
+		try {
+			$response = masteriyo_google_calendar_request(
+				'DELETE',
+				$endpoint,
+				array(
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $token->getToken(),
+						'Content-Type'  => 'application/json',
+					),
+				)
+			);
 
-		$response = $client->request(
-			'DELETE',
-			$endpoint,
-			array(
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $token->getToken(),
-					'Content-Type'  => 'application/json',
-				),
-			)
-		);
+			$status = $response->getStatusCode();
 
-		if ( $response->getStatusCode() === 204 ) {
-			if ( ! $event_id || 0 === $event_id['meeting_id'] ) {
-				return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			if ( 204 === $status || 404 === $status || 410 === $status ) {
+				if ( ! $event_id || 0 === $event_id['meeting_id'] ) {
+					return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+				}
+				masteriyo_get_logger()->info(
+					sprintf( 'Google Calendar event deleted or not found. Status: %d', $status ),
+					array( 'source' => 'google-meet' )
+				);
+				wp_delete_post( $event_id['meeting_id'] );
+				return true;
 			}
-			wp_delete_post( $event_id['meeting_id'] );
-			return true;
-		} else {
+
+			masteriyo_get_logger()->warning(
+				sprintf( 'Unexpected Google Calendar delete status: %d', $status ),
+				array( 'source' => 'google-meet' )
+			);
+			return false;
+		} catch ( \Exception $e ) {
+			masteriyo_get_logger()->error(
+				'Google Calendar delete exception: ' . $e->getMessage(),
+				array( 'source' => 'google-meet' )
+			);
 			return false;
 		}
 	}
@@ -860,7 +931,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Delete a Google Meet event in Google Calendar by ID.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function delete_google_calendar_events( $token, $provider, $event_id, $data_from_calendar ) {
 		$calendar_id = 'primary';
@@ -870,10 +941,8 @@ class GoogleMeetController extends PostsController {
 			$event_id['id']
 		);
 
-		$client = new Client();
-
 		try {
-			$response = $client->request(
+			$response = masteriyo_google_calendar_request(
 				'DELETE',
 				$endpoint,
 				array(
@@ -917,7 +986,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Create a Google Meet event in Google Calendar.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function create_google_calendar_event( $token, $provider, $request ) {
 
@@ -976,9 +1045,7 @@ class GoogleMeetController extends PostsController {
 
 			$endpoint = str_replace( '{calendarId}', $calendar_id, $endpoint );
 
-			$client = new Client();
-
-			$response = $client->request(
+			$response = masteriyo_google_calendar_request(
 				'POST',
 				$endpoint,
 				array(
@@ -1021,7 +1088,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get the query params for collections of attachments.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -1038,7 +1105,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -1094,7 +1161,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get object.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  int|Model|WP_Post $object Object ID or Model or WP_Post object.
 	 * @return object Model object or WP_Error object.
@@ -1120,7 +1187,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Prepares the object for the REST response.
 	 *
-	 * @since  1.11.0
+	 * @since  2.11.0
 	 *
 	 * @param  Masteriyo\Database\Model $object  Model object.
 	 * @param  WP_REST_Request $request Request object.
@@ -1141,7 +1208,7 @@ class GoogleMeetController extends PostsController {
 		 * The dynamic portion of the hook name, $this->post_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param Masteriyo\Database\Model $object   Object data.
@@ -1153,7 +1220,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get the GoogleMeets'schema, conforming to JSON Schema.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	*/
@@ -1216,14 +1283,13 @@ class GoogleMeetController extends PostsController {
 				),
 			),
 		);
-
 		return $this->add_additional_fields_schema( $schema );
 	}
 
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $objects GoogleMeet data.
 	 * @param array $query_args Query arguments.
@@ -1247,7 +1313,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get GoogleMeet count by status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -1259,7 +1325,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get GoogleMeet sessions count by status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -1270,7 +1336,7 @@ class GoogleMeetController extends PostsController {
 		/**
 		 * Filters the GoogleMeet counts.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $post_count GoogleMeet count.
 		 * @param \Masteriyo\RestApi\Controllers\Version1\PostsController $controller Posts Controller.
@@ -1281,7 +1347,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Prepare objects query.
 	 *
-	 * @since  1.11.0
+	 * @since  2.11.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
@@ -1384,7 +1450,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Add new GoogleMeet session.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
@@ -1487,7 +1553,7 @@ class GoogleMeetController extends PostsController {
 		 * The dynamic portion of the hook name, `$this->post_type`,
 		 * refers to the object type slug.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param Masteriyo\Database\Model $google_meet GoogleMeet object.
 		 * @param WP_REST_Request $request  Request object.
@@ -1499,7 +1565,7 @@ class GoogleMeetController extends PostsController {
 	/**
 	 * Get GoogleMeet data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Masteriyo\Models\GoogleMeet $google_meet GoogleMeet instance.
 	 * @param string  $context Request context.
@@ -1518,7 +1584,7 @@ class GoogleMeetController extends PostsController {
 
 		$is_meeting_update_allowed = false;
 
-		if ( is_user_logged_in() ) {
+		if ( is_user_logged_in() && ! is_null( $author ) ) {
 			$is_meeting_update_allowed = (int) get_current_user_id() === (int) $author['id'];
 		}
 
@@ -1545,12 +1611,13 @@ class GoogleMeetController extends PostsController {
 			'author'                       => $author,
 			'navigation'                   => $this->get_navigation_items( $google_meet, $context ),
 			'add_all_students_as_attendee' => masteriyo_string_to_bool( $google_meet->get_add_all_students_as_attendee( $context ) ),
+			'is_meeting_update_allowed'    => $is_meeting_update_allowed,
 		);
 
 		/**
 		 * Filter google_meet rest response data.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $data google_meet data.
 		 * @param Masteriyo\Models\GoogleMeet $google_meet google_meet object.

@@ -12,6 +12,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -133,7 +134,7 @@ class CourseAuthorWidget extends SingleCourseWidgetBase {
 		$this->start_controls_section(
 			'author_styles',
 			array(
-				'label' => __( 'Course Author and Rating', 'learning-management-system' ),
+				'label' => __( 'Author and Rating', 'learning-management-system' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -144,7 +145,6 @@ class CourseAuthorWidget extends SingleCourseWidgetBase {
 				'type'      => Controls_Manager::HIDDEN,
 				'default'   => 'yes',
 				'selectors' => array(
-					// '{{WRAPPER}} .masteriyo-course-author' => 'display: block !important;',
 					'{{WRAPPER}} .masteriyo-course-author a' => 'display: inline-flex;',
 				),
 			)
@@ -399,9 +399,8 @@ class CourseAuthorWidget extends SingleCourseWidgetBase {
 	}
 
 	/**
-	 * Render author-and-rating template.
-	 *
-	 * @since x.x.x
+	 * Render author-and-rating template with rating always forced visible so the
+	 * Show Rating toggle can control it via CSS.
 	 *
 	 * @param \Masteriyo\Models\Course $course
 	 * @param \Masteriyo\Models\User   $author
@@ -422,6 +421,8 @@ class CourseAuthorWidget extends SingleCourseWidgetBase {
 		);
 		$output = ob_get_clean();
 
+		// If the template did not render a rating element, inject a placeholder inside
+		// the wrapper so it sits inline with the author on the same flex row — editor only.
 		if ( false === strpos( $output, 'masteriyo-rating' ) && ( Helper::is_elementor_editor() || Helper::is_elementor_preview() ) ) {
 			$placeholder = '<span class="masteriyo-rating masteriyo-rating--placeholder" style="opacity:0.4;font-size:13px;display:inline-flex;align-items:center;gap:4px;">'
 				. '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.947 9.179a1.001 1.001 0 00-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 00-1.822-.001L8.622 8.05l-5.701.453a1 1 0 00-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 001.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 001.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z"/></svg>'

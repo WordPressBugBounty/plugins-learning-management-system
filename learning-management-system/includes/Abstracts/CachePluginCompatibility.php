@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Abstract Cache plugin compatibility.
  *
@@ -11,7 +12,6 @@
 namespace Masteriyo\Abstracts;
 
 defined( 'ABSPATH' ) || exit;
-
 
 /**
  * Abstract cache plugin compatibility.
@@ -44,6 +44,7 @@ abstract class CachePluginCompatibility {
 		add_action( 'masteriyo_admin_notices', array( $this, 'masteriyo_display_ls_minify_notice' ) );
 
 		add_action( 'masteriyo_admin_notices', array( $this, 'masteriyo_display_minify_notice' ) );
+
 	}
 
 	/**
@@ -84,158 +85,14 @@ abstract class CachePluginCompatibility {
 		 * `rest_cookie_invalid_nonce` ("Cookie check failed"), which surfaces as an
 		 * "invalid nonce / unable to login" error. Sending nocache headers here prevents
 		 * the stale page (and nonce) from being served.
-		 *
-		 * @since x.x.x
 		 */
 		masteriyo_nocache_headers();
 	}
 
 	/**
-	 * Show notice in litespeed cache.
+	 * Display notices for minification conflicts with Masteriyo.
 	 *
-	 * @since 1.15.0
-	 *
-	 * @return array
-	 */
-	public function masteriyo_display_ls_minify_notice() {
-
-		$now          = get_current_screen();
-		$current_page = $now->base;
-
-		if ( 'litespeed-cache/litespeed-cache.php' === $this->plugin && strpos( $current_page, 'litespeed-cache_page_litespeed-page_optm' ) !== false ) {
-			$minify_settings = array();
-			$minify_css      = get_option( 'litespeed.conf.optm-css_min' );
-			$minify_js       = get_option( 'litespeed.conf.optm-js_min	' );
-
-			if ( $minify_js ) {
-				$minify_settings[] = 'JavaScript';
-			}
-
-			if ( $minify_css ) {
-				$minify_settings[] = 'CSS';
-			}
-
-			if ( ! empty( $minify_settings ) ) {
-				$settings_text = implode( ' and ', $minify_settings );
-				printf(
-					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
-					esc_html( 'Masteriyo:' ),
-					wp_kses_post( sprintf( 'For best results, please disable %s minification. Masteriyo already includes optimized files, and further minification may cause issues.', $settings_text ) ),
-					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-				);
-			} elseif ( 'litespeed-cache/litespeed-cache.php' === $this->plugin && strpos( $current_page, 'litespeed-cache_page_litespeed-cache' ) !== false ) {
-				$cache_rest = get_option( 'litespeed.conf.cache-rest' );
-				if ( $cache_rest ) {
-					printf(
-						'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
-						esc_html( 'Masteriyo:' ),
-						wp_kses_post( sprintf( 'For best results, please disable Caching REST API. Masteriyo already includes optimized resources, and further caching may cause issues.' ) ),
-						esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-					);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Show notice in w3 total cache minify status page.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return array
-	 */
-	public function masteriyo_display_w3tc_minify_notice() {
-		$data = get_transient( 'masteriyo_w3tc_data' );
-
-		if ( ! $data ) {
-			return;
-		}
-
-		$now          = get_current_screen();
-		$current_page = $now->base;
-
-		if ( 'w3-total-cache/w3-total-cache.php' === $this->plugin && strpos( $current_page, 'w3tc_minify' ) !== false ) {
-			$minify_settings = array();
-
-			if ( is_object( $data ) ) {
-				if ( $data->get( 'minify.js.enable' ) ) {
-					$minify_settings[] = 'JavaScript';
-				}
-				if ( $data->get( 'minify.css.enable' ) ) {
-					$minify_settings[] = 'CSS';
-				}
-			}
-
-			if ( ! empty( $minify_settings ) ) {
-				$settings_text = implode( ' and ', $minify_settings );
-				printf(
-					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
-					esc_html( 'Masteriyo:' ),
-					wp_kses_post( sprintf( 'For best results, please disable %s minification. Masteriyo already includes optimized files, and further minification may cause issues.', $settings_text ) ),
-					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-				);
-			}
-		}
-	}
-
-	/**
-	 * Show notice in wp-optimize minify status page.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return array
-	 */
-	public function masteriyo_display_wpo_minify_notice() {
-		$now = get_option( 'wpo_minify_config' );
-
-		$enable_js  = ! empty( $now['enable_js'] );
-		$enable_css = ! empty( $now['enable_css'] );
-
-		$message_parts = array();
-		if ( $enable_js ) {
-			$message_parts[] = 'JavaScript';
-		}
-		if ( $enable_css ) {
-			$message_parts[] = 'CSS';
-		}
-
-		if ( 'wp-optimize/wp-optimize.php' === $this->plugin ) {
-			if ( ! empty( $message_parts ) ) {
-				$message      = implode( ' and ', $message_parts );
-				$full_message = sprintf(
-					'For best results, please disable %s minification. Masteriyo already includes optimized files, and further minification may cause issues.',
-					$message
-				);
-
-				printf(
-					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
-					esc_html( 'Masteriyo:' ),
-					wp_kses_post( $full_message ),
-					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
-				);
-			}
-		}
-	}
-
-	/**
-	 * Store w3tc settings data.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param object $data data.
-	 * @return array
-	 */
-	public function masteriyo_catch_w3tc_minify_settings( $data ) {
-		set_transient( 'masteriyo_w3tc_data', $data, HOUR_IN_SECONDS );
-		return $data;
-	}
-
-	/**
-	 * Display minify-related notices for various plugins.
-	 *
-	 * @since 1.15.0
-	 *
-	 * @return void
+	 * @since 1.15.0 [Free]
 	 */
 	public function masteriyo_display_minify_notice() {
 		$plugins = array(
@@ -296,8 +153,9 @@ abstract class CachePluginCompatibility {
 						$settings_text = implode( ' and ', $minify_settings );
 						printf(
 							'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
-							esc_html( 'Masteriyo:' ),
-							wp_kses_post( sprintf( 'For best results, please disable %s minification. Masteriyo already includes optimized files, and further minification may cause issues.', $settings_text ) ),
+							esc_html( masteriyo_get_plugin_name() . ':' ),
+							/* translators: %1$s: the cache plugin's minification setting names, %2$s: the product's name */
+							wp_kses_post( sprintf( __( 'For best results, please disable %1$s minification. %2$s already includes optimized files, and further minification may cause issues.', 'learning-management-system' ), $settings_text, masteriyo_get_plugin_name() ) ),
 							esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 						);
 				}
@@ -310,7 +168,7 @@ abstract class CachePluginCompatibility {
 	/**
 	 * Helper function to get nested options using dot notation.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param array  $data Array of data.
 	 * @param string $key  Key in dot notation.
@@ -324,6 +182,156 @@ abstract class CachePluginCompatibility {
 			}
 			$data = $data[ $k ];
 		}
+		return $data;
+	}
+
+	/**
+	 * Show notice in litespeed cache.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return array
+	 */
+	public function masteriyo_display_ls_minify_notice() {
+
+		$now          = get_current_screen();
+		$current_page = $now->base;
+
+		if ( 'litespeed-cache/litespeed-cache.php' === $this->plugin && strpos( $current_page, 'litespeed-cache_page_litespeed-page_optm' ) !== false ) {
+			$minify_settings = array();
+			$minify_css      = get_option( 'litespeed.conf.optm-css_min' );
+			$minify_js       = get_option( 'litespeed.conf.optm-js_min	' );
+
+			if ( $minify_js ) {
+				$minify_settings[] = 'JavaScript';
+			}
+
+			if ( $minify_css ) {
+				$minify_settings[] = 'CSS';
+			}
+
+			if ( ! empty( $minify_settings ) ) {
+				$settings_text = implode( ' and ', $minify_settings );
+				printf(
+					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
+					esc_html( masteriyo_get_plugin_name() . ':' ),
+					/* translators: %1$s: the cache plugin's minification setting names, %2$s: the product's name */
+					wp_kses_post( sprintf( __( 'For best results, please disable %1$s minification. %2$s already includes optimized files, and further minification may cause issues.', 'learning-management-system' ), $settings_text, masteriyo_get_plugin_name() ) ),
+					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
+				);
+			}
+		} elseif ( 'litespeed-cache/litespeed-cache.php' === $this->plugin && strpos( $current_page, 'litespeed-cache_page_litespeed-cache' ) !== false ) {
+			$cache_rest = get_option( 'litespeed.conf.cache-rest' );
+			if ( $cache_rest ) {
+				printf(
+					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
+					esc_html( masteriyo_get_plugin_name() . ':' ),
+					wp_kses_post(
+						sprintf(
+							/* translators: %s: the product's name */
+							__( 'For best results, please disable Caching REST API. %s already includes optimized resources, and further caching may cause issues.', 'learning-management-system' ),
+							masteriyo_get_plugin_name()
+						)
+					),
+					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
+				);
+			}
+		}
+	}
+
+	/**
+	 * Show notice in w3 total cache minify status page.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return array
+	 */
+	public function masteriyo_display_w3tc_minify_notice() {
+		$data = get_transient( 'masteriyo_w3tc_data' );
+
+		if ( ! $data ) {
+			return;
+		}
+
+		$now          = get_current_screen();
+		$current_page = $now->base;
+
+		if ( 'w3-total-cache/w3-total-cache.php' === $this->plugin && strpos( $current_page, 'w3tc_minify' ) !== false ) {
+			$minify_settings = array();
+
+			if ( is_object( $data ) ) {
+				if ( $data->get( 'minify.js.enable' ) ) {
+					$minify_settings[] = 'JavaScript';
+				}
+				if ( $data->get( 'minify.css.enable' ) ) {
+					$minify_settings[] = 'CSS';
+				}
+			}
+
+			if ( ! empty( $minify_settings ) ) {
+				$settings_text = implode( ' and ', $minify_settings );
+				printf(
+					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
+					esc_html( masteriyo_get_plugin_name() . ':' ),
+					/* translators: %1$s: the cache plugin's minification setting names, %2$s: the product's name */
+					wp_kses_post( sprintf( __( 'For best results, please disable %1$s minification. %2$s already includes optimized files, and further minification may cause issues.', 'learning-management-system' ), $settings_text, masteriyo_get_plugin_name() ) ),
+					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
+				);
+			}
+		}
+	}
+
+	/**
+	 * Show notice in wp-optimize minify status page.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @return array
+	 */
+	public function masteriyo_display_wpo_minify_notice() {
+		$now = get_option( 'wpo_minify_config' );
+
+		$enable_js  = ! empty( $now['enable_js'] );
+		$enable_css = ! empty( $now['enable_css'] );
+
+		$message_parts = array();
+		if ( $enable_js ) {
+			$message_parts[] = 'JavaScript';
+		}
+		if ( $enable_css ) {
+			$message_parts[] = 'CSS';
+		}
+
+		if ( 'wp-optimize/wp-optimize.php' === $this->plugin ) {
+			if ( ! empty( $message_parts ) ) {
+				$message      = implode( ' and ', $message_parts );
+				$full_message = sprintf(
+					/* translators: %1$s: the cache plugin's minification setting names, %2$s: the product's name */
+					__( 'For best results, please disable %1$s minification. %2$s already includes optimized files, and further minification may cause issues.', 'learning-management-system' ),
+					$message,
+					masteriyo_get_plugin_name()
+				);
+
+				printf(
+					'<div class="notice notice-warning is-dismissible"><p><strong>%s</strong> %s</p><span class="screen-reader-text">%s</span></div>',
+					esc_html( masteriyo_get_plugin_name() . ':' ),
+					wp_kses_post( $full_message ),
+					esc_html__( 'Dismiss this notice.', 'learning-management-system' )
+				);
+			}
+		}
+	}
+
+	/**
+	 * Store w3tc settings data minification.
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @param object $data data.
+	 * @return object
+	 */
+	public function masteriyo_catch_w3tc_minify_settings( $data ) {
+		set_transient( 'masteriyo_w3tc_data', $data, HOUR_IN_SECONDS );
 		return $data;
 	}
 

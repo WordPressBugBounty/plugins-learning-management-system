@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QuizAttempt Repository class.
  *
@@ -71,6 +72,16 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 		 * @param \Masteriyo\Models\QuizAttempt $object The quiz attempt object.
 		 */
 		do_action( 'masteriyo_create_quiz_attempt', $quiz_attempt->get_id(), $quiz_attempt );
+
+		/**
+		 * Fires after creating a quiz attempt.
+		 *
+		 * @since 2.5.20
+		 *
+		 * @param integer $id The quiz attempt ID.
+		 * @param \Masteriyo\Models\QuizAttempt $object The quiz attempt object.
+		 */
+		do_action( 'masteriyo_new_quiz_attempt', $quiz_attempt->get_id(), $quiz_attempt );
 	}
 
 	/**
@@ -91,6 +102,7 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 		$data      = $cache->get_cache( $cache_key );
 
 		if ( ! $data ) {
+
 			$data = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM {$wpdb->prefix}masteriyo_quiz_attempts WHERE id = %d LIMIT 1;",
@@ -99,7 +111,7 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 			);
 
 			if ( ! $data ) {
-				throw new \Exception( __( 'Invalid quiz attempt.', 'learning-management-system' ) );
+				throw new \Exception( esc_html__( 'Invalid quiz attempt.', 'learning-management-system' ) );
 			}
 
 			$cache->set_cache( $cache_key, $data );
@@ -141,7 +153,6 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 		$changes = $quiz_attempt->get_changes();
 
 		if ( ! empty( $changes ) ) {
-
 			$ended_at = $quiz_attempt->get_attempt_ended_at( 'edit' );
 
 			$result = $wpdb->update(
@@ -239,7 +250,7 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 	/**
 	 * Clear meta cache.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Models\QuizAttempt $quiz_attempt quiz attempt object.
 	 */
@@ -275,16 +286,20 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 			$search_criteria[] = $wpdb->prepare( 'quiz_id = %d', $query_vars['quiz_id'] );
 		}
 
+		if ( ! empty( $query_vars['quiz'] ) ) {
+			$search_criteria[] = $this->create_sql_in_query( 'quiz_id', $query_vars['quiz'] );
+		}
+
+		if ( ! empty( $query_vars['user'] ) ) {
+			$search_criteria[] = $this->create_sql_in_query( 'user_id', $query_vars['user'] );
+		}
+
 		if ( ! empty( $query_vars['user_id'] ) ) {
 			$search_criteria[] = $wpdb->prepare( 'user_id = %d', $query_vars['user_id'] );
 		}
 
 		if ( ! empty( $query_vars['status'] ) ) {
 			$search_criteria[] = $wpdb->prepare( 'attempt_status = %s', $query_vars['status'] );
-		}
-
-		if ( ! empty( $query_vars['quiz'] ) ) {
-			$search_criteria[] = $this->create_sql_in_query( 'quiz_id', $query_vars['quiz'] );
 		}
 
 		if ( 1 <= count( $search_criteria ) ) {

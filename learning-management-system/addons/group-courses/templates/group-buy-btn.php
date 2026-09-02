@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The Template for displaying group buy button.
+ * The Template for displaying group buy button with multi-tier pricing support.
  *
  * @version 1.9.0
  */
@@ -25,6 +25,30 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 	}
 }
 
+// Filter pricing tiers based on available seats.
+if ( $has_pricing_tiers && $available_seats > 0 ) {
+	$pricing_tiers = array_filter(
+		$pricing_tiers,
+		function ( $tier ) use ( $available_seats ) {
+			$seat_model = isset( $tier['seat_model'] ) ? $tier['seat_model'] : 'fixed';
+
+			if ( 'fixed' === $seat_model ) {
+				$group_size = isset( $tier['group_size'] ) ? intval( $tier['group_size'] ) : 0;
+				return $group_size > 0 && $group_size <= $available_seats;
+			} else {
+				// For variable seat model, check if minimum seats can be accommodated.
+				$min_seats = isset( $tier['min_seats'] ) ? intval( $tier['min_seats'] ) : 0;
+				return $min_seats > 0 && $min_seats <= $available_seats;
+			}
+		}
+	);
+
+	// If no tiers remain after filtering, don't show the group buy section.
+	if ( empty( $pricing_tiers ) ) {
+		return;
+	}
+}
+
 ?>
 <div class="masteriyo-group-course__group-button" id="masteriyoGroupCoursesEnrollBtn">
 	<?php
@@ -32,7 +56,7 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 	 * Action hook for adding custom description for group course modal.
 	 *
 	 * @since 1.9.0
-	 * @deprecated 1.20.0 Use 'masteriyo_before_group_buy_button' or 'masteriyo_after_group_buy_button' instead.
+	 * @deprecated 2.30.0 Use 'masteriyo_before_group_buy_button' or 'masteriyo_after_group_buy_button' instead.
 	 */
 	ob_start();
 	do_action( 'masteriyo_group_course_modal_description' );
@@ -49,7 +73,7 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 	/**
 	 * Action hook before group buy button.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 */
 	do_action( 'masteriyo_before_group_buy_button', $course );
 	?>
@@ -69,13 +93,23 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 				$sale_price    = isset( $tier['sale_price'] ) && ! empty( $tier['sale_price'] ) ? floatval( $tier['sale_price'] ) : 0;
 				$display_price = $sale_price > 0 ? $sale_price : $regular_price;
 
-				// Seat information (fixed seats only)
+				// Seat information
 				$group_size = isset( $tier['group_size'] ) ? intval( $tier['group_size'] ) : 0;
+				$min_seats  = isset( $tier['min_seats'] ) ? intval( $tier['min_seats'] ) : 0;
+				$max_seats  = isset( $tier['max_seats'] ) ? intval( $tier['max_seats'] ) : 0;
 
-				// Skip this tier if it requires more seats than available
-				if ( 0 !== $course->get_enrollment_limit() && $group_size > $available_seats ) {
-					continue;
+				// Cap max_seats to available seats if enrollment limit is set.
+				if ( $available_seats > 0 && $max_seats > $available_seats ) {
+					$max_seats = $available_seats;
 				}
+
+				// Pricing model for variable seats
+				$pricing_model = isset( $tier['pricing_model'] ) ? $tier['pricing_model'] : 'per_seat';
+				$price_tiers   = isset( $tier['tiers'] ) && is_array( $tier['tiers'] ) ? $tier['tiers'] : array();
+
+				// Determine price display
+				$is_variable = 'variable' === $seat_model;
+				$is_tiered   = $is_variable && 'tiered' === $pricing_model;
 
 				// Build pricing interval text
 				$interval_text = '';
@@ -84,17 +118,25 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 				}
 
 				// Build seat info text
-				/* translators: %d: Number of seats */
-				$seats_info = sprintf( _n( '%d seat included', '%d seats', $group_size, 'learning-management-system' ), $group_size );
-
-				// Build description (fixed seats only)
-				if ( 'recurring' === $pricing_type ) {
-					$description = __( 'Monthly subscription for teams', 'learning-management-system' );
+				if ( $is_variable ) {
+					if ( $is_tiered && ! empty( $price_tiers ) ) {
+						$min_tier_price   = floatval( $price_tiers[0]['per_seat_price'] );
+						$max_tier_price   = floatval( end( $price_tiers )['per_seat_price'] );
+						$price_range_text = masteriyo_price( $max_tier_price, array( 'currency' => $currency ) ) . '-' . masteriyo_price( $min_tier_price, array( 'currency' => $currency ) );
+					}
+					$seats_info = sprintf( '%d - %d seats', $min_seats, $max_seats );
 				} else {
-					$description = __( 'One-time payment for teams', 'learning-management-system' );
+					/* translators: %d: Number of seats */
+					$seats_info = sprintf( _n( '%d seat included', '%d seats', $group_size, 'learning-management-system' ), $group_size );
 				}
 
-				// Pre-select first tier only if not coming soon
+				// Build description
+				if ( 'recurring' === $pricing_type ) {
+					$description = $is_variable ? __( 'Flexible seats with monthly subscription', 'learning-management-system' ) : __( 'Monthly subscription for teams', 'learning-management-system' );
+				} else {
+					$description = $is_variable ? __( 'Flexible one-time pricing for any team size', 'learning-management-system' ) : __( 'One-time payment for teams', 'learning-management-system' );
+				}
+
 				$is_first_tier = ( 0 === $index );
 				$tier_classes  = 'masteriyo-group-pricing-tier';
 				if ( $is_first_tier && ! $is_coming_soon ) {
@@ -106,13 +148,19 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 				?>
 
 				<div class="<?php echo esc_attr( $tier_classes ); ?>"
+					<?php echo $is_coming_soon ? 'style="pointer-events: none; opacity: 0.7;"' : ''; ?>
 					data-tier-id="<?php echo esc_attr( $tier_id ); ?>"
-					data-seat-model="fixed"
+					data-seat-model="<?php echo esc_attr( $seat_model ); ?>"
+					data-pricing-model="<?php echo esc_attr( $pricing_model ); ?>"
 					data-pricing-type="<?php echo esc_attr( $pricing_type ); ?>"
 					data-regular-price="<?php echo esc_attr( $regular_price ); ?>"
 					data-sale-price="<?php echo esc_attr( $sale_price ); ?>"
+					data-min-seats="<?php echo esc_attr( $min_seats ); ?>"
+					data-max-seats="<?php echo esc_attr( $max_seats ); ?>"
 					data-group-size="<?php echo esc_attr( $group_size ); ?>"
-					<?php echo $is_coming_soon ? 'style="pointer-events: none; opacity: 0.7;"' : ''; ?>
+					<?php if ( $is_tiered ) : ?>
+						data-price-tiers='<?php echo esc_attr( wp_json_encode( $price_tiers ) ); ?>'
+					<?php endif; ?>
 				>
 					<div class="masteriyo-group-tier-radio"></div>
 
@@ -134,13 +182,39 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 								<span class="masteriyo-group-tier-price-regular"><?php echo masteriyo_price( $regular_price, array( 'currency' => $currency ) ); ?></span> <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							<?php endif; ?>
 							<span class="masteriyo-group-tier-price-current">
-								<?php echo masteriyo_price( $display_price, array( 'currency' => $currency ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								<?php if ( 'recurring' === $pricing_type ) : ?>
+								<?php
+								if ( $is_tiered ) {
+									echo wp_kses_post( $price_range_text );
+								} else {
+									echo masteriyo_price( $display_price, array( 'currency' => $currency ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								}
+								?>
+								<?php if ( $is_variable ) : ?>
+									<span class="masteriyo-group-tier-price-interval">/seat<?php echo esc_html( $interval_text ); ?></span>
+								<?php elseif ( 'recurring' === $pricing_type ) : ?>
 									<span class="masteriyo-group-tier-price-interval"><?php echo esc_html( $interval_text ); ?></span>
 								<?php endif; ?>
 							</span>
 						</div>
 					</div>
+
+					<?php /* <div class="masteriyo-group-tier-description"><?php echo esc_html( $description ); ?></div> */ ?>
+
+					<?php if ( $is_variable ) : ?>
+					<div class="masteriyo-group-tier-seat-selector" style="<?php echo ( $is_first_tier && ! $is_coming_soon ) ? '' : 'display: none;'; ?>">
+						<div class="masteriyo-group-tier-seats-input-wrapper">
+							<label class="masteriyo-group-tier-seats-label"><?php esc_html_e( 'Number of seats', 'learning-management-system' ); ?></label>
+							<input type="number"
+								class="masteriyo-group-tier-seats-input"
+								min="<?php echo esc_attr( $min_seats ); ?>"
+								max="<?php echo esc_attr( $max_seats ); ?>"
+								value="<?php echo esc_attr( $min_seats ); ?>"
+								placeholder="<?php esc_attr_e( 'Enter number of seats', 'learning-management-system' ); ?>"
+							/>
+						</div>
+						<div class="masteriyo-group-tier-seats-hint"></div>
+					</div>
+				<?php endif; ?>
 			</div>
 		<?php endforeach; ?>
 
@@ -167,13 +241,14 @@ if ( 0 !== $course->get_enrollment_limit() ) {
 			<?php echo esc_html( $multi_tier_button_text ); ?>
 		</button>
 	</div>
+
 	<?php endif; ?>
 
 	<?php
 	/**
 	 * Action hook after group buy button.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 */
 	do_action( 'masteriyo_after_group_buy_button', $course );
 	?>

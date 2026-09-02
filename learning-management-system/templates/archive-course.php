@@ -95,7 +95,7 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	</div>
 	<?php endif; ?>
 
-	<div class="masteriyo-course-list-display-section default">
+	<div class="masteriyo-course-list-display-section default" data-layout="default">
 
 	<?php
 
@@ -126,7 +126,8 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 				/**
 				 * Fires for each item in course loop before rendering its template.
 				 *
-				 *Added a new argument $course to the hook @since 1.11.0
+				 *Added a new argument $course to the hook @since 1.11.0 [free]
+				 *
 				 *
 				 * @since 1.0.0
 				 */

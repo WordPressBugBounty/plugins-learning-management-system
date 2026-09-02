@@ -57,7 +57,6 @@ const CourseGoogleMeetingHeader: React.FC<Props> = ({}) => {
 				icon: <Gear width={20} height={20} fill="currentColor" />,
 			},
 		];
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

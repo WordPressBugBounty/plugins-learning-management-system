@@ -3,7 +3,6 @@
  * List Orders ability.
  *
  * @package Masteriyo\Abilities\Domains\Order
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Order;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a paginated list of orders.
- *
- * @since x.x.x
  */
 class ListOrdersAbility extends RestProxyAbility {
 

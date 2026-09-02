@@ -82,7 +82,7 @@ class CourseUserProgress extends BlockHandler {
 
 		printf(
 			'<div class="masteriyo-block masteriyo-user-course-progress-block--%s">',
-			$client_id
+			esc_attr( $client_id )
 		);
 
 		$query = new CourseProgressQuery(
@@ -103,7 +103,6 @@ class CourseUserProgress extends BlockHandler {
 				esc_html__( 'No progress found for the course: %s', 'learning-management-system' ),
 				esc_html( $course->get_title() )
 			);
-
 			?>
 		</div>
 		</div>

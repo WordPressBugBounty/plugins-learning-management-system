@@ -196,7 +196,7 @@ class CourseRetakeWidget extends SingleCourseWidgetBase {
 
 		?>
 		<span class="masteriyo-time-btn">
-			<?php	masteriyo_template_course_retake_button( $course ); ?>
+			<?php masteriyo_template_course_retake_button( $course ); ?>
 		</span>
 		<?php
 	}

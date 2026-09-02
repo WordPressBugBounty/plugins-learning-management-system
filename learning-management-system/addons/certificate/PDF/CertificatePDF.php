@@ -9,7 +9,6 @@ namespace Masteriyo\Addons\Certificate\PDF;
 
 defined( 'ABSPATH' ) || exit;
 
-
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
 use Mpdf\Output\Destination;
@@ -81,8 +80,6 @@ class CertificatePDF {
 	/**
 	 * Certificate ID (optional, used for pdfdraft format).
 	 *
-	 * @since x.x.x
-	 *
 	 * @var integer|null
 	 */
 	protected $certificate_id = null;
@@ -90,8 +87,6 @@ class CertificatePDF {
 	/**
 	 * Preview HTML override — set when generating a one-time preview from the designer.
 	 * When set, prepare_pdf_pdfdraft() uses this instead of the DB-stored rendered_html.
-	 *
-	 * @since x.x.x
 	 *
 	 * @var string|null
 	 */
@@ -117,8 +112,6 @@ class CertificatePDF {
 	/**
 	 * Extract page dimensions from a pdfdraft certificate's JSON layout, returned
 	 * as an array suitable for passing to init_mpdf().
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
 	 * @return array{format: float[]}
@@ -236,7 +229,7 @@ class CertificatePDF {
 			'default_font'     => 'Arial, sans-serif',
 			'autoScriptToLang' => false,
 			'autoLangToFont'   => true,
-			'fontdata'         => $fontdata,
+			'fontdata'         => $fontdata + masteriyo_get_font_configurations(),
 		);
 
 		// Merge in page dimensions when provided (pdfdraft format).
@@ -351,8 +344,6 @@ class CertificatePDF {
 	/**
 	 * Prepare PDF for pdfdraft format certificates.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
 	 * @param boolean $is_preview
 	 * @return true|\WP_Error
@@ -393,8 +384,6 @@ class CertificatePDF {
 
 	/**
 	 * Build the merge tag replacements array for PDFDraft certificates.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param boolean $is_preview
 	 * @return array Map of {{tag}} => resolved value.
@@ -528,8 +517,6 @@ class CertificatePDF {
 		/**
 		 * Filter the merge tag replacements for pdfdraft certificates.
 		 *
-		 * @since x.x.x
-		 *
 		 * @param array   $replacements  Map of merge tag => replacement value.
 		 * @param boolean $is_preview
 		 * @param \Masteriyo\Course\Course|null $course
@@ -541,15 +528,15 @@ class CertificatePDF {
 	/**
 	 * Replace merge tags in the rendered HTML snapshot.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string  $html       Rendered HTML snapshot.
 	 * @param boolean $is_preview Whether this is a preview.
 	 * @return string
 	 */
 	protected function replace_pdfdraft_merge_tags( $html, $is_preview ) {
 		$replacements = $this->build_pdfdraft_replacements( $is_preview );
+
 		$html = $this->replace_pdfdraft_data_merge_tag_elements( $html, $replacements );
+
 		$html_value_tags = $this->get_pdfdraft_html_value_tags();
 		$escaped         = array();
 		foreach ( $replacements as $tag => $value ) {
@@ -566,15 +553,11 @@ class CertificatePDF {
 	 * Every other merge value is user-controlled and is escaped before being
 	 * placed into the rendered certificate HTML.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string[]
 	 */
 	protected function get_pdfdraft_html_value_tags() {
 		/**
 		 * Filters the merge tags treated as raw HTML in pdfdraft certificates.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param string[] $tags Merge tags whose value is trusted HTML.
 		 */
@@ -586,8 +569,6 @@ class CertificatePDF {
 
 	/**
 	 * Resolve merge tags in a PDFDraft JSON for client-side PDF generation.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array   $json       Decoded certificate JSON.
 	 * @param boolean $is_preview
@@ -640,8 +621,6 @@ class CertificatePDF {
 	 * (avoids canvas tainting when a CDN/CloudFront response is missing CORS
 	 * headers, which silently drops images from the generated PDF).
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $json Decoded certificate design.
 	 * @return array
 	 */
@@ -678,8 +657,6 @@ class CertificatePDF {
 	/**
 	 * Recursively inline image-element src/originalSrc within a node list.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $nodes
 	 * @return array
 	 */
@@ -715,8 +692,6 @@ class CertificatePDF {
 	 * other host must resolve exclusively to public IP addresses; loopback,
 	 * private, link-local (incl. 169.254.169.254 cloud metadata) and reserved
 	 * ranges are rejected.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $url
 	 * @return bool
@@ -779,8 +754,6 @@ class CertificatePDF {
 	 * a request-static map and a day-long transient). Returns the URL unchanged
 	 * for data:/relative URLs or on fetch failure.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $url
 	 * @return string
 	 */
@@ -821,10 +794,10 @@ class CertificatePDF {
 		$response = wp_remote_get(
 			$url,
 			array(
-				'timeout'           => 10,
-				'redirection'       => 2,
+				'timeout'            => 10,
+				'redirection'        => 2,
 				'reject_unsafe_urls' => true,
-				'sslverify'         => (bool) Setting::get( 'use_ssl_verified' ),
+				'sslverify'          => (bool) Setting::get( 'use_ssl_verified' ),
 			)
 		);
 
@@ -854,7 +827,6 @@ class CertificatePDF {
 	/**
 	 * Collect font-family values from all page nodes into the fonts map.
 	 *
-	 * @since x.x.x
 	 * @param array $pages PDFDraft pages array.
 	 * @param array $fonts Existing fonts map.
 	 * @return array
@@ -867,7 +839,6 @@ class CertificatePDF {
 	/**
 	 * Recursively walk PDFDraft node tree collecting font-family values.
 	 *
-	 * @since x.x.x
 	 * @param mixed $data  Current node or subtree.
 	 * @param array $fonts Fonts map passed by reference.
 	 */
@@ -906,7 +877,6 @@ class CertificatePDF {
 	/**
 	 * Add a single font family to the fonts map if not already present.
 	 *
-	 * @since x.x.x
 	 * @param string $family Raw font-family string.
 	 * @param array  $fonts  Fonts map passed by reference.
 	 */
@@ -930,8 +900,6 @@ class CertificatePDF {
 
 	/**
 	 * Convert non-native PDFDraft element types to 'text' recursively.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param mixed $node         Current node in the JSON tree.
 	 * @param array $replacements Resolved {{tag}} => value map.
@@ -1031,8 +999,6 @@ class CertificatePDF {
 	/**
 	 * Replace elements marked with data-merge-tag in the saved PDFdraft HTML snapshot.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $html
 	 * @param array  $replacements
 	 * @return string
@@ -1099,6 +1065,21 @@ class CertificatePDF {
 						}
 					}
 				}
+
+				// Drop the editor placeholder look (gray fill + dashed outline) baked into
+				// the rendered_html snapshot so the resolved image renders flush, matching the PDF.
+				$style = $node->getAttribute( 'style' );
+				if ( $style && preg_match( '/border\s*:[^;]*dashed/i', $style ) ) {
+					$style = preg_replace( '/(?:^|;)\s*border\s*:[^;]*/i', ';', $style );
+					$style = preg_replace( '/(?:^|;)\s*background(?:-color)?\s*:[^;]*/i', ';', $style );
+					$style = preg_replace( '/;+/', ';', (string) $style );
+					$style = trim( (string) $style, "; \t\n\r" );
+					if ( '' === $style ) {
+						$node->removeAttribute( 'style' );
+					} else {
+						$node->setAttribute( 'style', $style );
+					}
+				}
 			} else {
 				$node->appendChild( $dom->createTextNode( $replacement ) );
 			}
@@ -1124,8 +1105,6 @@ class CertificatePDF {
 	/**
 	 * Get QR code image markup for PDFdraft certificates.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $verification_code Certificate verification code.
 	 * @return string
 	 */
@@ -1147,8 +1126,6 @@ class CertificatePDF {
 
 	/**
 	 * Base CSS for pdfdraft-format certificates.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -1411,8 +1388,6 @@ class CertificatePDF {
 	 * Replace merge tags and strip unsafe attributes from a pdfdraft HTML snapshot.
 	 * Returns the processed HTML string ready for client-side PDF generation.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $html Raw rendered_html from the certificate.
 	 * @return string
 	 */
@@ -1428,8 +1403,6 @@ class CertificatePDF {
 	 * Set a one-time preview HTML override for pdfdraft format.
 	 *
 	 * When set, prepare_pdf_pdfdraft() uses this HTML instead of the DB-stored rendered_html.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $html Pre-rendered HTML snapshot from the designer.
 	 */

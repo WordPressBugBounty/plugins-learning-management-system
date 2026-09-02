@@ -3,7 +3,6 @@
  * Delete Question ability.
  *
  * @package Masteriyo\Abilities\Domains\Question
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Question;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Unlike course/lesson/quiz deletes, questions do not support a trash state —
  * this operation is always permanent.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class DeleteQuestionAbility extends RestProxyAbility {
 

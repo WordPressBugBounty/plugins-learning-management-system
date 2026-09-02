@@ -7,6 +7,8 @@
 
 namespace Masteriyo;
 
+use Masteriyo\Enums\PostStatus;
+
 defined( 'ABSPATH' ) || exit;
 
 
@@ -57,11 +59,92 @@ class Activation {
 	}
 
 	/**
+	 * Create the Checkout page when a settings save turns payments on.
+	 *
+	 * Course saves are covered by maybe_create_checkout_page(); without this, a
+	 * site that already had paid courses and enabled its first gateway afterwards
+	 * would carry the missing-page notice until the next course save.
+	 *
+	 * Runs on the masteriyo_new_setting filter, so the setting is passed through.
+	 *
+	 * @param mixed $setting Setting being saved.
+	 * @return mixed The same setting, untouched.
+	 */
+	public static function maybe_create_checkout_for_settings( $setting ) {
+		if ( ! function_exists( 'masteriyo_site_needs_checkout' ) || ! masteriyo_site_needs_checkout() ) {
+			return $setting;
+		}
+
+		$page = get_post( masteriyo_get_setting( 'general.pages.checkout_page_id' ) );
+
+		if ( $page && 'page' === $page->post_type ) {
+			return $setting;
+		}
+
+		// needs_checkout() already encodes the whole rule — the wizard answered
+		// sell/both or a gateway is enabled — so gating further on a published paid
+		// course left gateway-first sites carrying the missing-page notice with
+		// nothing creating the page.
+		//
+		// create_pages() takes the pages to SKIP. Naming 'checkout' here reads like
+		// the intent and does the opposite: it skips the one page this function
+		// exists to create, and makes the five it must not touch — including the two
+		// instructor pages this milestone stopped shipping. Creating only Checkout
+		// means naming every other page, as maybe_create_checkout_page() below does.
+		self::create_pages(
+			array( 'courses', 'account', 'learn', 'instructor-registration', 'instructors-list' )
+		);
+
+		return $setting;
+	}
+
+	/**
+	 * Create the Checkout page if a course needs it and the site has none.
+	 *
+	 * Checkout is not created at install because whether the site sells is unknown
+	 * then. A site that answered "we enrol them ourselves" and later publishes a
+	 * paid course would otherwise hit the missing-page redirect.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param object $course    Course object.
+	 */
+	public static function maybe_create_checkout_page( $course_id, $course ) {
+		if ( ! is_object( $course ) || ! method_exists( $course, 'get_price' ) || ! method_exists( $course, 'get_status' ) ) {
+			return;
+		}
+
+		if ( 0 >= (float) $course->get_price() ) {
+			return;
+		}
+
+		// Both course hooks fire on drafts, so pricing one a user never publishes would
+		// stand up a live Checkout page on a site that has never sold. Publishing the
+		// course fires them again, which is when the page is actually needed.
+		if ( PostStatus::PUBLISH !== $course->get_status() ) {
+			return;
+		}
+
+		$page = get_post( masteriyo_get_setting( 'general.pages.checkout_page_id' ) );
+
+		// A page that exists already is the admin's to manage. Republishing something they
+		// trashed or unpublished on every paid-course save would be undoing their work.
+		if ( $page && 'page' === $page->post_type ) {
+			return;
+		}
+
+		self::create_pages(
+			array( 'courses', 'account', 'learn', 'instructor-registration', 'instructors-list' )
+		);
+	}
+
+	/**
 	 * Create pages that the plugin relies on, storing page IDs in variables.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param string[] $exclude Page keys (from the masteriyo_create_pages filter) to skip.
 	 */
-	public static function create_pages() {
+	public static function create_pages( array $exclude = array() ) {
 		/**
 		 * Filters the list of pages that will be created on plugin activation.
 		 *
@@ -112,6 +195,10 @@ class Activation {
 		);
 
 		foreach ( $pages as $key => $page ) {
+			if ( in_array( $key, $exclude, true ) ) {
+				continue;
+			}
+
 			$setting_name = $page['setting_name'];
 			$post_id      = masteriyo_get_setting( "general.pages.{$setting_name}" );
 			$post         = get_post( $post_id );
@@ -167,10 +254,12 @@ class Activation {
 				$page_id = masteriyo_create_page( $slug, $setting_name, $page['title'], $page['content'], ! empty( $page['parent'] ) ? masteriyo_get_page_id( $page['parent'] ) : '' );
 			}
 
-			masteriyo_set_setting( "general.pages.{$setting_name}", $page_id );
+			// Raw write: a full save would hydrate the USD default (blocking the
+			// wizard's currency inference) and re-fire masteriyo_new_setting from
+			// inside its own hook.
+			masteriyo_set_raw_setting( "general.pages.{$setting_name}", $page_id );
 		}
 	}
-
 
 	/**
 	 * Assign core capabilities to admin role.
@@ -254,7 +343,7 @@ class Activation {
 	/**
 	 * Create log files.
 	 *
-	 * @since 1.12.2
+	 * @since 2.12.2
 	 */
 	private static function create_log_files() {
 		// Bypass if filesystem is read-only and/or non-standard upload system is used.

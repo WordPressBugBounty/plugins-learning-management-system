@@ -4,7 +4,7 @@
  *
  * Functions that must be defined to correctly fulfill log handler API.
  *
- * @since 1.12.2
+ * @since 2.12.2
  * @package Masteriyo\Interfaces
  */
 

@@ -8,9 +8,7 @@ namespace Masteriyo\Repository;
 defined( 'ABSPATH' ) || exit;
 
 
-use Masteriyo\Constants;
 use Masteriyo\Database\Model;
-use Masteriyo\Models\Setting;
 
 class SettingRepository extends AbstractRepository implements RepositoryInterface {
 	/**
@@ -24,18 +22,18 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 		$posted_setting = $setting->get_data();
 		$setting_in_db  = get_option( 'masteriyo_settings', array() );
 
-		$posted_setting = $this->clean_setting( $posted_setting, true );
-		$setting_in_db  = $this->clean_setting( $setting_in_db );
+		$clean_posted_setting = $this->clean_setting( $posted_setting, true );
+		$clean_setting_in_db  = $this->clean_setting( $setting_in_db );
 
 		// if courses permalink / slugs changed then update masteriyo_flush_rewrite_rules.
 		$should_update_permalink = false;
-		foreach ( $posted_setting['advance']['permalinks'] as $permalink => $value ) {
-			if ( ! isset( $setting_in_db['advance']['permalinks'][ $permalink ] ) ) {
+		foreach ( $clean_posted_setting['advance']['permalinks'] as $permalink => $value ) {
+			if ( ! isset( $clean_setting_in_db['advance']['permalinks'][ $permalink ] ) ) {
 				$should_update_permalink = true;
 				break;
 			}
 
-			if ( $value !== $setting_in_db['advance']['permalinks'][ $permalink ] ) {
+			if ( $value !== $clean_setting_in_db['advance']['permalinks'][ $permalink ] ) {
 				$should_update_permalink = true;
 				break;
 			}
@@ -49,7 +47,7 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 
 		$default_settings = $setting->get_data();
 
-		$setting_in_db = array_replace_recursive( $default_settings, $setting_in_db, $posted_setting );
+		$setting_in_db = array_replace_recursive( $default_settings, $clean_setting_in_db, $clean_posted_setting );
 
 		$setting->set_data( $setting_in_db );
 
@@ -80,9 +78,11 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 		$setting_in_db = masteriyo_parse_args( $setting_in_db, $setting->get_data() );
 		$setting_in_db = $this->clean_setting( $setting_in_db );
 
-		$setting->set_data( $setting_in_db );
+		if ( isset( $setting_in_db['payments']['taxes']['regions'] ) ) {
+			$setting_in_db['payments']['taxes']['regions'] = maybe_unserialize( $setting_in_db['payments']['taxes']['regions'] );
+		}
 
-		$this->process_setting( $setting );
+		$setting->set_data( $setting_in_db );
 
 		$setting->set_object_read( true );
 
@@ -138,28 +138,10 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 	}
 
 	/**
-	 * Process setting.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  \Masteriyo\Models\Setting Setting object.
-	 * @return void
-	 */
-	protected function process_setting( &$setting ) {
-		if ( Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' ) ) {
-			$setting->set( 'advance.debug.template_debug', Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' ) );
-		}
-
-		if ( Constants::get( 'MASTERIYO_DEBUG' ) ) {
-			$setting->set( 'advance.debug.debug', Constants::get( 'MASTERIYO_DEBUG' ) );
-		}
-	}
-
-	/**
 	 * Clean setting and store only which are in the $data of the Setting model.
 	 *
 	 * @param array $setting Setting array.
-	 * @param bool  $sanitize Whether to sanitize the settings. Added since 1.12.2
+	 * @param bool  $sanitize Whether to sanitize the settings. Added since 2.14.0
 	 *
 	 * @since 1.4.2
 	 *
@@ -181,7 +163,7 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 
 		if ( $sanitize ) {
 			foreach ( $filtered_settings as $key => $value ) {
-					$filtered_settings[ $key ] = $setting_object->sanitize( $key, $value );
+				$filtered_settings[ $key ] = $setting_object->sanitize( $key, $value );
 			}
 		}
 

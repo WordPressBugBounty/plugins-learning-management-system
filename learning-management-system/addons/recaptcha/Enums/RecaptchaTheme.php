@@ -2,7 +2,7 @@
 /**
  * Google reCAPTCHA theme enums.
  *
- * @since 1.18.2
+ * @since 2.3.0
  * @package Masteriyo\Addons\Recaptcha
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google reCAPTCHA theme enum class.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 class RecaptchaTheme {
 	/**
 	 * reCAPTCHA light.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const LIGHT = 'light';
@@ -27,7 +27,7 @@ class RecaptchaTheme {
 	/**
 	 * reCAPTCHA dark.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const DARK = 'dark';
@@ -35,7 +35,7 @@ class RecaptchaTheme {
 	/**
 	 * Return all the Google reCAPTCHA themes.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @return array
 	 */
@@ -44,7 +44,7 @@ class RecaptchaTheme {
 			/**
 			 * Filters Google reCAPTCHA theme list.
 			 *
-			 * @since 1.18.2
+			 * @since 2.3.0
 			 *
 			 * @param string[] $statuses Google reCAPTCHA theme list.
 			 */

@@ -19,6 +19,11 @@ $text_align  = is_rtl() ? 'right' : 'left';
 $margin_side = is_rtl() ? 'left' : 'right';
 
 foreach ( $items as $item_id => $item ) :
+
+	if ( masteriyo_is_bundle_order_item( $item ) ) {
+		return;
+	}
+
 	$course        = $item->get_course();
 	$purchase_note = '';
 	$image         = '';
@@ -40,21 +45,23 @@ foreach ( $items as $item_id => $item ) :
 		$image         = $course->get_image( $image_size );
 	}
 
-	?>
+	if ( $show_course_name ) :
+		?>
 	<tr class="
-	<?php
-	/**
-	 * Filters order item table row class.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $class The order item table row class.
-	 * @param object $order_item Order item object.
-	 * @param Masteriyo\Models\Order\Order $order Order object.
-	 */
-	echo esc_attr( apply_filters( 'masteriyo_order_item_class', 'order_item', $item, $order ) );
-	?>
+		<?php
+		/**
+		 * Filters order item table row class.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $class The order item table row class.
+		 * @param object $order_item Order item object.
+		 * @param Masteriyo\Models\Order\Order $order Order object.
+		 */
+		echo esc_attr( apply_filters( 'masteriyo_order_item_class', 'order_item', $item, $order ) );
+		?>
 	">
+		<td style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Course', 'learning-management-system' ); ?></td>
 		<td style="text-align:<?php echo esc_attr( $text_align ); ?>;">
 		<?php
 
@@ -112,6 +119,23 @@ foreach ( $items as $item_id => $item ) :
 
 		?>
 		</td>
+	</tr>
+	<?php endif; ?>
+	<tr class="
+	<?php
+	/**
+	 * Filters order item table row class.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $class The order item table row class.
+	 * @param object $order_item Order item object.
+	 * @param Masteriyo\Models\Order\Order $order Order object.
+	 */
+	echo esc_attr( apply_filters( 'masteriyo_order_item_class', 'order_item', $item, $order ) );
+	?>
+	">
+		<td style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Price', 'learning-management-system' ); ?></td>
 		<td style="text-align:<?php echo esc_attr( $text_align ); ?>;">
 			<?php echo wp_kses_post( $order->get_formatted_line_subtotal( $item ) ); ?>
 		</td>

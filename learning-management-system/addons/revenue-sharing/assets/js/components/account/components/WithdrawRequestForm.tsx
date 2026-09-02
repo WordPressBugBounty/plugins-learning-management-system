@@ -43,8 +43,8 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 		formState: { errors, isDirty },
 		reset,
 		setValue,
-		control,
 		getValues,
+		control,
 	} = useForm();
 	const toast = useToast();
 	const queryClient = useQueryClient();
@@ -67,6 +67,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 			Number(data?.revenue_sharing?.minimum_withdraw_amount ?? 0),
 		);
 	}, [data?.revenue_sharing?.minimum_withdraw_amount, setValue]);
+
 	const onSubmit = (d: any) => {
 		withdrawRequestMutation.mutate({
 			...d,
@@ -115,7 +116,6 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 			},
 		},
 	});
-
 	return (
 		<>
 			<Tooltip
@@ -135,8 +135,15 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 							? true
 							: false
 					}
-					colorScheme="primary"
 					onClick={onOpen}
+					colorScheme={'button'}
+					size="md"
+					variant="outline"
+					py={2}
+					pl={4}
+					pr={4}
+					fontSize={'sm'}
+					fontWeight={'medium'}
 				>
 					{__('Withdraw Now', 'learning-management-system')}
 				</Button>
@@ -187,27 +194,21 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 													);
 												}
 												if (value > availableBalance) {
+													// The maximum branch must name the WITHDRAWABLE
+													// balance, not the minimum. free's 3ce70a925
+													// ("Fix - Translation issues.") copy-pasted the
+													// minimum branch over this one, so both branches
+													// said "at least <minimum>". This is free's own
+													// pre-3ce70a925 text restored.
 													return sprintf(
-														/* translators: %s: minimum withdrawable amount */
+														/* translators: %s: maximum withdrawable amount */
 														_x(
-															'Amount must be at least %s',
+															'Amount must be at most %s',
 															'Withdrawal amount validation error',
 															'learning-management-system',
 														),
 														data?.revenue_sharing
-															?.minimum_withdraw_amount_formatted,
-													);
-												}
-												if (value > availableBalance) {
-													return sprintf(
-														/* translators: %s: minimum withdrawable amount */
-														_x(
-															'Amount must be at least %s',
-															'Withdrawal amount validation error',
-															'learning-management-system',
-														),
-														data?.revenue_sharing
-															?.minimum_withdraw_amount_formatted,
+															?.withdrawable_amount_formatted,
 													);
 												}
 												return true;

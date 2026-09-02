@@ -3,7 +3,6 @@
  * Get Section ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns the section object including its title, description, and display order
  * within the parent course.
- *
- * @since x.x.x
  */
 class GetSectionAbility extends RestProxyAbility {
 

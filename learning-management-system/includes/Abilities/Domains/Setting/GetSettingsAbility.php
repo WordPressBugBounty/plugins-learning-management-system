@@ -3,7 +3,6 @@
  * Get Settings ability.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: read all Masteriyo settings.
- *
- * @since x.x.x
  */
 class GetSettingsAbility extends RestProxyAbility {
 
@@ -46,6 +43,10 @@ class GetSettingsAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Read all Masteriyo LMS settings. Accepts no required input. Returns the full settings object including general, payments, emails, course, quiz, and advanced configuration groups.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Read all %s LMS settings. Accepts no required input. Returns the full settings object including general, payments, emails, course, quiz, and advanced configuration groups.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

@@ -13,7 +13,7 @@ export function useBlockCSS(props: any) {
 	const fontSizeValue = fontSize ? fontSize.value + fontSize.unit : '';
 
 	const editorCSS = useMemo(() => {
-		let css: string[] = [];
+		const css: string[] = [];
 
 		if (alignment) {
 			css.push(`${BLOCK_WRAPPER} { text-align: ${alignment}; }`);
@@ -29,7 +29,7 @@ export function useBlockCSS(props: any) {
 	}, [BLOCK_WRAPPER, alignment, fontSizeValue, textColor]);
 
 	const cssToSave = useMemo(() => {
-		let css: string[] = [];
+		const css: string[] = [];
 
 		if (alignment) {
 			css.push(`${MASTERIYO_WRAPPER} { text-align: ${alignment}; }`);

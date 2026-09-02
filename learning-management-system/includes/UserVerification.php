@@ -13,6 +13,7 @@
 namespace Masteriyo;
 
 use Masteriyo\Enums\UserStatus;
+use WP_Session_Tokens;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -105,6 +106,7 @@ class UserVerification {
 		if ( is_wp_error( $session ) ) {
 			return $session;
 		}
+
 		return $user;
 	}
 }

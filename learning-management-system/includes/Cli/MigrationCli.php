@@ -61,7 +61,7 @@ class MigrationCli {
 		$filename = masteriyo_strtolower( masteriyo_kebab_to_snake( $args[0] ) );
 		$class    = masteriyo_snake_to_pascal( $filename );
 
-		$template = dirname( __FILE__ ) . '/templates/migration';
+		$template = __DIR__ . '/templates/migration';
 		$contents = $this->filesystem->get_contents( $template );
 		$contents = str_replace( '$class', $class, $contents );
 

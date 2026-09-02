@@ -2,7 +2,7 @@
 /**
  * Masteriyo Single Course Search Bricks Element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -20,7 +20,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 /**
 * Masteriyo Single Course Search Bricks Element class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CoursesSearchElement extends \Bricks\Element {
 
@@ -31,7 +31,7 @@ class CoursesSearchElement extends \Bricks\Element {
 	/**
 	* Bricks Single Course Search Label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Search Courses', 'learning-management-system' );
@@ -40,7 +40,7 @@ class CoursesSearchElement extends \Bricks\Element {
 	/**
 	* Bricks set controls groups for Single Course Search CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['search_courses'] = array(
@@ -174,7 +174,7 @@ class CoursesSearchElement extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		echo "<div {$this->render_attributes( '_root' )} style='width:100%;'>"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -29,7 +29,7 @@ const ExchangeRate: React.FC<Props> = (props) => {
 		<>
 			<FormControl isInvalid={!!errors?.exchange_rate}>
 				<FormLabel>
-					{__('Exchange Rate', 'learning-management-system')}{' '}
+					{__('Exchange Rate', 'learning-management-system')}
 					<ToolTip
 						label={__(
 							'Enter the exchange rate manually.',

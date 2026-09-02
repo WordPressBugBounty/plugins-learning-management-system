@@ -12,18 +12,14 @@ namespace Masteriyo\Repository;
 defined( 'ABSPATH' ) || exit;
 
 
-use Masteriyo\Helper\Number;
 use Masteriyo\Models\Course;
 use Masteriyo\Database\Model;
 use Masteriyo\Enums\PostStatus;
-use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\CoursePriceType;
-use Masteriyo\Models\CourseProgress;
-use Masteriyo\Query\UserCourseQuery;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\CourseAccessMode;
-use Masteriyo\Enums\CourseChildrenPostType;
-use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Query\CourseProgressQuery;
+use Masteriyo\Enums\CourseChildrenPostType;
 
 /**
  * Course repository class.
@@ -54,17 +50,31 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		'enrollment_limit'                   => '_enrollment_limit',
 		'duration'                           => '_duration',
 		'access_mode'                        => '_access_mode',
-		'billing_cycle'                      => '_billing_cycle',
 		'show_curriculum'                    => '_show_curriculum',
 		'purchase_note'                      => '_purchase_note',
 		'highlights'                         => '_highlights',
 		'is_ai_created'                      => '_is_ai_created',
 		'is_creating'                        => '_is_creating',
 		'end_date'                           => '_end_date',
+		'course_start_date'                  => '_course_start_date',
+		'enrollment_opens_on'                => '_enrollment_opens_on',
+		'enrollment_closes_on'               => '_enrollment_closes_on',
 		'enable_course_retake'               => '_enable_course_retake',
+
+		// Pro: Subscription fields (when access_mode is recurring)
+		'billing_period'                     => '_billing_period',
+		'billing_interval'                   => '_billing_interval',
+		'billing_expire_after'               => '_billing_expire_after',
+
+		// Pro.
+		'featured_video_source'              => '_featured_video_source',
+		'featured_video_url'                 => '_featured_video_url',
+		'flow'                               => '_flow',
+		'enrollment_expiration_enabled'      => '_enrollment_expiration_enabled',
+		'enrollment_expiration_duration'     => '_enrollment_expiration_duration',
+		'fake_enrolled_count'                => '_fake_enrolled_count',
 		'review_after_course_completion'     => '_review_after_course_completion',
 		'disable_course_content'             => '_disable_course_content',
-		'fake_enrolled_count'                => '_fake_enrolled_count',
 		'welcome_message_to_first_time_user' => '_welcome_message_to_first_time_user',
 		'course_badge'                       => '_course_badge',
 		'reviews_allowed'                    => '_reviews_allowed',
@@ -74,9 +84,13 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		'exchange_rate'                      => '_exchange_rate',
 		'pricing_method'                     => '_pricing_method',
 
-		'flow'                               => '_flow',
 		// Custom Fields
 		'custom_fields'                      => '_custom_fields',
+
+		// Cohort-Based Course
+		'enable_cohort_mode'                 => '_enable_cohort_mode',
+
+		// Course End Date
 		'enable_end_date'                    => '_enable_end_date',
 	);
 
@@ -149,7 +163,6 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 			 */
 			do_action( 'masteriyo_new_course', $id, $course );
 		}
-
 	}
 
 	/**
@@ -165,7 +178,7 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 		$course_post = get_post( $course->get_id() );
 
 		if ( ! $course->get_id() || ! $course_post || PostType::COURSE !== $course_post->post_type ) {
-			throw new \Exception( __( 'Invalid course.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course.', 'learning-management-system' ) );
 		}
 
 		if ( ! $course_post->post_author ) {
@@ -215,9 +228,7 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Model $course Course object.
-	 *
-	 * @return void
+	 * @param \Masteriyo\Models\Course $course Course object.
 	 */
 	public function update( Model &$course ) {
 		$changes = $course->get_changes();
@@ -311,7 +322,7 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 	 *
 	 * @since 1.3.2
 	 *
-	 * @param Course $course Course id or Course Model or Post.
+	 * @param \Masteriyo\Models\Course $course Course id or Course Model or Post.
 	 */
 	protected function update_authors( $course ) {
 		global $wpdb;
@@ -878,7 +889,7 @@ class CourseRepository extends AbstractRepository implements RepositoryInterface
 	/**
 	 * Retrieves progress data for a given course and user.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param Masteriyo\Models\Course|int $course Course object.
 	 * @param Masteriyo\Models\User|int $user User object.

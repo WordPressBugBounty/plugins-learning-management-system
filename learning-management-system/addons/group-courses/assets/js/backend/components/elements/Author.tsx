@@ -112,9 +112,7 @@ const Author: React.FC<Props> = (props) => {
 					components={{ Control: Control as any, Option: Option as any }}
 					styles={reactSelectStyles}
 					cacheOptions={true}
-					loadingMessage={() =>
-						__('Searching...', 'learning-management-system')
-					}
+					loadingMessage={() => __('Searching…', 'learning-management-system')}
 					noOptionsMessage={({ inputValue }) =>
 						!isEmpty(inputValue)
 							? __('Users not found.', 'learning-management-system')
@@ -144,9 +142,9 @@ const Author: React.FC<Props> = (props) => {
 						usersQuery.isSuccess
 							? usersQuery.data?.data?.map((user) => {
 									return {
-										value: user?.id,
-										label: user?.display_name,
-										avatar_url: user?.avatar_url,
+										value: user.id,
+										label: user.display_name,
+										avatar_url: user.avatar_url,
 									};
 								})
 							: [defaultAuthor]

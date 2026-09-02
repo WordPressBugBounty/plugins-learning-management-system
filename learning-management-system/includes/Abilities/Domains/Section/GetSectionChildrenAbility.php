@@ -3,7 +3,6 @@
  * Get Section Children ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns items in their display order (menu_order). Useful for
  * building a section outline without fetching the full course tree.
- *
- * @since x.x.x
  */
 class GetSectionChildrenAbility extends RestProxyAbility {
 

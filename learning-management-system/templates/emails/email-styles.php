@@ -24,11 +24,14 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 	border-radius: 4px;
 	margin: 0 auto;
 	margin-top: 32px;
-	background: #F8F6FF;
+	background: <?php echo esc_attr( masteriyo_get_email_body_bg_color() ); ?>;
 }
 .email-template .email-header{
-	background-image: url("<?php echo esc_url( masteriyo_get_email_template_header_background_img() ); ?>");
-	background-color: #EEEFFD;
+	<?php $masteriyo_email_header_bg_img = masteriyo_get_email_template_header_background_img(); ?>
+	<?php if ( ! empty( $masteriyo_email_header_bg_img ) ) : ?>
+	background-image: url("<?php echo esc_url( $masteriyo_email_header_bg_img ); ?>");
+	<?php endif; ?>
+	background-color: <?php echo esc_attr( masteriyo_get_email_header_bg_color() ); ?>;
 	background-size: cover;
 	object-fit: cover;
 	/*width: 20px ;*/
@@ -43,6 +46,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 }
 .email-template .email-body{
 	padding: 26px 40px;
+	color: <?php echo esc_attr( masteriyo_get_email_body_text_color() ); ?>;
 }
 .email-template .email-body h1{
 	font-size: 2em;
@@ -78,10 +82,10 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 	padding: 12px 24px;
 	border-radius: 4px;
 	border: none;
-	background-color: #4584FF;
+	background-color: <?php echo esc_attr( masteriyo_get_email_button_bg_color() ); ?>;
 }
 .email-template .email-body button a{
-	color: #fff;
+	color: <?php echo esc_attr( masteriyo_get_email_button_text_color() ); ?>;
 	text-decoration: none;
 	font-size: 18px;
 	line-height: 26px;
@@ -145,10 +149,10 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
 .email-template--button {
 	border-radius: 4px;
-	background-color: #78A6FF;
+	background-color: <?php echo esc_attr( masteriyo_get_email_button_bg_color() ); ?>;
 	padding:12px 16px;
 	margin: 10px 0px;
-	color: #fff;
+	color: <?php echo esc_attr( masteriyo_get_email_button_text_color() ); ?>;
 	text-decoration: none;
 	display: inline-block;
 }
@@ -174,8 +178,8 @@ svg {
 }
 
 .order-list thead th {
-	background-color: #78A6FF;
-	color: #fff
+	background-color: <?php echo esc_attr( masteriyo_get_email_button_bg_color() ); ?>;
+	color: <?php echo esc_attr( masteriyo_get_email_button_text_color() ); ?>
 }
 
 .order-list tbody tr:nth-child(even) {

@@ -11,7 +11,6 @@ namespace Masteriyo\Models\Question;
 
 use Masteriyo\Database\Model;
 use Masteriyo\Repository\QuestionRepository;
-use Masteriyo\Helper\Utils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -82,6 +81,7 @@ class Question extends Model {
 		'course_id'          => 0,
 		'author_id'          => 0,
 		'enable_description' => false,
+		'answer_explanation' => '',
 		'is_from_bank'       => false,
 	);
 
@@ -93,7 +93,19 @@ class Question extends Model {
 	 * @param QuestionRepository $question_repository Question Repository,
 	 */
 	public function __construct( QuestionRepository $question_repository ) {
+		parent::__construct();
 		$this->repository = $question_repository;
+	}
+
+	/**
+	 * Return true if the answer should be manually reviewed and manually assigned points.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return boolean
+	 */
+	public function is_reviewable() {
+		return false;
 	}
 
 	/*
@@ -171,7 +183,6 @@ class Question extends Model {
 	|--------------------------------------------------------------------------
 	*/
 
-
 	/**
 	 * Get question name.
 	 *
@@ -215,7 +226,7 @@ class Question extends Model {
 	 * Returns the parent ID (quiz ID) of the question.
 	 *
 	 * @since  1.0.0
-	 * @since 1.17.0 Added the $parent_id parameter.
+	 * @since 1.17.0 [Free] Added the $parent_id parameter.
 	 *
 	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
 	 * @param  int    $parent_id Parent ID (quiz ID). Optional. Default is null.
@@ -236,6 +247,7 @@ class Question extends Model {
 
 		return $db_parent_id;
 	}
+
 
 	/**
 	 * Get question created date.
@@ -322,7 +334,7 @@ class Question extends Model {
 	}
 
 	/**
-	 * Check whether the answer is requierd for the question.
+	 * Check whether the answer is required for the question.
 	 *
 	 * @since  1.0.0
 	 *
@@ -403,7 +415,7 @@ class Question extends Model {
 	 * Returns the menu order of the question for a specific quiz.
 	 *
 	 * @since  1.0.0
-	 * @since 1.17.0 Added $parent_id parameter.
+	 * @since 1.17.0 [Free] Added $parent_id parameter.
 	 *
 	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
 	 * @param  int    $parent_id Quiz ID. Optional. Default is null.
@@ -426,7 +438,7 @@ class Question extends Model {
 	/**
 	 * Return true if the hint is enabled.
 	 *
-	 * @since 1.9.0
+	 * @since  2.2.9
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -437,9 +449,22 @@ class Question extends Model {
 	}
 
 	/**
+	 * Return answer explanation.
+	 *
+	 * @since  2.13.0
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return bool
+	 */
+	public function get_answer_explanation( $context = 'view' ) {
+		return $this->get_prop( 'answer_explanation', $context );
+	}
+
+	/**
 	 * Returns true if the question is from question bank.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -448,6 +473,7 @@ class Question extends Model {
 	public function get_is_from_bank( $context = 'view' ) {
 		return $this->get_prop( 'is_from_bank', $context );
 	}
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -573,7 +599,7 @@ class Question extends Model {
 	 * @param bool $answer_required Answer required for the question.
 	 */
 	public function set_answer_required( $answer_required ) {
-		$this->set_prop( 'answer_required', Utils::string_to_bool( $answer_required ) );
+		$this->set_prop( 'answer_required', masteriyo_string_to_bool( $answer_required ) );
 	}
 
 	/**
@@ -581,10 +607,10 @@ class Question extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $randomize Randomize.
+	 * @param bool $randomize Randomize.
 	 */
 	public function set_randomize( $randomize ) {
-		$this->set_prop( 'randomize', Utils::string_to_bool( $randomize ) );
+		$this->set_prop( 'randomize', masteriyo_string_to_bool( $randomize ) );
 	}
 
 	/**
@@ -645,18 +671,18 @@ class Question extends Model {
 	/**
 	 * Set the question hint enable.
 	 *
-	 * @since 1.9.0
+	 * @since 2.2.9
 	 *
 	 * @param bool $enable_description Enable Question hint.
 	 */
-	public function set_enable_description( $hint ) {
-		$this->set_prop( 'enable_description', masteriyo_string_to_bool( $hint ) );
+	public function set_enable_description( $enable_description ) {
+		$this->set_prop( 'enable_description', masteriyo_string_to_bool( $enable_description ) );
 	}
 
 	/**
 	 * Set the question is from bank.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param bool $is_from_bank Is question from bank.
 	 */
@@ -673,5 +699,16 @@ class Question extends Model {
 	 */
 	public function is_answers_decoded() {
 		return is_array( $this->get_answers() );
+	}
+
+	/**
+	 * Set answer explanation.
+	 *
+	 * @since 2.13.0
+	 *
+	 * @param bool $answer_explanation answer_explanation.
+	 */
+	public function set_answer_explanation( $answer_explanation ) {
+		$this->set_prop( 'answer_explanation', $answer_explanation );
 	}
 }

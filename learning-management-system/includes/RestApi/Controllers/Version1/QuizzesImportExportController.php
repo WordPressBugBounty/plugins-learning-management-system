@@ -246,7 +246,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Export single quiz.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -284,7 +284,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Import a quiz.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -350,7 +350,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Initializes the WordPress filesystem.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @throws \Exception If the filesystem initialization fails.
 	 *
@@ -359,7 +359,7 @@ class QuizzesImportExportController extends RestController {
 	private function initialize_filesystem() {
 		$wp_filesystem = masteriyo_get_filesystem();
 		if ( ! $wp_filesystem ) {
-			throw new \Exception( __( 'Filesystem initialization failed.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Filesystem initialization failed.', 'learning-management-system' ) );
 		}
 
 		return $wp_filesystem;
@@ -368,7 +368,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Reads the import file and returns its content.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param string $file The file to read.
 	 * @param \WP_Filesystem_Direct $wp_filesystem The initialized filesystem object.
@@ -379,7 +379,7 @@ class QuizzesImportExportController extends RestController {
 	 */
 	private function read_import_file( $file, $wp_filesystem ) {
 		if ( ! $wp_filesystem->exists( $file ) ) {
-			throw new \Exception( __( 'Invalid or unreadable JSON file.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid or unreadable JSON file.', 'learning-management-system' ) );
 		}
 
 		wp_raise_memory_limit( 'admin' );
@@ -390,7 +390,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Decodes and validates the import file content.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param string $file_content The content of the import file.
 	 *
@@ -415,7 +415,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Process the quizzes to be imported.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param array $quizzes The quizzes to be imported.
 	 * @param array $questions The questions to be imported.
@@ -447,7 +447,6 @@ class QuizzesImportExportController extends RestController {
 					}
 				}
 			}
-
 			if ( ! empty( $questions ) ) {
 					$this->import_quiz_questions( $questions, $quiz_id, $course_id, $processed_questions );
 			}
@@ -459,7 +458,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Validates the course ID and section ID request parameters.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param int $course_id The course ID.
 	 * @param int $section_id The section ID.
@@ -489,7 +488,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Validate the number of quizzes in the import file.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param int $quizzes_count The number of quizzes found.
 	 *
@@ -518,7 +517,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Import a quiz and return its ID.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param array $quiz The quiz data.
 	 * @param int   $section_id The section ID.
@@ -576,7 +575,7 @@ class QuizzesImportExportController extends RestController {
 	/**
 	 * Import quiz questions.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param array $questions The list of questions.
 	 * @param int $quiz_id The new quiz ID.

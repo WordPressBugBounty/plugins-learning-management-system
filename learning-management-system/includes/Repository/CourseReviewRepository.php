@@ -156,7 +156,7 @@ class CourseReviewRepository extends AbstractRepository implements RepositoryInt
 		$course_review_obj = get_comment( $course_review->get_id() );
 
 		if ( ! $course_review->get_id() || ! $course_review_obj ) {
-			throw new \Exception( __( 'Invalid Course Review.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Course Review.', 'learning-management-system' ) );
 		}
 
 		// Map the comment status from numerical to word.

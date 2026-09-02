@@ -21,7 +21,7 @@ use Masteriyo\Enums\QuestionType;
  *
  * @param array $args Query arguments.
  *
- * @return Masteriyo\Models\Question[]
+ * @return \Masteriyo\Models\Question\Question[]
  */
 function masteriyo_get_questions( $args = array() ) {
 	$questions = masteriyo( 'query.questions' )->set_args( $args )->get_questions();
@@ -42,9 +42,9 @@ function masteriyo_get_questions( $args = array() ) {
  *
  * @since 1.0.0
  *
- * @param int|Masteriyo\Models\Question|WP_Post $question Question id or Question Model or Post.
+ * @param int|\Masteriyo\Models\Question\Question|WP_Post $question Question id or Question Model or Post.
  *
- * @return Masteriyo\Models\Question\Question|null
+ * @return \Masteriyo\Models\Question\Question|null
  */
 function masteriyo_get_question( $question ) {
 	if ( is_int( $question ) ) {
@@ -117,7 +117,6 @@ function masteriyo_get_questions_count_by_quiz( $quiz ) {
 	return absint( $query->found_posts );
 }
 
-
 if ( ! function_exists( 'masteriyo_get_all_questions_count_by_quiz' ) ) {
 	/**
 	 * Get the count of all questions associated with a quiz.
@@ -125,7 +124,7 @@ if ( ! function_exists( 'masteriyo_get_all_questions_count_by_quiz' ) ) {
 	 * This function retrieves the total number of questions linked to a specific quiz,
 	 * either directly through the post parent or via a meta value pattern match.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int|WP_Post|Masteriyo\Models\Quiz $quiz Quiz ID, WP_Post, or Quiz model.
 	 * @return int The number of questions associated with the quiz.
@@ -168,7 +167,7 @@ if ( ! function_exists( 'masteriyo_get_all_question_ids_by_quiz' ) ) {
 	 * Get all question IDs by quiz, considering `menu_order` from the custom table
 	 * and falling back to `wp_posts` if a question doesn't exist in the table.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int|WP_Post|Masteriyo\Models\Quiz $quiz Quiz ID, WP_Post or Quiz model.
 	 *
@@ -192,7 +191,8 @@ if ( ! function_exists( 'masteriyo_get_all_question_ids_by_quiz' ) ) {
 					LEFT JOIN {$wpdb->prefix}masteriyo_quiz_question_rel qr
 						ON q.ID = qr.question_id AND qr.quiz_id = %d
 					WHERE q.post_type = 'mto-question' AND q.post_status = 'publish'
-					AND (qr.quiz_id = %d OR q.post_parent = %d)",
+					AND (qr.quiz_id = %d OR q.post_parent = %d)
+					ORDER BY IFNULL(qr.menu_order, q.menu_order) ASC",
 				$quiz_id,
 				$quiz_id,
 				$quiz_id
@@ -218,7 +218,7 @@ if ( ! function_exists( 'masteriyo_add_question_to_quiz' ) ) {
 	 * This function inserts or updates a record in the quiz-question relationship table,
 	 * associating a question with a quiz and assigning it a menu order.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $quiz_id The ID of the quiz.
 	 * @param int $question_id The ID of the question to add.
@@ -255,7 +255,7 @@ if ( ! function_exists( 'masteriyo_remove_questions_from_bank' ) ) {
 	 * This function deletes a question from the quiz-question relationship table
 	 * using its question ID.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $question_id The ID of the question to remove.
 	 *
@@ -288,7 +288,7 @@ if ( ! function_exists( 'masteriyo_remove_question_from_quiz' ) ) {
 	 * This function deletes a record from the quiz-question relationship table,
 	 * disassociating a question from a quiz.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $quiz_id The ID of the quiz.
 	 * @param int $question_id The ID of the question to remove.
@@ -320,7 +320,7 @@ if ( ! function_exists( 'masteriyo_get_questions_for_quiz' ) ) {
 	/**
 	 * Retrieves an array of question IDs associated with a quiz in the correct order.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $quiz_id The ID of the quiz.
 	 *
@@ -351,7 +351,7 @@ if ( ! function_exists( 'masteriyo_is_question_linked_to_quiz' ) ) {
 	/**
 	 * Check if a question is linked to a specific quiz.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $quiz_id Quiz ID.
 	 * @param int $question_id Question ID.
@@ -379,7 +379,7 @@ if ( ! function_exists( 'masteriyo_get_question_menu_order' ) ) {
 	/**
 	 * Get the menu order of a specific question for a given quiz.
 	 *
-	 * @since 1.17.0
+	 * @since 1.17.0 [Free]
 	 *
 	 * @param int $quiz_id Quiz ID.
 	 * @param int $question_id Question ID.
@@ -407,7 +407,7 @@ if ( ! function_exists( 'masteriyo_get_questions_by_quiz_with_pagination' ) ) {
 	/**
 	 * Retrieves an array of question IDs associated with a quiz in the correct order with pagination.
 	 *
-	 * @since  1.17.0
+	 * @since  1.17.0 [Free]
 	 *
 	 * @param array $query_args {
 	 *     Array of query arguments.
@@ -443,6 +443,18 @@ if ( ! function_exists( 'masteriyo_get_questions_by_quiz_with_pagination' ) ) {
 		try {
 			$total = masteriyo_get_all_questions_count_by_quiz( $quiz_id );
 
+			$is_randomized = isset( $query_args['orderby'] ) && 0 === strpos( (string) $query_args['orderby'], 'rand' );
+			if ( $is_randomized ) {
+				$seed            = isset( $query_args['random_id'] ) ? (int) $query_args['random_id'] : null;
+				$order_by_clause = null !== $seed ? "RAND({$seed})" : 'RAND()';
+			} else {
+				// q.ID breaks ties. This query is paged with LIMIT/OFFSET, and rows sharing a
+				// question_order have no defined relative order, which MySQL is free to vary
+				// between the separate queries that fetch each page — so without a total
+				// ordering one question can appear on two pages and another on none.
+				$order_by_clause = 'question_order ASC, q.ID ASC';
+			}
+
 			$sql = "SELECT q.ID,
 					IFNULL(qr.menu_order, q.menu_order) AS question_order
 				FROM {$wpdb->posts} q
@@ -450,8 +462,8 @@ if ( ! function_exists( 'masteriyo_get_questions_by_quiz_with_pagination' ) ) {
 					ON q.ID = qr.question_id AND qr.quiz_id = %d
 				WHERE q.post_type = 'mto-question' AND q.post_status = 'publish'
 				AND (qr.quiz_id = %d OR q.post_parent = %d)
-				ORDER BY question_order ASC
-				LIMIT %d OFFSET %d";
+				ORDER BY {$order_by_clause}
+				LIMIT %d OFFSET %d"; // phpcs:ignore
 
 			$results = array();
 

@@ -19,18 +19,6 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
  */
 class AppServiceProvider extends AbstractServiceProvider {
 	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.0.0
-	 */
-	public function register(): void {
-		$this->getContainer()->addShared( 'app', Masteriyo::class );
-	}
-
-	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
 	 * provider. Every service that is registered via
@@ -53,5 +41,17 @@ class AppServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register(): void {
+		$this->getContainer()->addShared( 'app', Masteriyo::class );
 	}
 }

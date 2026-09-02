@@ -11,6 +11,7 @@ import {
 	MenuList,
 	Spinner,
 	Stack,
+	Text,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +25,7 @@ import {
 	useLocation,
 	useParams,
 } from 'react-router-dom';
+import MasteriyoLogo from '../../../../../assets/img/logo.png';
 import BackButton from '../../../../../assets/js/back-end/components/common/BackButton';
 import {
 	Header,
@@ -44,7 +46,6 @@ import {
 	navActiveStyles,
 } from '../../../../../assets/js/back-end/config/styles';
 import { useWarnUnsavedChanges } from '../../../../../assets/js/back-end/hooks/useWarnUnSavedChanges';
-import MasteriyoLogo from '../../../../../assets/img/logo.png';
 import API from '../../../../../assets/js/back-end/utils/api';
 import localized from '../../../../../assets/js/back-end/utils/global';
 import {
@@ -52,6 +53,7 @@ import {
 	deepClean,
 	deepMerge,
 	editOperationInCache,
+	getPluginName,
 } from '../../../../../assets/js/back-end/utils/utils';
 import BlockEditor from '../components/BlockEditor';
 import CertificateSkeleton from '../components/CertificateSkeleton';
@@ -82,13 +84,13 @@ const EditCertificateInner: React.FC = () => {
 	const { certificateId }: any = useParams();
 	const location = useLocation();
 	const methods = useForm();
-	const certificateAPI = new API(certificateAddonUrls.certificates);
-	const queryClient = useQueryClient();
-	const toast = useToast();
 	const [fullscreenMode, setFullscreenMode] = useState(false);
 	const [guessedFormat] = useState<string | null>(() =>
 		localStorage.getItem(`mto_cert_fmt_${certificateId}`),
 	);
+	const certificateAPI = new API(certificateAddonUrls.certificates);
+	const queryClient = useQueryClient();
+	const toast = useToast();
 
 	const stateData = (location.state as any)?.certificate ?? undefined;
 
@@ -145,6 +147,7 @@ const EditCertificateInner: React.FC = () => {
 						data,
 					);
 				}
+
 				toast({
 					title: __(
 						'Certificate updated successfully.',
@@ -219,13 +222,23 @@ const EditCertificateInner: React.FC = () => {
 		},
 	});
 
-	const isPublished = () => certificateQuery?.data?.status === 'publish';
+	const isPublished = () => certificateQuery.data?.status === 'publish';
 
-	const isDrafted = () => certificateQuery?.data?.status === 'draft';
+	const isDrafted = () => certificateQuery.data?.status === 'draft';
 
 	const isPDFDraftFormat = () =>
 		(certificateQuery.data as CertificateDataMap)?.content_format ===
 		'pdfdraft';
+
+	const onSubmit = (data: any, status: string = 'publish') => {
+		const payload = deepClean(deepMerge(data, { status }));
+
+		if (status === 'publish') {
+			updateCertificate.mutate(payload);
+			return;
+		}
+		draftCertificate.mutate(payload);
+	};
 
 	const onPDFDraftSave = async (
 		json: string,
@@ -262,28 +275,14 @@ const EditCertificateInner: React.FC = () => {
 				[`certificate${certificateId}`, certificateId],
 				saved,
 			);
+			queryClient.invalidateQueries({ queryKey: ['certificatesV2List'] });
 		}
-	};
-
-	const onSubmit = (data: any, status: string = 'publish') => {
-		const newData = {
-			status,
-			html_content: data?.html_content
-				?.replaceAll(/\\u002d/g, '\\\\u002d')
-				?.replaceAll(/\\n/g, '\\\\n'),
-		};
-
-		if (status === 'publish') {
-			updateCertificate.mutate(deepClean(deepMerge(data, newData)));
-			return;
-		}
-		draftCertificate.mutate(deepClean(deepMerge(data, newData)));
 	};
 
 	const actions = [
 		{
 			label: __('Preview', 'learning-management-system'),
-			action: () => window.open(certificateQuery?.data?.preview_link, '_blank'),
+			action: () => window.open(certificateQuery.data?.preview_link, '_blank'),
 			variant: 'tertiary',
 		},
 		{
@@ -307,11 +306,10 @@ const EditCertificateInner: React.FC = () => {
 	useWarnUnsavedChanges(methods.formState.isDirty);
 
 	useEffect(() => {
-		if (certificateQuery?.data && certificateQuery?.isSuccess) {
+		if (certificateQuery.data && certificateQuery?.isSuccess) {
 			methods.reset(methods.getValues());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [certificateQuery?.data]);
+	}, [certificateQuery.data]);
 
 	useEffect(() => {
 		if (certificateQuery.isSuccess) {
@@ -320,7 +318,6 @@ const EditCertificateInner: React.FC = () => {
 				'gutenberg';
 			localStorage.setItem(`mto_cert_fmt_${certificateId}`, fmt);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [certificateQuery.isSuccess]);
 
 	if (!certificateQuery.isSuccess) {
@@ -334,11 +331,13 @@ const EditCertificateInner: React.FC = () => {
 					flexDirection="column"
 					gap={4}
 				>
-					<img
-						src={localized.logo || MasteriyoLogo}
-						alt="Masteriyo"
-						style={{ width: 56, height: 56, objectFit: 'contain' }}
-					/>
+					{(localized.logo || !localized.whiteLabelTitle) && (
+						<img
+							src={localized.logo || MasteriyoLogo}
+							alt={getPluginName()}
+							style={{ width: 56, height: 56, objectFit: 'contain' }}
+						/>
+					)}
 					<Spinner size="lg" color="blue.500" thickness="3px" />
 				</Center>
 			);
@@ -381,12 +380,12 @@ const EditCertificateInner: React.FC = () => {
 						<NavMenu sx={headerResponsive.larger}>
 							<>
 								<NavMenuLink
-									key={'Course Categories'}
+									key={'Certificate'}
 									as={NavLink}
 									_activeLink={navActiveStyles}
 									to={certificateBackendRoutes.certificate.list}
 								>
-									{__('Certificate', 'learning-management-system')}
+									<Text>{__('Certificate', 'learning-management-system')}</Text>
 								</NavMenuLink>
 							</>
 						</NavMenu>
@@ -419,7 +418,7 @@ const EditCertificateInner: React.FC = () => {
 						</NavMenu>
 					</HeaderLeftSection>
 					<HeaderRightSection>
-						<Link href={certificateQuery?.data?.preview_link} isExternal>
+						<Link href={certificateQuery.data?.preview_link} isExternal>
 							<HeaderAccentButton
 								width={['50px', '60px', '70px']}
 								variant="tertiary"
@@ -472,9 +471,9 @@ const EditCertificateInner: React.FC = () => {
 							<FormProvider {...methods}>
 								<form method="post" onSubmit={(e) => e.preventDefault()}>
 									<Stack direction="column" spacing="6">
-										<Name defaultValue={certificateQuery?.data?.name} />
+										<Name defaultValue={certificateQuery.data?.name} />
 										<BlockEditor
-											defaultValue={certificateQuery?.data?.html_content}
+											defaultValue={certificateQuery.data?.html_content}
 											actions={actions as any}
 											fullscreenMode={fullscreenMode}
 											setFullscreenMode={setFullscreenMode}

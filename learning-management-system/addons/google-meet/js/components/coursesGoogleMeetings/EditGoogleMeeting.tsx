@@ -14,9 +14,10 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
+import queryString from 'query-string';
 import React, { useEffect, useRef } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom';
 import BackToBuilder from '../../../../../assets/js/back-end/components/common/BackToBuilder';
 import {
 	Header,
@@ -46,19 +47,20 @@ import {
 import googleMeetRoutes from '../../../constants/routes';
 import GoogleMeetUrls from '../../../constants/urls';
 import { GoogleMeetSchema } from '../../schemas';
-import AddAttendees from '../AddAttendees';
 import Description from '../Description';
 import EndTime from '../EndTime';
 import GoogleMeetActionButton from '../GoogleMeetActionButton';
+import GoogleMeetNotice from '../GoogleMeetNotice';
 import StartTime from '../StartTime';
 import Title from '../Title';
 interface Props {}
 
 const EditGoogleMeeting: React.FC<Props> = () => {
 	const methods = useForm<any>();
+	const { search } = useLocation();
+	const { referrer } = queryString.parse(search);
 	const cancelRef = useRef<any>();
 	const { courseId, googleMeetId }: any = useParams();
-
 	const googleMeetAPI = new API(GoogleMeetUrls.googleMeets);
 	const navigate = useNavigate();
 	const toast = useToast();
@@ -82,7 +84,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 	const updateGoogleMeet = useMutation({
 		mutationFn: (data: GoogleMeetSchema) =>
-			googleMeetAPI.update(googleMeetQuery?.data?.meeting_id, data),
+			googleMeetAPI.update(googleMeetQuery.data.meeting_id, data),
 		...{
 			onSuccess: (data: any) => {
 				methods.reset(methods.getValues());
@@ -122,14 +124,14 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		const all_users = usersQuery?.data?.data?.map((user: any) => user?.id);
+		const all_users = usersQuery?.data?.data?.map((user: any) => user.id);
 
 		const newData = {
 			course_id: courseId,
 			meeting_id: googleMeetQuery?.data?.id,
 			time_zone: 'UTC',
-			starts_at: new Date(data.starts_at)?.toISOString(),
-			ends_at: new Date(data.ends_at)?.toISOString(),
+			starts_at: new Date(data.starts_at).toISOString(),
+			ends_at: new Date(data.ends_at).toISOString(),
 			attendees: all_users,
 			parent_id: googleMeetQuery?.data?.parent_id,
 		};
@@ -141,7 +143,6 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 		if (googleMeetQuery?.isSuccess && googleMeetQuery?.data) {
 			methods.reset(methods.getValues());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [googleMeetQuery?.data]);
 
 	useWarnUnsavedChanges(methods.formState.isDirty);
@@ -172,6 +173,9 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 			<Container maxW="container.xl">
 				<Stack direction="column" spacing="6">
 					<BackToBuilder />
+					{!googleMeetQuery.data?.is_meeting_update_allowed && (
+						<GoogleMeetNotice />
+					)}
 					{googleMeetQuery.isSuccess ? (
 						<FormProvider {...methods}>
 							<form>
@@ -189,10 +193,10 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 										justifyContent="space-between"
 									>
 										<Stack direction="column" spacing="6">
-											<Title defaultValue={googleMeetQuery?.data?.name} />
+											<Title defaultValue={googleMeetQuery.data.name} />
 
 											<Description
-												defaultValue={googleMeetQuery?.data?.description}
+												defaultValue={googleMeetQuery.data.description}
 												data={googleMeetQuery}
 												methods={methods}
 												onSubmit={onSubmit}
@@ -200,6 +204,9 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 
 											<ButtonGroup>
 												<GoogleMeetActionButton
+													isDisabled={
+														!googleMeetQuery.data?.is_meeting_update_allowed
+													}
 													methods={methods}
 													isLoading={updateGoogleMeet.isPending}
 													onSubmit={onSubmit}
@@ -209,7 +216,7 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 													variant="outline"
 													onClick={() => {
 														navigate({
-															pathname: googleMeetRoutes?.googleMeet?.list,
+															pathname: googleMeetRoutes.googleMeet.list,
 														});
 													}}
 												>
@@ -222,14 +229,15 @@ const EditGoogleMeeting: React.FC<Props> = () => {
 									<Box w={{ lg: '400px' }} bg="white" p="10" shadow="box">
 										<Stack direction="column" spacing="6">
 											<StartTime
-												defaultValue={googleMeetQuery?.data?.starts_at}
+												defaultValue={googleMeetQuery.data.starts_at}
 											/>
-											<EndTime defaultValue={googleMeetQuery?.data?.ends_at} />
-											<AddAttendees
+											<EndTime defaultValue={googleMeetQuery.data.ends_at} />
+
+											{/* <AddAttendees
 												defaultValue={
-													googleMeetQuery?.data?.add_all_students_as_attendee
+													googleMeetQuery.data.add_all_students_as_attendee
 												}
-											/>
+											/> */}
 										</Stack>
 									</Box>
 								</Stack>

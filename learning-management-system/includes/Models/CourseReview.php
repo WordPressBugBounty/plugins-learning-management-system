@@ -502,5 +502,4 @@ class CourseReview extends Model {
 	public function set_is_new( $is_new ) {
 		$this->set_prop( 'is_new', $is_new );
 	}
-
 }

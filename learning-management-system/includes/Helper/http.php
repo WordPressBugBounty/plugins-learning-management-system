@@ -18,7 +18,7 @@ if ( ! function_exists( 'masteriyo_current_http_request' ) ) {
 	 *
 	 * @since 1.5.5
 	 *
-	 * @return WP_HTTP_Request
+	 * @return WP_HTTP_Request|null
 	 */
 	function masteriyo_current_http_request() {
 		global $wp_rest_server;

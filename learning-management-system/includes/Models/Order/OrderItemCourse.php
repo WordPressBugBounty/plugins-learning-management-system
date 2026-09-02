@@ -127,6 +127,10 @@ class OrderItemCourse extends OrderItem {
 	 * @return string
 	 */
 	public function get_rest_formatted_subtotal( $context = 'view' ) {
+		if ( empty( $this->get_order() ) ) {
+			return '';
+		}
+
 		$subtotal = masteriyo_price( $this->get_subtotal( $context ), array( 'currency' => $this->get_order()->get_currency() ) );
 
 		/**
@@ -151,6 +155,10 @@ class OrderItemCourse extends OrderItem {
 	 * @return string
 	 */
 	public function get_rest_formatted_total( $context = 'view' ) {
+		if ( empty( $this->get_order() ) ) {
+			return '';
+		}
+
 		$args  = array(
 			'currency' => $this->get_order()->get_currency(),
 			'html'     => false,
@@ -285,5 +293,4 @@ class OrderItemCourse extends OrderItem {
 		$this->set_course_id( $course->get_id() );
 		$this->set_name( $course->get_name() );
 	}
-
 }

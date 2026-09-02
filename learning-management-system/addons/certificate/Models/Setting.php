@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\Certificate\Models
  *
- * @since 1.13.0
+ * @since 2.11.0
  */
 
 namespace Masteriyo\Addons\Certificate\Models;
@@ -18,14 +18,14 @@ class Setting {
 	/**
 	 * Global option name.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 */
 	const OPTION_NAME = 'masteriyo_certificate_settings';
 
 	/**
 	 * Data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 *
 	 * @var array
 	 */
@@ -37,7 +37,7 @@ class Setting {
 	/**
 	 * Read the settings.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 */
 	protected static function read() {
 		$settings   = get_option( self::OPTION_NAME, self::$data );
@@ -49,7 +49,7 @@ class Setting {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 *
 	 * @return mixed
 	 */
@@ -60,7 +60,7 @@ class Setting {
 	/**
 	 * Return global white field value.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 *
 	 * @param string $key
 	 *
@@ -75,7 +75,7 @@ class Setting {
 	/**
 	 * Set global Certificate field.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.
@@ -88,7 +88,7 @@ class Setting {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 *
 	 * @param array $args
 	 */
@@ -99,7 +99,7 @@ class Setting {
 	/**
 	 * Save the settings.
 	 *
-	 * @since 1.13.0
+	 * @since 2.11.0
 	 */
 	public static function save() {
 		update_option( self::OPTION_NAME, self::$data );

@@ -478,5 +478,4 @@ class QuizReview extends Model {
 	public function set_author_id( $author_id ) {
 		$this->set_prop( 'author_id', absint( $author_id ) );
 	}
-
 }

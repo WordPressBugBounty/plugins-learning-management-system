@@ -9,9 +9,9 @@
  * @since 1.7.3
  */
 
- namespace Masteriyo\RestApi\Controllers\Version1;
+namespace Masteriyo\RestApi\Controllers\Version1;
 
- use Masteriyo\Helper\Permission;
+use Masteriyo\Helper\Permission;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -76,6 +76,11 @@ class RolesController extends CrudController {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_roles( $request ) {
+		// Admin-only include; absent on plain REST requests (host-dependent fatal otherwise).
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
 		$roles = get_editable_roles();
 
 		if ( $roles && is_array( $roles ) ) {

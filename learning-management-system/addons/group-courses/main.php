@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: User Management
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_GROUP_COURSES_ADDON_FILE', __FILE__ );
 define( 'MASTERIYO_GROUP_COURSES_ADDON_BASENAME', plugin_basename( __FILE__ ) );

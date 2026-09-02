@@ -3,7 +3,6 @@
  * Delete Course Difficulty ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseDifficulty
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseDifficulty;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Taxonomy terms have no trash state — this operation is always permanent.
  * Courses previously assigned this difficulty will have that assignment removed.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class DeleteCourseDifficultyAbility extends RestProxyAbility {
 

@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 do_action( 'masteriyo_before_account_content' );
 
+masteriyo_display_all_notices();
+
 ?>
 <div id="masteriyo-account-page">
 

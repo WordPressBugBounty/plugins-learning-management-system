@@ -2,7 +2,7 @@
 /**
  * Standard log levels
  *
- * @version 1.12.2
+ * @version 2.12.2
  * @package Masteriyo\Abstracts
  */
 
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Standard log levels
  *
  * @class LogLevels
- * @version 1.12.2
+ * @version 2.12.2
  * @package Masteriyo\Abstracts
  */
 abstract class LogLevels {

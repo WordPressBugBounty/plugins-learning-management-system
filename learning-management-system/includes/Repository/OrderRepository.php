@@ -18,6 +18,7 @@ use Masteriyo\Database\Model;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Contracts\OrderRepository as OrderRepositoryInterface;
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\PostType\PostType;
 
@@ -33,47 +34,49 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
-		'total'                => '_total',
-		'currency'             => '_currency',
-		'version'              => '_version',
-		'expiry_date'          => '_expiry_date',
-		'transaction_id'       => '_transaction_id',
-		'date_paid'            => '_date_paid',
-		'date_completed'       => '_date_completed',
-		'created_via'          => '_created_via',
-		'customer_id'          => '_customer_id',
-		'customer_ip_address'  => '_customer_ip_address',
-		'customer_user_agent'  => '_customer_user_agent',
-		'customer_note'        => '_customer_note',
-		'payment_method'       => '_payment_method',
-		'payment_method_title' => '_payment_method_title',
-		'order_key'            => '_order_key',
-		'cart_hash'            => '_cart_hash',
-		'prices_include_tax'   => '_prices_include_tax',
-		'billing_first_name'   => '_billing_first_name',
-		'billing_last_name'    => '_billing_last_name',
-		'billing_company'      => '_billing_company',
-		'billing_address_1'    => '_billing_address_1',
-		'billing_address_2'    => '_billing_address_2',
-		'billing_city'         => '_billing_city',
-		'billing_postcode'     => '_billing_postcode',
-		'billing_country'      => '_billing_country',
-		'billing_state'        => '_billing_state',
-		'billing_email'        => '_billing_email',
-		'billing_phone'        => '_billing_phone',
+		'total'                     => '_total',
+		'currency'                  => '_currency',
+		'version'                   => '_version',
+		'expiry_date'               => '_expiry_date',
+		'transaction_id'            => '_transaction_id',
+		'date_paid'                 => '_date_paid',
+		'date_completed'            => '_date_completed',
+		'created_via'               => '_created_via',
+		'customer_id'               => '_customer_id',
+		'customer_ip_address'       => '_customer_ip_address',
+		'customer_user_agent'       => '_customer_user_agent',
+		'customer_note'             => '_customer_note',
+		'payment_method'            => '_payment_method',
+		'payment_method_title'      => '_payment_method_title',
+		'order_key'                 => '_order_key',
+		'cart_hash'                 => '_cart_hash',
+		'discount_total'            => '_discount_total',
+		'conversion_discount_total' => '_conversion_discount_total',
+		'tax_total'                 => '_tax_total',
+		'prices_include_tax'        => '_prices_include_tax',
+		'billing_first_name'        => '_billing_first_name',
+		'billing_last_name'         => '_billing_last_name',
+		'billing_company'           => '_billing_company',
+		'billing_address_1'         => '_billing_address_1',
+		'billing_address_2'         => '_billing_address_2',
+		'billing_city'              => '_billing_city',
+		'billing_postcode'          => '_billing_postcode',
+		'billing_country'           => '_billing_country',
+		'billing_state'             => '_billing_state',
+		'billing_email'             => '_billing_email',
+		'billing_phone'             => '_billing_phone',
 
 		// Attachment.
-		'attachment_id'        => '_attachment_id',
-
+		'attachment_id'             => '_attachment_id',
 
 		//Group Courses
-		'group_ids'            => '_group_ids',
+		'group_ids'                 => '_group_ids',
 
 		// Multiple Currency
-		'conversion_total'     => '_conversion_total',
-		'base_currency'        => '_base_currency',
-		'exchange_rate'        => '_exchange_rate',
-		'pricing_method'       => '_pricing_method',
+		'conversion_total'          => '_conversion_total',
+		'base_currency'             => '_base_currency',
+		'exchange_rate'             => '_exchange_rate',
+		'pricing_method'            => '_pricing_method',
 	);
 
 	/**
@@ -140,8 +143,9 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			 *
 			 * @param integer $id The order ID.
 			 * @param \Masteriyo\Models\Order\Order $object The order object.
+			 * @param \Masteriyo\Repository\OrderRepository $this The order repository.
 			 */
-			do_action( 'masteriyo_new_order', $id, $order );
+			do_action( 'masteriyo_new_order', $id, $order, $this );
 		}
 	}
 
@@ -158,12 +162,13 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 		$order_post = get_post( $order->get_id() );
 
 		if ( ! $order->get_id() || ! $order_post || PostType::ORDER !== $order_post->post_type ) {
-			throw new \Exception( __( 'Invalid order.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid order.', 'learning-management-system' ) );
 		}
 
 		$order->set_props(
 			array(
 				'status'        => $order_post->post_status,
+				'parent_id'     => $order_post->post_parent,
 				'date_created'  => $this->string_to_timestamp( $order_post->post_date_gmt ),
 				'date_modified' => $this->string_to_timestamp( $order_post->post_modified_gmt ),
 				'customer_note' => $order_post->post_excerpt,
@@ -201,6 +206,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 
 		$post_data_keys = array(
 			'status',
+			'parent_id',
 			'date_modified',
 		);
 
@@ -209,6 +215,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			$post_data = array(
 				'post_status' => $order->get_status( 'edit' ),
 				'post_type'   => PostType::ORDER,
+				'post_parent' => $order->get_parent_id(),
 			);
 
 			/**
@@ -242,6 +249,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 		}
 
 		$this->update_post_meta( $order );
+		$this->create_or_update_user_course( $order );
 
 		$order->apply_changes();
 
@@ -252,8 +260,9 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 		 *
 		 * @param integer $id The order ID.
 		 * @param \Masteriyo\Models\Order\Order $object The order object.
+		 * @param \Masteriyo\Repository\OrderRepository $this The order repository.
 		 */
-		do_action( 'masteriyo_update_order', $order->get_id(), $order );
+		do_action( 'masteriyo_update_order', $order->get_id(), $order, $this );
 	}
 
 	/**
@@ -290,6 +299,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			 */
 			do_action( 'masteriyo_before_delete_' . $object_type, $id, $order );
 
+			// `_order_id` itemmeta cleanup runs from OrderServiceProvider's `before_delete_post` hook, so it also covers force-deletes reaching wp_delete_post() directly — not just this path.
 			wp_delete_post( $id, true );
 			$this->delete_items( $order );
 			$order->set_id( 0 );
@@ -317,6 +327,8 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			wp_trash_post( $id );
 			$order->set_status( 'trash' );
 
+			$this->update_user_course_status( $order );
+
 			/**
 			 * Fires after moving an order to trash.
 			 *
@@ -324,9 +336,70 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			 *
 			 * @param integer $id The order ID.
 			 * @param \Masteriyo\Models\Order\Order $object The order object.
+			 * @param \Masteriyo\Repository\OrderRepository $this The order repository.
 			 */
-			do_action( 'masteriyo_after_trash_' . $object_type, $id, $order );
+			do_action( 'masteriyo_after_trash_' . $object_type, $id, $order, $this );
 		}
+	}
+
+	/**
+	 * Clear the `_order_id` itemmeta on any `masteriyo_user_items` row pointing at this order,
+	 * so a force-deleted order does not leave an enrollment reading as 'automatic' against a
+	 * dangling order link.
+	 *
+	 * Called from OrderServiceProvider's `before_delete_post` hook, which fires only on an
+	 * actual delete (a trashed order is still a real post, so its enrollments' order link
+	 * stays valid), regardless of whether the delete came from this class or elsewhere.
+	 *
+	 * @since 2.31.0
+	 *
+	 * @param int $order_id Order (post) ID that was force-deleted.
+	 */
+	public function clear_dangling_order_id_meta( $order_id ) {
+		global $wpdb;
+
+		$meta_table = "{$wpdb->prefix}masteriyo_user_itemmeta";
+
+		$item_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_item_id FROM {$meta_table} WHERE meta_key = '_order_id' AND meta_value = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				(string) $order_id
+			)
+		);
+
+		if ( empty( $item_ids ) ) {
+			return;
+		}
+
+		/*
+		 * The link about to be removed is also what classifies these enrollments as
+		 * manual or automatic on the Enrollments screen. Persist that verdict as
+		 * _source first (never overwriting one already stamped), or deleting a
+		 * checkout order would silently move its enrollments to the Manual tab.
+		 */
+		$created_via = (string) get_post_meta( $order_id, '_created_via', true );
+		$source      = ( '' === $created_via || 0 === strpos( $created_via, 'manual-enrollment' ) ) ? 'manual' : 'automatic';
+
+		foreach ( $item_ids as $item_id ) {
+			if ( '' === (string) get_metadata( 'user_item', absint( $item_id ), '_source', true ) ) {
+				update_metadata( 'user_item', absint( $item_id ), '_source', $source );
+			}
+		}
+
+		$wpdb->delete(
+			$meta_table,
+			array(
+				'meta_key'   => '_order_id',
+				'meta_value' => (string) $order_id,
+			)
+		);
+
+		foreach ( $item_ids as $item_id ) {
+			wp_cache_delete( absint( $item_id ), 'user_item_meta' );
+			wp_cache_delete( 'item' . absint( $item_id ), 'masteriyo-user-course' );
+		}
+
+		masteriyo_cache()->invalidate_cache_group( 'masteriyo-user-course-query' );
 	}
 
 	/**
@@ -567,6 +640,7 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 		$order_items = masteriyo_get_order_items(
 			array(
 				'order_id' => $order->get_id(),
+				'type'     => $type,
 			)
 		);
 
@@ -645,7 +719,6 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 
 		/* translators: %s: Order date */
 		return sprintf( __( 'Order - %s', 'learning-management-system' ), $formatted_date );
-
 	}
 
 	/**
@@ -688,16 +761,23 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 	/**
 	 * Create or update user's course.
 	 *
+	 * The enrollment clock starts only when access begins: a new enrollment,
+	 * a newer order (re-purchase), or this order becoming active. A plain
+	 * re-save keeps the start date; resetting it would silently re-activate
+	 * expired time-limited access. Saves from an order older than the
+	 * enrollment's current order are ignored entirely.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Models\Order\Order $order Order object.
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 * @param int $customer_id Customer ID.
 	 */
-	public function create_or_update_user_course( $order ) {
+	public function create_or_update_user_course( $order, $customer_id = 0 ) {
 		// Filter order item courses.
 		$order_items = array_filter(
 			$order->get_items(),
 			function( $order_item ) {
-				return is_a( $order_item, '\Masteriyo\Models\Order\OrderItemCourse' );
+				return is_a( $order_item, '\Masteriyo\Models\Order\OrderItemCourse' ) && 0 !== $order_item->get_course_id();
 			}
 		);
 
@@ -708,9 +788,102 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 			$order_items
 		);
 
+		$customer_id = $customer_id ? $customer_id : $order->get_customer_id( 'edit' );
+
 		$query = new UserCourseQuery(
 			array(
-				'user_id'    => $order->get_customer_id( 'edit' ),
+				'user_id'    => $customer_id,
+				'course__in' => $course_ids,
+				'per_page'   => -1,
+			)
+		);
+
+		$user_courses_map = array();
+		$user_courses     = $query->get_user_courses();
+		foreach ( $user_courses as $user_course ) {
+			$user_courses_map[ $user_course->get_course_id() ] = $user_course;
+		}
+
+		$status   = OrderStatus::COMPLETED === $order->get_status() ? UserCourseStatus::ACTIVE : UserCourseStatus::INACTIVE;
+		$order_id = $order->get_id();
+
+		// Update user course.
+		foreach ( $order_items as $order_item ) {
+			if ( isset( $user_courses_map[ $order_item->get_course_id() ] ) ) {
+				$user_course = $user_courses_map[ $order_item->get_course_id() ];
+			} else {
+				$user_course = masteriyo( 'user-course' );
+			}
+
+			$previous_status   = $user_course->get_status( 'edit' );
+			$previous_order_id = absint( $user_course->get_order_id( 'edit' ) );
+
+			// Stale: a newer order owns this enrollment.
+			if ( $previous_order_id && $order_id < $previous_order_id ) {
+				continue;
+			}
+
+			$user_course->set_user_id( $customer_id );
+			$user_course->set_status( $status );
+
+			$is_activating = UserCourseStatus::ACTIVE === $status && UserCourseStatus::ACTIVE !== $previous_status;
+
+			if ( ! $user_course->get_date_start( 'edit' ) || $is_activating || $order_id > $previous_order_id ) {
+				$user_course->set_date_start( current_time( 'mysql' ) );
+			}
+
+			$user_course->set_order_id( $order_id );
+			$user_course->set_course_id( $order_item->get_course_id( 'edit' ) );
+			$user_course->set_price( $order_item->get_total( 'edit' ) );
+
+			/**
+			 * Filters user course object before saving.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param Masteriyo\Models\UserCourse $user_course User course object.
+			 * @param object $order_item Order item object.
+			 * @param Masteriyo\Models\Order\Order $order Order object.
+			 */
+			$user_course = apply_filters( 'masteriyo_save_user_course', $user_course, $order_item, $order );
+
+			$user_course->save();
+		}
+	}
+
+	/**
+	 * Update the user course status.
+	 *
+	 * Status changes from an order older than the enrollment's current order
+	 * are ignored: a stale order must not re-activate or deactivate an
+	 * enrollment that a newer purchase owns.
+	 *
+	 * @since 2.9.3
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Order object.
+	 * @param int $customer_id Customer ID.
+	 */
+	public function update_user_course_status( $order, $customer_id = 0 ) {
+		// Filter order item courses.
+		$order_items = array_filter(
+			$order->get_items(),
+			function( $order_item ) {
+				return is_a( $order_item, '\Masteriyo\Models\Order\OrderItemCourse' ) && 0 !== $order_item->get_course_id();
+			}
+		);
+
+		$course_ids = array_map(
+			function( $order_item ) {
+				return $order_item->get_course_id();
+			},
+			$order_items
+		);
+
+		$customer_id = $customer_id ? $customer_id : $order->get_customer_id( 'edit' );
+
+		$query = new UserCourseQuery(
+			array(
+				'user_id'    => $customer_id,
 				'course__in' => $course_ids,
 				'per_page'   => -1,
 			)
@@ -728,29 +901,28 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 		foreach ( $order_items as $order_item ) {
 			if ( isset( $user_courses_map[ $order_item->get_course_id() ] ) ) {
 				$user_course = $user_courses_map[ $order_item->get_course_id() ];
-			} else {
-				$user_course = masteriyo( 'user-course' );
+
+				// Stale: a newer order owns this enrollment.
+				$enrollment_order_id = absint( $user_course->get_order_id( 'edit' ) );
+				if ( $enrollment_order_id && $order->get_id() < $enrollment_order_id ) {
+					continue;
+				}
+
+				$user_course->set_status( $status );
+
+				/**
+				 * Filters user course object before updating.
+				 *
+				 * @since 2.9.3
+				 *
+				 * @param Masteriyo\Models\UserCourse $user_course User course object.
+				 * @param object $order_item Order item object.
+				 * @param Masteriyo\Models\Order\Order $order Order object.
+				 */
+				$user_course = apply_filters( 'masteriyo_user_course_update', $user_course, $order_item, $order );
+
+				$user_course->save();
 			}
-
-			$user_course->set_user_id( $order->get_customer_id( 'edit' ) );
-			$user_course->set_status( $status );
-			$user_course->set_date_start( current_time( 'mysql', true ) );
-			$user_course->set_order_id( $order->get_id() );
-			$user_course->set_course_id( $order_item->get_course_id( 'edit' ) );
-			$user_course->set_price( $order_item->get_total( 'edit' ) );
-
-			/**
-			 * Filters user course object before saving.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param Masteriyo\Models\UserCourse $user_course User course object.
-			 * @param object $order_item Order item object.
-			 * @param Masteriyo\Models\Order\Order $order Order object.
-			 */
-			$user_course = apply_filters( 'masteriyo_save_user_course', $user_course, $order_item, $order );
-
-			$user_course->save();
 		}
 	}
 }

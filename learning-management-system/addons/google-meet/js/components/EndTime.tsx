@@ -57,7 +57,7 @@ const EndTime: React.FC<Props> = (props) => {
     .react-datepicker-popper {
         z-index: 1000;
     }
-		`;
+`;
 
 	return (
 		<FormControl isInvalid={!!errors.ends_at}>
@@ -66,6 +66,7 @@ const EndTime: React.FC<Props> = (props) => {
 				<InputGroup isolation={'auto'}>
 					<Box zIndex="auto" position="relative" width={'100%'}>
 						<style>{customDatePickerStyles}</style>
+
 						<Controller
 							control={control}
 							name="ends_at"
@@ -77,7 +78,7 @@ const EndTime: React.FC<Props> = (props) => {
 							}}
 							defaultValue={defaultValue ? new Date(defaultValue) : undefined}
 							render={({ field: { onChange: onDateChange, value } }) => (
-								<Box zIndex={'auto'}>
+								<Box zIndex="auto">
 									<ReactDatePicker
 										renderCustomHeader={({
 											date,
@@ -113,7 +114,6 @@ const EndTime: React.FC<Props> = (props) => {
 														</option>
 													))}
 												</Select>
-
 												<Select
 													value={months[date.getMonth()]}
 													onChange={({ target: { value } }) =>
@@ -126,7 +126,6 @@ const EndTime: React.FC<Props> = (props) => {
 														</option>
 													))}
 												</Select>
-
 												<IconButton
 													icon={<BiRightArrow />}
 													size="sm"

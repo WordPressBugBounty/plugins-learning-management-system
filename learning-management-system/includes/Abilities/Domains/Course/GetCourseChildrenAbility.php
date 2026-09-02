@@ -3,7 +3,6 @@
  * Get Course Children ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns a flat list of sections, lessons, and quizzes in their display order.
  * Useful for generating a course outline without navigating the full builder tree.
- *
- * @since x.x.x
  */
 class GetCourseChildrenAbility extends RestProxyAbility {
 

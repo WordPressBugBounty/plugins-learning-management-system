@@ -5,7 +5,6 @@
  * Addons register links via ::add() before the 'wp_enqueue_scripts' hook.
  * Use ::remove() to deregister a link added by another addon.
  *
- * @since x.x.x
  * @package Masteriyo\Account
  */
 
@@ -15,23 +14,18 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * SidebarLinkRegistry class.
- *
- * @since x.x.x
  */
 class SidebarLinkRegistry {
 
 	/**
 	 * Registered links keyed by ID.
 	 *
-	 * @since x.x.x
 	 * @var array<string, array>
 	 */
 	private static $links = array();
 
 	/**
 	 * Register a sidebar link.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $id   Unique slug (sanitize_key will be applied).
 	 * @param array  $args {
@@ -59,8 +53,6 @@ class SidebarLinkRegistry {
 	/**
 	 * Remove a previously registered link.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $id Link ID.
 	 */
 	public static function remove( string $id ): void {
@@ -70,8 +62,6 @@ class SidebarLinkRegistry {
 	/**
 	 * Return all links sanitized and sorted, after applying the filter.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return array[]
 	 */
 	public static function get_links(): array {
@@ -80,8 +70,6 @@ class SidebarLinkRegistry {
 		 *
 		 * Kept for backward compatibility with addons/themes that registered
 		 * links via this filter before the SidebarLinkRegistry API existed.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param array $links Links keyed by ID.
 		 */
@@ -113,8 +101,6 @@ class SidebarLinkRegistry {
 
 	/**
 	 * Sanitize a single link definition.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array $link Raw link data (must already have 'id' set).
 	 * @return array|null Sanitized link, or null if label or url is missing.

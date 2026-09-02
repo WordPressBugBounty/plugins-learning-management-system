@@ -7,9 +7,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * contains the css rules which will use to style the elements
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
-
 
 
 FLBuilderCSS::border_field_rule(
@@ -28,9 +27,9 @@ FLBuilderCSS::border_field_rule(
  * Render the units data
  */
 ?>
-.fl-node-<?php echo $id; ?> .masteriyo-col {
-	padding-top: <?php echo $settings->categories_columns_gap_top . 'px' . '!important'; ?>;
-	padding-bottom: <?php echo $settings->categories_columns_gap_bottom . 'px' . '!important'; ?>;
-	padding-left: <?php echo $settings->categories_columns_gap_left . 'px' . '!important'; ?>;
-	padding-right: <?php echo $settings->categories_columns_gap_right . 'px' . '!important'; ?>;
+.fl-node-<?php echo esc_attr( $id ); ?> .masteriyo-col {
+	padding-top: <?php echo esc_attr( $settings->categories_columns_gap_top . 'px!important' ); ?>;
+	padding-bottom: <?php echo esc_attr( $settings->categories_columns_gap_bottom . 'px!important' ); ?>;
+	padding-left: <?php echo esc_attr( $settings->categories_columns_gap_left . 'px!important' ); ?>;
+	padding-right: <?php echo esc_attr( $settings->categories_columns_gap_right . 'px!important' ); ?>;
 }

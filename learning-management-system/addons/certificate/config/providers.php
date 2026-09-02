@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Masteriyo certificate service providers.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 use Masteriyo\Addons\Certificate\Providers\CertificateServiceProvider;

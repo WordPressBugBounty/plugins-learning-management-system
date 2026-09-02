@@ -4,19 +4,21 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 2.0.0
+ * @since 2.6.10
  */
 
 namespace Masteriyo\Emails\Student;
 
 use Masteriyo\Abstracts\Email;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
 /**
  * CourseCompletionReminderEmailToStudent Class. Used for sending password reset email.
  *
- * @since 2.0.0
+ * @since 2.6.10
  *
  * @package Masteriyo\Emails
  */
@@ -24,7 +26,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @var string
 	 */
@@ -33,7 +35,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @var string
 	 */
@@ -42,7 +44,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @param int $user_id User id.
 	 * @param int $course_id Course Id.
@@ -55,7 +57,14 @@ class CourseCompletionReminderEmailToStudent extends Email {
 			return;
 		}
 
-		if ( ! masteriyo_is_user_already_enrolled( $user_id, $course_id, 'active' ) || masteriyo_user_has_completed_course( $course_id, $user_id ) ) {
+		$remaining_days = masteriyo_get_remaining_time_for_single_course( $user_id, $course_id, false, true );
+
+		// The helper returns null both when access expired and when the course
+		// has no enrollment expiration at all. Only the first case blocks the
+		// reminder — otherwise unlimited-access courses never get one.
+		$enrollment_expired = $course->get_enrollment_expiration_enabled() && is_null( $remaining_days );
+
+		if ( ! masteriyo_is_user_already_enrolled( $user_id, $course_id, 'active' ) || masteriyo_user_has_completed_course( $course_id, $user_id ) || $enrollment_expired ) {
 			return;
 		}
 
@@ -86,7 +95,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -95,7 +104,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 		/**
 		 * Filter course completion email subject to student.
 		 *
-		 * @since 2.0.0
+		 * @since 2.6.10
 		 *
 		 * @param string $subject.
 		 */
@@ -109,7 +118,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return bool
 	 */
@@ -120,7 +129,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -128,7 +137,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 		/**
 		 * Filter course completion email heading to instructor.
 		 *
-		 * @since 2.0.0
+		 * @since 2.6.10
 		 *
 		 * @param string $heading.
 		 */
@@ -140,7 +149,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -149,7 +158,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 		/**
 		 * Filter course completion email additional content to instructor.
 		 *
-		 * @since 2.0.0
+		 * @since 2.6.10
 		 *
 		 * @param string $additional_content.
 		 */
@@ -161,7 +170,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Get email content.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -183,7 +192,7 @@ class CourseCompletionReminderEmailToStudent extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.10
 	 *
 	 * @return array
 	 */
@@ -207,8 +216,9 @@ class CourseCompletionReminderEmailToStudent extends Email {
 				'{student_nickname}'     => $student->get_nickname(),
 				'{student_email}'        => $student->get_email(),
 				'{account_login_link}'   => wp_kses_post(
-					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
+					'<a href="' . $this->get_account_url() . '" class="email-template--button">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
 				),
+				'{my_courses_url}'       => masteriyo_get_learner_home_url( $course, $student->get_id() ),
 			);
 		}
 
@@ -220,5 +230,89 @@ class CourseCompletionReminderEmailToStudent extends Email {
 		}
 
 		return $placeholders;
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter student registration email reply_to_name to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.course_completion_reminder.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.course_completion_reminder.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.course_completion_reminder.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.course_completion_reminder.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

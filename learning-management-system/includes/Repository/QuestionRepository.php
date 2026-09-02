@@ -41,6 +41,7 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 		'feedback'           => '_feedback',
 		'course_id'          => '_course_id',
 		'enable_description' => '_enable_description',
+		'answer_explanation' => '_answer_explanation',
 		'is_from_bank'       => '_is_from_bank',
 	);
 
@@ -62,7 +63,7 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 		}
 
 		// Set the author of the question to the current user id, if the question doesn't have a author.
-		if ( empty( $question->get_course_id() ) ) {
+		if ( empty( $question->get_author_id() ) ) {
 			$question->set_author_id( get_current_user_id() );
 		}
 
@@ -127,7 +128,7 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 		$question_post = get_post( $question->get_id() );
 
 		if ( ! $question->get_id() || ! $question_post || PostType::QUESTION !== $question_post->post_type ) {
-			throw new \Exception( __( 'Invalid question.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid question.', 'learning-management-system' ) );
 		}
 
 		$question->set_props(

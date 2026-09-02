@@ -65,8 +65,18 @@ class CourseCompletionAjaxHandler extends AjaxHandler {
 				return;
 			}
 
-			$course_id    = $_POST['course_id'];
+			$course_id    = absint( wp_unslash( $_POST['course_id'] ) );
 			$current_user = masteriyo_get_current_user_id();
+
+			if ( ! masteriyo_get_course( $course_id ) ) {
+				throw new \Exception( __( 'Invalid course ID.', 'learning-management-system' ) );
+			}
+
+			$enrolled_course_ids = array_map( 'absint', masteriyo_get_all_user_course_ids( $current_user ) );
+
+			if ( ! in_array( $course_id, $enrolled_course_ids, true ) ) {
+				throw new \Exception( __( 'You are not enrolled in this course.', 'learning-management-system' ) );
+			}
 
 			global $wpdb;
 

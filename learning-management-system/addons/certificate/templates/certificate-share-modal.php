@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The Template for displaying certificate preview/share modal.
  *
- * @version 1.13.3
+ * @version 2.14.4 [free]
  */
 
 use Masteriyo\Constants;
@@ -22,7 +22,7 @@ use Masteriyo\Constants;
 					/**
 					 * Filter the heading text in certificate preview modal.
 					 *
-					 * @since 1.13.3
+					 * @since 2.14.4 [free]
 					 *
 					 * @param string $heading The default heading text.
 					 */
@@ -42,83 +42,82 @@ use Masteriyo\Constants;
 
 				<div class="masteriyo-share-container">
 
-				<h5 class="masteriyo-certificate-share__title">
-					<?php echo esc_html( $certificate->get_name() ); ?>
-				</h5>
+					<h5 class="masteriyo-certificate-share__title">
+						<?php echo esc_html( $certificate->get_name() ); ?>
+					</h5>
 
-				<div class="masteriyo-certificate-share__share-link">
+					<div class="masteriyo-certificate-share__share-link">
 
-					<!-- facebook -->
-					<a
-						target="_blank"
-						href="https://www.facebook.com/sharer/sharer.php?u=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
-						align="center"
-						title="
+						<!-- facebook -->
+
+						<a
+							target="_blank"
+							href="https://www.facebook.com/sharer/sharer.php?u=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
+							align="center"
+							title="
 				<?php
 				$facebook_title = __( 'Share on Facebook', 'learning-management-system' );
 
 				/**
 				 * Filter the facebook title text in certificate preview modal.
 				 *
-				 * @since 1.13.3
+				 * @since 2.14.4 [free]
 				 *
 				 * @param string $heading The default title text.
 				 */
 				echo esc_html( apply_filters( 'masteriyo_certificate_share_modal_facebook_title', $facebook_title ) );
 				?>
 					">
-						<?php masteriyo_get_svg( 'facebook', true ); ?>
-					</a>
+							<?php masteriyo_get_svg( 'facebook', true ); ?>
+						</a>
 
-					<!-- twitter -->
-
-					<a
-						target="_blank"
-						href="https://twitter.com/intent/tweet?url=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
-						align="center"
-						title="
+						<!-- twitter -->
+						<a
+							target="_blank"
+							href="https://twitter.com/intent/tweet?url=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
+							align="center"
+							title="
 				<?php
 				$twitter_title = __( 'Share on X', 'learning-management-system' );
 
 				/**
 				 * Filter the twitter title text in certificate preview modal.
 				 *
-				 * @since 1.13.3
+				 * @since 2.14.4 [free]
 				 *
 				 * @param string $heading The default title text.
 				 */
 				echo esc_html( apply_filters( 'masteriyo_certificate_share_modal_twitter_title', $twitter_title ) );
 				?>
 				"
-						height="24"
-						width="24">
-						<?php masteriyo_get_svg( 'twitter', true ); ?>
-					</a>
+							height="24"
+							width="24">
+							<?php masteriyo_get_svg( 'twitter', true ); ?>
+						</a>
 
-					<!-- linkedin -->
-
-					<a
-						style="margin-top: 100px;"
-						target="_blank"
-						href="https://www.linkedin.com/sharing/share-offsite/?text=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
-						align="center"
-						title="
+						<!-- linkedin -->
+						<a
+							style="margin-top: 100px;"
+							target="_blank"
+							href="https://www.linkedin.com/sharing/share-offsite/?text=<?php echo esc_html( rawurlencode( $certificate_url['view_url'] ?? '' ) ); ?>"
+							align="center"
+							title="
 				<?php
 				$linkedin_title = __( 'Share on LinkedIn', 'learning-management-system' );
 
 				/**
 				 * Filter the linkedin title text in certificate preview modal.
 				 *
-				 * @since 1.13.3
+				 * @since 2.14.4 [free]
 				 *
 				 * @param string $heading The default title text.
 				 */
 				echo esc_html( apply_filters( 'masteriyo_certificate_share_modal_linkedin_title', $linkedin_title ) );
 				?>
 				">
-						<?php masteriyo_get_svg( 'linkedin', true ); ?>
-					</a>
-				</div>
+							<?php masteriyo_get_svg( 'linkedin', true ); ?>
+						</a>
+					</div>
 				</div>
 
 				<!-- preview -->

@@ -13,8 +13,9 @@ use Masteriyo\Addons\RevenueSharing\PostType\Earning;
 use Masteriyo\Addons\RevenueSharing\PostType\Withdraw;
 use Masteriyo\Addons\RevenueSharing\Controllers\WithdrawsController;
 use Masteriyo\Addons\RevenueSharing\Query\EarningQuery;
+use Masteriyo\Enums\OrderStatus;
 use Masteriyo\PostType\PostType;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -72,8 +73,274 @@ class RevenueSharingAddon {
 			add_filter( 'masteriyo_rest_pre_insert_user_object', array( $this, 'save_user_withdraw_data' ), 10, 3 );
 			add_filter( 'masteriyo_rest_response_user_data', array( $this, 'append_withdraw_data_to_response' ), 10, 2 );
 			add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
+			add_filter( 'masteriyo_rest_prepared_analytics_course_items', array( $this, 'append_commission_data' ), 10, 2 );
+			add_filter( 'masteriyo_rest_prepared_analytics_items', array( $this, 'append_analytics_time_series' ), 10, 3 );
+			add_filter( 'masteriyo_analytics_timeseries_data', array( $this, 'correct_popular_courses_earnings' ), 20, 2 );
+			add_filter( 'masteriyo_analytics_summary_data', array( $this, 'correct_popular_courses_earnings' ), 20, 2 );
 		}
 	}
+
+	/**
+	 * add commissions for admin and instructors
+	 *
+	 * @since 2.15.0
+	 */
+	public function append_commission_data( $items, $request ) {
+		$courses_data = $request->get_url_params();
+		$course_id    = $courses_data['id'];
+		$course       = masteriyo_get_course( $course_id );
+
+		$author_id = $course->get_author_id();
+		if ( masteriyo_is_user_admin( $author_id ) ) {
+			return $items;
+		}
+		$items['commissions'] = $this->get_commission_data( $course_id );
+		return $items;
+	}
+
+	/**
+	 * Append instructor_earnings time-series to analytics dashboard data.
+	 *
+	 * @param array            $items      Analytics items.
+	 * @param \WP_REST_Request $request    Request.
+	 * @param array            $course_ids Course IDs used to scope analytics data.
+	 *
+	 * @return array
+	 */
+	public function append_analytics_time_series( $items, $request, $course_ids = array() ) {
+		$start_date = masteriyo_analytics_normalize_datetime( $request->get_param( 'start_date' ), 'start' );
+		$end_date   = masteriyo_analytics_normalize_datetime( $request->get_param( 'end_date' ), 'end' );
+		$course_ids = array_filter( array_map( 'absint', (array) $course_ids ) );
+
+		if ( ! $start_date || ! $end_date || empty( $course_ids ) ) {
+			$items['instructor_earnings'] = array( 'data' => array() );
+			return $items;
+		}
+
+		global $wpdb;
+
+		$course_ids_placeholder = implode( ',', array_fill( 0, count( $course_ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DATE(p.post_date) AS date, COUNT(*) AS count,
+				SUM(CAST(pm.meta_value AS DECIMAL(10,4))) AS amount
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_instructor_amount'
+				INNER JOIN {$wpdb->postmeta} course_meta ON p.ID = course_meta.post_id AND course_meta.meta_key = '_course_id'
+				LEFT JOIN {$wpdb->postmeta} order_meta ON p.ID = order_meta.post_id AND order_meta.meta_key = '_order_id'
+				LEFT JOIN {$wpdb->posts} order_post ON order_post.ID = CAST(order_meta.meta_value AS UNSIGNED)
+				WHERE p.post_type = %s
+				AND (
+					p.post_status = %s
+					OR (p.post_status = 'publish' AND order_post.post_status = %s)
+				)
+				AND course_meta.meta_value IN ($course_ids_placeholder)
+				AND p.post_date >= %s AND p.post_date <= %s
+				GROUP BY DATE(p.post_date)
+				ORDER BY DATE(p.post_date) ASC",
+				array_merge( array( PostType::EARNING, OrderStatus::COMPLETED, OrderStatus::COMPLETED ), $course_ids, array( $start_date, $end_date ) )
+			),
+			ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		$start = new \DateTime( gmdate( 'Y-m-d', strtotime( $start_date ) ) );
+		$end   = new \DateTime( gmdate( 'Y-m-d', strtotime( $end_date ) ) );
+		$end->modify( '+1 day' );
+		$period  = new \DatePeriod( $start, new \DateInterval( 'P1D' ), $end );
+		$indexed = array();
+		foreach ( $results ?? array() as $row ) {
+			$indexed[ $row['date'] ] = $row;
+		}
+
+		$series = array();
+		foreach ( $period as $date ) {
+			$key      = $date->format( 'Y-m-d' );
+			$row      = $indexed[ $key ] ?? null;
+			$series[] = array(
+				'date'   => $key,
+				'count'  => $row ? (int) $row['count'] : 0,
+				'amount' => $row ? (float) $row['amount'] : 0,
+			);
+		}
+
+		$items['instructor_earnings'] = array( 'data' => $series );
+
+		return $items;
+	}
+
+	/**
+	 * Replace the Popular Courses table earnings with the instructor's revenue-share cut.
+	 *
+	 * The shared analytics controller sums the gross order total for each course, which
+	 * is what the site owner is paid, not what the instructor keeps. Admins and managers
+	 * view business-wide totals, so their figure is left as the gross amount.
+	 *
+	 * @since 3.3.2
+	 *
+	 * @param array            $items   Analytics payload.
+	 * @param \WP_REST_Request $request Request object, carrying the date range.
+	 *
+	 * @return array
+	 */
+	public function correct_popular_courses_earnings( $items, $request = null ) {
+		if ( ! is_array( $items ) || empty( $items['popular_courses'] ) || ! is_array( $items['popular_courses'] ) ) {
+			return $items;
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return $items;
+		}
+
+		$ids = array_filter( array_map( 'absint', wp_list_pluck( $items['popular_courses'], 'id' ) ) );
+
+		if ( empty( $ids ) ) {
+			return $items;
+		}
+
+		// The analytics filters pass no date range, so read it from the request the
+		// same way the gross Popular Courses query does, or the figure ignores the
+		// date picker and sums every sale ever.
+		$start_date = $request instanceof \WP_REST_Request ? masteriyo_analytics_normalize_datetime( $request->get_param( 'start_date' ), 'start' ) : null;
+		$end_date   = $request instanceof \WP_REST_Request ? masteriyo_analytics_normalize_datetime( $request->get_param( 'end_date' ), 'end' ) : null;
+
+		$shares = $this->get_instructor_earnings_by_course( $ids, get_current_user_id(), $start_date, $end_date );
+
+		foreach ( $items['popular_courses'] as &$course ) {
+			$course_id          = absint( $course['id'] );
+			$course['earnings'] = masteriyo_format_decimal( isset( $shares[ $course_id ] ) ? $shares[ $course_id ] : 0 );
+		}
+		unset( $course );
+
+		return $items;
+	}
+
+	/**
+	 * Sum each course's instructor share from its earning records.
+	 *
+	 * Reads the same `_instructor_amount` earning meta the Withdraw page uses, scoped to
+	 * the instructor and, when a range is given, the earning date.
+	 *
+	 * @since 3.3.2
+	 *
+	 * @param int[]       $course_ids Course IDs.
+	 * @param int         $user_id    Instructor user ID.
+	 * @param string|null $start_date Range start, Y-m-d H:i:s.
+	 * @param string|null $end_date   Range end, Y-m-d H:i:s.
+	 *
+	 * @return array Map of course ID to instructor amount.
+	 */
+	protected function get_instructor_earnings_by_course( $course_ids, $user_id, $start_date = null, $end_date = null ) {
+		global $wpdb;
+
+		if ( ! $wpdb || empty( $course_ids ) ) {
+			return array();
+		}
+
+		// Match the sibling instructor-earnings query: legacy shares are stored as
+		// `publish` with the completed order carrying the status, so accept those too
+		// or existing installs under-report on Popular Courses. EXISTS keeps duplicate
+		// `_order_id` meta rows from multiplying the SUM.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT CAST(cm.meta_value AS UNSIGNED) AS course_id,
+					SUM(CAST(am.meta_value AS DECIMAL(10,4))) AS instructor_amount
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} am ON p.ID = am.post_id AND am.meta_key = '_instructor_amount'
+				INNER JOIN {$wpdb->postmeta} cm ON p.ID = cm.post_id AND cm.meta_key = '_course_id'
+				WHERE p.post_type = %s
+					AND (
+						p.post_status = %s
+						OR ( p.post_status = 'publish' AND EXISTS (
+							SELECT 1
+							FROM {$wpdb->postmeta} om
+							INNER JOIN {$wpdb->posts} op ON op.ID = CAST(om.meta_value AS UNSIGNED)
+							WHERE om.post_id = p.ID AND om.meta_key = '_order_id' AND op.post_status = %s
+						) )
+					)
+					AND p.post_author = %d
+					AND FIND_IN_SET( cm.meta_value, %s )
+					AND p.post_date >= %s
+					AND p.post_date <= %s
+				GROUP BY cm.meta_value",
+				PostType::EARNING,
+				OrderStatus::COMPLETED,
+				OrderStatus::COMPLETED,
+				absint( $user_id ),
+				// CSV instead of an IN() placeholder list keeps the statement static.
+				// postmeta.meta_value is unindexed, so IN() bought no seek anyway.
+				implode( ',', array_map( 'absint', $course_ids ) ),
+				$start_date ? $start_date : '1970-01-01 00:00:00',
+				$end_date ? $end_date : '9999-12-31 23:59:59'
+			)
+		);
+
+		$map = array();
+		foreach ( (array) $rows as $row ) {
+			$map[ absint( $row->course_id ) ] = (float) $row->instructor_amount;
+		}
+
+		return $map;
+	}
+
+	/**
+	 * get instructors and admin percentage
+	 *
+	 * @since 2.15.0
+	 */
+	public function get_commission_data( $course_id ) {
+		$earnings = ( new EarningQuery(
+			array(
+				'post_type' => PostType::EARNING,
+				'course_id' => $course_id,
+				'per_page'  => -1,
+				'status'    => 'completed',
+			)
+		) )->get_earnings();
+
+		if ( ! empty( $earnings ) ) {
+				$totals = $this->calculate_earnings_commissions( $earnings );
+				return $totals;
+		}
+	}
+
+
+	/**
+	 * get commissions amount for admin and instructor
+	 *
+	 * @since 2.15.0
+	 * @param object $earnings
+	 * @return array
+	 */
+	public function calculate_earnings_commissions( $earnings ) {
+
+		$totals = array(
+			'admin_total'        => 0,
+			'instructor_total'   => 0,
+			'deductible_total'   => 0,
+			'grand_total_amount' => 0,
+			'total_amount'       => 0,
+		);
+
+		foreach ( $earnings as $earning ) {
+			$totals['admin_total']        += $earning->get_admin_amount();
+			$totals['instructor_total']   += $earning->get_instructor_amount();
+			$totals['deductible_total']    = $earning->get_deductible_fee_amount();
+			$totals['grand_total_amount'] += $earning->get_grand_total_amount();
+			$totals['total_amount']       += $earning->get_total_amount();
+		}
+
+		foreach ( $totals as $key => &$total ) {
+			$total = masteriyo_price( $total, array( 'html' => false ) );
+		}
+		return $totals;
+	}
+
+
+
+
 
 	/**
 	 * Localize admin scripts.
@@ -139,7 +406,7 @@ class RevenueSharingAddon {
 			'page_title' => __( 'Withdraws', 'learning-management-system' ),
 			'menu_title' => '↳ ' . __( 'Withdraws', 'learning-management-system' ),
 			'capability' => 'manage_withdraws',
-			'position'   => 16,
+			'position'   => 17,
 			'hide'       => true,
 		);
 
@@ -168,7 +435,17 @@ class RevenueSharingAddon {
 	 * @param \Masteriyo\Models\Order\Order $order Order object.
 	 */
 	public function create_earning( $order_id, $order ) {
-		$course = current( $order->get_items() )->get_course();
+		$order_item = current( $order->get_items() );
+
+		if ( ! $order_item ) {
+			return;
+		}
+
+		if ( masteriyo_is_bundle_order_item( $order_item ) ) {
+			return;
+		}
+
+		$course = $order_item->get_course();
 
 		if ( ! $course ) {
 			return;

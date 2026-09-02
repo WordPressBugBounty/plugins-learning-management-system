@@ -2,7 +2,7 @@
 /**
  * Masteriyo course button Bricks element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -15,7 +15,7 @@ use Masteriyo\Addons\BricksIntegration\Helper;
 /**
 * Masteriyo course button elements class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CourseButtonElement extends \Bricks\Element {
 
@@ -26,7 +26,7 @@ class CourseButtonElement extends \Bricks\Element {
 	/**
 	* Bricks course button Label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Single Course Button', 'learning-management-system' );
@@ -35,7 +35,7 @@ class CourseButtonElement extends \Bricks\Element {
 	/**
 	* Bricks course button set controls groups for course categories CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['course_button'] = array(
@@ -179,15 +179,14 @@ class CourseButtonElement extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		// Get the current page URL.
 		$course = Helper::get_bricks_preview_course();
-		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $course ) {
-			echo "<div {$this->render_attributes( '_root' )}>";
+			echo "<div {$this->render_attributes( '_root' )}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks render_attributes() returns pre-escaped attribute markup.
 			masteriyo_template_enroll_button( $course );
 			echo '</div>';
 		}

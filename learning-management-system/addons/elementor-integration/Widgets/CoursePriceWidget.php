@@ -11,6 +11,7 @@ namespace Masteriyo\Addons\ElementorIntegration\Widgets;
 
 use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
+use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
 
 defined( 'ABSPATH' ) || exit;
@@ -69,7 +70,8 @@ class CoursePriceWidget extends SingleCourseWidgetBase {
 	}
 
 	/**
-	 * @since x.x.x
+	 * Hide from panel — use Price and Enroll Button widget instead.
+	 *
 	 * @return bool
 	 */
 	public function show_in_panel() {
@@ -130,7 +132,7 @@ class CoursePriceWidget extends SingleCourseWidgetBase {
 		/**
 		 * Filters course data to apply multiple currency conversion in page builder context.
 		 *
-		 * @since 1.20.0
+		 * @since 1.20.0 [Free]
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 */
@@ -155,7 +157,7 @@ class CoursePriceWidget extends SingleCourseWidgetBase {
 			/**
 			 * Filters course data to apply multiple currency conversion in page builder context.
 			 *
-			 * @since 1.20.0
+			 * @since 1.20.0 [Free]
 			 *
 			 * @param \Masteriyo\Models\Course $course The course object.
 			 */

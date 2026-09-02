@@ -21,11 +21,11 @@ use Masteriyo\Notice;
 ?>
 <div class="masteriyo-checkout---order-note-wrapper">
 	<div class="masteriyo-checkout----order-note">
-		<label for="billing-order-note" class="masteriyo-label">
+		<label for="customer-note" class="masteriyo-label">
 			<?php esc_html_e( 'Customer Note (Optional)', 'learning-management-system' ); ?>
 		</label>
 
-		<textarea id="billing-order-note" class="masteriyo-input" name="customer_note"></textarea>
+		<textarea id="customer-note" class="masteriyo-input" name="customer_note"></textarea>
 
 		<?php if ( masteriyo_notice_exists( 'customer_note', Notice::ERROR ) ) : ?>
 			<div class=" masteriyo-error masteriyo-danger-msg">

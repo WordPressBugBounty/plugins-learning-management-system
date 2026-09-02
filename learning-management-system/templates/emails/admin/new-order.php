@@ -20,8 +20,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.0.0
  *
- * @param \Masteriyo\Emails\Email $email Email object.
- * @param \Masteriyo\Emails\Order $order Order object.
+ * @param \Masteriyo\Emails\Admin\NewOrderEmailToAdmin $email Email object.
+ * @param \Masteriyo\Models\Order\Order $order Order object.
  */
 do_action( 'masteriyo_email_header', $email, $order );
 
@@ -33,7 +33,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
  * @since 1.0.0
  *
  * @param \Masteriyo\Models\Order\Order $order Order object.
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Admin\NewOrderEmailToAdmin $email Email object.
  */
 do_action( 'masteriyo_email_order_details', $order, $email );
 
@@ -44,7 +44,7 @@ do_action( 'masteriyo_email_order_details', $order, $email );
  * @since 1.0.0
  *
  * @param \Masteriyo\Models\Order\Order $order Order object.
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Admin\NewOrderEmailToAdmin $email Email object.
  */
 do_action( 'masteriyo_email_customer_details', $order, $email );
 
@@ -53,7 +53,7 @@ do_action( 'masteriyo_email_customer_details', $order, $email );
  *
  * @since 1.0.0
  *
- * @param \Masteriyo\Emails\Email $email Email object.
- * @param \Masteriyo\Models\Order $order Order object.
+ * @param \Masteriyo\Emails\Admin\NewOrderEmailToAdmin $email Email object.
+ * @param \Masteriyo\Models\Order\Order $order Order object.
  */
 do_action( 'masteriyo_email_footer', $email, $order );

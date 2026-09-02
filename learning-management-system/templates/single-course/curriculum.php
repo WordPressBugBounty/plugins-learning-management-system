@@ -33,7 +33,6 @@ $query        = new \Masteriyo\Query\CourseProgressQuery(
 	)
 );
 $progress     = current( $query->get_course_progress() );
-$progress     = current( $query->get_course_progress() );
 $summary      = $progress ? $progress->get_summary( 'all' ) : '';
 $completed    = isset( $summary['total']['completed'] ) ? (int) $summary['total']['completed'] : 0;
 $total        = isset( $summary['total']['total'] ) ? (int) $summary['total']['total'] : 0;
@@ -67,7 +66,6 @@ $course_values = $course->get_custom_fields();
 $course_values = is_array( $course_values ) ? $course_values : array();
 
 ?>
-
 <div class="tab-content course-curriculum <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
 	<div class="masteriyo-stab--tcurriculum masteriyo-course--accordion">
 		<div class="masteriyo-stab--shortinfo">
@@ -90,6 +88,12 @@ $course_values = is_array( $course_values ) ? $course_values : array();
 				<span class="masteriyo-link-primary masteriyo-expand-collapse-all"><?php esc_html_e( 'Collapse All', 'learning-management-system' ); ?></span>
 			<?php endif; ?>
 		</div>
+
+		<?php if ( ! masteriyo_course_has_content( $course ) ) : ?>
+			<div class="masteriyo-notify-message masteriyo-alert masteriyo-info-msg">
+				<span><?php esc_html_e( 'No lessons have been added yet. Check back soon.', 'learning-management-system' ); ?></span>
+			</div>
+		<?php endif; ?>
 
 		<?php foreach ( $sections as $index => $section ) : ?>
 		<div class="masteriyo-stab--citems <?php echo esc_attr( 0 === $index ? 'active' : '' ); ?>">
@@ -127,7 +131,6 @@ $course_values = is_array( $course_values ) ? $course_values : array();
 		<?php endforeach; ?>
 	</div>
 </div>
-
 <?php
 
 /**

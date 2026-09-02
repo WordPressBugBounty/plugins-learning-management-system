@@ -2,7 +2,7 @@
 /**
  * Course flow type enums.
  *
- * @since 1.15.0
+ * @since 2.4.1
  * @package Masteriyo\Enums
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Course flow type enum class.
  *
- * @since 1.15.0
+ * @since 2.4.1
  */
 class CourseFlow {
 	/**
 	 * Course flow sequential type.
 	 *
-	 * @since 1.15.0
+	 * @since 2.4.1
 	 * @var string
 	 */
 	const SEQUENTIAL = 'sequential';
@@ -27,7 +27,7 @@ class CourseFlow {
 	/**
 	 * Course flow pending type.
 	 *
-	 * @since 1.15.0
+	 * @since 2.4.1
 	 * @var string
 	 */
 	const FREE_FLOW = 'free-flow';
@@ -52,7 +52,7 @@ class CourseFlow {
 	/**
 	 * Return all Course flow types.
 	 *
-	 * @since 1.15.0
+	 * @since 2.4.1
 	 *
 	 * @return array
 	 */
@@ -61,7 +61,7 @@ class CourseFlow {
 			/**
 			 * Filters Course flow status list.
 			 *
-			 * @since 1.15.0
+			 * @since 2.4.1
 			 *
 			 * @param string[] $types Course flow types.
 			 */

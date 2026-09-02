@@ -5,8 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
+use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\ModelException;
+use Masteriyo\PostType\PostType;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\Query\CourseProgressItemQuery;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Query\CourseProgressQuery;
 /**
@@ -103,6 +108,7 @@ function masteriyo_get_course_progress_item( $course_progress_item ) {
  * @return Masteriyo\Models\CourseProgress|WP_Error
  */
 function masteriyo_get_course_progress_by_user_and_course( $user, $course ) {
+
 	if ( is_a( $course, 'Masteriyo\Database\Model' ) ) {
 		$id = $course->get_id();
 	} elseif ( is_a( $course, '\WP_Post' ) ) {
@@ -189,7 +195,7 @@ if ( ! function_exists( 'masteriyo_get_learn_page_welcome_message_status' ) ) {
 	/**
 	 * Retrieves the welcome message status for a user on a course's learn page.
 	 *
-	 * @since 1.9.4
+	 * @since 1.9.4 [Free]
 	 *
 	 * @param int $course_id The ID of the course.
 	 * @param int $user_id   The ID of the user.
@@ -227,7 +233,7 @@ if ( ! function_exists( 'masteriyo_get_learn_page_welcome_message_status' ) ) {
 		/**
 		 * Filters the welcome message status for the learn page.
 		 *
-		 * @since 1.9.4
+		 * @since 1.9.4 [Free]
 		 *
 		 * @param array $welcome_message_data The welcome message data.
 		 * @param int   $course_id            The course ID.
@@ -239,11 +245,12 @@ if ( ! function_exists( 'masteriyo_get_learn_page_welcome_message_status' ) ) {
 	}
 }
 
+
 if ( ! function_exists( 'masteriyo_get_user_activity_meta' ) ) {
 	/**
 	 * Retrieves meta value for a given user, item, and meta key.
 	 *
-	 * @since 1.12.0
+	 * @since 2.13.0
 	 *
 	 * @param int    $user_id The user ID.
 	 * @param int    $item_id The item ID (lesson or course_progress).
@@ -263,6 +270,7 @@ if ( ! function_exists( 'masteriyo_get_user_activity_meta' ) ) {
 								WHERE item_id = %d
 								AND user_id = %d
 								AND activity_type = %s
+								LIMIT 1
 						)
 						AND meta_key = %s",
 				$item_id,
@@ -280,6 +288,387 @@ if ( ! function_exists( 'masteriyo_get_user_activity_meta' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_is_course_progress_completed_manually' ) ) {
+	/**
+	 * Determines if a course progress object is marked as manually completed.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param \Masteriyo\Models\CourseProgress $course_progress A course progress object.
+	 * @return bool True if manually updated, false otherwise.
+	 */
+	function masteriyo_is_course_progress_completed_manually( $course_progress ) {
+		$manual_update = false;
+
+		if ( is_object( $course_progress ) && is_callable( array( $course_progress, 'get_manual_update' ) ) ) {
+			$manual_update = $course_progress->get_manual_update();
+		}
+
+		/**
+		 * Filters whether a course progress object is marked as manually completed.
+		 *
+		 * @since 2.18.0
+		 *
+		 * @param bool $manual_update True if manually updated, false otherwise.
+		 * @param \Masteriyo\Models\CourseProgress $course_progress A course progress object.
+		 */
+		return apply_filters( 'masteriyo_is_course_progress_completed_manually', (bool) $manual_update, $course_progress );
+	}
+}
+
+
+if ( ! function_exists( 'masteriyo_complete_specific_course_for_user' ) ) {
+	/**
+ * complete course progress for a specific user.
+ *
+ * @param int    $course_id      The course ID.
+ * @param int    $student_id     The student ID.
+ * @param array  $email_settings (Optional) Email settings if provided.
+ *
+ * @since 2.19.0
+ *
+ * @return array|\WP_Error Returns an array with course_progress and completed_items on success,
+ *                         or a WP_Error on failure.
+ */
+	function masteriyo_complete_specific_course_for_user( $course_id, $student_id, $email_settings = array() ) {
+		$course = masteriyo_get_course( $course_id );
+		if ( ! $course ) {
+			return new WP_Error( 'masteriyo_course_not_found', __( 'Course not found.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		$student = masteriyo_get_user( $student_id );
+		if ( is_wp_error( $student ) ) {
+			return new WP_Error( 'masteriyo_user_not_found', __( 'User not found.', 'learning-management-system' ), array( 'status' => 404 ) );
+		}
+
+		$user_course = masteriyo_get_active_user_course( $course_id, $student_id );
+		if ( is_wp_error( $user_course ) ) {
+			return $user_course;
+		}
+
+		$course_item_post_types = CourseProgressPostType::all();
+
+		if ( ( new Addons() )->is_active( 'assignment' ) && ! in_array( 'mto-assignment', $course_item_post_types, true ) ) {
+			$course_item_post_types = array_merge( $course_item_post_types, array( 'mto-assignment' ) );
+		}
+
+		$course_item_args = array(
+			'post_type'      => $course_item_post_types,
+			'post_status'    => masteriyo_get_course_content_post_statuses(),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_key'       => '_course_id',
+			'meta_value'     => $course_id,
+		);
+
+		$course_item_ids = get_posts( $course_item_args );
+
+		if ( empty( $course_item_ids ) ) {
+			return new WP_Error( 'masteriyo_unable_to_complete_course', __( 'No course items found to complete.', 'learning-management-system' ), array( 'status' => 500 ) );
+		}
+
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+				update_email_settings( array_map( 'masteriyo_string_to_bool', $email_settings ) );
+		}
+
+		$course_progress = update_course_progress( $student_id, $course_id );
+		if ( is_wp_error( $course_progress ) ) {
+			return $course_progress;
+		}
+
+		$completed_items = complete_course_items( $student, $course_item_ids, $course_progress );
+		if ( empty( $completed_items ) ) {
+				$course_progress->set_status( CourseProgressStatus::STARTED );
+				$course_progress->set_manual_update( false );
+				$course_progress->save();
+				return new WP_Error( 'masteriyo_unable_to_complete_course', __( 'Unable to complete course items.', 'learning-management-system' ), array( 'status' => 500 ) );
+		}
+
+		return array(
+			'course_progress' => $course_progress,
+			'completed_items' => $completed_items,
+		);
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_active_user_course' ) ) {
+	/**
+	 * Retrieve the ACTIVE user course for a specific course and student.
+	 *
+	 * Distinct from `masteriyo_get_user_course()`, which reads a user course by its own
+	 * id and returns null when it cannot: this one looks a user course up by course and
+	 * student, and reports "not enrolled" and "enrolment inactive" as separate errors.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param int $course_id The ID of the course.
+	 * @param int $student_id The ID of the student.
+	 *
+	 * @return \Masteriyo\Models\UserCourse|WP_Error Returns the user course object if found and active,
+	 *                                               or a WP_Error object if not found or inactive.
+	 */
+	function masteriyo_get_active_user_course( $course_id, $student_id ) {
+		$user_course_query = new UserCourseQuery(
+			array(
+				'course_id' => $course_id,
+				'user_id'   => $student_id,
+			)
+		);
+
+		$user_courses = $user_course_query->get_user_courses();
+		$user_course  = ! empty( $user_courses ) ? current( $user_courses ) : null;
+
+		if ( ! $user_course || ! $user_course instanceof \Masteriyo\Models\UserCourse ) {
+			return new WP_Error(
+				'masteriyo_user_course_not_found',
+				__( 'User course not found.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( UserCourseStatus::ACTIVE !== $user_course->get_status() ) {
+			return new WP_Error(
+				'masteriyo_user_course_not_active',
+				__( 'User course is not active.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $user_course;
+	}
+}
+
+if ( ! function_exists( 'update_email_settings' ) ) {
+	/**
+	 * Update the email settings.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param array $email_settings The email settings to update.
+	 */
+	function update_email_settings( $email_settings ) {
+		if ( empty( $email_settings ) ) {
+			return;
+		}
+
+		$settings_map = array(
+			'student'    => 'emails.student.manual_course_completion.enable',
+			'instructor' => 'emails.instructor.manual_course_completion.enable',
+			'admin'      => 'emails.admin.manual_course_completion.enable',
+		);
+
+		foreach ( $settings_map as $key => $setting ) {
+			if ( isset( $email_settings[ $key ] ) ) {
+				masteriyo_set_setting( $setting, $email_settings[ $key ] );
+			}
+		}
+	}
+}
+
+
+if ( ! function_exists( 'update_course_progress' ) ) {
+	/**
+	 * Update the course progress for a given user and course.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param int $student_id The ID of the student.
+	 * @param int $course_id The ID of the course.
+	 *
+	 * @return \Masteriyo\Models\CourseProgress|WP_Error The updated course progress model on success, WP_Error otherwise.
+	 */
+	function update_course_progress( $student_id, $course_id ) {
+		$course_progress = masteriyo_get_course_progress_by_user_and_course( $student_id, $course_id );
+
+		if ( ! $course_progress instanceof \Masteriyo\Models\CourseProgress ) {
+			/** @var \Masteriyo\Models\CourseProgress $course_progress */
+			$course_progress = masteriyo( 'course-progress' );
+			$course_progress->set_user_id( $student_id );
+			$course_progress->set_course_id( $course_id );
+		} elseif ( CourseProgressStatus::COMPLETED === $course_progress->get_status() ) {
+			return new WP_Error(
+				'masteriyo_course_progress_completed',
+				__( 'Course is already completed.', 'learning-management-system' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$current_time = current_time( 'mysql' );
+
+		$course_progress->set_status( CourseProgressStatus::COMPLETED, '', true );
+		$course_progress->set_manual_update( true );
+		$course_progress->set_completed_at( $current_time );
+
+		return $course_progress->save() ? $course_progress : new WP_Error(
+			'masteriyo_course_progress_save_failed',
+			__( 'Failed to save course progress.', 'learning-management-system' ),
+			array( 'status' => 500 )
+		);
+	}
+}
+
+if ( ! function_exists( 'complete_course_items' ) ) {
+	/**
+	 * Complete all course items for a given user and course.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param \WP_User $student The user to complete the course items for.
+	 * @param array      $course_item_ids The course item IDs to complete.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress The course progress model.
+	 *
+	 * @return array<int> The IDs of the course progress items that were completed.
+	 */
+	function complete_course_items( $student, $course_item_ids, $course_progress ) {
+
+		$completed_item_ids = array();
+		$current_time       = current_time( 'mysql' );
+
+		foreach ( $course_item_ids as $course_item_id ) {
+			$progress_item_query = new CourseProgressItemQuery(
+				array(
+					'user_id'     => $student->get_id(),
+					'item_id'     => $course_item_id,
+					'progress_id' => $course_progress->get_id(),
+					'per_page'    => 1,
+				)
+			);
+
+			$progress_items = $progress_item_query->get_course_progress_items();
+
+			$course_progress_item = ! empty( $progress_items ) ? current( $progress_items ) : masteriyo( 'course-progress-item' );
+
+			$post_type = get_post_type( $course_item_id );
+
+			/** @var \Masteriyo\Models\CourseProgressItem $course_progress_item */
+			$course_progress_item->set_props(
+				array(
+					'user_id'      => $student->get_id(),
+					'item_id'      => $course_item_id,
+					'item_type'    => str_replace( 'mto-', '', $post_type ),
+					'progress_id'  => $course_progress->get_id(),
+					'completed'    => true,
+					'modified_at'  => $current_time,
+					'completed_at' => $current_time,
+				)
+			);
+
+			if ( PostType::QUIZ === $post_type ) {
+				masteriyo_create_manual_quiz_attempt( $student->get_id(), $course_progress->get_course_id(), $course_item_id );
+			}
+
+			if ( $course_progress_item->save() ) {
+				$completed_item_ids[] = $course_progress_item->get_id();
+			}
+		}
+
+		return $completed_item_ids;
+	}
+}
+
+if ( ! function_exists( 'delete_course_progress_and_related_data' ) ) {
+	/**
+	 * Delete course progress and related data for a student.
+	 *
+	 * @since 2.19.0
+	 *
+	 * @param int $student_id The ID of the student.
+	 * @param int $course_id  The ID of the course.
+	 * @return void
+	 */
+	function delete_course_progress_and_related_data( $student_id, $course_id ) {
+		global $wpdb;
+		$course_progress = masteriyo_get_course_progress_by_user_and_course( $student_id, $course_id );
+
+		if ( $course_progress ) {
+			$course_progress_id = $course_progress->get_id();
+			if ( $course_progress->delete() ) {
+
+				// Course items.
+				$user_activities_table = $wpdb->prefix . 'masteriyo_user_activities';
+				if ( $wpdb->get_var( "SHOW TABLES LIKE '$user_activities_table'" ) === $user_activities_table ) { // phpcs:ignore
+					$wpdb->delete(
+						$user_activities_table,
+						array(
+							'parent_id' => $course_progress_id,
+						)
+					);
+				}
+
+				// Quiz attempts data.
+				$quiz_attempts_table = $wpdb->prefix . 'masteriyo_quiz_attempts';
+				if ( $wpdb->get_var( "SHOW TABLES LIKE '$quiz_attempts_table'" ) === $quiz_attempts_table ) { // phpcs:ignore
+					$wpdb->delete(
+						$quiz_attempts_table,
+						array(
+							'course_id' => $course_id,
+							'user_id'   => $student_id,
+						)
+					);
+				}
+
+				// Gradebook data.
+				$gradebook_results_table = $wpdb->prefix . 'masteriyo_gradebook_results';
+				if ( $wpdb->get_var( "SHOW TABLES LIKE '$gradebook_results_table'" ) === $gradebook_results_table ) { // phpcs:ignore
+					$gradebook_id = absint(
+						$wpdb->get_var(
+							$wpdb->prepare(
+								"SELECT id FROM {$wpdb->prefix}masteriyo_gradebook_results
+								WHERE item_id = %d
+								AND user_id = %d
+								AND item_type = 'course'",
+								$course_id,
+								$student_id
+							)
+						)
+					);
+
+					if ( $gradebook_id ) {
+						$wpdb->delete(
+							"{$wpdb->prefix}masteriyo_gradebook_results",
+							array(
+								'parent_id' => $gradebook_id,
+							)
+						);
+
+						$wpdb->delete(
+							"{$wpdb->prefix}masteriyo_gradebook_results",
+							array(
+								'id' => $gradebook_id,
+							)
+						);
+					}
+				}
+
+				// Assignment submissions data.
+				$args           = array(
+					'post_type'      => PostType::ASSIGNMENT,
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'meta_query'     => array(
+						'relation' => 'AND',
+						array(
+							'key'     => '_course_id',
+							'value'   => $course_id,
+							'compare' => '=',
+						),
+					),
+				);
+				$query          = new \WP_Query( $args );
+				$assignment_ids = $query->posts;
+
+				if ( ! empty( $assignment_ids ) ) {
+					$ids_str = implode( ', ', array_fill( 0, count( $assignment_ids ), '%d' ) );
+					$sql     = "DELETE FROM {$wpdb->posts} WHERE post_author = %d AND post_parent IN ({$ids_str})";
+
+					$wpdb->query( $wpdb->prepare( $sql, array_merge( array( $student_id ), $assignment_ids ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				}
+			}
+		}
+	}
+}
+
 if ( ! function_exists( 'masteriyo_course_progress_summary' ) ) {
 	/**
 	 * Retrieves the progress summary for a given course for the current user.
@@ -287,7 +676,7 @@ if ( ! function_exists( 'masteriyo_course_progress_summary' ) ) {
 	 * This function creates a CourseProgressQuery for the specified course and the current user,
 	 * fetches the course progress, and returns a summary of the progress.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param object $course The course object for which to retrieve progress summary.
 	 * @return string The progress summary for the course, or an empty string if no progress is found.

@@ -39,11 +39,11 @@ class ChangePasswordFormHandler {
 
 			$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-			if ( empty( sanitize_key( wp_unslash($nonce_value)) ) ) {
+			if ( empty( $nonce_value ) ) {
 				throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-change-password' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-change-password' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
@@ -87,22 +87,22 @@ class ChangePasswordFormHandler {
 		$user = wp_get_current_user();
 
 		if ( ! empty( $data['current_password'] ) && empty( $data['password_1'] ) && empty( $data['password_2'] ) ) {
-			throw new \Exception( __( 'Please fill out all password fields.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Please fill out all password fields.', 'learning-management-system' ) );
 		}
 		if ( empty( $data['current_password'] ) ) {
-			throw new \Exception( __( 'Please enter your current password.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Please enter your current password.', 'learning-management-system' ) );
 		}
 		if ( ! wp_check_password( $data['current_password'], $user->user_pass, $user->ID ) ) {
-			throw new \Exception( __( 'Your current password is incorrect.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Your current password is incorrect.', 'learning-management-system' ) );
 		}
 		if ( empty( $data['password_1'] ) ) {
-			throw new \Exception( __( 'Please enter a new password.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Please enter a new password.', 'learning-management-system' ) );
 		}
 		if ( empty( $data['password_2'] ) ) {
-			throw new \Exception( __( 'Please re-enter your new password.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Please re-enter your new password.', 'learning-management-system' ) );
 		}
 		if ( $data['password_1'] !== $data['password_2'] ) {
-			throw new \Exception( __( 'Please re-enter your new password.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Please re-enter your new password.', 'learning-management-system' ) );
 		}
 
 		$validation_error = new \WP_Error();
@@ -136,12 +136,12 @@ class ChangePasswordFormHandler {
 	protected function get_form_data() {
 		$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-		if ( empty( sanitize_key( wp_unslash($nonce_value)) ) ) {
-			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
+		if ( empty( $nonce_value ) ) {
+			throw new \Exception( esc_html__( 'Nonce is missing.', 'learning-management-system' ) );
 		}
 
-		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-change-password' ) ) {
-			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
+		if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-change-password' ) ) {
+			throw new \Exception( esc_html__( 'Invalid nonce', 'learning-management-system' ) );
 		}
 
 		$data   = array();

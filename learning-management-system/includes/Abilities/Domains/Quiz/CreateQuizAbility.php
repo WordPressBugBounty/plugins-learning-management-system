@@ -3,7 +3,6 @@
  * Create Quiz ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -19,8 +18,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Quiz settings such as pass mark, time limit, and attempts allowed
  * may be provided at creation time.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class CreateQuizAbility extends RestProxyAbility {
 

@@ -89,7 +89,7 @@ class CourseAnnouncementRepository extends AbstractRepository {
 			 * @param \Masteriyo\Addons\CourseAnnouncement\Models\CourseAnnouncement $object The course announcement object.
 			 * @param integer $id The course announcement ID.
 			 */
-			do_action( 'masteriyo_new_course_announcement', $course_announcement, $id );
+			do_action( 'masteriyo_new_course_announcement', $id, $course_announcement );
 		}
 	}
 
@@ -105,7 +105,7 @@ class CourseAnnouncementRepository extends AbstractRepository {
 		$course_announcement_post = get_post( $course_announcement->get_id() );
 
 		if ( ! $course_announcement->get_id() || ! $course_announcement_post || PostType::COURSEANNOUNCEMENT !== $course_announcement_post->post_type ) {
-			throw new \Exception( __( 'Invalid course announcement.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course announcement.', 'learning-management-system' ) );
 		}
 
 		$course_announcement->set_props(
@@ -433,5 +433,4 @@ class CourseAnnouncementRepository extends AbstractRepository {
 		 */
 		return apply_filters( 'masteriyo_course_announcement_data_store_cpt_get_course_announcements_query', $wp_query_args, $query_vars, $this );
 	}
-
 }

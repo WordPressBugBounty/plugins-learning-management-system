@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\BrevoIntegration
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 namespace Masteriyo\Addons\BrevoIntegration;
 
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class Masteriyo\Addons\BrevoIntegration
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 class BrevoIntegrationAddon {
 
@@ -29,7 +29,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Initialize.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -38,7 +38,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_checkout_fields', array( $this, 'add_brevo_consent_checkbox_field_for_checkout' ) );
@@ -55,7 +55,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Adds "masteriyo_brevo_consent_checkbox" to the checkout form fields.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $fields The checkout form fields.
 	 * @return array The updated checkout form fields.
@@ -89,7 +89,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Adds "masteriyo_brevo_consent_checkbox" to the registration form fields.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $fields The registration form fields.
 	 * @return array The updated registration form fields.
@@ -103,9 +103,15 @@ class BrevoIntegrationAddon {
 	/**
 	 * Renders a container for Brevo email subscription.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 */
 	public function render_container_for_brevo() {
+		$api_key = BrevoIntegrationSettings::get_api_key();
+
+		if ( empty( $api_key ) || ! masteriyo_string_to_bool( BrevoIntegrationSettings::get( 'is_connected' ) ) ) {
+			return;
+		}
+
 		$forced_email_subscription = masteriyo_string_to_bool( BrevoIntegrationSettings::get( 'enable_forced_email_subscription' ) );
 
 		if ( $forced_email_subscription ) {
@@ -127,7 +133,7 @@ class BrevoIntegrationAddon {
 	 * This function changes the template for Brevo integration specific templates.
 	 * It changes the template only if it matches the template name in the template map.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $template The template path.
 	 * @param string $template_name The template name.
@@ -152,11 +158,11 @@ class BrevoIntegrationAddon {
 	/**
 	 * Handles customer creation in Brevo integration.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
-	 * @param \Masteriyo\Models\User $user User object.
-	 * @param string $is_password_generated The generated password.
-	 * @param array $args The list of additional arguments.
+	 * @param \Masteriyo\Models\User    $user The user object.
+	 * @param string                    $password_generated The generated password.
+	 * @param array                     $args The form arguments.
 	 */
 	public function handle_customer_creation( $user, $password_generated, $args ) {
 		if ( ! $user instanceof \Masteriyo\Models\User ) {
@@ -209,7 +215,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Appends Brevo Integration settings to the response data.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $data Response data.
 	 * @return array Modified response data.
@@ -223,7 +229,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Saves Brevo Integration settings.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return void
 	 */
@@ -255,7 +261,7 @@ class BrevoIntegrationAddon {
 	/**
 	 * Registers the Brevo Integration namespace to the REST API.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $namespaces List of namespaces and their controllers.
 	 *

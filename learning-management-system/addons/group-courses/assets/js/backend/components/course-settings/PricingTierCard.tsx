@@ -1,12 +1,14 @@
 import { Box, Button, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import FormControlTwoCol from '../../../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../../../../assets/js/back-end/screens/settings/components/ToolTip';
+import { isProPlan } from '../../../../../../../assets/js/back-end/utils/utils';
 import { CustomChakraRadio } from '../../../../../../../assets/js/getting-started/components/CustomChakraRadio';
 import SeatConfiguration from './SeatConfiguration';
 import StandardPricing from './StandardPricing';
+import TieredPricing from './TieredPricing';
 
 interface PricingTierCardProps {
 	index: number;
@@ -19,7 +21,7 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({
 	onRemove,
 	isFree,
 }) => {
-	const { control } = useFormContext();
+	const { control, setValue } = useFormContext();
 
 	const watchGroupCoursesEnabled = useWatch({
 		name: 'group_courses.enabled',
@@ -35,6 +37,28 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({
 		name: `group_courses.pricing_tiers.${index}.group_name`,
 		control,
 	});
+
+	const watchPricingModel = useWatch({
+		name: `group_courses.pricing_tiers.${index}.pricing_model`,
+		control,
+	});
+
+	// Variable seats (and the tiered pricing that rides on them) are a paid
+	// feature — CustomChakraRadio's isProText is only a badge, it does not
+	// disable the option, so an unlicensed site is treated as fixed here.
+	const effectiveSeatModel =
+		isProPlan() && 'variable' === watchSeatModel ? 'variable' : 'fixed';
+
+	// Initialize pricing_model when switching to variable seats
+	useEffect(() => {
+		if (watchSeatModel === 'variable' && !watchPricingModel) {
+			setValue(
+				`group_courses.pricing_tiers.${index}.pricing_model`,
+				'per_seat',
+				{ shouldDirty: true },
+			);
+		}
+	}, [watchSeatModel, watchPricingModel, index, setValue]);
 
 	return (
 		<Box border="1px" borderColor="gray.200" borderRadius="md" p={6}>
@@ -54,7 +78,7 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({
 					</Button>
 				</Stack>
 
-				{/* Seat Model Toggle - Shows Variable Seats as Pro feature */}
+				{/* Seat Model Toggle */}
 				<FormControlTwoCol>
 					<FormLabel>
 						{__('Seat Model', 'learning-management-system')}
@@ -70,7 +94,7 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({
 								{
 									value: 'variable',
 									label: __('Variable Seats', 'learning-management-system'),
-									isProText: true,
+									isProText: !isProPlan(),
 								},
 							]}
 							isDisabled={isFree}
@@ -120,23 +144,35 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({
 					/>
 				</FormControlTwoCol>
 
-				{/* Seat Configuration - Only show for fixed seats */}
-				{watchSeatModel === 'fixed' && (
-					<SeatConfiguration
+				{/* Seat Configuration (Inputs for Fixed/Variable) */}
+				<SeatConfiguration
+					nestIndex={index}
+					seatModel={effectiveSeatModel}
+					isFree={isFree}
+					isGroupCoursesEnabled={watchGroupCoursesEnabled}
+				/>
+
+				{/* Standard Pricing Section */}
+				{(effectiveSeatModel === 'fixed' ||
+					(effectiveSeatModel === 'variable' &&
+						watchPricingModel === 'per_seat')) && (
+					<StandardPricing
 						nestIndex={index}
 						isFree={isFree}
+						isVariableSeat={effectiveSeatModel === 'variable'}
 						isGroupCoursesEnabled={watchGroupCoursesEnabled}
 					/>
 				)}
 
-				{/* Standard Pricing Section - Only show for fixed seats */}
-				{watchSeatModel === 'fixed' && (
-					<StandardPricing
-						nestIndex={index}
-						isFree={isFree}
-						isGroupCoursesEnabled={watchGroupCoursesEnabled}
-					/>
-				)}
+				{/* Tiered Pricing Section */}
+				{effectiveSeatModel === 'variable' &&
+					watchPricingModel === 'tiered' && (
+						<TieredPricing
+							nestIndex={index}
+							isFree={isFree}
+							isGroupCoursesEnabled={watchGroupCoursesEnabled}
+						/>
+					)}
 			</Stack>
 		</Box>
 	);

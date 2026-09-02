@@ -34,6 +34,32 @@ use MasterStudy\Lms\Repositories\CurriculumRepository;
 class MasterStudy {
 
 	/**
+	 * Register an addon service provider in the DI container on-demand.
+	 *
+	 * Cannot use AbstractLMSMigrator::ensure_service_provider() here because MasterStudy
+	 * is a static helper class, not a subclass of AbstractLMSMigrator. Inlines the same
+	 * logic so the container key is available before the migrate_single_*() call.
+	 *
+	 * @param string $service_key    Container key (e.g. 'wishlist-item').
+	 * @param string $provider_class Fully-qualified service provider class name.
+	 * @throws \Exception If the provider class file is not installed.
+	 */
+	private static function register_service_provider( string $service_key, string $provider_class ): void {
+		global $masteriyo;
+
+		if ( $masteriyo->has( $service_key ) ) {
+			return;
+		}
+
+		if ( ! class_exists( $provider_class ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception( sprintf( 'Addon class %s not found — install the required addon to migrate this data.', $provider_class ) );
+		}
+
+		$masteriyo->addServiceProvider( new $provider_class() );
+	}
+
+	/**
 	 * Migrates a single MasterStudy course.
 	 *
 	 * @since 1.16.0
@@ -81,6 +107,8 @@ class MasterStudy {
 
 				if ( 'stm-quizzes' === $item['post_type'] ) {
 					$item_post_type = PostType::QUIZ;
+				} elseif ( 'stm-assignments' === $item['post_type'] ) {
+					$item_post_type = PostType::ASSIGNMENT;
 				}
 
 				$mto_section['items'][] = array(
@@ -196,6 +224,29 @@ class MasterStudy {
 
 					if ( ! empty( $files ) ) {
 						update_post_meta( $item_id, '_download_materials', maybe_serialize( $files ) );
+					}
+
+					$preview = get_post_meta( $item_id, 'preview', true );
+					if ( $preview ) {
+						update_post_meta( $item_id, '_enable_preview', true );
+					}
+				} elseif ( PostType::ASSIGNMENT === $item['post_type'] ) {
+					// stm-assignments are renamed to mto-assignment in-place above.
+					// Migrate meta here — the separate 'assignments' step queries
+					// WHERE post_type='stm-assignments' and finds 0 rows once renamed.
+					update_post_meta( $item_id, '_parent_id', $section_id );
+
+					$max_points = get_post_meta( $item_id, 'assignment_tries', true );
+					if ( $max_points ) {
+						update_post_meta( $item_id, '_total_points', (int) $max_points );
+					}
+
+					$time_limit = get_post_meta( $item_id, 'assignment_time_limit', true );
+					if ( $time_limit ) {
+						masteriyo_get_logger()->info(
+							sprintf( 'Migration: Assignment %d time limit cannot be converted to absolute date — skipped.', $item_id ),
+							array( 'source' => 'migration-tool' )
+						);
 					}
 				}
 			}
@@ -394,14 +445,14 @@ class MasterStudy {
 			case 'single_choice':
 				return QuestionType::SINGLE_CHOICE;
 			case 'fill_the_gap':
-				return 'fill-in-the-blanks';
+				return QuestionType::FILL_IN_THE_BLANKS;
 			case 'sortable':
-				return 'sortable';
+				return QuestionType::SORTABLE;
 			case 'item_match':
 			case 'image_match':
-				return 'matching';
+				return QuestionType::MATCHING;
 			case 'keywords':
-				return 'text-answer';
+				return QuestionType::TEXT_ANSWER;
 			case 'question_bank':
 			default:
 				return null;
@@ -413,8 +464,7 @@ class MasterStudy {
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param array  $answers  The serialized answers from MasterStudy.
-	 * @param string $ms_type  Original MasterStudy question type slug.
+	 * @param array $answers The serialized answers from MasterStudy.
 	 *
 	 * @return array The formatted answers array.
 	 */
@@ -494,7 +544,6 @@ class MasterStudy {
 				return $formatted_answers;
 
 			default:
-				// true_false, single_choice, multi_choice and any unknown type.
 				foreach ( $answers as $answer ) {
 					$choice = sanitize_text_field( $answer['text'] ?? '' );
 					if ( '' !== $choice ) {
@@ -676,7 +725,6 @@ class MasterStudy {
 
 		update_post_meta( $order_id, '_was_ms_order', true );
 
-		// Subtotal, tax, and transaction ID were missing from the original mapping.
 		$subtotal       = get_post_meta( $order_id, '_order_subtotal', true );
 		$tax_total      = get_post_meta( $order_id, '_order_taxes', true );
 		$transaction_id = get_post_meta( $order_id, 'transaction_id', true );
@@ -695,7 +743,6 @@ class MasterStudy {
 	/**
 	 * Count total source items for a given migration step. Fast COUNT query — no records loaded.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 * @return int
 	 */
@@ -770,10 +817,9 @@ class MasterStudy {
 	 * record (CPT rename or deletion), making migrated items self-remove from the result set.
 	 * Enrollments use OFFSET because the stm_lms_user_courses row persists after migration.
 	 *
-	 * @since x.x.x
 	 * @param string $step   Step name.
 	 * @param int    $limit  Batch size.
-	 * @param int    $offset Number of records already processed (used only for enrollments).
+	 * @param int    $cursor Last processed ID (0 = first batch).
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
@@ -901,10 +947,7 @@ class MasterStudy {
 				}
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT user_quiz_id FROM {$wpdb->prefix}stm_lms_user_quizzes
-						 {$qa_not_in}
-						 ORDER BY user_quiz_id ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT user_quiz_id FROM {$wpdb->prefix}stm_lms_user_quizzes {$qa_not_in} ORDER BY user_quiz_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						array_merge( $qa_not_in_args, array( $limit ) )
 					)
 				);
@@ -923,8 +966,7 @@ class MasterStudy {
 						"SELECT DISTINCT user_id FROM {$wpdb->usermeta}
 						 WHERE meta_key = %s
 						 {$wl_not_in}
-						 ORDER BY user_id ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						 ORDER BY user_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						array_merge( array( 'stm_lms_wishlist' ), $wl_not_in_args, array( $limit ) )
 					)
 				);
@@ -941,7 +983,6 @@ class MasterStudy {
 	 * Called by MigrationProcessJob inside a START TRANSACTION / COMMIT wrapper.
 	 * Must be idempotent — safe to call twice for the same (step, item_id) pair.
 	 *
-	 * @since x.x.x
 	 * @param string $step    Step name matching a key in MasterStudyMigrator::get_steps().
 	 * @param int    $item_id Source item ID (post ID or stm_lms_user_courses.user_course_id).
 	 * @throws \Exception Triggers ROLLBACK in the job engine; item is added to the failed list.
@@ -970,7 +1011,10 @@ class MasterStudy {
 				static::migrate_single_quiz_attempt( $item_id );
 				break;
 			case 'wishlists':
-				static::register_wishlist_service_provider();
+				static::register_service_provider(
+					'wishlist-item',
+					\Masteriyo\Addons\WishList\Providers\WishListServiceProvider::class
+				);
 				static::migrate_single_wishlist( $item_id );
 				break;
 		}
@@ -986,7 +1030,6 @@ class MasterStudy {
 	 * Idempotent: if the user already has the Masteriyo instructor role the stm_lms_instructor
 	 * role is still cleaned up and the method returns without re-adding.
 	 *
-	 * @since x.x.x
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If the WP user record does not exist.
 	 */
@@ -1044,7 +1087,6 @@ class MasterStudy {
 	 * enrollments are exclusively owned by the 'enrollments' step via migrate_single_enrollment().
 	 * Idempotent: the inner migrate_course() sets _was_ms_course meta after completing.
 	 *
-	 * @since x.x.x
 	 * @param int $course_id MasterStudy stm-courses post ID.
 	 * @throws \Exception If the post does not exist or is not an stm-courses post.
 	 */
@@ -1073,28 +1115,21 @@ class MasterStudy {
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'stm_lms_course_taxonomy' );
 
 		static::migrate_course_info( $course_id );
-
 		static::migrate_course_announcement( $course_id );
 
 		Helper::migrate_course_author( $course_id );
 	}
 
 	/**
-	 * Migrate the MasterStudy course announcement meta to a Masteriyo mto-announcement post.
+	 * Migrate the course announcement meta field to an mto-announcement post.
 	 *
-	 * MasterStudy stores one announcement per course as plain text in the `announcement`
-	 * post meta key. Creates one `mto-announcement` post if the meta is non-empty.
-	 *
-	 * @since x.x.x
-	 * @param int $course_id Masteriyo mto-course post ID.
+	 * @param int $course_id Course post ID.
 	 */
 	private static function migrate_course_announcement( int $course_id ): void {
 		$announcement_text = get_post_meta( $course_id, 'announcement', true );
-
 		if ( empty( $announcement_text ) ) {
 			return;
 		}
-
 		$stripped = mb_substr( wp_strip_all_tags( $announcement_text ), 0, 80 );
 		$title    = $stripped ? $stripped : __( 'Course Announcement', 'learning-management-system' );
 		$post_id  = wp_insert_post(
@@ -1107,7 +1142,6 @@ class MasterStudy {
 				'post_parent'  => 0,
 			)
 		);
-
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			update_post_meta( $post_id, '_course_id', $course_id );
 		}
@@ -1119,7 +1153,6 @@ class MasterStudy {
 	 * Operates on one stm_lms_user_courses row by its user_course_id primary key.
 	 * Idempotent: skips silently if the user is already enrolled in Masteriyo.
 	 *
-	 * @since x.x.x
 	 * @param int $user_course_id Primary key of the stm_lms_user_courses row.
 	 * @throws \Exception If the row does not exist, is not enrolled, or the DB insert fails.
 	 */
@@ -1207,7 +1240,6 @@ class MasterStudy {
 	 * masteriyo_user_activities, mapping progress=1 → 'completed' and progress=0 → 'started'.
 	 * Deletes the source row after migrating so it self-removes from paginated queries.
 	 *
-	 * @since x.x.x
 	 * @param int $user_lesson_id Primary key of the stm_lms_user_lessons row.
 	 * @throws \Exception If the row does not exist.
 	 */
@@ -1325,7 +1357,6 @@ class MasterStudy {
 	 * Thin public wrapper around the private migrate_order(). Idempotent: returns early
 	 * if the post_type is already mto-order.
 	 *
-	 * @since x.x.x
 	 * @param int $order_id MasterStudy stm-orders post ID.
 	 * @throws \Exception If the post does not exist or is not an stm-orders post.
 	 */
@@ -1362,7 +1393,6 @@ class MasterStudy {
 	 *
 	 * Idempotent: throws if the source post is already gone (not 'stm-reviews' post_type).
 	 *
-	 * @since x.x.x
 	 * @param int $review_id MasterStudy stm-reviews post ID.
 	 * @throws \Exception If the post does not exist or is not an stm-reviews post.
 	 */
@@ -1420,13 +1450,12 @@ class MasterStudy {
 	}
 
 	/**
-	 * Migrate a single MasterStudy quiz attempt to masteriyo_quiz_attempts.
+	 * Migrate a single MasterStudy quiz attempt to a Masteriyo quiz attempt row.
 	 *
-	 * Reads one stm_lms_user_quizzes row and its related stm_lms_user_answers rows,
+	 * Reads the stm_lms_user_quizzes row, fetches per-question answers from stm_lms_user_answers,
 	 * inserts a row into masteriyo_quiz_attempts, then deletes the source rows so the
 	 * step is self-cleaning (LIMIT-only pagination, no OFFSET needed).
 	 *
-	 * @since x.x.x
 	 * @param int $user_quiz_id stm_lms_user_quizzes.user_quiz_id primary key.
 	 * @throws \Exception If the row does not exist or the DB insert fails.
 	 */
@@ -1569,41 +1598,12 @@ class MasterStudy {
 	}
 
 	/**
-	 * Register the WishList service provider in the DI container on-demand.
-	 *
-	 * Cannot use AbstractLMSMigrator::ensure_service_provider() here because MasterStudy
-	 * is a static helper class, not a subclass of AbstractLMSMigrator. Inlines the same
-	 * logic so the container key is available before migrate_single_wishlist() is called.
-	 *
-	 * @since x.x.x
-	 * @throws \Exception If the WishList addon is not installed.
-	 */
-	private static function register_wishlist_service_provider(): void {
-		global $masteriyo;
-
-		$service_key    = 'wishlist-item';
-		$provider_class = \Masteriyo\Addons\WishList\Providers\WishListServiceProvider::class;
-
-		if ( $masteriyo->has( $service_key ) ) {
-			return;
-		}
-
-		if ( ! class_exists( $provider_class ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-			throw new \Exception( 'Addon class WishListServiceProvider not found — install the WishList addon to migrate wishlist data.' );
-		}
-
-		$masteriyo->addServiceProvider( new $provider_class() );
-	}
-
-	/**
 	 * Migrate all MasterStudy wishlist entries for a single user to Masteriyo wishlist items.
 	 *
 	 * Reads the stm_lms_wishlist user meta (serialized array of course IDs) and creates
 	 * an mto-wishlist-item post for each entry not yet migrated. Deletes the user meta
 	 * afterwards so the step self-cleans (LIMIT-only pagination, no OFFSET needed).
 	 *
-	 * @since x.x.x
 	 * @param int $user_id WordPress user ID.
 	 */
 	public static function migrate_single_wishlist( int $user_id ): void {
@@ -1667,7 +1667,6 @@ class MasterStudy {
 	 * Bulk-update course_progress status once all lesson_progress items are migrated.
 	 * Replaces the per-item recount queries — runs once after the step completes.
 	 *
-	 * @since x.x.x
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {

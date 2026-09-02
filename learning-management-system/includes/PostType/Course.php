@@ -25,7 +25,8 @@ class Course extends PostType {
 		$debug           = masteriyo_is_post_type_debug_enabled();
 		$permalinks      = masteriyo_get_permalink_structure();
 		$courses_page_id = masteriyo_get_page_id( 'courses' );
-		$supports        = array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'author', 'publicize', 'wpcom-markdown' );
+		// reviews_allowed reads comment_status, which WordPress closes without this.
+		$supports        = array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'author', 'publicize', 'wpcom-markdown', 'comments' );
 
 		if ( $courses_page_id && get_post( $courses_page_id ) ) {
 			$has_archive = urldecode( get_page_uri( $courses_page_id ) );
@@ -83,7 +84,6 @@ class Course extends PostType {
 			'capability_type'     => array( 'course', 'courses' ),
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
-			'can_export'          => true,
 			'delete_with_user'    => true,
 			'rewrite'             => $permalinks['course_rewrite_slug'] ? array(
 				'slug'       => $permalinks['course_rewrite_slug'],

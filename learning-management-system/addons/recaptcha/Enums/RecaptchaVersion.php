@@ -2,7 +2,7 @@
 /**
  * Google reCAPTCHA version enums.
  *
- * @since 1.18.2
+ * @since 2.3.0
  * @package Masteriyo\Addons\Recaptcha
  */
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google reCAPTCHA version enum class.
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 class RecaptchaVersion {
 	/**
 	 * reCAPTCHA v2 I am not a robot.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const V2_I_AM_NOT_A_ROBOT = 'v2_i_am_not_a_robot';
@@ -27,7 +27,7 @@ class RecaptchaVersion {
 	/**
 	 * reCAPTCHA v2 no interaction.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const V2_NO_INTERACTION = 'v2_no_interaction';
@@ -35,7 +35,7 @@ class RecaptchaVersion {
 	/**
 	 * reCAPTCHA v3 I am not a robot.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @var string
 	 */
 	const V3 = 'v3';
@@ -43,7 +43,7 @@ class RecaptchaVersion {
 	/**
 	 * Return all the Google reCAPTCHA versions.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @return array
 	 */
@@ -52,7 +52,7 @@ class RecaptchaVersion {
 			/**
 			 * Filters Google reCAPTCHA version list.
 			 *
-			 * @since 1.18.2
+			 * @since 2.3.0
 			 *
 			 * @param string[] $statuses Google reCAPTCHA version list.
 			 */

@@ -11,7 +11,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.8.0
+ * @version 2.7.3
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -24,7 +24,15 @@ defined( 'ABSPATH' ) || exit;
 			<h4 class="masteriyo--title"><?php esc_html_e( 'Retake Course', 'learning-management-system' ); ?></h4>
 			<div class="masteriyo--content"><?php esc_html_e( 'Are you sure you want to retake the course? This action will permanently delete all your progress in this course.', 'learning-management-system' ); ?></div>
 			<div class="masteriyo-actions">
-				<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel"><?php esc_html_e( 'Cancel', 'learning-management-system' ); ?></button>
+				<button class="masteriyo-btn masteriyo-btn-outline masteriyo-cancel">
+					<?php
+					echo esc_html_x(
+						'Cancel',
+						'button label to cancel the current action',
+						'learning-management-system'
+					);
+					?>
+				</button>
 				<button class="masteriyo-btn masteriyo-btn-warning masteriyo-confirm"><?php esc_html_e( 'Confirm', 'learning-management-system' ); ?></button>
 			</div>
 		</div>

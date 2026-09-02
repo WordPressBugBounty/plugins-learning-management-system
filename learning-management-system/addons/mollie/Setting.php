@@ -2,7 +2,7 @@
 /**
  * Store global Mollie options.
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  * @package \Masteriyo\Addons\Mollie
  */
 
@@ -16,14 +16,14 @@ class Setting {
 	/**
 	 * Global option name.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	const OPTION_NAME = 'masteriyo_mollie_settings';
 
 	/**
 	 * Data.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var array
 	 */
@@ -41,7 +41,7 @@ class Setting {
 	/**
 	 * Read the settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	protected static function read() {
 		$settings   = get_option( self::OPTION_NAME, self::$data );
@@ -53,7 +53,7 @@ class Setting {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return mixed
 	 */
@@ -62,9 +62,9 @@ class Setting {
 	}
 
 	/**
-	 * Return global Razorpay field value.
+	 * Return global Mollie field value.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string $key
 	 *
@@ -77,9 +77,9 @@ class Setting {
 	}
 
 	/**
-	 * Set global Razorpay field.
+	 * Set global Mollie field.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.
@@ -92,7 +92,7 @@ class Setting {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param array $args
 	 */
@@ -103,7 +103,7 @@ class Setting {
 	/**
 	 * Save the settings.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public static function save() {
 		update_option( self::OPTION_NAME, self::$data );
@@ -118,7 +118,7 @@ class Setting {
 	/**
 	 * Return true if the Lemon Squeezy Integration is enabled.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return boolean
 	 */
@@ -129,7 +129,7 @@ class Setting {
 	/**
 	 * Get webhook_secret.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return string
 	 */
@@ -140,7 +140,7 @@ class Setting {
 	/**
 	 * Get the API key.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return string The API key.
 	 */

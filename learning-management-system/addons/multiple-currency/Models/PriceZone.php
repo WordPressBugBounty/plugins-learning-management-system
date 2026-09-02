@@ -2,7 +2,7 @@
 /**
  * PriceZone model.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency
  */
@@ -19,14 +19,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Price zone model (post type).
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class PriceZone extends Model {
 
 	/**
 	 * This is the name of this object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -35,7 +35,7 @@ class PriceZone extends Model {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -44,7 +44,7 @@ class PriceZone extends Model {
 	/**
 	 * Cache pricing zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -53,7 +53,7 @@ class PriceZone extends Model {
 	/**
 	 * Stores pricing zone data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var array
 	 */
@@ -72,7 +72,7 @@ class PriceZone extends Model {
 	/**
 		 * Constructor.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param PriceZoneRepository|null $pricing_zone_repository Prize zone Repository.
 		 */
@@ -90,7 +90,7 @@ class PriceZone extends Model {
 	/**
 	 * Get the object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -101,7 +101,7 @@ class PriceZone extends Model {
 	/**
 	 * Get the post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -118,7 +118,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone title.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -131,7 +131,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone countries.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -144,7 +144,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone exchange rate.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -157,7 +157,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone currency.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -170,7 +170,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -183,7 +183,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone author id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -196,7 +196,7 @@ class PriceZone extends Model {
 	/**
 	 * Returns price zone menu order.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -209,7 +209,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone created date.
 	 *
-	 * @since  1.11.0
+	 * @since  2.11.0 [Free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -222,7 +222,7 @@ class PriceZone extends Model {
 	/**
 	 * Get price zone modified date.
 	 *
-	 * @since  1.11.0
+	 * @since  2.11.0 [Free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -241,7 +241,7 @@ class PriceZone extends Model {
 	/**
 	 * Set price zone title.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $title price zone title.
 	 */
@@ -253,7 +253,7 @@ class PriceZone extends Model {
 	/**
 	 * Set the countries for the price zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $countries The countries to set for the price zone.
 	 */
@@ -264,7 +264,7 @@ class PriceZone extends Model {
 	/**
 	 * Set the exchange rate for the price zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param float $exchange_rate The exchange rate to set for the price zone.
 	 */
@@ -275,7 +275,7 @@ class PriceZone extends Model {
 	/**
 	 * Set the currency for the price zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $currency The currency to set for the price zone.
 	 */
@@ -286,7 +286,7 @@ class PriceZone extends Model {
 	/**
 	 * Set price zone status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $status Prize zone status.
 	 */
@@ -297,7 +297,7 @@ class PriceZone extends Model {
 	/**
 	 * Set the price zone's author id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $author_id author id.
 	 */
@@ -308,7 +308,7 @@ class PriceZone extends Model {
 	/**
 	 * Set the price zone menu order.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $menu_order Menu order id.
 	 */
@@ -319,7 +319,7 @@ class PriceZone extends Model {
 	/**
 	 * Set price zone created date.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -330,7 +330,7 @@ class PriceZone extends Model {
 	/**
 	 * Set price zone modified date.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */

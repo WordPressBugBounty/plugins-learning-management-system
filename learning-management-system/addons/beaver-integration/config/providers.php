@@ -2,11 +2,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-
 /**
  * Masteriyo beaver integration service providers.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 use Masteriyo\Addons\BeaverIntegration\Providers\BeaverIntegrationServiceProvider;

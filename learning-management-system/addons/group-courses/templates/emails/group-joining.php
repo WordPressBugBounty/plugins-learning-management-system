@@ -4,7 +4,7 @@
  *
  * Provides a warm welcome and essential information for new group members.
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fires before rendering email header.
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */
@@ -25,7 +25,7 @@ do_action( 'masteriyo_email_header', $email ); ?>
 /**
  * Action hook fired in email's footer section.
  *
- * @since 1.9.0
+ * @since 1.9.0 [Free]
  *
  * @param \Masteriyo\Emails\Email $email Email object.
  */

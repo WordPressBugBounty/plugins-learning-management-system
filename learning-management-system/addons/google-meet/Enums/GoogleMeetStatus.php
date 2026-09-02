@@ -2,7 +2,7 @@
 /**
  * Google Meet Meeting types.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  * @package Masteriyo\Enums
  */
 
@@ -15,13 +15,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GoogleMeet Meeting Status enum class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class GoogleMeetStatus extends PostStatus {
 	/**
 	 * GoogleMeet all Meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var string
 	 */
 	const ALL = 'all';
@@ -29,7 +29,7 @@ class GoogleMeetStatus extends PostStatus {
 	/**
 	 * GoogleMeet scheduled Meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var string
 	 */
 	const UPCOMING = 'upcoming';
@@ -37,7 +37,7 @@ class GoogleMeetStatus extends PostStatus {
 	/**
 	 * GoogleMeet Expired Meeting type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var string
 	 */
 	const EXPIRED = 'expired';
@@ -45,7 +45,7 @@ class GoogleMeetStatus extends PostStatus {
 	/**
 	 * GoogleMeet Active Meeting.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var string
 	 */
 	const ACTIVE = 'active';
@@ -53,7 +53,7 @@ class GoogleMeetStatus extends PostStatus {
 	/**
 	 * Return all GoogleMeet Meeting types.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */
@@ -62,7 +62,7 @@ class GoogleMeetStatus extends PostStatus {
 			/**
 			 * Filters Google Meet Status list.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param string[] $status GoogleMeet Meeting status.
 			 */

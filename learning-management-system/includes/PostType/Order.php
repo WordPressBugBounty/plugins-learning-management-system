@@ -70,8 +70,9 @@ class Order extends PostType {
 			'hierarchical'        => true,
 			'public'              => $debug,
 			'menu_position'       => 5,
-			'show_in_admin_bar'   => true,
-			'show_in_nav_menus'   => true,
+			'show_in_admin_bar'   => $debug,
+			'show_in_nav_menus'   => $debug,
+			'show_in_menu'        => $debug,
 			'can_export'          => true,
 			'show_in_rest'        => true,
 			'has_archive'         => true,
@@ -79,7 +80,6 @@ class Order extends PostType {
 			'capability_type'     => array( 'order', 'orders' ),
 			'exclude_from_search' => false,
 			'publicly_queryable'  => is_admin(),
-			'can_export'          => true,
 			'delete_with_user'    => true,
 		);
 	}

@@ -105,11 +105,10 @@ function masteriyo_timezone_offset() {
  */
 function masteriyo_string_to_timestamp( $time_string, $from_timestamp = null ) {
 	$original_timezone = date_default_timezone_get();
+	$time_string       = $time_string ?? '';
 
 	// phpcs:disable
 	date_default_timezone_set( 'UTC' );
-
-	$time_string = $time_string ?? '';
 
 	if ( null === $from_timestamp ) {
 		$next_timestamp = strtotime( $time_string );
@@ -314,6 +313,7 @@ function masteriyo_price( $price, $args = array() ) {
 	 * Filters price arguments like currency, decimal separator etc.
 	 *
 	 * @since 1.0.0
+	 * @since 1.5.36 Added show_price_free_text parameter.
 	 * @since 1.5.36 Added html arguments, whether to format price with HTML.
 	 * @since 1.5.36 Added show_price_free_text parameter.
 	 *
@@ -324,13 +324,17 @@ function masteriyo_price( $price, $args = array() ) {
 		wp_parse_args(
 			$args,
 			array(
-				'currency'             => '',
-				'decimal_separator'    => masteriyo_get_price_decimal_separator(),
-				'thousand_separator'   => masteriyo_get_price_thousand_separator(),
-				'decimals'             => masteriyo_get_price_decimals(),
-				'price_format'         => masteriyo_get_price_format(),
-				'html'                 => true,
-				'show_price_free_text' => true, // True for showing the text "Free" when price is zero. False to disable this behavior.
+				'currency'                    => '',
+				'decimal_separator'           => masteriyo_get_price_decimal_separator(),
+				'thousand_separator'          => masteriyo_get_price_thousand_separator(),
+				'decimals'                    => masteriyo_get_price_decimals(),
+				'price_format'                => masteriyo_get_price_format(),
+				'html'                        => true,
+				'show_price_free_text'        => true, // True for showing the text "Free" when price is zero. False to disable this behavior.
+				'billing_period'              => '',
+				'billing_interval'            => '',
+				'tax_inclusive'               => false,
+				'disable_tax_inclusive_label' => false,
 			)
 		)
 	);
@@ -408,11 +412,46 @@ function masteriyo_price( $price, $args = array() ) {
 
 	if ( $args['html'] ) {
 		$html = '<span class="masteriyo-price-amount amount"><bdi>' . $formatted_price . '</bdi></span>';
+		if ( ! empty( $args['billing_interval'] ) || ! empty( $args['billing_period'] ) ) {
+			$billing_interval = ucfirst( trim( esc_html( $args['billing_interval'] ) ) );
+			$billing_period   = trim( esc_html( $args['billing_period'] ) );
+
+			$html .= '<span class="billing_interval">(' . $billing_interval . ' ' . $billing_period . ')</span>';
+		}
+
+		// if ( $args['billing_period'] ) {
+		//  $html .= '<span class="billing_period"> ' . $args['billing_period'] . '</span>';
+		// }
+
+		/**
+		 * Filters the tax inclusive text.
+		 *
+		 * @since 2.21.0
+		 *
+		 * @param bool $tax_inclusive True if tax is inclusive.
+		 * @return bool True if tax is inclusive.
+		 */
+		$tax_inclusive = apply_filters( 'masteriyo_tax_inclusive', $args['tax_inclusive'] ) && ! masteriyo_string_to_bool( $args['disable_tax_inclusive_label'] );
+
+		/**
+		 * Filters the tax inclusive text.
+		 *
+		 * @since 2.21.0
+		 *
+		 * @param string $tax_inclusive_text Tax inclusive text.
+		 * @return string Tax inclusive text.
+		 */
+		$tax_inclusive_text = apply_filters( 'masteriyo_tax_inclusive_text', __( 'Incl. Tax', 'learning-management-system' ) );
+
+		if ( masteriyo_round( $price ) > 0 && $tax_inclusive ) {
+			$html .= '<span class="tax_inclusive"> (' . $tax_inclusive_text . ')</span>';
+		}
 	} else {
 		$html = html_entity_decode( $formatted_price );
 	}
 
 	$course = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;
+
 	/**
 	 * Filters the string of price markup.
 	 *
@@ -424,7 +463,8 @@ function masteriyo_price( $price, $args = array() ) {
 	 * @param array  $args              Pass on the args.
 	 * @param float  $unformatted_price Price as float to allow plugins custom formatting.
 	 * @param float|string $original_price Original price as float or empty string. Since 1.6.0
-	 * @param object|array $course       Course object or array. @since 1.12.0
+	 * @param object|array $course       Course object or array. @since 2.13.0
+	 *
 	 */
 	return apply_filters( 'masteriyo_price', $html, $price, $args, $unformatted_price, $course );
 }
@@ -649,6 +689,21 @@ function masteriyo_round( $val, $precision = 0, $mode = PHP_ROUND_HALF_UP ) {
 	$mode      = (int) $mode;
 	$val       = is_numeric( $val ) ? $val : (float) $val;
 
+	// For PHP 8.4+ (where RoundingMode enum is required).
+	if ( version_compare( PHP_VERSION, '8.4.0', '>=' ) ) {
+		// If $mode is an integer (legacy PHP_ROUND_* constant), map to RoundingMode enum.
+		if ( is_int( $mode ) ) {
+			$mode_map = array(
+				PHP_ROUND_HALF_UP   => RoundingMode::HalfAwayFromZero,
+				PHP_ROUND_HALF_DOWN => RoundingMode::HalfTowardsZero,
+				PHP_ROUND_HALF_EVEN => RoundingMode::HalfEven,
+				PHP_ROUND_HALF_ODD  => RoundingMode::HalfOdd,
+			);
+
+			$mode = isset( $mode_map[ $mode ] ) ? $mode_map[ $mode ] : RoundingMode::HalfAwayFromZero;
+		}
+	}
+
 	return round( $val, $precision, $mode );
 }
 
@@ -740,6 +795,68 @@ function masteriyo_format_phone_number( $phone ) {
  */
 function masteriyo_sanitize_phone_number( $phone ) {
 	return preg_replace( '/[^\d+]/', '', $phone );
+}
+
+/**
+ * Sanitize custom field values, which are rendered as text and never as markup.
+ *
+ * @param mixed $fields Custom field values, of any nesting.
+ * @return mixed
+ */
+function masteriyo_sanitize_custom_fields( $fields ) {
+	return map_deep(
+		$fields,
+		function ( $value ) {
+			return is_string( $value ) ? sanitize_textarea_field( $value ) : $value;
+		}
+	);
+}
+
+/**
+ * Sanitize a media embed, which is either provider iframe markup or a plain media URL.
+ *
+ * @param string $embed Embed markup or URL.
+ * @return string
+ */
+function masteriyo_sanitize_media_embed( $embed ) {
+	if ( ! is_string( $embed ) ) {
+		return '';
+	}
+
+	if ( false === strpos( $embed, '<' ) ) {
+		return esc_url_raw( $embed, array( 'http', 'https' ) );
+	}
+
+	$embed = wp_kses(
+		$embed,
+		array(
+			'iframe' => array(
+				'src'               => true,
+				'width'             => true,
+				'height'            => true,
+				'title'             => true,
+				'class'             => true,
+				'id'                => true,
+				'style'             => true,
+				'loading'           => true,
+				'allow'             => true,
+				'allowfullscreen'   => true,
+				'allowtransparency' => true,
+				'frameborder'       => true,
+				'scrolling'         => true,
+				'referrerpolicy'    => true,
+				'sandbox'           => true,
+			),
+		),
+		array( 'http', 'https' )
+	);
+
+	// kses filters names, not how many elements survive; keep the first iframe only.
+	if ( ! preg_match( '/<iframe\b[^>]*?\/?>/i', $embed, $iframe ) ) {
+		return $embed;
+	}
+
+	return rtrim( $iframe[0], '/>' ) . '></iframe>';
 }
 
 if ( ! function_exists( 'masteriyo_format_rating' ) ) {
@@ -962,7 +1079,6 @@ function masteriyo_kebab_to_camel( $text ) {
 	return lcfirst( masteriyo_kebab_to_pascal( $text ) );
 }
 
-
 /**
  * Convert kebab-case to snake_case.
  *
@@ -994,6 +1110,7 @@ function masteriyo_snake_to_kebab( $text ) {
  * e.g. <ul><li></li></ul>
  *
  * @since 1.4.4
+ * @since 2.0.0 [Free] Modified li to div with class for better styling.
  *
  * @param string $highlights
  * @return string
@@ -1015,9 +1132,41 @@ function masteriyo_format_course_highlights( $highlights ) {
 }
 
 /**
+ * Render description HTML for the view context.
+ *
+ * How the content was written decides the path — has_blocks(), never the
+ * site-wide editor setting: block markup renders through do_blocks() and
+ * do_shortcode(); anything else through wpautop() and do_shortcode().
+ *
+ * Deliberately not apply_filters( 'the_content' ): that would hand every
+ * third-party the_content filter a REST response to rewrite. Only core's
+ * block, shortcode and autop steps run here.
+ *
+ * @param string $content Description HTML, already sanitized by the caller.
+ * @return string
+ */
+function masteriyo_format_content_for_view( $content ) {
+	if ( has_blocks( $content ) ) {
+		// shortcode_unautop() between the two, as in core's the_content chain:
+		// the shortcode block's render wpautop()s its inner content, and the
+		// wrapping <p> has to go before the shortcode expands into block markup.
+		$content = do_shortcode( shortcode_unautop( do_blocks( $content ) ) );
+	} else {
+		$content = wpautop( do_shortcode( $content ) );
+	}
+
+	/**
+	 * Filters rendered course/lesson description HTML for the view context.
+	 *
+	 * @param string $content Rendered description HTML.
+	 */
+	return apply_filters( 'masteriyo_format_content_for_view', $content );
+}
+
+/**
  * Convert camel case to kebab case.
  *
- * @since 1.8.2
+ * @since 2.7.3
  * @param string $text Text to convert.
  * @return string
  */

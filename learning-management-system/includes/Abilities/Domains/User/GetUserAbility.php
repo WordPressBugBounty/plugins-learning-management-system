@@ -3,7 +3,6 @@
  * Get User ability.
  *
  * @package Masteriyo\Abilities\Domains\User
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\User;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a single user profile by ID.
- *
- * @since x.x.x
  */
 class GetUserAbility extends RestProxyAbility {
 

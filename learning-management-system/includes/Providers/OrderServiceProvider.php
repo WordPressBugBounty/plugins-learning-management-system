@@ -7,7 +7,6 @@ namespace Masteriyo\Providers;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\OrderNotes;
 use Masteriyo\Models\Order\Order;
 use Masteriyo\Models\Order\OrderItem;
 use Masteriyo\Repository\OrderRepository;
@@ -23,7 +22,38 @@ use Masteriyo\PDF\Order\OrderPDF;
 use Masteriyo\PostType\PostType;
 
 class OrderServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'order',
+				'order.store',
+				'order.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\OrdersController',
+				'order-item',
+				'order-item.store',
+				'order-item.rest',
+				'\Masteriyo\RestApi\Controllers\Version1\OrderItemsController',
+				'order-item.course',
+				'order-item.course.store',
+			),
+			true
+		);
+	}
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -64,39 +94,6 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 	}
 
 	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * Check if the service provider provides a specific service.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id Service identifier.
-	 * @return bool True if the service is provided, false otherwise.
-	 */
-	public function provides( string $id ): bool {
-		return in_array(
-			$id,
-			array(
-				'order',
-				'order.store',
-				'order.rest',
-				'\Masteriyo\RestApi\Controllers\Version1\OrdersController',
-				'order-item',
-				'order-item.store',
-				'order-item.rest',
-				'\Masteriyo\RestApi\Controllers\Version1\OrderItemsController',
-				'order-item.course',
-				'order-item.course.store',
-			),
-			true
-		);
-	}
-
-	/**
 	 * In much the same way, this method has access to the container
 	 * itself and can interact with it however you wish, the difference
 	 * is that the boot method is invoked as soon as you register
@@ -114,6 +111,29 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 		add_action( 'comment_moderation_recipients', array( $this, 'comment_moderation_recipients' ), 10, 2 );
 		add_action( 'parse_comment_query', array( $this, 'remove_order_note_from_query' ) );
 		add_action( 'init', array( $this, 'handle_download_order' ) );
+
+		// Fires on an actual delete only (never on trash), so this also catches a force-delete that bypasses OrderRepository::delete() — e.g. core's REST API `?force=true`.
+		add_action( 'before_delete_post', array( $this, 'maybe_clear_dangling_order_id_meta' ), 10, 2 );
+	}
+
+	/**
+	 * @since 2.31.0
+	 *
+	 * @param int           $post_id Post ID.
+	 * @param \WP_Post|null $post    Post object.
+	 */
+	public function maybe_clear_dangling_order_id_meta( $post_id, $post = null ) {
+		$post_type = $post ? $post->post_type : get_post_type( $post_id );
+
+		if ( PostType::ORDER !== $post_type ) {
+			return;
+		}
+
+		$repository = masteriyo( 'order.store' );
+
+		if ( $repository instanceof \Masteriyo\Repository\OrderRepository ) {
+			$repository->clear_dangling_order_id_meta( $post_id );
+		}
 	}
 
 	/**
@@ -201,18 +221,39 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 			}
 
 			if ( get_current_user_id() !== $order->get_customer_id() && ! masteriyo_is_current_user_manager() && ! current_user_can( 'manage_options' ) ) {
-				wp_die( esc_html__( 'You do not have permission to access this order.', 'learning-management-system' ) );
+					wp_die( esc_html__( 'You do not have permission to access this order.', 'learning-management-system' ) );
 			}
-
 			$invoice_data = $order->get_invoice_data( $order );
 
-			ob_start();
-			include_once MASTERIYO_PLUGIN_DIR . '/templates/order/invoice.php';
-			$html = ob_get_clean();
+			/**
+			 * Filters the logo URL used in Masteriyo invoices.
+			 *
+			 * @since 2.9.1
+			 *
+			 * @param string $logo_url Logo URL.
+			 */
+			$logo_url = apply_filters( 'masteriyo_invoice_logo_url', plugins_url( 'assets/img/masteriyo-logo-horizontal.png', MASTERIYO_PLUGIN_FILE ) );
 
-			$order_pdf = new OrderPDF( $order->get_id(), get_current_user_id(), '' );
-			$order_pdf->add_html( $html );
-			$order_pdf->serve_download();
+			$invoice_html = masteriyo_get_template_html(
+				'order/invoice.php',
+				array(
+					'logo_url'     => $logo_url,
+					'invoice_data' => $invoice_data,
+				)
+			);
+
+			try {
+				if ( ob_get_length() ) {
+					ob_end_clean();
+				}
+				$order_pdf = new OrderPDF( $order->get_id(), get_current_user_id(), '' );
+				$order_pdf->add_html( $invoice_html );
+				$order_pdf->serve_download();
+				exit;
+			} catch ( \Exception $e ) {
+				masteriyo_add_notice( 'error', $e->getMessage() );
+				exit;
+			}
 		}
 	}
 }

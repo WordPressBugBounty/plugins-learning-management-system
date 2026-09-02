@@ -35,7 +35,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_content', $course );
 		 * This action hook allows child themes and plugins to output main tab content
 		 * in the single course page using layout 1.
 		 *
-		 * @since 2.0.0
+		 * @since 2.0.0 [Free]
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 */

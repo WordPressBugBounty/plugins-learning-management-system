@@ -2,7 +2,7 @@
 /**
  * Masteriyo Certificate Setup.
  *
- * @since 1.13.0
+ * @since 2.3.7
  *
  * @package Masteriyo\Addons
  * @subpackage Masteriyo\Addons\Certificate
@@ -14,11 +14,12 @@ use Masteriyo\Addons\Certificate\PDF\CertificatePDF;
 use Masteriyo\Addons\Certificate\PostType\Certificate;
 use Masteriyo\Addons\Certificate\RestApi\Controllers\Version1\CertificatesController;
 use Masteriyo\Constants;
-use Masteriyo\Enums\CourseProgressStatus;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
-use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\ScriptStyle;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +27,7 @@ class CertificateAddon {
 	/**
 	 * The single instance of the class.
 	 *
-	 * @since 1.13.0
+	 * @since 2.6.1
 	 *
 	 * @var \Masteriyo\Addons\Certificate\CertificateAddon
 	 */
@@ -35,7 +36,7 @@ class CertificateAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.13.0
+	 * @since 2.6.1
 	 *
 	 * @return void
 	 */
@@ -44,7 +45,7 @@ class CertificateAddon {
 	/**
 	 * Get class instance.
 	 *
-	 * @since 1.13.0
+	 * @since 2.6.1
 	 *
 	 * @return \Masteriyo\Addons\Certificate\CertificateAddon Instance.
 	 */
@@ -58,21 +59,22 @@ class CertificateAddon {
 	/**
 	 * Prevent cloning.
 	 *
-	 * @since 1.13.0
+	 * @since 2.6.1
 	 */
 	public function __clone() {}
 
 	/**
 	 * Prevent unserializing.
 	 *
-	 * @since 1.13.0
+	 * @since 2.6.1
 	 */
 	public function __wakeup() {}
+
 
 	/**
 	 * Blocks class instance.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var Masteriyo\Addons\Certificate\Blocks
 	 */
@@ -81,42 +83,65 @@ class CertificateAddon {
 	/**
 	 * Initialize the application.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function init() {
 		$this->blocks = new Blocks();
 
 		$this->blocks->init();
 		$this->init_hooks();
+
+		/**
+		 * Fires once the certificate addon has initialised.
+		 *
+		 * The addon's pro-only parts — certificate verification, the QR code and
+		 * the other pro block builders — join here rather than being named from
+		 * this file, which ships to both products.
+		 *
+		 * @param \Masteriyo\Addons\Certificate\CertificateAddon $addon The addon instance.
+		 */
+		do_action( 'masteriyo_certificate_addon_initialized', $this );
+	}
+
+	/**
+	 * Return true if the action schedule is enabled for Email.
+	 *
+	 * @since 2.7.3
+	 *
+	 * @return boolean
+	 */
+	public static function is_email_schedule_enabled() {
+		return masteriyo_is_email_schedule_enabled();
 	}
 
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function init_hooks() {
-		add_action( 'init', 'masteriyo_download_certificate_fonts' );
-		add_action( 'template_redirect', array( $this, 'handle_certificate_preview' ) );
-		add_action( 'init', array( $this, 'handle_certificate_download' ) );
-		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_learn_page_scripts' ) );
-		add_filter( 'default_title', array( $this, 'change_default_certificate_editor_title' ), 10, 2 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_block_editor_scripts_styles' ), 11 );
-		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'add_localization_to_admin_scripts' ) );
+		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'masteriyo_new_course', array( $this, 'save_certificate_data' ), 10, 2 );
 		add_action( 'masteriyo_update_course', array( $this, 'save_certificate_data' ), 10, 2 );
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'append_certificate_data' ), 10, 3 );
-		add_filter( 'masteriyo_rest_course_schema', array( $this, 'add_course_certificate_schema' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ) );
+		add_filter( 'masteriyo_rest_response_user_course_data', array( $this, 'append_certificate_data_in_user_course_response' ), 10, 2 );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'add_submenus' ) );
 		add_action( 'masteriyo_activation', array( $this, 'clear_gutenberg_certs_cache' ) );
 		add_action( 'save_post_mto-certificate', array( $this, 'clear_gutenberg_certs_cache' ) );
+		add_filter( 'default_title', array( $this, 'change_default_certificate_editor_title' ), 10, 2 );
+		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_learn_page_scripts' ) );
+		add_action( 'template_redirect', array( $this, 'handle_certificate_preview' ) );
+		add_action( 'template_redirect', array( $this, 'handle_pdfdraft_preview' ) );
+		add_action( 'init', array( $this, 'handle_certificate_download' ) );
+		add_filter( 'masteriyo_rest_course_schema', array( $this, 'add_course_certificate_schema' ) );
+		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'add_localization_to_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_block_editor_scripts_styles' ), 11 );
+		add_action( 'init', 'masteriyo_download_certificate_fonts' );
 
 		add_action( 'masteriyo_single_course_sidebar_content_after_progress', array( $this, 'render_certificate_share_for_single_course_page' ) );
 		add_action( 'masteriyo_template_course_inside_progress', array( $this, 'render_certificate_share_for_single_course_page' ), 1, 1 );
 		add_action( 'masteriyo_single_course_minimal_sidebar_content_after_progress', array( $this, 'render_certificate_share_for_single_course_page' ) );
-		// add_action( 'masteriyo_after_single_course_highlights', array( $this, 'render_certificate_share_for_single_course_page' ) );
 
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'add_certificate_share_popup_modal' ) );
@@ -124,6 +149,71 @@ class CertificateAddon {
 		add_filter( 'query_vars', array( $this, 'add_certificate_share_query_vars' ) );
 		add_action( 'template_redirect', array( $this, 'handle_certificate_share_preview' ), 10 );
 		add_action( 'masteriyo_pdfdraft_cert_email_fallback', array( $this, 'handle_pdfdraft_cert_email_fallback' ), 10, 2 );
+		add_filter( 'masteriyo_analytics_counts_data', array( $this, 'append_analytics_metric' ), 10, 3 );
+		add_filter( 'masteriyo_analytics_summary_data', array( $this, 'append_analytics_metric' ), 10, 3 );
+		add_filter( 'masteriyo_rest_prepared_analytics_items', array( $this, 'append_analytics_time_series' ), 10, 2 );
+		add_filter( 'masteriyo_analytics_timeseries_data', array( $this, 'append_analytics_time_series' ), 10, 2 );
+	}
+
+	/**
+	 * Append total_certificates count to analytics data.
+	 *
+	 * Counts certificates *issued* to learners — i.e. completed course progress for
+	 * courses that have a certificate assigned — rather than the number of
+	 * certificate template posts. A certificate is earned when a learner completes
+	 * a course whose `_certificate_id` meta points to a template.
+	 *
+	 * @param array                 $items      Analytics items.
+	 * @param \WP_REST_Request|null $request    REST request.
+	 * @param int[]                 $course_ids Scoped course IDs.
+	 *
+	 * @return array
+	 */
+	public function append_analytics_metric( $items, $request = null, $course_ids = array() ) {
+		$items['total_certificates'] = array( 'total' => $this->get_published_certificates_count() );
+
+		return $items;
+	}
+
+	/**
+	 * Count published certificate templates (classic and PDFDraft alike).
+	 *
+	 * The "Total Certificates" card reflects how many certificate templates are
+	 * published, while the "Certificates Issued" chart tracks issuances over time.
+	 *
+	 * @return int
+	 */
+	protected function get_published_certificates_count() {
+		$counts = wp_count_posts( 'mto-certificate' );
+
+		return isset( $counts->publish ) ? (int) $counts->publish : 0;
+	}
+
+	/**
+	 * Append certificate_issuances time-series to analytics data.
+	 * Uses course completions (when a course is completed a certificate becomes available).
+	 *
+	 * @param array            $items   Analytics items.
+	 * @param \WP_REST_Request $request Request.
+	 *
+	 * @return array
+	 */
+	public function append_analytics_time_series( $items, $request ) {
+		// Reuse course_completions data if already present (same event as certificate earned).
+		//
+		// `course_completions` is pro's — `pro/Analytics/CompletionSeries.php` adds
+		// it, and the free product has no such path — so this series has no source
+		// there. The key is then left absent rather than set to an empty array: the
+		// client offers a series only when its key is present, and a key that is
+		// present but empty is drawn as a flat zero line under a real label, which
+		// is worse than not offering the series at all.
+		if ( ! isset( $items['course_completions']['data'] ) ) {
+			return $items;
+		}
+
+		$items['certificate_issuances'] = $items['course_completions'];
+
+		return $items;
 	}
 
 	/**
@@ -133,7 +223,7 @@ class CertificateAddon {
 	 *
 	 * @return array The modified query vars.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 */
 	public function add_certificate_share_query_vars( $query_vars ) {
 
@@ -147,7 +237,7 @@ class CertificateAddon {
 	/**
 	 * Handles the preview of a certificate.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 */
 	public function handle_certificate_share_preview() {
 		if ( ! isset( $_GET['username'], $_GET['certificate_id'], $_GET['course_id'] ) ) { // @phpcs:ignore WordPress.Security.NonceVerification
@@ -186,7 +276,7 @@ class CertificateAddon {
 				return;
 			}
 
-			$certificate_pdf = new CertificatePDF( $course_id, $user_id, $certificate_html_content );
+			$certificate_pdf = new CertificatePDF( $course_id, $user_id, $certificate_html_content, $certificate_id );
 
 			if ( ! $certificate_pdf || is_wp_error( $certificate_pdf ) ) {
 				return;
@@ -199,13 +289,11 @@ class CertificateAddon {
 	/**
 	 * Serve a PDFDraft certificate share preview as an HTML page.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
 	 * @param int $course_id
 	 * @param int $user_id
 	 */
-	protected function serve_pdfdraft_share_preview( $certificate, $course_id, $user_id ) {
+	public function serve_pdfdraft_share_preview( $certificate, $course_id, $user_id ) {
 		$rendered_html = $certificate->get_rendered_html( 'edit' );
 
 		if ( empty( $rendered_html ) ) {
@@ -307,7 +395,7 @@ class CertificateAddon {
 	/**
 	 * Render certificate share button in single course page.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 *
 	 * @param \Masteriyo\Models\Course $course
 	 */
@@ -361,13 +449,20 @@ class CertificateAddon {
 	/**
 	 * Enqueue scripts.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 *
 	 * @param array $scripts Array of scripts.
 	 * @return array
 	 */
 	public function enqueue_scripts( $scripts ) {
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		// The editor parses the template once, on first render, and a block type
+		// not registered by then parses to core/missing for good. Depending on the
+		// script that registers them is what puts it ahead of the editor.
+		if ( isset( $scripts['backend']['deps'] ) ) {
+			$scripts['backend']['deps'][] = 'masteriyo-certificate-blocks';
+		}
 
 		return masteriyo_parse_args(
 			$scripts,
@@ -387,7 +482,7 @@ class CertificateAddon {
 	/**
 	 * Renders a popup modal with certificate preview on single course pages.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 *
 	 * @return void
 	 */
@@ -423,6 +518,10 @@ class CertificateAddon {
 			return;
 		}
 
+		if ( ! masteriyo_user_has_completed_course( $course->get_id(), $user_id ) ) {
+			return;
+		}
+
 		$certificate_url = array(
 			'id'       => $certificate->get_id(),
 			'view_url' => masteriyo_get_certificate_addon_view_url( $course, $user_id, $certificate->get_id() ),
@@ -436,9 +535,256 @@ class CertificateAddon {
 	}
 
 	/**
+	 * Load required scripts and styles for block editor.
+	 *
+	 * @since 2.5.21
+	 *
+	 * @return void
+	 */
+	public function load_block_editor_scripts_styles() {
+		if ( 'toplevel_page_masteriyo' !== get_current_screen()->id ) {
+			return;
+		}
+
+		global $post;
+
+		if ( masteriyo_is_production() ) {
+			wp_enqueue_style(
+				'masteriyo-backend',
+				plugins_url( 'assets/js/build/masteriyo-backend.css', MASTERIYO_PLUGIN_FILE ),
+				array(),
+				MASTERIYO_VERSION
+			);
+		}
+
+		wp_enqueue_script( 'masteriyo-certificate-blocks', plugins_url( '/assets/js/build/certificate-blocks.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), ScriptStyle::get_asset_deps( 'certificate-blocks' ), MASTERIYO_VERSION, true );
+		$font_data = array();
+		$font_urls = masteriyo_get_certificate_font_urls();
+
+		if ( ! empty( $font_urls ) && is_array( $font_urls ) ) {
+			foreach ( $font_urls as $font_name => $font_url ) {
+				$font_data[ $font_name ] = array(
+					'label' => $font_name,
+					'value' => $font_name,
+				);
+			}
+		}
+		wp_localize_script(
+			'masteriyo-certificate-blocks',
+			'masteriyo_certificate_blocks',
+			array(
+				'font_data' => $font_data,
+			)
+		);
+		wp_add_inline_script(
+			'masteriyo-backend',
+			'window._MASTERIYO_PDFDRAFT_ = ' . wp_json_encode(
+				array(
+					'siteName'   => get_bloginfo( 'name' ),
+					'dateFormat' => get_option( 'date_format', 'F j, Y' ),
+					'timeFormat' => get_option( 'time_format', 'g:i a' ),
+				)
+			) . ';',
+			'after'
+		);
+		wp_enqueue_style( 'wp-edit-post' );
+		wp_enqueue_style( 'wp-format-library' );
+		wp_enqueue_style( 'masteriyo-blocks' );
+
+		wp_add_inline_style( 'wp-edit-post', $this->get_certificate_fonts_css() );
+		wp_add_inline_style( 'wp-edit-post', 'html.wp-toolbar { background-color: #F7FAFC; }' );
+		$categories = function_exists( 'get_block_categories' ) ? get_default_block_categories() : array();
+
+		if ( ! empty( $categories ) ) {
+			array_unshift(
+				$categories,
+				array(
+					'slug'  => 'masteriyo',
+					'title' => esc_html(
+						sprintf(
+							/* translators: %s: the product's name */
+							__( '%s LMS', 'learning-management-system' ),
+							masteriyo_get_plugin_name()
+						)
+					),
+				)
+			);
+		}
+
+		wp_add_inline_script(
+			'wp-blocks',
+			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( $categories ) ),
+			'after'
+		);
+	}
+
+	/**
+	 * Get certificate fonts css.
+	 *
+	 * @since 2.7.3
+	 * @return string
+	 */
+	private function get_certificate_fonts_css() {
+		$font_urls = masteriyo_get_certificate_font_urls();
+		$font_css  = '';
+		$css       = '';
+
+		foreach ( $font_urls as $font_name => $font_url ) {
+			$font_css .= "@font-face { font-family: '$font_name'; src: url('$font_url') format('truetype'); }\n";
+			$css      .= '.has-' . masteriyo_camel_to_kebab( $font_name ) . "-font-family { font-family: '$font_name'; }\n";
+		}
+
+		return $font_css . $css;
+	}
+
+
+	/**
+	 * Editor typography config.
+	 * @since 2.7.3
+	 * @return array
+	 */
+	private function get_certificate_editor_typography_config() {
+		$font_urls = masteriyo_get_certificate_font_urls();
+		$config    = array();
+
+		$font_names_map = array(
+			'Cinzel'              => 'Cinzel',
+			'DejaVuSansCondensed' => 'DejaVu Sans Condensed',
+			'DMSans'              => 'DM Sans',
+			'GreatVibes'          => 'Great Vibes',
+			'GrenzeGotisch'       => 'Grenze Gotisch',
+			'Lora'                => 'Lora',
+			'Poppins'             => 'Poppins',
+			'Roboto'              => 'Roboto',
+			'AbhayaLibre'         => 'Abhaya Libre',
+			'AdineKirnberg'       => 'Adine Kirnberg',
+			'AlexBrush'           => 'Alex Brush',
+			'Allura'              => 'Allura',
+		);
+
+		foreach ( $font_urls as $font_name => $font_url ) {
+			$config[] = array(
+				'fontFamily' => $font_name,
+				'name'       => $font_names_map[ $font_name ] ?? $font_name,
+				'slug'       => $font_name,
+			);
+		}
+
+		return $config;
+	}
+
+	/**
+	 * Add localization data to block scripts.
+	 *
+	 * @since 2.5.10
+	 *
+	 * @param array $localized_scripts
+	 * @return array
+	 */
+	public function add_localization_to_block_scripts( $localized_scripts ) {
+		$a = masteriyo_parse_args(
+			$localized_scripts,
+			array(
+				'blocks' => array(
+					'data' => array(
+						'certificateBackendURL' => admin_url( 'admin.php?page=masteriyo#/certificates' ),
+					),
+				),
+			)
+		);
+		return $a;
+	}
+
+	/**
+	 * Add localization data to admin scripts.
+	 *
+	 * @since 2.5.21
+	 * @param array $localized_scripts Localized admin scripts.
+	 * @return array
+	 */
+	public function add_localization_to_admin_scripts( $localized_scripts ) {
+		$allowed_blocks = array(
+			'core/paragraph',
+			'core/image',
+			'core/heading',
+			'core/separator',
+			'core/spacer',
+			'core/columns',
+			'core/column',
+			'core/quote',
+			'core/code',
+			'core/shortcode',
+			'core/group',
+			'core/list',
+			'core/list-item',
+			'core/html',
+			'core/audio',
+			'core/freeform',
+			'core/buttons',
+			'core/button',
+			'masteriyo/certificate',
+			'masteriyo/course-title',
+			'masteriyo/student-name',
+			'masteriyo/course-completion-date',
+			'masteriyo/qr-code',
+			'masteriyo/certificate-verification-code',
+			'masteriyo/course-start-date',
+			'masteriyo/instructor-name',
+			'masteriyo/course-duration',
+			'masteriyo/current-date',
+			'masteriyo/current-time',
+			'masteriyo/current-timestamp',
+		);
+
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
+			$allowed_blocks[] = 'masteriyo/co-instructors-name';
+		}
+
+		if ( ( new Addons() )->is_active( 'gradebook' ) ) {
+			$allowed_blocks[] = 'masteriyo/course-grade-result';
+		}
+
+		$editor_settings = function_exists( 'get_block_editor_settings' ) && masteriyo_is_admin_page() ? get_block_editor_settings( array(), new \WP_Block_Editor_Context() ) : array();
+		masteriyo_array_set( $editor_settings, '__experimentalFeatures.typography.fontFamilies.theme', $this->get_certificate_editor_typography_config() );
+		return masteriyo_parse_args(
+			$localized_scripts,
+			array(
+				'backend' => array(
+					'data' => array(
+						'allowedBlockTypes'        => $allowed_blocks,
+						'editorStyles'             => function_exists( 'get_block_editor_theme_styles' ) ? get_block_editor_theme_styles() : (object) array(),
+						'editorSettings'           => $editor_settings,
+						'certificate_samples'      => masteriyo_get_certificate_templates(),
+						'pdfdraft_assets_base_url' => plugins_url( 'addons/certificate/assets/', MASTERIYO_PLUGIN_FILE ),
+						'hasGutenbergCerts'        => $this->has_gutenberg_certificates(),
+					),
+				),
+			)
+		);
+	}
+
+
+	/**
+	 * Change default title for certificate editor.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param string   $post_content
+	 * @param \WP_Post $post
+	 *
+	 * @return string
+	 */
+	public function change_default_certificate_editor_title( $post_content, $post ) {
+		if ( 'mto-certificate' === $post->post_type ) {
+			return __( 'Sample Certificate', 'learning-management-system' );
+		}
+		return $post_content;
+	}
+
+	/**
 	 * Handle preview of a certificate.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function handle_certificate_preview() {
 		if ( is_singular( 'mto-certificate' ) && ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() ) {
@@ -459,7 +805,7 @@ class CertificateAddon {
 				masteriyo_is_current_user_admin() ||
 				( masteriyo_is_current_user_instructor() && $certificate->get_author_id() === get_current_user_id() )
 			) {
-				$certificate_pdf = new CertificatePDF( 0, get_current_user_id(), $certificate->get_html_content() );
+				$certificate_pdf = new CertificatePDF( 0, get_current_user_id(), $certificate->get_html_content(), $certificate->get_id() );
 				$certificate_pdf->serve_preview();
 			}
 		} elseif ( is_singular( 'mto-certificate' ) ) {
@@ -472,9 +818,37 @@ class CertificateAddon {
 	}
 
 	/**
+	 * Handle pdfdraft designer live-preview requests.
+	 */
+	public function handle_pdfdraft_preview() {
+		$token = isset( $_GET['masteriyo_pdfdraft_preview'] ) ? sanitize_text_field( wp_unslash( $_GET['masteriyo_pdfdraft_preview'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( empty( $token ) ) {
+			return;
+		}
+
+		if ( ! is_user_logged_in() || ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_instructor() ) ) {
+			wp_die( esc_html__( 'You do not have permission to preview certificates.', 'learning-management-system' ) );
+		}
+
+		$data = get_transient( 'masteriyo_pdfdraft_preview_' . $token );
+
+		if ( ! $data || empty( $data['rendered_html'] ) ) {
+			wp_die( esc_html__( 'Preview link has expired. Please try again from the certificate editor.', 'learning-management-system' ) );
+		}
+
+		delete_transient( 'masteriyo_pdfdraft_preview_' . $token );
+
+		$certificate_id  = absint( $data['certificate_id'] );
+		$certificate_pdf = new CertificatePDF( 0, get_current_user_id(), '', $certificate_id );
+		$certificate_pdf->set_preview_rendered_html( $data['rendered_html'] );
+		$certificate_pdf->serve_preview();
+	}
+
+	/**
 	 * Handle certificate download.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function handle_certificate_download() {
 		if ( isset( $_GET['masteriyo_download_certificate'] ) ) {
@@ -487,7 +861,6 @@ class CertificateAddon {
 			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_download_certificate' ) ) {
 				wp_die( esc_html__( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
 			}
-
 			if ( empty( $_GET['course_id'] ) ) {
 				wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
 			}
@@ -509,13 +882,12 @@ class CertificateAddon {
 				wp_die( esc_html__( 'Please complete the course to download the certificate.', 'learning-management-system' ) );
 			}
 
-			// PDFDraft certificates: generate PDF in the browser using PDFExporter.
 			if ( 'pdfdraft' === $certificate->get_content_format() ) {
 				$this->serve_pdfdraft_client_download( $certificate, $course );
 				return;
 			}
 
-			$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), $certificate->get_html_content() );
+			$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), $certificate->get_html_content(), $certificate_id );
 			$certificate_pdf->serve_download();
 		}
 	}
@@ -526,8 +898,6 @@ class CertificateAddon {
 	 * PHP resolves all merge tags in the certificate JSON. The bundled
 	 * masteriyo-pdfdraftCertDownload.js passes the resolved JSON to PDFExporter
 	 * to produce the PDF in the student's browser.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate
 	 * @param \Masteriyo\Models\Course $course
@@ -552,7 +922,7 @@ class CertificateAddon {
 		);
 
 		$script_url = masteriyo_is_production()
-			? plugins_url( 'assets/js/build/masteriyo-pdfdraftCertDownload.js', MASTERIYO_PLUGIN_FILE )
+			? plugins_url( 'assets/js/build/masteriyo-pdfdraftCertDownload.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) )
 			: 'http://localhost:3000/dist/masteriyo-pdfdraftCertDownload.js';
 
 		$cert_data = array(
@@ -590,275 +960,35 @@ class CertificateAddon {
 	}
 
 	/**
-	 * Return true if the action schedule is enabled for Email.
+	 * Whitelist blocks on certificate editor.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
+	 * @deprecated 2.5.21
 	 *
-	 * @return boolean
+	 * @param array                    $allowed_block_types
+	 * @param \WP_Block_Editor_Context $context The current post.
+	 *
+	 * @return string[]
 	 */
-	public static function is_email_schedule_enabled() {
-		return masteriyo_is_email_schedule_enabled();
+	public function filter_allowed_block_types( $allowed_block_types, $context ) {
+		masteriyo_deprecated_function( 'CertificateAddon::' . __FUNCTION__, '2.5.21' );
+		return $allowed_block_types;
 	}
 
 	/**
-	 * Localize learn page scripts.
+	 * Load fonts for block editor.
 	 *
-	 * @since 1.13.0
-	 *
-	 * @param array $scripts Array of scripts.
-	 *
-	 * @return array
+	 * @since 2.3.7
+	 * @deprecated 2.5.21
 	 */
-	public function localize_learn_page_scripts( $scripts ) {
-		global $wp;
-
-		if ( ! masteriyo_is_learn_page() || ! $wp || ! isset( $wp->query_vars['course_name'] ) ) {
-			return $scripts;
-		}
-
-		// To support different permalink structures.
-		$course_name = isset( $wp->query_vars['course_name'] ) ? (string) $wp->query_vars['course_name'] : '';
-
-		if ( preg_match( '/^\d+$/', $course_name ) ) {
-			$args = array(
-				'p'              => absint( $course_name ),
-				'posts_per_page' => 1,
-				'post_type'      => PostType::COURSE,
-				'post_status'    => PostStatus::PUBLISH,
-			);
-		} else {
-			$args = array(
-				'name'           => sanitize_text_field( $course_name ),
-				'posts_per_page' => 1,
-				'post_type'      => PostType::COURSE,
-				'post_status'    => PostStatus::PUBLISH,
-			);
-		}
-
-		$posts = get_posts( $args );
-
-		if ( empty( $posts ) ) {
-			return $scripts;
-		}
-
-		$enabled = masteriyo_is_certificate_enabled_for_course( $posts[0]->ID );
-		$scripts['learn']['data']['isCertificateEnabled'] = masteriyo_bool_to_string( $enabled );
-
-		return $scripts;
-	}
-
-	/**
-	 * Get the course ID by the course slug.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param string $course_slug The course slug.
-	 *
-	 * @return int The course ID, or 0 if not found.
-	 */
-	private function get_course_id_by_name( $course_slug ) {
-		$courses = get_posts(
-			array(
-				'post_type'   => 'mto-course',
-				'name'        => $course_slug,
-				'numberposts' => 1,
-				'fields'      => 'ids',
-			)
-		);
-
-		return is_array( $courses ) ? array_shift( $courses ) : 0;
-	}
-
-	/**
-	 * Change default title for certificate editor.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param string   $post_content
-	 * @param \WP_Post $post
-	 *
-	 * @return string
-	 */
-	public function change_default_certificate_editor_title( $post_content, $post ) {
-		if ( 'mto-certificate' === $post->post_type ) {
-			return __( 'Sample Certificate', 'learning-management-system' );
-		}
-		return $post_content;
-	}
-
-	/**
-	 * Load required scripts and styles for block editor.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @return void
-	 */
-	public function load_block_editor_scripts_styles() {
-		if ( 'toplevel_page_masteriyo' !== get_current_screen()->id ) {
-			return;
-		}
-
-		global $post;
-
-		wp_enqueue_script( 'masteriyo-certificate-blocks', plugins_url( '/assets/js/build/certificate-blocks.js', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), ScriptStyle::get_asset_deps( 'certificate-blocks' ), MASTERIYO_VERSION, true );
-		wp_enqueue_style( 'wp-edit-post' );
-		wp_enqueue_style( 'wp-format-library' );
-		wp_enqueue_style( 'masteriyo-blocks' );
-		wp_add_inline_style( 'wp-edit-post', $this->get_certificate_fonts_css() );
-		wp_add_inline_style( 'wp-edit-post', 'html.wp-toolbar { background-color: #F7FAFC; }' );
-		$categories = function_exists( 'get_block_categories' ) ? get_default_block_categories() : array();
-
-		if ( ! empty( $categories ) ) {
-			array_unshift(
-				$categories,
-				array(
-					'slug'  => 'masteriyo',
-					'title' => esc_html__( 'Masteriyo LMS', 'learning-management-system' ),
-				)
-			);
-		}
-
-		wp_add_inline_script(
-			'wp-blocks',
-			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( $categories ) ),
-			'after'
-		);
-	}
-
-	/**
-	 * Get certificate fonts css.
-	 *
-	 * @since 1.13.0
-	 * @return string
-	 */
-	private function get_certificate_fonts_css() {
-		$font_urls = masteriyo_get_certificate_font_urls();
-		$font_css  = '';
-		$css       = '';
-
-		foreach ( $font_urls as $font_name => $font_url ) {
-			$font_css .= "@font-face { font-family: $font_name; src: url('$font_url') format('truetype') }\n";
-			$css      .= '.has-' . masteriyo_camel_to_kebab( $font_name ) . "-font-family { font-family: $font_name; }\n";
-		}
-		return $font_css . $css;
-	}
-
-	/**
-	 * Add localization data to admin scripts.
-	 *
-	 * @since 1.13.0
-	 * @param array $localized_scripts Localized admin scripts.
-	 *
-	 * @return array
-	 */
-	public function add_localization_to_admin_scripts( $localized_scripts ) {
-		$editor_settings = function_exists( 'get_block_editor_settings' ) && masteriyo_is_admin_page() ? get_block_editor_settings( array(), new \WP_Block_Editor_Context() ) : array();
-		masteriyo_array_set( $editor_settings, '__experimentalFeatures.typography.fontFamilies.theme', $this->get_certificate_editor_typography_config() );
-		return masteriyo_parse_args(
-			$localized_scripts,
-			array(
-				'backend' => array(
-					'data' => array(
-						'allowedBlockTypes'        => array(
-							'core/paragraph',
-							'core/image',
-							'core/heading',
-							'core/separator',
-							'core/spacer',
-							'core/columns',
-							'core/column',
-							'core/quote',
-							'core/code',
-							'core/shortcode',
-							'core/group',
-							'core/list',
-							'core/list-item',
-							'core/html',
-							'core/audio',
-							'core/freeform',
-							'core/buttons',
-							'core/button',
-							'masteriyo/certificate',
-							'masteriyo/course-title',
-							'masteriyo/student-name',
-							'masteriyo/course-completion-date',
-						),
-						'editorStyles'             => function_exists( 'get_block_editor_theme_styles' ) ? get_block_editor_theme_styles() : (object) array(),
-						'editorSettings'           => $editor_settings,
-						'certificate_samples'      => masteriyo_get_certificate_templates(),
-						'pdfdraft_assets_base_url' => plugins_url( 'addons/certificate/assets/', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ),
-						'hasGutenbergCerts'        => $this->has_gutenberg_certificates(),
-					),
-				),
-			)
-		);
-	}
-
-	/**
-	 * Editor typography config.
-	 * @since 1.13.0
-	 * @return array
-	 */
-	private function get_certificate_editor_typography_config() {
-		$font_urls      = masteriyo_get_certificate_font_urls();
-		$config         = array();
-		$font_names_map = array(
-			'Cinzel'              => 'Cinzel',
-			'DejaVuSansCondensed' => 'DejaVu Sans Condensed',
-			'DMSans'              => 'DM Sans',
-			'GreatVibes'          => 'Great Vibes',
-			'GrenzeGotisch'       => 'Grenze Gotisch',
-			'Lora'                => 'Lora',
-			'Poppins'             => 'Poppins',
-			'Roboto'              => 'Roboto',
-			'AbhayaLibre'         => 'Abhaya Libre',
-			'AdineKirnberg'       => 'Adine Kirnberg',
-			'AlexBrush'           => 'Alex Brush',
-			'Allura'              => 'Allura',
-		);
-
-		foreach ( $font_urls as $font_name => $font_url ) {
-			$config[] = array(
-				'fontFamily' => $font_name,
-				'name'       => $font_names_map[ $font_name ] ?? $font_name,
-				'slug'       => $font_name,
-			);
-		}
-		return $config;
-	}
-
-	/**
-	 * Save certificate ID data.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param integer $id
-	 *
-	 * @param \Masteriyo\Models\Course $course Course object.
-	 */
-	public function save_certificate_data( $id, $course ) {
-		$request = masteriyo_current_http_request();
-
-		if ( ! isset( $request['certificate_enabled'] ) ) {
-			return;
-		}
-
-		update_post_meta( $id, '_certificate_enabled', masteriyo_string_to_bool( $request['certificate_enabled'] ) );
-
-		if ( isset( $request['certificate_id'], $request['certificate_id']['value'] ) ) {
-			update_post_meta( $id, '_certificate_id', absint( $request['certificate_id']['value'] ) );
-		}
-
-		if ( isset( $request['certificate_single_course_enabled'] ) ) {
-			update_post_meta( $id, '_certificate_single_course_enabled', masteriyo_array_get( $request, 'certificate_single_course_enabled', false ) );
-		}
-
+	public function load_block_editor_fonts() {
+		masteriyo_deprecated_function( 'CertificateAddon::' . __FUNCTION__, '2.5.21' );
 	}
 
 	/**
 	 * Append certificate data to course response.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 *  @param array                                                    $data Course data.
 	 * @param Masteriyo\Models\Course                                  $course Course object.
@@ -880,6 +1010,7 @@ class CertificateAddon {
 			'id'                    => $certificate_id,
 			'name'                  => $certificate_name,
 			'enabled'               => masteriyo_is_certificate_enabled_for_course( $course->get_id() ),
+			'email_enabled'         => masteriyo_is_email_enabled_for_course( $course->get_id() ),
 			'single_course_enabled' => masteriyo_is_certificate_enabled_for_single_course( $course->get_id() ),
 		);
 
@@ -887,59 +1018,92 @@ class CertificateAddon {
 	}
 
 	/**
-	 * Add course certificate fields to course schema.
+	 * Add the certificate download URL to the course inside a user-course REST response (My Courses).
 	 *
-	 * @since 1.13.0
+	 * The URL is only present when the course has an enabled certificate and the
+	 * learner completed the course. The download handler enforces the same rules
+	 * server-side, so the URL is a convenience, not an access grant.
 	 *
-	 * @param array $schema
+	 * @param array $data User course response data.
+	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
+	 *
 	 * @return array
 	 */
-	public function add_course_certificate_schema( $schema ) {
-		$schema = wp_parse_args(
-			$schema,
-			array(
-				'certificate' => array(
-					'description' => __( 'Course certificate setting', 'learning-management-system' ),
-					'type'        => 'object',
-					'context'     => array( 'view', 'edit' ),
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'id'                    => array(
-								'description' => __( 'Course certificate ID', 'learning-management-system' ),
-								'type'        => 'integer',
-								'context'     => array( 'view', 'edit' ),
-							),
-							'enable'                => array(
-								'description' => __( 'Enable course certificate', 'learning-management-system' ),
-								'type'        => 'boolean',
-								'default'     => false,
-								'context'     => array( 'view', 'edit' ),
-							),
-							'email_enabled'         => array(
-								'description' => __( 'Attach certificate to email after course completion.', 'learning-management-system' ),
-								'type'        => 'boolean',
-								'default'     => false,
-								'context'     => array( 'view', 'edit' ),
-							),
-							'single_course_enabled' => array(
-								'description' => __( 'Display certificate in single course page after course completion.', 'learning-management-system' ),
-								'type'        => 'boolean',
-								'default'     => false,
-								'context'     => array( 'view', 'edit' ),
-							),
-						),
-					),
-				),
-			)
-		);
-			return $schema;
+	public function append_certificate_data_in_user_course_response( $data, $user_course ) {
+		if ( empty( $data['course'] ) ) {
+			return $data;
+		}
+
+		$course_id = $user_course->get_course_id();
+
+		if (
+			masteriyo_is_certificate_enabled_for_course( $course_id ) &&
+			masteriyo_get_course_certificate_id( $course_id ) &&
+			masteriyo_user_has_completed_course( $course_id, $user_course->get_user_id() )
+		) {
+			$data['course']['certificate_url'] = masteriyo_generate_certificate_download_url( $course_id );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Save certificate ID data.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param integer                  $id
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 */
+	public function save_certificate_data( $id, $course ) {
+		$request = masteriyo_current_http_request();
+
+		if ( $request ) {
+			// Two wire shapes reach here and both must be honoured. The course
+			// builder registers flat form fields and submits them raw, so it sends
+			// `certificate_enabled` and `certificate_id` as a react-select
+			// `{ value, label }` pair. The add-course dialog and any API consumer
+			// following the documented schema send the nested `certificate` object.
+			// Reading only the nested one silently discards every save made from
+			// the builder.
+			if ( isset( $request['certificate']['id'] ) ) {
+				update_post_meta( $id, '_certificate_id', masteriyo_array_get( $request, 'certificate.id', 0 ) );
+			} elseif ( isset( $request['certificate_id']['value'] ) ) {
+				update_post_meta( $id, '_certificate_id', absint( $request['certificate_id']['value'] ) );
+			}
+			if ( isset( $request['certificate']['enabled'] ) ) {
+				update_post_meta( $id, '_certificate_enabled', masteriyo_array_get( $request, 'certificate.enabled', false ) );
+			} elseif ( isset( $request['certificate_enabled'] ) ) {
+				update_post_meta( $id, '_certificate_enabled', masteriyo_string_to_bool( $request['certificate_enabled'] ) );
+			}
+			if ( isset( $request['certificate_email_enabled'] ) ) {
+				update_post_meta( $id, '_certificate_email_enabled', masteriyo_array_get( $request, 'certificate_email_enabled', false ) );
+			}
+			if ( isset( $request['certificate_single_course_enabled'] ) ) {
+				update_post_meta( $id, '_certificate_single_course_enabled', masteriyo_array_get( $request, 'certificate_single_course_enabled', false ) );
+			}
+		}
+	}
+
+	/**
+	 * Register post types.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param string[] $post_types
+	 *
+	 * @return string[]
+	 */
+	public function register_post_types( $post_types ) {
+		$post_types['certificate'] = Certificate::class;
+
+		return $post_types;
 	}
 
 	/**
 	 * Register rest routes.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	public function register_rest_routes() {
 		$controller = masteriyo( CertificatesController::class );
@@ -997,8 +1161,6 @@ class CertificateAddon {
 	/**
 	 * REST handler: return the resolved PDFDraft certificate JSON for client-side PDF generation.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response|\WP_Error
 	 */
@@ -1032,7 +1194,7 @@ class CertificateAddon {
 			return new \WP_Error( 'invalid_json', __( 'Certificate JSON could not be resolved.', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
 
-		$pdf  = new CertificatePDF( $course_id, $user_id, '', $certificate_id );
+		$pdf  = new \Masteriyo\Addons\Certificate\PDF\CertificatePDF( $course_id, $user_id, '', $certificate_id );
 		$json = $pdf->resolve_pdfdraft_json_for_download( $raw_json );
 
 		$student   = masteriyo_get_user( $user_id );
@@ -1053,9 +1215,7 @@ class CertificateAddon {
 	}
 
 	/**
-	 * REST handler: receive base64-encoded PDF from browser, store it, and send the completion email with attachment.
-	 *
-	 * @since x.x.x
+	 * REST handler: store a browser-uploaded PDF and send the completion email with it.
 	 *
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response|\WP_Error
@@ -1093,16 +1253,13 @@ class CertificateAddon {
 			return new \WP_Error( 'save_failed', __( 'Could not save PDF file.', 'learning-management-system' ), array( 'status' => 500 ) );
 		}
 
-		// Update transient with the PDF path so trigger() can find it.
 		set_transient( $transient_key, array_merge( $pending, array( 'pdf_path' => $pdf_path ) ), 10 * MINUTE_IN_SECONDS );
 
-		// Cancel the fallback cron — the PDF is ready.
 		$scheduled = wp_next_scheduled( 'masteriyo_pdfdraft_cert_email_fallback', array( $course_id, $user_id ) );
 		if ( $scheduled ) {
 			wp_unschedule_event( $scheduled, 'masteriyo_pdfdraft_cert_email_fallback', array( $course_id, $user_id ) );
 		}
 
-		// Re-trigger the completion email — trigger() will find the PDF path in the transient.
 		$course_progress = masteriyo_get_course_progress_by_user_and_course( $user_id, $course_id );
 		if ( ! $course_progress ) {
 			delete_transient( $transient_key );
@@ -1115,7 +1272,6 @@ class CertificateAddon {
 			$email->trigger( $course_progress );
 		}
 
-		// Safety: clean up temp file if trigger() did not delete it.
 		if ( file_exists( $pdf_path ) ) {
 			@unlink( $pdf_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
@@ -1124,10 +1280,7 @@ class CertificateAddon {
 	}
 
 	/**
-	 * Fallback cron: send the completion email without a PDF attachment if the browser
-	 * never uploaded the PDF within the deferred window.
-	 *
-	 * @since x.x.x
+	 * Fallback cron handler: send the completion email without a PDF if the browser upload timed out.
 	 *
 	 * @param int $course_id Course ID.
 	 * @param int $user_id   Student user ID.
@@ -1136,7 +1289,7 @@ class CertificateAddon {
 		$transient_key = 'masteriyo_pdfdraft_cert_email_' . $course_id . '_' . $user_id;
 
 		if ( ! get_transient( $transient_key ) ) {
-			return; // Email already sent by the browser-upload path.
+			return;
 		}
 
 		delete_transient( $transient_key );
@@ -1151,31 +1304,15 @@ class CertificateAddon {
 			return;
 		}
 
-		// Send without deferring again — bypasses the defer logic.
 		add_filter( 'masteriyo_defer_pdfdraft_cert_email', '__return_false' );
 		$email->trigger( $course_progress );
 		remove_filter( 'masteriyo_defer_pdfdraft_cert_email', '__return_false' );
 	}
 
 	/**
-	 * Register post types.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param string[] $post_types
-	 *
-	 * @return string[]
-	 */
-	public function register_post_types( $post_types ) {
-		$post_types['certificate'] = Certificate::class;
-
-		return $post_types;
-	}
-
-	/**
 	 * Add admin submenus.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $submenus
 	 *
@@ -1183,7 +1320,7 @@ class CertificateAddon {
 	 */
 	public function add_submenus( $submenus ) {
 		if ( $this->has_gutenberg_certificates() ) {
-			return masteriyo_parse_args(
+			$submenus = masteriyo_parse_args(
 				$submenus,
 				array(
 					'certificates'    => array(
@@ -1197,13 +1334,13 @@ class CertificateAddon {
 						'menu_title' => '↳ ' . esc_html__( 'Certificate V2', 'learning-management-system' ),
 						'position'   => 41,
 						'capability' => 'edit_certificates',
-						'hide'       => true,
 					),
 				)
 			);
+			return $submenus;
 		}
 
-		return masteriyo_parse_args(
+		$submenus = masteriyo_parse_args(
 			$submenus,
 			array(
 				'certificates-v2' => array(
@@ -1214,12 +1351,12 @@ class CertificateAddon {
 				),
 			)
 		);
+
+		return $submenus;
 	}
 
 	/**
 	 * Invalidate the cached Gutenberg-certificate flag.
-	 *
-	 * @since x.x.x
 	 */
 	public function clear_gutenberg_certs_cache() {
 		delete_transient( 'masteriyo_has_gutenberg_certs' );
@@ -1228,11 +1365,9 @@ class CertificateAddon {
 	/**
 	 * Check whether any certificate uses the old Gutenberg format.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
-	private function has_gutenberg_certificates() {
+	private function has_gutenberg_certificates(): bool {
 		$cached = get_transient( 'masteriyo_has_gutenberg_certs' );
 
 		if ( false !== $cached ) {
@@ -1264,5 +1399,102 @@ class CertificateAddon {
 		set_transient( 'masteriyo_has_gutenberg_certs', $result ? 1 : 0, HOUR_IN_SECONDS );
 
 		return $result;
+	}
+
+	/**
+	 * Localize learn page scripts.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param array $scripts Array of scripts.
+	 *
+	 * @return array
+	 */
+	public function localize_learn_page_scripts( $scripts ) {
+		global $wp;
+
+		if ( ! masteriyo_is_learn_page() || ! $wp || ! isset( $wp->query_vars['course_name'] ) ) {
+			return $scripts;
+		}
+
+		// To support different permalink structures.
+		$course_name = isset( $wp->query_vars['course_name'] ) ? (string) $wp->query_vars['course_name'] : '';
+
+		if ( preg_match( '/^\d+$/', $course_name ) ) {
+			$args = array(
+				'p'              => absint( $course_name ),
+				'posts_per_page' => 1,
+				'post_type'      => PostType::COURSE,
+				'post_status'    => PostStatus::PUBLISH,
+			);
+		} else {
+			$args = array(
+				'name'           => sanitize_text_field( $course_name ),
+				'posts_per_page' => 1,
+				'post_type'      => PostType::COURSE,
+				'post_status'    => PostStatus::PUBLISH,
+			);
+		}
+
+		$posts = get_posts( $args );
+
+		if ( empty( $posts ) ) {
+			return $scripts;
+		}
+
+		$enabled = masteriyo_is_certificate_enabled_for_course( $posts[0]->ID );
+		$scripts['learn']['data']['isCertificateEnabled'] = masteriyo_bool_to_string( $enabled );
+
+		return $scripts;
+	}
+
+	/**
+	 * Add course certificate fields to course schema.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param array $schema
+	 * @return array
+	 */
+	public function add_course_certificate_schema( $schema ) {
+		$schema = wp_parse_args(
+			$schema,
+			array(
+				'certificate' => array(
+					'description' => __( 'Course certificate setting', 'learning-management-system' ),
+					'type'        => 'object',
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'                    => array(
+								'description' => __( 'Course certificate ID', 'learning-management-system' ),
+								'type'        => 'integer',
+								'context'     => array( 'view', 'edit' ),
+							),
+							'enable'                => array(
+								'description' => __( 'Enable course certificate', 'learning-management-system' ),
+								'type'        => 'boolean',
+								'default'     => false,
+								'context'     => array( 'view', 'edit' ),
+							),
+							'email_enabled'         => array(
+								'description' => __( 'Attach certificate to email after course completion.', 'learning-management-system' ),
+								'type'        => 'boolean',
+								'default'     => false,
+								'context'     => array( 'view', 'edit' ),
+							),
+							'single_course_enabled' => array(
+								'description' => __( 'Display certificate in single course page after course completion.', 'learning-management-system' ),
+								'type'        => 'boolean',
+								'default'     => false,
+								'context'     => array( 'view', 'edit' ),
+							),
+						),
+					),
+				),
+			)
+		);
+			return $schema;
 	}
 }

@@ -46,7 +46,7 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  fill: currentColor;
+  fill: currentcolor;
 }
 [dir=rtl] #mto-preview-pill a svg {
   transform: scaleX(-1);

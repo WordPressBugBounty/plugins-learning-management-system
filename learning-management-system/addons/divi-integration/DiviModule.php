@@ -69,6 +69,24 @@ abstract class DiviModule extends \ET_Builder_Module {
 	);
 
 	/**
+	 * Brand-aware module credits: the author is the product's name, and a
+	 * branded site must not link back to the canonical product page.
+	 */
+	public function __construct() {
+		$name = masteriyo_get_plugin_name();
+
+		// The key is omitted, not emptied, when branded — Divi renders the
+		// credits as a link, and an empty href is a broken one.
+		$this->module_credits = array( 'author' => $name );
+
+		if ( 'Masteriyo' === $name ) {
+			$this->module_credits['author_uri'] = 'https://masteriyo.com/';
+		}
+
+		parent::__construct();
+	}
+
+	/**
 	 * List of controls to allow module customization.
 	 *
 	 * @since 1.6.13
@@ -377,8 +395,8 @@ abstract class DiviModule extends \ET_Builder_Module {
 		// Fix - Border style not being set by Divi when default value (i.e. 'solid') is selected.
 		$this->add_style_template(
 			array(
-				'selector'    => self::WRAPPER_SELECTOR . ' ' . $selector,
-				// 	'declaration' => 'border-style: solid;', // Commented out to prevent overriding the default value.
+				'selector' => self::WRAPPER_SELECTOR . ' ' . $selector,
+				//  'declaration' => 'border-style: solid;', // Commented out to prevent overriding the default value.
 			)
 		);
 	}
@@ -617,7 +635,6 @@ abstract class DiviModule extends \ET_Builder_Module {
 			'type'           => 'range',
 			'tab_slug'       => $tab,
 			'toggle_slug'    => $section,
-			'default_unit'   => $options['default_unit'],
 			'default_unit'   => $options['default_unit'],
 			'range_settings' => array(
 				'min'  => $options['min'],
@@ -921,7 +938,7 @@ abstract class DiviModule extends \ET_Builder_Module {
 		foreach ( $style_templates as $style ) {
 			$prepared_style = array(
 				'selector'    => $style['selector'],
-				'declaration' => $style['declaration'],
+				'declaration' => isset( $style['declaration'] ) ? $style['declaration'] : '',
 			);
 
 			if (

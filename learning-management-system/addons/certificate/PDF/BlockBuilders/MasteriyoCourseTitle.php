@@ -2,7 +2,7 @@
 /**
  * Masteriyo course title block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -15,7 +15,7 @@ class MasteriyoCourseTitle extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -31,8 +31,6 @@ class MasteriyoCourseTitle extends BlockBuilder {
 
 		/**
 		 * Filters the course title before using in certificate.
-		 *
-		 * @since x.x.x
 		 *
 		 * @param string $course_title Course title.
 		 * @param \Masteriyo\Models\Course|null $course Course object.

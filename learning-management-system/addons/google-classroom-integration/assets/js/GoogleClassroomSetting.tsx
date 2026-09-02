@@ -254,13 +254,13 @@ const GoogleClassroomSetting = () => {
 			</Stack>
 
 			<Container
-				mt={8}
 				maxW="container.xl"
 				width={'100%'}
 				borderRadius={10}
 				bg={'white'}
-				boxShadow={'md'}
+				boxShadow={'14px 14px 100px #f2f2f2,-14px -14px 100px #ffffff;'}
 				padding={10}
+				mt={8}
 			>
 				{resetCredentialsModal && (
 					<>

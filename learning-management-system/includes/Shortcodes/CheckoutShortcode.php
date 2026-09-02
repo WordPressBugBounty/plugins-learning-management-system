@@ -137,7 +137,7 @@ class CheckoutShortcode extends Shortcode {
 		 */
 		$order_id = apply_filters( 'masteriyo_thankyou_order_id', absint( $order_id ) );
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	    // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$order_key = isset( $_GET['key'] ) && empty( $_GET['key'] ) ? '' : masteriyo_clean( wp_unslash( $_GET['key'] ?? '' ) );
 
 		/**
@@ -169,6 +169,18 @@ class CheckoutShortcode extends Shortcode {
 
 		// Empty current cart.
 		masteriyo( 'cart' )->clear();
+
+		if ( $order ) {
+			/**
+			 * Fires when the customer lands back on the order-received page, before
+			 * anything is rendered or redirected to. Payment gateways hook here to
+			 * verify the payment server-side — this runs for every "after checkout"
+			 * display type, unlike the thankyou template.
+			 *
+			 * @param \Masteriyo\Models\Order\Order $order Order object (order key already validated).
+			 */
+			do_action( 'masteriyo_checkout_order_received', $order );
+		}
 
 		// After successful checkout, redirect to a custom page or show default template.
 		$display_type = masteriyo_get_setting( 'general.pages.after_checkout_page' );

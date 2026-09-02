@@ -103,15 +103,27 @@ class Roles {
 			'masteriyo_user_roles',
 			array(
 				// 'masteriyo_manager'    => array(
-				// 	'display_name' => esc_html__( 'Masteriyo Manager', 'learning-management-system' ),
-				// 	'capabilities' => Capabilities::get_manager_capabilities(),
+				//  'display_name' => esc_html__( 'Masteriyo Manager', 'learning-management-system' ),
+				//  'capabilities' => Capabilities::get_manager_capabilities(),
 				// ),
 				'masteriyo_instructor' => array(
-					'display_name' => esc_html__( 'Masteriyo Instructor', 'learning-management-system' ),
+					'display_name' => esc_html(
+						sprintf(
+							/* translators: %s: the product's name */
+							__( '%s Instructor', 'learning-management-system' ),
+							masteriyo_get_plugin_name()
+						)
+					),
 					'capabilities' => Capabilities::get_instructor_capabilities(),
 				),
 				'masteriyo_student'    => array(
-					'display_name' => esc_html__( 'Masteriyo Student', 'learning-management-system' ),
+					'display_name' => esc_html(
+						sprintf(
+							/* translators: %s: the product's name */
+							__( '%s Student', 'learning-management-system' ),
+							masteriyo_get_plugin_name()
+						)
+					),
 					'capabilities' => Capabilities::get_student_capabilities(),
 				),
 			)
@@ -124,14 +136,62 @@ class Roles {
 	 * Idempotent - safe to call on every request. Used on activation and by the
 	 * runtime self-heal in Install when roles go missing.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return void
 	 */
 	public static function create() {
 		foreach ( self::get_all() as $role_slug => $role ) {
 			if ( null === get_role( $role_slug ) ) {
 				add_role( $role_slug, $role['display_name'], $role['capabilities'] );
+			}
+		}
+	}
+
+	/**
+	 * Add any capabilities defined in get_all() that are missing from existing roles.
+	 *
+	 * Runs on every request but only writes to the database when a capability is
+	 * actually absent from the stored role, so the cost is a set of in-memory array
+	 * lookups on the happy path.
+	 */
+	public static function sync_caps() {
+		foreach ( self::get_all() as $role_slug => $role ) {
+			$wp_role = get_role( $role_slug );
+
+			if ( ! $wp_role ) {
+				continue;
+			}
+
+			foreach ( $role['capabilities'] as $cap => $grant ) {
+				if ( ! isset( $wp_role->capabilities[ $cap ] ) ) {
+					$wp_role->add_cap( $cap, $grant );
+				}
+			}
+		}
+
+		self::sync_admin_caps();
+	}
+
+	/**
+	 * Add any Masteriyo capabilities missing from the 'administrator' role.
+	 *
+	 * Capabilities are normally seeded once, on plugin activation, by
+	 * Activation::assign_core_capabilities_to_admin(). Sites that only ever
+	 * auto-update (never deactivate/reactivate) never receive capabilities
+	 * added in later releases, which silently breaks any endpoint gated on
+	 * a bare custom capability (e.g. Gradebook's `read_grade_results`).
+	 * Runs on every request but only writes when a capability is actually
+	 * missing from the stored role.
+	 */
+	private static function sync_admin_caps() {
+		$wp_role = get_role( self::ADMIN );
+
+		if ( ! $wp_role ) {
+			return;
+		}
+
+		foreach ( Capabilities::get_admin_capabilities() as $cap => $grant ) {
+			if ( ! isset( $wp_role->capabilities[ $cap ] ) ) {
+				$wp_role->add_cap( $cap, $grant );
 			}
 		}
 	}

@@ -13,7 +13,8 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\Stripe\Client\StripeClient;
 use Masteriyo\Addons\Stripe\Setting as StripeSetting;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
+use Masteriyo\Constants;
 
 class Onboard {
 
@@ -44,7 +45,11 @@ class Onboard {
 	 */
 	public function add_onboarding_admin_menu() {
 		add_menu_page(
-			__( 'Masteriyo Onboard', 'learning-management-system' ),
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Onboard', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'masteriyo onboard',
 			'manage_options',
 			$this->page_name,
@@ -74,7 +79,10 @@ class Onboard {
 
 		wp_register_script(
 			'masteriyo-onboarding',
-			masteriyo_is_production() ? plugin_dir_url( MASTERIYO_PLUGIN_FILE ) . '/assets/js/build/masteriyo-gettingStarted.js' : 'http://localhost:3000/dist/gettingStarted.js',
+			// plugins_url(), not plugin_dir_url() . '/…': the latter doubles the slash, and
+			// WordPress derives the translation file name from this path, so the handle
+			// would look for a JSON that can never exist.
+			masteriyo_is_production() ? plugins_url( 'assets/js/build/masteriyo-gettingStarted.js', MASTERIYO_PLUGIN_FILE ) : 'http://localhost:3000/dist/gettingStarted.js',
 			$onboard_dependencies['dependencies'],
 			$onboard_dependencies['version'],
 			true
@@ -83,39 +91,54 @@ class Onboard {
 		if ( masteriyo_is_production() ) {
 			wp_register_script(
 				'masteriyo-dependencies',
-				plugin_dir_url( MASTERIYO_PLUGIN_FILE ) . '/assets/js/build/masteriyo-dependencies.js',
+				plugins_url( 'assets/js/build/masteriyo-dependencies.js', MASTERIYO_PLUGIN_FILE ),
 				$onboard_dependencies['dependencies'],
 				$onboard_dependencies['version'],
 				true
 			);
 		}
 
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'masteriyo-onboarding', 'learning-management-system', Constants::get( 'MASTERIYO_LANGUAGES' ) );
+		}
+
 		// Add localization vars.
 		wp_localize_script(
 			'masteriyo-onboarding',
 			'_MASTERIYO_',
-			array(
-				'rootApiUrl'              => esc_url_raw( untrailingslashit( rest_url() ) ),
-				'nonce'                   => wp_create_nonce( 'wp_rest' ),
-				'stripe_nonce'            => wp_create_nonce( 'masteriyo_stripe_nonce' ),
-				'adminURL'                => esc_url( admin_url() ),
-				'siteURL'                 => esc_url( home_url( '/' ) ),
-				'pluginUrl'               => esc_url( plugin_dir_url( MASTERIYO_PLUGIN_FILE ) ),
-				'permalinkStructure'      => get_option( 'permalink_structure' ),
-				'permalinkOptionsPage'    => esc_url( admin_url( 'options-permalink.php' ) ),
-				'pageBuilderURL'          => esc_url( admin_url( '/admin.php?page=masteriyo#/courses/:courseId/edit' ) ),
-				'pagesID'                 => array(
-					'courses'  => masteriyo_get_page_id_by_slug( 'courses' ),
-					'account'  => masteriyo_get_page_id_by_slug( 'account' ),
-					'checkout' => masteriyo_get_page_id_by_slug( 'masteriyo-checkout' ),
-				),
-				'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
-				'ajaxNonce'               => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
-				'is_stripe_addon_active'  => masteriyo_bool_to_string( ( new Addons() )->is_active( 'stripe' ) ),
-				'allowUsage'              => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.allow_usage' ) ),
-				'subscribeUpdates'        => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.subscribe_updates' ) ),
-				'subscriptionEmail'       => masteriyo_get_setting( 'advance.tracking.email' ),
-				'show_allow_usage_notice' => masteriyo_bool_to_string( masteriyo_show_usage_tracking_notice() ),
+			/**
+			 * Filters the onboarding wizard's localized data.
+			 *
+			 * Pro's white-label addon adds the configured brand title and
+			 * logo here, so the wizard header can drop the canonical
+			 * Masteriyo branding.
+			 *
+			 * @param array $data The wizard's localized data.
+			 */
+			apply_filters(
+				'masteriyo_onboarding_localized_data',
+				array(
+					'rootApiUrl'              => esc_url_raw( untrailingslashit( rest_url() ) ),
+					'nonce'                   => wp_create_nonce( 'wp_rest' ),
+					'stripe_nonce'            => wp_create_nonce( 'masteriyo_stripe_nonce' ),
+					'adminURL'                => esc_url( admin_url() ),
+					'siteURL'                 => esc_url( home_url( '/' ) ),
+					'pluginUrl'               => esc_url( plugin_dir_url( MASTERIYO_PLUGIN_FILE ) ),
+					'permalinkStructure'      => get_option( 'permalink_structure' ),
+					'permalinkOptionsPage'    => esc_url( admin_url( 'options-permalink.php' ) ),
+					'pageBuilderURL'          => esc_url( admin_url( '/admin.php?page=masteriyo#/courses/:courseId/edit' ) ),
+					'pagesID'                 => array(
+						'courses'  => masteriyo_get_page_id_by_slug( 'courses' ),
+						'account'  => masteriyo_get_page_id_by_slug( 'account' ),
+						'checkout' => masteriyo_get_page_id_by_slug( 'masteriyo-checkout' ),
+					),
+					'courseListURL'           => esc_url( admin_url( '/admin.php?page=masteriyo#/courses' ) ),
+					'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
+					'ajaxNonce'               => wp_create_nonce( 'masteriyo_allow_usage_notice_nonce' ),
+					'is_stripe_addon_active'  => masteriyo_bool_to_string( ( new Addons() )->is_active( 'stripe' ) ),
+					'allowUsage'              => masteriyo_bool_to_string( masteriyo_get_setting( 'advance.tracking.allow_usage' ) ),
+					'show_allow_usage_notice' => masteriyo_bool_to_string( masteriyo_show_usage_tracking_notice() ),
+				)
 			)
 		);
 		wp_enqueue_media();
@@ -181,6 +204,10 @@ class Onboard {
 			}
 
 			if ( ! $error ) {
+				// Setting holds its data statically and save() writes the whole array back, so
+				// read first or every key this block does not set is reset to its default.
+				StripeSetting::read();
+
 				$stripe_setting = new StripeSetting();
 				$stripe_setting->set_props(
 					array(
@@ -194,6 +221,10 @@ class Onboard {
 				$stripe_setting->save();
 			}
 		} else { // Reset.
+			// See above: read first, so a reset clears the connect credentials without also
+			// discarding the webhook secret and the gateway's own copy.
+			StripeSetting::read();
+
 			$stripe_setting = new StripeSetting();
 			$stripe_setting->set_props(
 				array(
@@ -211,7 +242,7 @@ class Onboard {
 		}
 
 		$base_url = remove_query_arg( array( 'action', 'nonce', 'accountId', 'mode', 'return_url', 'step' ) );
-		$hash     = $error ? '#/?step=setup&stripe_error=true' : '#/?step=setup';
+		$hash     = $error ? '#/?step=setup&builder=gutenberg&stripe_error=true' : '#/?step=setup&builder=gutenberg';
 		wp_safe_redirect( $base_url . $hash );
 		exit;
 	}
@@ -229,9 +260,40 @@ class Onboard {
 					<meta name="viewport" content="width=device-width"/>
 					<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 					<title>
-						<?php esc_html_e( 'Masteriyo LMS - Onboarding', 'learning-management-system' ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: the product's name */
+								__( '%s LMS - Onboarding', 'learning-management-system' ),
+								masteriyo_get_plugin_name()
+							)
+						);
+						?>
 					</title>
 					<?php wp_print_head_scripts(); ?>
+					<?php
+					/*
+					 * The wizard prints its own document, so nothing enqueues styles for
+					 * it — the app is CSS-in-JS. The wp.media modal is not, and without
+					 * these it renders raw. `.screen-reader-text` lives in wp-admin's
+					 * common.css, which this page must not pull in wholesale, so the one
+					 * rule the modal needs is restated here.
+					 */
+					wp_print_styles( array( 'media-views' ) );
+					?>
+					<style>
+						.masteriyo-user-onboarding-wizard .screen-reader-text {
+							border: 0;
+							clip-path: inset( 50% );
+							height: 1px;
+							margin: -1px;
+							overflow: hidden;
+							padding: 0;
+							position: absolute;
+							width: 1px;
+							word-wrap: normal !important;
+						}
+					</style>
 				</head>
 		<?php
 	}

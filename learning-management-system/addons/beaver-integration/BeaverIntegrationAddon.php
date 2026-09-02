@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\BeaverIntegration
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 namespace Masteriyo\Addons\BeaverIntegration;
 
@@ -23,7 +23,7 @@ class BeaverIntegrationAddon {
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -32,7 +32,7 @@ class BeaverIntegrationAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 */
 	public function init_hooks() {
 		add_action( 'init', array( $this, 'init_elements' ) );
@@ -41,7 +41,7 @@ class BeaverIntegrationAddon {
 	/**
 	 * Initialized modules.
 	 *
-	 * @since 1.10.0
+	 * @since 1.10.0 [Free]
 	 */
 	public function init_elements() {
 

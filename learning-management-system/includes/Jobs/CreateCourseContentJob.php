@@ -5,8 +5,6 @@ namespace Masteriyo\Jobs;
 defined( 'ABSPATH' ) || exit;
 
 
-use ThemeGrill\OpenAI\ChatGPT;
-
 /**
  * Class CreateCourseContentJob
  *
@@ -53,9 +51,9 @@ class CreateCourseContentJob {
 			return;
 		}
 
-		$chatgpt = ChatGPT::get_instance( masteriyo_get_setting( 'advance.openai.api_key' ) );
+		$ai = masteriyo_ai();
 
-		if ( null === $chatgpt ) {
+		if ( ! $ai->is_configured() ) {
 			return;
 		}
 
@@ -81,14 +79,11 @@ class CreateCourseContentJob {
 		}
 
 		$course_content_prompt = masteriyo_generate_course_content_prompt( $course_title, $course_idea, $lesson_names, 2, $num_course_highlight_points );
-		$response_text         = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $course_content_prompt ), 2 ); // Max retry time 2.
-		$response_text         = wp_unslash( $response_text );
+		$course_content        = $ai->generate_json( $course_content_prompt, array( 'max_attempts' => 2 ) );
 
-		if ( is_null( $response_text ) || is_wp_error( $response_text ) || empty( $response_text ) ) {
+		if ( is_wp_error( $course_content ) ) {
 			return;
 		}
-
-		$course_content = is_array( $response_text ) ? $response_text : json_decode( $response_text, true );
 
 		$course_description = isset( $course_content['description'] ) ? wp_kses_post( $course_content['description'] ) : '';
 		$course_highlights  = isset( $course_content['highlight_points'] ) ? wp_kses_post( $course_content['highlight_points'] ) : '';

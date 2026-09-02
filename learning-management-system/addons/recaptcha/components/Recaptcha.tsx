@@ -317,7 +317,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 
 					<FormControlTwoCol>
 						<FormLabel>
-							{__('Forms', 'learning-management-system')}{' '}
+							{__('Forms', 'learning-management-system')}
 							<ToolTip
 								label={__(
 									'Check the forms where you want to enable google reCAPTCHA',

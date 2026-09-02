@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\ElementorIntegration;
@@ -26,14 +26,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\ElementorIntegration
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 abstract class WidgetBase extends Widget_Base {
 
 	/**
 	 * Get widget categories.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -47,8 +47,6 @@ abstract class WidgetBase extends Widget_Base {
 	 * Elementor stores an empty string for untouched number controls (including
 	 * responsive device values), so plain absint() would turn declared control
 	 * defaults into 0.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array  $settings Widget settings.
 	 * @param string $key      Setting key.
@@ -67,7 +65,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Overriding default function to add custom html class.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -80,13 +78,13 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Register widget controls.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_controls() {
 		/**
 		 * Fires before registering elementor widget controls.
 		 *
-		 * @since 1.6.12
+		 * @since 2.5.14
 		 *
 		 * @param \Masteriyo\Addons\ElementorIntegration\WidgetBase $widget
 		 */
@@ -98,7 +96,7 @@ abstract class WidgetBase extends Widget_Base {
 		/**
 		 * Fires after registering elementor widget controls.
 		 *
-		 * @since 1.6.12
+		 * @since 2.5.14
 		 *
 		 * @param \Masteriyo\Addons\ElementorIntegration\WidgetBase $widget
 		 */
@@ -108,21 +106,21 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Register controls configuring widget content.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	abstract protected function register_content_controls();
 
 	/**
 	 * Register controls for customizing widget styles.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	abstract protected function register_style_controls();
 
 	/**
 	 * Add on/off switch control. It allows you to apply selectors when the switch control is off.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @param string $name Control name.
 	 * @param string $label Control label.
@@ -164,7 +162,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Get instructors options.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return array
 	 */
@@ -191,7 +189,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Get categories options.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return array
 	 */
@@ -217,7 +215,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Get all the course difficulties.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @return \Masteriyo\Models\CourseDifficulty[]
 	 */
@@ -237,7 +235,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Get course to render.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @return \Masteriyo\Models\Course|null
 	 */
@@ -253,8 +251,6 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Render a notice in the Elementor editor when no preview course is available.
 	 * Does nothing on the frontend.
-	 *
-	 * @since x.x.x
 	 */
 	protected function render_no_course_notice() {
 		if ( ! Helper::is_elementor_editor() && ! Helper::is_elementor_preview() ) {
@@ -327,8 +323,6 @@ abstract class WidgetBase extends Widget_Base {
 	 * Render a notice in the editor when a widget feature is disabled for the course.
 	 * Only visible in the Elementor editor/preview — silent on the frontend.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $message Human-readable explanation, e.g. "Course retake is disabled for this course."
 	 */
 	protected function render_feature_disabled_notice( $message ) {
@@ -342,8 +336,6 @@ abstract class WidgetBase extends Widget_Base {
 
 	/**
 	 * Echo a render callback's output, or show a notice when it produces nothing.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param callable $render        Callback that echoes the widget markup.
 	 * @param string   $empty_message Notice shown when the output is empty.
@@ -368,8 +360,6 @@ abstract class WidgetBase extends Widget_Base {
 	 *
 	 * Only callbacks whose object class starts with 'Masteriyo\' are considered,
 	 * preventing accidental removal of third-party callbacks that share a method name.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array<string,string[]> $map Hook name => method names to suppress.
 	 * @return array<int,array> Removed callbacks as [ hook, callback, priority, accepted_args ].
@@ -407,8 +397,6 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Re-add callbacks removed by suppress_hook_callbacks_by_method().
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array<int,array> $removed Removed callbacks to restore.
 	 */
 	protected function restore_hook_callbacks( $removed ) {
@@ -421,7 +409,7 @@ abstract class WidgetBase extends Widget_Base {
 	/**
 	 * Add style controls for a text region.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @param string $name_prefix
 	 * @param string $selector

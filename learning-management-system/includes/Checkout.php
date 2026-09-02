@@ -13,9 +13,8 @@ namespace Masteriyo;
 use Masteriyo\Cart\Cart;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\UserStatus;
-
+use Masteriyo\PostType\PostType;
 use Masteriyo\Session\Session;
-use PO;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,7 +28,7 @@ class Checkout {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var masteriyo\Cart\Cart
+	 * @var \Masteriyo\Cart\Cart
 	 */
 	private $cart = null;
 
@@ -105,8 +104,10 @@ class Checkout {
 	 * @throws \Exception When validation fails.
 	 */
 	public function process_checkout() {
-
 		try {
+			// Cleared here as well as in validate_checkout(), because the paths that throw
+			// before validation runs — the nonce failure below — would otherwise render
+			// their notice alongside stale ones from an earlier failed attempt.
 			masteriyo_clear_notices();
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -207,7 +208,7 @@ class Checkout {
 				do_action( 'masteriyo_checkout_order_processed', $order_id, $posted_data, $order );
 
 				if ( $order->needs_payment() ) {
-					$this->process_order_payment( $order_id, $posted_data['payment_method'] );
+					$this->process_order_payment( $order_id, $posted_data['payment_method'], $posted_data );
 				} else {
 					$this->process_order_without_payment( $order_id );
 				}
@@ -234,6 +235,7 @@ class Checkout {
 		$data = array(
 			'terms'                            => (int) isset( $_POST['terms'] ),
 			'payment_method'                   => isset( $_POST['payment_method'] ) ? masteriyo_clean( wp_unslash( $_POST['payment_method'] ) ) : '',
+			'stripe_payment_method'            => isset( $_POST['stripe_payment_method'] ) ? masteriyo_clean( wp_unslash( $_POST['stripe_payment_method'] ) ) : '',
 			'masteriyo_checkout_update_totals' => isset( $_POST['masteriyo_checkout_update_totals'] ),
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
@@ -295,40 +297,18 @@ class Checkout {
 	/**
 	 * See if a field should be skipped.
 	 *
+	 * A field is skipped exactly when the form does not show it, which is the `enable` flag
+	 * the field definitions resolve — the same flag the renderer reads. Nothing is derived
+	 * from the settings a second time here.
+	 *
 	 * @since 1.0.0
 	 * @param string $key Field key.
 	 * @param array  $data         Posted data.
 	 * @return bool
 	 */
 	protected function maybe_skip_field( $key, $data ) {
-		$skip = false;
-
-		if ( 'billing_country' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.country' );
-		} elseif ( 'billing_address_1' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.address_1' );
-		} elseif ( 'billing_address_2' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.address_2' );
-		} elseif ( 'billing_company' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.company' );
-		} elseif ( 'billing_phone' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.phone' );
-		} elseif ( 'customer_note' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.customer_note' );
-		} elseif ( 'attachment_upload' === $key ) {
-			$skip = ! masteriyo_get_setting( 'payments.checkout_fields.attachment_upload' );
-		} elseif ( 'billing_city' === $key ) {
-			$skip = masteriyo_get_setting( 'payments.checkout_fields.country' ) ?
-			! masteriyo_get_setting( 'payments.checkout_fields.city' ) : true;
-		} elseif ( 'billing_state' === $key ) {
-			$skip = masteriyo_get_setting( 'payments.checkout_fields.country' ) ?
-			! masteriyo_get_setting( 'payments.checkout_fields.state' ) : true;
-		} elseif ( 'billing_postcode' === $key ) {
-			$skip = masteriyo_get_setting( 'payments.checkout_fields.country' ) ?
-			! masteriyo_get_setting( 'payments.checkout_fields.postcode' ) : true;
-		} elseif ( 'gdpr' === $key ) {
-			$skip = ! masteriyo_show_gdpr_msg();
-		}
+		$fields = $this->get_checkout_fields();
+		$skip   = isset( $fields[ $key ] ) ? empty( $fields[ $key ]['enable'] ) : false;
 
 		/**
 		 * Filters whether to skip a checkout field.
@@ -359,8 +339,12 @@ class Checkout {
 		return apply_filters( 'masteriyo_checkout_registration_required', true );
 	}
 
+
 	/**
 	 * Get an array of checkout fields.
+	 *
+	 * The definitions come from \Masteriyo\CheckoutFields, which the form renderer reads
+	 * too, so what is validated here is exactly what was shown.
 	 *
 	 * @since 1.0.0
 	 *
@@ -368,61 +352,9 @@ class Checkout {
 	 * @return array
 	 */
 	public function get_checkout_fields( $field = '' ) {
-		if ( ! is_null( $this->fields ) ) {
-			return $field ? $this->fields[ $field ] : $this->fields;
+		if ( is_null( $this->fields ) ) {
+			$this->fields = CheckoutFields::get_fields( $this->get_value( 'billing_country' ) );
 		}
-
-		$billing_country = $this->get_value( 'billing_country' );
-
-		$fields = array_merge(
-			masteriyo( 'countries' )->get_address_fields( $billing_country, 'billing_' ),
-			array(
-				'customer_note'     => array(
-					'label'        => __( 'Customer Note', 'learning-management-system' ),
-					'enable'       => masteriyo_get_setting( 'payments.checkout_fields.customer_note' ),
-					'required'     => false,
-					'type'         => 'text',
-					'class'        => array( 'form-row-wide' ),
-					'autocomplete' => 'no',
-					'priority'     => 110,
-				),
-				'attachment_upload' => array(
-					'label'    => __( 'Upload Attachment', 'learning-management-system' ),
-					'enable'   => masteriyo_get_setting( 'payments.checkout_fields.attachment_upload' ),
-					'required' => false,
-					'type'     => 'file',
-					'class'    => array( 'form-row-wide' ),
-					'priority' => 115,
-				),
-				'create_user'       => array(
-					'label'        => __( 'Create User', 'learning-management-system' ),
-					'enable'       => masteriyo_is_guest_checkout_enabled(),
-					'required'     => masteriyo_is_guest_checkout_enabled(),
-					'type'         => 'checkbox',
-					'class'        => array( 'form-row-wide' ),
-					'autocomplete' => 'no',
-					'priority'     => 120,
-				),
-				'gdpr'              => array(
-					'label'        => __( 'GDPR', 'learning-management-system' ),
-					'enable'       => masteriyo_get_setting( 'advance.gdpr.enable' ),
-					'required'     => true,
-					'type'         => 'checkbox',
-					'class'        => array( 'form-row-wide' ),
-					'autocomplete' => 'no',
-					'priority'     => 130,
-				),
-			)
-		);
-
-		/**
-		 * Filters checkout fields.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array $fields Checkout fields.
-		 */
-		$this->fields = apply_filters( 'masteriyo_checkout_fields', $fields );
 
 		return $field ? $this->fields[ $field ] : $this->fields;
 	}
@@ -482,19 +414,26 @@ class Checkout {
 					$user->get_error_message(),
 					array( 'source' => 'checkout' )
 				);
-				throw new \Exception( $user->get_error_message() );
+
+				// An email that already has an account is not a failure the buyer can do
+				// nothing about, so it gets the way forward instead: log in, come back, and
+				// the cart is still in the session. The message carries a link, so it is not
+				// escaped here — the notice pipeline runs it through kses before rendering.
+				if ( is_wp_error( $user ) && 'registration-error-email-exists' === $user->get_error_code() ) {
+					throw new \Exception( masteriyo_get_checkout_existing_account_message( $data['billing_email'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaping the message would print the login link as text; masteriyo( 'notice' )->kses() sanitizes it at render time.
+				}
+
+				throw new \Exception( esc_html( $user->get_error_message() ) );
 			}
 
 			$wp_user = get_user_by( 'email', $user->get_email() );
-			$payment_gateway=masteriyo( 'payment-gateways' )->get_available_payment_gateways();
-			$verification_needed = 'stripe' === $data['payment_method'] && isset( $payment_gateway['stripe'] ) ? false : true;
 
 			if ( ! $wp_user ) {
-				throw new \Exception( __( 'Invalid username or email', 'learning-management-system' ) );
+				throw new \Exception( esc_html__( 'Invalid username or email', 'learning-management-system' ) );
 			}
 
 			if ( masteriyo_registration_is_generate_password() ) {
-				if ( masteriyo_is_email_verification_enabled() &&$verification_needed) {
+				if ( masteriyo_is_email_verification_enabled() ) {
 					$user->set_status( UserStatus::SPAM );
 					masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
 				} else {
@@ -507,6 +446,7 @@ class Checkout {
 					masteriyo_set_customer_auth_cookie( $user->get_id() );
 					masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
 			}
+
 			$data['customer_id'] = $user->get_id();
 
 			$user->save();
@@ -595,7 +535,6 @@ class Checkout {
 			$available_gateways = masteriyo( 'payment-gateways' )->get_available_payment_gateways();
 
 			if ( ! isset( $available_gateways[ $data['payment_method'] ] ) ) {
-
 				$errors->add( 'payment', __( 'Invalid payment method.', 'learning-management-system' ) );
 			} else {
 				$available_gateways[ $data['payment_method'] ]->validate_fields();
@@ -658,7 +597,7 @@ class Checkout {
 
 			if ( '' !== $data[ $key ] && in_array( 'country', $format, true ) && ! masteriyo( 'countries' )->country_exists( $data[ $key ] ) ) {
 				/* translators: ISO 3166-1 alpha-2 country code */
-				$errors->add( $key . '_validation', sprintf( __( "'%s' is not a valid country code.", 'learning-management-system' ), $field[ $key ] ) );
+				$errors->add( $key . '_validation', sprintf( __( "'%s' is not a valid country code.", 'learning-management-system' ), $data[ $key ] ) );
 			}
 
 			if ( in_array( 'postcode', $format, true ) ) {
@@ -691,7 +630,7 @@ class Checkout {
 					 * @param mixed $country Country.
 					 * @param mixed $value Field value.
 					 */
-					$errors->add( $key . '_validation', apply_filters( 'masteriyo_checkout_postcode_validation_notice', $postcode_validation_notice, $country, $field[ $key ] ), array( 'id' => $key ) );
+					$errors->add( $key . '_validation', apply_filters( 'masteriyo_checkout_postcode_validation_notice', $postcode_validation_notice, $country, $data[ $key ] ), array( 'id' => $key ) );
 				}
 			}
 
@@ -767,13 +706,13 @@ class Checkout {
 					);
 				} else {
 					/**
-					 * Filters notice for required field in checkout form.
+					 * Filters postcode validation notice in checkout form.
 					 *
 					 * @since 1.0.0
 					 *
-					 * @param string $text Notice message.
-					 * @param string $field_label_html Field label html.
-					 * @param string $field_label Field label.
+					 * @param string $notice Validation message.
+					 * @param mixed $country Country.
+					 * @param mixed $value Field value.
 					 */
 					$errors->add(
 						$key . '_required',
@@ -861,6 +800,14 @@ class Checkout {
 			$user->save();
 		}
 
+		// A guest who registers at checkout is not logged in yet (email
+		// verification), so the new id arrives in $data['customer_id'].
+		$consent_user_id = $user_id ? $user_id : ( isset( $data['customer_id'] ) ? absint( $data['customer_id'] ) : 0 );
+
+		if ( $consent_user_id && masteriyo_show_gdpr_msg() && ! empty( $data['gdpr'] ) ) {
+			masteriyo_record_gdpr_consent( $consent_user_id, 'checkout' );
+		}
+
 		/**
 		 * Fires after updating user data in checkout form.
 		 *
@@ -929,10 +876,6 @@ class Checkout {
 			} else {
 				$order = masteriyo( 'order' );
 			}
-
-			$fields_prefix = array(
-				'billing' => true,
-			);
 
 			foreach ( $data as $key => $value ) {
 				if ( is_callable( array( $order, "set_{$key}" ) ) ) {
@@ -1047,7 +990,8 @@ class Checkout {
 	 */
 	public function set_data_from_cart( &$order ) {
 		$order->set_total( $this->cart->get_total( 'edit' ) );
-		$this->create_order_course_items( $order );
+		$order->set_tax_total( $this->cart->get_tax_total( 'edit' ) );
+		$this->create_order_course_or_course_bundle_items( $order );
 
 		/**
 		 * Fires when setting order data from cart while processing checkout.
@@ -1064,23 +1008,52 @@ class Checkout {
 	/**
 	 * Add line items to the order.
 	 *
+	 * @deprecated x.x.x Use `create_order_course_or_course_bundle_items()` instead.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param \Masteriyo\Models\Order\Order $order Order instance.
 	 */
 	public function create_order_course_items( &$order ) {
-		foreach ( $this->cart->get_cart() as $cart_item_key => $values ) {
-			$item     = apply_filters( 'masteriyo_checkout_create_order_line_item_object', masteriyo( 'order-item.course' ), $cart_item_key, $values, $order );
-			$course   = $values['data'];
-			$currency = $course->get_currency();
+		masteriyo_deprecated_function( 'Masteriyo\Checkout::' . __FUNCTION__, 'x.x.x', 'Masteriyo\Checkout::create_order_course_or_course_bundle_items' );
 
-			if ( ! empty( $currency ) && ! is_null( $currency ) ) { // for multiple currency add-on
-				$order->set_currency( $currency );
-				$order->set_base_currency( masteriyo_get_currency() );
-				$order->set_exchange_rate( $course->get_exchange_rate() );
-				$order->set_pricing_method( $course->get_pricing_method() );
-				$conversion_total = ( 1 / floatval( $course->get_exchange_rate() ) ) * floatval( $order->get_total() );
-				$order->set_conversion_total( masteriyo_format_decimal( $conversion_total ) );
+		$this->create_order_course_or_course_bundle_items( $order );
+	}
+
+	/**
+	 * Add line items to the order.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @since 2.12.0 Renamed from `create_order_course_items` to `create_order_course_or_course_bundle_items`.
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Order instance.
+	 */
+	public function create_order_course_or_course_bundle_items( &$order ) {
+		foreach ( $this->cart->get_cart() as $cart_item_key => $values ) {
+
+			// A bundle line item is pro's binding, but `PostType::COURSE_BUNDLE` is
+			// declared in core, so the post-type test alone answers true on a free
+			// site that still has bundle posts — after a downgrade, or with pro
+			// deactivated — and this throws in the middle of checkout. Asking whether
+			// the binding exists is what makes the branch safe to take.
+			$item_obj         = PostType::COURSE_BUNDLE === get_post_type( $values['item_id'] ) && masteriyo_service_provider_exists( 'order-item.course-bundle' )
+				? masteriyo( 'order-item.course-bundle' )
+				: masteriyo( 'order-item.course' );
+			$item             = apply_filters( 'masteriyo_checkout_create_order_line_item_object', $item_obj, $cart_item_key, $values, $order );
+			$course_or_bundle = $values['data'];
+
+			if ( is_a( $course_or_bundle, 'Masteriyo\Models\Course' ) ) {
+				$currency = $course_or_bundle->get_currency();
+
+				if ( ! empty( $currency ) && ! is_null( $currency ) ) { // for multiple currency add-on
+					$order->set_currency( $currency );
+					$order->set_base_currency( masteriyo_get_currency() );
+					$order->set_exchange_rate( $course_or_bundle->get_exchange_rate() );
+					$order->set_pricing_method( $course_or_bundle->get_pricing_method() );
+					$conversion_total = ( 1 / floatval( $course_or_bundle->get_exchange_rate() ) ) * floatval( $order->get_total() );
+					$order->set_conversion_total( masteriyo_format_decimal( $conversion_total ) );
+				}
 			}
 
 			$item->set_props(
@@ -1091,13 +1064,22 @@ class Checkout {
 				)
 			);
 
-			if ( $course ) {
-				$item->set_props(
-					array(
-						'name'      => $course->get_name(),
-						'course_id' => $course->get_id(),
-					)
-				);
+			if ( $course_or_bundle ) {
+				$item->set_name( $course_or_bundle->get_name() );
+				if ( is_a( $course_or_bundle, 'Masteriyo\Models\Course' ) ) {
+					$item->set_props(
+						array(
+							'course_id' => $course_or_bundle->get_id(),
+						)
+					);
+				}
+				if ( masteriyo_is_bundle_product( $course_or_bundle ) ) {
+					$item->set_props(
+						array(
+							'course_bundle_id' => $course_or_bundle->get_id(),
+						)
+					);
+				}
 			}
 
 			/**
@@ -1123,8 +1105,9 @@ class Checkout {
 	 * @since 1.0.0
 	 * @param int    $order_id       Order ID.
 	 * @param string $payment_method Payment method.
+	 * @param array $posted_data Posted data.
 	 */
-	protected function process_order_payment( $order_id, $payment_method ) {
+	protected function process_order_payment( $order_id, $payment_method, $posted_data = array() ) {
 		$available_gateways = masteriyo( 'payment-gateways' )->get_available_payment_gateways();
 
 		if ( ! isset( $available_gateways[ $payment_method ] ) ) {
@@ -1137,6 +1120,27 @@ class Checkout {
 
 		// Process Payment.
 		$result = $available_gateways[ $payment_method ]->process_payment( $order_id );
+
+		// Show which Payment Element method actually paid — "Stripe (Klarna)", "Stripe (iDEAL)" —
+		// instead of the generic gateway title. Only the title changes: the payment method must
+		// stay 'stripe' so the webhook and return verification recognize the order as this
+		// gateway's. (Orders from before this change carry 'ideal' as the method; readers still
+		// accept it.)
+		$method_type = isset( $posted_data['stripe_payment_method'] ) ? $posted_data['stripe_payment_method'] : '';
+
+		// Client input: only a plausible method-type slug may shape the title.
+		// Anything else — arrays included, which masteriyo_clean() preserves —
+		// is ignored rather than reaching the string operations below.
+		if ( 'stripe' === $payment_method && is_string( $method_type ) && 'card' !== $method_type && preg_match( '/^[a-z0-9_]{1,40}$/', $method_type ) ) {
+			$overrides = array(
+				'ideal'      => 'iDEAL',
+				'twint'      => 'TWINT',
+				'sepa_debit' => 'SEPA Direct Debit',
+			);
+			$label     = isset( $overrides[ $method_type ] ) ? $overrides[ $method_type ] : ucwords( str_replace( '_', ' ', $method_type ) );
+
+			update_post_meta( $order_id, '_payment_method_title', 'Stripe (' . $label . ')' );
+		}
 
 		// Redirect to success/confirmation/payment page.
 		if ( isset( $result['result'] ) && 'success' === $result['result'] ) {
@@ -1200,7 +1204,7 @@ class Checkout {
 	/**
 	 * Uploads an attachment based on the provided posted data.
 	 *
-	 * @since 1.12.2
+	 * @since 1.12.1 [Free]
 	 *
 	 * @param array $posted_data Posted data containing the attachment to be uploaded.
 	 * @param \WP_Error $errors Errors to be stored.

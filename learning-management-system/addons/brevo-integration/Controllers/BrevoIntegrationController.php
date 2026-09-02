@@ -2,7 +2,7 @@
 /**
  * Brevo Integration REST Controller.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  *
  * @subpackage Masteriyo\Addons\BrevoIntegration
  */
@@ -19,13 +19,13 @@ use Masteriyo\RestApi\Controllers\Version1\CrudController;
 /**
  * BrevoIntegrationController class.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 class BrevoIntegrationController extends CrudController {
 	/**
 	 * Endpoint namespace.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -34,7 +34,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * Route base.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class BrevoIntegrationController extends CrudController {
 
 	/** Object type.
 	 *
-	 *  @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -51,7 +51,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var \Masteriyo\Helper\Permission;
 	 */
@@ -60,7 +60,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * API client instance.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var \Masteriyo\Addons\BrevoIntegration\API\API
 	 */
@@ -69,7 +69,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param \Masteriyo\Helper\Permission $permission
 	 */
@@ -81,7 +81,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return void
 	 */
@@ -126,7 +126,7 @@ class BrevoIntegrationController extends CrudController {
 	/**
 	 * Check if a given request has access to read items.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 *
@@ -149,7 +149,7 @@ class BrevoIntegrationController extends CrudController {
 	 *
 	 * This function fetches the Brevo lists from the API and caches them in the database.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param \WP_REST_Request $request The REST request object.
 	 *
@@ -191,7 +191,7 @@ class BrevoIntegrationController extends CrudController {
 	 *
 	 * This function validates the provided API key and stores it in the settings if valid.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param \WP_REST_Request $request The REST request object.
 	 *                                 Required parameter: api_key
@@ -247,7 +247,7 @@ class BrevoIntegrationController extends CrudController {
 	 *
 	 * This function clears the API key and sets the is_connected flag to false.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param \WP_REST_Request $request The REST request object.
 	 *

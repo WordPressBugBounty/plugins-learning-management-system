@@ -30,20 +30,24 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CustomIcon } from '../../../../assets/js/back-end/components/common/CustomIcon';
 import { GoogleMeet } from '../../../../assets/js/back-end/constants/images';
 import urls from '../../../../assets/js/back-end/constants/urls';
-import { ContentQueryError } from '../../../../assets/js/back-end/schemas';
 import API from '../../../../assets/js/back-end/utils/api';
 import { getWordpressLocalTime } from '../../../../assets/js/back-end/utils/utils';
 import ContentErrorDisplay from '../../../../assets/js/interactive/components/ContentErrorDisplay';
 import ContentNav from '../../../../assets/js/interactive/components/ContentNav';
 import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../assets/js/interactive/constants/general';
-import { useCourseContext } from '../../../../assets/js/interactive/context/CourseContext';
+import { useCourseContext } from '@interactive/context/CourseContext';
+import { ContentQueryError } from '../../../../assets/js/back-end/schemas';
 import { CourseProgressItemsMap } from '../../../../assets/js/interactive/schemas';
 import LessonSkeleton from '../../../../assets/js/interactive/skeleton/LessonSkeleton';
 import localized from '../../../../assets/js/interactive/utils/global';
-import { getContentWidths } from '../../../../assets/js/interactive/utils/helper';
+import {
+	getContentWidths,
+	previewFlag,
+} from '../../../../assets/js/interactive/utils/helper';
 import RedirectNavigation, {
 	navigationProps,
 } from '../../../../assets/js/interactive/utils/RedirectNavigation';
+import { initializeTracking } from '../../../../assets/js/interactive/utils/RouterMonitor';
 import GoogleMeetUrls from '../../constants/urls';
 import { GoogleMeetStatus } from '../Enums/Enum';
 import MeetingTimer from './MeetingTimer';
@@ -51,7 +55,6 @@ import MeetingTimer from './MeetingTimer';
 const InteractiveGoogleMeet = () => {
 	const { googleMeetId, courseId }: any = useParams();
 	const GoogleMeetAPI = new API(GoogleMeetUrls.googleMeets);
-	const courseAPI = new API(urls.courses);
 	const progressItemAPI = new API(urls.courseProgressItem);
 	const toast = useToast();
 	const queryClient = useQueryClient();
@@ -73,8 +76,6 @@ const InteractiveGoogleMeet = () => {
 	const isFocusModeEnabled = useMemo(() => {
 		return Boolean(localized?.enableFocusMode === 'yes');
 	}, []);
-
-	const headerColor = useColorModeValue('oxford-night', 'white');
 
 	const [contentWidth, setContentWidth] = useState<string>(
 		getContentWidths(isLargerThan1400)[isFocusModeEnabled ? 1 : 0],
@@ -102,7 +103,8 @@ const InteractiveGoogleMeet = () => {
 				item_id: googleMeetId,
 				courseId: courseId,
 			}),
-		// Logged-in only; guests 401 here.
+		// Guests 401 here; skip the fetch to avoid a retry storm. `enabled` needs a
+		// real boolean (isUserLoggedIn is a string at runtime).
 		...{
 			enabled: Boolean(localized.isUserLoggedIn),
 			retry: false,
@@ -110,14 +112,15 @@ const InteractiveGoogleMeet = () => {
 	});
 
 	const completeMutation = useMutation({
-		mutationFn: (data: CourseProgressItemsMap) => progressItemAPI.store(data),
+		mutationFn: (data: CourseProgressItemsMap) =>
+			progressItemAPI.store({ ...data, ...previewFlag() }),
 	});
 
 	const onCompletePress = () => {
 		completeMutation.mutate(
 			{
 				course_id: courseId,
-				item_id: googleMeetQuery?.data?.id,
+				item_id: googleMeetQuery.data.id,
 				item_type: 'google-meet',
 				completed: true,
 			},
@@ -152,9 +155,6 @@ const InteractiveGoogleMeet = () => {
 		);
 	};
 
-	const start_at: Date = new Date(googleMeetQuery?.data?.starts_at);
-	const end_at: Date = new Date(googleMeetQuery?.data?.ends_at);
-
 	const updateContentWidth = () => {
 		const contentWidths = getContentWidths(isLargerThan1400);
 		const indexOfCurrentWidth = contentWidths.indexOf(contentWidth);
@@ -163,23 +163,6 @@ const InteractiveGoogleMeet = () => {
 			setContentWidth(contentWidths[0]);
 		} else {
 			setContentWidth(contentWidths[indexOfCurrentWidth + 1]);
-		}
-	};
-
-	React.useEffect(() => {
-		googleMeetStatus();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [start_at, end_at]);
-
-	const googleMeetStatus = () => {
-		if (start_at >= new Date()) {
-			setStatus(GoogleMeetStatus.UpComing);
-		} else if (start_at < new Date() && end_at > new Date()) {
-			setStatus(GoogleMeetStatus.Active);
-		} else if (end_at < new Date()) {
-			setStatus(GoogleMeetStatus.Expired);
-		} else {
-			setStatus(GoogleMeetStatus.All);
 		}
 	};
 
@@ -194,6 +177,38 @@ const InteractiveGoogleMeet = () => {
 		setActiveIndex,
 		setContentData,
 	]);
+
+	useEffect(() => {
+		const cleanupTracking = initializeTracking(
+			courseId,
+			'google-meet',
+			googleMeetId,
+		);
+
+		return () => {
+			cleanupTracking && cleanupTracking();
+		};
+	}, [courseId, googleMeetId]);
+
+	const headerColor = useColorModeValue('oxford-night', 'white');
+
+	React.useEffect(() => {
+		const start_at: Date = new Date(googleMeetQuery?.data?.starts_at);
+		const end_at: Date = new Date(googleMeetQuery?.data?.ends_at);
+
+		const googleMeetStatus = () => {
+			if (start_at >= new Date()) {
+				setStatus(GoogleMeetStatus.UpComing);
+			} else if (start_at < new Date() && end_at > new Date()) {
+				setStatus(GoogleMeetStatus.Active);
+			} else if (end_at < new Date()) {
+				setStatus(GoogleMeetStatus.Expired);
+			} else {
+				setStatus(GoogleMeetStatus.All);
+			}
+		};
+		googleMeetStatus();
+	}, [googleMeetQuery?.data?.starts_at, googleMeetQuery?.data?.ends_at]);
 
 	if (
 		courseProgress.isSuccess &&
@@ -212,7 +227,6 @@ const InteractiveGoogleMeet = () => {
 					}
 					py="16"
 				>
-					{' '}
 					<Box
 						bg={
 							COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
@@ -226,7 +240,7 @@ const InteractiveGoogleMeet = () => {
 						{localStartTime && !meetingStarted ? (
 							<MeetingTimer
 								startAt={localStartTime}
-								duration={googleMeetQuery?.data?.duration}
+								duration={googleMeetQuery?.data.duration}
 								onTimeout={() => setMeetingStarted(true)}
 							/>
 						) : null}
@@ -344,7 +358,7 @@ const InteractiveGoogleMeet = () => {
 											) : null}
 										</HStack>
 
-										{+googleMeetQuery?.data?.duration ? (
+										{+googleMeetQuery.data?.duration ? (
 											<Stack>
 												<HStack
 													color={
@@ -358,9 +372,7 @@ const InteractiveGoogleMeet = () => {
 													</Text>
 													<Text>
 														{humanizeDuration(
-															(googleMeetQuery?.data?.duration || 0) *
-																60 *
-																1000,
+															(googleMeetQuery.data?.duration || 0) * 60 * 1000,
 														)}
 													</Text>
 												</HStack>
@@ -378,11 +390,11 @@ const InteractiveGoogleMeet = () => {
 												<Text fontWeight="medium">
 													{__('Meeting ID:', 'learning-management-system')}
 												</Text>
-												<Text>{googleMeetQuery?.data?.meeting_id}</Text>
+												<Text>{googleMeetQuery.data?.meeting_id}</Text>
 											</HStack>
 										</Stack>
 
-										{googleMeetQuery?.data?.password ? (
+										{googleMeetQuery.data?.password ? (
 											<Stack>
 												<HStack
 													color={
@@ -394,7 +406,7 @@ const InteractiveGoogleMeet = () => {
 													<Text fontWeight="medium">
 														{__('Password:', 'learning-management-system')}
 													</Text>
-													<Text>{googleMeetQuery?.data?.password}</Text>
+													<Text>{googleMeetQuery.data?.password}</Text>
 												</HStack>
 											</Stack>
 										) : null}
@@ -449,7 +461,6 @@ const InteractiveGoogleMeet = () => {
 			/>
 		);
 	}
-
 	return <LessonSkeleton />;
 };
 

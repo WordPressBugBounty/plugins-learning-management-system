@@ -95,7 +95,7 @@ class EarningRepository extends AbstractRepository {
 		$earning_obj = get_post( $earning->get_id() );
 
 		if ( ! $earning->get_id() || ! $earning_obj || $earning->get_post_type() !== $earning_obj->post_type ) {
-			throw new \Exception( __( 'Invalid Wishlist Item.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Wishlist Item.', 'learning-management-system' ) );
 		}
 
 		$earning->set_props(

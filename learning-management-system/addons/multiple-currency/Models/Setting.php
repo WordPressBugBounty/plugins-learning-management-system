@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\MultipleCurrency\Models
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 namespace Masteriyo\Addons\MultipleCurrency\Models;
@@ -18,14 +18,14 @@ class Setting {
 	/**
 	 * Global option name.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	const OPTION_NAME = 'masteriyo_multiple_currency_settings';
 
 	/**
 	 * Data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var array
 	 */
@@ -43,7 +43,7 @@ class Setting {
 	/**
 	 * Read the settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	protected static function read() {
 		$settings   = get_option( self::OPTION_NAME, self::$data );
@@ -55,7 +55,7 @@ class Setting {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return mixed
 	 */
@@ -66,7 +66,7 @@ class Setting {
 	/**
 	 * Return global white field value.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $key
 	 *
@@ -81,7 +81,7 @@ class Setting {
 	/**
 	 * Set global multiple currency field.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.
@@ -94,7 +94,7 @@ class Setting {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $args
 	 */
@@ -106,7 +106,7 @@ class Setting {
 	/**
 	 * Save the settings.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public static function save() {
 		update_option( self::OPTION_NAME, self::$data );

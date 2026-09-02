@@ -1,0 +1,209 @@
+/**
+ * Styles for the "Convert to Masteriyo Course" confirmation modal
+ * on the WooCommerce products list screen.
+ *
+ * Masteriyo's main CSS bundle is only loaded on Masteriyo admin pages, not on the
+ * WooCommerce products list (edit.php?post_type=product). All structural styles and
+ * CSS custom properties are therefore scoped inside .masteriyo-convert-course-modal
+ * so the modal is self-contained on this page.
+ */
+
+@use '../../../../assets/scss/variable/structure';
+
+// ── Root wrapper ──────────────────────────────────────────────────────────────
+
+.masteriyo-convert-course-modal {
+	// CSS custom-property fallbacks: Masteriyo's _colors.scss :root block is not
+	// compiled into any stylesheet loaded on the WC products page.
+	--masteriyo-color-primary:    #4584ff;
+	--masteriyo-color-primary-a10: rgb(69 132 255 / 10%);
+	--masteriyo-color-text:       #4a5568;
+	--masteriyo-color-text-light: #718096;
+	--masteriyo-color-heading:    #1a202c;
+	--masteriyo-color-border:     #e2e8f0;
+	--masteriyo-button-primary:   #4584ff;
+
+	&.masteriyo-hidden {
+		display: none;
+	}
+
+	// ── Overlay (full-screen backdrop) ────────────────────────────────────────
+
+	.masteriyo-overlay {
+		position: fixed;
+		inset:   0;
+		width:  100%;
+		height: 100%;
+		background: rgb(0 0 0 / 30%);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999999;
+	}
+
+	// ── Modal box ─────────────────────────────────────────────────────────────
+
+	.masteriyo--modal {
+		max-width: 500px;
+		width: 100%;
+		background-color: #fff;
+		box-shadow:
+			rgb(0 0 0 / 10%) 0 10px 15px -3px,
+			rgb(0 0 0 / 5%) 0 4px 6px -2px;
+		border-radius: 8px;
+	}
+
+	// ── Title row ─────────────────────────────────────────────────────────────
+
+	.masteriyo--title {
+		padding: structure.$spacing_24px structure.$spacing_24px 0 structure.$spacing_24px;
+		margin: 0;
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--masteriyo-color-heading);
+	}
+
+	// ── Content area ──────────────────────────────────────────────────────────
+
+	.masteriyo--content {
+		padding: structure.$spacing_14px structure.$spacing_24px;
+
+		p {
+			font-size: 14px;
+			line-height: 1.6;
+			margin-top: structure.$spacing_6px;
+			margin-bottom: 0;
+			color: var(--masteriyo-color-text);
+		}
+	}
+
+	// ── Button row ────────────────────────────────────────────────────────────
+
+	.masteriyo-actions {
+		padding: structure.$spacing_12px structure.$spacing_24px structure.$spacing_24px;
+		border-bottom-left-radius:  8px;
+		border-bottom-right-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: structure.$spacing_12px;
+	}
+
+	// ── Buttons ───────────────────────────────────────────────────────────────
+
+	.masteriyo-btn {
+		max-width: 100%;
+		min-height: 40px;
+		line-height: 25px;
+		font-size: 14px;
+		font-weight: 500;
+		font-family: inherit;
+		padding: 0 structure.$spacing_20px;
+		text-align: center;
+		text-decoration: none;
+		outline: none;
+		box-shadow: none;
+		border: 0;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 6px;
+		transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+		&.masteriyo-btn-primary {
+			background: var(--masteriyo-button-primary);
+			color: #fff;
+			border: 0;
+
+			&:hover {
+				opacity: 0.9;
+				color: #fff;
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
+
+		&.masteriyo-btn-outline {
+			background: transparent;
+			color: var(--masteriyo-color-text);
+			border: 1px solid var(--masteriyo-color-border);
+
+			&:hover {
+				border-color: var(--masteriyo-color-text-light);
+				color: var(--masteriyo-color-heading);
+			}
+		}
+	}
+
+	// ── Icon + heading title row ───────────────────────────────────────────────
+
+	.masteriyo-convert-modal-title-row {
+		display: flex;
+		align-items: center;
+		gap: structure.$spacing_8px;
+
+		.masteriyo-convert-modal-icon {
+			&.dashicons {
+				color: var(--masteriyo-color-primary);
+				font-size: 20px;
+				width: 20px;
+				height: 20px;
+				flex-shrink: 0;
+			}
+		}
+	}
+
+	// ── Product → Course conversion highlight box ─────────────────────────────
+
+	.masteriyo-convert-modal-highlight {
+		background: #fff;
+		border: 1px solid var(--masteriyo-color-border);
+		border-radius: 6px;
+		padding: structure.$spacing_10px structure.$spacing_14px;
+		margin-top: structure.$spacing_12px;
+		margin-bottom: structure.$spacing_14px;
+
+		.masteriyo-product-name {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--masteriyo-color-heading);
+		}
+
+		.masteriyo-type-change {
+			font-size: 12px;
+			color: var(--masteriyo-color-text-light);
+			margin-top: structure.$spacing_6px;
+
+			span:last-child {
+				color: var(--masteriyo-color-primary);
+				font-weight: 500;
+			}
+		}
+	}
+
+	// ── Checkbox acknowledgement row ──────────────────────────────────────────
+
+	.masteriyo-convert-modal-check-label {
+		display: flex;
+		align-items: flex-start;
+		gap: structure.$spacing_8px;
+		font-size: 13px;
+		cursor: pointer;
+		font-weight: normal;
+		line-height: 1.5;
+		margin-bottom: 0;
+
+		input[type='checkbox'] {
+			accent-color: var(--masteriyo-color-primary);
+			width: 15px;
+			height: 15px;
+			flex-shrink: 0;
+			margin-top: 2px;
+			cursor: pointer;
+		}
+	}
+}

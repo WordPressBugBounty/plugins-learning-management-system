@@ -11,7 +11,7 @@ namespace Masteriyo\FormHandler;
 use Masteriyo\Addons\UserRegistrationIntegration\Helper;
 use Masteriyo\Enums\UserStatus;
 use Masteriyo\Notice;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,12 +44,18 @@ class RegistrationFormHandler {
 
 			$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
+			/*
+			 * `WP_Error` does not implement `Throwable`, so throwing one raises
+			 * `Error: Cannot throw objects that do not implement Throwable` — which the
+			 * `catch ( \Throwable )` below then reports to the visitor in place of the
+			 * message. The four sibling form handlers all throw `\Exception` here.
+			 */
 			if ( empty( $nonce_value ) ) {
-				throw new \WP_Error( 'nonce_missing', __( 'Nonce is missing.', 'learning-management-system' ) );
+				throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( sanitize_key($nonce_value), 'masteriyo-register' ) ) {
-				throw new \WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'learning-management-system' ) );
+			if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-register' ) ) {
+				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
 			}
 
 			$result = $this->register_user();
@@ -99,7 +105,6 @@ class RegistrationFormHandler {
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
-
 		$user = masteriyo_create_new_user(
 			$data['email'],
 			$data['username'],
@@ -110,12 +115,16 @@ class RegistrationFormHandler {
 					'first_name' => $data['first-name'],
 					'last_name'  => $data['last-name'],
 				),
-				$data
+				masteriyo_array_except( $data, array( 'first-name', 'last-name' ) )
 			)
 		);
 
 		if ( is_wp_error( $user ) ) {
 			return $user;
+		}
+
+		if ( masteriyo_show_gdpr_msg() && ! empty( $data['gdpr'] ) ) {
+			masteriyo_record_gdpr_consent( $user->get_id(), 'registration' );
 		}
 
 		if ( isset( $request['redirect_to'] ) && ! empty( $request['redirect_to'] ) && masteriyo_is_email_verification_enabled() ) {
@@ -124,12 +133,10 @@ class RegistrationFormHandler {
 
 		if ( masteriyo_registration_is_generate_password() ) {
 			masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
-		} else {
-			if ( masteriyo_is_email_verification_enabled() ) {
+		} elseif ( masteriyo_is_email_verification_enabled() ) {
 				masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
-			} else {
-				masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
-			}
+		} else {
+			masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
 		}
 
 		if ( isset( $request['redirect_to'] ) && ! empty( $request['redirect_to'] ) ) {
@@ -264,7 +271,9 @@ class RegistrationFormHandler {
 		/**
 		 * Filters the list of fields to retrieve from the submitted form data.
 		 *
-		 * @since 1.13.3
+		 * Integrations adding a consent checkbox register their field here, not in the list above.
+		 *
+		 * @since 2.14.4 [Free]
 		 *
 		 * @param string[] $fields The list of fields to retrieve from the submitted form data.
 		 */
@@ -286,7 +295,6 @@ class RegistrationFormHandler {
 
 			$data[ $key ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 		}
-
 		return $data;
 		// phpcs:enable
 	}

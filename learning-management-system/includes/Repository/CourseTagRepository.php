@@ -112,7 +112,7 @@ class CourseTagRepository extends AbstractRepository implements RepositoryInterf
 		$term = get_term( $course_tag->get_id() );
 
 		if ( ! $course_tag->get_id() || ! $term || 'course_tag' !== $term->taxonomy ) {
-			throw new \Exception( __( 'Invalid course_tag.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course_tag.', 'learning-management-system' ) );
 		}
 
 		$course_tag->set_props(

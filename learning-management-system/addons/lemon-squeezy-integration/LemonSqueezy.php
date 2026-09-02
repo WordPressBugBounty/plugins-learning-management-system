@@ -125,11 +125,19 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 	 * @return string
 	 */
 	public function get_icon() {
-		$image_url = Constants::get( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ASSETS_URL' ) . '/images/logo.png';
+		// The addon's own badge — the lemon glyph on the brand's purple, rounded —
+		// so the backing and the corners ride on the image and the checkout needs
+		// only to cap its height. It lives at the addon root rather than under
+		// `assets/`, because that is where the addon browser looks for a thumbnail.
+		// The wide wordmark that stood here was the odd one out in a row of square
+		// marks, and needed inline padding and a background colour to be legible.
+		$image_url = plugins_url( 'thumbnail.png', Constants::get( 'MASTERIYO_LEMON_SQUEEZY_INTEGRATION_ADDON_FILE' ) );
 
-		$icon_html  = '<div style="text-align: center; padding: 8px 16px; background-color: #5423e7; border-radius: 4px; margin-top: 4px; margin-bottom: 4px;">';
-		$icon_html .= '<img src="' . esc_attr( $image_url ) . '" alt="' . esc_attr__( 'Lemon Squeezy Logo', 'learning-management-system' ) . '" style="width: 180px; display: block; margin: 0 auto;" />';
-		$icon_html .= '</div>';
+		$icon_html = sprintf(
+			'<img src="%1$s" alt="%2$s" />',
+			esc_url( $image_url ),
+			esc_attr__( 'Lemon Squeezy Logo', 'learning-management-system' )
+		);
 
 		/**
 		 * Filters lemon squeezy icon.
@@ -178,8 +186,23 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 				throw new Exception( __( 'Session not found.', 'learning-management-system' ) );
 			}
 
-			$order_item = current( $order->get_items() );
-			$course_id  = $order_item->get_course_id();
+			$order_item  = current( $order->get_items() );
+			$item_id_key = 0;
+			if ( $order_item && masteriyo_is_bundle_order_item( $order_item ) ) {
+				$item_id_key = 'course_bundle_id';
+				$item_id     = $order_item->get_course_bundle_id();
+				$item        = masteriyo_get_bundle_product( $item_id );
+			} elseif ( $order_item instanceof \Masteriyo\Models\Order\OrderItemCourse ) {
+				$item_id_key = 'course_id';
+				$item_id     = $order_item->get_course_id();
+				$item        = masteriyo_get_course( $item_id );
+			} else {
+				throw new Exception( __( 'Invalid order item', 'learning-management-system' ) );
+			}
+
+			if ( ! $item ) {
+				throw new Exception( __( 'Invalid order item', 'learning-management-system' ) );
+			}
 
 			$request = new Request();
 
@@ -204,11 +227,11 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 				'order_id'      => (string) $order_id,
 				'user_id'       => (string) $order->get_user_id(),
 				'billing_email' => (string) $order->get_billing_email(),
-				'course_id'     => (string) $course_id,
+				$item_id_key    => (string) $item_id,
 			);
 
 			$options      = array( 'redirect_url' => $this->get_return_url( $order ) );
-			$checkout_url = $request->create_checkout_url( $course_id, $checkout_data, $options );
+			$checkout_url = $request->create_checkout_url( $item, $checkout_data, $options );
 
 			if ( is_wp_error( $checkout_url ) || ! $checkout_url ) {
 				masteriyo_get_logger()->error( 'Failed to create a checkout URL. Error: ' . $checkout_url->get_error_message(), array( 'source' => 'payment-lemon-squeezy' ) );
@@ -224,7 +247,6 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 			}
 
 			masteriyo_get_logger()->info( 'Lemon Squeezy payment processing completed', array( 'source' => 'payment-lemon-squeezy' ) );
-
 			return array(
 				'result'         => 'success',
 				'redirect'       => $checkout_url,
@@ -233,7 +255,19 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 
 		} catch ( Exception $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'payment-lemon-squeezy' ) );
-			throw new Exception( $e->getMessage() );
+
+			/*
+			 * Rethrow rather than returning a WP_Error. Checkout::process_checkout() catches
+			 * \Exception and calls masteriyo_add_notice(), and send_ajax_failure_response()
+			 * builds its whole body from those notices — so a WP_Error return is swallowed by
+			 * the isset( $result['result'] ) test in process_order_payment() and the learner
+			 * gets a checkout failure with no message at all. Every other gateway throws.
+			 *
+			 * The sniff below is a false positive: it assumes an exception message is
+			 * printed raw, but this one reaches output through masteriyo_add_notice()
+			 * and templates/notices/error.php, which escapes it with wp_kses_post().
+			 */
+			throw new Exception( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 	}
 

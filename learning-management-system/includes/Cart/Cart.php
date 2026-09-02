@@ -11,7 +11,10 @@
 
 namespace Masteriyo\Cart;
 
+use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Models\Course;
+
 use Masteriyo\Session\Session;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Notice;
@@ -51,6 +54,8 @@ class Cart {
 		'cart_contents_total' => 0,
 		'fee_total'           => 0,
 		'total'               => 0,
+		'discount_total'      => 0,
+		'tax_total'           => 0,
 	);
 
 	/**
@@ -65,12 +70,16 @@ class Cart {
 	/**
 	 * Reference to the session handling class.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @var Session
 	 */
 	protected $session;
 
 	/**
 	 * Reference to the cart session handling class.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @var Notice
 	 */
@@ -90,7 +99,7 @@ class Cart {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Masteriyo\Session\SessionHandler $session Session handler.
+	 * @param \Masteriyo\Session\Session $session Session handler.
 	 * @param \Masteriyo\Notice                 $notice Notice.
 	 *
 	 */
@@ -209,14 +218,14 @@ class Cart {
 		// Populate cart from order.
 		if ( isset( $_GET['order_again'], $_GET['_wpnonce'] )
 			&& is_user_logged_in()
-			&& wp_verify_nonce( sanitize_key ( wp_unslash( $_GET['_wpnonce'] ) ), 'masteriyo-order_again' ) ) { // WPCS: input var ok, sanitization ok.
+			&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'masteriyo-order_again' ) ) { // WPCS: input var ok, sanitization ok.
 			$cart        = $this->populate_cart_from_order( absint( $_GET['order_again'] ), $cart ); // WPCS: input var ok.
 			$order_again = true;
 		}
 
 		// Prime caches to reduce future queries.
 		if ( is_callable( '_prime_post_caches' ) ) {
-			_prime_post_caches( wp_list_pluck( $cart, 'course_id' ) );
+			_prime_post_caches( wp_list_pluck( $cart, 'item_id' ) );
 		}
 
 		$cart_contents = array();
@@ -226,9 +235,10 @@ class Cart {
 				continue;
 			}
 
-			$course = masteriyo_get_course( $values['course_id'] );
+			$callable = apply_filters( 'masteriyo_add_to_cart_get_item_callable', 'masteriyo_get_course', $values['item_id'] );
+			$item     = call_user_func( $callable, $values['item_id'] );
 
-			if ( empty( $course ) || ! $course->exists() || 0 >= $values['quantity'] ) {
+			if ( empty( $item ) || ! $item->exists() || 0 >= $values['quantity'] ) {
 				continue;
 			}
 
@@ -239,7 +249,7 @@ class Cart {
 			 *
 			 * @param bool $remove_cart_item_from_session If true, the item will not be added to the cart. Default: false.
 			 * @param string $key Cart item key.
-			 * @param array $values Cart item values e.g. quantity and product_id.
+			 * @param array $values Cart item values e.g. quantity and item_id.
 			 */
 			if ( apply_filters( 'masteriyo_pre_remove_cart_item_from_session', false, $key, $values ) ) {
 				$update_cart_session = true;
@@ -250,22 +260,22 @@ class Cart {
 				 * @since 1.0.0
 				 *
 				 * @param string $key Cart item key.
-				 * @param array $values Cart item values e.g. quantity and product_id.
+				 * @param array $values Cart item values e.g. quantity and item_id.
 				 */
 				do_action( 'masteriyo_remove_cart_item_from_session', $key, $values );
 
-			} elseif ( ! $course->is_purchasable() ) {
+			} elseif ( ! $item->is_purchasable() ) {
 				$update_cart_session = true;
-				/* translators: %s: product name */
-				$message = sprintf( __( '%s has been removed from your cart because it can no longer be purchased. Please contact us if you need assistance.', 'learning-management-system' ), $course->get_name() );
+				/* translators: %s: item name */
+				$message = sprintf( __( '%s has been removed from your cart because it can no longer be purchased. Please contact us if you need assistance.', 'learning-management-system' ), $item->get_name() );
 				/**
 				 * Filter message about item removed from the cart.
 				 *
 				 * @since 1.0.0
 				 * @param string     $message Message.
-				 * @param Course $course Product data.
+				 * @param Course $course item data.
 				 */
-				$message = apply_filters( 'masteriyo_cart_item_removed_message', $message, $course );
+				$message = apply_filters( 'masteriyo_cart_item_removed_message', $message, $item );
 				$this->notice->add( $message, Notice::ERROR );
 
 				/**
@@ -274,18 +284,18 @@ class Cart {
 				 * @since 1.0.0
 				 *
 				 * @param string $key Cart item key.
-				 * @param array $values Cart item values e.g. quantity and product_id.
+				 * @param array $values Cart item values e.g. quantity and item_id.
 				 */
 				do_action( 'masteriyo_remove_cart_item_from_session', $key, $values );
 
-			} elseif ( ! empty( $values['data_hash'] ) && ! hash_equals( $values['data_hash'], $this->get_cart_item_data_hash( $course ) ) ) { // phpcs:ignore PHPCompatibility.PHP.NewFunctions.hash_equalsFound
+			} elseif ( ! empty( $values['data_hash'] ) && ! hash_equals( $values['data_hash'], $this->get_cart_item_data_hash( $item ) ) ) { // phpcs:ignore PHPCompatibility.PHP.NewFunctions.hash_equalsFound
 				$update_cart_session = true;
 				$this->notice->add(
 					sprintf(
-						/* translators: %1$s: product name. %2$s product permalink */
+						/* translators: %1$s: item name. %2$s item permalink */
 						__( '%1$s has been removed from your cart because it has since been modified. You can add it back to your cart <a href="%2$s">here</a>.', 'learning-management-system' ),
-						$course->get_name(),
-						$course->get_permalink()
+						$item->get_name(),
+						$item->get_permalink()
 					),
 					Notice::INFO
 				);
@@ -296,7 +306,7 @@ class Cart {
 				 * @since 1.0.0
 				 *
 				 * @param string $key Cart item key.
-				 * @param array $values Cart item values e.g. quantity and product_id.
+				 * @param array $values Cart item values e.g. quantity and item_id.
 				 */
 				do_action( 'masteriyo_remove_cart_item_from_session', $key, $values );
 
@@ -305,7 +315,7 @@ class Cart {
 				$session_data = array_merge(
 					$values,
 					array(
-						'data' => $course,
+						'data' => $item,
 					)
 				);
 
@@ -315,12 +325,12 @@ class Cart {
 				 * @since 1.0.0
 				 *
 				 * @param array $data The cart item data obtained from session.
-				 * @param mixed $values Cart item values e.g. quantity and product_id.
+				 * @param mixed $values Cart item values e.g. quantity and item_id.
 				 * @param mixed $key Cart item key.
 				 */
 				$cart_contents[ $key ] = apply_filters( 'masteriyo_get_cart_item_from_session', $session_data, $values, $key );
 
-				// Add to cart right away so the product is visible in masteriyo_get_cart_item_from_session hook.
+				// Add to cart right away so the item is visible in masteriyo_get_cart_item_from_session hook.
 				$this->set_cart_contents( $cart_contents );
 			}
 		}
@@ -370,7 +380,7 @@ class Cart {
 
 		foreach ( $this->get_cart() as $key => $values ) {
 			$cart_session[ $key ] = $values;
-			unset( $cart_session[ $key ]['data'] ); // Unset product object.
+			unset( $cart_session[ $key ]['data'] ); // Unset item object.
 		}
 
 		return $cart_session;
@@ -427,7 +437,7 @@ class Cart {
 			 *
 			 * @param integer $id
 			 */
-			$course_id    = (int) apply_filters( 'masteriyo_add_to_cart_product_id', $item->get_product_id() );
+			$course_id    = (int) apply_filters( 'masteriyo_add_to_cart_product_id', $item->get_item_id() );
 			$quantity     = $item->get_quantity();
 			$variation_id = (int) $item->get_variation_id();
 			$variations   = array();
@@ -442,13 +452,13 @@ class Cart {
 			 * @param \Masteriyo\Abstracts\Order $order Order object.
 			 */
 			$cart_item_data = apply_filters( 'masteriyo_order_again_cart_item_data', array(), $item, $order );
-			$course         = $item->get_product();
+			$course         = $item->get_item();
 
 			if ( ! $course ) {
 				continue;
 			}
 
-			// Prevent reordering variable products if no selected variation.
+			// Prevent reordering variable items if no selected variation.
 			if ( ! $variation_id && $course->is_type( 'variable' ) ) {
 				continue;
 			}
@@ -459,10 +469,10 @@ class Cart {
 			}
 
 			foreach ( $item->get_meta_data() as $meta ) {
-				if ( taxonomy_is_product_attribute( $meta->key ) ) {
+				if ( meta_is_item_attribute( $meta->key ) ) {
 					$term                     = get_term_by( 'slug', $meta->value, $meta->key );
 					$variations[ $meta->key ] = $term ? $term->name : $meta->value;
-				} elseif ( meta_is_product_attribute( $meta->key, $meta->value, $course_id ) ) {
+				} elseif ( meta_is_item_attribute( $meta->key, $meta->value, $course_id ) ) {
 					$variations[ $meta->key ] = $meta->value;
 				}
 			}
@@ -485,7 +495,7 @@ class Cart {
 
 			// Add to cart directly.
 			$cart_id     = $this->generate_cart_id( $course_id, $variation_id, $variations, $cart_item_data );
-			$course_data = masteriyo_get_product( $variation_id ? $variation_id : $course_id );
+			$course_data = masteriyo_get_item( $variation_id ? $variation_id : $course_id );
 
 			/**
 			 * Filters cart item data before adding to cart (order-again).
@@ -501,7 +511,7 @@ class Cart {
 					$cart_item_data,
 					array(
 						'key'          => $cart_id,
-						'product_id'   => $course_id,
+						'item_id'      => $course_id,
 						'variation_id' => $variation_id,
 						'variation'    => $variations,
 						'quantity'     => $quantity,
@@ -666,6 +676,29 @@ class Cart {
 		return apply_filters( 'masteriyo_cart_' . __FUNCTION__, $this->get_totals_var( 'fee_total' ) );
 	}
 
+	/**
+	 * Get discount_total.
+	 *
+	 * @since 2.5.12
+	 *
+	 * @return float
+	 */
+	public function get_discount_total() {
+		return apply_filters( 'masteriyo_cart_' . __FUNCTION__, $this->get_totals_var( 'discount_total' ) );
+	}
+
+
+	/**
+	 * Get tax total.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @return float
+	 */
+	public function get_tax_total() {
+		return apply_filters( 'masteriyo_cart_' . __FUNCTION__, $this->get_totals_var( 'tax_total' ) );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Setters.
@@ -745,6 +778,28 @@ class Cart {
 		$this->totals['fee_total'] = masteriyo_format_decimal( $value, masteriyo_get_price_decimals() );
 	}
 
+	/**
+	 * Set discount_total.
+	 *
+	 * @since 2.5.12
+	 *
+	 * @param string $value Value to set.
+	 */
+	public function set_discount_total( $value ) {
+		$this->totals['discount_total'] = $value;
+	}
+
+	/**
+	 * Set tax_total.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @param string $value Value to set.
+	 */
+	public function set_tax_total( $value ) {
+		$this->totals['tax_total'] = masteriyo_format_decimal( $value, masteriyo_get_price_decimals() );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Helper methods.
@@ -753,6 +808,8 @@ class Cart {
 
 	/**
 	 * Returns the contents of the cart in an array.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return array contents of the cart
 	 */
@@ -769,6 +826,8 @@ class Cart {
 
 	/**
 	 * Returns a specific item in the cart.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param string $item_key Cart item key.
 	 * @return array Item data
@@ -877,7 +936,6 @@ class Cart {
 		}
 
 		return $return;
-
 	}
 
 	/**
@@ -1045,19 +1103,21 @@ class Cart {
 	 *
 	 * @throws \Exception Plugins can throw an exception to prevent adding to cart.
 	 *
-	 * @param int   $course_id contains the id of the course to add to the cart.
+	 * @since 2.12.0 Renamed $course_id to $item_id.
+	 * @param int   $item_id contains the id of the course to add to the cart.
 	 * @param int   $quantity contains the quantity of the item to add.
 	 * @param array $cart_item_data extra cart item data we want to pass into the item.
 	 * @param array $group_ids The array of group. Default value is empty array.
 	 *
 	 * @return string|bool $cart_item_key
 	 */
-	public function add_to_cart( $course_id = 0, $quantity = 1, $cart_item_data = array(), $group_ids = array() ) {
+	public function add_to_cart( $item_id = 0, $quantity = 1, $cart_item_data = array(), $group_ids = array() ) {
 
 		try {
 			$this->clear();
 
-			$course = masteriyo_get_course( $course_id );
+			$callable = apply_filters( 'masteriyo_add_to_cart_get_item_callable', 'masteriyo_get_course', $item_id );
+			$item     = call_user_func( $callable, $item_id );
 
 			/**
 			 * Filters add to cart quantity.
@@ -1065,12 +1125,12 @@ class Cart {
 			 * @since 1.0.0
 			 *
 			 * @param integer $quantity
-			 * @param integer $course_id
+			 * @param integer $item_id
 			 * @param \Masteriyo\Models\Course|null $course
 			 */
-			$quantity = apply_filters( 'masteriyo_add_to_cart_quantity', $quantity, $course_id, $course );
+			$quantity = apply_filters( 'masteriyo_add_to_cart_quantity', $quantity, $item_id, $item );
 
-			if ( $quantity <= 0 || ! $course || 'trash' === $course->get_status() ) {
+			if ( $quantity <= 0 || ! $item || 'trash' === $item->get_status() ) {
 				return false;
 			}
 
@@ -1082,14 +1142,14 @@ class Cart {
 			 * @since 1.9.0 Added $group_ids parameter.
 			 *
 			 * @param array $cart_item_data Cart item data.
-			 * @param integer $course_id Course ID.
+			 * @param integer $item_id Item ID.
 			 * @param integer $quantity Item quantity.
-			 * @param array $group_ids An array of group IDs associated with the course being added. This can be used
+			 * @param array $group_ids An array of group IDs associated with the item being added. This can be used
 			 */
 			$cart_item_data = apply_filters(
 				'masteriyo_add_cart_item_data',
 				$cart_item_data,
-				$course_id,
+				$item_id,
 				$quantity,
 				$group_ids
 			);
@@ -1103,12 +1163,12 @@ class Cart {
 			}
 
 			// Generate a ID based on course ID and other cart item data.
-			$cart_id = $this->generate_cart_id( $course_id, $cart_item_data );
+			$cart_id = $this->generate_cart_id( $item_id, $cart_item_data );
 
 			// Find the cart item key in the existing cart.
 			$cart_item_key = $this->find_course_in_cart( $cart_id );
 
-			if ( 0 !== $course->get_enrollment_limit() && 0 === $course->get_available_seats() ) {
+			if ( 0 !== $item->get_enrollment_limit() && 0 === $item->get_available_seats() ) {
 				$message = __( 'Sorry, students limit reached. Course closed for enrollment.', 'learning-management-system' );
 				/**
 				 * Filters message about course enrollment limit reached
@@ -1117,7 +1177,7 @@ class Cart {
 				 * @param string $message Message.
 				 * @param Masteriyo\Models\Course $course Course object.
 				 */
-				$message = apply_filters( 'masteriyo_cart_course_enrollment_limit_message', $message, $course );
+				$message = apply_filters( 'masteriyo_cart_course_enrollment_limit_message', $message, $item );
 				masteriyo_get_logger()->error(
 					$message,
 					array( 'source' => 'cart' )
@@ -1125,7 +1185,7 @@ class Cart {
 				throw new \Exception( $message );
 			}
 
-			if ( ! $course->is_purchasable() ) {
+			if ( is_a( $item, 'Masteriyo\Models\Course' ) && ! $item->is_purchasable() ) {
 				$message = __( 'Sorry, this course cannot be purchased.', 'learning-management-system' );
 				/**
 				 * Filters message about course unable to be purchased.
@@ -1134,7 +1194,11 @@ class Cart {
 				 * @param string $message Message.
 				 * @param Masteriyo\Models\Course $course Course object.
 				 */
-				$message = apply_filters( 'masteriyo_cart_course_cannot_be_purchased_message', $message, $course );
+				$message = apply_filters( 'masteriyo_cart_course_cannot_be_purchased_message', $message, $item );
+				masteriyo_get_logger()->error(
+					$message,
+					array( 'source' => 'cart' )
+				);
 				throw new \Exception( $message );
 			}
 
@@ -1159,10 +1223,10 @@ class Cart {
 						$cart_item_data,
 						array(
 							'key'       => $cart_item_key,
-							'course_id' => $course_id,
+							'item_id'   => $item_id,
 							'quantity'  => $quantity,
-							'data'      => $course,
-							'data_hash' => $this->get_cart_item_data_hash( $course ),
+							'data'      => $item,
+							'data_hash' => $this->get_cart_item_data_hash( $item ),
 						)
 					),
 					$cart_item_key
@@ -1188,7 +1252,7 @@ class Cart {
 			 * @param integer $quantity Item quantity.
 			 * @param array $cart_item_data Extra cart item data we want to pass into the item.
 			 */
-			do_action( 'masteriyo_add_to_cart', $cart_item_key, $course_id, $quantity, $cart_item_data );
+			do_action( 'masteriyo_add_to_cart', $cart_item_key, $item_id, $quantity, $cart_item_data );
 
 			return $cart_item_key;
 
@@ -1651,10 +1715,68 @@ class Cart {
 	 * @since 1.0.0
 	 */
 	public function destroy_cart_session() {
+		/**
+		 * Fires before destroying cart session.
+		 *
+		 * @since 2.5.12
+		 *
+		 * @param \Masteriyo\Cart\Cart $cart
+		 */
+		do_action( 'masteriyo_before_destroy_cart_session', $this );
+
 		$this->session->put( 'cart', null );
 		$this->session->put( 'cart_totals', null );
 		$this->session->put( 'removed_cart_contents', null );
 		$this->session->put( 'order_awaiting_payment', null );
 		$this->session->save_data();
+	}
+
+	/**
+	 * Return courses.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @return \Masteriyo\Models\Course[]
+	 */
+	public function get_courses() {
+		return array_filter(
+			array_map(
+				function( $cart_content ) {
+					return isset( $cart_content['data'] ) && $cart_content['data'] instanceof Course ? $cart_content['data'] : null;
+				},
+				$this->get_cart_contents()
+			)
+		);
+	}
+
+	/**
+	 * Return recurring courses.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @return \Masteriyo\Models\Course[]
+	 */
+	public function get_recurring_courses() {
+		$courses = $this->get_courses();
+
+		return array_filter(
+			$courses,
+			function( $course ) {
+				return CourseAccessMode::RECURRING === $course->get_access_mode();
+			}
+		);
+	}
+
+	/**
+	 * Return true if the cart contains recurring course.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @return bool
+	 */
+	public function contains_recurring_course() {
+		$recurring_courses = $this->get_recurring_courses();
+
+		return count( $recurring_courses ) > 0;
 	}
 }

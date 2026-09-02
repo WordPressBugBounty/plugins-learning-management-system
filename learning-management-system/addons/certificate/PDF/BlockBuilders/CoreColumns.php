@@ -2,7 +2,7 @@
 /**
  * WordPress core Columns block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -17,7 +17,7 @@ class CoreColumns extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */

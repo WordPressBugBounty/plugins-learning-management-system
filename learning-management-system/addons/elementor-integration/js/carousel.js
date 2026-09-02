@@ -1,7 +1,7 @@
 /**
  * Initializes a Swiper carousel.
  *
- * @since 1.13.0
+ * @since 1.13.0 [Free]
  *
  * @param {jQuery} $ - The jQuery library.
  * @returns {void}
@@ -39,21 +39,22 @@
 		},
 		rewind: true,
 	};
+
 	/**
 	 * Initializes a Swiper carousel for course listings on the frontend.
 	 *
 	 * This function takes a jQuery element representing the course carousel and initializes a Swiper slider with the provided configuration options.
 	 *
-	 * @since 1.13.0
-	 *
-	 *  @since 1.15.1 Added the `widgetId` parameter.
+	 * @since 1.13.0 [Free]
+	 * @since 1.15.1 [Free] Added the `widgetId` parameter.
 	 *
 	 * @param {jQuery} element - The jQuery element representing the course carousel.
 	 * @param {string} swiperClass - The custom class name for the Swiper container.
-	 * @param {string} widgetId - The unique ID of the widget.
+	 * @param {string} widgetId - The unique ID of the widget. Default is `null`.
+	 *
 	 * @returns {void}
 	 */
-	function initializeSwiper(element, swiperClass, widgetId) {
+	function initializeSwiper(element, swiperClass, widgetId = null) {
 		var sliderData = $(element).data('settings');
 
 		if (typeof sliderData === 'string') {
@@ -106,7 +107,7 @@
 	/**
 	 * Initializes all Swiper carousels on the page if the current page is not an Elementor page.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @returns {void}
 	 */
@@ -153,12 +154,33 @@
 				initializeSwiper(carouselElement, 'masteriyo-course-categories', widgetId);
 			},
 		);
+
+		$('.elementor-widget.elementor-widget-masteriyo-bundle-carousel').each(
+			function () {
+				var widgetId = $(this).data('id');
+
+				if (!widgetId) {
+					return;
+				}
+
+				var carouselElement = $(this).find('.masteriyo-course-bundle-carousel');
+				var swiperElement = carouselElement.find('.masteriyo-bundles');
+
+				if (0 === carouselElement.length || 0 === swiperElement.length) {
+					return;
+				}
+
+				swiperElement.addClass(`swiper-${widgetId}`);
+
+				initializeSwiper(carouselElement, 'masteriyo-bundles', widgetId);
+			},
+		);
 	}
 
 	/**
 	 * Initializes a specific Swiper carousel for Elementor widgets.
 	 *
-	 * @since 1.15.1
+	 * @since 1.15.1 [Free]
 	 *
 	 * @param {jQuery} $scope - The jQuery object of the Elementor widget.
 	 * @param {string} selector - The selector for the carousel element.
@@ -183,7 +205,7 @@
 	/**
 	 * Initializes all Swiper carousels on the page if the current page is an Elementor page.
 	 *
-	 * @since 1.13.0
+	 * @since 1.13.0 [Free]
 	 *
 	 * @returns {void}
 	 */
@@ -194,7 +216,7 @@
 		 * This function is called when the 'masteriyo-course-carousel.default' Elementor widget is ready on the frontend.
 		 * It finds the course carousel element on the page and initializes the Swiper slider.
 		 *
-		 * @since 1.13.0
+		 * @since 1.13.0 [Free]
 		 *
 		 *
 		 * @param {jQuery} $scope - The jQuery object of the Elementor widget.
@@ -217,7 +239,7 @@
 		 * This function is called when the 'masteriyo-category-carousel.default' Elementor widget is ready on the frontend.
 		 * It finds the category carousel element on the page and initializes the Swiper slider.
 		 *
-		 * @since 1.13.0
+		 * @since 1.13.0 [Free]
 		 *
 		 * @param {jQuery} $scope - The jQuery object of the Elementor widget.
 		 * @param {jQuery} $ - The jQuery instance.
@@ -229,6 +251,28 @@
 					$scope,
 					'.masteriyo-category-carousel',
 					'masteriyo-course-categories',
+				);
+			},
+		);
+
+		/**
+		 * Initializes the Masteriyo Bundle Carousel Elementor widget.
+		 *
+		 * This function is called when the 'masteriyo-bundle-carousel.default' Elementor widget is ready on the frontend.
+		 * It finds the bundle carousel element on the page and initializes the Swiper slider.
+		 *
+		 * @since 2.14.0
+		 *
+		 * @param {jQuery} $scope - The jQuery object of the Elementor widget.
+		 * @param {jQuery} $ - The jQuery instance.
+		 */
+		elementorFrontend.hooks.addAction(
+			'frontend/element_ready/masteriyo-bundle-carousel.default',
+			function ($scope, $) {
+				initializeElementorSwiper(
+					$scope,
+					'.masteriyo-course-bundle-carousel',
+					'masteriyo-bundles',
 				);
 			},
 		);

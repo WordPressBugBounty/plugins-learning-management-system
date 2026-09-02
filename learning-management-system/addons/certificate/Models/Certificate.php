@@ -2,7 +2,7 @@
 /**
  * Certificate model.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\Models;
@@ -17,7 +17,7 @@ class Certificate extends Model {
 	/**
 	 * This is the name of this object type.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var string
 	 */
@@ -26,7 +26,7 @@ class Certificate extends Model {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var string
 	 */
@@ -35,7 +35,7 @@ class Certificate extends Model {
 	/**
 	 * Cache group.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var string
 	 */
@@ -44,7 +44,7 @@ class Certificate extends Model {
 	/**
 	 * Stores certificate data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var array
 	 */
@@ -64,7 +64,7 @@ class Certificate extends Model {
 	/**
 	 * Get the certificate if ID.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param CertificateRepository $certificate_repository Certificate Repository,
 	 */
@@ -81,7 +81,7 @@ class Certificate extends Model {
 	/**
 	 * Get the product's title. For products this is the product name.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -92,7 +92,7 @@ class Certificate extends Model {
 	/**
 	 * Product permalink.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -103,7 +103,7 @@ class Certificate extends Model {
 	/**
 	 * Returns the children IDs if applicable. Overridden by child classes.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array Array of IDs.
 	 */
@@ -114,7 +114,7 @@ class Certificate extends Model {
 	/**
 	 * Get the object type.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -125,7 +125,7 @@ class Certificate extends Model {
 	/**
 	 * Get the post type.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -136,7 +136,7 @@ class Certificate extends Model {
 	/**
 	 * Get post preview link.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -146,7 +146,7 @@ class Certificate extends Model {
 		/**
 		 * Certificate post preview link.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 */
 		return apply_filters( 'masteriyo_certificate_post_preview_link', $preview_link, $this );
 	}
@@ -154,7 +154,7 @@ class Certificate extends Model {
 	/**
 	 * Get edit post link.
 	 *
-	 * @since 1.13.0
+	 * @since 2.5.10
 	 *
 	 * @return string
 	 */
@@ -169,7 +169,7 @@ class Certificate extends Model {
 		/**
 		 * Certificate edit post link.
 		 *
-		 * @since 1.13.0
+		 * @since 2.5.10
 		 * @param string $edit_post_link Edit post link.
 		 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
 		 * @param string $context Context.
@@ -186,7 +186,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate name.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -199,7 +199,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate slug.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -212,7 +212,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate created date.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -225,7 +225,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate modified date.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -238,7 +238,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate status.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -251,7 +251,7 @@ class Certificate extends Model {
 	/**
 	 * Get certificate html_content.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -264,7 +264,7 @@ class Certificate extends Model {
 	/**
 	 * Returns certificate parent id.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -277,7 +277,7 @@ class Certificate extends Model {
 	/**
 	 * Returns the certificate's author id.
 	 *
-	 * @since  1.13.0
+	 * @since  2.3.7
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -296,7 +296,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate name.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $name certificate name.
 	 */
@@ -307,7 +307,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate slug.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $slug certificate slug.
 	 */
@@ -318,7 +318,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate created date.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -329,7 +329,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate modified date.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -340,7 +340,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate status.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $status certificate status.
 	 */
@@ -351,7 +351,7 @@ class Certificate extends Model {
 	/**
 	 * Set certificate html_content.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $html_content Certificate html_content.
 	 */
@@ -362,7 +362,7 @@ class Certificate extends Model {
 	/**
 	 * Set the certificate parent id.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $parent Parent id.
 	 */
@@ -373,7 +373,7 @@ class Certificate extends Model {
 	/**
 	 * Set the certificate's author id.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param int $author_id author id.
 	 */
@@ -383,8 +383,6 @@ class Certificate extends Model {
 
 	/**
 	 * Get content format ('gutenberg' or 'pdfdraft').
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $context
 	 * @return string
@@ -396,8 +394,6 @@ class Certificate extends Model {
 	/**
 	 * Set content format.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $format 'gutenberg' or 'pdfdraft'.
 	 */
 	public function set_content_format( $format ) {
@@ -408,8 +404,6 @@ class Certificate extends Model {
 	/**
 	 * Get rendered HTML snapshot (used for PDF generation in pdfdraft format).
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $context
 	 * @return string
 	 */
@@ -419,8 +413,6 @@ class Certificate extends Model {
 
 	/**
 	 * Set rendered HTML snapshot.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $rendered_html
 	 */

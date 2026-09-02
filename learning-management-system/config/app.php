@@ -8,11 +8,9 @@ defined( 'ABSPATH' ) || exit;
  * @since 1.0.0
  */
 
-use Masteriyo\Pro\Providers\AddonsServiceProvider;
-use Masteriyo\Pro\Providers\ProServiceProvider;
+use Masteriyo\Providers\AddonsServiceProvider;
 use Masteriyo\Providers\SettingsServiceProvider;
 use Masteriyo\Providers\CacheCompatibilityServiceProvider;
-use Masteriyo\Providers\TranslationCompatibilityServiceProvider;
 use Masteriyo\Providers\JobServiceProvider;
 use Masteriyo\Providers\SeoCompatibilityServiceProvider;
 use Masteriyo\Providers\WebhookServiceProvider;
@@ -21,8 +19,8 @@ use Masteriyo\Providers\NotificationServiceProvider;
 use Masteriyo\Providers\TrackingServiceProvider;
 use Masteriyo\Providers\FormbricksServiceProvider;
 use Masteriyo\Providers\StarterTemplateServiceProvider;
+use Masteriyo\Providers\TranslationCompatibilityServiceProvider;
 use Masteriyo\Abilities\Providers\AbilitiesServiceProvider;
-
 
 return array_unique(
 	/**
@@ -68,6 +66,7 @@ return array_unique(
 			'Masteriyo\Providers\UserCourseServiceProvider',
 			'Masteriyo\Providers\CourseProgressItemServiceProvider',
 			'Masteriyo\Providers\FrontendQueryServiceProvider',
+			'Masteriyo\Providers\AnalyticsCacheServiceProvider',
 			'Masteriyo\Providers\AppServiceProvider',
 			'Masteriyo\Providers\BlocksServiceProvider',
 			'Masteriyo\Providers\NavMenuServiceProvider',
@@ -92,9 +91,6 @@ return array_unique(
 			FormbricksServiceProvider::class,
 			StarterTemplateServiceProvider::class,
 			AbilitiesServiceProvider::class,
-
-			// Pro Service Providers.
-			ProServiceProvider::class,
 			AddonsServiceProvider::class,
 		)
 	)

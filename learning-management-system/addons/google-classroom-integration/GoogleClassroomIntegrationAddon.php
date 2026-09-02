@@ -14,6 +14,7 @@ use Masteriyo\Addons\GoogleClassroomIntegration\Controllers\GoogleClassroomSetti
 use Masteriyo\Addons\GoogleClassroomIntegration\Models\GoogleClassroomSetting;
 use Masteriyo\Constants;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Query\CourseProgressQuery;
 
 defined( 'ABSPATH' ) || exit;
@@ -66,20 +67,20 @@ class GoogleClassroomIntegrationAddon {
 		add_filter( 'masteriyo_rest_response_course_data', array( $this, 'get_google_classroom_data_for_course' ), 10, 3 );
 		add_action( 'masteriyo_new_course', array( $this, 'set_google_classroom_data_for_course' ), 10, 3 );
 		add_action( 'masteriyo_after_course_content', array( $this, 'render_google_classroom_course_code' ), 10, 1 );
-		add_action( 'masteriyo_layout_1_single_course_aside_items', array( $this, 'render_google_classroom_course_code' ), 20, 1 );
-		add_action( 'masteriyo_elementor_classroom_widget', array( $this, 'render_google_classroom_course_code' ), 10, 1 );
+		add_action( 'masteriyo_layout_1_single_course_aside_items', array( $this, 'render_google_classroom_course_code' ), 30, 1 );
 		add_filter( 'masteriyo_rest_response_user_course_data', array( $this, 'user_course_google_classroom_data' ), 10, 3 );
+		add_filter( 'masteriyo_course_has_content', array( $this, 'classroom_course_has_content' ), 10, 2 );
+		add_action( 'masteriyo_elementor_classroom_widget', array( $this, 'render_google_classroom_course_code' ), 10, 1 );
 		add_filter( 'create_google_client', array( $this, 'create_google_client', 10 ) );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_single_course_page_scripts' ) );
 		add_filter( 'elementor_course_widgets', array( $this, 'append_custom_course_widgets' ), 10 );
 		add_action( 'masteriyo_bricks_classroom_element', array( $this, 'render_google_classroom_course_code' ), 10, 1 );
-
 	}
 
 	/**
 	 * Add google classroom elementor widget.
 	 *
-	 * @since 1.11.0
+	 * @since 2.11.0
 	 *
 	 * @param array $widgets
 	 * @return array
@@ -87,7 +88,6 @@ class GoogleClassroomIntegrationAddon {
 	public function append_custom_course_widgets( $widgets ) {
 		$widgets[] = new CourseGoogleClassroomMetaWidget();
 		return $widgets;
-
 	}
 
 	/**
@@ -122,13 +122,38 @@ class GoogleClassroomIntegrationAddon {
 	}
 
 	/**
+	 * A Classroom-connected course carries its content in Google Classroom, not in
+	 * local lessons. It must not show the empty-course warning - the same predicate
+	 * that makes learn_page_handle() redirect the learner there. A connection
+	 * without a Classroom URL cannot redirect, so it does not count as content.
+	 *
+	 * @param boolean $has_content Whether the course has content.
+	 * @param \Masteriyo\Models\Course $course Course object.
+	 *
+	 * @return boolean
+	 */
+	public function classroom_course_has_content( $has_content, $course ) {
+		if ( $has_content ) {
+			return $has_content;
+		}
+
+		return masteriyo_is_google_classroom_course( $course ) && '' !== (string) get_post_meta( $course->get_id(), '_google_course_url', true );
+	}
+
+	/**
 	 * learn page redirect on progress started match.
+	 *
+	 * Without a Classroom URL there is nowhere to redirect - wp_redirect() with an
+	 * empty location no-ops and the exit served a blank page. Fall through to the
+	 * player instead, which shows the empty-course state.
 	 *
 	 * @since
 	 */
 	public function learn_page_handle( $course ) {
-		if ( masteriyo_is_google_classroom_course( $course ) ) {
-			wp_redirect( get_post_meta( $course->get_id(), '_google_course_url', true ) ); //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		$classroom_url = get_post_meta( $course->get_id(), '_google_course_url', true );
+
+		if ( masteriyo_is_google_classroom_course( $course ) && $classroom_url ) {
+			wp_redirect( $classroom_url ); //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			exit;
 		}
 	}
@@ -171,8 +196,11 @@ class GoogleClassroomIntegrationAddon {
 	 * @since 1.8.3
 	 */
 	public function get_google_classroom_data_for_course( $data, $course, $context ) {
-		$data['google_classroom_course_id']       = get_post_meta( $course->get_id(), '_google_classroom_enrollment_code', true );
-		$data['google_classroom_enrollment_code'] = get_post_meta( $course->get_id(), '_google_classroom_course_id', true );
+		// Each field carries the meta of the same name. These were swapped, which
+		// corrupted the metas on a save round-trip and broke the learn page's
+		// Classroom hand-off for courses without an enrollment code.
+		$data['google_classroom_course_id']       = get_post_meta( $course->get_id(), '_google_classroom_course_id', true );
+		$data['google_classroom_enrollment_code'] = get_post_meta( $course->get_id(), '_google_classroom_enrollment_code', true );
 		$data['google_classroom_course_url']      = get_post_meta( $course->get_id(), '_google_course_url', true );
 		return $data;
 	}
@@ -340,8 +368,7 @@ class GoogleClassroomIntegrationAddon {
 			'page_title' => __( 'Google Classroom', 'learning-management-system' ),
 			'menu_title' => __( 'Google Classroom', 'learning-management-system' ),
 			'capability' => 'edit_google_classrooms',
-			'position'   => 75,
-			'divider'    => true,
+			'position'   => 70,
 		);
 
 		return $submenus;

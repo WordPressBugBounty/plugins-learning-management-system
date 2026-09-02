@@ -14,14 +14,44 @@ use Masteriyo\Shortcodes\CheckoutShortcode;
 use Masteriyo\Shortcodes\AccountShortcode;
 use Masteriyo\Shortcodes\CourseCategoriesShortcode;
 use Masteriyo\Shortcodes\CoursesShortcode;
+use Masteriyo\Shortcodes\FeaturedCoursesShortcode;
 use Masteriyo\Shortcodes\InstructorRegistrationShortcode;
 use Masteriyo\Shortcodes\InstructorsListShortcode;
-use Masteriyo\Shortcodes\OrderSummaryShortcode;
-use Masteriyo\Shortcodes\RelatedCoursesShortcode;
 use Masteriyo\Shortcodes\RegisterUserShortcode;
+use Masteriyo\Shortcodes\RelatedCoursesShortcode;
+use Masteriyo\Shortcodes\OrderSummaryShortcode;
 
 class ShortcodesServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-
+	/**
+	 * The provided array is a way to let the container
+	 * know that a service is provided by this service
+	 * provider. Every service that is registered via
+	 * this service provider must have an alias added
+	 * to this array or it will be ignored
+	 *
+	 * Check if the service provider provides a specific service.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id Service identifier.
+	 * @return bool True if the service is provided, false otherwise.
+	 */
+	public function provides( string $id ): bool {
+		return in_array(
+			$id,
+			array(
+				'shortcode.account',
+				'shortcode.checkout',
+				'shortcode.cart',
+				'shortcode.instructor-registration',
+				'shortcode.courses',
+				'shortcode.course-categories',
+				// Pro
+				'shortcode.featured-courses',
+			),
+			true
+		);
+	}
 
 	/**
 	 * This is where the magic happens, within the method you can
@@ -36,33 +66,11 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 		$this->getContainer()->add( 'shortcode.checkout', CheckoutShortcode::class );
 		$this->getContainer()->add( 'shortcode.cart', CartShortcode::class );
 		$this->getContainer()->add( 'shortcode.instructor-registration', CartShortcode::class );
-	}
+		$this->getContainer()->add( 'shortcode.courses', CoursesShortcode::class );
+		$this->getContainer()->add( 'shortcode.course-categories', CourseCategoriesShortcode::class );
 
-	/**
-	 * The provided array is a way to let the container
-	 * know that a service is provided by this service
-	 * provider. Every service that is registered via
-	 * this service provider must have an alias added
-	 * to this array or it will be ignored
-	 *
-	 * Check if the service provider provides a specific service.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id Service identifier.
-	 * @return bool True if the service is provided, false otherwise.
-	 */
-	public function provides( string $id ): bool {
-		return in_array(
-			$id,
-			array(
-				'shortcode.account',
-				'shortcode.checkout',
-				'shortcode.cart',
-				'shortcode.instructor-registration',
-			),
-			true
-		);
+		// Pro
+		$this->getContainer()->add( 'shortcode.featured-courses', FeaturedCoursesShortcode::class );
 	}
 
 
@@ -116,9 +124,12 @@ class ShortcodesServiceProvider extends AbstractServiceProvider implements Boota
 				'courses'                 => CoursesShortcode::class,
 				'course_categories'       => CourseCategoriesShortcode::class,
 				'instructor-registration' => InstructorRegistrationShortcode::class,
+				'order_summary'           => OrderSummaryShortcode::class,
+
+				// Pro
+				'featured-courses'        => FeaturedCoursesShortcode::class,
 				'related_courses'         => RelatedCoursesShortcode::class,
 				'instructors_list'        => InstructorsListShortcode::class,
-				'order_summary'           => OrderSummaryShortcode::class,
 			)
 		);
 	}

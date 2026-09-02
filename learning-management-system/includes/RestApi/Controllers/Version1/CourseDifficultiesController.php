@@ -237,7 +237,7 @@ class CourseDifficultiesController extends RestTermsController {
 	/**
 	 * Get course difficulty description data.
 	 *
-	 * @since 1.7.3
+	 * @since 2.7.3
 	 *
 	 * @param \Masteriyo\Models\CourseDifficutly $course_difficulty Course instance.
 	 * @param string $context Request context.
@@ -245,15 +245,10 @@ class CourseDifficultiesController extends RestTermsController {
 	 * @return object
 	 */
 	protected function description_data( $course_difficulty, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-		$description           = '';
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( $course_difficulty->get_description() ) ) : $course_difficulty->get_description( $context );
+		if ( 'view' === $context ) {
+			return masteriyo_format_content_for_view( wp_kses_post( $course_difficulty->get_description() ) );
 		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( $course_difficulty->get_description() ) : $course_difficulty->get_description( $context );
-		}
-		return $description;
+		return $course_difficulty->get_description( $context );
 	}
 
 	/**

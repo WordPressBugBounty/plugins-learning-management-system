@@ -3,7 +3,6 @@
  * Get Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns the full lesson object including content, video source/URL,
  * duration, and display order within its parent section.
- *
- * @since x.x.x
  */
 class GetLessonAbility extends RestProxyAbility {
 

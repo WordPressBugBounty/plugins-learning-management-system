@@ -1,3 +1,4 @@
+import { PaymentsSettingsMap } from '@addons/../assets/js/back-end/types';
 import {
 	Alert,
 	AlertDescription,
@@ -25,9 +26,8 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BiHide, BiShow } from 'react-icons/bi';
 import FormControlTwoCol from '../../../../../assets/js/back-end/components/common/FormControlTwoCol';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
-import { PaymentsSettingsMap } from '../../../../../assets/js/back-end/types';
 
-interface MolliePaymentsSettingsMap extends PaymentsSettingsMap {
+export interface MolliePaymentsSettingsMap extends PaymentsSettingsMap {
 	mollie?: {
 		enable: boolean;
 		title: string;

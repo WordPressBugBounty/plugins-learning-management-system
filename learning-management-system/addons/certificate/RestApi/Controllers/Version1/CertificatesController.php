@@ -2,7 +2,7 @@
 /**
  * Certificate rest controller.
  *
- * @since 1.13.0
+ * @since 2.3.7
  *
  * @package Masteriyo\Addons
  * @subpackage Masteriyo\Addons\Certificate
@@ -12,12 +12,13 @@ namespace Masteriyo\Addons\Certificate\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
-use Masteriyo\Addons\Certificate\Models\Setting;
+use Masteriyo\Constants;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Addons\Certificate\Models\Setting;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
 class CertificatesController extends PostsController {
@@ -50,8 +51,6 @@ class CertificatesController extends PostsController {
 	/**
 	 * Content format to scope the current collection query and counts by.
 	 *
-	 * @since x.x.x
-	 *
 	 * @var string
 	 */
 	protected $content_format_filter = '';
@@ -66,7 +65,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Permission class.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var \Masteriyo\Helper\Permission;
 	 */
@@ -75,7 +74,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Helper\Permission $permission
 	 */
@@ -86,7 +85,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return void
 	 */
@@ -272,6 +271,94 @@ class CertificatesController extends PostsController {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/samples',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_samples' ),
+					'permission_callback' => 'is_user_logged_in',
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/mine',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_user_certificates' ),
+					'permission_callback' => 'is_user_logged_in',
+				),
+			)
+		);
+
+		/**
+		 * Added certificate setting api.
+		 *
+		 * @since 2.11.0
+		 */
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/settings',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_certificate_setting' ),
+					'permission_callback' => 'is_user_logged_in',
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'save_certificate_setting' ),
+					'permission_callback' => array( $this, 'update_certificate_setting_permission_check' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
+				),
+			)
+		);
+
+		/**
+		 * Added route to download remaining certificate fonts.
+		 *
+		 * @since 2.13.0
+		 */
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/import-certificate-fonts',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_certificate_additional_font_setting' ),
+					'permission_callback' => 'is_user_logged_in',
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'import_additional_fonts' ),
+					'permission_callback' => array( $this, 'update_certificate_setting_permission_check' ),
+				),
+			)
+		);
+		/*
+		 * `certificates/import-custom-fonts` is deliberately absent here. Uploading
+		 * a font of your own is pro's — free 2.3.2 has no such route — so the pro
+		 * half of this addon registers it, on the same namespace and base, and the
+		 * URL is unchanged in the pro product. The route above, which installs the
+		 * *predefined* font list, ships to both products and stays.
+		 */
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/pdfdraft-inline-images',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'inline_pdfdraft_images_for_preview' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/pdfdraft-preview-data',
 			array(
 				'args' => array(
@@ -312,164 +399,14 @@ class CertificatesController extends PostsController {
 				),
 			)
 		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/samples',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_samples' ),
-					'permission_callback' => 'is_user_logged_in',
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/mine',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_user_certificates' ),
-					'permission_callback' => 'is_user_logged_in',
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/settings',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_certificate_setting' ),
-					'permission_callback' => 'is_user_logged_in',
-				),
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'save_certificate_setting' ),
-					'permission_callback' => array( $this, 'update_certificate_setting_permission_check' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/import-certificate-fonts',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_certificate_additional_font_setting' ),
-					'permission_callback' => 'is_user_logged_in',
-				),
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'import_additional_fonts' ),
-					'permission_callback' => array( $this, 'update_certificate_setting_permission_check' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/pdfdraft-inline-images',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'inline_pdfdraft_images_for_preview' ),
-					'permission_callback' => array( $this, 'update_item_permissions_check' ),
-				),
-			)
-		);
-	}
-
-	/**
-	 * Return the design with remote image URLs inlined as base64 data URIs, so the
-	 * editor's client-side Preview/Export (PDFExporter) renders cross-origin/CDN
-	 * images without canvas tainting.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param \WP_REST_Request $request
-	 * @return \WP_REST_Response
-	 */
-	public function inline_pdfdraft_images_for_preview( $request ) {
-		$params   = $request->get_json_params();
-		$pages    = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : array();
-		$settings = isset( $params['settings'] ) && is_array( $params['settings'] ) ? $params['settings'] : array();
-
-		$certificate_pdf = new \Masteriyo\Addons\Certificate\PDF\CertificatePDF( 0, get_current_user_id(), '' );
-		$design          = $certificate_pdf->inline_pdfdraft_remote_images(
-			array(
-				'pages'    => $pages,
-				'settings' => $settings,
-			)
-		);
-
-		return rest_ensure_response(
-			array(
-				'pages'    => isset( $design['pages'] ) ? $design['pages'] : $pages,
-				'settings' => isset( $design['settings'] ) ? $design['settings'] : $settings,
-			)
-		);
-	}
-
-	/**
-	 * Checks if a given request has access to update items.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param \WP_REST_Request $request Full details about the request.
-	 *
-	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
-	 */
-	public function update_certificate_setting_permission_check( $request ) {
-		if ( ! current_user_can( 'manage_masteriyo_settings' ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Provides the certificate setting data.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @return WP_Error|array
-	 */
-	public function get_certificate_setting() {
-		$data = Setting::all();
-
-		return rest_ensure_response( $data );
-	}
-
-	/**
-	 * Save certificate setting data.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param  $request $request Full details about the request.
-	 *
-	 * @return \WP_Error|array
-	 */
-	public function save_certificate_setting( $request ) {
-		$use_absolute_img_path = isset( $request['use_absolute_img_path'] ) ? masteriyo_string_to_bool( $request['use_absolute_img_path'] ) : true;
-		$use_ssl_verified      = isset( $request['use_ssl_verified'] ) ? masteriyo_string_to_bool( $request['use_ssl_verified'] ) : true;
-
-		Setting::set( 'use_absolute_img_path', $use_absolute_img_path );
-		Setting::set( 'use_ssl_verified', $use_ssl_verified );
-		Setting::save();
-
-		return rest_ensure_response( Setting::all() );
 	}
 
 	/**
 	 * Return resolved field values for the PDFDraft certificate preview.
 	 *
-	 * @since x.x.x
+	 * Finds the course linked to this certificate and returns real data
+	 * (course title, instructor, duration) alongside date/site values so the
+	 * JS editor can show meaningful placeholder data in the PDF preview.
 	 *
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response
@@ -525,7 +462,7 @@ class CertificatesController extends PostsController {
 		// Fall back to the current admin user as instructor.
 		if ( empty( $data['instructor_name'] ) ) {
 			$current_user            = wp_get_current_user();
-			$data['instructor_name'] = $current_user->display_name ? $current_user->display_name : '';
+			$data['instructor_name'] = $current_user->display_name ?? '';
 		}
 
 		return rest_ensure_response( $data );
@@ -533,8 +470,7 @@ class CertificatesController extends PostsController {
 
 	/**
 	 * Generate a temporary preview URL for a pdfdraft certificate.
-	 *
-	 * @since x.x.x
+	 * Stores the rendered HTML in a transient and returns a one-time preview URL.
 	 *
 	 * @param \WP_REST_Request $request
 	 * @return \WP_REST_Response|\WP_Error
@@ -570,21 +506,116 @@ class CertificatesController extends PostsController {
 	}
 
 	/**
+	 * Return the design with remote image URLs inlined as base64 data URIs, so the
+	 * editor's client-side Preview/Export (PDFExporter) renders cross-origin/CDN
+	 * images without canvas tainting.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_REST_Response
+	 */
+	public function inline_pdfdraft_images_for_preview( $request ) {
+		$params   = $request->get_json_params();
+		$pages    = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : array();
+		$settings = isset( $params['settings'] ) && is_array( $params['settings'] ) ? $params['settings'] : array();
+
+		$certificate_pdf = new \Masteriyo\Addons\Certificate\PDF\CertificatePDF( 0, get_current_user_id(), '' );
+		$design          = $certificate_pdf->inline_pdfdraft_remote_images(
+			array(
+				'pages'    => $pages,
+				'settings' => $settings,
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'pages'    => isset( $design['pages'] ) ? $design['pages'] : $pages,
+				'settings' => isset( $design['settings'] ) ? $design['settings'] : $settings,
+			)
+		);
+	}
+
+	/**
+	 * Checks if a given request has access to update items.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
+	 */
+	public function update_certificate_setting_permission_check( $request ) {
+		if ( ! current_user_can( 'manage_masteriyo_settings' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * Provides the certificate setting data.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @return WP_Error|array
+	 */
+	public function get_certificate_setting() {
+		$data = Setting::all();
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Checks if certificate additional fonts are installed.
+	 *
+	 * @since 2.13.0
+	 *
+	 * @return true|false
+	 */
+	public function get_certificate_additional_font_setting() {
+		$now = get_option( '_masteriyo_additional_certificate_fonts_downloaded', false );
+
+		$now = masteriyo_string_to_bool( $now );
+
+		return rest_ensure_response( $now );
+	}
+
+	/**
+	 * Save certificate setting data.
+	 *
+	 * @since 2.11.0
+	 *
+	 * @param  $request $request Full details about the request.
+	 *
+	 * @return \WP_Error|array
+	 */
+	public function save_certificate_setting( $request ) {
+		$use_absolute_img_path = isset( $request['use_absolute_img_path'] ) ? masteriyo_string_to_bool( $request['use_absolute_img_path'] ) : true;
+		$use_ssl_verified      = isset( $request['use_ssl_verified'] ) ? masteriyo_string_to_bool( $request['use_ssl_verified'] ) : true;
+
+		Setting::set( 'use_absolute_img_path', $use_absolute_img_path );
+		Setting::set( 'use_ssl_verified', $use_ssl_verified );
+		Setting::save();
+
+		return rest_ensure_response( Setting::all() );
+	}
+
+	/**
 	 * Get the query params for collections of download_materials.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
 	public function get_collection_params() {
 		$params = parent::get_collection_params();
 
-		$params['slug']   = array(
+		$params['slug']           = array(
 			'description'       => __( 'Limit result set to certificates with a specific slug.', 'learning-management-system' ),
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
-		$params['status'] = array(
+		$params['status']         = array(
 			'default'           => 'any',
 			'description'       => __( 'Limit result set to certificates assigned a specific status.', 'learning-management-system' ),
 			'type'              => 'string',
@@ -606,7 +637,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get object.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param int|\WP_Post|\Masteriyo\Addons\Certificate\Models\Certificate $object Object ID or WP_Post or Model.
 	 *
@@ -633,7 +664,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Prepares the object for the REST response.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $object  Model object.
 	 * @param \WP_REST_Request $request Request object.
@@ -654,7 +685,7 @@ class CertificatesController extends PostsController {
 		 * The dynamic portion of the hook name, $this->object_type,
 		 * refers to object type being prepared for the response.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param Model          $object   Object data.
@@ -666,7 +697,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get certificate data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate instance.
 	 * @param string $context Request context.
@@ -710,7 +741,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Prepare objects query.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -740,8 +771,6 @@ class CertificatesController extends PostsController {
 	 * Legacy certificates created before the pdfdraft builder may not have the
 	 * `_masteriyo_content_format` meta set, so the gutenberg filter also matches
 	 * certificates where that meta is missing.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $content_format 'gutenberg' or 'pdfdraft'.
 	 *
@@ -774,7 +803,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get the certificates'schema, conforming to JSON Schema.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
@@ -842,14 +871,14 @@ class CertificatesController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content_format'    => array(
-					'description' => __( 'Certificate content format (gutenberg or pdfdraft).', 'learning-management-system' ),
+					'description' => __( 'Certificate builder format (gutenberg or pdfdraft).', 'learning-management-system' ),
 					'type'        => 'string',
-					'default'     => 'gutenberg',
 					'enum'        => array( 'gutenberg', 'pdfdraft' ),
+					'default'     => 'gutenberg',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'rendered_html'     => array(
-					'description' => __( 'Rendered HTML snapshot for pdfdraft certificates.', 'learning-management-system' ),
+					'description' => __( 'Pre-rendered HTML snapshot for PDF generation (pdfdraft format only).', 'learning-management-system' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
@@ -894,7 +923,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Prepare a single certificate for create or update.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Request object.
 	 * @param boolean $creating If is creating a new object.
@@ -915,15 +944,28 @@ class CertificatesController extends PostsController {
 
 		$content_format = 'gutenberg';
 		if ( 0 !== $id ) {
-			$content_format = $certificate->get_content_format() ?: 'gutenberg';
+			$content_format = $certificate->get_content_format() ? $certificate->get_content_format() : 'gutenberg';
 		}
 		if ( isset( $request['content_format'] ) ) {
 			$content_format = sanitize_key( $request['content_format'] );
 		}
-		$published_count = $this->count_published_by_format( $content_format );
 
-		if ( PostStatus::PUBLISH !== $status ) {
-			if ( ! $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && 2 <= $published_count ) {
+		/**
+		 * Filters the number of certificate templates that may be published per format.
+		 *
+		 * Two is the free product's allowance, and this controller ships to both
+		 * products, so the limit lives here rather than in a pro-only file. Pro
+		 * lifts it by returning 0, which means unlimited.
+		 *
+		 * @param int    $max_published  Maximum published templates, 0 for unlimited.
+		 * @param string $content_format The format being counted, 'gutenberg' or 'pdfdraft'.
+		 */
+		$max_published = (int) apply_filters( 'masteriyo_certificate_max_published_templates', 2, $content_format );
+
+		if ( $max_published > 0 && PostStatus::PUBLISH !== $status ) {
+			$published_count = $this->count_published_by_format( $content_format );
+
+			if ( ! $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && $max_published <= $published_count ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_upgrade_required",
 					__( 'You cannot create more than two published templates in the free version. Please upgrade to Pro.', 'learning-management-system' ),
@@ -931,7 +973,7 @@ class CertificatesController extends PostsController {
 				);
 			}
 
-			if ( $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && 2 <= $published_count ) {
+			if ( $id && isset( $request['status'] ) && PostStatus::PUBLISH === $request['status'] && $max_published <= $published_count ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_upgrade_required",
 					__( 'You cannot have more than two published templates in the free version. Please upgrade to Pro.', 'learning-management-system' ),
@@ -975,7 +1017,7 @@ class CertificatesController extends PostsController {
 			$certificate->set_content_format( $request['content_format'] );
 		}
 
-		// Rendered HTML snapshot for pdfdraft certificates.
+		// Rendered HTML snapshot (pdfdraft format only).
 		if ( isset( $request['rendered_html'] ) ) {
 			$certificate->set_rendered_html( $request['rendered_html'] );
 		}
@@ -993,7 +1035,7 @@ class CertificatesController extends PostsController {
 		 * The dynamic portion of the hook name, `$this->object_type`,
 		 * refers to the object type slug.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate  Object object.
 		 * @param \WP_REST_Request $request  Request object.
@@ -1005,7 +1047,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $objects Certificates data.
 	 * @param array $query_args Query arguments.
@@ -1029,20 +1071,19 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get certificates count by status.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
 	protected function get_certificate_counts() {
 		$post_count = $this->get_posts_count();
-
 		return masteriyo_array_only( $post_count, array_merge( array( 'any' ), PostStatus::all() ) );
 	}
 
 	/**
 	 * Get posts count by status.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
@@ -1053,7 +1094,7 @@ class CertificatesController extends PostsController {
 		/**
 		 * Filters the post counts.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param array $post_count Posts count.
 		 * @param \Masteriyo\RestApi\Controllers\Version1\PostsController $controller Posts Controller.
@@ -1067,8 +1108,6 @@ class CertificatesController extends PostsController {
 	 * Mirrors the status keys returned by wp_count_posts() so callers can treat
 	 * the result identically. Non-admins/non-managers are limited to their own
 	 * certificates, matching the parent count behaviour.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $content_format 'gutenberg' or 'pdfdraft'.
 	 *
@@ -1117,45 +1156,9 @@ class CertificatesController extends PostsController {
 	}
 
 	/**
-	 * Count published certificates of a specific content format.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param string $format 'pdfdraft' or 'gutenberg'.
-	 * @return int
-	 */
-	protected function count_published_by_format( $format ) {
-		global $wpdb;
-
-		if ( 'pdfdraft' === $format ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			return (int) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$wpdb->posts} p
-					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format' AND pm.meta_value = %s
-					WHERE p.post_type = %s AND p.post_status = 'publish'",
-					'pdfdraft',
-					$this->post_type
-				)
-			);
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-				LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format'
-				WHERE p.post_type = %s AND p.post_status = 'publish'
-				AND ( pm.meta_value IS NULL OR pm.meta_value != 'pdfdraft' )",
-				$this->post_type
-			)
-		);
-	}
-
-	/**
 	 * Return certificates samples.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -1174,8 +1177,6 @@ class CertificatesController extends PostsController {
 
 	/**
 	 * Clone a certificate post.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param int   $post_id Source post ID.
 	 * @param array $args    Override args for the new post.
@@ -1204,7 +1205,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Create a new certificate from a template.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
@@ -1217,7 +1218,8 @@ class CertificatesController extends PostsController {
 		if ( 'blank' === $template_id ) {
 			$template = array(
 				'id'                       => 'blank',
-				'content'                  => masteriyo_get_blank_certificate_template(),
+				'content'                  => '',
+				'content_format'           => 'gutenberg',
 				'title'                    => __( 'Blank Slate', 'learning-management-system' ),
 				'backgroundImageLandscape' => '',
 				'backgroundImagePortrait'  => '',
@@ -1226,8 +1228,9 @@ class CertificatesController extends PostsController {
 			foreach ( $templates as $item ) {
 				if ( $item['id'] === $template_id ) {
 					$template = array(
-						'title'   => $item['title'],
-						'content' => masteriyo_process_content_for_import( $item['content'] ),
+						'title'          => $item['title'],
+						'content'        => masteriyo_process_content_for_import( $item['content'] ),
+						'content_format' => 'gutenberg',
 					);
 					break;
 				}
@@ -1242,6 +1245,7 @@ class CertificatesController extends PostsController {
 
 		$certificate->set_name( $template['title'] );
 		$certificate->set_html_content( $template['content'] );
+		$certificate->set_content_format( $template['content_format'] ?? 'gutenberg' );
 		$certificate->save();
 
 		if ( ! $certificate->get_id() ) {
@@ -1265,7 +1269,7 @@ class CertificatesController extends PostsController {
 		/**
 		 * Filter the data for a response.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param \WP_REST_Response $response The response object.
 		 * @param \Masteriyo\Addons\Certificate\Models\Certificate $certificate Certificate object.
@@ -1277,7 +1281,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Restore certificate.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -1306,7 +1310,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get a collection of user's certificates.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -1394,7 +1398,7 @@ class CertificatesController extends PostsController {
 	/**
 	 * Get taxonomy terms of a course.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 * @param string $taxonomy Taxonomy slug.
@@ -1421,99 +1425,126 @@ class CertificatesController extends PostsController {
 	}
 
 	/**
-	 * Checks if certificate additional fonts are installed.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @return true|false
-	 */
-	public function get_certificate_additional_font_setting() {
-		return rest_ensure_response( masteriyo_string_to_bool( get_option( '_masteriyo_additional_certificate_fonts_downloaded', false ) ) );
-	}
-
-	/**
 	 * Import additional certificate fonts.
 	 *
-	 * @since 1.13.0
+	 * @since 2.13.0
 	 * @param object $request.
 	 *
 	 * @return \WP_Error|\WP_REST_Response
 	 */
 	public function import_additional_fonts( $request ) {
-		$filesystem = masteriyo_get_filesystem();
+		try {
 
-		if ( ! $filesystem || ! class_exists( \ZipArchive::class ) ) {
-			return new \WP_Error(
-				'import_fonts_error',
-				__( 'Filesystem or ZipArchive class not available.', 'learning-management-system' ),
-				array( 'status' => 500 )
+			if ( ! $request ) {
+				return new \WP_Error(
+					'import_fonts_error',
+					__( 'Request not found.', 'learning-management-system' ),
+					array( 'status' => 500 )
+				);
+			}
+
+			$filesystem = masteriyo_get_filesystem();
+			if ( ! $filesystem || ! class_exists( \ZipArchive::class ) ) {
+				throw new \Exception( __( 'Filesystem or ZipArchive class not available.', 'learning-management-system' ) );
+			}
+
+			$destination = wp_upload_dir()['basedir'] . '/masteriyo/certificate-fonts';
+			$api         = 'https://d1sb0nhp4t2db4.cloudfront.net/resources/masteriyo/certificate/fonts-old.zip';
+
+			$response = wp_remote_get(
+				$api,
+				array(
+					'timeout' => 100,
+					'stream'  => true,
+				)
 			);
-		}
 
-		$destination = wp_upload_dir()['basedir'] . '/masteriyo/certificate-fonts';
-		$api         = 'https://d1sb0nhp4t2db4.cloudfront.net/resources/masteriyo/certificate/fonts-old.zip';
+			if ( is_wp_error( $response ) ) {
+				throw new \Exception( __( 'Failed to download fonts.', 'learning-management-system' ) );
+			}
 
-		$response = wp_remote_get(
-			$api,
-			array(
-				'timeout' => 100,
-				'stream'  => true,
-			)
-		);
+			$temp_file = $response['filename'];
 
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'import_fonts_error',
-				__( 'Failed to download fonts.', 'learning-management-system' ),
-				array( 'status' => 500 )
-			);
-		}
+			if ( empty( $temp_file ) || ! file_exists( $temp_file ) ) {
+				throw new \Exception( __( 'Temporary file does not exist.', 'learning-management-system' ) );
+			}
 
-		$temp_file = $response['filename'];
+			if ( ! $filesystem->is_dir( $destination ) ) {
+				$filesystem->mkdir( $destination );
+			}
 
-		if ( empty( $temp_file ) || ! file_exists( $temp_file ) ) {
-			return new \WP_Error(
-				'import_fonts_error',
-				__( 'Temporary file does not exist.', 'learning-management-system' ),
-				array( 'status' => 500 )
-			);
-		}
+			$zip = new \ZipArchive();
 
-		if ( ! $filesystem->is_dir( $destination ) ) {
-			$filesystem->mkdir( $destination );
-		}
+			if ( $zip->open( $temp_file ) === true ) {
+				$font_exts = array( 'ttf', 'otf' );
 
-		$zip = new \ZipArchive();
+				for ( $i = 0; $i < $zip->numFiles; $i++ ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$filename  = $zip->getNameIndex( $i );
+					$file_info = pathinfo( $filename );
 
-		if ( $zip->open( $temp_file ) !== true ) {
+					if ( '.' !== $file_info['basename'] && '..' !== $file_info['basename'] && isset( $file_info['extension'] ) && in_array( $file_info['extension'], $font_exts, true ) && ! $filesystem->exists( $destination . '/' . $file_info['basename'] ) ) {
+						$font = $destination . '/' . $file_info['basename'];
+						$filesystem->copy( "zip://{$temp_file}#{$filename}", $font );
+					}
+				}
+				$zip->close();
+			} else {
+				wp_delete_file( $temp_file );
+
+				throw new \Exception( __( 'Failed to open the ZIP file.', 'learning-management-system' ) );
+			}
+
 			wp_delete_file( $temp_file );
 
+			update_option( '_masteriyo_additional_certificate_fonts_downloaded', true );
+			delete_transient( 'masteriyo_certificate_font_urls' );
+			delete_transient( 'masteriyo_font_configurations' );
+
+			return new \WP_REST_Response(
+				array(
+					'message' => __( 'Certificate fonts installed.', 'learning-management-system' ),
+				)
+			);
+		} catch ( \Exception $e ) {
 			return new \WP_Error(
 				'import_fonts_error',
-				__( 'Failed to open the ZIP file.', 'learning-management-system' ),
+				$e->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
+	}
 
-		$font_exts = array( 'ttf', 'otf' );
+	/**
+	 * Count published certificates of a specific content format.
+	 *
+	 * @param string $format 'pdfdraft' or 'gutenberg'.
+	 *
+	 * @return int
+	 */
+	protected function count_published_by_format( $format ) {
+		global $wpdb;
 
-		for ( $i = 0; $i < $zip->numFiles; $i++ ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$filename  = $zip->getNameIndex( $i );
-			$file_info = pathinfo( $filename );
-
-			if ( isset( $file_info['extension'] ) && in_array( $file_info['extension'], $font_exts, true ) && ! $filesystem->exists( $destination . '/' . $file_info['basename'] ) ) {
-				$font = $destination . '/' . $file_info['basename'];
-				$filesystem->copy( "zip://{$temp_file}#{$filename}", $font );
-			}
+		if ( 'pdfdraft' === $format ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			return (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format' AND pm.meta_value = %s
+					WHERE p.post_type = %s AND p.post_status = 'publish'",
+					'pdfdraft',
+					$this->post_type
+				)
+			);
 		}
 
-		$zip->close();
-		wp_delete_file( $temp_file );
-		update_option( '_masteriyo_additional_certificate_fonts_downloaded', true );
-
-		return new \WP_REST_Response(
-			array(
-				'message' => __( 'Certificate fonts installed.', 'learning-management-system' ),
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_masteriyo_content_format'
+				WHERE p.post_type = %s AND p.post_status = 'publish'
+				AND ( pm.meta_value IS NULL OR pm.meta_value != 'pdfdraft' )",
+				$this->post_type
 			)
 		);
 	}

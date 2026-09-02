@@ -369,15 +369,10 @@ class CourseAnnouncementController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $course_announcement, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-		$description           = '';
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $course_announcement->get_description() ) ) ) : $course_announcement->get_description( $context );
+		if ( 'view' === $context ) {
+			return masteriyo_format_content_for_view( wp_kses_post( $course_announcement->get_description() ) );
 		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( wp_kses_post( $course_announcement->get_description() ) ) : $course_announcement->get_description( $context );
-		}
-		return $description;
+		return $course_announcement->get_description( $context );
 	}
 
 
@@ -599,7 +594,6 @@ class CourseAnnouncementController extends PostsController {
 	 * client-supplied fields such as request_from. See MAS-3642.
 	 *
 	 * @since 1.6.16
-	 * @since x.x.x Replaced request_from gate with server-side role/ownership check (MAS-3642).
 	 *
 	 * @param WP_REST_Request $request  Request object.
 	 * @param bool            $creating True when creating a new object.
@@ -695,7 +689,7 @@ class CourseAnnouncementController extends PostsController {
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $course_announcement, $request, $creating );
 	}
 
-		/**
+	/**
 	 * Check if a given request has access to create an item.
 	 *
 	 * @since 1.6.16
@@ -783,7 +777,6 @@ class CourseAnnouncementController extends PostsController {
 	 * users are denied. Authorization is never based on client-supplied fields.
 	 *
 	 * @since 1.6.16
-	 * @since x.x.x Replaced request_from-based check with server-side role/ownership/enrollment check (MAS-3642).
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -831,7 +824,6 @@ class CourseAnnouncementController extends PostsController {
 			)
 		);
 	}
-
 
 	/**
 	 * Restore announcement.

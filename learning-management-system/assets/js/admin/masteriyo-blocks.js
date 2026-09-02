@@ -22,5 +22,4 @@
 	}
 
 	autoBlockRecovery();
-
 })(jQuery);

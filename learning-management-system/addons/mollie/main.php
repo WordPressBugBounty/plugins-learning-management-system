@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Category: Payments
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\Mollie\MollieAddon;
 
 define( 'MASTERIYO_MOLLIE_ADDON_FILE', __FILE__ );

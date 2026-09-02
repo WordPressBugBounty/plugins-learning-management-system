@@ -2,7 +2,7 @@
 /**
  * Google meet setting controller class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\Google Meet\RestApi
  */
@@ -24,7 +24,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Endpoint namespace.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -33,7 +33,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Route base.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -51,7 +51,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -60,7 +60,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Register routes.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -102,15 +102,12 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Check if a given request has access to create an item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
 	 */
 	public function save_google_meet_setting_permission_check( $request ) {
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
 		if ( current_user_can( 'publish_google-meets' ) ) {
 			return true;
 		} else {
@@ -118,10 +115,10 @@ class GoogleMeetSettingController extends CrudController {
 		}
 	}
 
-		/**
+	/**
 	 * Add google meet client details to user meta.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  $request $request Full details about the request.
 	 * @return WP_Error|array
@@ -140,14 +137,9 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Check if tha given request has access to create an Item.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 */
 	public function get_google_meet_setting_permission_check( $request ) {
-
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
-
 		if ( ! current_user_can( 'edit_google-meets' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
@@ -164,22 +156,19 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Check if a given request has access to check validate.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
 	 */
 	public function validate_settings_permission_check( $request ) {
-		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
-		}
 		return current_user_can( 'edit_google-meets' );
 	}
 
 	/**
 	 * Return validate
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return WP_Error|WP_REST_Response
 	 */
@@ -202,7 +191,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Provides the google meet setting data(client_id, client_secret, account_id)  data
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return WP_Error|array
 	 */
@@ -213,7 +202,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	* Parse Import file.
 	*
-	* @since 1.11.0
+	* @since 1.11.0 [free]
 	* @param array $files $_FILES array for a given file.
 	* @return string|\WP_Error File path on success and WP_Error on failure.
 	*/
@@ -243,7 +232,7 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Add google meet client details to user meta.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param  $request $request Full details about the request.
 	 * @return WP_Error|array
@@ -279,19 +268,22 @@ class GoogleMeetSettingController extends CrudController {
 	/**
 	 * Checks if a given request has access to get items.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function get_google_meets_setting_permission_check( $request ) {
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
 		return current_user_can( 'edit_google-meets' );
 	}
 
 	/**
 	 * Get the google_meet_settings'schema, conforming to JSON Schema.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return array
 	 */

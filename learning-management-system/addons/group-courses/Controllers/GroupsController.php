@@ -595,11 +595,10 @@ class GroupsController extends PostsController {
 		return masteriyo_array_only( $post_count, array_merge( array( 'any' ), PostStatus::all() ) );
 	}
 
-
 	/**
 	 * Get order information associated with a group.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param int $group_id Group ID.
 	 *
@@ -676,15 +675,10 @@ class GroupsController extends PostsController {
 	 * @return object
 	 */
 	protected function description_data( $group, $context ) {
-		$default_editor_option = masteriyo_get_setting( 'advance.editor.default_editor' );
-		$description           = '';
-		if ( 'classic_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? wpautop( do_shortcode( wp_kses_post( $group->get_description() ) ) ) : $group->get_description( $context );
+		if ( 'view' === $context ) {
+			return masteriyo_format_content_for_view( wp_kses_post( $group->get_description() ) );
 		}
-		if ( 'block_editor' === $default_editor_option ) {
-			$description = 'view' === $context ? do_shortcode( wp_kses_post( $group->get_description() ) ) : $group->get_description( $context );
-		}
-		return $description;
+		return $group->get_description( $context );
 	}
 
 	/**
@@ -856,30 +850,30 @@ class GroupsController extends PostsController {
 					),
 				),
 				'author_id'      => array(
-					'description' => __( 'Group author ID', 'learning-management-system' ),
+					'description' => __( 'Group leader ID', 'learning-management-system' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author'         => array(
-					'description' => __( 'Group author', 'learning-management-system' ),
+					'description' => __( 'Group leader', 'learning-management-system' ),
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 					'type'        => 'object',
 					'properties'  => array(
 						'id'           => array(
-							'description' => __( 'Author ID', 'learning-management-system' ),
+							'description' => __( 'Leader ID', 'learning-management-system' ),
 							'type'        => 'integer',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'display_name' => array(
-							'description' => __( 'Display name of the author', 'learning-management-system' ),
+							'description' => __( 'Display name of the leader', 'learning-management-system' ),
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'avatar_url'   => array(
-							'description' => __( 'Avatar URL of the author', 'learning-management-system' ),
+							'description' => __( 'Avatar URL of the leader', 'learning-management-system' ),
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
@@ -970,12 +964,12 @@ class GroupsController extends PostsController {
 	protected function prepare_object_for_database( $request, $creating = false ) {
 		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
 
-		/** @var Group */
+		/** @var \Masteriyo\Addons\GroupCourses\Models\Group */
 		$group = masteriyo( 'group-courses' );
 
 		if ( 0 !== $id ) {
 			$group->set_id( $id );
-			/** @var GroupRepository */
+			/** @var \Masteriyo\Addons\GroupCourses\Repository\GroupRepository */
 			$group_repo = masteriyo( 'group-courses.store' );
 			$group_repo->read( $group );
 		}
@@ -1018,13 +1012,11 @@ class GroupsController extends PostsController {
 				$group->set_author_id( absint( $request['author_id'] ) );
 			}
 
-			// Post status.
+			// Post status. Enrollment status is synced after save by
+			// update_enrollments_status_for_groups_update() on masteriyo_update_group,
+			// scoped to the group's own courses.
 			if ( isset( $request['status'] ) ) {
-				$new_status     = get_post_status_object( $request['status'] ) ? sanitize_text_field( $request['status'] ) : PostStatus::DRAFT;
-				$current_status = $group->get_status();
-
-				// Update  all the enrollments related with this group.
-				$this->update_enrollments_status( $group, $current_status, $new_status );
+				$new_status = get_post_status_object( $request['status'] ) ? sanitize_text_field( $request['status'] ) : PostStatus::DRAFT;
 				$group->set_status( $new_status );
 			}
 		}
@@ -1051,21 +1043,43 @@ class GroupsController extends PostsController {
 				);
 			}
 
-			if ( Setting::get( 'deactivate_enrollment_on_member_change' ) ) {
+			$group_id = $group->get_id();
 
-				$group_id = $group->get_id();
+			if ( $group_id ) {
+				$old_emails     = $group->get_emails();
+				$new_emails     = $submitted_emails;
+				$removed_emails = array_diff( $old_emails, $new_emails );
 
-				if ( $group_id ) {
-					$old_emails = $group->get_emails();
-					$new_emails = $request['emails'];
-
+				if ( Setting::get( 'deactivate_enrollment_on_member_change' ) ) {
 					// Set the enrollment status to inactive only if user are  already enrolled in the group.
-					$removed_emails = array_diff( $old_emails, $new_emails );
 					masteriyo_update_user_enrollments_status( $group_id, $removed_emails, 'inactive' );
 
 					// Set the enrollment status to active only if user are  already enrolled in the group.
 					$newly_added_emails = array_diff( $new_emails, $old_emails );
 					masteriyo_update_user_enrollments_status( $group_id, $newly_added_emails, 'active' );
+				}
+
+				foreach ( $removed_emails as $removed_email ) {
+					$user = get_user_by( 'email', $removed_email );
+
+					if ( ! $user ) {
+						continue;
+					}
+
+					$user_group_ids = get_user_meta( $user->ID, 'masteriyo_group_ids', true );
+
+					if ( is_array( $user_group_ids ) ) {
+						update_user_meta( $user->ID, 'masteriyo_group_ids', array_values( array_diff( $user_group_ids, array( $group_id ) ) ) );
+					}
+
+					/**
+					 * Fires after a member is removed from a group.
+					 *
+					 * @param int      $user_id  The ID of the removed member.
+					 * @param \WP_User $user     The user object of the removed member.
+					 * @param int      $group_id The ID of the group the user was removed from.
+					 */
+					do_action( 'masteriyo_group_course_member_removed', $user->ID, $user, $group_id );
 				}
 			}
 
@@ -1220,51 +1234,5 @@ class GroupsController extends PostsController {
 		}
 
 		return rest_ensure_response( $restored_objects );
-	}
-
-	/**
-	 * Update enrollments status for members of a specified group.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @param \Masteriyo\Addons\GroupCourses\ModelsGroup $group Group object.
-	 * @param string $current_status Current status of the enrollment.
-	 * @param string $new_status New status to update the enrollment to.
-	 */
-	private function update_enrollments_status( $group, $current_status, $new_status ) {
-		global $wpdb;
-
-		if ( ! $wpdb || ! $group ) {
-			return;
-		}
-
-		if ( $current_status === $new_status ) {
-			return;
-		}
-
-		$group_members = $group->get_emails();
-		if ( empty( $group_members ) ) {
-			return;
-		}
-
-		foreach ( $group_members as $group_member ) {
-			$user = get_user_by( 'email', $group_member );
-			if ( ! $user ) {
-				continue;
-			}
-
-			$actual_new_status = PostStatus::PUBLISH !== $new_status ? 'inactive' : 'active';
-
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE {$wpdb->prefix}masteriyo_user_items
-						SET status = %s
-						WHERE user_id = %d
-						AND item_type = 'user_course'",
-					$actual_new_status,
-					$user->ID
-				)
-			);
-		}
 	}
 }

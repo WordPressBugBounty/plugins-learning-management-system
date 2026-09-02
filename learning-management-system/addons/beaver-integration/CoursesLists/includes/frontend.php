@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Course List FrontEnd Page
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 
 
@@ -67,7 +67,6 @@ $args = array(
 	'tax_query'      => $tax_query,
 	'page'           => absint( $current_page ), // Add the current page number to the query args.
 	'pagination'     => true,
-	'page'           => absint( $current_page ), // Add the current page number to the query args.
 	'offset'         => ( absint( $current_page ) - 1 ) * absint( $limit ),
 );
 

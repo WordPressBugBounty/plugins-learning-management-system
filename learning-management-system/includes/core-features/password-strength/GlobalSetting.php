@@ -2,7 +2,7 @@
 /**
  * Store global password strength  options.
  *
- * @since 2.1.0
+ * @since 3.1.0
  * @package  Masteriyo\CoreFeatures\PasswordStrength
  */
 
@@ -17,14 +17,14 @@ class GlobalSetting {
 	/**
 	 * Global option name.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	const OPTION_NAME = 'masteriyo_password_strength_settings';
 
 	/**
 	 * Data.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @var array
 	 */
@@ -39,7 +39,7 @@ class GlobalSetting {
 	/**
 	 * Initialize global setting.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -48,7 +48,7 @@ class GlobalSetting {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_rest_response_setting_data', array( $this, 'append_setting_in_response' ), 10, 4 );
@@ -58,7 +58,7 @@ class GlobalSetting {
 	/**
 	 * Append setting to response.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param array $data Setting data.
 	 * @param Masteriyo\Models\Setting $setting Setting object.
@@ -75,7 +75,7 @@ class GlobalSetting {
 	/**
 	 * Save global password strength  settings.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param \Masteriyo\Models\Setting $setting Setting object.
 	 */
@@ -111,7 +111,7 @@ class GlobalSetting {
 	/**
 	 * Return global white field value.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param string $key
 	 * @return string|array
@@ -134,7 +134,7 @@ class GlobalSetting {
 	/**
 	 * Set global password strength  field.
 	 *
-	 * @since 2.1.0
+	 * @since 3.1.0
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.

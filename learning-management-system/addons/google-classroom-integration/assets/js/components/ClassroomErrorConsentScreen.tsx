@@ -21,13 +21,16 @@ const ClassroomErrorConsentScreen: React.FC<Props> = ({
 	const consentScreenButtons = useMemo(() => {
 		return [
 			{
-				title: 'Reset Credentials',
+				title: __('Reset Credentials', 'learning-management-system'),
 				Icon: RiRestartLine,
 				onClick: () => onResetCredentialsModalChange(true),
 				colorScheme: 'primary',
 			},
 			{
-				title: `Go To Google's Consent Screen`,
+				title: __(
+					"Go To Google's Consent Screen",
+					'learning-management-system',
+				),
 				Icon: IoIosLink,
 				onClick: () => onHandleConsentScreen(settingsQuery?.data),
 				variant: 'outline',

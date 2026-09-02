@@ -36,7 +36,13 @@ class CourseListModule extends DiviModule {
 	 * @since 1.6.13
 	 */
 	public function init() {
-		$this->name            = esc_html__( 'Masteriyo Course List', 'learning-management-system' );
+		$this->name = esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course List', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 		$this->icon_path       = MASTERIYO_DIVI_INTEGRATION_DIR . '/svg/course-list-module-icon.svg';
 		$this->advanced_fields = array(
 			'button'         => false,
@@ -897,12 +903,11 @@ class CourseListModule extends DiviModule {
 			);
 		}
 
-		// -- before the switch --
 		if ( ! empty( $props['order_by'] ) ) {
-			$orderby = strtolower( $props['order_by'] );   // ① keep it lowercase
+			$orderby = strtolower( $props['order_by'] );
 			$order   = empty( $props['order'] ) ? 'DESC' : strtoupper( $props['order'] );
 
-			switch ( $orderby ) {                          // ② labels now match
+			switch ( $orderby ) {
 				case 'date':
 					$args['orderby'] = 'date';
 					$args['order']   = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
@@ -934,9 +939,8 @@ class CourseListModule extends DiviModule {
 		 *
 		 * @param array $args
 		 */
-		$args  = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
-		$query = new \WP_Query( $args );
-
+		$args    = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
+		$query   = new \WP_Query( $args );
 		$courses = array_filter( array_map( 'masteriyo_get_course', $query->posts ) );
 		$columns = empty( $props['columns'] ) ? masteriyo_get_setting( 'course_archive.display.per_row' ) : absint( $props['columns'] );
 

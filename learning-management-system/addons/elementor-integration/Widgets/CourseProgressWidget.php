@@ -3,8 +3,6 @@
  * Masteriyo course progress elementor widget class.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -19,15 +17,11 @@ defined( 'ABSPATH' ) || exit;
  * Masteriyo course progress elementor widget class.
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
- *
- * @since x.x.x
  */
 class CourseProgressWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget name.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string
 	 */
@@ -38,8 +32,6 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string
 	 */
 	public function get_title() {
@@ -48,8 +40,6 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Get widget icon.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string Widget icon.
 	 */
@@ -60,8 +50,6 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 	/**
 	 * Get widget keywords.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return string[]
 	 */
 	public function get_keywords() {
@@ -70,15 +58,11 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Register controls configuring widget content.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_content_controls() {}
 
 	/**
 	 * Register controls for customizing widget styles.
-	 *
-	 * @since x.x.x
 	 */
 	protected function register_style_controls() {
 		$this->start_controls_section(
@@ -142,8 +126,6 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Render widget output in the editor.
-	 *
-	 * @since x.x.x
 	 */
 	protected function content_template() {
 		$course = Helper::get_elementor_preview_course();
@@ -157,8 +139,6 @@ class CourseProgressWidget extends SingleCourseWidgetBase {
 
 	/**
 	 * Render the widget output on the frontend.
-	 *
-	 * @since x.x.x
 	 */
 	protected function render() {
 		$course = $this->get_course_to_render();

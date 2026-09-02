@@ -43,19 +43,16 @@ function masteriyo_array_merge_recursive_numeric() {
 			// If $key does not exist in $b, then it is unique and can be safely merged.
 			if ( ! isset( $b[ $key ] ) ) {
 				$final[ $key ] = $value;
+			} elseif ( is_numeric( $value ) && is_numeric( $b[ $key ] ) ) {
+				// If both values for these keys are numeric, we sum them.
+				$final[ $key ] = $value + $b[ $key ];
+			} elseif ( is_array( $value ) && is_array( $b[ $key ] ) ) {
+				// If both values are arrays, we recursively call ourself.
+				$final[ $key ] = masteriyo_array_merge_recursive_numeric( $value, $b[ $key ] );
 			} else {
-				// If $key is present in $b, then we need to merge and sum numeric values in both.
-				if ( is_numeric( $value ) && is_numeric( $b[ $key ] ) ) {
-					// If both values for these keys are numeric, we sum them.
-					$final[ $key ] = $value + $b[ $key ];
-				} elseif ( is_array( $value ) && is_array( $b[ $key ] ) ) {
-					// If both values are arrays, we recursively call ourself.
-					$final[ $key ] = masteriyo_array_merge_recursive_numeric( $value, $b[ $key ] );
-				} else {
-					// If both keys exist but differ in type, then we cannot merge them.
-					// In this scenario, we will $b's value for $key is used.
-					$final[ $key ] = $b[ $key ];
-				}
+				// If both keys exist but differ in type, then we cannot merge them.
+				// In this scenario, we will $b's value for $key is used.
+				$final[ $key ] = $b[ $key ];
 			}
 		}
 
@@ -523,12 +520,14 @@ function masteriyo_array_has_any( $array, $keys ) {
 
 	return false;
 }
+
 /**
  * Remove one or many array items from a given array using "dot" notation.
  *
+ * @since 1.3.6
+ *
  * @param  array  $array
  * @param  array|string  $keys
- * @return void
  */
 function masteriyo_array_forget( &$array, $keys ) {
 	$original = &$array;
@@ -663,7 +662,7 @@ function masteriyo_array_random( $array, $number = null, $preserve_keys = false 
 
 	if ( $requested > $count ) {
 		throw new \InvalidArgumentException(
-			"You requested {$requested} items, but there are only {$count} items available."
+			esc_html( "You requested {$requested} items, but there are only {$count} items available." )
 		);
 	}
 

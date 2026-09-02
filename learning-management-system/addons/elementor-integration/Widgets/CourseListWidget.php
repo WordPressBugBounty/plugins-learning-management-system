@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\ElementorIntegration\Widgets;
@@ -28,14 +28,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package Masteriyo\Addons\ElementorIntegration\Widgets
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 class CourseListWidget extends WidgetBase {
 
 	/**
 	 * Get widget name.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -46,7 +46,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Get widget title.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -57,7 +57,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Get icon class for the widget.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return string
 	 */
@@ -68,7 +68,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register controls for configuring widget content.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_content_controls() {
 		$this->register_general_content_controls_section();
@@ -79,7 +79,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register general content controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_general_content_controls_section() {
 		$this->start_controls_section(
@@ -99,6 +99,20 @@ class CourseListWidget extends WidgetBase {
 				'options'  => array(
 					''        => 'All Courses',
 					'related' => 'Related Courses',
+				),
+			)
+		);
+
+		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'learning-management-system' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'default',
+				'options' => array(
+					'default' => __( 'Default', 'learning-management-system' ),
+					'layout1' => __( 'Modern', 'learning-management-system' ),
+					'layout2' => __( 'Overlay', 'learning-management-system' ),
 				),
 			)
 		);
@@ -128,16 +142,9 @@ class CourseListWidget extends WidgetBase {
 		);
 
 		$this->add_control(
-			'layout',
+			'divider_1',
 			array(
-				'label'   => __( 'Layout', 'learning-management-system' ),
-				'type'    => Controls_Manager::SELECT,
-				'options' => array(
-					'default' => __( 'Default', 'learning-management-system' ),
-					'layout1' => __( 'Modern', 'learning-management-system' ),
-					'layout2' => __( 'Overlay', 'learning-management-system' ),
-				),
-				'default' => 'default',
+				'type' => Controls_Manager::DIVIDER,
 			)
 		);
 
@@ -211,13 +218,6 @@ class CourseListWidget extends WidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'divider_1',
-			array(
-				'type' => Controls_Manager::DIVIDER,
-			)
-		);
-
 		$this->add_on_off_switch_control(
 			'show_thumbnail',
 			__( 'Thumbnail', 'learning-management-system' ),
@@ -235,10 +235,25 @@ class CourseListWidget extends WidgetBase {
 			array(
 				'condition' => array(
 					'show_thumbnail' => 'yes',
+					'layout'         => 'default',
 				),
 			),
 			array(
 				'{{WRAPPER}} .difficulty-badge' => 'display: none !important;',
+			)
+		);
+
+		$this->add_on_off_switch_control(
+			'show_featured_ribbon',
+			__( 'Featured Ribbon', 'learning-management-system' ),
+			array(
+				'condition' => array(
+					'show_thumbnail' => 'yes',
+					'layout'         => 'default',
+				),
+			),
+			array(
+				'{{WRAPPER}} .course-featured' => 'display: none !important;',
 			)
 		);
 
@@ -251,12 +266,12 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -273,9 +288,9 @@ class CourseListWidget extends WidgetBase {
 			__( 'Course Title', 'learning-management-system' ),
 			array(),
 			array(
-				'{{WRAPPER}} .masteriyo-course--content__title a'              => 'display: none !important;',
-				'{{WRAPPER}} .masteriyo-archive-card__content--course-title'   => 'display: none !important;',
-				'{{WRAPPER}} .masteriyo-course-card__content--course-title'    => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course--content__title a'            => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-archive-card__content--course-title' => 'display: none !important;',
+				'{{WRAPPER}} .masteriyo-course-card__content--course-title'  => 'display: none !important;',
 			)
 		);
 
@@ -288,12 +303,12 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -314,7 +329,7 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'show_author',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -322,12 +337,12 @@ class CourseListWidget extends WidgetBase {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -445,12 +460,12 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'default',
 						),
 						array(
 							'name'     => 'layout',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'layout1',
 						),
 					),
@@ -471,7 +486,7 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'show_card_footer',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -479,12 +494,12 @@ class CourseListWidget extends WidgetBase {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -521,7 +536,7 @@ class CourseListWidget extends WidgetBase {
 					'terms'    => array(
 						array(
 							'name'     => 'show_card_footer',
-							'operator' => '===',
+							'operator' => '==',
 							'value'    => 'yes',
 						),
 						array(
@@ -529,12 +544,12 @@ class CourseListWidget extends WidgetBase {
 							'terms'    => array(
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'default',
 								),
 								array(
 									'name'     => 'layout',
-									'operator' => '===',
+									'operator' => '==',
 									'value'    => 'layout1',
 								),
 							),
@@ -554,7 +569,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register filter controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_filter_controls_section() {
 		$course_categories = $this->get_categories_options();
@@ -640,7 +655,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register sorting controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_sorting_controls_section() {
 		$this->start_controls_section(
@@ -685,13 +700,14 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register controls for customizing widget styles.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_style_controls() {
 		$this->register_layout_style_section();
 		$this->register_card_styles_section();
 		$this->register_thumbnail_styles_section();
 		$this->register_difficulty_badge_styles_section();
+		$this->register_featured_ribbon_styles_section();
 		$this->register_categories_styles_section();
 		$this->register_title_styles_section();
 		$this->register_author_styles_section();
@@ -703,12 +719,13 @@ class CourseListWidget extends WidgetBase {
 		$this->register_footer_styles_section();
 		$this->register_price_styles_section();
 		$this->register_enroll_button_styles_section();
+		$this->register_retake_button_styles_section();
 	}
 
 	/**
 	 * Register layout style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_layout_style_section() {
 		$this->start_controls_section(
@@ -753,7 +770,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register card style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_card_styles_section() {
 		$this->start_controls_section(
@@ -912,7 +929,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register thumbnail style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_thumbnail_styles_section() {
 		$this->start_controls_section(
@@ -1107,6 +1124,76 @@ class CourseListWidget extends WidgetBase {
 	}
 
 	/**
+	 * Register featured ribbon style controls section.
+	 *
+	 * @since 2.5.14
+	 */
+	protected function register_featured_ribbon_styles_section() {
+		$this->start_controls_section(
+			'featured_ribbon_controls_section',
+			array(
+				'label' => __( 'Featured Ribbon', 'learning-management-system' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'featured_ribbon_typography',
+				'selector' => '{{WRAPPER}} .course-featured',
+			)
+		);
+
+		$this->add_control(
+			'featured_ribbon_text_color',
+			array(
+				'label'     => __( 'Text Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .course-featured' => 'color:{{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'featured_ribbon_background_color',
+			array(
+				'label'     => __( 'Background Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .course-featured'         => 'background-color:{{VALUE}};',
+					'{{WRAPPER}} .course-featured::before' => 'border-color: {{VALUE}}; border-left-color: transparent;',
+					'{{WRAPPER}} .course-featured::after'  => 'border-left-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'featured_ribbon_top_position',
+			array(
+				'label'      => __( 'Vertical Position', 'learning-management-system' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 300,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .course-featured' => 'top: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Register categories style controls section.
+	 *
+	 * @since 2.5.14
 	 * Register categories style controls section.
 	 *
 	 * @since 1.6.12
@@ -1301,7 +1388,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register course title style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_title_styles_section() {
 		$this->start_controls_section(
@@ -1433,7 +1520,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register author style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_author_styles_section() {
 		$this->start_controls_section(
@@ -1521,7 +1608,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register author avatar style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_author_avatar_styles_section() {
 		$this->start_controls_section(
@@ -1568,7 +1655,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register author name style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_author_name_styles_section() {
 		$this->start_controls_section(
@@ -1675,7 +1762,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register rating style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_rating_styles_section() {
 		$this->start_controls_section(
@@ -1858,7 +1945,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register description style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_description_styles_section() {
 		$this->start_controls_section(
@@ -1983,7 +2070,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register metadata style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_metadata_styles_section() {
 		$this->start_controls_section(
@@ -2109,7 +2196,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register price style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_price_styles_section() {
 		$this->start_controls_section(
@@ -2216,7 +2303,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Register enroll button style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_enroll_button_styles_section() {
 		$this->start_controls_section(
@@ -2445,10 +2532,242 @@ class CourseListWidget extends WidgetBase {
 		$this->end_controls_section();
 	}
 
+		/**
+	 * Register enroll button style controls section.
+	 *
+	 * @since 2.5.14
+	 */
+	protected function register_retake_button_styles_section() {
+		$this->start_controls_section(
+			'retake_button_styles',
+			array(
+				'label' => __( 'Retake Button', 'learning-management-system' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'retake_button_typography',
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn',
+			)
+		);
+
+		$this->add_control(
+			'retake_button_padding',
+			array(
+				'label'      => __( 'Padding', 'learning-management-system' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .masteriyo-retake-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_margin',
+			array(
+				'label'      => __( 'Margin', 'learning-management-system' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .masteriyo-retake-btn' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_styles_tabs_divider',
+			array(
+				'type' => Controls_Manager::DIVIDER,
+			)
+		);
+
+		$this->start_controls_tabs( 'retake_button_states' );
+
+		// Normal state styles.
+		$this->start_controls_tab(
+			'retake_button_normal_state_style_tab',
+			array(
+				'label' => __( 'Normal', 'learning-management-system' ),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_text_color',
+			array(
+				'label'     => __( 'Text Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .masteriyo-retake-btn' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_background_color',
+			array(
+				'label'     => __( 'Background Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .masteriyo-retake-btn' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_border_styles_popover',
+			array(
+				'type'         => Controls_Manager::POPOVER_TOGGLE,
+				'label'        => esc_html__( 'Border', 'learning-management-system' ),
+				'label_off'    => esc_html__( 'Default', 'learning-management-system' ),
+				'label_on'     => esc_html__( 'Custom', 'learning-management-system' ),
+				'return_value' => 'yes',
+			)
+		);
+
+		$this->start_popover();
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'retake_button_border_styles',
+				'label'    => __( 'Border', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn',
+			)
+		);
+
+		$this->add_control(
+			'retake_button_border_radius',
+			array(
+				'label'      => __( 'Border Radius', 'learning-management-system' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .masteriyo-retake-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_popover();
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			array(
+				'name'     => 'retake_button_text_shadow',
+				'label'    => __( 'Text Shadow', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn',
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			array(
+				'name'     => 'retake_button_box_shadow',
+				'label'    => __( 'Box Shadow', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		// Hover state styles.
+		$this->start_controls_tab(
+			'retake_button_hover_state_style_tab',
+			array(
+				'label' => __( 'Hover', 'learning-management-system' ),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_hover_text_color',
+			array(
+				'label'     => __( 'Text Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .masteriyo-retake-btn:hover' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_hover_background_color',
+			array(
+				'label'     => __( 'Background Color', 'learning-management-system' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .masteriyo-retake-btn:hover' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'retake_button_hover_border_styles_popover',
+			array(
+				'type'         => Controls_Manager::POPOVER_TOGGLE,
+				'label'        => esc_html__( 'Border', 'learning-management-system' ),
+				'label_off'    => esc_html__( 'Default', 'learning-management-system' ),
+				'label_on'     => esc_html__( 'Custom', 'learning-management-system' ),
+				'return_value' => 'yes',
+			)
+		);
+
+		$this->start_popover();
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'retake_button_hover_border_styles',
+				'label'    => __( 'Border', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn:hover',
+			)
+		);
+
+		$this->add_control(
+			'retake_button_hover_border_radius',
+			array(
+				'label'      => __( 'Border Radius', 'learning-management-system' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .masteriyo-retake-btn:hover' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_popover();
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			array(
+				'name'     => 'retake_button_hover_text_shadow',
+				'label'    => __( 'Text Shadow', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn:hover',
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			array(
+				'name'     => 'retake_button_hover_box_shadow',
+				'label'    => __( 'Box Shadow', 'learning-management-system' ),
+				'selector' => '{{WRAPPER}} .masteriyo-retake-btn:hover',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+	}
+
 	/**
 	 * Register footer style controls section.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 */
 	protected function register_footer_styles_section() {
 		$this->start_controls_section(
@@ -2536,7 +2855,7 @@ class CourseListWidget extends WidgetBase {
 	/**
 	 * Render HTML for frontend.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 */
 	protected function render() {
 		$course                  = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;
@@ -2697,6 +3016,7 @@ class CourseListWidget extends WidgetBase {
 		);
 		$data_layout     = isset( $layout_attr_map[ $layout ] ) ? $layout_attr_map[ $layout ] : '';
 		$layout_class    = $data_layout ? ' ' . $data_layout : '';
+
 		printf(
 			'<div class="masteriyo masteriyo-course-list-display-section%s"%s>',
 			esc_attr( $layout_class ),

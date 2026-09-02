@@ -284,6 +284,7 @@ abstract class CrudController extends RestController {
 			'orderby'             => $request['orderby'],
 			'paged'               => $request['page'],
 			'post__in'            => $request['include'],
+			'author__in'          => $request['author'],
 			'post__not_in'        => $request['exclude'],
 			'posts_per_page'      => $request['per_page'],
 			'name'                => $request['slug'],
@@ -416,6 +417,7 @@ abstract class CrudController extends RestController {
 			'ignore_sticky_posts',
 			'offset',
 			'post__in',
+			'author__in',
 			'post__not_in',
 			'post_parent',
 			'post_parent__in',
@@ -630,8 +632,22 @@ abstract class CrudController extends RestController {
 		}
 
 		if ( ! $result ) {
+			$object_type = $this->object_type;
 			/* translators: %s: post type */
-			return new \WP_Error( 'masteriyo_rest_cannot_delete', sprintf( __( 'The %s cannot be deleted.', 'learning-management-system' ), $this->object_type ), array( 'status' => 500 ) );
+			$error = new \WP_Error( 'masteriyo_rest_cannot_delete', sprintf( __( 'The %s cannot be deleted.', 'learning-management-system' ), $object_type ), array( 'status' => 500 ) );
+
+			/**
+			 * Filter the error returned when an object could not be deleted.
+			 *
+			 * Whoever refused the deletion (for example, a repository that
+			 * would not delete the record) can replace the generic message
+			 * with the actual reason.
+			 *
+			 * @param \WP_Error $error The generic cannot-delete error.
+			 * @param \Masteriyo\Database\Model $object The object that was not deleted.
+			 * @param \WP_REST_Request $request The request being answered.
+			 */
+			return apply_filters( "masteriyo_rest_{$object_type}_cannot_delete_error", $error, $object, $request );
 		}
 
 		/**
@@ -728,6 +744,15 @@ abstract class CrudController extends RestController {
 		);
 		$params['include']  = array(
 			'description'       => __( 'Limit result set to specific ids.', 'learning-management-system' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => 'wp_parse_id_list',
+		);
+		$params['author']   = array(
+			'description'       => __( 'Limit result set to specific author ids.', 'learning-management-system' ),
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',

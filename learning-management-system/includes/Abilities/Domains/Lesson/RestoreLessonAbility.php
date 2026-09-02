@@ -3,7 +3,6 @@
  * Restore Lesson ability.
  *
  * @package Masteriyo\Abilities\Domains\Lesson
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Lesson;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Returns the lesson to draft status.
  * Only applies to lessons currently in the trash (post_status = 'trash').
  * Requires the `edit_masteriyo_courses` capability on the target lesson.
- *
- * @since x.x.x
  */
 class RestoreLessonAbility extends RestProxyAbility {
 

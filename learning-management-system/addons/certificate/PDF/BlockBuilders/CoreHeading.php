@@ -2,7 +2,7 @@
 /**
  * WordPress core Heading block builder.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -17,7 +17,7 @@ class CoreHeading extends BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -38,7 +38,7 @@ class CoreHeading extends BlockBuilder {
 	/**
 	 * Loop through the attributes and build css.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	protected function build_css() {
 		$attrs = $this->block['attrs'];

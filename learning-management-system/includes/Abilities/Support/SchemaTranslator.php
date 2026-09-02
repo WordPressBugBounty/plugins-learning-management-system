@@ -6,7 +6,6 @@
  * Results are cached per controller+verb within the instance lifecycle.
  *
  * @package Masteriyo\Abilities\Support
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Support;
@@ -18,15 +17,12 @@ defined( 'ABSPATH' ) || exit;
  *
  * Bind as a shared singleton via masteriyo('abilities.schema_translator') so the
  * instance cache is reused across all abilities within a single request.
- *
- * @since x.x.x
  */
 class SchemaTranslator {
 
 	/**
 	 * Per-instance cache: class::verb::direction => schema array.
 	 *
-	 * @since x.x.x
 	 * @var array
 	 */
 	private $cache = array();
@@ -34,7 +30,6 @@ class SchemaTranslator {
 	/**
 	 * REST-internal keys stripped from every field before exposing to the AI.
 	 *
-	 * @since x.x.x
 	 * @var string[]
 	 */
 	private static $strip_keys = array(
@@ -50,8 +45,6 @@ class SchemaTranslator {
 
 	/**
 	 * Derive the input schema for a given controller+verb combination.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @param string              $verb        list|get|create|update|delete|restore|clone.
@@ -70,8 +63,6 @@ class SchemaTranslator {
 	/**
 	 * Derive the output schema for a given controller+verb combination.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @param string              $verb        list|get|create|update|delete|restore|clone.
 	 * @return array JSON Schema object.
@@ -89,8 +80,6 @@ class SchemaTranslator {
 	/**
 	 * Strip REST-internal keys from a single schema field, preserving valid JSON Schema keys.
 	 * Recursively cleans nested items/properties.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array $field Raw schema field from a REST controller.
 	 * @return array Cleaned JSON Schema field.
@@ -118,8 +107,6 @@ class SchemaTranslator {
 	 * (e.g. featured_image returns null when no image is set, even though the
 	 * controller schema declares type:integer). Recursively applies to nested
 	 * items and properties so deeply nested fields are also covered.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array $field Raw schema field from a REST controller.
 	 * @return array Cleaned JSON Schema field with nullable scalar types.
@@ -155,7 +142,6 @@ class SchemaTranslator {
 	/**
 	 * Dispatch to the correct input-schema builder for the given verb.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @param string              $verb        The ability verb (list, get, etc.).
 	 * @return array JSON Schema.
@@ -186,7 +172,6 @@ class SchemaTranslator {
 	/**
 	 * Build input schema from collection params (for list verbs).
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @return array JSON Schema object.
 	 */
@@ -217,7 +202,6 @@ class SchemaTranslator {
 	 * Build input schema from item schema (for create/update verbs).
 	 * Excludes readonly fields and fields not available in the 'edit' context.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @param bool                $include_id  Whether to add a required 'id' property (update).
 	 * @return array JSON Schema object.
@@ -284,7 +268,6 @@ class SchemaTranslator {
 	/**
 	 * Schema for single-ID operations (get, clone, restore).
 	 *
-	 * @since x.x.x
 	 * @return array
 	 */
 	private function id_only_schema(): array {
@@ -305,7 +288,6 @@ class SchemaTranslator {
 	/**
 	 * Schema for delete operations.
 	 *
-	 * @since x.x.x
 	 * @return array
 	 */
 	private function delete_schema(): array {
@@ -335,7 +317,6 @@ class SchemaTranslator {
 	/**
 	 * Dispatch to the correct output-schema builder for the given verb.
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @param string              $verb        The ability verb (list, get, etc.).
 	 * @return array JSON Schema.
@@ -385,7 +366,6 @@ class SchemaTranslator {
 	 * Uses clean_output_field() so scalar types become nullable — REST responses
 	 * can return null for any unset field (featured_image, parent_id, sale_price…).
 	 *
-	 * @since x.x.x
 	 * @param \WP_REST_Controller $controller REST controller instance.
 	 * @return array JSON Schema object.
 	 */

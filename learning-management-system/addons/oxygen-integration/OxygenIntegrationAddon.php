@@ -60,7 +60,7 @@ class OxygenIntegrationAddon {
 	 * @since 1.6.16
 	 */
 	public function add_masteriyo_elements_group() {
-		\CT_Toolbar::oxygen_add_plus_accordion_section( 'masteriyo', __( 'Masteriyo', 'learning-management-system' ) );
+		\CT_Toolbar::oxygen_add_plus_accordion_section( 'masteriyo', masteriyo_get_plugin_name() );
 	}
 
 	/**

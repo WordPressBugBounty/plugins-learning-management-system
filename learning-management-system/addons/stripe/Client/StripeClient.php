@@ -78,10 +78,11 @@ final class StripeClient implements StripeClientInterface {
 	 * Create payment intent.
 	 *
 	 * @param array $data Payment intent data.
+	 * @param array $headers Extra request headers, e.g. an Idempotency-Key.
 	 * @return array|\WP_Error
 	 */
-	public function create_payment_intent( array $data ) {
-		return $this->make_request( 'POST', '/payment_intents', $data );
+	public function create_payment_intent( array $data, array $headers = array() ) {
+		return $this->make_request( 'POST', '/payment_intents', $data, $headers );
 	}
 
 	/**
@@ -103,6 +104,26 @@ final class StripeClient implements StripeClientInterface {
 	 */
 	public function retrieve_payment_intent( string $intent_id ) {
 		return $this->make_request( 'GET', "/payment_intents/{$intent_id}" );
+	}
+
+	/**
+	 * Retrieve a charge.
+	 *
+	 * @param string $charge_id Charge ID.
+	 * @return array|\WP_Error
+	 */
+	public function retrieve_charge( string $charge_id ) {
+		return $this->make_request( 'GET', "/charges/{$charge_id}" );
+	}
+
+	/**
+	 * Register a payment method domain.
+	 *
+	 * @param array $data Domain data, e.g. array( 'domain_name' => 'example.com' ).
+	 * @return array|\WP_Error
+	 */
+	public function create_payment_method_domain( array $data ) {
+		return $this->make_request( 'POST', '/payment_method_domains', $data );
 	}
 
 	/**
@@ -140,10 +161,11 @@ final class StripeClient implements StripeClientInterface {
 	 * Create price.
 	 *
 	 * @param array $data Price data.
+	 * @param array $headers Additional headers, e.g. an Idempotency-Key.
 	 * @return array|\WP_Error
 	 */
-	public function create_price( array $data ) {
-		return $this->make_request( 'POST', '/prices', $data );
+	public function create_price( array $data, array $headers = array() ) {
+		return $this->make_request( 'POST', '/prices', $data, $headers );
 	}
 
 	/**
@@ -160,10 +182,11 @@ final class StripeClient implements StripeClientInterface {
 	 * Create subscription.
 	 *
 	 * @param array $data Subscription data.
+	 * @param array $headers Additional headers, e.g. an Idempotency-Key.
 	 * @return array|\WP_Error
 	 */
-	public function create_subscription( array $data ) {
-		return $this->make_request( 'POST', '/subscriptions', $data );
+	public function create_subscription( array $data, array $headers = array() ) {
+		return $this->make_request( 'POST', '/subscriptions', $data, $headers );
 	}
 
 	/**

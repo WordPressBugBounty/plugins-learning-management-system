@@ -3,7 +3,6 @@
  * Delete Course ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Without `force=true` the course is moved to trash and can be restored.
  * With `force=true` the course and its associated data are permanently removed.
  * Requires the `edit_masteriyo_courses` capability on the target course.
- *
- * @since x.x.x
  */
 class DeleteCourseAbility extends RestProxyAbility {
 

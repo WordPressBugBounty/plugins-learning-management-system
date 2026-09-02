@@ -6,6 +6,7 @@ defined( 'ABSPATH' ) || exit;
 
 
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\UserCourseStatus;
 
 /**
  * Class CheckCourseEndDateJob
@@ -41,7 +42,7 @@ class CheckCourseEndDateJob {
 	 * This method handles the necessary actions when a course's end date is reached. Specifically:
 	 *  - It retrieves the course, either via its ID or directly from a provided course object.
 	 *  - If the course is successfully retrieved and is valid, it performs the following:
-	 *      1. Revokes all associated enrollments.
+	 *      1. Deactivates all associated enrollments.
 	 *      2. Updates the course status to 'draft'.
 	 *
 	 * @since 1.7.0
@@ -55,9 +56,10 @@ class CheckCourseEndDateJob {
 			return;
 		}
 
+		$enable_cohort   = method_exists( $course, 'get_enable_cohort_mode' ) && $course->get_enable_cohort_mode();
 		$enable_end_date = method_exists( $course, 'get_enable_end_date' ) && $course->get_enable_end_date();
 
-		if ( ! $enable_end_date ) {
+		if ( ! $enable_cohort && ! $enable_end_date ) {
 			return;
 		}
 
@@ -77,26 +79,38 @@ class CheckCourseEndDateJob {
 			return;
 		}
 
-		$this->revoke_enrollments_for_course( $course );
+		$this->deactivate_enrollments_for_course( $course );
 		$this->set_course_to_draft( $course );
+
+		masteriyo_get_logger()->info(
+			sprintf( 'Course %d reached its end date (%s): enrollments set inactive, course drafted.', $course->get_id(), $raw_end_date ),
+			array( 'source' => 'course-end-date' )
+		);
 	}
 
+
+
 	/**
-	 * Revoke all enrollments for a given course.
+	 * Set all enrollments for a given course to inactive.
+	 *
+	 * Republishing the course sets them back to active, so the deactivation
+	 * stays reversible — the rows are never deleted.
 	 *
 	 * @since 1.7.0
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 */
-	private function revoke_enrollments_for_course( $course ) {
+	private function deactivate_enrollments_for_course( $course ) {
 		global $wpdb;
 
-		$wpdb->delete(
+		$wpdb->update(
 			"{$wpdb->prefix}masteriyo_user_items",
+			array( 'status' => UserCourseStatus::INACTIVE ),
 			array(
 				'item_id'   => $course->get_id(),
 				'item_type' => 'user_course',
 			),
+			array( '%s' ),
 			array(
 				'%d',
 				'%s',

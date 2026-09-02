@@ -2,7 +2,7 @@
 /**
  * Style course list components.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  *
  * @package Masteriyo
  */
@@ -14,14 +14,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Style course list components.
  *
- * @since 1.11.3
+ * @since 1.11.3 [Free]
  */
 abstract class CourseComponentStyles {
 
 	/**
 	 * Initialize the class instance
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -30,7 +30,7 @@ abstract class CourseComponentStyles {
 	/**
 	 * Initialize hooks
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 */
 	protected function init_hooks() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'print_styles' ), PHP_INT_MAX - 10 );
@@ -39,7 +39,7 @@ abstract class CourseComponentStyles {
 	/**
 	 * Print styles
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 */
 	public function print_styles() {
 		if ( ! $this->should_print() ) {
@@ -56,23 +56,23 @@ abstract class CourseComponentStyles {
 	/**
 	 * Prefix selector for course components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 */
-	abstract protected function get_prefix_selector():string;
+	abstract protected function get_prefix_selector(): string;
 
 	/**
 	 * Condition to should print or not.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 */
-	abstract protected function should_print():bool;
+	abstract protected function should_print(): bool;
 
 	/**
 	 * Get styles to course list components.
 	 *
-	 * @since 1.11.3
+	 * @since 1.11.3 [Free]
 	 *
 	 * @return string
 	 */

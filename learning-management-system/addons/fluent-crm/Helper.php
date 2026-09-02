@@ -2,7 +2,7 @@
 /**
  * Fluent CRM Integration helper functions.
  *
- * @since 1.14.0
+ * @since 1.14.0 [free]
  * @package Masteriyo\Addons\FluentCRM
  */
 //phpcs:ignoreFile
@@ -19,7 +19,7 @@ class Helper {
 	/**
 	 * Return if Fluent CRM is active.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return boolean
 	 */
@@ -30,7 +30,7 @@ class Helper {
 	/**
 	 * Return if Fluent CRM PRO is active.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @return boolean
 	 */
@@ -39,13 +39,13 @@ class Helper {
 	}
 
 	/**
-	 * Get the trigger source for the trigger.
+	 * Get trigger source for the integration.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param string $triggerName The trigger name.
 	 *
-	 * @return string|boolean The trigger source, or false if not found.
+	 * @return string|bool The trigger source, or false if not found.
 	 */
 	public static function masteriyo_get_trigger_source( $triggerName ) {
 		$maps = [
@@ -61,11 +61,11 @@ class Helper {
 	/**
 	 * Get item listing for the integration.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array  $items The integration items.
 	 * @param string $search The search term.
-	 * @param string $course_price The course price | free | paid.
+	 * @param string $course_price The course price | paid | free.
 	 *
 	 * @return array The items for the integration.
 	 */
@@ -116,7 +116,7 @@ class Helper {
 	/**
 	 * Deletes a user's enrollment in a course.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param int $userId user id.
 	 * @param int $courseId course id.
@@ -139,7 +139,6 @@ class Helper {
 		);
 
 		$user_course = current( $query->get_user_courses() );
-
 		if ( $user_course ) {
 			global $wpdb;
 
@@ -150,7 +149,7 @@ class Helper {
 					AND item_id = %d
 					AND item_type = 'user_course'",
 					$userId,
-					$course->get_id()
+					absint( $course->get_id() )
 				)
 			);
 
@@ -213,12 +212,12 @@ class Helper {
 	/**
 	 * Check if the user is enrolled in a course.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $courseIds The course IDs.
 	 * @param mixed $subscriber The subscriber.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function is_in_courses( $courseIds, $subscriber ) {
 		if ( ! $courseIds ) {
@@ -246,12 +245,12 @@ class Helper {
 	/**
 	 * Check if the user has completed a course.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [free]
 	 *
 	 * @param array $courseIds The course IDs.
 	 * @param mixed $subscriber The subscriber.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function is_courses_completed( $courseIds, $subscriber ) {
 

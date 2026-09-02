@@ -19,20 +19,24 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Notice;
 
+$field = isset( $field ) ? $field : array();
 ?>
 
 <div class="masteriyo-checkout----zip-code">
-	<label for="billing-zip-code" class="masteriyo-label">
+	<label for="billing-postcode" class="masteriyo-label">
 		<?php esc_html_e( 'Zip Code / Postal Code', 'learning-management-system' ); ?>
-		<span>*</span>
+		<?php if ( ! empty( $field['required'] ) ) : ?>
+			<span>*</span>
+		<?php endif; ?>
 	</label>
 
 	<input
 		type="text"
-		id="billing-zip-code"
+		id="billing-postcode"
 		class="masteriyo-input"
 		name="billing_postcode"
 		value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_billing_postcode() ); ?>"
+		<?php masteriyo_checkout_field_required_attributes( $field ); ?>
 	/>
 
 	<?php if ( masteriyo_notice_exists( 'billing_postcode', Notice::ERROR ) ) : ?>

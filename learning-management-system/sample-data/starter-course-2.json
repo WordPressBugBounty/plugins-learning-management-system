@@ -1,0 +1,1634 @@
+{
+ "manifest": {
+  "version": "1.0",
+  "created_at": "2026-01-01 00:00:00",
+  "base_url": ""
+ },
+ "terms": [
+  {
+   "slug": "photography",
+   "name": "Photography",
+   "taxonomy": "course_cat",
+   "description": "",
+   "parent": 0
+  }
+ ],
+ "courses": [
+  {
+   "ID": 900000,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Digital photography can feel intimidating because modern cameras are covered in modes, dials, and menus, but the underlying craft is smaller and more approachable than it looks. This course gives you the core skills to move past automatic mode and take deliberate control of your camera, so you can consistently produce sharp, well-exposed, and thoughtfully composed photographs instead of hoping the camera gets it right.</p>\n<p>We begin with the fundamentals of how a camera actually captures light, because an understanding of the sensor, the lens, and the viewfinder is the foundation everything else builds on. From there you will learn the three controls that together determine every exposure focus, brightness, and motion, and how to balance them with intention. You will then study composition, the visual language that turns a technically correct photo into an interesting one, and how to read and use light to your advantage rather than fighting against it.</p>\n<p>The final section is about real-world workflow: reviewing your shots, choosing your best images, organizing your files, and making confident choices about when to edit. Along the way, self-checks make sure each skill has actually landed before you move on. You will finish the course able to set up your camera for a scene in seconds, correct a common exposure mistake, and frame a subject with purpose.</p>\n<p>This course is designed for anyone with a digital camera, from a mirrorless or DSLR to a compact or a phone with manual controls. You do not need expensive gear or prior experience. The lessons are practical and gear-agnostic, meaning you will learn principles that apply to any camera brand or model. All you need is a camera you can hold, a willingness to experiment, and an hour here and there to practise.</p>",
+   "post_title": "Digital Photography Fundamentals",
+   "post_excerpt": "Master your camera and shoot sharp, well-exposed, beautifully composed photos with this practical beginner photography course.",
+   "post_status": "publish",
+   "comment_status": "open",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "digital-photography-fundamentals",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 0,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-course",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_price": [
+     ""
+    ],
+    "_access_mode": [
+     "open"
+    ],
+    "_duration": [
+     "180"
+    ],
+    "_difficulty_id": [
+     "0"
+    ],
+    "_show_curriculum": [
+     "1"
+    ],
+    "_reviews_allowed": [
+     "1"
+    ],
+    "_enrollment_limit": [
+     "0"
+    ],
+    "_is_sample_content": [
+     "1"
+    ]
+   },
+   "terms": [
+    {
+     "slug": "photography",
+     "name": "Photography",
+     "taxonomy": "course_cat"
+    },
+    {
+     "slug": "free",
+     "name": "free",
+     "taxonomy": "course_visibility"
+    }
+   ],
+   "attachments": []
+  }
+ ],
+ "sections": [
+  {
+   "ID": 900001,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Camera Fundamentals",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "camera-fundamentals",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900005,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Exposure Basics",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "exposure-basics",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900009,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Composition",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "composition",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900020,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Light and Color",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "light-and-color",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900024,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Practical Workflow",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "practical-workflow",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900000,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-section",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "lessons": [
+  {
+   "ID": 900002,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Every photograph you have ever taken, and every one you will ever take, starts with the same physical event: light striking a sensor and being recorded as a pattern of numbers. Before you touch a single setting, it is worth understanding this process, because every control on your camera is a way of influencing one part of it.</p>\n<p>A digital camera has four main parts that matter to you. In front is the lens, a stack of glass elements that gathers light from the scene and focuses it onto a small surface behind it. That surface is the sensor, a grid of millions of tiny light-sensitive sites called pixels. Behind the lens sits the shutter, a mechanism that opens and closes to let light reach the sensor for a controlled amount of time. Finally, the camera's processor reads the information the sensor captured and turns it into an image file you can view and edit.</p>\n<p>The journey goes like this. Light enters the front of the lens, passes through the glass, and travels toward the sensor. Somewhere between the lens and the sensor the light travels through the shutter. When you press the shutter button, the shutter opens, light races onto the sensor for a brief moment, and then the shutter closes again. During that moment the sensor records how much light struck each of its millions of pixels, and it stores those values.</p>\n<blockquote><p><strong>A key insight:</strong> the brightness of any photograph is simply the total amount of light that reached the sensor. Too little light and the photo looks dark and muddy, what photographers call underexposed. Too much light and it looks washed out and blown, which is overexposed. Understanding that exposure is a quantity of light makes every later lesson about controlling it feel obvious.</p></blockquote>\n<p>Each of the three main exposure controls affects a different part of this process. The shutter speed controls how long the window stays open, and therefore how long the sensor is exposed. The aperture, the opening inside the lens, controls how wide the light-gathering hole is, and therefore how much light passes at once. The ISO controls how sensitive the sensor is to the light it receives.</p>\n<p>Beyond this basic machine, the quality of the light itself matters. The angle, direction, hardness, and colour of light all shape how a photo looks even when the exposure is technically perfect, so two photos can have identical exposure and still look completely different.</p>\n<blockquote><p><strong>The point of this lesson:</strong> you do not need to understand every detail of the electronics to photograph well, but you do need this mental model of light flowing through the lens and shutter onto the sensor. Every control you will use from now on is a lever on that flow. Hold onto this picture of the camera as a machine that measures light, and the rest of the course builds naturally from it.</p></blockquote>",
+   "post_title": "How a Digital Camera Captures Light",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "how-a-digital-camera-captures-light",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900003,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Of the three exposure controls, shutter speed is the easiest to feel, because its effect on your photos is immediate and visible. It controls how long the shutter stays open, and that length of time decides whether motion appears frozen or blurred.</p>\n<p>Shutter speed is measured in seconds and fractions of a second. Fast speeds, like one five hundredth of a second, keep the window open for a very brief moment. Slow speeds, like one thirtieth of a second, keep it open noticeably longer. The faster the shutter speed, the less time the sensor has to collect light, but the better it is at freezing fast action.</p>\n<p>Think of the concept in a simple way. When something moves while the shutter is open, it travels a little distance across the sensor, and that travel shows up as blur. A fast shutter speed lets the subject move only a tiny amount before the shutter closes, so the subject appears sharp and frozen. A slow shutter speed lets the subject travel farther during the exposure, so it appears blurred or streaked.</p>\n<blockquote><p><strong>A practical guideline for handheld shooting:</strong> as a general rule, avoid going slower than about one over your lens's focal length when shooting by hand. If you are shooting at 50 millimetres, keep the shutter speed at or faster than one fiftieth of a second to avoid blur from your own hands. Below that, camera shake becomes a real risk, and you should use a tripod or a steadier technique.</p></blockquote>\n<p>The right shutter speed depends entirely on what is moving and how fast. A sleeping cat is still and can be shot at a slow speed. A sprinter tearing across a track needs one five hundredth of a second or faster to freeze cleanly. Water rushing in a river responds beautifully to a slower speed, where it turns into a smooth, silky blur that conveys motion.</p>\n<blockquote><p><strong>A creative opportunity:</strong> a slow shutter speed is not always a mistake. Deliberate blur is a powerful tool. A stream photographed at one second shows water as soft white silk. A moving car photographed at one thirtieth can show streaked headlights against a sharp background. Learn to use slow speeds on purpose and you add a whole new tool to your kit.</p></blockquote>\n<p>Because shutter speed also controls how much light reaches the sensor, choosing it is always a balance. A fast shutter speed lets in less light, which is why fast speeds are harder in dim conditions. If you want to freeze movement but the scene is dark, you have to make up the light elsewhere, which is exactly where the aperture and the ISO controls come in, both covered in the coming lessons.</p>\n<blockquote><p><strong>Something to notice:</strong> when you half-press the shutter on most cameras, the light meter shows you recommended settings. Read them as a starting point, not a law. Rarely, the meter will suggest a shutter speed too slow to freeze your subject. When that happens, you raise the ISO or open the aperture rather than accepting the blur. Learning to override the meter with your own judgement about motion is a defining skill of a thinking photographer.</p></blockquote>",
+   "post_title": "Shutter Speed and Motion",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "shutter-speed-and-motion",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900004,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>The aperture is the opening inside your lens that controls how much light passes through at any moment, but it does much more than brightness. It also changes how much of your scene appears sharp in the final image, a behaviour known as depth of field. This is the least intuitive of the three controls.</p>\n<p>The aperture is described by an f-number, written like f/2.8, f/5.6, or f/11. Here is the part that confuses almost every beginner: a smaller f-number means a wider opening, and a larger f-number means a narrower opening. So f/2.8 lets in a lot of light, while f/16 lets in very little. It feels backwards at first, and the reason is that the number is a fraction, a ratio of the lens focal length to the opening diameter. Once you accept that f/2.8 is a big opening and f/16 is a small one, the field makes sense.</p>\n<blockquote><p><strong>A memory aid:</strong> think of the f-number as a fraction, such as one over 2.8 versus one over 16. One over 2.8 is a larger number than one over 16, and a larger fraction corresponds to a wider opening. Practise this a few times and the reversal stops feeling reversed.</p></blockquote>\n<p>Depth of field is the range of distance in front of and behind your focus point that appears acceptably sharp. A shallow depth of field means only a thin slice is sharp, with the background dissolving into soft blur. A deep depth of field means everything from near to far, from the flowers in front to the mountains behind, appears sharp.</p>\n<p>Wide apertures, the small f-numbers, create a shallow depth of field. This is why portrait photographers often shoot at f/1.8 or f/2.8, so the subject's eyes are tack sharp while the messy background melts away. Narrow apertures, the large f-numbers like f/11 or f/16, create a deep depth of field, which is why landscape photographers stop down to keep a whole sweeping vista in focus.</p>\n<blockquote><p><strong>A practical trade-off:</strong> opening the aperture lets in more light and gives you a soft background, but it also narrows the slice that is sharp. If you shoot a group of people at f/2, you may find the front row sharp and the back row soft. When everything must be in focus, you close the aperture, and you often need a slower shutter speed or a tripod to make up for the reduced light.</p></blockquote>\n<p>There are two other factors that affect depth of field, and a good photographer keeps all of them in mind together. The distance to your subject matters, and the closer you are to the subject, the shallower the depth of field at the same aperture. The lens's focal length matters too, and longer lenses show a shallower depth of field than wide-angle lenses at the same aperture.</p>\n<blockquote><p><strong>The point to carry forward:</strong> aperture is never just about brightness, because every change to the opening also changes what is sharp. The skilled move is to choose the aperture primarily for the depth of field you want, then let shutter speed and ISO manage the light. Think of aperture as a focus tool first and a light tool second, and your portraits and landscapes will both improve.</p></blockquote>",
+   "post_title": "Aperture and Depth of Field",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "aperture-and-depth-of-field",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900001,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900006,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>The third of the three exposure controls, ISO, is the one beginners often misuse the most, because it is the most abstract and the most tempting to crank up. ISO controls the sensitivity of your camera's sensor to light, and understanding it, especially its cost, is essential to controlling exposure without wrecking image quality.</p>\n<p>The ISO setting began life in film photography as the speed rating of the film, and it survived into digital as a sensitivity setting. A low ISO, like 100 or 200, means the sensor is not very sensitive and needs more light to make a proper exposure. A high ISO, like 3200 or 6400, means the sensor is very sensitive and needs much less light. Raising the ISO is how you make a dim scene photographable.</p>\n<blockquote><p><strong>The core concept:</strong> think of ISO as the volume knob on a speaker. Turning it up makes a quiet signal louder, but it also amplifies the background hiss. In photography that hiss is called noise, a grainy, speckled texture that appears in the smooth tones of a photo, especially in shadows. Low ISO, low noise. High ISO, more noise. There is no free lunch, and boosting sensitivity always costs something.</p></blockquote>\n<p>So why would anyone raise the ISO if it adds noise? Because light is often scarce. Indoors without windows, at dusk, at night, or on an overcast day in a forest, there simply may not be enough light for a clean low-ISO shot at a usable shutter speed. In those situations, the choice is not between clean and noisy. It is between a noisy-but-sharp shot and a clean-but-blurry one, and a sharp noisy photo almost always beats a blurry clean one.</p>\n<blockquote><p><strong>A good strategy:</strong> always start at your camera's base ISO, which is usually 100 or 200 and gives the cleanest image. Raise the ISO only when you need a faster shutter speed, to freeze motion or avoid camera shake, and only raise it as far as you need. Modern cameras handle moderate ISO values such as 800 or 1600 extremely well, so do not fear them, but do not climb higher than the situation demands.</p></blockquote>\n<p>The acceptable amount of noise depends on your camera and your purpose. A newer, larger-sensor camera at ISO 3200 might still look clean, while an older compact camera at ISO 1600 could look quite grainy. A photo for a phone screen tolerates more noise than a large fine-art print. Learning your own camera's noise limits, by shooting the same scene at several ISOs and reviewing the results, is a genuinely useful exercise.</p>\n<blockquote><p><strong>A final distinction:</strong> noise is not the same as sharpness problems, though they can look similar at a glance. Noise shows up as fine grain in smooth areas, while a soft focus shows up as a lack of fine detail across textures. Review the actual image at high magnification to know which problem you are facing, because the fix for each is different. You trade noise against sharpness, and understanding which trade you are making is the skill this lesson exists to build.</p></blockquote>",
+   "post_title": "ISO and Image Noise",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "iso-and-image-noise",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900007,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Now that you understand all three controls, it is time to see how they fit together, because no single control stands alone. Aperture, shutter speed, and ISO form what photographers call the exposure triangle, and mastering the triangle is the single most important step to shooting outside of automatic mode. This lesson shows how the three interact and how to balance them.</p>\n<p>The exposure triangle rests on one non-negotiable fact: aperture and shutter speed both control how much light reaches the sensor, and ISO controls how the sensor interprets that light, but in all three cases a change to one can be compensated by a change to the others. If you open the aperture by one step, letting in twice the light, you can close the shutter speed by one step, halving the light, and keep the total exposure exactly the same, though the look of the photo changes.</p>\n<blockquote><p><strong>The key skill:</strong> exposure is a balance, not a target you memorise. The camera can often make a correct exposure on its own, but it cannot know whether you want to freeze motion or blur a background. Your job is to assign the three controls their jobs so the exposure is correct while the photograph looks the way you intend.</p></blockquote>\n<p>Each control carries a different side effect, and this is what makes balancing interesting. Aperture controls depth of field, so it decides what is sharp. Shutter speed controls how motion is rendered, so it decides what is frozen and what is blurred. ISO controls noise, so it decides how clean the image is. There is no setting that changes light with zero side effect, which is why the craft of exposure is really the craft of choosing which side effect you can afford.</p>\n<blockquote><p><strong>A working method:</strong> decide what the photo absolutely needs. For a fast-moving subject, set the shutter speed first to freeze it. For a portrait, set the aperture first for the background you want. Then use the remaining two controls to make the exposure work, adjusting ISO last, because it only affects quality rather than the look of motion or sharpness.</p></blockquote>\n<p>The concept of the \"stop\" is the arithmetic of the triangle. A stop is a doubling or halving of light. Going from f/4 to f/2.8 is one stop of extra light, from one hundredth of a second to one fiftieth is one stop too, and from ISO 400 to ISO 800 is another. Because all three use the same stop, you can trade a stop in one for a stop in another and keep the exposure constant. The most powerful photographers can look at a scene and know their triangle almost by heart.</p>\n<blockquote><p><strong>A common starting point:</strong> for a bright outdoor scene a common combination is a moderate aperture like f/8, a fast shutter around one two hundred fiftieth, and the base ISO. From there you can trade, opening the aperture for a blurry background, slowing the shutter to capture motion, or raising the ISO when the light drops. Making these trades consciously is the difference between a photographer and someone who just lets the camera guess.</p></blockquote>",
+   "post_title": "The Exposure Triangle",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "the-exposure-triangle",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900008,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Before the shutter opens, your camera estimates how much light the scene needs, a process called metering, and it is this estimate that most settings and the exposure triangle are built around. This lesson covers what the meter does and how to work with it.</p>\n<p>Every camera has a light meter that measures the brightness of the scene and recommends an exposure. On most cameras this shows up as a small scale, often with a zero in the middle, and the goal is usually to bring the indicator to that zero, meaning the exposure is balanced. The settings the meter suggests are a starting point, and learning to read the meter tells you instantly whether a scene will come out bright or dark.</p>\n<p>The complication is that a meter sees everything as grey. It is designed to produce a middle-toned result, roughly the brightness of average skin or a grey card. If you point it at a mostly black scene, it will try to brighten it toward grey, and your blacks will come out grey. If you point it at a mostly white scene, like snow, it will darken it toward grey, and your whites will come out dull. This is why snow always looks grey in beginner photos.</p>\n<blockquote><p><strong>A classic example:</strong> photographing a snowy field, most auto settings will produce a grey, muddy image because the meter assumes the bright white is middle grey and underexposes to compensate. The fix is to add exposure, not subtract it. Similarly, a subject lit against a bright window will be left dark because the meter reads the bright background. Recognizing when the meter is fooled is the real skill.</p></blockquote>\n<blockquote><p><strong>Don't take the meter's word as law:</strong> the meter is a suggestion based on a grey-world assumption. When the scene breaks that assumption, you override. Most cameras let you apply exposure compensation, a plus or minus adjustment that brightens or darkens the result while keeping your chosen aesthetic, which is a fast and effective habit.</p></blockquote>\n<p>The most reliable way to confirm your exposure is with the camera's histogram, a small graph of brightness values in the photo. A good exposure usually shows a curve that fills the graph from left to right without spikes jammed against either edge, which would indicate crushed blacks or blown highlights. Learning to check the histogram instead of squinting at the screen is a professional habit that will save many a shot.</p>\n<blockquote><p><strong>Where this leads:</strong> with metering and the exposure triangle understood, you can reliably make a technically correct exposure in almost any condition. The next section moves from technical correctness to visual interest, because a perfectly exposed photo that is poorly composed is still a forgettable one. Composition is where you begin to make photographs rather than just take them.</p></blockquote>",
+   "post_title": "Metering and Making Correct Exposure",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "metering-and-making-correct-exposure",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900005,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900010,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Composition is the art of arranging the elements in your frame so they are pleasing and purposeful, and the rule of thirds is the best-known tool for starting to do it well. It is simple to learn, instantly improves your images, and gives you a vocabulary for discussing why some photos work. This lesson explains the rule and how to use it without becoming a prisoner of it.</p>\n<p>The rule of thirds divides your frame into nine equal rectangles by drawing two imaginary vertical lines and two horizontal lines, like a tic-tac-toe grid. The rule suggests you place your key subjects along these lines or at the intersections, called power points, rather than dead centre. Most cameras can display this grid in the viewfinder, so you do not have to imagine it, just switch the grid overlay on.</p>\n<blockquote><p><strong>Why it works:</strong> when a subject sits dead centre, the eye lands on it and stays, and the rest of the frame can feel static or empty. When a subject sits near one of the grid lines, the eye moves around the frame to explore, which feels more natural and more dynamic. The off-centre placement creates a subtle tension and balance that most viewers find more engaging.</p></blockquote>\n<p>The rule applies to both placement in general and to the horizon line in landscapes. Instead of placing the horizon across the exact middle of the frame, put it along the upper or lower third line. If the sky is dramatic, let it take the upper two thirds. If the foreground is interesting, give it the lower two thirds. Either way, the composition becomes intentional rather than accidentally halved.</p>\n<blockquote><p><strong>A practical application:</strong> when you shoot a portrait, place the subject's eyes near one of the upper power points rather than centring the face. When you photograph a lone tree, put it on one of the vertical lines with empty space leading the eye toward it. When the subject is moving or looking to one side, leave space in front of them in the direction they face, which gives the eye somewhere to travel.</p></blockquote>\n<p>The rule of thirds is a starting point, not a law. Some of the most powerful images break it on purpose, such as a perfectly symmetrical shot with a centred subject, which can feel strong and formal. The point of learning the rule is not to obey it mechanically, but to internalize a sense of balance, then deliberately choose when to follow it and when to break it for effect.</p>\n<blockquote><p><strong>A useful experiment:</strong> take one subject and photograph it every way you can think of, centred, on each third, near each power point, with and without leading space. Review them all side by side. You will see immediately which ones hold your attention. This is the most effective way to train your eye, because the comparison teaches you the difference far better than any rule stated in words.</p></blockquote>",
+   "post_title": "The Rule of Thirds",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "the-rule-of-thirds",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900011,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>While the rule of thirds places a subject on a grid, composition has deeper tools for guiding the viewer's eye through the image. Leading lines and natural framing direct attention toward your subject, often without the viewer realizing it. This lesson teaches you to see these opportunities and use them deliberately.</p>\n<p>A leading line is any line in the scene that points toward your subject and carries the viewer's gaze there. Roads, railway tracks, rivers, fences, and the edge of a building can all act as leading lines. The photographer's skill is arranging these lines so they enter the frame, travel across it, and arrive at the subject, creating a path the eye cannot help but follow.</p>\n<blockquote><p><strong>Why they matter:</strong> a photo where the eye has to search for the subject feels cluttered and stressful, while a photo with a clear path feels composed and calm. Leading lines hand the viewer a route straight to what matters. When you frame a shot, scan the scene for anything linear and ask whether it can be used to point at your subject, from the bottom corner of the frame up to the main point of interest.</p></blockquote>\n<p>Leading lines are most effective when they run diagonally rather than being perfectly horizontal or vertical. A diagonal line travels through the frame and creates depth and energy, while a line that splits the frame in half can feel rigid and divide the image into disconnected halves. Experiment with where you stand, moving left or right, higher or lower, to change the angle and diagonal of the line you are using.</p>\n<p>Natural framing uses the elements of the scene as a frame around your subject. A doorway, a window, an arch, overhanging branches, or the gap between two buildings can all encircle the subject and isolate it from its surroundings. The frame draws the eye inward and adds depth and context, making the subject feel found rather than merely placed.</p>\n<blockquote><p><strong>A powerful combination:</strong> build your shot so both tools work together. Let a road lead the eye toward a person standing in a doorway, using the leading line to deliver the gaze and the frame to hold it. When leading lines and natural framing reinforce each other, the composition becomes doubly strong, and the subject gets the viewer's full attention.</p></blockquote>\n<blockquote><p><strong>A caution:</strong> framing should never become clutter. A busy arch or a branch slicing across the lens edge can distract more than it helps. Ask whether the frame adds context and focus or simply noise. If the surrounding structure fights with your subject, drop the framing and simplify. Compositions that try to do too much do nothing well.</p></blockquote>",
+   "post_title": "Leading Lines and Framing",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "leading-lines-and-framing",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900012,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Beyond placing subjects on thirds or guiding the eye with lines, good composition manages the overall balance of the frame. Balance, symmetry, and negative space are the tools for making an image feel stable, intentional, and calm, and they are some of the most subtle yet powerful skills a photographer builds. This lesson explains how to use them.</p>\n<p>Balance is the visual weight distribution in a frame. A photograph feels balanced when its elements are arranged so no single area visually overwhelms the rest. A small, detailed subject on one side can be balanced by a larger, plainer area on the other side, or a bright object can be balanced by a dark one. Unbalanced images feel tilted or heavy, and learning to sense that tilt is the first step to fixing the frame before you press the shutter.</p>\n<blockquote><p><strong>A mental model:</strong> think of visual weight like physical weight on a see-saw. A big mass close to the centre balances a smaller mass far from the centre. The same principle works in a frame. A tiny bird in the upper right can balance a large dark tree in the lower left if their positions and visual mass feel equivalent. You are arranging weights, not just placing subjects.</p></blockquote>\n<p>Symmetry is the most literal form of balance, where the two halves of the frame mirror each other. Reflections in still water, buildings with identical halves, and corridors with matching sides all lend themselves to symmetrical compositions. A centred, symmetrical shot can feel formal, strong, and meditative, and it works especially well when it is clean and without clutter.</p>\n<blockquote><p><strong>When to use symmetry:</strong> choose symmetry when the scene actually has structure to mirror. A perfectly still lake reflecting a mountain range is made for symmetry. But do not force symmetry onto every scene in search of neatness. Most scenes are better served by the more dynamic thirds or leading-line approach.</p></blockquote>\n<p>Negative space is the empty or unoccupied area of a frame, the sky around a bird, the blank wall behind a portrait, the open water around a boat. Negative space gives your subject room to breathe and can create a powerful sense of solitude, scale, or minimalism.</p>\n<blockquote><p><strong>A refined touch:</strong> use negative space deliberately to control mood. Generous empty space around a small subject conveys isolation or calm, while a tightly cropped composition conveys energy and intimacy. The amount of empty space you leave is a creative choice, so make it a choice rather than an accident. Deciding not to fill every inch is often what separates a thoughtful photograph from a busy one.</p></blockquote>\n<blockquote><p><strong>Where this leads:</strong> with balance, symmetry, negative space, leading lines, and thirds under your belt, your framing instinct will grow quickly. But a photograph is more than a frame; the way light falls across the scene is equally powerful. The next section turns from how you arrange things to how you read and chase light and colour, the other half of a compelling image.</p></blockquote>",
+   "post_title": "Balance, Symmetry, and Negative Space",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "balance-symmetry-and-negative-space",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900021,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Light is the raw material of photography, and the quality of that light changes a scene from flat to fantastic. The single biggest improvement many photographers make is learning to look at light first and chase it, arriving when the light is good instead of fighting whatever they find. This lesson teaches you to read the quality of light and use it.</p>\n<p>Light can be described along two axes that matter hugely to photography: its hardness or softness, and its direction. Soft light falls gently, with gradual shadows that have soft edges, and it is flattering for most subjects. Hard light falls directly, creating crisp, dark shadows with hard edges, and it can look dramatic or harsh depending on how you use it. The size of the light source relative to the subject determines softness: a large, close source gives soft light, and a small, distant source gives hard light.</p>\n<blockquote><p><strong>A rule to remember:</strong> softness comes from the size of the light source, not its brightness. A huge overcast sky produces marvellously soft light because the whole sky becomes one giant softbox. The midday sun high overhead is a small, hard source that casts sharp, unflattering shadows. This is why portrait photographers avoid shooting in the harsh middle of the day and prefer overcast skies or the golden hour.</p></blockquote>\n<p>Direction determines which parts of the subject are lit and which fall into shadow. Front light, shining from behind the camera, illuminates everything evenly but can look flat. Side light, raking across the subject from one side, sculpts form and texture by catching edges and casting shadows. Back light, coming from behind the subject toward the camera, creates a rim of light around edges and can produce a striking silhouette.</p>\n<blockquote><p><strong>The golden hour:</strong> the hour or so after sunrise and before sunset is often called the golden hour, when the sun sits low and its light is warm, soft, and long-shadowed. Landscape and portrait photographers schedule shoots around it because the quality of light in these windows is dramatically more flattering than the harsh light of midday. If you want pleasing light easily, learn when the golden hour falls in your location and plan around it.</p></blockquote>\n<p>Sometimes the light is just not flattering on its own, and part of the craft is managing it. A harsh midday sun can be softened by moving a subject into open shade, under a tree or beside a building, where the light becomes diffused and flattering. Great photographers are not only people who find good light, but people who position subjects to make the best of the light available.</p>\n<blockquote><p><strong>The habit to build:</strong> look at a scene through the lens of light before anything else. Where is the light coming from, is it hard or soft, and what direction is it? Move yourself or your subject to change those answers. Photographers who consistently evaluate light as their first move, before worrying about settings, quickly outshoot those who reach for the settings first.</p></blockquote>",
+   "post_title": "Reading the Quality of Light",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "reading-the-quality-of-light",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900020,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900022,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Colours in your photos are not fixed. The light around you has a colour of its own, and your camera has to decide how to neutralize it so white objects actually look white. That decision is white balance, and getting it right keeps your images from looking orange in warm light or blue in shade. This lesson explains colour temperature and how to control white balance.</p>\n<p>All light has a colour temperature, measured in kelvin on a scale. Warm light, such as from a candle or an incandescent bulb, sits at the low end of the scale and looks orange. Cool light, such as from shade or an overcast sky, sits at the high end and looks blue. In-between, neutral daylight sits around five thousand five hundred kelvin. Your camera records whatever colour is in the light, so a photo taken in warm lamplight will come out orange unless something corrects it.</p>\n<blockquote><p><strong>The funny part of the name:</strong> colour temperature feels backwards at first, because \"warm\" light has a low kelvin number and \"cool\" light has a high one. It is a holdover from physics, where hotter objects glow toward the blue. Do not fight the convention, just learn it: warm is low kelvin, cool is high kelvin, and you adjust white balance to cancel whichever way the light leans.</p></blockquote>\n<p>White balance is the process of telling the camera what in the scene should be white, so it can remove the colour cast. Most cameras have automatic white balance, which usually does a good job in neutral daylight but can struggle in mixed or unusual light, such as a room lit by both window light and warm bulbs. When auto gets it wrong, you switch to a preset like daylight, cloudy, shade, or tungsten, or you set it manually for accuracy.</p>\n<blockquote><p><strong>A practical scenario:</strong> photographing indoors where the camera gives your white walls an orange glow is a near-universal experience. Changing white balance to the tungsten or indoor preset, or taking a manual reading off a white surface, cancels the orange and restores true white. Learning that the colour cast is a fixable white balance problem, rather than a permanent flaw, saves you from giving up on perfectly good images.</p></blockquote>\n<p>The most reliable way to set white balance correctly, especially in tricky or mixed light, is to shoot a white balance reference, such as a white card or a grey card, in the scene and use it to set the colour. In many cameras you can photograph the card and then select that image as the reference for correct white balance. This guarantees the rest of your shots in that light have neutral, accurate colour.</p>\n<blockquote><p><strong>A creative choice worth making:</strong> remember that \"correct\" white balance is a default, not an obligation. Keeping a slight warm cast in a candlelit scene preserves the cosy mood that auto correction would strip away. Leaving a cool cast in moonlight feels calm. Colour is a creative tool once you can control it, so learn to neutralize it reliably, then feel free to leave it warm or cool on purpose when the mood calls for it.</p></blockquote>",
+   "post_title": "White Balance and Color Temperature",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "white-balance-and-color-temperature",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900020,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900023,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>Every photographer eventually meets light that refuses to cooperate: backlit subjects, strong dappled patches, and scenes brighter than your sensor can handle. These situations are not misfortunes to be avoided, but skills to be learned, because handling difficult light well is what separates reliable photographers from fragile ones. This lesson gives you workable approaches to the toughest common lighting.</p>\n<p>A backlit subject, where the main light comes from behind the subject toward your camera, presents a stark choice. Metering on the bright background will leave the subject dark, often as a silhouette. You have two deliberate choices: either embrace the silhouette, exposing for the background to create a graphic, striking image, or add light to the subject's front, using a flash, a reflector, or by moving the subject, to balance the front against the back.</p>\n<blockquote><p><strong>A practical start:</strong> when you want to salvage detail in a backlit face rather than a full silhouette, it usually helps to meter from the subject's face itself, or to dial positive exposure compensation. Many cameras also place a much better starting point here when you raise the correction a step or two. Then review the result and adjust. Just be aware that against a very bright sky, the sensor may still blow out the background to save the face.</p></blockquote>\n<p>Dappled light, where sunlight filters through leaves to create a patchwork of bright spots and shadow, is famously tricky for portraits. A bright spot can land on a nose or an eye and blow it out while the rest of the face sits in shade. The simplest fix is to move, either the subject into open shade or your position, to find more even light. If you cannot move, position the face so the dappling is less distracting, or fill the shadows with a reflector.</p>\n<blockquote><p><strong>A high-contrast scene:</strong> when part of your frame is very bright and part very dark, the sensor cannot capture detail in both at once, a limitation called dynamic range. The professional approach is to decide which matters more, expose for that part, and let the other go, or use bracketing, taking several exposures and combining them later. Choosing your exposure deliberately for the part of the scene that matters is the mark of someone in control.</p></blockquote>\n<blockquote><p><strong>A reassuring mindset:</strong> there is no such thing as bad light, only light you have not yet worked out. The same harsh midday sun that flatters nothing is perfect for graphic street shadows and high-contrast shapes. The dullest overcast day is ideal for soft portraits and close product shots. Learning to see what each kind of light is good for, and shooting to its strengths rather than against them, turns lighting problems into creative advantages.</p></blockquote>\n<p>The final habits are humility and preparation. Bring a reflector or a small flash so you are never helpless in backlight. Learn your sensor's limits by reviewing histograms. Patience with light, and a plan for when it is difficult, will rescue more shots than any single setting ever will.</p>",
+   "post_title": "Working with Dappled, Backlit, and Difficult Light",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "working-with-dappled-backlit-and-difficult-light",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900020,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900025,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>The photographs you show the world are a small selection of the frames you capture, and learning to review and choose your best work is a skill as important as taking the pictures. Culling, the habit of ruthlessly removing the weak frames early, makes your workflow faster, your memory cards cleaner, and your final results stronger. This lesson teaches a dependable review method.</p>\n<p>Begin by reviewing your shots while the technical details are fresh in your mind. Look at each image at full screen and zoomed in, checking focus and sharpness first. A slightly off-focus shot cannot usually be rescued, so if the eyes of a portrait are soft, that frame is a candidate for deletion no matter how beautiful the composition. Checking focus objectively, rather than falling in love with the subject, is the first cut.</p>\n<p>Next, judge the exposure using the histogram as your guide. Look for crushed blacks jammed against the left edge or blown highlights piled against the right, which indicate lost detail you cannot recover. A frame that is hopelessly blown in the highlights it needs is another deletion candidate. Technical flags like these are the fastest, most objective way to narrow a large set of images down to a manageable number.</p>\n<blockquote><p><strong>A two-pass approach:</strong> on the first pass, delete only the objectively broken frames, the out-of-focus, badly exposed, or redundant ones. On the second pass, compare the survivors against each other to find the strongest few. Trying to judge quality and technicality at the same time is exhausting and unreliable, so separate the two and you will make better, faster decisions.</p></blockquote>\n<p>When it comes to choosing between similar frames, resist the urge to keep many near-identical shots. Ask which single image best captures the scene, the mood, the light, and the moment. Choosing your best single image, rather than hedging with many, is a sign of confidence in your eye.</p>\n<blockquote><p><strong>A practical discipline:</strong> for everyday shooting, aim to show only a small fraction of what you capture. A common professional ratio is to share a handful of strong images from an outing of hundreds of frames. The value of your work is judged by the best you show, not by the volume you shoot, so make your selection process generous with deletion and stingy with sharing.</p></blockquote>\n<p>Finally, do your most honest comparing after a break. Returning to a contact sheet, a grid of your remaining candidates, with fresh eyes the next day will reveal preferences that felt strong in the moment but fade on reflection. Photography improves from honest self-assessment more than from any other habit.</p>\n<blockquote><p><strong>Where this leads:</strong> once you have chosen the shots worth keeping, the next step is deciding how much processing each one needs. Editing is the natural continuation of selection, so the coming lesson moves from choosing your images to refining them, after which this final section closes with file management and editing decisions.</p></blockquote>",
+   "post_title": "Reviewing and Choosing Your Best Shots",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "reviewing-and-choosing-your-best-shots",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900024,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900026,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A great capture is only the beginning, and editing is where many good photos become their final, polished selves. But editing can also be overdone, and a photo ruined by heavy-handed processing is a painful waste of a good capture. This lesson teaches an editing approach built on restraint, so you enhance your images without destroying them.</p>\n<p>Think of editing in stages, and do most of your work on the global adjustments before you touch anything localized. Global adjustments affect the whole image. Cropping and straightening come first, to fix framing and horizons. Then balance the exposure and contrast, correct the white balance with the skills from the light section, and adjust the highlights and shadows to recover detail that is close to the edge. These global fixes do the heavy lifting.</p>\n<blockquote><p><strong>The order matters:</strong> correct your framing, exposure, and colour before you get creative. If you add a dramatic effect to a crooked, poorly exposed image, you are decorating a flawed base. Getting the fundamentals right first means your image stands on a solid foundation, and any creative changes then sit on something clean rather than hiding errors.</p></blockquote>\n<p>Work in moderation on the big sliders. A little contrast, a little clarity, a touch of saturation, applied globally, will usually improve most images. The danger is the creeping excess that happens a small step, another small step, until the image starts to look overcooked, with glowing halos around edges, unnatural colours, and lost subtlety. A useful discipline is to dial in what looks good, then pull it back slightly, because the tendency to overshoot is strong.</p>\n<blockquote><p><strong>A habit that helps:</strong> zoom to one hundred percent and check edges for halos, bright or dark outlines around objects that appear when contrast and sharpening are pushed too far. Oversharpening is one of the most common amateur editing errors, so apply sharpening only for display size and only where it is needed. When in doubt, sharpen less, because a softly sharpened image looks far more natural than an obviously overprocessed one.</p></blockquote>\n<p>Just as with composition, a small, guided series of edits beats a scattershot approach. Rather than loading every slider to maximum, ask what the image actually needs. Is it too flat, too dark, too blue, too crooked, too soft? Address the specific problems you can name. An image edited with a clear intent, even minimally, almost always looks better than one that has every control moved without purpose.</p>\n<blockquote><p><strong>A final reminder:</strong> the goal of editing is to make your photo look its best, not to make it look obviously edited. Viewers rarely praise the processing; they praise the image, and the best processing is the kind that serves the image without drawing attention to itself. Keep your edits restrained, keep the fundamentals solid, and let the capture, the light, and the composition carry the shot. That is where professionalism shows.</p></blockquote>",
+   "post_title": "Editing with Restraint",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "editing-with-restraint",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900024,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900027,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "<p>A photographer's library grows quickly, and an unorganized archive becomes a source of frustration and lost work. Building a simple, consistent system for naming, organizing, and backing up your images is not glamorous, but it is the habit that protects years of effort. This lesson gives you a dependable workflow for keeping your archive tidy and safe.</p>\n<p>The beginning of order is a clear folder structure. A common and effective scheme organizes by date and project, such as a Year folder containing Month folders, with each shoot then named by subject, like \"2026-04-marathon\". Whatever scheme you choose, the point is consistency, so you can always predict where a given shoot lives and always find an image again without a search.</p>\n<blockquote><p><strong>Why you will thank yourself:</strong> years from now, when someone asks for a photo from a specific event, you want to know instantly which folder to open. A folder system that is logical when it is small keeps working when it is large. The ten minutes you spend setting up a naming scheme early repays itself a thousand times over, while an improvised mess quietly becomes unusable as it grows.</p></blockquote>\n<p>Naming individual files consistently helps as well. Instead of relying on camera-generated file numbers alone, which reset and collide, include a hint of content in the name so the file stays self-explanatory even if it is moved.</p>\n<p>Backing up is non-negotiable. A single copy of your archive is not a backup, because a failing drive, a lost device, or an accident destroys it with no recovery. The reliable minimum is the three-two-one rule: three copies of your data, on two different types of media, with one stored off-site. That usually means one copy on your working computer, one on an external drive, and one in cloud or remote storage.</p>\n<blockquote><p><strong>A practical cadence:</strong> set a habit of backing up your archive on a schedule rather than only when you remember and panic. Whether you back up at the end of every shoot or on a fixed day each week matters less than doing it consistently.</p></blockquote>\n<p>Finally, treat the full workflow as one connected habit. Import your images into the same place every time, back up regularly, and only then begin the reviewing and editing. When importing, organizing, and backing up become automatic, they stop feeling like chores and start feeling like the calm backbone of your practice. Your future self, searching for a shot from a sunny afternoon months ago, will thank you for the order you keep now.</p>\n<blockquote><p><strong>Where this all lands:</strong> this practical workflow of reviewing, editing, and organizing is the quiet skill that completes the loop from shaking the camera free in the field to reliably producing finished, shareable, safe work. Combine it with the exposure, composition, and light skills from the rest of this course, and you have the complete toolkit of a capable digital photographer. Go shoot something you love.</p></blockquote>",
+   "post_title": "Organizing and Storing Your Archive",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "organizing-and-storing-your-archive",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900024,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-lesson",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_video_source": [
+     "self-hosted"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "quizzes": [
+  {
+   "ID": 900013,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Composition Check",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "composition-check",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900009,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "6"
+    ],
+    "_pass_mark": [
+     "4"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900028,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "",
+   "post_title": "Photography Core Check",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "photography-core-check",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900024,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-quiz",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_course_id": [
+     "900000"
+    ],
+    "_full_mark": [
+     "8"
+    ],
+    "_pass_mark": [
+     "5"
+    ],
+    "_duration": [
+     "10"
+    ],
+    "_attempts_allowed": [
+     "0"
+    ],
+    "_questions_display_per_page": [
+     "0"
+    ],
+    "_pass_mark_type": [
+     "point"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ],
+ "questions": [
+  {
+   "ID": 900014,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Two horizontal lines only\", \"correct\": false}, {\"name\": \"Two imaginary vertical lines and two horizontal lines\", \"correct\": true}, {\"name\": \"A single diagonal line\", \"correct\": false}, {\"name\": \"Ten equal horizontal strips\", \"correct\": false}]",
+   "post_title": "Under the rule of thirds, what divides the frame into nine equal parts?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "under-the-rule-of-thirds-what-divides-the-frame-into-nine-equal-parts",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900015,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It makes the image sharper\", \"correct\": false}, {\"name\": \"It lets the eye move around the frame and feel more dynamic\", \"correct\": true}, {\"name\": \"It hides background clutter entirely\", \"correct\": false}, {\"name\": \"It forces the viewer to read the labels\", \"correct\": false}]",
+   "post_title": "What is the main benefit of off-centring a subject near a grid line?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-main-benefit-of-off-centring-a-subject-near-a-grid-line",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900016,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Any line that splits the frame in half\", \"correct\": false}, {\"name\": \"A line drawn by the editing software\", \"correct\": false}, {\"name\": \"A line in the scene that points toward and guides the eye to the subject\", \"correct\": true}, {\"name\": \"The horizon in a landscape\", \"correct\": false}]",
+   "post_title": "What is a leading line?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-a-leading-line",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900017,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The dark areas caused by high ISO\", \"correct\": false}, {\"name\": \"The empty or unoccupied area that gives the subject room to breathe\", \"correct\": true}, {\"name\": \"The space behind the lens\", \"correct\": false}, {\"name\": \"A blurry out-of-focus background\", \"correct\": false}]",
+   "post_title": "What is negative space in a photograph?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-negative-space-in-a-photograph",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900018,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Leading lines\", \"correct\": false}, {\"name\": \"The rule of thirds\", \"correct\": false}, {\"name\": \"Symmetry\", \"correct\": true}, {\"name\": \"Negative space editing\", \"correct\": false}]",
+   "post_title": "When a scene mirrors across both halves of the frame, which tool is most at home?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "when-a-scene-mirrors-across-both-halves-of-the-frame-which-tool-is-most-at-home",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900019,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It softens the skin tones\", \"correct\": false}, {\"name\": \"It blows out that part of the face while the rest stays in shadow\", \"correct\": true}, {\"name\": \"It adds colour to the eyes\", \"correct\": false}, {\"name\": \"It removes all contrast\", \"correct\": false}]",
+   "post_title": "What is the most common effect of a bright spot landing on a face in dappled light?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-most-common-effect-of-a-bright-spot-landing-on-a-face-in-dappled-light",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900013,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900029,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The lens element\", \"correct\": false}, {\"name\": \"The shutter speed\", \"correct\": true}, {\"name\": \"The memory card\", \"correct\": false}, {\"name\": \"The ISO dial\", \"correct\": false}]",
+   "post_title": "Which part of the camera controls how long the sensor is exposed to light?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-part-of-the-camera-controls-how-long-the-sensor-is-exposed-to-light",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 0,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900030,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"A very deep depth of field\", \"correct\": false}, {\"name\": \"More image noise\", \"correct\": false}, {\"name\": \"A shallow depth of field with a blurred background\", \"correct\": true}, {\"name\": \"A frozen high-speed action shot\", \"correct\": false}]",
+   "post_title": "What does a wide aperture, like f/2.8, create?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-does-a-wide-aperture-like-f-2-8-create",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 1,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900031,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"It makes colours more accurate\", \"correct\": false}, {\"name\": \"It increases depth of field\", \"correct\": false}, {\"name\": \"It blurs motion\", \"correct\": false}, {\"name\": \"It adds image noise\", \"correct\": true}]",
+   "post_title": "What is the main cost of raising the ISO?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-is-the-main-cost-of-raising-the-iso",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 2,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900032,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Because snow is naturally grey\", \"correct\": false}, {\"name\": \"Because the shutter is too fast\", \"correct\": false}, {\"name\": \"Because the meter assumes the bright scene is middle grey and darkens it\", \"correct\": true}, {\"name\": \"Because the lens flares in bright conditions\", \"correct\": false}]",
+   "post_title": "Why does a meter often make snow appear grey in a photo?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "why-does-a-meter-often-make-snow-appear-grey-in-a-photo",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 3,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900033,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"In the exact centre of the frame\", \"correct\": false}, {\"name\": \"Along the edges of the frame\", \"correct\": false}, {\"name\": \"Near one of the grid lines or power points\", \"correct\": true}, {\"name\": \"Behind the leading line\", \"correct\": false}]",
+   "post_title": "Under the rule of thirds, where is a subject usually placed for a stronger composition?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "under-the-rule-of-thirds-where-is-a-subject-usually-placed-for-a-stronger-composition",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 4,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900034,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The ISO setting\", \"correct\": false}, {\"name\": \"The colour of the light\", \"correct\": false}, {\"name\": \"The size of the light source relative to the subject\", \"correct\": true}, {\"name\": \"The shutter speed\", \"correct\": false}]",
+   "post_title": "What determines whether light falls soft or hard on a subject?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-determines-whether-light-falls-soft-or-hard-on-a-subject",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 5,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900035,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"The sharpness of the lens\", \"correct\": false}, {\"name\": \"The neutralization of the colour cast in the light\", \"correct\": true}, {\"name\": \"The speed of the shutter\", \"correct\": false}, {\"name\": \"The amount of negative space\", \"correct\": false}]",
+   "post_title": "What does white balance control in a photograph?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "what-does-white-balance-control-in-a-photograph",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 6,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  },
+  {
+   "ID": 900036,
+   "post_author": "1",
+   "post_date": "2026-01-01 00:00:00",
+   "post_date_gmt": "2026-01-01 00:00:00",
+   "post_content": "[{\"name\": \"Three cameras, two lenses, one subject\", \"correct\": false}, {\"name\": \"Three edits, two crops, one export\", \"correct\": false}, {\"name\": \"Three copies of data, on two media types, with one off-site\", \"correct\": true}, {\"name\": \"Three photos, two backups, one cloud\", \"correct\": false}]",
+   "post_title": "Which of these is the three-two-one backup rule?",
+   "post_excerpt": "",
+   "post_status": "publish",
+   "comment_status": "closed",
+   "ping_status": "closed",
+   "post_password": "",
+   "post_name": "which-of-these-is-the-three-two-one-backup-rule",
+   "to_ping": "",
+   "pinged": "",
+   "post_modified": "2026-01-01 00:00:00",
+   "post_modified_gmt": "2026-01-01 00:00:00",
+   "post_content_filtered": "",
+   "post_parent": 900028,
+   "guid": "",
+   "menu_order": 7,
+   "post_type": "mto-question",
+   "post_mime_type": "",
+   "comment_count": "0",
+   "filter": "raw",
+   "ancestors": [],
+   "page_template": "",
+   "post_category": [],
+   "tags_input": [],
+   "postmeta": {
+    "_type": [
+     "multiple-choice"
+    ],
+    "_answer_required": [
+     "1"
+    ],
+    "_points": [
+     "1"
+    ],
+    "_course_id": [
+     "900000"
+    ]
+   },
+   "terms": [],
+   "attachments": []
+  }
+ ]
+}

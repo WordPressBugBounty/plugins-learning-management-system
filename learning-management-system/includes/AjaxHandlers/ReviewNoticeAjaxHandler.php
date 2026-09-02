@@ -54,7 +54,6 @@ class ReviewNoticeAjaxHandler extends AjaxHandler {
 		}
 
 		try {
-
 			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'] ) ), 'masteriyo_review_notice_nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}

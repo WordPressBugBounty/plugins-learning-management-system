@@ -14,7 +14,7 @@ use WP_REST_Response;
  * Handles the import of demo content, including XML content and core options.
  *
  * @package Masteriyo\StarterTemplates\Importer\Importers
- * @since 2.0.0
+ * @since 3.0.0
  */
 class ContentImporter {
 
@@ -25,10 +25,11 @@ class ContentImporter {
 	 * @param array $demo The demo configuration containing content details.
 	 * @param array $pages List of pages to import.
 	 * @return WP_REST_Response|WP_Error The response of the import operation.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function import( $demo, $pages ) {
 		do_action( 'themegrill_ajax_before_demo_import' );
+		delete_option( 'themegrill_demo_importer_mapping' );
 
 		if ( $pages ) {
 			foreach ( $pages as $page ) {
@@ -60,7 +61,7 @@ class ContentImporter {
 	 *
 	 * @param string $content The XML content to import.
 	 * @return bool|WP_Error True on success or WP_Error on failure.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function import_xml( $content ) {
 		require_once ABSPATH . 'wp-admin/includes/import.php';
@@ -78,7 +79,8 @@ class ContentImporter {
 		$data     = $importer->import( $content );
 		ob_end_clean();
 
-		update_option( 'themegrill_demo_importer_mapping', $importer->get_mapping_data() );
+		$mapping_data = array_replace_recursive( get_option( 'themegrill_demo_importer_mapping', array() ), $importer->get_mapping_data() );
+		update_option( 'themegrill_demo_importer_mapping', $mapping_data );
 
 		if ( is_wp_error( $data ) ) {
 			return new WP_Error( 'import_content_failed', 'Error importing content:' . $data->get_error_message(), array( 'status' => 500 ) );
@@ -92,31 +94,31 @@ class ContentImporter {
 	 *
 	 * @param array $demo The demo configuration.
 	 * @return bool True on success.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 
 	public function import_core_options( $demo ) {
 		$show_on_front  = $demo['show_on_front'] ?? '';
 		$page_on_front  = $demo['page_on_front'] ?? '';
 		$page_for_posts = $demo['page_for_posts'] ?? '';
-		if ( $show_on_front ) {
-			if ( in_array( $show_on_front, array( 'posts', 'page' ), true ) ) {
-				update_option( 'show_on_front', $show_on_front );
-			}
+		if ( 'posts' === $show_on_front ) {
+			update_option( 'show_on_front', 'posts' );
 		}
 
 		$mapping_data = get_option( 'themegrill_demo_importer_mapping', array() );
-		if ( $page_on_front ) {
-			$page_on_front_remapped_id = ! empty( $mapping_data['post'][ $page_on_front ] ) ? $mapping_data['post'][ $page_on_front ] : $page_on_front;
-			if ( get_post_status( $page_on_front_remapped_id ) === 'publish' ) {
+		if ( $page_on_front && ! empty( $mapping_data['post'][ $page_on_front ] ) ) {
+			$page_on_front_remapped_id = $mapping_data['post'][ $page_on_front ];
+			if ( 'page' === get_post_type( $page_on_front_remapped_id ) && 'publish' === get_post_status( $page_on_front_remapped_id ) ) {
 				update_option( 'page_on_front', $page_on_front_remapped_id );
+				if ( 'page' === $show_on_front ) {
+					update_option( 'show_on_front', 'page' );
+				}
 			}
 		}
-		if ( $page_for_posts ) {
-			$page_for_posts_remapped_id = ! empty( $mapping_data['post'][ $page_for_posts ] ) ? $mapping_data['post'][ $page_for_posts ] : $page_for_posts;
-			if ( get_post_status( $page_for_posts_remapped_id ) === 'publish' ) {
+		if ( $page_for_posts && ! empty( $mapping_data['post'][ $page_for_posts ] ) ) {
+			$page_for_posts_remapped_id = $mapping_data['post'][ $page_for_posts ];
+			if ( 'page' === get_post_type( $page_for_posts_remapped_id ) && 'publish' === get_post_status( $page_for_posts_remapped_id ) ) {
 				update_option( 'page_for_posts', $page_for_posts_remapped_id );
-				update_option( 'show_on_front', 'page' );
 			}
 		}
 
@@ -128,7 +130,7 @@ class ContentImporter {
 	 *
 	 * @param string $title The title of the page.
 	 * @return WP_Post|null The page object if found, null otherwise.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function get_page_by_title( $title ) {
 		if ( ! $title ) {

@@ -58,8 +58,16 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 			return;
 		}
 
-		$this->set_recipients( $student->get_email() );
+		$student_email        = $student->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.student.instructor_apply_rejected.to_address' );
+		$to_address           = array();
 
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{student_email}', $student_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $student_email );
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'student', $student );
 
@@ -92,13 +100,15 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 	 */
 	public function get_subject() {
 		/**
-		 * Filter Instructor apply rejected email subject to admin.
+		 * Filter Instructor apply rejected email subject to student.
 		 *
 		 * @since 1.6.13
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -124,16 +134,44 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 	}
 
 	/**
+	 * Return additional content.
+	 *
+	 * @since 1.6.13
+	 *
+	 * @return string
+	 */
+	public function get_additional_content() {
+
+		/**
+		 * Filter Instructor apply rejected email additional content to student.
+		 *
+		 * @since 1.6.13
+		 *
+		 * @param string $additional_content.
+		 */
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.student.instructor_apply_rejected.additional_content', 'masteriyo-email-message', $additional_content );
+
+		return $this->format_string( $additional_content );
+	}
+
+	/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.9
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.student.instructor_apply_rejected.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['content'] );
+		$content = masteriyo_string_translation( 'emails.student.instructor_apply_rejected.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['student']['instructor_apply_rejected']['content'];
+		}
 
 		$content = $this->format_string( $content );
+
 		$this->set( 'content', $content );
 
 		return parent::get_content();
@@ -142,7 +180,7 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.9
 	 *
 	 * @return array
 	 */
@@ -167,24 +205,85 @@ class InstructorApplyRejectedEmailToStudent extends Email {
 	}
 
 	/**
-	 * Return additional content.
+	 * Get the reply_to_name.
 	 *
-	 * @since 1.6.13
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
-	public function get_additional_content() {
-
+	public function get_reply_to_name() {
 		/**
-		 * Filter Instructor apply rejected email additional content to student.
+		 * Filter student registration email reply_to_name to student.
 		 *
-		 * @since 1.6.13
+		 * @since 2.8.0
 		 *
-		 * @param string $additional_content.
+		 * @param string $reply_to_name.
 		 */
-		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.additional_content' ) );
-		$additional_content = masteriyo_string_translation( 'emails.student.instructor_apply_rejected.additional_content', 'masteriyo-email-message', $additional_content );
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
 
-		return $this->format_string( $additional_content );
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.reply_to_address' ) );
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to student.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.instructor_apply_rejected.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

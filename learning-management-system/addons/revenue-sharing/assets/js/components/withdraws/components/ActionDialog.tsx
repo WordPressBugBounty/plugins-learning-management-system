@@ -15,7 +15,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import React, { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Select from '../../../../../../../assets/js/back-end/components/common/Select';
@@ -163,8 +163,9 @@ const ActionDialog: React.FC<Props> = (props) => {
 								<Text mb={4}>
 									{sprintf(
 										/* translators: %1$s: withdraw amount, %2$s: user display name */
-										__(
+										_x(
 											'Are you sure you want to reject %1$s withdraw request from %2$s?',
+											'withdrawal rejection confirmation message',
 											'learning-management-system',
 										),
 										data?.withdraw_amount,
@@ -218,8 +219,9 @@ const ActionDialog: React.FC<Props> = (props) => {
 						) : (
 							sprintf(
 								/* translators: %1$s: withdraw amount, %2$s: user display name */
-								__(
+								_x(
 									'Are you sure you want to approve %1$s withdraw request from %2$s?',
+									'withdrawal approval confirmation message',
 									'learning-management-system',
 								),
 								data?.withdraw_amount,

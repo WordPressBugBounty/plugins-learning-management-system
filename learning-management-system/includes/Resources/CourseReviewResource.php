@@ -34,7 +34,7 @@ class CourseReviewResource {
 			'author_name'       => $course_review->get_author_name( $context ),
 			'author_email'      => $course_review->get_author_email( $context ),
 			'author_url'        => $course_review->get_author_url( $context ),
-			'author_avatar_url' => is_wp_error( $author ) ? '' : $author->get_avatar_url(),
+			'author_avatar_url' => is_wp_error( $author ) ? '' : $author->profile_image_url(),
 			'ip_address'        => $course_review->get_ip_address( $context ),
 			'date_created'      => masteriyo_rest_prepare_date_response( $course_review->get_date_created( $context ) ),
 			'title'             => $course_review->get_title( $context ),

@@ -91,7 +91,6 @@ class NotificationType {
 	/**
 	 * Notification lesson comment type.
 	 *
-	 * @since x.x.x
 	 * @var string
 	 */
 	const LESSON_COMMENT = 'lesson_comment';

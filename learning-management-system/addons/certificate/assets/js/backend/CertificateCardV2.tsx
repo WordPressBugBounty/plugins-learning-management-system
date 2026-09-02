@@ -20,7 +20,12 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useRef, useState } from 'react';
-import { BiDotsHorizontalRounded, BiEdit, BiReset, BiTrash } from 'react-icons/bi';
+import {
+	BiDotsHorizontalRounded,
+	BiEdit,
+	BiReset,
+	BiTrash,
+} from 'react-icons/bi';
 import { HiDocumentDuplicate } from 'react-icons/hi';
 import { LuCheck, LuPencil } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';

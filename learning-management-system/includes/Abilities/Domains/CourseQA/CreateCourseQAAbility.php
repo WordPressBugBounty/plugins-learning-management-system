@@ -3,7 +3,6 @@
  * Create Course Q&A ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -19,8 +18,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * To post an answer, set `parent` to the ID of the question being answered.
  * The parent course ID must always be supplied.
  * Requires the `edit_course_qas` capability.
- *
- * @since x.x.x
  */
 class CreateCourseQAAbility extends RestProxyAbility {
 

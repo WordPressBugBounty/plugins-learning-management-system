@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\ElementorIntegration
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 
 namespace Masteriyo\Addons\ElementorIntegration;
@@ -21,14 +21,14 @@ use Masteriyo\PostType\PostType;
  *
  * @package Masteriyo\Addons\ElementorIntegration
  *
- * @since 1.6.12
+ * @since 2.5.14
  */
 class Helper {
 
 	/**
 	 * Return if Elementor is active.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @return boolean
 	 */
@@ -42,7 +42,7 @@ class Helper {
 	/**
 	 * Get a svg file contents.
 	 *
-	 * @since 1.6.12
+	 * @since 2.5.14
 	 *
 	 * @param string $name SVG filename.
 	 *
@@ -74,7 +74,7 @@ class Helper {
 		/**
 		 * Filters svg file content.
 		 *
-		 * @since 1.6.12
+		 * @since 2.5.14
 		 *
 		 * @param string $file_content SVG file content.
 		 * @param string $name SVG file name.
@@ -85,7 +85,7 @@ class Helper {
 	/**
 	 * Convert SVG content to base64.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @param string $content SVG content.
 	 *
@@ -98,7 +98,7 @@ class Helper {
 	/**
 	 * Get icon URLs for a widget.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @param string $icon_name SVG filename.
 	 * @param string $color_attr Attribute that sets the color of the SVG, eg. "fill", "stroke".
@@ -128,9 +128,66 @@ class Helper {
 	}
 
 	/**
+	 * Add the enrollment-area extra elements to a single-course starter template.
+	 *
+	 * This file ships in both products, so it cannot name a widget that only one
+	 * of them registers. Pro's cohort widget lives under this addon's `pro/`
+	 * directory and joins the panel through `elementor_course_widgets`; it appends
+	 * its element definition here through the filter below, from `pro/bootstrap.php`.
+	 * In the free product the list is empty and the starter templates simply omit
+	 * those widgets, rather than shipping a widget type Elementor cannot resolve.
+	 *
+	 * @param array[] $template Elementor element definitions.
+	 *
+	 * @return array[]
+	 */
+	private static function with_enrollment_area_elements( $template ) {
+		/**
+		 * Filters the Elementor elements placed after the enroll button in the
+		 * single-course starter templates.
+		 *
+		 * @param array[] $elements Elementor element definitions.
+		 */
+		$extra = apply_filters( 'masteriyo_elementor_single_course_enrollment_area_elements', array() );
+
+		if ( ! is_array( $extra ) || empty( $extra ) ) {
+			return $template;
+		}
+
+		return self::insert_after_enroll_button( $template, array_values( $extra ) );
+	}
+
+	/**
+	 * Walk a template's element tree and insert the given elements immediately
+	 * after every enroll-button widget.
+	 *
+	 * @param array[] $elements Elementor element definitions to walk.
+	 * @param array[] $extra Elementor element definitions to insert.
+	 *
+	 * @return array[]
+	 */
+	private static function insert_after_enroll_button( $elements, $extra ) {
+		$result = array();
+
+		foreach ( $elements as $element ) {
+			if ( isset( $element['elements'] ) && is_array( $element['elements'] ) ) {
+				$element['elements'] = self::insert_after_enroll_button( $element['elements'], $extra );
+			}
+
+			$result[] = $element;
+
+			if ( isset( $element['widgetType'] ) && 'masteriyo-course-enroll-button' === $element['widgetType'] ) {
+				$result = array_merge( $result, $extra );
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get the default layout Elementor template of widgets of single course page.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @return array
 	 */
@@ -204,7 +261,16 @@ class Helper {
 								'elType'     => 'widget',
 								'isInner'    => false,
 								'isLocked'   => false,
-								'settings'   => array(),
+								'settings'   => array(
+									'_padding' => array(
+										'unit'     => 'px',
+										'top'      => '8',
+										'right'    => '25',
+										'bottom'   => '0',
+										'left'     => '25',
+										'isLinked' => false,
+									),
+								),
 								'elements'   => array(),
 								'widgetType' => 'masteriyo-categories-of-course',
 							),
@@ -212,7 +278,28 @@ class Helper {
 								'elType'     => 'widget',
 								'isInner'    => false,
 								'isLocked'   => false,
-								'settings'   => array(),
+								'settings'   => array(
+									'_padding' => array(
+										'unit'     => 'px',
+										'top'      => '20',
+										'right'    => '25',
+										'bottom'   => '0',
+										'left'     => '25',
+										'isLinked' => false,
+									),
+									'title_typography_typography' => 'custom',
+									'title_typography_font_size' => array(
+										'unit'  => 'px',
+										'size'  => 32,
+										'sizes' => array(),
+									),
+									'title_typography_font_weight' => '700',
+									'title_typography_line_height' => array(
+										'unit'  => 'em',
+										'size'  => 1.4,
+										'sizes' => array(),
+									),
+								),
 								'elements'   => array(),
 								'widgetType' => 'masteriyo-course-title',
 							),
@@ -258,7 +345,16 @@ class Helper {
 								'elType'     => 'widget',
 								'isInner'    => false,
 								'isLocked'   => false,
-								'settings'   => array(),
+								'settings'   => array(
+									'_padding' => array(
+										'unit'     => 'px',
+										'top'      => '20',
+										'right'    => '25',
+										'bottom'   => '25',
+										'left'     => '25',
+										'isLinked' => false,
+									),
+								),
 								'elements'   => array(),
 								'widgetType' => 'masteriyo-course-contents',
 							),
@@ -345,11 +441,11 @@ class Helper {
 												'isLocked' => false,
 												'settings' => array(
 													'_margin' => array(
-														'unit'     => 'px',
-														'top'      => '0',
-														'right'    => '0',
-														'bottom'   => '10',
-														'left'     => '0',
+														'unit' => 'px',
+														'top'  => '0',
+														'right' => '0',
+														'bottom' => '10',
+														'left' => '0',
 														'isLinked' => false,
 													),
 												),
@@ -422,11 +518,11 @@ class Helper {
 													),
 													'typography_font_weight' => '600',
 													'_margin' => array(
-														'unit' => 'px',
-														'top'  => '8',
-														'right' => '0',
-														'bottom' => '0',
-														'left' => '0',
+														'unit'     => 'px',
+														'top'      => '8',
+														'right'    => '0',
+														'bottom'   => '4',
+														'left'     => '0',
 														'isLinked' => false,
 													),
 												),
@@ -476,13 +572,20 @@ class Helper {
 								'isInner'    => false,
 								'isLocked'   => false,
 								'settings'   => array(
-									'title'       => 'Related Courses',
-									'title_color' => '#000000',
-									'_margin'     => array(
+									'title'                => 'Related Courses',
+									'header_size'          => 'h2',
+									'title_color'          => '#000000',
+									'typography_typography' => 'custom',
+									'typography_font_size' => array(
+										'unit' => 'px',
+										'size' => 18,
+									),
+									'typography_font_weight' => '600',
+									'_margin'              => array(
 										'unit'     => 'px',
 										'top'      => '80',
 										'right'    => '0',
-										'bottom'   => '0',
+										'bottom'   => '12',
 										'left'     => '0',
 										'isLinked' => false,
 									),
@@ -498,64 +601,8 @@ class Helper {
 									'per_page'        => 3,
 									'source'          => 'related',
 									'columns_per_row' => 3,
-								),
-								'elements'   => array(),
-								'widgetType' => 'masteriyo-course-list',
-							),
-						),
-					),
-				),
-			),
-		);
-
-			/**
-			 * Filters the default layout Elementor template of widgets of single course page.
-			 *
-			 * @since 1.6.12
-			 *
-			 * @param array $template
-			 */
-			return apply_filters( 'masteriyo_single_course_page_default_layout_elementor_template', $template );
-	}
-
-	/**
-	 * Get the default layout Elementor template of widgets of course archive page.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return array
-	 */
-	public static function get_course_archive_page_default_layout_elementor_template() {
-		$template = array(
-			array(
-				'elType'   => 'section',
-				'isInner'  => false,
-				'isLocked' => false,
-				'settings' => array(),
-				'elements' => array(
-					array(
-						'elType'   => 'column',
-						'isInner'  => false,
-						'isLocked' => false,
-						'settings' => array(
-							'_column_size' => 100,
-							'_inline_size' => null,
-						),
-						'elements' => array(
-							array(
-								'elType'     => 'widget',
-								'isInner'    => false,
-								'isLocked'   => false,
-								'settings'   => array(),
-								'elements'   => array(),
-								'widgetType' => 'masteriyo-courses-toolbar',
-							),
-							array(
-								'elType'     => 'widget',
-								'isInner'    => false,
-								'isLocked'   => false,
-								'settings'   => array(
-									'show_pagination' => 'yes',
+									'show_filter'     => 'no',
+									'show_pagination' => 'no',
 								),
 								'elements'   => array(),
 								'widgetType' => 'masteriyo-course-list',
@@ -567,114 +614,15 @@ class Helper {
 		);
 
 		/**
-		 * Filters the default layout Elementor template of widgets of course archive page.
+		 * Filters the default layout Elementor template of widgets of single course page.
 		 *
-		 * @since 1.6.12
+		 * @since 2.6.7
 		 *
 		 * @param array $template
 		 */
-		return apply_filters( 'masteriyo_course_archive_page_default_layout_elementor_template', $template );
-	}
+		$template = self::with_enrollment_area_elements( $template );
 
-	/**
-	 * Get the template for library modal open button.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return string
-	 */
-	public static function get_library_modal_open_btn_template() {
-		ob_start();
-		include __DIR__ . '/templates/library-btn.php';
-		return ob_get_clean();
-	}
-
-	/**
-	 * Check if the current request is for elementor editor.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return boolean
-	 */
-	public static function is_elementor_editor() {
-		return isset( $_REQUEST['action'] ) && ( in_array( $_REQUEST['action'], array( 'elementor', 'elementor_ajax' ), true ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	}
-
-	/**
-	 * Check if the current request is for elementor preview.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return boolean
-	 */
-	public static function is_elementor_preview() {
-		return isset( $_GET['elementor_library'] ) && isset( $_GET['preview'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	}
-
-	/**
-	 * Get a course to use for preview in elementor editor.
-	 *
-	 * @since 1.6.12
-	 *
-	 * @return \Masteriyo\Models\Course|null
-	 */
-	public static function get_elementor_preview_course() {
-		global $masteriyo_elementor_preview_course;
-
-		if ( empty( $masteriyo_elementor_preview_course ) ) {
-			$posts = get_posts(
-				array(
-					'posts_per_page' => 1,
-					'post_type'      => PostType::COURSE,
-					'post_status'    => array( PostStatus::PUBLISH, PostStatus::DRAFT ),
-					'author'         => masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ? null : get_current_user_id(),
-				)
-			);
-
-			$masteriyo_elementor_preview_course = empty( $posts ) ? null : masteriyo_get_course( $posts[0] );
-		}
-
-		return apply_filters( 'masteriyo_elementor_preview_course', $masteriyo_elementor_preview_course );
-	}
-
-	/**
-	 * Shared widget/column/inner-column builders for the layout templates.
-	 *
-	 * @since x.x.x
-	 *
-	 * @return callable[] [ $widget, $column, $inner_column ]
-	 */
-	private static function get_template_element_builders() {
-		$widget = function( $type, $settings = array() ) {
-			return array(
-				'elType'     => 'widget',
-				'isInner'    => false,
-				'isLocked'   => false,
-				'settings'   => $settings,
-				'elements'   => array(),
-				'widgetType' => $type,
-			);
-		};
-
-		$make_column = function( $is_inner ) {
-			return function( $size, $elements, $settings = array() ) use ( $is_inner ) {
-				return array(
-					'elType'   => 'column',
-					'isInner'  => $is_inner,
-					'isLocked' => false,
-					'settings' => array_merge(
-						array(
-							'_column_size' => $size,
-							'_inline_size' => null,
-						),
-						$settings
-					),
-					'elements' => $elements,
-				);
-			};
-		};
-
-		return array( $widget, $make_column( false ), $make_column( true ) );
+		return apply_filters( 'masteriyo_single_course_page_default_layout_elementor_template', $template );
 	}
 
 	/**
@@ -685,12 +633,51 @@ class Helper {
 	 * left column (overview, curriculum, reviews) with sidebar right column
 	 * (price/enroll, retake, highlights).
 	 *
-	 * @since x.x.x
-	 *
 	 * @return array
 	 */
 	public static function get_single_course_page_layout1_elementor_template() {
-		list( $w, $col, $inner_col ) = self::get_template_element_builders();
+		$w = function( $type, $settings = array() ) {
+			return array(
+				'elType'     => 'widget',
+				'isInner'    => false,
+				'isLocked'   => false,
+				'settings'   => $settings,
+				'elements'   => array(),
+				'widgetType' => $type,
+			);
+		};
+
+		$col = function( $size, $elements, $settings = array() ) {
+			return array(
+				'elType'   => 'column',
+				'isInner'  => false,
+				'isLocked' => false,
+				'settings' => array_merge(
+					array(
+						'_column_size' => $size,
+						'_inline_size' => null,
+					),
+					$settings
+				),
+				'elements' => $elements,
+			);
+		};
+
+		$inner_col = function( $size, $elements, $settings = array() ) {
+			return array(
+				'elType'   => 'column',
+				'isInner'  => true,
+				'isLocked' => false,
+				'settings' => array_merge(
+					array(
+						'_column_size' => $size,
+						'_inline_size' => null,
+					),
+					$settings
+				),
+				'elements' => $elements,
+			);
+		};
 
 		// ── Header section: full-width banner ──────────────────────────────────
 		$header_section = array(
@@ -954,10 +941,10 @@ class Helper {
 		/**
 		 * Filters the Modern layout Elementor template for the single course page.
 		 *
-		 * @since x.x.x
-		 *
 		 * @param array $template
 		 */
+		$template = self::with_enrollment_area_elements( $template );
+
 		return apply_filters( 'masteriyo_single_course_page_layout1_elementor_template', $template );
 	}
 
@@ -965,14 +952,53 @@ class Helper {
 	 * Get the Minimal Elementor template for the single course page.
 	 *
 	 * Mirrors the core minimal layout: full-width featured image, two-column body
-	 * (left: meta/highlights, right: enroll card), tab content, related courses.
-	 *
-	 * @since x.x.x
+	 * (left: meta/highlights, right: progress+enroll card), tab content, related courses.
 	 *
 	 * @return array
 	 */
 	public static function get_single_course_page_minimal_elementor_template() {
-		list( $w, $col, $inner_col ) = self::get_template_element_builders();
+		$w = function( $type, $settings = array() ) {
+			return array(
+				'elType'     => 'widget',
+				'isInner'    => false,
+				'isLocked'   => false,
+				'settings'   => $settings,
+				'elements'   => array(),
+				'widgetType' => $type,
+			);
+		};
+
+		$col = function( $size, $elements, $settings = array() ) {
+			return array(
+				'elType'   => 'column',
+				'isInner'  => false,
+				'isLocked' => false,
+				'settings' => array_merge(
+					array(
+						'_column_size' => $size,
+						'_inline_size' => null,
+					),
+					$settings
+				),
+				'elements' => $elements,
+			);
+		};
+
+		$inner_col = function( $size, $elements, $settings = array() ) {
+			return array(
+				'elType'   => 'column',
+				'isInner'  => true,
+				'isLocked' => false,
+				'settings' => array_merge(
+					array(
+						'_column_size' => $size,
+						'_inline_size' => null,
+					),
+					$settings
+				),
+				'elements' => $elements,
+			);
+		};
 
 		// ── Section 1: Full-width featured image ──────────────────────────────
 		$image_section = array(
@@ -1242,11 +1268,69 @@ class Helper {
 		/**
 		 * Filters the Minimal layout Elementor template for the single course page.
 		 *
-		 * @since x.x.x
+		 * @param array $template
+		 */
+		$template = self::with_enrollment_area_elements( $template );
+
+		return apply_filters( 'masteriyo_single_course_page_minimal_elementor_template', $template );
+	}
+
+	/**
+	 * Get the default layout Elementor template of widgets of course archive page.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return array
+	 */
+	public static function get_course_archive_page_default_layout_elementor_template() {
+		$template = array(
+			array(
+				'elType'   => 'section',
+				'isInner'  => false,
+				'isLocked' => false,
+				'settings' => array(),
+				'elements' => array(
+					array(
+						'elType'   => 'column',
+						'isInner'  => false,
+						'isLocked' => false,
+						'settings' => array(
+							'_column_size' => 100,
+							'_inline_size' => null,
+						),
+						'elements' => array(
+							array(
+								'elType'     => 'widget',
+								'isInner'    => false,
+								'isLocked'   => false,
+								'settings'   => array(),
+								'elements'   => array(),
+								'widgetType' => 'masteriyo-courses-toolbar',
+							),
+							array(
+								'elType'     => 'widget',
+								'isInner'    => false,
+								'isLocked'   => false,
+								'settings'   => array(
+									'show_pagination' => 'yes',
+								),
+								'elements'   => array(),
+								'widgetType' => 'masteriyo-course-list',
+							),
+						),
+					),
+				),
+			),
+		);
+
+		/**
+		 * Filters the default layout Elementor template of widgets of course archive page.
+		 *
+		 * @since 2.6.7
 		 *
 		 * @param array $template
 		 */
-		return apply_filters( 'masteriyo_single_course_page_minimal_elementor_template', $template );
+		return apply_filters( 'masteriyo_course_archive_page_default_layout_elementor_template', $template );
 	}
 
 	/**
@@ -1254,8 +1338,6 @@ class Helper {
 	 *
 	 * Identical structure to the default layout but with layout1 set on the
 	 * course list widget so cards render in the Modern card style.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return array
 	 */
@@ -1310,8 +1392,6 @@ class Helper {
 	 * Identical structure to the default layout but with layout2 set on the
 	 * course list widget so cards render in the Overlay card style.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return array
 	 */
 	public static function get_course_archive_page_layout2_elementor_template() {
@@ -1360,9 +1440,76 @@ class Helper {
 	}
 
 	/**
+	 * Get the template for library modal open button.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return string
+	 */
+	public static function get_library_modal_open_btn_template() {
+		ob_start();
+		include __DIR__ . '/templates/library-btn.php';
+		return ob_get_clean();
+	}
+
+	/**
+	 * Check if the current request is for elementor editor.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return boolean
+	 */
+	public static function is_elementor_editor() {
+		return isset( $_REQUEST['action'] ) && ( in_array( $_REQUEST['action'], array( 'elementor', 'elementor_ajax' ), true ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Check if the current request is for elementor preview.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return boolean
+	 */
+	public static function is_elementor_preview() {
+		return isset( $_GET['elementor_library'] ) && isset( $_GET['preview'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Get a course to use for preview in elementor editor.
+	 *
+	 * @since 2.6.7
+	 *
+	 * @return \Masteriyo\Models\Course|null
+	 */
+	public static function get_elementor_preview_course() {
+		global $masteriyo_elementor_preview_course;
+
+		if ( empty( $masteriyo_elementor_preview_course ) ) {
+			$posts = get_posts(
+				array(
+					'posts_per_page' => 1,
+					'post_type'      => PostType::COURSE,
+					'post_status'    => array( PostStatus::PUBLISH, PostStatus::DRAFT ),
+					'author'         => masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ? null : get_current_user_id(),
+				)
+			);
+
+			$masteriyo_elementor_preview_course = empty( $posts ) ? null : masteriyo_get_course( $posts[0] );
+		}
+
+		/**
+		 * Filters the course used for preview in the Elementor editor.
+		 * Return null to simulate the "no course found" empty state for testing.
+		 *
+		 * @param \Masteriyo\Models\Course|null $course
+		 */
+		return apply_filters( 'masteriyo_elementor_preview_course', $masteriyo_elementor_preview_course );
+	}
+
+	/**
 	 * Get Elementor templates of all type or a specific type.
 	 *
-	 * @since 1.6.12
+	 * @since 2.6.7
 	 *
 	 * @param string $template_type
 	 *

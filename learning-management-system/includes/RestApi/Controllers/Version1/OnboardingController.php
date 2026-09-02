@@ -12,11 +12,9 @@
 namespace Masteriyo\RestApi\Controllers\Version1;
 
 use Masteriyo\Activation;
-use Masteriyo\Addons\RevenueSharing\Setting;
 use Masteriyo\Addons\Stripe\Setting as StripeSetting;
-use Masteriyo\Constants;
-use Masteriyo\Importer\CourseImporter;
-use Masteriyo\Pro\Addons;
+use Masteriyo\Setup\SampleContent;
+use Masteriyo\AddonsFramework\Addons;
 use WP_REST_Request;
 use WP_Error;
 use WP_REST_Response;
@@ -66,6 +64,13 @@ class OnboardingController extends RestController {
 		'templates',
 		'finish',
 	);
+
+	/**
+	 * Valid learner-access answers.
+	 *
+	 * @var string[]
+	 */
+	const LEARNER_ACCESS_VALUES = array( 'sell', 'enroll', 'both', 'explore' );
 
 	/**
 	 * Register REST routes for onboarding.
@@ -221,9 +226,23 @@ class OnboardingController extends RestController {
 	protected function get_default_onboarding_data() {
 		$saved_data = get_option( self::ONBOARDING_DATA_OPTION, array() );
 
-		$revenue_setting = new Setting();
-		$stripe_setting  = new StripeSetting();
-		$addons          = new Addons();
+		$saved_currency      = $saved_data['steps']['setup']['options']['payments']['currency'] ?? '';
+		$configured_currency = masteriyo_array_get( get_option( 'masteriyo_settings', array() ), 'payments.currency.currency', '' );
+
+		// A stored USD with the setup step never answered (in either wizard
+		// generation) is a hydration artifact — pre-3.3.3 full saves persisted the
+		// USD default — not a choice. Reads resolve to USD either way, so
+		// re-inferring changes only the suggestion shown.
+		$setup_answered = ! empty( $saved_data['steps']['setup']['completed'] )
+			|| ! empty( $saved_data['steps']['setup']['skipped'] )
+			|| ! empty( $saved_data['steps']['payment'] );
+
+		if ( 'USD' === $configured_currency && ! $setup_answered ) {
+			$configured_currency = '';
+		}
+
+		$stripe_setting = new StripeSetting();
+		$addons         = new Addons();
 
 		return array(
 			'started' => $saved_data['started'] ?? false,
@@ -233,14 +252,11 @@ class OnboardingController extends RestController {
 					'completed' => $saved_data['steps']['welcome']['completed'] ?? false,
 					'skipped'   => $saved_data['steps']['welcome']['skipped'] ?? false,
 					'options'   => array(
-						'site_creator'     => $saved_data['steps']['welcome']['options']['site_creator'] ?? '',
-						'payments'         => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['payments'] ?? true ),
-						'certificates'     => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['certificates'] ?? true ),
-						'groups'           => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['groups'] ?? false ),
-						'multiple_courses' => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['multiple_courses'] ?? true ),
-						'revenue_sharing'  => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['revenue_sharing'] ?? false ),
-						'allow_usage'      => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['allow_usage'] ?? true ),
-
+						'learner_access' => $saved_data['steps']['welcome']['options']['learner_access'] ?? '',
+						// Derived from learner_access on every welcome save. A site that never
+						// answered reads '' and must not be assumed to want payments.
+						'payments'       => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['payments'] ?? false ),
+						'allow_usage'    => masteriyo_string_to_bool( $saved_data['steps']['welcome']['options']['allow_usage'] ?? true ),
 					),
 				),
 
@@ -249,26 +265,27 @@ class OnboardingController extends RestController {
 					'completed' => $saved_data['steps']['setup']['completed'] ?? false,
 					'skipped'   => $saved_data['steps']['setup']['skipped'] ?? false,
 					'options'   => array(
-						'payments'        => array(
-							'offer_paid_courses'   => $saved_data['steps']['setup']['options']['payments']['offer_paid_courses'] ?? $saved_data['steps']['payment']['options']['offer_paid_courses'] ?? false,
-							'currency'             => $saved_data['steps']['setup']['options']['payments']['currency'] ?? masteriyo_get_currency(),
-							'offline_payment'      => $saved_data['steps']['setup']['options']['payments']['offline_payment'] ?? masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
-							'paypal'               => $saved_data['steps']['setup']['options']['payments']['paypal'] ?? masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
-							'stripe'               => $addons->is_active( 'stripe' ),
-							'paypal_email'         => $saved_data['steps']['setup']['options']['payments']['paypal_email'] ?? masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
-							'live_publishable_key' => $saved_data['steps']['setup']['options']['payments']['live_publishable_key'] ?? $stripe_setting->get( 'live_publishable_key' ) ?? '',
-							'live_secret_key'      => $saved_data['steps']['setup']['options']['payments']['live_secret_key'] ?? $stripe_setting->get( 'live_secret_key' ) ?? '',
-							'test_secret_key'      => $saved_data['steps']['setup']['options']['payments']['test_secret_key'] ?? $stripe_setting->get( 'test_secret_key' ) ?? '',
-							'test_publishable_key' => $saved_data['steps']['setup']['options']['payments']['test_publishable_key'] ?? $stripe_setting->get( 'test_publishable_key' ) ?? '',
-							'sandbox'              => $saved_data['steps']['setup']['options']['payments']['sandbox'] ?? $stripe_setting->get( 'sandbox' ) ?? false,
-							'stripe_user_id'       => $stripe_setting::get_stripe_user_id() ?? '',
-						),
-						'revenue_sharing' => array(
-							'commission_rate' => array(
-								'admin_rate'      => $saved_data['steps']['setup']['options']['revenue_sharing']['commission_rate']['admin_rate'] ?? $revenue_setting->get( 'admin_rate' ) ?? 70,
-								'instructor_rate' => $saved_data['steps']['setup']['options']['revenue_sharing']['commission_rate']['instructor_rate'] ?? $revenue_setting->get( 'instructor_rate' ) ?? 30,
-							),
-							'payment_method'  => $saved_data['steps']['setup']['options']['revenue_sharing']['payment_method'] ?? $revenue_setting->get( 'withdraw.methods' ) ?? array(),
+						'payments' => array(
+							'offer_paid_courses' => $saved_data['steps']['setup']['options']['payments']['offer_paid_courses'] ?? $saved_data['steps']['payment']['options']['offer_paid_courses'] ?? false,
+							// masteriyo_get_setting() merges hardcoded defaults over the stored
+							// option and answers 'USD' on a fresh install, so "already configured"
+							// has to be read from the raw option — which install-time writes keep
+							// sparse via masteriyo_set_raw_setting() for exactly this reason.
+							'currency'           => $saved_currency ? $saved_currency : ( $configured_currency ? $configured_currency : masteriyo_infer_currency_from_domain() ),
+							'offline_payment'    => $saved_data['steps']['setup']['options']['payments']['offline_payment'] ?? masteriyo_get_setting( 'payments.offline.enable' ) ?? false,
+							'paypal'             => $saved_data['steps']['setup']['options']['payments']['paypal'] ?? masteriyo_get_setting( 'payments.paypal.enable' ) ?? false,
+							'stripe'             => $addons->is_active( 'stripe' ),
+							'sandbox'            => $saved_data['steps']['setup']['options']['payments']['sandbox'] ?? $stripe_setting->get( 'sandbox' ) ?? false,
+							// The four Stripe API keys are gone for good — nothing renders them.
+							// These two do get rendered (the connect/disconnect state and the
+							// PayPal email field), so they stay in the response and are stripped
+							// on the way into the option instead. Both re-derive from settings,
+							// and handle_setup_actions() only ever writes them back unchanged.
+							// Settings only, like stripe_user_id: a stale onboarding copy (for
+							// example a backup restored after the one-time scrub) would be
+							// written back over the merchant's current email on the next save.
+							'paypal_email'       => masteriyo_get_setting( 'payments.paypal.email' ) ?? '',
+							'stripe_user_id'     => $stripe_setting::get_stripe_user_id() ?? '',
 						),
 					),
 				),
@@ -290,7 +307,7 @@ class OnboardingController extends RestController {
 					'completed' => $saved_data['steps']['finish']['completed'] ?? false,
 					'skipped'   => $saved_data['steps']['finish']['skipped'] ?? false,
 					'options'   => array(
-						'install_sample_course' => $saved_data['steps']['finish']['options']['install_sample_course'] ?? $saved_data['steps']['course']['options']['install_sample_course'] ?? false,
+						'install_sample_course' => $saved_data['steps']['finish']['options']['install_sample_course'] ?? $saved_data['steps']['course']['options']['install_sample_course'] ?? true,
 					),
 				),
 			),
@@ -298,27 +315,30 @@ class OnboardingController extends RestController {
 
 	}
 
-		/**
-		 * Get the IDs of pages created by the Masteriyo plugin.
-		 *
-		 * Reads the page IDs stored in WordPress options by Masteriyo during activation
-		 * (e.g. courses page, account page, checkout page, learn page).
-		 *
-		 * @since x.x.x
-		 * @return int[] Array of page IDs created by Masteriyo.
-		 */
+	/**
+	 * Get the IDs of pages created by the Masteriyo plugin.
+	 *
+	 * Settings, not top-level options: nothing writes those, so this returned an
+	 * empty list and excluded nothing. Harmless until pages started being created at
+	 * install — now the plugin's own pages make every fresh site look used.
+	 *
+	 * @return int[] Array of page IDs created by Masteriyo.
+	 */
 	protected function get_masteriyo_page_ids() {
-		$option_keys = array(
-			'masteriyo_courses_page_id',
-			'masteriyo_account_page_id',
-			'masteriyo_checkout_page_id',
-			'masteriyo_learn_page_id',
+		$setting_keys = array(
+			'general.pages.courses_page_id',
+			'general.pages.account_page_id',
+			'general.pages.checkout_page_id',
+			'general.pages.learn_page_id',
+			'general.pages.instructor_registration_page_id',
+			'general.pages.instructors_list_page_id',
 		);
 
 		$page_ids = array();
 
-		foreach ( $option_keys as $key ) {
-			$id = (int) get_option( $key, 0 );
+		foreach ( $setting_keys as $key ) {
+			$id = absint( masteriyo_get_setting( $key ) );
+
 			if ( $id > 0 ) {
 				$page_ids[] = $id;
 			}
@@ -372,7 +392,6 @@ class OnboardingController extends RestController {
 		return (bool) $is_fresh;
 	}
 
-
 	/**
 	 * Map settings values to onboarding form values (reverse mapping).
 	 *
@@ -399,6 +418,7 @@ class OnboardingController extends RestController {
 
 		return $reverse_map[ $value ] ?? $value;
 	}
+
 
 
 
@@ -441,7 +461,7 @@ class OnboardingController extends RestController {
 			$current_data = get_option( self::ONBOARDING_DATA_OPTION, array() );
 			$updated_data = array_merge( $current_data, array( 'started' => masteriyo_string_to_bool( $params['started'] ) ) );
 
-			update_option( self::ONBOARDING_DATA_OPTION, $updated_data, false );
+			update_option( self::ONBOARDING_DATA_OPTION, masteriyo_redact_onboarding_secrets( $updated_data ), false );
 
 			if ( $updated_data['started'] ) {
 				$this->handle_getting_started_actions();
@@ -468,9 +488,11 @@ class OnboardingController extends RestController {
 		$current_data = ! is_array( $current_data ) ? array() : $current_data;
 		$updated_data = array_merge( $current_data, $validated_data );
 
-		update_option( self::ONBOARDING_DATA_OPTION, $updated_data, false );
+		update_option( self::ONBOARDING_DATA_OPTION, masteriyo_redact_onboarding_secrets( $updated_data ), false );
 
-		return rest_ensure_response( $updated_data );
+		// The in-memory merge can still carry legacy stored secrets on a not-yet-migrated
+		// site; echoing it would leak them once even though storage was scrubbed.
+		return rest_ensure_response( $this->get_onboarding_data() );
 	}
 
 	/**
@@ -532,19 +554,67 @@ class OnboardingController extends RestController {
 			return $validated_data;
 		}
 
+		if ( 'welcome' === $step && isset( $validated_data['options']['learner_access'] ) ) {
+			$validated_data['options']['payments'] = in_array(
+				$validated_data['options']['learner_access'],
+				array( 'sell', 'both' ),
+				true
+			);
+		}
+
 		$current_data = get_option( self::ONBOARDING_DATA_OPTION, array() );
+		$current_step = $current_data['steps'][ $step ] ?? array();
+
+		// The wizard enforces the learner-access answer in React only; this endpoint
+		// is the invariant's real home. Without it an authorized request can mark
+		// Welcome done with no answer (or one that sanitized to ''), and every
+		// downstream setup decision silently falls back to defaults.
+		if ( 'welcome' === $step ) {
+			$effective_access = $validated_data['options']['learner_access']
+				?? $current_step['options']['learner_access']
+				?? '';
+
+			if ( ! in_array( $effective_access, self::LEARNER_ACCESS_VALUES, true ) ) {
+				return new WP_Error(
+					'masteriyo_rest_onboarding_learner_access_required',
+					__( 'Choose how learners will get access before submitting this step.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		$merged_step = array_merge( $current_step, $validated_data );
+
+		// A skip payload carries no options; without this the merge above erases the answer.
+		if ( ! isset( $validated_data['options'] ) && isset( $current_step['options'] ) ) {
+			$merged_step['options'] = $current_step['options'];
+		}
+
 		$updated_data = array_merge(
 			$current_data,
 			array(
-				'steps' => array_merge( $current_data['steps'] ?? array(), array( $step => $validated_data ) ),
+				'steps' => array_merge( $current_data['steps'] ?? array(), array( $step => $merged_step ) ),
 			)
 		);
 
 		// Mark onboarding as started.
 		$updated_data['started'] = true;
 
-		update_option( self::ONBOARDING_DATA_OPTION, $updated_data, false );
-		$this->handle_step_specific_actions( $step, $validated_data['options'] ?? array() );
+		update_option( self::ONBOARDING_DATA_OPTION, masteriyo_redact_onboarding_secrets( $updated_data ), false );
+
+		// A skip counts too: it requires and persists the answer, and its side effects
+		// already ran. Guarding on completed alone would run the addon block a second
+		// time when a previously-skipped user later completes, overriding any addon
+		// choice they made by hand in between.
+		$first_welcome_completion = empty( $current_data['steps']['welcome']['completed'] ) && empty( $current_data['steps']['welcome']['skipped'] );
+
+		// Finish is the exception to "skips run their actions": its action installs
+		// content, a skip payload carries no options, and the handler's absent-option
+		// default is consent — so a skipped Finish would import the example courses
+		// the user just declined to ask for.
+		if ( 'finish' !== $step || empty( $validated_data['skipped'] ) ) {
+			$this->handle_step_specific_actions( $step, $validated_data['options'] ?? array(), $first_welcome_completion );
+		}
 
 		return rest_ensure_response( $this->get_onboarding_data() );
 	}
@@ -555,8 +625,12 @@ class OnboardingController extends RestController {
 	 * @since 1.18.0 [Free]
 	 */
 	protected function handle_getting_started_actions() {
-		// Create pages.
-		Activation::create_pages();
+		// Checkout is excluded here and created by the sell/both branch below, or when
+		// the first paid course is saved. Creating it on every wizard start would put a
+		// checkout page on sites that answered "we enrol them ourselves". Courses is
+		// excluded outright: the archive already lists courses, and a wizard run is too
+		// early to know whether the site wants a page of its own (#665).
+		Activation::create_pages( array( 'courses', 'instructor-registration', 'instructors-list', 'checkout' ) );
 	}
 
 	/**
@@ -566,8 +640,9 @@ class OnboardingController extends RestController {
 	 *
 	 * @param string $step Step name.
 	 * @param array  $options Step options.
+	 * @param bool   $first_welcome_completion Whether the welcome step is being completed for the first time.
 	 */
-	protected function handle_step_specific_actions( $step, $options ) {
+	protected function handle_step_specific_actions( $step, $options, $first_welcome_completion = true ) {
 			$handlers = array(
 				'welcome'   => array( $this, 'handle_welcome_type_step_actions' ),
 				'setup'     => array( $this, 'handle_setup_actions' ),
@@ -576,7 +651,11 @@ class OnboardingController extends RestController {
 			);
 
 			if ( isset( $handlers[ $step ] ) ) {
-				call_user_func( $handlers[ $step ], $options );
+				if ( 'welcome' === $step ) {
+					call_user_func( $handlers[ $step ], $options, $first_welcome_completion );
+				} else {
+					call_user_func( $handlers[ $step ], $options );
+				}
 			}
 	}
 
@@ -586,62 +665,81 @@ class OnboardingController extends RestController {
 	 * @since 1.18.0 [Free]
 	 *
 	 * @param array $options Business type options.
+	 * @param bool  $first_welcome_completion Whether the welcome step is being completed for the first time.
 	 */
-	protected function handle_welcome_type_step_actions( $options ) {
+	protected function handle_welcome_type_step_actions( $options, $first_welcome_completion = true ) {
 		$this->handle_getting_started_actions();
-
 		if ( ! empty( $options ) ) {
-			$addons              = new Addons();
-			$certificate_setting = new Setting();
-			$revenue_setting     = new \Masteriyo\Addons\RevenueSharing\Setting();
+			$addons = new Addons();
 
-			$certificates_enable  = masteriyo_string_to_bool( $options['certificates'] ?? true );
-			$revenue_enable       = masteriyo_string_to_bool( $options['revenue_sharing'] ?? true );
-			$group_courses_enable = masteriyo_string_to_bool( $options['groups'] ?? true );
+			// Every addon mutation stays inside the first-completion guard, deliberately:
+			// re-saving this step (changing the answer, skipping) must never override an
+			// addon choice the user made by hand afterwards — that is #569's bug class.
+			// The wizard asks about none of these addons, so it must not deactivate them
+			// either: an existing site that enabled one by hand would lose it the
+			// moment the welcome step completes.
+			if ( $first_welcome_completion && ! $addons->is_active( 'certificate' ) ) {
+				global $wpdb;
+				$has_course = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s LIMIT 1", \Masteriyo\PostType\PostType::COURSE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-			$certificate_setting->set( 'enable', $certificates_enable );
-			if ( ! $certificates_enable ) {
-				if ( $addons->is_active( 'certificate' ) ) {
-					$addons->set_inactive( 'certificate' );
-				}
-			} elseif ( ! $addons->is_active( 'certificate' ) ) {
+				// The wizard never asks about certificates, so activating is a new-site
+				// default, not a user choice. A site that already has courses may have
+				// switched the addon off on purpose; it keeps its state.
+				if ( ! $has_course ) {
 					$addons->set_active( 'certificate' );
-			}
-
-				$revenue_setting->set( 'enable', $revenue_enable );
-
-			if ( ! $revenue_enable ) {
-				if ( $addons->is_active( 'revenue-sharing' ) ) {
-					$addons->set_inactive( 'revenue-sharing' );
 				}
-			} elseif ( ! $addons->is_active( 'revenue-sharing' ) ) {
-					$addons->set_active( 'revenue-sharing' );
 			}
 
-			if ( ! $group_courses_enable ) {
-				if ( $addons->is_active( 'group-courses' ) ) {
-					$addons->set_inactive( 'group-courses' );
+			// Raw write: a full save here would hydrate the USD default between the
+			// welcome save and the payments step, blocking currency inference. Raw
+			// writes skip the model's sanitizers, so coerce the bool here.
+			masteriyo_set_raw_setting( 'advance.tracking.allow_usage', masteriyo_string_to_bool( $options['allow_usage'] ) );
+
+			$learner_access = $options['learner_access'] ?? '';
+
+			if ( in_array( $learner_access, array( 'sell', 'both' ), true ) ) {
+				Activation::create_pages(
+					array( 'courses', 'account', 'learn', 'instructor-registration', 'instructors-list' )
+				);
+			}
+
+			// The wizard is how an admin turns commerce on before ever seeing the
+			// Settings → Payments toggle, so a sell/both answer writes the setting
+			// directly; 'explore' and an unanswered wizard leave the tri-state at ''.
+			// Seeded exactly once, tracked by its own marker: re-submitting this step
+			// must never override a choice made elsewhere afterwards — and a bare
+			// "is the setting still ''" test can't tell an untouched site from an
+			// explicit later "decide automatically" pick, which is also ''.
+			if ( ! get_option( 'masteriyo_payments_enabled_seeded' ) ) {
+				if ( in_array( $learner_access, array( 'sell', 'both' ), true ) ) {
+					masteriyo_set_setting( 'payments.enabled', 'yes' );
+				} elseif ( 'enroll' === $learner_access ) {
+					// A site with real orders never gets 'no' from a wizard answer: the wizard is
+					// reachable on grandfathered sites via the finish-setup notice, and one walk
+					// through it must not hide the Orders history behind an answer about the
+					// future. Settings → Payments remains the explicit way to turn it off.
+					global $wpdb;
+					$has_order = $wpdb->get_var(
+						$wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s LIMIT 1", \Masteriyo\PostType\PostType::ORDER ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					);
+
+					if ( ! $has_order ) {
+						masteriyo_set_setting( 'payments.enabled', 'no' );
+					}
 				}
-			} elseif ( ! $addons->is_active( 'group-courses' ) ) {
-					$addons->set_active( 'group-courses' );
-			}
 
-			masteriyo_set_setting( 'advance.tracking.allow_usage', $options['allow_usage'] );
+				update_option( 'masteriyo_payments_enabled_seeded', 1 );
+			}
 		}
 	}
 
 	/**
-	 * Save setup-step settings (payments + revenue-sharing + stripe).
+	 * Save setup-step settings (payments + stripe).
 	 *
 	 * @param array $options
 	 */
 	protected function handle_setup_actions( $options ) {
-		$addons          = new Addons();
-		$revenue_setting = new \Masteriyo\Addons\RevenueSharing\Setting();
-
-		if ( ! $addons->is_active( 'revenue-sharing' ) ) {
-			$addons->set_active( 'revenue-sharing' );
-		}
+		$addons = new Addons();
 
 		$p        = (array) ( $options['payments'] ?? array() );
 		$settings = array();
@@ -666,33 +764,6 @@ class OnboardingController extends RestController {
 		foreach ( $settings as $key => $value ) {
 			masteriyo_set_setting( $key, $value );
 		}
-
-		$rs = (array) ( $options['revenue_sharing'] ?? array() );
-
-		$cr = $rs['commission_rate'] ?? array();
-		if ( ! is_array( $cr ) ) {
-			$cr = array();
-		}
-
-		$admin_rate      = absint( $cr['admin_rate'] ?? 70 );
-		$instructor_rate = absint( $cr['instructor_rate'] ?? 30 );
-
-		$pm_raw = $rs['payment_method'] ?? $rs['withdraw_methods'] ?? array();
-
-		if ( is_string( $pm_raw ) ) {
-			$withdraw_methods = array_filter(
-				array_map( 'sanitize_text_field', array_map( 'trim', explode( ',', $pm_raw ) ) )
-			);
-		} elseif ( is_array( $pm_raw ) ) {
-			$withdraw_methods = array_filter( array_map( 'sanitize_text_field', $pm_raw ) );
-		} else {
-			$withdraw_methods = array();
-		}
-
-			$revenue_setting->set( 'enable', true );
-		$revenue_setting->set( 'admin_rate', $admin_rate );
-		$revenue_setting->set( 'instructor_rate', $instructor_rate );
-		$revenue_setting->set( 'withdraw.methods', $withdraw_methods );
 
 		if ( isset( $p['stripe'] ) && masteriyo_string_to_bool( $p['stripe'] ) ) {
 			$stripe_setting = new StripeSetting();
@@ -779,12 +850,30 @@ class OnboardingController extends RestController {
 	 * @param array $options Course options.
 	 */
 	protected function handle_finish_step_actions( $options ) {
-		if ( $options['install_sample_course'] ?? false ) {
-			$this->import_sample_courses(
-				$options['course_option'] ?? 'lessonsOnly',
-				$options['course_status'] ?? 'publish'
-			);
+		// The install-time product-tour seed is async; on hosts where the queue
+		// never runs (broken loopbacks are common on local sites) it stays pending
+		// forever. Riding it along here — only while the site still qualifies for
+		// seeding — makes this request the catch-up. import() skips per slug, so on
+		// a healthy site this adds nothing.
+		$slugs = SampleContent::should_seed() ? array( 'product-tour' ) : array();
+
+		if ( masteriyo_string_to_bool( $options['install_sample_course'] ?? true ) ) {
+			$slugs[] = 'subject-course';
+			$slugs[] = 'cohort-course';
 		}
+
+		if ( empty( $slugs ) ) {
+			return;
+		}
+
+		// Synchronous, not enqueued: the wizard is showing its finalizing overlay,
+		// the user lands on the Courses page next, and an Action Scheduler unique
+		// enqueue would be refused outright while the install-time job is still
+		// pending (uniqueness is hook-scoped, not args-scoped — reproduced: the
+		// pending product-tour job made the extras enqueue return false, and the
+		// two example courses were never imported). The queue remains only as
+		// import()'s own fallback when another import already holds the lock.
+		SampleContent::import( $slugs );
 	}
 
 
@@ -920,6 +1009,24 @@ class OnboardingController extends RestController {
 			$def               = $default_options[ $key ] ?? $value;
 			$sanitized[ $key ] = $this->sanitize_option_value( $key, $value, $def );
 		}
+
+		// Retired questions. wp_parse_args() above merges whatever a client sends, and
+		// there is no schema to reject unknown keys, so drop them here instead of
+		// storing answers nothing reads.
+		if ( 'welcome' === $step ) {
+			unset(
+				$sanitized['site_creator'],
+				$sanitized['certificates'],
+				$sanitized['multiple_courses'],
+				$sanitized['groups'],
+				$sanitized['revenue_sharing']
+			);
+		}
+
+		if ( 'setup' === $step ) {
+			unset( $sanitized['revenue_sharing'] );
+		}
+
 		return $sanitized;
 	}
 
@@ -934,6 +1041,11 @@ class OnboardingController extends RestController {
 	 * @return mixed Sanitized value.
 	 */
 	protected function sanitize_option_value( $key, $value, $default_value ) {
+		if ( 'learner_access' === $key ) {
+			$value = sanitize_key( $value );
+			return in_array( $value, self::LEARNER_ACCESS_VALUES, true ) ? $value : '';
+		}
+
 		if ( is_bool( $default_value ) ) {
 			return masteriyo_string_to_bool( $value );
 		} elseif ( is_int( $default_value ) ) {
@@ -985,38 +1097,6 @@ class OnboardingController extends RestController {
 		}
 	}
 
-	/**
-	 * Import sample courses.
-	 *
-	 * @since 1.18.0 [Free]
-	 *
-	 * @param string $course_option Course option (lessonsOnly or lessonsAndQuizzes).
-	 * @param string $status        Course status (publish or draft).
-	 * @return WP_Error|bool
-	 */
-	protected function import_sample_courses( $course_option, $status ) {
-		$file = Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/sample-data/courses.json';
-
-		if ( ! file_exists( $file ) ) {
-				return new WP_Error(
-					'masteriyo_rest_import_sample_courses_file_not_found',
-					__( 'Sample courses file not found.', 'learning-management-system' ),
-					array( 'status' => 404 )
-				);
-		}
-
-		try {
-				$importer = new CourseImporter( $status );
-				$importer->import( $file, 'sample-courses', 'lessonsOnly' === $course_option );
-				return true;
-		} catch ( \Exception $e ) {
-				return new WP_Error(
-					'masteriyo_rest_import_sample_courses_error',
-					$e->getMessage(),
-					array( 'status' => 500 )
-				);
-		}
-	}
 
 	/**
 	 * Sanitize request parameters recursively.
@@ -1037,35 +1117,5 @@ class OnboardingController extends RestController {
 		}
 
 		return $sanitized;
-	}
-
-	private function apply_revenue_sharing_settings_from_options( $options ) {
-		$enable = masteriyo_string_to_bool( $options['revenue_sharing'] ?? false );
-
-		$addons  = new Addons();
-		$setting = new Setting();
-
-		$setting->set( 'enable', $enable );
-
-		if ( ! $enable ) {
-			if ( $addons->is_active( 'revenue-sharing' ) ) {
-				$addons->set_inactive( 'revenue-sharing' );
-			}
-			return;
-		}
-
-		if ( ! $addons->is_active( 'revenue-sharing' ) ) {
-			$addons->set_active( 'revenue-sharing' );
-		}
-
-		if ( isset( $options['commission_rate']['admin_rate'] ) ) {
-			$setting->set( 'admin_rate', absint( $options['commission_rate']['admin_rate'] ) );
-		}
-		if ( isset( $options['commission_rate']['instructor_rate'] ) ) {
-			$setting->set( 'instructor_rate', absint( $options['commission_rate']['instructor_rate'] ) );
-		}
-		if ( isset( $options['withdraw_methods'] ) ) {
-			$setting->set( 'withdraw_methods', (array) $options['withdraw_methods'] );
-		}
 	}
 }

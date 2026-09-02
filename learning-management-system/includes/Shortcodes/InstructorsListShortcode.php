@@ -117,6 +117,7 @@ class InstructorsListShortcode extends Shortcode {
 				echo wp_kses( $pagination, 'masteriyo_pagination' );
 			}
 		}
+
 		return ob_get_clean();
 	}
 

@@ -1,10 +1,11 @@
-import { Box, Stack, Tooltip, useToast } from '@chakra-ui/react';
+import { Stack, Tooltip, useToast } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useState } from 'react';
 import { Col, Row } from 'react-grid-system';
-import { IoIosArrowBack } from 'react-icons/io';
-import EmptyGroup from '../../../../../../assets/js/account/common/EmptyGroup';
+import NoGroup from '../../../../../../assets/img/svgs/no-group.svg';
+import BackToListButton from '../../../../../../assets/js/account/common/BackToListButton';
+import EmptyState from '../../../../../../assets/js/account/common/EmptyState';
 import PageTitle from '../../../../../../assets/js/account/common/PageTitle';
 import CustomAlert from '../../../../../../assets/js/back-end/components/common/CustomAlert';
 import MasteriyoPagination from '../../../../../../assets/js/back-end/components/common/MasteriyoPagination';
@@ -15,7 +16,6 @@ import { GroupSchema } from '../../types/group';
 import EditGroupForm from './EditGroupForm';
 import Group from './Group';
 import GroupSkeleton from './skeleton/GroupSkeleton';
-const isRTL = document.documentElement.dir === 'rtl';
 
 interface FilterParams {
 	per_page?: number;
@@ -48,7 +48,7 @@ const Groups: React.FC = () => {
 	}, [expandedGroupId, groupQuery]);
 
 	return (
-		<Stack gap={'30px'}>
+		<Stack gap={8}>
 			<PageTitle
 				title={__(
 					groupToBeEdited ? 'Edit Group' : 'Groups',
@@ -57,17 +57,7 @@ const Groups: React.FC = () => {
 				beforeTitle={
 					groupToBeEdited ? (
 						<Tooltip label={__('Back To Groups', 'learning-management-system')}>
-							<Box
-								onClick={() => setExpandedGroupId(null)}
-								borderRadius={'6px'}
-								bgColor={'muted'}
-								p={'10px'}
-								cursor={'pointer'}
-							>
-								<IoIosArrowBack
-									style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }}
-								/>
-							</Box>
+							<BackToListButton onClick={() => setExpandedGroupId(null)} />
 						</Tooltip>
 					) : null
 				}
@@ -79,10 +69,12 @@ const Groups: React.FC = () => {
 					{__('Error fetching groups.', 'learning-management-system')}
 				</CustomAlert>
 			) : groupQuery.isSuccess && isEmpty(groupQuery?.data?.data) ? (
-				<EmptyGroup
-					text={__("You don't have any groups yet")}
-					showButton={false}
-					visible={true}
+				<EmptyState
+					label={__(
+						"You don't have any groups yet",
+						'learning-management-system',
+					)}
+					icon={<NoGroup />}
 				/>
 			) : (
 				<Row>

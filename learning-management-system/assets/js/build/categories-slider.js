@@ -1,6 +1,8 @@
 /**
  * Initializes a Swiper slider for the categories section on the frontend.
  *
+ * @since 1.12.0 [Free]
+ *
  * @param {jQuery} $ - The jQuery object.
  * @param {Object} sliderData - The data for configuring the slider.
  * @param {number} [sliderData.columns=4] - The number of slides to display per view.

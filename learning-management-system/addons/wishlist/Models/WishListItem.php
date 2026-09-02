@@ -2,7 +2,7 @@
 /**
  * Wishlist item model
  *
- * @since 1.12.2
+ * @since 2.3.4
  *
  * @package Masteriyo\Addons\WishList\Models;
  */
@@ -19,7 +19,7 @@ class WishListItem extends Model {
 	/**
 	 * The model's object type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -28,7 +28,7 @@ class WishListItem extends Model {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -37,7 +37,7 @@ class WishListItem extends Model {
 	/**
 	 * Cache group.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var string
 	 */
@@ -46,7 +46,7 @@ class WishListItem extends Model {
 	/**
 	 * Stores model data.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var array
 	 */
@@ -65,7 +65,7 @@ class WishListItem extends Model {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Repository\WishListItemRepository $wishlist_item_repository Wishlist item repository.
 	 */
@@ -76,7 +76,7 @@ class WishListItem extends Model {
 	/**
 	 * Return object type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 */
 	public function get_object_type() {
 		return $this->object_type;
@@ -91,7 +91,7 @@ class WishListItem extends Model {
 	/**
 	 * Get course title.
 	 *
-	 * @since  1.12.2
+	 * @since  2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -101,7 +101,7 @@ class WishListItem extends Model {
 		/**
 		 * Filters course title from a wishlist item.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param string $title Course title.
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item WishListItem object.
@@ -112,7 +112,7 @@ class WishListItem extends Model {
 	/**
 	 * Get type.
 	 *
-	 * @since  1.12.2
+	 * @since  2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -125,7 +125,7 @@ class WishListItem extends Model {
 	/**
 	 * Returns course id.
 	 *
-	 * @since  1.12.2
+	 * @since  2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -138,7 +138,7 @@ class WishListItem extends Model {
 	/**
 	 * Returns the course's category id.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -151,7 +151,7 @@ class WishListItem extends Model {
 	/**
 	 * Returns course difficulty id.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -164,7 +164,7 @@ class WishListItem extends Model {
 	/**
 	 * Returns course price.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $context What the value is for. Valid values are view and edit.
 	 *
@@ -177,7 +177,7 @@ class WishListItem extends Model {
 	/**
 	 * Get author ID.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -190,7 +190,7 @@ class WishListItem extends Model {
 	/**
 	 * Get status.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -203,7 +203,7 @@ class WishListItem extends Model {
 	/**
 	 * Get created date.
 	 *
-	 * @since  1.12.2
+	 * @since  2.3.4
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -222,7 +222,7 @@ class WishListItem extends Model {
 	/**
 	 * Set course title.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $course_title The course title.
 	 */
@@ -233,7 +233,7 @@ class WishListItem extends Model {
 	/**
 	 * Set type.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $type Type.
 	 */
@@ -244,7 +244,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the course ID.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param int $value Course ID.
 	 */
@@ -255,7 +255,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the course category IDs.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param integer[] $category_ids Course category IDs.
 	 */
@@ -266,7 +266,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the course difficulty.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array|null $difficulty
 	 */
@@ -277,7 +277,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the course price.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $course_price price.
 	 */
@@ -288,7 +288,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the author ID.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param int $value author ID.
 	 */
@@ -299,7 +299,7 @@ class WishListItem extends Model {
 	/**
 	 * Set the status.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string $status The status.
 	 */
@@ -310,7 +310,7 @@ class WishListItem extends Model {
 	/**
 	 * Set created date.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */

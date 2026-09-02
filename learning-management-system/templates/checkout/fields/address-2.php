@@ -20,16 +20,16 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Notice;
 ?>
 <div class="masteriyo-checkout----address-line-two">
-	<label for="billing-country" class="masteriyo-label">
+	<label for="billing-address-2" class="masteriyo-label">
 		<?php esc_html_e( 'Address line 2 (Optional)', 'learning-management-system' ); ?>
 	</label>
 
 	<input
 		type="text"
-		id="address-line-two"
+		id="billing-address-2"
 		class="masteriyo-input"
 		name="billing_address_2"
-		value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_billing_address_1() ); ?>"
+		value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_billing_address_2() ); ?>"
 	/>
 
 	<?php if ( masteriyo_notice_exists( 'billing_address_2', Notice::ERROR ) ) : ?>

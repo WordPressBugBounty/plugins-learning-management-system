@@ -3,7 +3,6 @@
  * Create Course Tag ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseTag
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseTag;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Creates a taxonomy term under `course_tag`.
  * Tags are flat (no hierarchy), unlike categories.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class CreateCourseTagAbility extends RestProxyAbility {
 

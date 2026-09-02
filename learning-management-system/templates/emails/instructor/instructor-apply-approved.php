@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.6.13
  *
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor $email Email object.
  * @param \Masteriyo\Models\User $instructor User object.
  */
 do_action( 'masteriyo_email_header', $email, $instructor );
@@ -32,7 +32,7 @@ echo wp_kses_post( wpautop( wptexturize( $content ) ) );
  *
  * @since 1.6.13
  *
- * @param \Masteriyo\Emails\Email $email Email object.
+ * @param \Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor $email Email object.
  * @param \Masteriyo\Models\User $instructor User object.
  */
 do_action( 'masteriyo_email_footer', $email, $instructor );

@@ -9,13 +9,13 @@ defined( 'ABSPATH' ) || exit;
  * Description: WooCommerce Integration allows to enroll users using WooCommerce checkout process and payment methods.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 1.8.1
+ * Version: 2.2.0
  * Requires: WooCommerce
  * Plan: Free
  * Category: Commerce
  */
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Addons\WcIntegration\Helper;
 use Masteriyo\Addons\WcIntegration\WcIntegrationAddon;
 
@@ -33,7 +33,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_WC_INTEGRATION_ADDON_SLUG ) && ! Hel
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'WooCommerce Integration addon requires WooCommerce to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 		/**
 		 * Action hook for rendering course review reply template.
 		 *
-		 * @since 1.10.0
+		 * @since 1.10.0 [Free]
 		 *
 		 * @param array $args Template args.
 		 */

@@ -2,7 +2,7 @@
 /**
  * The Template for displaying single course minimal layout.
  *
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -25,7 +25,7 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	/**
 	 * Fires when rendering a custom template for the Single Course page.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 *
 	 * @param string $template_source
 	 * @param integer $template_id
@@ -35,14 +35,14 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	/**
 	 * Wrapper div opening.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	echo '<div class="masteriyo-w-100 masteriyo-container">';
 
 	/**
 	 * Fires before rendering single course page template.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	do_action( 'masteriyo_before_single_course' );
 
@@ -51,14 +51,14 @@ if ( $enable_custom_template && $template_source && $template_id ) {
 	/**
 	 * Fires after rendering single course page template.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	do_action( 'masteriyo_after_single_course' );
 
 	/**
 	 * Wrapper div closing.
 	 *
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	echo '</div>';
 }

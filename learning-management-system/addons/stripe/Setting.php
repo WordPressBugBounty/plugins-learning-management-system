@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Stripe
  *
- * @since 1.14.0
+ * @since 2.0.0
  */
 
 namespace Masteriyo\Addons\Stripe;
@@ -28,13 +28,12 @@ class Setting {
 	/**
 	 * Setting data.
 	 *
-	 * @since 1.14.0
+	 * @since 2.0.0
 	 *
 	 * @var array
 	 */
 	protected static $data = array(
 		'enable'               => false,
-		'enable_ideal'         => false,
 		'title'                => 'Stripe (Credit Card)',
 		'sandbox'              => true,
 		'description'          => 'Pay with Stripe',
@@ -50,7 +49,7 @@ class Setting {
 	/**
 	 * Read the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 */
 	public static function read() {
 		$settings   = get_option( self::OPTION_NAME, self::$data );
@@ -62,7 +61,7 @@ class Setting {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return mixed
 	 */
@@ -73,7 +72,7 @@ class Setting {
 	/**
 	 * Return global white field value.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @param string $key
 	 * @return string|array
@@ -87,7 +86,7 @@ class Setting {
 	/**
 	 * Set global social share field.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.
@@ -100,7 +99,7 @@ class Setting {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @param array $args
 	 */
@@ -111,7 +110,7 @@ class Setting {
 	/**
 	 * Save the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 */
 	public static function save() {
 		update_option( self::OPTION_NAME, self::$data );
@@ -127,7 +126,7 @@ class Setting {
 	/**
 	 * Return true if the sandbox is enabled.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return boolean
 	 */
@@ -138,7 +137,7 @@ class Setting {
 	/**
 	 * Return true if the stripe is enabled
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return boolean
 	 */
@@ -155,7 +154,7 @@ class Setting {
 	/**
 	 * Return publishable key based on sandbox.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -166,7 +165,7 @@ class Setting {
 	/**
 	 * Return secret key based on sandbox.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -183,7 +182,7 @@ class Setting {
 	/**
 	 * Get stripe enable.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return boolean
 	 */
@@ -194,7 +193,7 @@ class Setting {
 	/**
 	 * Get stripe title.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -205,7 +204,7 @@ class Setting {
 	/**
 	 * Get stripe sandbox.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return boolean
 	 */
@@ -216,7 +215,7 @@ class Setting {
 	/**
 	 * Get stripe description.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -227,7 +226,7 @@ class Setting {
 	/**
 	 * Get stripe test_publishable_key.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -238,7 +237,7 @@ class Setting {
 	/**
 	 * Get stripe test_secret_key.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -249,7 +248,7 @@ class Setting {
 	/**
 	 * Get stripe live_publishable_key.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -260,7 +259,7 @@ class Setting {
 	/**
 	 * Get stripe live_secret_key.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */
@@ -271,7 +270,7 @@ class Setting {
 	/**
 	 * Get stripe webhook_secret.
 	 *
-	 * @since 1.14.0
+	 * @since 2.6.10
 	 *
 	 * @return string
 	 */

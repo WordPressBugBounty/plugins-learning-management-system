@@ -158,7 +158,6 @@ class NotificationsController extends CrudController {
 				),
 			)
 		);
-
 	}
 
 	/**
@@ -467,7 +466,9 @@ class NotificationsController extends CrudController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id           = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+
+		/** @var \Masteriyo\Models\Notification $notification */
 		$notification = masteriyo( 'notification' );
 
 		$notification_data_keys = array(
@@ -527,7 +528,7 @@ class NotificationsController extends CrudController {
 
 		//topic url
 		if ( isset( $request['topic_url'] ) ) {
-			$notification->set_type( $request['topic_url'] );
+			$notification->set_topic_url( $request['topic_url'] );
 		}
 
 		//post_id
@@ -985,5 +986,4 @@ class NotificationsController extends CrudController {
 
 		return rest_ensure_response( $updated_objects );
 	}
-
 }

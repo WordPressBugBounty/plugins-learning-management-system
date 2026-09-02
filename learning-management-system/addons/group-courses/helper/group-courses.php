@@ -173,7 +173,7 @@ if ( ! function_exists( 'masteriyo_get_group_max_size' ) ) {
 	 * we take the first course's limit as the group size constraint.
 	 * This ensures consistent behavior across both old and new group structures.
 	 *
-	 * @since 1.20.0
+	 * @since 2.30.0
 	 *
 	 * @param int $group_id The group ID.
 	 * @return int The maximum group size (0 means unlimited).
@@ -290,13 +290,13 @@ if ( ! function_exists( 'masteriyo_get_members_emails_from_group' ) ) {
 
 if ( ! function_exists( 'masteriyo_fetch_group_member_emails' ) ) {
 		/**
-		 * Fetches the email addresses of all members in the given groups.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param array $group_ids Array of group IDs.
-		 * @return array Array of email addresses.
-		 */
+	 * Fetches the email addresses of all members in the given groups.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $group_ids Array of group IDs.
+	 * @return array Array of email addresses.
+	 */
 	function masteriyo_fetch_group_member_emails( $group_ids ) {
 		$emails = array();
 
@@ -509,8 +509,6 @@ if ( ! function_exists( 'masteriyo_get_group_display_state' ) ) {
 	 *   - status_reason   string  Human-readable reason key for 'inactive' (empty otherwise).
 	 *   - repurchase_url  string  Checkout URL with tier/seats pre-filled (for 'inactive' only, empty otherwise).
 	 *
-	 * @since x.x.x
-	 *
 	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group Group model.
 	 *
 	 * @return array{ display_status: string, status_reason: string, repurchase_url: string }
@@ -602,8 +600,6 @@ if ( ! function_exists( 'masteriyo_get_group_display_state' ) ) {
 if ( ! function_exists( 'masteriyo_build_inactive_display_state' ) ) {
 	/**
 	 * Build the inactive display state array including the repurchase URL.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param \Masteriyo\Addons\GroupCourses\Models\Group $group     Group model.
 	 * @param int                                         $course_id Course ID (0 if unknown).

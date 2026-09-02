@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\Recaptcha
  *
- * @since 1.18.2
+ * @since 2.3.0
  */
 namespace Masteriyo\Addons\Recaptcha;
 
@@ -24,7 +24,7 @@ class RecaptchaAddon {
 	/**
 	 * Google recaptcha global setting instance.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @var \Masteriyo\Addons\Recaptcha\GlobalSetting
 	 */
@@ -33,7 +33,7 @@ class RecaptchaAddon {
 	/**
 	 * Google recaptcha request instance.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @var \Masteriyo\Addons\Recaptcha\Request
 	 */
@@ -42,7 +42,7 @@ class RecaptchaAddon {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @param \Masteriyo\Addons\Recaptcha\GlobalSetting $global_setting
 	 * @param \Masteriyo\Addons\Recaptcha\Request $request
@@ -54,7 +54,7 @@ class RecaptchaAddon {
 	/**
 	 * Initialize module.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 */
 	public function init() {
 		$this->global_setting->init();
@@ -65,7 +65,7 @@ class RecaptchaAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 */
 	public function init_hooks() {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -81,7 +81,7 @@ class RecaptchaAddon {
 	/**
 	 * Validate forms.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @param \WP_Error $error Error object which should contain validation errors if there is any.
 	 * @param array $data Submitted form data.
 	 *
@@ -112,7 +112,7 @@ class RecaptchaAddon {
 	/**
 	 * Validate recaptcha response.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 * @param \WP_Error $error Error object which should contain validation errors if there is any.
 	 * @param array $data Submitted form data.
 	 *
@@ -133,7 +133,7 @@ class RecaptchaAddon {
 		/**
 		 * Filters inclusion of user ip address while validation reCAPTCHA token.
 		 *
-		 * @since 1.18.2
+		 * @since 2.3.0
 		 *
 		 * @param boolean
 		 */
@@ -153,7 +153,7 @@ class RecaptchaAddon {
 	/**
 	 * Add async attribute to recaptcha script.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @param string $tag
 	 * @param string $handle
@@ -170,7 +170,7 @@ class RecaptchaAddon {
 	/**
 	 * Render container for google recaptcha.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 */
 	public function render_container_for_recaptcha() {
 		echo wp_kses_post( '<div id="masteriyo-recaptcha"></div>' );
@@ -179,7 +179,7 @@ class RecaptchaAddon {
 	/**
 	 * Localized public scripts.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @param array $localized_scripts
 	 * @return array
@@ -199,7 +199,7 @@ class RecaptchaAddon {
 	/**
 	 * Enqueue scripts.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @param array $scripts
 	 * @return array
@@ -208,7 +208,7 @@ class RecaptchaAddon {
 		/**
 		 * Filters load of recaptcha official library.
 		 *
-		 * @since 1.18.2
+		 * @since 2.3.0
 		 * @param bool $load_recaptcha_official_library
 		 */
 		$load_library = apply_filters( 'masteriyo_pro_load_recaptcha_official_library', true );
@@ -276,7 +276,7 @@ class RecaptchaAddon {
 	/**
 	 * Return google reCAPTCHA url based on the domain of global setting.
 	 *
-	 * @since 1.18.2
+	 * @since 2.3.0
 	 *
 	 * @return string
 	 */

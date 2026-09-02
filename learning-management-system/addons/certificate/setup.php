@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Setup certificate.
  *
- * @since 1.13.0
+ * @since 2.7.3
  */
 
 require __DIR__ . '/helper.php';

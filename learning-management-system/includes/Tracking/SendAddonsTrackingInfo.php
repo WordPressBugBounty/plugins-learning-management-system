@@ -4,12 +4,12 @@
  * Handles sending tracking information for addons in Masteriyo.
  *
  * @package Masteriyo\Tracking
- * @since  1.8.3
+ * @since  2.30.0
  */
 
 namespace Masteriyo\Tracking;
 
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Handles the process of sending addon tracking information.
  *
- * @since 1.8.3
+ * @since 2.30.0
  */
 class SendAddonsTrackingInfo {
 
@@ -26,7 +26,7 @@ class SendAddonsTrackingInfo {
 	/**
 	 * Get the base product plugin slug.
 	 *
-	 * @since 1.8.3
+	 * @since 2.30.0
 	 *
 	 * @return string The base product plugin slug.
 	 */
@@ -37,7 +37,7 @@ class SendAddonsTrackingInfo {
 	/**
 	 * Return base product name.
 	 *
-	 * @since 1.8.3
+	 * @since 2.30.0
 	 *
 	 * @return string
 	 */
@@ -48,7 +48,7 @@ class SendAddonsTrackingInfo {
 	/**
 	 * Get all addons.
 	 *
-	 * @since 1.8.3
+	 * @since 2.30.0
 	 */
 	public function get_addons() {
 		$addons      = new Addons();
@@ -60,7 +60,7 @@ class SendAddonsTrackingInfo {
 	/**
 	 * Get all addons List.
 	 *
-	 * @since 1.8.3
+	 * @since 2.30.0
 	 */
 	public function get_addon_list() {
 		$our_addons  = $this->get_addons();

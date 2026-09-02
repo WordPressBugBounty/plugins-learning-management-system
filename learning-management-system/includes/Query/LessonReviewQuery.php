@@ -3,7 +3,7 @@
  * Class for parameter-based lesson Review querying
  *
  * @package  Masteriyo\Query
- * @since   1.14.0
+ * @since   2.15.0
  */
 
 namespace Masteriyo\Query;
@@ -20,7 +20,7 @@ class LessonReviewQuery extends ObjectQuery {
 	/**
 	 * Valid query vars for lessons reviews.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return array
 	 */
@@ -37,7 +37,7 @@ class LessonReviewQuery extends ObjectQuery {
 	/**
 	 * Get lessons reviews matching the current query vars.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return Masteriyo\Models\LessonReview[] Lesson review objects
 	 */
@@ -45,7 +45,7 @@ class LessonReviewQuery extends ObjectQuery {
 		/**
 		 * Filters lesson review object query args.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param array $query_args The object query args.
 		 */
@@ -55,7 +55,7 @@ class LessonReviewQuery extends ObjectQuery {
 		/**
 		 * Filters lesson review object query results.
 		 *
-		 * @since 1.14.0
+		 * @since 2.15.0
 		 *
 		 * @param Masteriyo\Models\LessonReview[] $results The query results.
 		 * @param array $query_args The object query args.

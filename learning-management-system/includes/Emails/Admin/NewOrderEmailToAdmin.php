@@ -26,7 +26,7 @@ class NewOrderEmailToAdmin extends Email {
 	 *
 	 * @since 1.5.35
 	 *
-	 * @var String
+	 * @var string
 	 */
 	protected $id = 'new-order/to/admin';
 
@@ -44,7 +44,7 @@ class NewOrderEmailToAdmin extends Email {
 	 *
 	 * @since 1.5.35
 	 *
-	 * @param \Masteriyo\Models\Order $order
+	 * @param \Masteriyo\Models\Order\Order $order
 	 */
 	public function trigger( $order ) {
 		$order = masteriyo_get_order( $order );
@@ -60,7 +60,8 @@ class NewOrderEmailToAdmin extends Email {
 			return;
 		}
 
-		$this->set_recipients( $admin_email );
+		$to_address = explode( ',', $this->format_string( masteriyo_get_setting( 'emails.admin.new_order.to_address' ) ) ?? $admin_email );
+		$this->set_recipients( $to_address );
 
 		$a = $order->get_items( 'course' );
 
@@ -103,20 +104,50 @@ class NewOrderEmailToAdmin extends Email {
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_default_email_contents()['admin']['new_order']['subject'] );
+		$subject = apply_filters( $this->get_full_id() . '_subject', masteriyo_get_setting( 'emails.admin.new_order.subject' ) );
+		$subject = is_string( $subject ) ? trim( $subject ) : '';
+		$subject = empty( $subject ) ? masteriyo_get_default_email_contents()['admin']['new_order']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
 
 	/**
+	 * Return additional content.
+	 *
+	 * @since 1.5.35
+	 *
+	 * @return string
+	 */
+	public function get_additional_content() {
+
+		/**
+		 * Filter student registration email additional content to admin.
+		 *
+		 * @since 1.5.35
+		 *
+		 * @param string $additional_content.
+		 */
+		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_order.additional_content' ) );
+		$additional_content = masteriyo_string_translation( 'emails.admin.new_order.additional_content', 'masteriyo-email-message', $additional_content );
+
+		return $this->format_string( $additional_content );
+	}
+
+	/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.9
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.admin.new_order.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['admin']['new_order']['content'] );
+		$content = masteriyo_string_translation( 'emails.admin.new_order.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.admin.new_order.content' ) );
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['admin']['new_order']['content'];
+		}
+
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', $content );
@@ -127,7 +158,7 @@ class NewOrderEmailToAdmin extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.6.9
 	 *
 	 * @return array
 	 */
@@ -172,7 +203,7 @@ class NewOrderEmailToAdmin extends Email {
 	/**
 	 * Gets the order table HTML.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @param \Masteriyo\Models\Order\Order $order The order object.
 	 *
@@ -191,7 +222,7 @@ class NewOrderEmailToAdmin extends Email {
 	/**
 	 * Retrieves the HTML or URL for the celebration image for new order.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string The celebration image HTML or URL.
 	 */
@@ -199,7 +230,7 @@ class NewOrderEmailToAdmin extends Email {
 		/**
 		 * Retrieves the HTML for the new order celebration image.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @return string The HTML for the celebration image.
 		 */
@@ -212,26 +243,87 @@ class NewOrderEmailToAdmin extends Email {
 		);
 	}
 
-
 	/**
-	 * Return additional content.
+	 * Get the reply_to_name.
 	 *
-	 * @since 1.5.35
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
-	public function get_additional_content() {
-
+	public function get_reply_to_name() {
 		/**
-		 * Filter student registration email additional content to admin.
+		 * Filter student registration email reply_to_name to admin.
 		 *
-		 * @since 1.5.35
+		 * @since 2.8.0
 		 *
-		 * @param string $additional_content.
+		 * @param string $reply_to_name.
 		 */
-		$additional_content = apply_filters( $this->get_full_id() . '_additional_content', masteriyo_get_setting( 'emails.admin.new_order.additional_content' ) );
-		$additional_content = masteriyo_string_translation( 'emails.admin.new_order.additional_content', 'masteriyo-email-message', $additional_content );
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.admin.new_order.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
 
-		return $this->format_string( $additional_content );
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter student registration email reply_to_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.admin.new_order.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter student registration email from_name to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.admin.new_order.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter student registration email from_address to admin.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.admin.new_order.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

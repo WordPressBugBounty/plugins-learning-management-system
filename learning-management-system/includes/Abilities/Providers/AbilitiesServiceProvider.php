@@ -7,7 +7,6 @@
  * the WordPress Abilities API plugin is actually present.
  *
  * @package Masteriyo\Abilities\Providers
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Providers;
@@ -146,8 +145,6 @@ use Masteriyo\Abilities\Domains\Setting\UpdateAdvanceSettingsAbility;
 
 /**
  * Registers the abilities infrastructure and populates the registry.
- *
- * @since x.x.x
  */
 class AbilitiesServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
@@ -157,8 +154,6 @@ class AbilitiesServiceProvider extends AbstractServiceProvider implements Bootab
 	 * Binds controllers that are consumed by abilities but not already bound
 	 * by their own domain service providers (CourseBuilder, QuizBuilder,
 	 * and the children list controllers), plus the shared SchemaTranslator.
-	 *
-	 * @since x.x.x
 	 */
 	public function register(): void {
 		$container = $this->getContainer();
@@ -199,8 +194,6 @@ class AbilitiesServiceProvider extends AbstractServiceProvider implements Bootab
 	 * Ability objects are instantiated lazily inside the wp_abilities_api_init
 	 * hook (priority 5) so they are only allocated on sites that have the
 	 * Abilities API available (WordPress 6.9+). The registrar fires at priority 10.
-	 *
-	 * @since x.x.x
 	 */
 	public function boot(): void {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
@@ -345,7 +338,6 @@ class AbilitiesServiceProvider extends AbstractServiceProvider implements Bootab
 	/**
 	 * Declare which service IDs this provider is responsible for.
 	 *
-	 * @since x.x.x
 	 * @param string $id Service identifier to check.
 	 * @return bool
 	 */

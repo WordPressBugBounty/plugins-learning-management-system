@@ -3,7 +3,6 @@
  * Update General Settings ability.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -12,8 +11,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Ability: write Masteriyo general settings (styling, pages, course listing, etc.).
- *
- * @since x.x.x
  */
 class UpdateGeneralSettingsAbility extends AbstractScopedSettingsAbility {
 
@@ -34,6 +31,10 @@ class UpdateGeneralSettingsAbility extends AbstractScopedSettingsAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Write Masteriyo general settings (styling, pages, course listing options). Accepts a partial general settings object; only provided keys are updated.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Write %s general settings (styling, pages, course listing options). Accepts a partial general settings object; only provided keys are updated.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

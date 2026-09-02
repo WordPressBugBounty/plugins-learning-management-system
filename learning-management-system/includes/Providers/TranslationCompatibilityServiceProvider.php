@@ -2,7 +2,7 @@
 /**
  * Translation plugin compatibility service provider.
  *
- * @since 2.1.0
+ * @since 2.1.0 [Free]
  * @package Masteriyo\Providers
  */
 
@@ -17,14 +17,14 @@ use League\Container\ServiceProvider\BootableServiceProviderInterface;
 /**
  * Translation plugin compatibility service provider.
  *
- * @since 2.1.0
+ * @since 2.1.0 [Free]
  */
 class TranslationCompatibilityServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
 	/**
 	 * Translation plugin compatibilities class.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 *
 	 * @var array
 	 */
@@ -35,7 +35,7 @@ class TranslationCompatibilityServiceProvider extends AbstractServiceProvider im
 	/**
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -54,7 +54,7 @@ class TranslationCompatibilityServiceProvider extends AbstractServiceProvider im
 	 * that you need to, but remember, every alias registered
 	 * within this method must be declared in the `$provides` array.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function register(): void {
 	}
@@ -70,7 +70,7 @@ class TranslationCompatibilityServiceProvider extends AbstractServiceProvider im
 	 * from this one, it must be from a bootable service provider like
 	 * this one, otherwise they will be ignored.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 */
 	public function boot(): void {
 		if ( ! is_blog_installed() ) {

@@ -89,6 +89,4 @@ class SHowHideSingleCourseComponents extends ShowHideCourseComponents {
 
 		return $styles;
 	}
-
 }
-

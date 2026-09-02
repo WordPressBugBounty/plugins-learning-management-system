@@ -39,7 +39,6 @@ import localized from '../../../assets/js/back-end/utils/global';
 interface StripePaymentsSettingsMap extends PaymentsSettingsMap {
 	stripe?: {
 		enable: boolean;
-		enable_ideal: boolean;
 		title: string;
 		description: string;
 		sandbox: boolean;
@@ -83,6 +82,17 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 		paymentsData?.stripe?.webhook_endpoint || '',
 	);
 
+	// Opened synchronously in the click handler; a window.open() after the ajax
+	// round trip has lost the user gesture and every popup blocker kills it.
+	const popupTabRef = useRef<Window | null>(null);
+
+	const closePopupTab = () => {
+		if (popupTabRef.current) {
+			popupTabRef.current.close();
+			popupTabRef.current = null;
+		}
+	};
+
 	const connectionMutation = useMutation({
 		mutationKey: ['stripeConnection'],
 		mutationFn: async (
@@ -116,13 +126,29 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 			});
 		},
 		onSuccess(data) {
+			// wp_send_json_error() answers HTTP 200, so a backend failure lands here
+			// as { success: false } rather than in onError. Without this guard the
+			// disconnect branch reloaded the page and orphaned the blank tab.
+			if (!data?.success) {
+				closePopupTab();
+				return;
+			}
+
 			if (data.data.type == 'connect') {
-				window.location.href = data.data.data;
+				const tab = popupTabRef.current;
+				if (tab) {
+					tab.location.href = data.data.data;
+				} else {
+					window.location.href = data.data.data;
+				}
+				popupTabRef.current = null;
 			} else {
 				window.location.reload();
 			}
 		},
-		onError(e) {},
+		onError() {
+			closePopupTab();
+		},
 	});
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -141,7 +167,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 			nonce:
 				'stripe_nonce' in localized ? (localized.stripe_nonce as string) : null,
 		});
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<VStack
@@ -157,6 +183,15 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 				<Box>
 					<Button
 						onClick={() => {
+							if (!paymentsData?.stripe?.account) {
+								popupTabRef.current = window.open('', '_blank');
+								if (popupTabRef.current) {
+									// Sever the reverse handle while the tab is still ours:
+									// we keep driving it via popupTabRef, but the external
+									// page it navigates to must not be able to steer wp-admin.
+									popupTabRef.current.opener = null;
+								}
+							}
 							const formValues = getValues();
 							const data = Object.entries(
 								formState.dirtyFields?.payments?.stripe ?? {},
@@ -203,32 +238,13 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 									fill="currentcolor"
 									width="49px"
 								>
-									{/* eslint-disable-next-line max-len */}
+									{}
 									<chakra.path d="M35.982 83.484c0-5.546 4.551-7.68 12.09-7.68 10.808 0 24.461 3.272 35.27 9.103V51.484c-11.804-4.693-23.466-6.542-35.27-6.542C19.2 44.942 0 60.018 0 85.192c0 39.252 54.044 32.995 54.044 49.92 0 6.541-5.688 8.675-13.653 8.675-11.804 0-26.88-4.836-38.827-11.378v33.849c13.227 5.689 26.596 8.106 38.827 8.106 29.582 0 49.92-14.648 49.92-40.106-.142-42.382-54.329-34.845-54.329-50.774zm96.142-66.986l-34.702 7.395-.142 113.92c0 21.05 15.787 36.551 36.836 36.551 11.662 0 20.195-2.133 24.888-4.693V140.8c-4.55 1.849-27.022 8.391-27.022-12.658V77.653h27.022V47.36h-27.022l.142-30.862zm71.112 41.386L200.96 47.36h-30.72v124.444h35.556V87.467c8.39-10.951 22.613-8.96 27.022-7.396V47.36c-4.551-1.707-21.191-4.836-29.582 10.524zm38.257-10.524h35.698v124.444h-35.698V47.36zm0-10.809l35.698-7.68V0l-35.698 7.538V36.55zm109.938 8.391c-13.938 0-22.898 6.542-27.875 11.094l-1.85-8.818h-31.288v165.83l35.555-7.537.143-40.249c5.12 3.698 12.657 8.96 25.173 8.96 25.458 0 48.64-20.48 48.64-65.564-.142-41.245-23.609-63.716-48.498-63.716zm-8.533 97.991c-8.391 0-13.37-2.986-16.782-6.684l-.143-52.765c3.698-4.124 8.818-6.968 16.925-6.968 12.942 0 21.902 14.506 21.902 33.137 0 19.058-8.818 33.28-21.902 33.28zM512 110.08c0-36.409-17.636-65.138-51.342-65.138-33.85 0-54.33 28.73-54.33 64.854 0 42.808 24.179 64.426 58.88 64.426 16.925 0 29.725-3.84 39.396-9.244v-28.445c-9.67 4.836-20.764 7.823-34.844 7.823-13.796 0-26.027-4.836-27.591-21.618h69.547c0-1.85.284-9.245.284-12.658zm-70.258-13.511c0-16.071 9.814-22.756 18.774-22.756 8.675 0 17.92 6.685 17.92 22.756h-36.694z" />
 								</chakra.svg>
 							</>
 						)}
 					</Button>
 				</Box>
-			</FormControlTwoCol>
-			<FormControlTwoCol>
-				<Stack direction="row" align="center">
-					<FormLabel m={0} minW="160px" htmlFor="enableStripeIDEAL">
-						{__('Enable iDEAL Payments', 'learning-management-system')}
-						<ToolTip
-							label={__(
-								'To enable iDEAL payments, ensure your Stripe account is activated and set to use the Euro (EUR) currency. iDEAL facilitates secure and swift transactions, catering specifically to European customers.',
-								'learning-management-system',
-							)}
-						/>
-					</FormLabel>
-					<Controller
-						name="payments.stripe.enable_ideal"
-						render={({ field }) => (
-							<Switch {...field} isChecked={!!field.value} />
-						)}
-					/>
-				</Stack>
 			</FormControlTwoCol>
 			<FormControlTwoCol>
 				<FormLabel m={0} minW="160px">
@@ -283,7 +299,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 				in={'manual' === paymentsData?.stripe?.method}
 			>
 				<Collapse in={showStripeSandBoxOptions}>
-					<Stack direction="column" spacing="5">
+					<Stack direction="column" spacing="6">
 						<FormControlTwoCol>
 							<FormLabel m={0} minW="160px">
 								{__('Test Publishable Key', 'learning-management-system')}
@@ -334,7 +350,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 				</Collapse>
 
 				<Collapse in={!showStripeSandBoxOptions}>
-					<Stack direction="column" spacing="5">
+					<Stack direction="column" spacing="6">
 						<FormControlTwoCol>
 							<FormLabel m={0} minW="160px">
 								{__('Live Publishable Key', 'learning-management-system')}
@@ -383,13 +399,15 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 						</FormControlTwoCol>
 					</Stack>
 				</Collapse>
+
+				<Box></Box>
 			</Collapse>
 			<FormControlTwoCol>
 				<FormLabel m={0} minW="160px">
 					{__('Webhook Secret Key', 'learning-management-system')}
 					<ToolTip
 						label={__(
-							'Get your API credentials from stripe.',
+							'Get your webhook secret key from stripe.',
 							'learning-management-system',
 						)}
 					/>
@@ -398,20 +416,17 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					<Input
 						type={show.webhookKey ? 'text' : 'password'}
 						placeholder="Enter webhook secret key (required for Stripe order updates)"
+						{...register('payments.stripe.webhook_secret')}
 						fontSize={'16px !important'}
 						fontWeight={'normal !important'}
 						pl={'4 !important'}
-						{...register('payments.stripe.webhook_secret')}
 						defaultValue={paymentsData?.stripe?.webhook_secret}
 					/>
-					<InputRightAddon>
+					<InputRightAddon cursor="pointer">
 						<Icon
 							as={!show.webhookKey ? BiShow : BiHide}
 							onClick={() =>
-								setShow({
-									...show,
-									webhookKey: Boolean(!show.webhookKey),
-								})
+								setShow({ ...show, webhookKey: Boolean(!show.webhookKey) })
 							}
 						/>
 					</InputRightAddon>
@@ -463,7 +478,7 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 						</AlertDialogBody>
 						<AlertDialogFooter>
 							<Button colorScheme="primary" size="sm" onClick={onClose}>
-								{__('Continue', 'masteriyo')}
+								{__('Continue', 'learning-management-system')}
 							</Button>
 						</AlertDialogFooter>
 					</AlertDialogContent>

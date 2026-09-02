@@ -3,7 +3,6 @@
  * Create Course Category ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseCategory
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseCategory;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Creates a taxonomy term under `course_cat`. A parent category ID may be
  * supplied to build a category hierarchy.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class CreateCourseCategoryAbility extends RestProxyAbility {
 

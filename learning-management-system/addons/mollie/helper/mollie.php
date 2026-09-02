@@ -11,7 +11,7 @@ if ( ! function_exists( 'masteriyo_mollie_get_api_key' ) ) {
 	 * If the sandbox mode is enabled, it returns the test publishable and api keys.
 	 * Otherwise, it returns the live publishable and api keys.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return array An array containing the publishable and api keys.
 	 */
@@ -28,7 +28,7 @@ if ( ! function_exists( 'masteriyo_mollie_test_mode_enabled' ) ) {
 	/**
 	 * Checks if Mollie test mode is enabled.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return bool True if test mode is enabled, false otherwise.
 	 */
@@ -43,8 +43,6 @@ if ( ! function_exists( 'masteriyo_mollie_get_webhook_url' ) ) {
 	 *
 	 * Centralises the webhook URL used for both one-time and subscription
 	 * payment creation so it stays consistent across the addon.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return string Webhook URL.
 	 */

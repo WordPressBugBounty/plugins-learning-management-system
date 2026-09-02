@@ -3,7 +3,6 @@
  * Abstract base for scoped settings-update abilities.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Subclasses declare settings_section() to identify which top-level settings
  * key they own. get_input_schema() extracts only that section from the full
  * controller schema so callers cannot write to other sections.
- *
- * @since x.x.x
  */
 abstract class AbstractScopedSettingsAbility extends RestProxyAbility {
 
@@ -27,7 +24,6 @@ abstract class AbstractScopedSettingsAbility extends RestProxyAbility {
 	 * The top-level settings section key this ability is scoped to.
 	 * One of: general | payments | emails | quiz | advance
 	 *
-	 * @since x.x.x
 	 * @return string
 	 */
 	abstract protected function settings_section(): string;

@@ -97,8 +97,8 @@ class CourseEnrollButton extends BlockHandler {
 		 * @param \Masteriyo\Models\Course $course Course object.
 		 */
 		$layout = masteriyo_get_setting( 'single_course.display.template.layout' ) ?? 'default';
-		if ( 'default' === $layout || 'minimal' === $layout ) {
-			do_action( 'masteriyo_template_course_retake_button', $course );
+		if ( 'default' === $layout || 'minimal' === $layout || 'immersive' === $layout ) {
+			masteriyo_template_course_retake_button( $course );
 		}
 		?>
 
@@ -111,8 +111,7 @@ class CourseEnrollButton extends BlockHandler {
 		 * @param \Masteriyo\Models\Course $course Course object.
 		 */
 			$user_id = get_current_user_id();
-		if ( masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) && 'layout1' === $layout && masteriyo_is_single_course_page() && $progress_pct > 0 ) {
-		} else {
+		if ( ! ( masteriyo_is_user_enrolled_in_course( $course->get_id(), $user_id ) && 'layout1' === $layout && masteriyo_is_single_course_page() && $progress_pct > 0 ) ) {
 			do_action( 'masteriyo_template_enroll_button', $course );
 		}
 

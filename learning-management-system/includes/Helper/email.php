@@ -126,11 +126,12 @@ if ( ! function_exists( 'masteriyo_is_user_email_verified' ) ) {
 		return UserStatus::SPAM !== $user->get_status();
 	}
 }
+
 if ( ! function_exists( 'masteriyo_get_email_template_header_logo' ) ) {
 	/**
 	 * Returns the file path to the Masteriyo logo image used in email templates.
 	 *
-	 * @since 1.15.0
+	 * @since 2.13.0
 	 *
 	 * @return string The file path to the Masteriyo logo image.
 	 */
@@ -138,12 +139,13 @@ if ( ! function_exists( 'masteriyo_get_email_template_header_logo' ) ) {
 		$logo_id = masteriyo_get_setting( 'emails.general.header_logo.id' );
 
 		$src = wp_get_attachment_image_src( $logo_id, 'full' );
+
 		$src = ( false === $src ) ? masteriyo_get_plugin_url() . '/assets/img/masteriyo-email-template-logo.png' : $src[0];
 
 		/**
 		 * Filters the email template header logo image URL.
 		 *
-		 * @since 1.15.0
+		 * @since 2.13.0
 		 *
 		 * @param string $src The email template header logo image URL.
 		 *
@@ -162,10 +164,19 @@ if ( ! function_exists( 'masteriyo_get_email_template_header_background_img' ) )
 	 * @return string The file path to the Masteriyo background image.
 	 */
 	function masteriyo_get_email_template_header_background_img() {
-		$img_id = masteriyo_get_setting( 'emails.general.header_bg_img.id' );
+		$img_id  = masteriyo_get_setting( 'emails.general.header_bg_img.id' );
+		$img_url = masteriyo_get_setting( 'emails.general.header_bg_img.url' );
 
-		$src = wp_get_attachment_image_src( $img_id, 'full' );
-		$src = ( false === $src ) ? masteriyo_get_plugin_url() . '/assets/img/email-template-header-bg-img.png' : $src[0];
+		if ( ! empty( $img_id ) ) {
+			$src = wp_get_attachment_image_src( $img_id, 'full' );
+			// Fall back to the bundled default when the attachment is missing
+			// (e.g. deleted from the media library) instead of a broken URL.
+			$src = ( false === $src ) ? masteriyo_get_plugin_url() . '/assets/img/email-template-header-bg-img.png' : $src[0];
+		} else {
+			// No attachment selected: first-time installs keep the bundled default
+			// URL, while an explicit deletion leaves the URL empty (no background).
+			$src = $img_url;
+		}
 
 		/**
 		 * Filters the email template header background image URL.
@@ -180,11 +191,10 @@ if ( ! function_exists( 'masteriyo_get_email_template_header_background_img' ) )
 	}
 }
 
-
 /**
  * Returns the footer text to be used in email templates.
  *
- * @since 1.15.0
+ * @since 2.13.0
  *
  * @return string The email template footer text.
  */
@@ -196,13 +206,104 @@ if ( ! function_exists( 'masteriyo_get_email_footer_text' ) ) {
 		/**
 		 * Returns the filtered email template footer text.
 		 *
-		 * @since 1.15.0
+		 * @since 2.13.0
 		 *
 		 * @return string The email template footer text.
 		 */
 		return apply_filters( 'masteriyo_get_email_footer_text', $footer_text );
 	}
 }
+
+if ( ! function_exists( 'masteriyo_get_email_body_bg_color' ) ) {
+	/**
+	 * Returns the body background color for email templates.
+	 *
+	 * @return string Hex color code.
+	 */
+	function masteriyo_get_email_body_bg_color() {
+		$color = masteriyo_sanitize_css_color( masteriyo_get_setting( 'emails.general.body_bg_color' ) );
+
+		/**
+		 * Filters email body background color.
+		 *
+		 * @param string $color CSS color value.
+		 */
+		return apply_filters( 'masteriyo_email_body_bg_color', $color ? $color : '#F8F6FF' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_email_body_text_color' ) ) {
+	/**
+	 * Returns the body text color for email templates.
+	 *
+	 * @return string CSS color value.
+	 */
+	function masteriyo_get_email_body_text_color() {
+		$color = masteriyo_sanitize_css_color( masteriyo_get_setting( 'emails.general.body_text_color' ) );
+
+		/**
+		 * Filters email body text color.
+		 *
+		 * @param string $color CSS color value.
+		 */
+		return apply_filters( 'masteriyo_email_body_text_color', $color ? $color : '#34373F' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_email_header_bg_color' ) ) {
+	/**
+	 * Returns the header background color for email templates.
+	 *
+	 * @return string Hex color code.
+	 */
+	function masteriyo_get_email_header_bg_color() {
+		$color = masteriyo_sanitize_css_color( masteriyo_get_setting( 'emails.general.header_bg_color' ) );
+
+		/**
+		 * Filters email header background color.
+		 *
+		 * @param string $color CSS color value.
+		 */
+		return apply_filters( 'masteriyo_email_header_bg_color', $color ? $color : '#EEEFFD' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_email_button_bg_color' ) ) {
+	/**
+	 * Returns the button background color for email templates.
+	 *
+	 * @return string Hex color code.
+	 */
+	function masteriyo_get_email_button_bg_color() {
+		$color = masteriyo_sanitize_css_color( masteriyo_get_setting( 'emails.general.button_bg_color' ) );
+
+		/**
+		 * Filters email button background color.
+		 *
+		 * @param string $color CSS color value.
+		 */
+		return apply_filters( 'masteriyo_email_button_bg_color', $color ? $color : '#4584FF' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_email_button_text_color' ) ) {
+	/**
+	 * Returns the button text color for email templates.
+	 *
+	 * @return string Hex color code.
+	 */
+	function masteriyo_get_email_button_text_color() {
+		$color = masteriyo_sanitize_css_color( masteriyo_get_setting( 'emails.general.button_text_color' ) );
+
+		/**
+		 * Filters email button text color.
+		 *
+		 * @param string $color CSS color value.
+		 */
+		return apply_filters( 'masteriyo_email_button_text_color', $color ? $color : '#ffffff' );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 	/**
 	 * Returns the default email contents used.
@@ -217,7 +318,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 	 * type as the key and an array with a `content` key containing the default email
 	 * content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.13.0
 	 *
 	 * @return array The default email contents used in Masteriyo.
 	 */
@@ -482,7 +583,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 				),
 			),
 			'student'    => array(
-				'student_registration'       => array(
+				'student_registration'         => array(
 					'enable'           => true,
 					'subject'          => 'Welcome to {site_title}!',
 					'from_address'     => '',
@@ -492,7 +593,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Thank you for registering at <span class="email-text--bold">{site_title}</span>.  We are thrilled to have you onboard!.</p><p class="email-template--info">To get started, log in to your account by clicking the button below:</p> {account_login_link} ',
 				),
-				'automatic_registration'     => array(
+				'automatic_registration'       => array(
 					'enable'           => true,
 					'subject'          => 'Welcome to {site_title}!',
 					'from_address'     => '',
@@ -502,7 +603,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p class="email-template--info">Thank you for registering at <span class="email-text--bold">{site_title}</span>. We are thrilled to have you onboard!</p><p class="email-template--info">Below are your login details to get started:</p><ul><li><span class="email-text--bold">Username: </span>{student_username}</li><li><span class="email-text--bold">Password: </span>{generated_password}</li></ul><p class="email-template--info">To enhance your security, we recommend changing your password. You can do so easily by clicking the link below:</p> {password_reset_link}<p class="email-template--info">If you have any questions or need assistance, feel free to reach out. We\'re here to help!</p>',
 				),
-				'instructor_apply_rejected'  => array(
+				'instructor_apply_rejected'    => array(
 					'enable'           => true,
 					'subject'          => 'Update Regarding Your Application for Instructor Status',
 					'from_address'     => '',
@@ -512,7 +613,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {student_display_name},</p><p>We regret to inform you that your application for instructor status has been rejected.</p>',
 				),
-				'completed_order'            => array(
+				'completed_order'              => array(
 					'enable'           => true,
 					'subject'          => 'Thanks for your purchase!',
 					'from_address'     => '',
@@ -522,7 +623,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {billing_first_name},</p><h4>Thanks for your purchase!.</h4><p><span class="email-text--bold">Order #</span>: {order_id}<br /><span class="email-text--bold">Status</span>: Completed <br /><span class="email-text--bold">Date</span>: {order_date}</p><p><span class="email-text--bold">Course</span>: {course_name}</p>{order_table}<p class="email-template--info">If necessary, log in to your account by clicking the button below:</p>{account_login_link}',
 				),
-				'onhold_order'               => array(
+				'onhold_order'                 => array(
 					'enable'           => true,
 					'subject'          => 'Your order in on hold!',
 					'from_address'     => '',
@@ -532,7 +633,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {billing_first_name},</p><h4>Your order is on hold.</h4><p><span class="email-text--bold">Order #</span>: {order_id}<br /><span class="email-text--bold">Status</span>: On Hold <br /><span class="email-text--bold">Date</span>: {order_date}</p><p><span class="email-text--bold">Course</span>: {course_name}</p>{order_table}<p class="email-template--info">If necessary, log in to your account by clicking the button below:</p>{account_login_link}',
 				),
-				'cancelled_order'            => array(
+				'cancelled_order'              => array(
 					'enable'           => true,
 					'recipients'       => array(),
 					'subject'          => 'Your order has been cancelled!',
@@ -543,7 +644,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {billing_first_name},</p><h4>Your order has been cancelled.</h4><p><span class="email-text--bold">Order #</span>: {order_id}<br /><span class="email-text--bold">Status</span>: Cancelled <br /><span class="email-text--bold">Date</span>: {order_date}</p><p><span class="email-text--bold">Course</span>: {course_name}</p>{order_table}<p class="email-template--info">If necessary, log in to your account by clicking the button below:</p>{account_login_link}',
 				),
-				'course_completion_reminder' => array(
+				'course_completion_reminder'   => array(
 					'enable'           => false,
 					'recipients'       => array(),
 					'subject'          => 'Reminder to complete your course!',
@@ -552,9 +653,9 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'reply_to_address' => '',
 					'reply_to_name'    => '',
 					'to_address'       => '{student_email}',
-					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Hope you are doing well. <br />This is a friendly reminder to complete your course, <a href="{course_url}">{course_name}</a>.</p><p class="email-template--info">If necessary, log in to your account by clicking the button below:</p> {account_login_link} <p class="email-template--info">We look forward to seeing your progress. If you need any further assistance, please don’t hesitate to reach out.</p>',
+					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Hope you are doing well. <br />This is a friendly reminder to complete your course, <a href="{my_courses_url}">{course_name}</a>.</p><p class="email-template--info">If necessary, log in to your account by clicking the button below:</p> {account_login_link} <p class="email-template--info">We look forward to seeing your progress. If you need any further assistance, please don’t hesitate to reach out.</p>',
 				),
-				'course_completion'          => array(
+				'course_completion'            => array(
 					'enable'       => true,
 					'recipients'   => array(),
 					'to_address'   => '{student_email}',
@@ -563,7 +664,16 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'subject'      => 'Congrats! You have completed a course!',
 					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>Congratulations on completing the <span class="email-text--bold">{course_name}</span> course! That’s an amazing achievement, and we’re excited to see your progress.</p>{course_completion_celebration_image}<p class="email-template--info">If necessary, log in to your account by clicking the button below:</p> {account_login_link}  ',
 				),
-				'group_course_enroll'        => array(
+				'manual_enrollment'            => array(
+					'enable'       => true,
+					'recipients'   => array(),
+					'to_address'   => '{student_email}',
+					'from_address' => '',
+					'from_name'    => '',
+					'subject'      => 'You have been enrolled in {course_name}',
+					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>Congratulations! You’ve just been enrolled in the <span class="email-text--bold">{course_name}</span> course. That’s a fantastic step forward, and we’re thrilled to be part of your learning journey.</p>{course_completion_celebration_image}<p class="email-template--info">You can start the course anytime by clicking the button below:</p>{course_learn_link}<p class="email-template--info">Need to access your account? Use the link below to log in:</p>{account_login_link}',
+				),
+				'group_course_enroll'          => array(
 					'enable'       => true,
 					'recipients'   => array(),
 					'to_address'   => '{student_email}',
@@ -572,7 +682,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'subject'      => 'Welcome to {group_name}! Your Journey in "{course_name}" Begins',
 					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>Welcome to "{group_name}" and congratulations on your enrollment in "{course_name}"! We\'re excited to have you embark on this learning journey with us.</p><p class="email-template--info">Engage with your course materials, participate actively, and reach out anytime you need help. Together, we\'re going to achieve great things.</p><p class="email-template--info">Let\'s make this journey memorable. Welcome aboard!</p>',
 				),
-				'group_joining'              => array(
+				'group_joining'                => array(
 					'enable'       => true,
 					'recipients'   => array(),
 					'to_address'   => '{student_email}',
@@ -581,7 +691,16 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'subject'      => 'Congratulations! You\'re Now Part of the "{group_name}"!',
 					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>You’ve successfully joined the group "{group_name}"! We’re thrilled to have you with us. Your journey towards learning and growth starts here.</p><p class="email-template--info">To get started, you can access your account and discover all the available resources using the following link: {account_login_link}. Please, set your password the first time you log in.</p><p class="email-template--info">Dive into the content, participate in discussions, and don’t hesitate to reach out if you need any support. Your learning adventure is just beginning!</p>',
 				),
-				'group_published'            => array(
+				'group_member_removed'         => array(
+					'enable'       => true,
+					'recipients'   => array(),
+					'to_address'   => '{student_email}',
+					'from_address' => '',
+					'from_name'    => '',
+					'subject'      => 'You have been removed from the group "{group_name}"',
+					'content'      => '<p class="email-template--info">Hi {student_first_name},</p><p>You have been removed from the group "{group_name}". This means you no longer have access to the courses provided through this group.</p><p class="email-template--info">If you believe this was a mistake, please contact your group leader.</p>',
+				),
+				'group_published'              => array(
 					'enable'       => true,
 					'recipients'   => array(),
 					'to_address'   => '{author_email}',
@@ -590,7 +709,31 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'subject'      => 'Great News! Your Group "{group_name}" is Now Active!',
 					'content'      => '<p class="email-template--info">Hi {author_first_name},</p><p>Exciting news! Your group "{group_name}" has been successfully activated and is now ready for members to join.</p><p class="email-template--info">You can now start inviting members and managing your group. To get started with group management, visit: {groups_management_link}</p><p class="email-template--info">Key features you can now use:</p><ul><li>Add and remove group members</li></ul><p class="email-template--info">Thank you for choosing our platform for your group learning needs. We\'re here to support you every step of the way!</p>',
 				),
-				'new_question_reply'         => array(
+				'zoom_session_reminder'        => array(
+					'enable'           => false,
+					'recipients'       => array(),
+					'to_address'       => '{student_email}',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'subject'          => 'Reminder: Your live session "{session_title}" starts soon',
+					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Your live session "<span class="email-text--bold">{session_title}</span>" from <span class="email-text--bold">{course_name}</span> is starting soon!</p><p><span class="email-text--bold">Session Details:</span><br />Title: {session_title}<br />Start Time: {session_start_time}<br />Duration: {session_duration} minutes</p><p>You can join the session in two ways:<br />1. {meeting_link} - Join directly via Zoom<br />2. {session_learn_link} - Access through your course dashboard</p><p class="email-template--info">We look forward to seeing you in the session. Don\'t forget to test your audio and video before joining!</p>',
+					'reminder_offset'  => 120, // Minutes before session
+				),
+				'google_meet_session_reminder' => array(
+					'enable'           => false,
+					'recipients'       => array(),
+					'to_address'       => '{student_email}',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'subject'          => 'Reminder: Your live session "{session_title}" starts soon',
+					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Your live session "<span class="email-text--bold">{session_title}</span>" from <span class="email-text--bold">{course_name}</span> is starting soon!</p><p><span class="email-text--bold">Session Details:</span><br />Title: {session_title}<br />Start Time: {session_start_time}</p><p>You can join the session in two ways:<br />1. {meeting_link} - Join directly via Google Meet<br />2. {session_learn_link} - Access through your course dashboard</p><p class="email-template--info">We look forward to seeing you in the session. Make sure you\'re signed in to your Google account to join!</p>',
+					'reminder_offset'  => 120, // Minutes before session
+				),
+				'new_question_reply'           => array(
 					'enable'           => true,
 					'recipients'       => array(),
 					'subject'          => 'Reply to your question in {course_name}',
@@ -601,7 +744,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{student_email}',
 					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p class="email-template--info">Great news! {reply_author_name} has replied to your question in the course <span class="email-text--bold">{course_name}</span>.</p><p><span class="email-text--bold">Reply by</span>: {reply_author_name}<br /><span class="email-text--bold">Date</span>: {reply_date}</p><p class="email-template--info"><span class="email-text--bold">Your Original Question:</span></p><p>{question_content}</p><p class="email-template--info"><span class="email-text--bold">Reply:</span></p><p>{reply_content}</p><p class="email-template--info">You can view the full conversation and continue the discussion by clicking the link below:</p>{reply_link}',
 				),
-				'new_lesson_comment_reply'   => array(
+				'new_lesson_comment_reply'     => array(
 					'enable'           => true,
 					'recipients'       => array(),
 					'subject'          => 'Reply to your lesson comment in {course_name}',
@@ -614,7 +757,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 				),
 			),
 			'everyone'   => array(
-				'password_reset'     => array(
+				'password_reset'                => array(
 					'enable'           => true,
 					'subject'          => 'Password Reset Request!',
 					'from_address'     => '',
@@ -624,7 +767,7 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{user_email}',
 					'content'          => '<p class="email-template--info">Hi {username},</p><p class="email-template--info">A password reset has been requested for your account on <span class="email-text--bold">{site_title}</span>.</p><p class="email-template--info"><span class="email-text--bold">Username:</span> {username}</p><p class="email-template--info">If you didn\'t request this, you can safely ignore this email. If you\'d like to proceed, please click the link below to reset your password:</p>{password_reset_link}<p class="email-template--info">If you need any further assistance, feel free to reach out.</p>',
 				),
-				'email_verification' => array(
+				'email_verification'            => array(
 					'enable'           => true,
 					'subject'          => 'Please verify your email address!',
 					'from_address'     => '',
@@ -634,8 +777,97 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'to_address'       => '{user_email}',
 					'content'          => '<p class="email-template--info">Hi {first_name},</p><p class="email-template--info">Thank you for registering with <span class="email-text--bold">{site_title}</span>.</p><p class="email-template--info"><span class="email-text--bold">Username:</span> {username}</p><p class="email-template--info">To verify your account and finalize your registration, please click the link below:</p>{email_verification_link}<p class="email-template--info">This verification link is valid for 24 hours. If it expires, you can request a new one to complete the process.</p><p class="email-template--info">If you need any assistance, feel free to contact us.</p>',
 				),
+				'two_factor_authentication_otp' => array(
+					'enable'           => true,
+					'subject'          => 'Your One-Time Password (OTP) for login!',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'to_address'       => '{user_email}',
+					'content'          => '<p class="email-template--info">Hi {first_name},</p><p class="email-template--info">You\'ve initiated a login request for your account on  <span class="email-text--bold">{site_title}</span>.</p><p class="email-template--info">To complete your login, please use the following One-Time Password (OTP):</p><p class="email-template--info"><span class="email-text--bold">{otp_code}</span></p><p class="email-template--info">This OTP is valid for {otp_expiration_time}. If it expires, you can request a new one.</p><p class="email-template--info">If you did not make this request, please disregard this email.</p>',
+				),
 			),
 		);
+
 		return $data;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_admin_manual_course_completion_email_enabled' ) ) {
+	/**
+	 * Check if the admin manual course completion email is enabled.
+	 *
+	 * This function can be used to determine whether the admin manual course
+	 * completion email feature is enabled in your WordPress site.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @return bool True if the email is enabled, false otherwise.
+	 */
+	function masteriyo_is_admin_manual_course_completion_email_enabled() {
+		/**
+		 * Check if the admin manual course completion email is enabled.
+		 *
+		 * This function can be used to determine whether the admin manual course
+		 * completion email feature is enabled in your WordPress site.
+		 *
+		 * @since 2.18.0
+		 *
+		 * @return bool True if the email is enabled, false otherwise.
+		 */
+		return apply_filters( 'masteriyo_is_admin_manual_course_completion_email_enabled', masteriyo_string_to_bool( masteriyo_get_setting( 'emails.admin.manual_course_completion.enable' ) ) );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_instructor_manual_course_completion_email_enabled' ) ) {
+	/**
+	 * Check if the instructor manual course completion email is enabled.
+	 *
+	 * This function can be used to determine whether the instructor manual course
+	 * completion email feature is enabled in your WordPress site.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @return bool True if the email is enabled, false otherwise.
+	 */
+	function masteriyo_is_instructor_manual_course_completion_email_enabled() {
+		/**
+		 * Check if the instructor manual course completion email is enabled.
+		 *
+		 * This function can be used to determine whether the instructor manual course
+		 * completion email feature is enabled in your WordPress site.
+		 *
+		 * @since 2.18.0
+		 *
+		 * @return bool True if the email is enabled, false otherwise.
+		 */
+		return apply_filters( 'masteriyo_is_instructor_manual_course_completion_email_enabled', masteriyo_string_to_bool( masteriyo_get_setting( 'emails.instructor.manual_course_completion.enable' ) ) );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_student_manual_course_completion_email_enabled' ) ) {
+	/**
+	 * Check if the student manual course completion email is enabled.
+	 *
+	 * This function can be used to determine whether the student manual course
+	 * completion email feature is enabled in your WordPress site.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @return bool True if the email is enabled, false otherwise.
+	 */
+	function masteriyo_is_student_manual_course_completion_email_enabled() {
+		/**
+		 * Check if the student manual course completion email is enabled.
+		 *
+		 * This function can be used to determine whether the student manual course
+		 * completion email feature is enabled in your WordPress site.
+		 *
+		 * @since 2.18.0
+		 *
+		 * @return bool True if the email is enabled, false otherwise.
+		 */
+		return apply_filters( 'masteriyo_is_student_manual_course_completion_email_enabled', masteriyo_string_to_bool( masteriyo_get_setting( 'emails.student.manual_course_completion.enable' ) ) );
 	}
 }

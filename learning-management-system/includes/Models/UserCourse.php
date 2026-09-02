@@ -11,7 +11,6 @@ namespace Masteriyo\Models;
 
 use Masteriyo\Database\Model;
 use Masteriyo\Repository\RepositoryInterface;
-use Masteriyo\Cache\CacheInterface;
 use Masteriyo\Enums\UserCourseStatus;
 
 defined( 'ABSPATH' ) || exit;
@@ -123,7 +122,7 @@ class UserCourse extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Masteriyo\Models\Order|NULL
+	 * @return \Masteriyo\Models\Order\Order|NULL
 	 */
 	public function get_order() {
 		return masteriyo_get_order( $this->get_order_id() );
@@ -202,11 +201,11 @@ class UserCourse extends Model {
 	 * Get user's course date start.
 	 *
 	 * @since  1.0.0
-	 * @since x.xx. Return \Masteriyo\DateTime|null
+	 * @since 1.5.32 Return \Masteriyo\DateTime|null
 	 *
 	 * @return \Masteriyo\DateTime|NULL object if the date is set or null if there is no date.
 	 *
-	 * @return string
+	 * @return DateTime|NULL object if the date is set or null if there is no date.
 	 */
 	public function get_date_start( $context = 'view' ) {
 		return $this->get_prop( 'date_start', $context );
@@ -216,11 +215,11 @@ class UserCourse extends Model {
 	 * Get user's course date modified.
 	 *
 	 * @since  1.0.0
-	 * @since x.xx. Return \Masteriyo\DateTime|null
+	 * @since 1.5.32. Return \Masteriyo\DateTime|null
 	 *
 	 * @return \Masteriyo\DateTime|NULL object if the date is set or null if there is no date.
 	 *
-	 * @return string
+	 * @return DateTime|NULL object if the date is set or null if there is no date.
 	 */
 	public function get_date_modified( $context = 'view' ) {
 		return $this->get_prop( 'date_modified', $context );
@@ -234,7 +233,7 @@ class UserCourse extends Model {
 	 *
 	 * @return \Masteriyo\DateTime|NULL object if the date is set or null if there is no date.
 	 *
-	 * @return string
+	 * @return DateTime|NULL object if the date is set or null if there is no date.
 	 */
 	public function get_date_end( $context = 'view' ) {
 		return $this->get_prop( 'date_end', $context );

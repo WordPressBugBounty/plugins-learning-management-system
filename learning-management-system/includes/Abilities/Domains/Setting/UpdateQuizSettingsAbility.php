@@ -3,7 +3,6 @@
  * Update Quiz Settings ability.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -12,8 +11,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Ability: write Masteriyo quiz settings (display, passing grade, attempts, etc.).
- *
- * @since x.x.x
  */
 class UpdateQuizSettingsAbility extends AbstractScopedSettingsAbility {
 
@@ -34,6 +31,10 @@ class UpdateQuizSettingsAbility extends AbstractScopedSettingsAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Write Masteriyo quiz settings (questions per page, passing grade, attempt limits, review visibility). Accepts a partial quiz settings object; only provided keys are updated.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Write %s quiz settings (questions per page, passing grade, attempt limits, review visibility). Accepts a partial quiz settings object; only provided keys are updated.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

@@ -28,12 +28,13 @@ if ( ! isset( $course ) || ! is_object( $course ) ) {
 	return;
 }
 
-$query    = new \Masteriyo\Query\CourseProgressQuery(
+$query = new \Masteriyo\Query\CourseProgressQuery(
 	array(
 		'course_id' => $course->get_id(),
 		'user_id'   => get_current_user_id(),
 	)
 );
+
 $progress = current( $query->get_course_progress() );
 $summary  = $progress ? $progress->get_summary( 'all' ) : '';
 
@@ -59,23 +60,18 @@ if (
 $is_hidden     = ! $show_overview_active;
 $course_values = $course->get_custom_fields();
 $course_values = is_array( $course_values ) ? $course_values : array();
+
 ?>
 
 <div class="tab-content course-overview <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
 	<?php
-	$description    = $course->get_description();
-	$default_editor = masteriyo_get_setting( 'advance.editor.default_editor' );
-	if ( 'block_editor' === $default_editor && has_blocks( $description ) ) {
-		echo wp_kses_post( do_blocks( do_shortcode( $description ) ) );
-	} else {
-		echo do_shortcode( wp_kses_post( $description ) );
-	}
+	echo wp_kses_post( masteriyo_format_content_for_view( $course->get_description() ) );
 	?>
 
 	<?php if ( ! empty( $course_values ) ) : ?>
 		<div id="masteriyo-custom-fields">
 			<script type="application/json" id="masteriyo-course-values">
-				<?php echo wp_json_encode( $course_values, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?>
+				<?php echo wp_json_encode( $course_values, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ); ?>
 			</script>
 			<div class="custom-fields-container"></div>
 		</div>

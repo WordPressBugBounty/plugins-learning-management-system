@@ -571,7 +571,13 @@ class OrderItemsController extends PostsController {
 			);
 		}
 
-		if ( ! $this->permission->rest_check_order_permissions( 'read', $order->get_id() ) ) {
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		$cap = $order->get_customer_id() === get_current_user_id() ? 'read_orders' : 'read_others_orders';
+
+		if ( ! $this->permission->rest_check_order_permissions( $cap, $order->get_id() ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you cannot list resources.', 'learning-management-system' ),

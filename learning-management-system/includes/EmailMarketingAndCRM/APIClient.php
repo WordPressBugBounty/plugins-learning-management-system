@@ -5,7 +5,7 @@
  *
  * @package Masteriyo\EmailMarketingAndCRM
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 
 namespace Masteriyo\EmailMarketingAndCRM;
@@ -16,14 +16,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Abstract class for API clients.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 class APIClient {
 
 	/**
 	 * Base URL for the API.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -32,7 +32,7 @@ class APIClient {
 	/**
 	 * Headers for the API requests.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var array
 	 */
@@ -41,7 +41,7 @@ class APIClient {
 	/**
 	 * Whether to verify SSL certificates.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var boolean
 	 */
@@ -50,7 +50,7 @@ class APIClient {
 	/**
 	 * Request timeout in seconds.
 	 *
-	 *  @since 1.13.3
+	 *  @since 2.14.4 [Free]
 	 *
 	 * @var integer
 	 */
@@ -59,7 +59,7 @@ class APIClient {
 	/**
 	 * Constructor for APIClient.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $base_url The base URL for the API.
 	 */
@@ -70,7 +70,7 @@ class APIClient {
 	/**
 	 * Sets a header for the API requests.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $key The header key.
 	 * @param string $value The header value.
@@ -82,7 +82,7 @@ class APIClient {
 	/**
 	 * Sets SSL verification.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param bool $verify_ssl Whether to verify SSL certificates.
 	 */
@@ -93,7 +93,7 @@ class APIClient {
 	/**
 	 * Sets request timeout.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param int $timeout The request timeout in seconds.
 	 */
@@ -104,7 +104,7 @@ class APIClient {
 	/**
 	 * Sets the bearer token for the API requests.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $token The bearer token.
 	 */
@@ -115,7 +115,7 @@ class APIClient {
 	/**
 	 * Performs a GET request.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $endpoint The API endpoint.
 	 * @param array $params Optional. Query parameters.
@@ -130,7 +130,7 @@ class APIClient {
 	/**
 	 * Performs a POST request.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $endpoint The API endpoint.
 	 * @param array $body Optional. Request body.
@@ -145,7 +145,7 @@ class APIClient {
 	/**
 	 * Performs a PUT request.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $endpoint The API endpoint.
 	 * @param array $body Optional. Request body.
@@ -160,7 +160,7 @@ class APIClient {
 	/**
 	 * Performs a DELETE request.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $endpoint The API endpoint.
 	 * @param array $body Optional. Request body.
@@ -175,7 +175,7 @@ class APIClient {
 	/**
 	 * Makes an HTTP request.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $method The HTTP method to use.
 	 * @param string $endpoint The API endpoint.
@@ -201,14 +201,13 @@ class APIClient {
 		);
 
 		$response = wp_remote_request( $url, $args );
-
 		return $this->handle_response( $response );
 	}
 
 	/**
 	 * Gets default headers for requests.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return array Default headers.
 	 */
@@ -226,7 +225,7 @@ class APIClient {
 	/**
 	 * Handles the HTTP response.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param mixed $response The HTTP response.
 	 *

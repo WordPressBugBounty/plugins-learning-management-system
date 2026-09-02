@@ -70,8 +70,6 @@ class CourseArchiveViewModeWidget extends WidgetBase {
 	/**
 	 * Hide from the panel — view mode is now a toggle on the Courses Toolbar widget.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return bool
 	 */
 	public function show_in_panel() {

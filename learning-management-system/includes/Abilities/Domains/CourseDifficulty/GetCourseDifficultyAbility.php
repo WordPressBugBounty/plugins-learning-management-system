@@ -3,7 +3,6 @@
  * Get Course Difficulty ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseDifficulty
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseDifficulty;
@@ -16,8 +15,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Ability: retrieve a single course difficulty level by ID.
  *
  * Returns the term object including name, slug, description, and course count.
- *
- * @since x.x.x
  */
 class GetCourseDifficultyAbility extends RestProxyAbility {
 

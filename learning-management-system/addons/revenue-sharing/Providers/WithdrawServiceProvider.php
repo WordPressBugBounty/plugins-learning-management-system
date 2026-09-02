@@ -23,24 +23,6 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
  * @since 1.6.14
  */
 class WithdrawServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
-
-
-	/**
-	 * This is where the magic happens, within the method you can
-	 * access the container and register or retrieve anything
-	 * that you need to, but remember, every alias registered
-	 * within this method must be declared in the `$provides` array.
-	 *
-	 * @since 1.6.14
-	 */
-	public function register(): void {
-		$this->getContainer()->add( 'withdraw.store', WithdrawRepository::class );
-		$this->getContainer()->add( 'withdraw', Withdraw::class )
-			->addArgument( 'withdraw.store' );
-		$this->getContainer()->add( 'withdraw.rest', WithdrawsController::class )
-			->addArgument( 'permission' );
-	}
-
 	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
@@ -50,7 +32,7 @@ class WithdrawServiceProvider extends AbstractServiceProvider implements Bootabl
 	 *
 	 * Check if the service provider provides a specific service.
 	 *
-	 * @since 2.1.0
+	 * @since 1.6.14
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool True if the service is provided, false otherwise.
@@ -66,6 +48,22 @@ class WithdrawServiceProvider extends AbstractServiceProvider implements Bootabl
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	 * access the container and register or retrieve anything
+	 * that you need to, but remember, every alias registered
+	 * within this method must be declared in the `$provides` array.
+	 *
+	 * @since 1.6.14
+	 */
+	public function register(): void {
+		$this->getContainer()->add( 'withdraw.store', WithdrawRepository::class );
+		$this->getContainer()->add( 'withdraw', Withdraw::class )
+			->addArgument( 'withdraw.store' );
+		$this->getContainer()->add( 'withdraw.rest', WithdrawsController::class )
+			->addArgument( 'permission' );
 	}
 
 	/**

@@ -92,6 +92,4 @@ class Quiz extends PostType {
 			) : false,
 		);
 	}
-
-
 }

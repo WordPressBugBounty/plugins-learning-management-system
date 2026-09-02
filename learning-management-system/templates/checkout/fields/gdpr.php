@@ -18,10 +18,12 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Notice;
+
+$field = isset( $field ) ? $field : array();
 ?>
 <div class="masteriyo-checkout---gdpr-wrapper">
 	<div class="masteriyo-checkout----gdpr">
-		<input type="checkbox" id="gdpr" name="gdpr">
+		<input type="checkbox" id="gdpr" name="gdpr" <?php masteriyo_checkout_field_required_attributes( $field ); ?>>
 
 		<?php
 			echo wp_kses_post(

@@ -21,30 +21,24 @@ defined( 'ABSPATH' ) || exit;
  * @param \Masteriyo\Checkout $checkout
  */
 do_action( 'masteriyo_checkout_before_billing', $user, $checkout );
+
+masteriyo_display_all_notices();
 ?>
 
-<div class="masteriyo-checkout-main">
-	<h3 class="masteriyo-checkout--title">
-		<?php esc_html_e( 'Payment Details', 'learning-management-system' ); ?>
-	</h3>
-
-	<form action="" class="masteriyo-checkout--form">
-		<?php
-
-		masteriyo_display_all_notices();
-
-		/**
-		 * Checkout form.
-		 *
-		 * @since 1.6.0
-		 *
-		 * @param \Masteriyo\Models\User $user
-		 * @param \Masteriyo\Checkout $checkout
-		 */
-		do_action( 'masteriyo_checkout_form_content', $user, $checkout );
-		?>
-	</form>
+<div class="masteriyo-checkout-fields">
+	<?php
+	/**
+	 * Checkout form.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param \Masteriyo\Models\User $user
+	 * @param \Masteriyo\Checkout $checkout
+	 */
+	do_action( 'masteriyo_checkout_form_content', $user, $checkout );
+	?>
 </div>
+
 <?php
 /**
  * Fires after rendering billing address form in checkout page.

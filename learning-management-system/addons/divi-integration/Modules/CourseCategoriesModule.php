@@ -34,7 +34,13 @@ class CourseCategoriesModule extends DiviModule {
 	 * @since 1.6.13
 	 */
 	public function init() {
-		$this->name            = esc_html__( 'Masteriyo Course Categories', 'learning-management-system' );
+		$this->name = esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course Categories', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 		$this->icon_path       = MASTERIYO_DIVI_INTEGRATION_DIR . '/svg/course-categories-module-icon.svg';
 		$this->advanced_fields = array(
 			'button'         => false,

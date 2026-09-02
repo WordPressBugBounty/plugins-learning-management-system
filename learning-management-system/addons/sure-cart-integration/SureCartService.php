@@ -3,7 +3,7 @@
 /**
  * Integration class for SureCart Plugin.
  *
- * @since 1.12.0
+ * @since 1.12.0 [free]
  * @package Masteriyo\Addons\SureCartIntegration
  */
 
@@ -11,11 +11,14 @@ namespace Masteriyo\Addons\SureCartIntegration;
 
 use Masteriyo\Constants;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\PostType\PostType;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Query\UserCourseQuery;
 use SureCart\Integrations\IntegrationService;
 use SureCart\Integrations\Contracts\IntegrationInterface;
 use SureCart\Integrations\Contracts\PurchaseSyncInterface;
+use SureCart\Models\Product;
 use SureCart\Models\Integration;
 use SureCart\Models\Price;
 use SureCart\Support\Currency;
@@ -23,6 +26,7 @@ use SureCart\Support\Currency;
 defined( 'ABSPATH' ) || exit;
 
 class SureCartService extends IntegrationService implements IntegrationInterface, PurchaseSyncInterface {
+
 
 	public function bootstrap() {
 		parent::bootstrap();
@@ -51,19 +55,29 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 		add_filter( 'masteriyo_price', array( $this, 'add_course_price_action' ), 10, 5 );
 		add_filter( 'masteriyo_add_to_cart_button_attributes', array( $this, 'add_course_attributes' ), 10, 2 );
 
-		// add_filter( 'masteriyo_rest_response_course_data', array( $this, 'change_course_price' ), 10, 4 ); //Can be used in the future.
+		//course bundle
+		add_filter( 'masteriyo_course_bundle_buy_button_text', array( $this, 'add_to_cart_btn_text' ), 10, 2 );
+		add_filter( 'masteriyo_course_bundle_buy_button_url', array( $this, 'change_add_to_cart_url' ), 10, 2 );
+		add_filter( 'masteriyo_course_bundle_buy_button_price', array( $this, 'add_course_price_action_bundle' ), 10, 2 );
+		add_filter( 'masteriyo_add_to_cart_button_attributes_bundle', array( $this, 'add_course_attributes' ), 10, 2 );
+		add_action( 'masteriyo_single_course_bundle_sidebar_content_one', array( $this, 'render_surecart_sidebar_content' ), 15 );
+		add_action( 'masteriyo_courses_bundle_popup_modal', array( $this, 'add_surecart_courses_popup_modal_bundle' ), 15 );
+		add_filter( 'masteriyo_enroll_bundle_button_class', array( $this, 'enroll_button_class' ), 10, 3 );
+
+		add_filter( 'masteriyo_single_course_bundle_buy_button_price', array( $this, 'add_course_price_action_bundle' ), 10, 2 );
 	}
 
 	/**
 	 *
 	 * Add course attributes.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $attr
 	 * @param Masteriyo\Models\Course $course
 	 *
-	 * @return array additional attributes
+	 * @return array $attr
+	 *
 	 */
 	public function add_course_attributes( $attr, $course ) {
 
@@ -89,7 +103,6 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 		if ( $count_prices > 1 ) {
 			$attr['data-prices-count']    = 'multiple';
 			$attr['data-course-activity'] = 'not-started';
-
 			return $attr;
 		} else {
 			$attr['data-prices-count']    = 'single';
@@ -102,7 +115,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Registers the REST API routes for the Surecart Integration addon.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string $namespace The API namespace.
 	 * @param string $rest_base The REST base.
@@ -117,7 +130,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'masteriyo_route_check_integration_and_price' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => array(
 						'course_id' => array(
 							'default'     => 0,
@@ -132,9 +145,22 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
+	 * Get item permissions check.
+	 *
+	 * @since 1.12.0 [free]
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return boolean
+	 */
+	public function get_item_permissions_check( $request ) {
+		return true;
+	}
+
+	/**
 	 * Localize surecart course page scripts.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $scripts
 	 *
@@ -177,9 +203,30 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
+	 * Renders a popup modal for surecart course bundles on course bundles.
+	 *
+	 * @since 2.15.0
+	 *
+	 * @return void
+	 */
+	public function add_surecart_courses_popup_modal_bundle() {
+		if ( did_action( 'masteriyo_courses_bundle_popup_modal' ) > 1 ) {
+			return;
+		}
+
+		masteriyo_get_template(
+			'sure-cart-integration/add-to-cart-modal.php',
+			array(
+				'prices' => '',
+				'course' => '',
+			)
+		);
+	}
+
+	/**
 	 * Renders a popup modal for surecart courses on courses pages.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return void
 	 */
@@ -196,9 +243,9 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
-	 * Append required class for enroll button.
+	 * Disable enroll button.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string[] $class An array of class names.
 	 * @param \Masteriyo\Models\Course $course Course object.
@@ -218,7 +265,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $class;
 		}
 
-		if ( masteriyo_is_single_course_page() ) {
+		if ( masteriyo_is_single_course_page() || is_singular( PostType::COURSE_BUNDLE ) ) {
 
 			$activity = masteriyo_check_user_course_activity( $course->get_id() );
 
@@ -240,6 +287,8 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 		foreach ( $prices as $price ) {
 			$class[] = 'masteriyo-surecart-course-btn';
+			$class[] = $price->id;
+			$class[] = $course->get_id();
 			return $class;
 		}
 
@@ -249,7 +298,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Change to SureCart Add to Cart URL.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string $url
 	 * @param Masteriyo\Models\Course $course
@@ -268,7 +317,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $url;
 		}
 
-		$prices = $this->masteriyo_check_integration_and_price( $course->get_id() );
+		$prices = $this->masteriyo_check_integration_and_price( $course, $course->get_id() );
 
 		if ( $prices === $course->get_id() ) {
 			return $url;
@@ -298,9 +347,9 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
-	 * Render surecart sidebar content for default layout.
+	 * Render surecart sidebar content.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 * @return void
@@ -344,9 +393,9 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
-	 * Render surecart sidebar content for layout 1.
+	 * Render surecart sidebar content.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 * @return void
@@ -392,7 +441,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Change template for courses template in single course page.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string $template Template path.
 	 * @param string $template_name Template name.
@@ -421,7 +470,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Change to SureCart Add to Cart text.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string $text
 	 * @param Masteriyo\Models\Course $course
@@ -440,7 +489,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $text;
 		}
 
-		$prices = $this->masteriyo_check_integration_and_price( $course->get_id() );
+		$prices = $this->masteriyo_check_integration_and_price( $course, $course->get_id() );
 
 		if ( $prices === $course->get_id() ) {
 			return $text;
@@ -457,7 +506,50 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Update the price for integrated course.
 	 *
-	 * @since 1.12.0
+	 * @since 2.15.0
+	 *
+	 * @param int $id
+	 * @param Masteriyo\Models\Course $course
+	 *
+	 * @return void
+	 */
+	public function add_course_price_action_bundle( $price, $course ) {
+		if ( ! ( new Addons() )->is_active( 'course-bundle' ) ) {
+			return $price;
+		}
+
+		if ( is_null( $course ) ) {
+			return $price;
+		}
+
+		$prices = $this->masteriyo_check_integration_and_price( $course->get_id() );
+
+		$id = $course->get_id();
+
+		if ( $prices === $course->get_id() ) {
+			return $price;
+		}
+
+		$count_prices = count( $prices );
+
+		if ( $count_prices > 2 ) {
+			$paid_text = __( 'Paid', 'learning-management-system' );
+			return $paid_text;
+		} else {
+			foreach ( $prices as $price ) {
+				$now[] = Currency::format( $price->amount, $price->currency );
+			}
+			$now = implode( '|', $now );
+			return $now;
+		}
+
+		return $price;
+	}
+
+	/**
+	 * Update the price for integrated course.
+	 *
+	 * @since 1.12.0 [free]
 	 *
 	 * @param int $id
 	 * @param Masteriyo\Models\Course $course
@@ -465,7 +557,6 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	 * @return void
 	 */
 	public function add_course_price_action( $html, $price, $args, $unformatted_price, $course ) {
-
 		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page() ) {
 
 			$prices = $this->masteriyo_check_integration_and_price( $course->get_id() );
@@ -497,7 +588,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the cached products prices.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $args The product args.
 	 *
@@ -506,7 +597,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	public function masteriyo_check_integration_and_price( $course_id ) {
 
 		if ( is_object( $course_id ) ) {
-			$course_id = $course_id['course_id'];
+			$course_id = $course_id->get_id();
 		}
 
 		$integrations = Integration::where( 'integration_id', $course_id )->andWhere( 'model_name', 'product' )->get();
@@ -531,7 +622,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the cached products prices.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $args The product args.
 	 *
@@ -543,7 +634,16 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			$course_id = $course_id['course_id'];
 		}
 
-		$course = masteriyo_get_course( $course_id );
+		$is_course = masteriyo_is_course( $course_id );
+
+		if ( ! is_wp_error( $is_course ) ) {
+			$course = masteriyo_get_course( $course_id );
+		} else {
+			$is_bundle = masteriyo_is_course_bundle( $course_id );
+			if ( ! is_wp_error( $is_bundle ) ) {
+				$course = masteriyo_get_bundle_product( $course_id );
+			}
+		}
 
 		$integrations = Integration::where( 'integration_id', $course_id )->andWhere( 'model_name', 'product' )->get();
 
@@ -556,6 +656,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return $course_id;
 		}
 		$prices = $this->getCachedProductsPrices( $product_ids );
+
 		if ( empty( $prices ) ) {
 			return $course_id;
 		}
@@ -574,7 +675,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get cached products prices function
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array $product_ids
 	 * @return void
@@ -590,7 +691,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get cached product prices function
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param [type] $product_id
 	 * @return void
@@ -606,9 +707,29 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	}
 
 	/**
+	 * Clear the price cache.
+	 *
+	 * @since 1.12.0 [free]
+	 *
+	 * @param \SureCart\Models\Price $price The price model.
+	 *
+	 * @return void
+	 */
+	public function clearPriceCache( $price ) {
+
+		if ( empty( $price->product ) ) {
+			return;
+		}
+
+		$product_id = is_a( $price->product, Product::class ) ? $price->product->id : $price->product;
+
+		delete_transient( 'masteriyo_lms_surecart_product_' . $product_id );
+	}
+
+	/**
 	 * Get the slug for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
@@ -619,7 +740,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the model for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
@@ -630,7 +751,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the slug for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
@@ -641,18 +762,22 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the slug for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
 	public function getLabel() {
-		return __( 'MasteriyoLMS Course', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( '%s LMS Course', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 
 	/**
 	 * Get the slug for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
@@ -663,18 +788,22 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get the slug for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return string
 	 */
 	public function getItemHelp() {
-		return __( 'Enable access to a MasteriyoLMS course.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Enable access to a %s LMS course.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 
 	/**
 	 * Is this enabled?
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @return boolean
 	 */
@@ -685,7 +814,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Get item listing for the integration.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param array  $items The integration items.
 	 * @param string $search The search term.
@@ -697,6 +826,10 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return;
 		}
 
+		// `WP_Query` has no `per_page` argument — it is `posts_per_page`, as the bundle query
+		// below spells it. An unrecognised key is ignored, so the course list silently fell
+		// back to the site's default page size and an admin could only reach the first page
+		// of courses when connecting a SureCart product.
 		$course_query = new \WP_Query(
 			array(
 				'post_type'      => 'mto-course',
@@ -717,13 +850,38 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			);
 		}
 
+		if ( ! ( new Addons() )->is_active( 'course-bundle' ) ) {
+			return $items;
+		}
+
+		$bundle_query = new \WP_Query(
+			array(
+				'post_type'      => 'mto-bundle',
+				's'              => $search,
+				'posts_per_page' => -1,
+			)
+		);
+
+		if ( isset( $bundle_query->posts ) && ! empty( $bundle_query->posts ) ) {
+			$bundles = array_map(
+				function ( $post ) {
+					return (object) array(
+						'id'    => $post->ID,
+						'label' => $post->post_title . ' (bundle)',
+					);
+				},
+				$bundle_query->posts
+			);
+			$items   = array_merge( $items, $bundles );
+		}
+
 		return $items;
 	}
 
 	/**
 	 * Get the individual item.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param string $id Id for the record.
 	 *
@@ -741,7 +899,11 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 		}
 		return (object) array(
 			'id'             => $id,
-			'provider_label' => __( 'MasteriyoLMS Course', 'learning-management-system' ),
+			'provider_label' => sprintf(
+				/* translators: %s: the product's name */
+				__( '%s LMS Course', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			),
 			'label'          => $course->post_title,
 		);
 	}
@@ -749,7 +911,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Enable Access to the course.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param \SureCart\Models\Integration $integration The integrations.
 	 * @param \WP_User                     $wp_user The user.
@@ -763,7 +925,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Enable access when purchase is invoked
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param \SureCart\Models\Integration $integration The integrations.
 	 * @param \WP_User                     $wp_user The user.
@@ -777,7 +939,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Remove a user role.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param \SureCart\Models\Integration $integration The integrations.
 	 * @param \WP_User                     $wp_user The user.
@@ -791,7 +953,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	/**
 	 * Update access to a course.
 	 *
-	 * @since 1.12.0
+	 * @since 1.12.0 [free]
 	 *
 	 * @param integer  $course_id The course id.
 	 * @param \WP_User $wp_user The user.
@@ -804,8 +966,24 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 			return;
 		}
 
-		// update course access.
-		if ( $add ) {
+		$is_bundle = masteriyo_is_course_bundle( $course_id );
+		if ( ! is_wp_error( $is_bundle ) ) {
+			$now     = masteriyo_get_bundle_product( $course_id );
+			$courses = $now->get_courses();
+			// update course access.
+			if ( $add ) {
+				foreach ( $courses as $course_id ) {
+					$data[] = masteriyo_enroll_surecart_user( $wp_user->ID, $course_id );
+				}
+				return $data;
+			} else {
+				foreach ( $courses as $course_id ) {
+					$data[] = masteriyo_unenroll_surecart_user( $wp_user->ID, $course_id );
+				}
+				return $data;
+			}
+		} elseif ( $add ) {
+			// update course access.
 			return masteriyo_enroll_surecart_user( $wp_user->ID, $course_id );
 		} else {
 			return masteriyo_unenroll_surecart_user( $wp_user->ID, $course_id );

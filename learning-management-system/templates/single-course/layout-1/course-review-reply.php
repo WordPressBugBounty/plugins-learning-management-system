@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -30,7 +30,7 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 	<?php if ( ! $reply->get_author() ) : ?>
 		<img src="<?php echo esc_attr( $pp_placeholder ); ?>" alt="<?php echo esc_attr( $reply->get_author_name() ); ?>" />
 	<?php else : ?>
-		<img src="<?php echo esc_attr( $reply->get_author()->get_avatar_url() ); ?>" alt="<?php echo esc_attr( $reply->get_author_name() ); ?>" />
+		<img src="<?php echo esc_attr( $reply->get_author()->profile_image_url() ); ?>" alt="<?php echo esc_attr( $reply->get_author_name() ); ?>" />
 	<?php endif; ?>
 
 	<div class="masteriyo-single-body__main--review-list-content">

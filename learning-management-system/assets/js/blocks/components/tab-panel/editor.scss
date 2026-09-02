@@ -6,7 +6,7 @@ $color-grey: #e2e8f0;
 	.masteriyo-tab-panel-menu {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		grid-gap: 13px;
+		gap: 13px;
 		text-align: center;
 
 		.masteriyo-tab-panel-menu-item {
@@ -70,7 +70,7 @@ $color-grey: #e2e8f0;
 	}
 }
 
-//Design Tab.
+// Design Tab.
 .masteriyo-design-card {
 	margin: 0 17px;
 
@@ -85,7 +85,7 @@ $color-grey: #e2e8f0;
 		}
 
 		&:hover,
-		&:after {
+		&::after {
 			box-shadow: 0 8px 16px rgba(#64748b, 0.1), 0 4px 4px rgba(#64748b, 0.1);
 		}
 

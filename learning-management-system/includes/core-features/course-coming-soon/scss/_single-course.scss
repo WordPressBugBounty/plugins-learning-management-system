@@ -1,3 +1,5 @@
+@use "../../../../assets/scss/variable/structure";
+
 .masteriyo-single {
 	&-body {
 		&__aside {
@@ -16,9 +18,9 @@
 	font-weight: 500;
     align-content: center;
 	text-decoration: none;
-	border-radius: $border_radius_4;
+	border-radius: structure.$border_radius_4;
     background: #f7f7f7;
-	padding: 0 $spacing_24px;
+	padding: 0 structure.$spacing_24px;
 	min-height: 40px;
 	color: var(--masteriyo-color-primary);
 	font-size: 15px;
@@ -58,7 +60,7 @@
                     flex-direction: column;
                     gap: 8px;
 
-                    @media screen and (max-width: 600px) {
+                    @media screen and (width <= 600px) {
                         width: 50px;
                     }
 
@@ -80,7 +82,7 @@
                         border: 1px solid #EBECF2;
                         background: #FBFBFB;
 
-                        @media screen and (max-width: 600px) {
+                        @media screen and (width <= 600px) {
                             width: 45px;
                             height: 40px;
                             font-size: 18px;
@@ -96,7 +98,7 @@
                         text-transform: uppercase;
                         text-align: center;
 
-                        @media screen and (max-width: 600px) {
+                        @media screen and (width <= 600px) {
                             font-size: 10px;
                             line-height: 18px;
                         }
@@ -111,7 +113,7 @@
                         font-weight: 500;
                         line-height: 45px;
 
-                         @media screen and (max-width: 600px) {
+                         @media screen and (width <= 600px) {
                             font-size: 26px;
                             line-height: 36px;
                         }

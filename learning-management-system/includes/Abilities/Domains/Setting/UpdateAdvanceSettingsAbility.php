@@ -3,7 +3,6 @@
  * Update Advance Settings ability.
  *
  * @package Masteriyo\Abilities\Domains\Setting
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Setting;
@@ -16,8 +15,6 @@ defined( 'ABSPATH' ) || exit;
  * Requires manage_options in addition to manage_masteriyo_settings because
  * advanced flags can affect site stability and are admin-only.
  * Not exposed via MCP by default — opt-in via masteriyo_ability_mcp_public filter.
- *
- * @since x.x.x
  */
 class UpdateAdvanceSettingsAbility extends AbstractScopedSettingsAbility {
 
@@ -59,6 +56,10 @@ class UpdateAdvanceSettingsAbility extends AbstractScopedSettingsAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Write Masteriyo advanced settings (debug, cache, performance flags). Requires administrator privileges. Accepts a partial advance settings object; only provided keys are updated.', 'learning-management-system' );
+		return sprintf(
+			/* translators: %s: the product's name */
+			__( 'Write %s advanced settings (debug, cache, performance flags). Requires administrator privileges. Accepts a partial advance settings object; only provided keys are updated.', 'learning-management-system' ),
+			masteriyo_get_plugin_name()
+		);
 	}
 }

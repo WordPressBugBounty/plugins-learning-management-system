@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 	/**
 	 * Fires right before rendering the course title in single course page.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 */
@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
 	/**
 	 * Fires right after rendering the course title in single course page.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Models\Course $course Course object.
 	 */

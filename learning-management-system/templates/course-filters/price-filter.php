@@ -24,6 +24,7 @@ $course_query = new \WP_Query(
 	)
 );
 
+$courses = array();
 if ( ( isset( $course_query->posts ) ) && ( ! empty( $course_query->posts ) ) ) {
 	$courses = array_map(
 		function ( $post ) {
@@ -36,7 +37,7 @@ if ( ( isset( $course_query->posts ) ) && ( ! empty( $course_query->posts ) ) ) 
 	);
 }
 $min_price = 0;
-$max_price = ceil(
+$max_price = empty( $courses ) ? 0 : ceil(
 	max(
 		array_map(
 			function ( $course ) {

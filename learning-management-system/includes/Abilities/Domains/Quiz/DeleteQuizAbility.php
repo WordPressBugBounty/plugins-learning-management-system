@@ -3,7 +3,6 @@
  * Delete Quiz ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Without `force=true` the quiz is trashed and can be restored.
  * With `force=true` the quiz and all its questions are permanently removed.
  * Requires the `edit_masteriyo_courses` capability.
- *
- * @since x.x.x
  */
 class DeleteQuizAbility extends RestProxyAbility {
 

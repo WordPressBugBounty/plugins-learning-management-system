@@ -1,9 +1,8 @@
 import { Stack, Text } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import { RiRestartLine } from 'react-icons/ri';
-// import ButtonsGroup from '../../../../assets/js/back-end/components/common/ButtonsGroup.tsx';
 import { Col, Row } from 'react-grid-system';
+import { RiRestartLine } from 'react-icons/ri';
 import ButtonsGroup from '../../../../../assets/js/back-end/components/common/ButtonsGroup';
 import MeetingsTextAndLinkSection from './ClassroomTextAndLinkSection';
 
@@ -25,7 +24,7 @@ const ClassroomSuccessConsentScreen: React.FC<Props> = ({
 	const consentScreenButtons = useMemo(() => {
 		return [
 			{
-				title: 'Reset Credentials',
+				title: __('Reset Credentials', 'learning-management-system'),
 				Icon: RiRestartLine,
 				colorScheme: 'primary',
 				onClick: () => onResetCredentialsModalChange(true),

@@ -2,7 +2,7 @@
 /**
  * Masteriyo Single Course Rating Bricks element class.
  *
- * @since 1.11.3
+ * @since 2.12.0
  */
 
 namespace Masteriyo\Addons\BricksIntegration\Elements;
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Addons\BricksIntegration\Helper;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\CourseQuery;
 use Masteriyo\Taxonomy\Taxonomy;
 
@@ -21,7 +21,7 @@ use Masteriyo\Taxonomy\Taxonomy;
 /**
 * Masteriyo Single Course Google Classroom Code Elements Class.
 *
-* @since 1.11.3
+* @since 2.12.0
 */
 class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 
@@ -32,7 +32,7 @@ class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 	/**
 	* Bricks single course retake label for the element.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function get_label() {
 		return esc_html__( 'Single Course Google Classroom Code', 'learning-management-system' );
@@ -41,7 +41,7 @@ class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 	/**
 	* Bricks set controls groups for single course retake CSS and General controls.
 	*
-	* @since 1.11.3
+	* @since 2.12.0
 	*/
 	public function set_control_groups() {
 		$this->control_groups['course_google_classroom_code'] = array(
@@ -92,7 +92,7 @@ class CourseGoogleClassroomCodeNButton extends \Bricks\Element {
 	 * Includes border, color, and background color etc. options for the
 	 * element reflected based on components controls.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function render() {
 		// Get the current page URL.

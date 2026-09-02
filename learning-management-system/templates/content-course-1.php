@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -30,7 +30,7 @@ $categories = $course->get_categories( 'name' );
 /**
  * Filters the course object before rendering it in the course archive.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @param \Masteriyo\Models\Course $course The course object.
  *
@@ -48,7 +48,7 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 *
-		 * @since 1.10.0
+		 * @since 1.10.0 [Free]
 		 */
 		do_action( 'masteriyo_before_layout_1_course_thumbnail', $course );
 		?>
@@ -64,7 +64,7 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 		 *
 		 * @param \Masteriyo\Models\Course $course The course object.
 		 *
-		 * @since 1.10.0
+		 * @since 1.10.0 [Free]
 		 */
 		do_action( 'masteriyo_after_layout_1_course_thumbnail', $course );
 		?>
@@ -90,8 +90,10 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 
 	<div class="masteriyo-archive-card__content">
 		<!-- Course category -->
-		<?php if ( masteriyo_should_show_component( 'showCategories', 'course_archive.components_visibility.categories' ) && ! empty( $categories ) ) : ?>
-				<?php do_action( 'masteriyo_course_category', $course ); ?>
+		<?php
+		if ( masteriyo_should_show_component( 'showCategories', 'course_archive.components_visibility.categories' ) && ! empty( $categories ) ) :
+			?>
+			<?php do_action( 'masteriyo_course_category', $course ); ?>
 		<?php endif; ?>
 		<?php
 		/**
@@ -144,19 +146,19 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 
 
 				<div class="masteriyo-modern-layout--stats-rating">
-			<?php
-			if ( masteriyo_should_show_component( 'showRating', 'course_archive.components_visibility.rating' ) && $course->is_review_allowed() ) :
-				$review_count  = $course->get_review_count();
-				$visibility_on = masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' );
+				<?php
+				if ( masteriyo_should_show_component( 'showRating', 'course_archive.components_visibility.rating' ) && $course->is_review_allowed() ) :
+					$review_count  = $course->get_review_count();
+					$visibility_on = masteriyo_get_setting( 'single_course.display.enable_review_visibility_control' );
 
-				if ( $visibility_on ) :
-					if ( is_user_logged_in() ) :
-						if ( $review_count > 0 ) :
-							?>
+					if ( $visibility_on ) :
+						if ( is_user_logged_in() ) :
+							if ( $review_count > 0 ) :
+								?>
 								<div class="masteriyo-archive-card__content--rating masteriyo-rating">
-								<?php masteriyo_get_svg( 'full_star', true ); ?>
-								<?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?>
-								<?php echo '(' . esc_html( $review_count ) . ')'; ?>
+									<?php masteriyo_get_svg( 'full_star', true ); ?>
+									<?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?>
+									<?php echo '(' . esc_html( $review_count ) . ')'; ?>
 								</div>
 								<?php
 							endif;
@@ -170,49 +172,50 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 								<?php
 
 						endif;
-					else :
-						?>
+						else :
+							?>
 						<div class="masteriyo-archive-card__content--rating masteriyo-rating">
 							<?php masteriyo_get_svg( 'full_star', true ); ?>
 							<?php echo esc_html( masteriyo_format_decimal( $course->get_average_rating(), 1, true ) ); ?>
 							<?php echo '(' . esc_html( $review_count ) . ')'; ?>
 						</div>
-						<?php
-					endif;
+							<?php
+						endif;
 				endif;
 
-					/**
-					 * Fire for masteriyo archive course meta data layout 1.
-					 *
-					 * @since 2.13.0
-					 *
-					 * @param \Masteriyo\Models\Course $course Course object.
-					 */
-					do_action( 'masteriyo_course_archive_layout_1_meta_data', $course );
-			?>
+				/**
+				 * Fire for masteriyo archive course meta data layout 1.
+				 *
+				 * @since 2.13.0
+				 *
+				 * @param \Masteriyo\Models\Course $course Course object.
+				 */
+				do_action( 'masteriyo_course_archive_layout_1_meta_data', $course );
+				?>
+
 					</div>
-					<?php
-					if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
-						?>
-				<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
-							<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+						<?php
+						if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
+							?>
+							<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
+								<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 						<div class="masteriyo-archive-card__content--rating-amount">
 						<div class="masteriyo-archive-card__content--amount">
-								<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+									<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 								<div class="masteriyo-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></div>
 								<?php endif; ?>
 								<span class="masteriyo-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 							</div>
 							</div>
 					<?php endif; ?>
-				<?php endif; ?>
 		<?php endif; ?>
+			<?php endif; ?>
 				<div class="masteriyo-course-archive--aside">
 				<?php
 				/**
 				 * Fire for masteriyo archive course Progress.
 				 *
-				 * @since 1.11.0 [free]
+				 * @since 1.20.0 [Free]
 				 *
 				 * @param \Masteriyo\Models\Course $course Course object.
 				 */
@@ -224,22 +227,22 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 				<?php
 				if ( ! \Masteriyo\CoreFeatures\CourseComingSoon\Helper::should_hide_meta_data( $course ) ) :
 					?>
-				<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
-					<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
+					<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
+						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 				<div class="masteriyo-course-price">
-						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
 						<del class="old-amount">
-							<?php
-							echo wp_kses_post(
-								masteriyo_price(
-									$course->get_regular_price(),
-									array(
-										'currency' => $course->get_currency(),
-										'disable_tax_inclusive_label' => true,
+								<?php
+								echo wp_kses_post(
+									masteriyo_price(
+										$course->get_regular_price(),
+										array(
+											'currency' => $course->get_currency(),
+											'disable_tax_inclusive_label' => true,
+										)
 									)
-								)
-							);
-							?>
+								);
+								?>
 												</del>
 					<?php endif; ?>
 					<span class="current-amount"><?php echo wp_kses_post( $course->price_html() ); ?></span>

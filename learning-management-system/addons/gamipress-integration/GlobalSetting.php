@@ -70,7 +70,8 @@ class GlobalSetting {
 				'location'    => LearnPageLocation::INFO_BOX_POPOVER_TOP,
 				'title'       => '',
 			),
-		),      //note these below are for search functionality only
+		),
+		//note these below are for search functionality only
 		'points'        => array(
 			'show-types' => '',
 		),

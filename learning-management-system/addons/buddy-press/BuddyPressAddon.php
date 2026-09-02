@@ -3,9 +3,9 @@
 /**
  * Masteriyo BuddyPress Integration setup.
  *
- * @package Masteriyo\BuddyPress
+ * @package Masteriyo\Addons\BuddyPress
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  */
 
 namespace Masteriyo\Addons\BuddyPress;
@@ -29,7 +29,7 @@ class BuddyPressAddon {
 	/**
 	 * Initialize the application.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -38,7 +38,7 @@ class BuddyPressAddon {
 	/**
 	 * Initialize hooks.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public function init_hooks() {
 		add_action( 'bp_init', array( $this, 'load_group_extension' ) );
@@ -61,7 +61,7 @@ class BuddyPressAddon {
 	/**
 	 * Remove users to buddypress groups on masteriyo group access update
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param $user_id
 	 * @param $group_id
@@ -82,50 +82,9 @@ class BuddyPressAddon {
 	}
 
 	/**
-	 * Add users to buddypress groups on masteriyo order update to completed
-	 *
-	 * @since 1.15.0
-	 *
-	 * @param $user_course_id
-	 * @param $user_course
-	 */
-	public function bp_masteriyo_completed_order_add_user_group_access( $user_course_id, $user_course ) {
-
-		$course_items = $user_course->get_items( 'course' );
-
-		$data = array();
-
-		foreach ( $course_items as $course_item ) {
-			$data[] = array(
-				'course_id' => $course_item->get_course_id(),
-			);
-		}
-
-		foreach ( $data as $data_entry ) {
-			$query = new UserCourseQuery(
-				array(
-					'course_id' => $data_entry['course_id'],
-					'user_id'   => $user_course->get_customer_id(),
-				)
-			);
-
-			$user_courses = $query->get_user_courses();
-
-			$user_course = current( $user_courses );
-
-			$course_id = $user_course->get_course_id();
-			$user_id   = $user_course->get_user_id();
-
-			$group_id = get_post_meta( $course_id, 'bp_course_group', true );
-
-			Helper::bp_masteriyo_user_course_access_update( $user_id, $course_id, false );
-		}
-	}
-
-	/**
 	 * Handle completion status change of a course progress item.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param integer $id Lesson Id.
 	 * @param \Masteriyo\Models\UserCourse $user_course
@@ -184,7 +143,7 @@ class BuddyPressAddon {
 	/**
 	 * Handle completion status change of a course progress item.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param \Masteriyo\Models\CourseProgressItem $progress_item
 	 * @param string $old_status
@@ -193,9 +152,9 @@ class BuddyPressAddon {
 	public function bp_masteriyo_user_quiz_end_activity( $progress_item, $old_status, $new_status ) {
 
 		if (
-			'quiz' !== $progress_item->get_item_type() ||
-			'completed' !== $new_status ||
-			$old_status === $new_status
+		'quiz' !== $progress_item->get_item_type() ||
+		'completed' !== $new_status ||
+		$old_status === $new_status
 		) {
 			return;
 		}
@@ -238,7 +197,7 @@ class BuddyPressAddon {
 			'action'            => apply_filters(
 				'bp_masteriyo_user_quiz_end_activity',
 				sprintf(
-						/* translators: %1$s: user link, %2$s: quiz link, %3$s: course link */
+					/* translators: %1$s: user link, %2$s: quiz link, %3$s: course link */
 					__( '%1$s completed the quiz %2$s for course %3$s', 'learning-management-system' ),
 					$user_link,
 					$lesson_link_html,
@@ -261,7 +220,7 @@ class BuddyPressAddon {
 	/**
 	 * Load BuddyPress classes
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return void
 	 */
@@ -330,13 +289,11 @@ class BuddyPressAddon {
 	}
 
 	/**
-	 * Load BuddyPress classes group extension.
+	 * BuddyPress group extension.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
-	 * @param array $sources Video sources.
-	 * @param \Masteriyo\Models\Lesson $lesson Lesson object.
-	 * @return array
+	 * @return void
 	 */
 	public function load_group_extension() {
 
@@ -352,7 +309,7 @@ class BuddyPressAddon {
 	/**
 	 * Add users to buddypress groups on masteriyo group access update (Users > Edit)
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param $user_id
 	 * @param $group_id
@@ -383,9 +340,39 @@ class BuddyPressAddon {
 	}
 
 	/**
+	 * Add users to buddypress groups on masteriyo order update to completed
+	 *
+	 * @since 1.15.0 [Free]
+	 *
+	 * @param int $order_id
+	 * @param $order
+	 */
+	public function bp_masteriyo_completed_order_add_user_group_access( $order_id, $order ) {
+
+		$customer_id = $order->get_customer_id();
+
+		foreach ( $order->get_items( 'course' ) as $course_item ) {
+			$query = new UserCourseQuery(
+				array(
+					'course_id' => $course_item->get_course_id(),
+					'user_id'   => $customer_id,
+				)
+			);
+
+			$user_course = current( $query->get_user_courses() );
+
+			if ( ! $user_course ) {
+				continue;
+			}
+
+			Helper::bp_masteriyo_user_course_access_update( $user_course->get_user_id(), $user_course->get_course_id(), false );
+		}
+	}
+
+	/**
 	 * Handle completion status change of a course progress item.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @param integer $id
 	 * @param string $old_status
@@ -429,7 +416,6 @@ class BuddyPressAddon {
 				$user_id,
 				$course_id
 			),
-
 			'item_id'           => $group_attached,
 			'secondary_item_id' => $course_id,
 			'component'         => $bp->groups->id,

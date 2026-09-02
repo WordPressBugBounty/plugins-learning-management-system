@@ -1,7 +1,12 @@
-import { dispatch, registerStore } from '@wordpress/data';
+import { dispatch, registerStore, select } from '@wordpress/data';
 import { ucFirst } from '../utils/ucFirst';
 
 export function registerDeviceTypeStore() {
+	// Both the blocks and certificate-blocks bundles call this; only the first wins.
+	if (select('masteriyo/device-type')) {
+		return;
+	}
+
 	const INITIAL_STATE = {
 		deviceType: 'desktop',
 	};
@@ -9,7 +14,9 @@ export function registerDeviceTypeStore() {
 	const ACTIONS = {
 		setPreviewDeviceType: (deviceType: string) => {
 			const { __experimentalSetPreviewDeviceType: setPreviewDeviceType } =
-				dispatch('core/edit-post') || false;
+				(dispatch('core/edit-post') || {}) as {
+					__experimentalSetPreviewDeviceType?: (deviceType: string) => void;
+				};
 
 			if (setPreviewDeviceType) {
 				setPreviewDeviceType(ucFirst(deviceType));

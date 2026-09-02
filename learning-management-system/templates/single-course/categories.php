@@ -26,7 +26,6 @@ if ( empty( $course->get_categories() ) ) {
  * @since 1.0.0
  */
 do_action( 'masteriyo_before_single_course_categories' );
-
 if ( is_singular( 'mto-course' ) ) {
 	$show_categories = masteriyo_get_setting( 'single_course.components_visibility.categories' );
 } else {

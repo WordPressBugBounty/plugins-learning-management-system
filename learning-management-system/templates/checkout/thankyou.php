@@ -88,6 +88,17 @@ if ( ! $order ) {
 			?>
 		</p>
 
+		<?php
+		/**
+		 * Fire before checkout order summary.
+		 *
+		 * @since 2.6.10
+		 *
+		 * @param \Masteriyo\Models\Order $order
+		 */
+		do_action( 'masteriyo_checkout_before_order_summary', $order );
+		?>
+
 		<ul class="masteriyo-order-overview masteriyo-thankyou-order-details order_details">
 
 			<li class="masteriyo-order-overview__order order">
@@ -105,10 +116,39 @@ if ( ! $order ) {
 				<strong><?php echo esc_html( $order->get_billing_email() ); ?></strong>
 			</li>
 
+			<?php
+			/**
+			 * Fires before rendering total row in thank you page.
+			 *
+			 * @since 2.5.12
+			 *
+			 * @param \Masteriyo\Models\Order\Order $order
+			 */
+			do_action( 'masteriyo_thankyou_page_before_total_row', $order );
+			?>
+
+			<?php if ( 'inclusive' !== masteriyo_get_setting( 'payments.taxes.calculation_method' ) ) : ?>
+			<li class="masteriyo-order-overview__total total">
+				<?php esc_html_e( 'Tax:', 'learning-management-system' ); ?>
+				<strong><?php echo wp_kses_post( $order->get_formatted_tax_total() ); ?></strong>
+			</li>
+			<?php endif; ?>
+
 			<li class="masteriyo-order-overview__total total">
 				<?php esc_html_e( 'Total:', 'learning-management-system' ); ?>
 				<strong><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></strong>
 			</li>
+
+			<?php
+			/**
+			 * Fires after rendering total row in thank you page.
+			 *
+			 * @since 2.5.12
+			 *
+			 * @param \Masteriyo\Models\Order\Order $order
+			 */
+			do_action( 'masteriyo_thankyou_page_after_total_row', $order );
+			?>
 
 			<?php if ( $order->get_payment_method_title() ) : ?>
 				<li class="masteriyo-order-overview__payment-method method">
@@ -122,7 +162,7 @@ if ( ! $order ) {
 		/**
 		 * Fire after checkout order summary.
 		 *
-		 * @since 1.20.0
+		 * @since 2.30.0
 		 *
 		 * @param \Masteriyo\Models\Order $order
 		 */

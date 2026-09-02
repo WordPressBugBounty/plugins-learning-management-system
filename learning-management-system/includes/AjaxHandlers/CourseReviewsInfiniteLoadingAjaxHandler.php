@@ -51,7 +51,7 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 		}
 
 		try {
-			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['nonce'] ) ), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
 				throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 			}
 
@@ -88,7 +88,7 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 			$view_load_more_button = false;
 
 			if ( $page === 1 && empty( $html ) ) {
-				$html =  '<div class="masteriyo-notify-message masteriyo-alert masteriyo-info-msg masteriyo-no-review-alert">' . esc_html__( 'No review yet.', 'learning-management-system' ) . '</div>'; 
+				$html = '<div class="masteriyo-notify-message masteriyo-alert masteriyo-info-msg masteriyo-no-review-alert">' . esc_html__( 'No review yet.', 'learning-management-system' ) . '</div>';
 			}
 
 			if ( ! empty( $html ) ) {
@@ -117,20 +117,20 @@ class CourseReviewsInfiniteLoadingAjaxHandler extends AjaxHandler {
 	 * @since 1.5.9
 	 */
 	protected function validate_request() {
-		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($_REQUEST['nonce'])), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
-			throw new \Exception( __( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), 'masteriyo_course_reviews_infinite_loading_nonce' ) ) {
+			throw new \Exception( esc_html__( 'Invalid nonce. Maybe you should reload the page.', 'learning-management-system' ) );
 		}
 		if ( ! isset( $_REQUEST['page'] ) ) {
-			throw new \Exception( __( 'Page number is required.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Page number is required.', 'learning-management-system' ) );
 		}
 		if ( ! isset( $_REQUEST['course_id'] ) ) {
-			throw new \Exception( __( 'Course ID is required.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Course ID is required.', 'learning-management-system' ) );
 		}
 
 		$course = masteriyo_get_course( absint( $_REQUEST['course_id'] ) );
 
 		if ( is_null( $course ) ) {
-			throw new \Exception( __( 'Invalid course ID.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
 		}
 
 		/**

@@ -39,39 +39,54 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 	 * @var array
 	 */
 	protected $internal_meta_keys = array(
-		'first_name'                      => 'first_name',
-		'last_name'                       => 'last_name',
-		'display_name'                    => 'display_name',
-		'show_admin_bar_front'            => 'show_admin_bar_front',
-		'use_ssl'                         => 'use_ssl',
-		'admin_color'                     => 'admin_color',
-		'rich_editing'                    => 'rich_editing',
-		'comment_shortcuts'               => 'comment_shortcuts',
-		'syntax_highlighting'             => 'syntax_highlighting',
-		'nickname'                        => 'nickname',
-		'description'                     => 'description',
-		'approved'                        => '_approved',
-		'profile_image_id'                => '_profile_image_id',
+		'first_name'                       => 'first_name',
+		'last_name'                        => 'last_name',
+		'show_admin_bar_front'             => 'show_admin_bar_front',
+		'use_ssl'                          => 'use_ssl',
+		'admin_color'                      => 'admin_color',
+		'rich_editing'                     => 'rich_editing',
+		'comment_shortcuts'                => 'comment_shortcuts',
+		'syntax_highlighting'              => 'syntax_highlighting',
+		'nickname'                         => 'nickname',
+		'description'                      => 'description',
+		'approved'                         => '_approved',
+		'profile_image_id'                 => '_profile_image_id',
 
 		// Billing fields.
-		'billing_first_name'              => '_billing_first_name',
-		'billing_last_name'               => '_billing_last_name',
-		'billing_company_name'            => '_billing_company_name',
-		'billing_company_id'              => '_billing_company_id',
-		'billing_address_1'               => '_billing_address_1',
-		'billing_address_2'               => '_billing_address_2',
-		'billing_city'                    => '_billing_city',
-		'billing_postcode'                => '_billing_postcode',
-		'billing_country'                 => '_billing_country',
-		'billing_state'                   => '_billing_state',
-		'billing_email'                   => '_billing_email',
-		'billing_phone'                   => '_billing_phone',
+		'billing_first_name'               => '_billing_first_name',
+		'billing_last_name'                => '_billing_last_name',
+		'billing_company_name'             => '_billing_company_name',
+		'billing_company_id'               => '_billing_company_id',
+		'billing_address_1'                => '_billing_address_1',
+		'billing_address_2'                => '_billing_address_2',
+		'billing_city'                     => '_billing_city',
+		'billing_postcode'                 => '_billing_postcode',
+		'billing_country'                  => '_billing_country',
+		'billing_state'                    => '_billing_state',
+		'billing_email'                    => '_billing_email',
+		'billing_phone'                    => '_billing_phone',
+
+		// Public Profile fields.
+		'public_profile_biographical_info' => '_public_profile_biographical_info',
+		'public_profile_phone'             => '_public_profile_phone',
+		'public_profile_address_1'         => '_public_profile_address_1',
+		'public_profile_address_2'         => '_public_profile_address_2',
+		'public_profile_city'              => '_public_profile_city',
+		'public_profile_postcode'          => '_public_profile_postcode',
+		'public_profile_country'           => '_public_profile_country',
+		'public_profile_state'             => '_public_profile_state',
+		'public_profile_facebook_url'      => '_public_profile_facebook_url',
+		'public_profile_website_url'       => '_public_profile_website_url',
+		'public_profile_linkedin_url'      => '_public_profile_linkedin_url',
+		'public_profile_behance_url'       => '_public_profile_behance_url',
+		'public_profile_show_email'        => '_public_profile_show_email',
+
 		// Apply for instructor status.
-		'instructor_apply_status'         => '_instructor_apply_status',
-		'instructor_application_attempts' => '_instructor_application_attempts',
+		'instructor_apply_status'          => '_instructor_apply_status',
+		'instructor_application_attempts'  => '_instructor_application_attempts',
 
 		// Auto user creation during checkout.
-		'auto_create_user'                => '_auto_create_user',
+		'auto_create_user'                 => '_auto_create_user',
 	);
 
 	/**
@@ -121,7 +136,7 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 		if ( is_wp_error( $id ) ) {
 			throw new ModelException(
 				'masteriyo_user_already_exists',
-				$id->get_error_message()
+				esc_html( $id->get_error_message() )
 			);
 		}
 
@@ -169,7 +184,7 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 			 * Fire after a new user is created.
 			 *
 			 * @since 1.0.0
-			 * @since 1.17.5 Added the `$args` parameter.
+			 * @since 1.17.5 [Free] Added the `$args` parameter.
 			 *
 			 * @param int $id User ID.
 			 * @param \Masteriyo\Models\User $user User object.
@@ -194,7 +209,7 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 		if ( ! $user->get_id() || ! $user_obj ) {
 			throw new ModelException(
 				'masteriyo_invalid_user_id',
-				__( 'Invalid user.', 'learning-management-system' ),
+				esc_html__( 'Invalid user.', 'learning-management-system' ),
 				400
 			);
 		}
@@ -496,33 +511,5 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Update meta data in, or delete it from, the database.
-	 *
-	 * Avoids storing meta when it's either an empty string or empty array.
-	 * Other empty values such as numeric 0 and null should still be stored.
-	 * Data-stores can force meta to exist using `must_exist_meta_keys`.
-	 *
-	 * Note: WordPress `get_metadata` function returns an empty string when meta data does not exist.
-	 *
-	 * @since 1.0.0 Added to prevent empty meta being stored unless required.
-	 *
-	 * @param \Masteriyo\Models\User $object The Model object
-	 * @param string  $meta_key Meta key to update.
-	 * @param mixed   $meta_value Value to save.
-	 *
-	 *
-	 * @return bool True if updated/deleted.
-	 */
-	protected function update_or_delete_user_meta( $object, $meta_key, $meta_value ) {
-		if ( in_array( $meta_value, array( array(), '' ), true ) && ! in_array( $meta_key, $this->get_must_exist_meta_keys(), true ) ) {
-			$updated = delete_user_meta( $object->get_id(), $meta_key );
-		} else {
-			$updated = update_user_meta( $object->get_id(), $meta_key, $meta_value );
-		}
-
-		return (bool) $updated;
 	}
 }

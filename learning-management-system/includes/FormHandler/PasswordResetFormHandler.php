@@ -32,6 +32,10 @@ class PasswordResetFormHandler {
 	 * @return void
 	 */
 	public function process() {
+		if ( isset( $_GET['password-reset-complete'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			masteriyo_add_notice( __( 'Your password has been reset successfully.', 'learning-management-system' ) );
+		}
+
 		try {
 			if ( ! isset( $_POST['masteriyo-password-reset'] ) ) {
 				return;
@@ -43,12 +47,8 @@ class PasswordResetFormHandler {
 				throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
 			}
 
-			if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)), 'masteriyo-password-reset' ) ) {
+			if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-password-reset' ) ) {
 				throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
-			}
-
-			if ( isset( $_GET['password-reset-complete'] ) ) {
-				masteriyo_add_notice( __( 'Your password has been reset successfully.', 'learning-management-system' ) );
 			}
 
 			$this->validate_form();
@@ -115,13 +115,13 @@ class PasswordResetFormHandler {
 		$data = $this->get_form_data();
 
 		if ( empty( $data['password'] ) ) {
-			throw new \Exception( __( 'Password is required.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Password is required.', 'learning-management-system' ) );
 		}
 		if ( empty( $data['confirm-password'] ) ) {
-			throw new \Exception( __( 'Confirm password is required...', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Confirm password is required...', 'learning-management-system' ) );
 		}
 		if ( $data['password'] !== $data['confirm-password'] ) {
-			throw new \Exception( __( 'The passwords doesn\'t match', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'The passwords doesn\'t match', 'learning-management-system' ) );
 		}
 
 		/**
@@ -160,7 +160,7 @@ class PasswordResetFormHandler {
 		$user = check_password_reset_key( $data['reset_key'], $data['reset_login'] );
 
 		if ( is_wp_error( $user ) ) {
-			throw new \Exception( __( 'This key is invalid or has already been used. Please reset your password again if needed.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'This key is invalid or has already been used. Please reset your password again if needed.', 'learning-management-system' ) );
 		}
 
 		$validation_error = new \WP_Error();
@@ -199,11 +199,11 @@ class PasswordResetFormHandler {
 	protected function get_form_data() {
 		$nonce_value = isset( $_POST['_wpnonce'] ) ? wp_unslash( $_POST['_wpnonce'] ) : '';
 
-		if ( empty( sanitize_key( wp_unslash($nonce_value)) ) ) {
-			throw new \Exception( __( 'Nonce is missing.', 'learning-management-system' ) );
+		if ( empty( $nonce_value ) ) {
+			throw new \Exception( esc_html__( 'Nonce is missing.', 'learning-management-system' ) );
 		}
-		if ( ! wp_verify_nonce( sanitize_key( wp_unslash($nonce_value)) , 'masteriyo-password-reset' ) ) {
-			throw new \Exception( __( 'Invalid nonce', 'learning-management-system' ) );
+		if ( ! wp_verify_nonce( sanitize_key( $nonce_value ), 'masteriyo-password-reset' ) ) {
+			throw new \Exception( esc_html__( 'Invalid nonce', 'learning-management-system' ) );
 		}
 
 		$data   = array();

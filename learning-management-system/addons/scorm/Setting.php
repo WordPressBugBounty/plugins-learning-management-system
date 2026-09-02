@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Scorm
  *
- * @since 1.14.0
+ * @since 1.14.0 [Free]
  */
 
 namespace Masteriyo\Addons\Scorm;
@@ -28,7 +28,7 @@ class Setting {
 	/**
 	 * Setting data.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @var array
 	 */
@@ -39,7 +39,7 @@ class Setting {
 	/**
 	 * Read the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 */
 	public static function read() {
 		$settings   = get_option( self::OPTION_NAME, self::$data );
@@ -51,7 +51,7 @@ class Setting {
 	/**
 	 * Return all the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @return mixed
 	 */
@@ -62,7 +62,7 @@ class Setting {
 	/**
 	 * Return scorm setting data.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param string $key
 	 * @return string|array
@@ -76,7 +76,7 @@ class Setting {
 	/**
 	 * Set scorm data.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $value Setting value.
@@ -89,7 +89,7 @@ class Setting {
 	/**
 	 * Set multiple settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @param array $args
 	 */
@@ -100,7 +100,7 @@ class Setting {
 	/**
 	 * Save the settings.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 */
 	public static function save() {
 		update_option( self::OPTION_NAME, self::$data );
@@ -115,12 +115,11 @@ class Setting {
 	/**
 	 * Get allowed extensions.
 	 *
-	 * @since 1.14.0
+	 * @since 1.14.0 [Free]
 	 *
 	 * @return string
 	 */
 	public static function get_allowed_extensions() {
 		return self::get( 'allowed_extensions' );
 	}
-
 }

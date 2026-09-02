@@ -911,6 +911,11 @@ class Countries {
 	/**
 	 * Returns the fields we show by default. This can be filtered later on.
 	 *
+	 * A company name is the one part of an address a buyer may not have, so it is asked for
+	 * without being demanded. Everything else keeps the requiredness the country locale
+	 * table then softens per country; see \Masteriyo\CheckoutFields, which resolves the
+	 * requiredness the checkout acts on.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return array
@@ -972,7 +977,7 @@ class Countries {
 			),
 			'company'    => array(
 				'label'        => __( 'Company', 'learning-management-system' ),
-				'required'     => true,
+				'required'     => false,
 				'type'         => 'text',
 				'class'        => array( 'form-row-wide' ),
 				'validate'     => array( 'company' ),
@@ -1837,5 +1842,4 @@ class Countries {
 		*/
 		return apply_filters( 'masteriyo_get_state_from_code', $state, $cc, $sc );
 	}
-
 }

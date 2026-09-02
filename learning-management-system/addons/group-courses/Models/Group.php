@@ -218,6 +218,22 @@ class Group extends Model {
 		return $this->get_prop( 'emails', $context );
 	}
 
+	/**
+	 * Apply changes, replacing the emails list wholesale.
+	 *
+	 * The parent merges data and changes with array_replace_recursive(), which
+	 * merges indexed arrays by position: a save that shrinks the emails list
+	 * would resurrect the removed members on the saved object, and every
+	 * masteriyo_update_group listener would still see them (#778).
+	 */
+	public function apply_changes() {
+		if ( array_key_exists( 'emails', $this->changes ) ) {
+			$this->data['emails'] = $this->changes['emails'];
+		}
+
+		parent::apply_changes();
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| CRUD Setters

@@ -2,7 +2,7 @@
 /**
  * Block builder abstract class.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 namespace Masteriyo\Addons\Certificate\PDF\BlockBuilders;
@@ -16,7 +16,7 @@ abstract class BlockBuilder {
 	/**
 	 * Certificate PDF class instance that's using this block builder.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var \Masteriyo\Addons\Certificate\PDF\CertificatePDF
 	 */
@@ -25,7 +25,7 @@ abstract class BlockBuilder {
 	/**
 	 * Block data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var array
 	 */
@@ -34,7 +34,7 @@ abstract class BlockBuilder {
 	/**
 	 * Available width for this block to render.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var null|float
 	 */
@@ -43,7 +43,7 @@ abstract class BlockBuilder {
 	/**
 	 * Index or position (that starts with 0) among its siblings.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var null|integer
 	 */
@@ -52,7 +52,7 @@ abstract class BlockBuilder {
 	/**
 	 * Number of siblings of this block (This block is also counted).
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @var integer
 	 */
@@ -61,7 +61,7 @@ abstract class BlockBuilder {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $block_data The block data.
 	 * @param \Masteriyo\Addons\Certificate\PDF\CertificatePDF $pdf The certificate PDF class instance that's using this block builder.
@@ -74,7 +74,7 @@ abstract class BlockBuilder {
 	/**
 	 * Build and return the block HTML.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -83,7 +83,7 @@ abstract class BlockBuilder {
 	/**
 	 * Apply some fixes like add ID, classes.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 */
 	protected function apply_fixes() {
 		$this->block['id'] = uniqid( 'block_' );
@@ -114,7 +114,7 @@ abstract class BlockBuilder {
 	/**
 	 * Set block data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param array $data
 	 */
@@ -126,7 +126,7 @@ abstract class BlockBuilder {
 	/**
 	 * Set available width for this block to render.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param float $available_width
 	 */
@@ -137,7 +137,7 @@ abstract class BlockBuilder {
 	/**
 	 * Set siblings count.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param integer $siblings_count
 	 */
@@ -148,7 +148,7 @@ abstract class BlockBuilder {
 	/**
 	 * Set sibling index.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param integer $sibling_index
 	 */
@@ -159,7 +159,7 @@ abstract class BlockBuilder {
 	/**
 	 * Set the certificate PDF.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param \Masteriyo\Addons\Certificate\PDF\CertificatePDF $pdf
 	 */
@@ -176,7 +176,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get block ID.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -190,7 +190,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get the block data.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
@@ -201,7 +201,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get the available width for this block to render.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return float
 	 */
@@ -212,7 +212,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get the sibling index.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return integer
 	 */
@@ -223,7 +223,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get the siblings count.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return integer
 	 */
@@ -234,7 +234,7 @@ abstract class BlockBuilder {
 	/**
 	 * Get the certificate PDF.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return \Masteriyo\Addons\Certificate\PDF\CertificatePDF
 	 */

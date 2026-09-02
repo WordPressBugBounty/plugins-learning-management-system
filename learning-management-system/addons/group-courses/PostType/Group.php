@@ -81,7 +81,6 @@ class Group extends PostType {
 			'capability_type'     => array( 'group', 'groups' ),
 			'exclude_from_search' => false,
 			'publicly_queryable'  => is_admin(),
-			'can_export'          => true,
 			'delete_with_user'    => true,
 		);
 	}

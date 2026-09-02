@@ -19,18 +19,6 @@ use Masteriyo\UserCourses;
  */
 class UserCoursesServiceProvider extends AbstractServiceProvider {
 	/**
-	 * This is where the magic happens, within the method you can
-	* access the container and register or retrieve anything
-	* that you need to, but remember, every alias registered
-	* within this method must be declared in the `$provides` array.
-	*
-	* @since 1.5.37
-	*/
-	public function register(): void {
-		$this->getContainer()->addShared( 'user-courses', UserCourses::class );
-	}
-
-	/**
 	 * The provided array is a way to let the container
 	 * know that a service is provided by this service
 	 * provider. Every service that is registered via
@@ -52,5 +40,17 @@ class UserCoursesServiceProvider extends AbstractServiceProvider {
 			),
 			true
 		);
+	}
+
+	/**
+	 * This is where the magic happens, within the method you can
+	* access the container and register or retrieve anything
+	* that you need to, but remember, every alias registered
+	* within this method must be declared in the `$provides` array.
+	*
+	* @since 1.5.37
+	*/
+	public function register(): void {
+		$this->getContainer()->addShared( 'user-courses', UserCourses::class );
 	}
 }

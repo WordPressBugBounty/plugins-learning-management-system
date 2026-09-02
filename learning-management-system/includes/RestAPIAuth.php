@@ -4,7 +4,7 @@
  *
  * @package Masteriyo
  *
- * @since 1.16.0
+ * @since 1.16.0 [Free]
  */
 
 namespace Masteriyo;
@@ -25,7 +25,7 @@ class RestAPIAuth {
 	/**
 	 * Authentication error.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var WP_Error
 	 */
@@ -34,7 +34,7 @@ class RestAPIAuth {
 	/**
 	 * Logged in user data.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var array
 	 */
@@ -43,7 +43,7 @@ class RestAPIAuth {
 	/**
 	 * Current auth method.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @var string
 	 */
@@ -52,7 +52,7 @@ class RestAPIAuth {
 	/**
 	 * Initialize the class instance
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	public function init() {
 		$this->init_hooks();
@@ -61,7 +61,7 @@ class RestAPIAuth {
 	/**
 	 * Initialize hooks
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 */
 	protected function init_hooks() {
 		add_filter( 'determine_current_user', array( $this, 'authenticate' ) );
@@ -72,7 +72,7 @@ class RestAPIAuth {
 	/**
 	 * API auth.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param int|false $user_id user id.
 	 *
@@ -117,7 +117,7 @@ class RestAPIAuth {
 	/**
 	 * Is request is masteriyo rest api.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @return boolean
 	 */
@@ -133,7 +133,7 @@ class RestAPIAuth {
 	/**
 	 * Sends unauthorized headers for basic authentication.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param WP_REST_Response $response The response object.
 	 * @return WP_REST_Response The modified response object with authentication headers.
@@ -150,7 +150,7 @@ class RestAPIAuth {
 	/**
 	 * Check for user permissions.
 	 *
-	 * @since 1.16.0
+	 * @since 1.16.0 [Free]
 	 *
 	 * @param mixed           $result  Response to replace the requested version with.
 	 * @param WP_REST_Server  $server  Server instance.
@@ -172,7 +172,7 @@ class RestAPIAuth {
 	/**
 	 * Check that the API keys provided have the proper key-specific permissions to either read or write API resources.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param string $method Request method.
 	 * @return bool|WP_Error
@@ -208,7 +208,7 @@ class RestAPIAuth {
 	/**
 	 * Set authentication error.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @param WP_Error $error Authentication error data.
 	 */
@@ -221,7 +221,7 @@ class RestAPIAuth {
 	/**
 	 * Get authentication error.
 	 *
-	 * @since 1.16.0
+	 * @since 2.17.0
 	 *
 	 * @return WP_Error|null.
 	 */

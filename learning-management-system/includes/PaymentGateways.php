@@ -10,6 +10,8 @@
 
 namespace Masteriyo;
 
+use Masteriyo\Gateways\Offline\Offline;
+use Masteriyo\Gateways\Paypal\Paypal;
 use Masteriyo\Session\Session;
 
 defined( 'ABSPATH' ) || exit;
@@ -54,10 +56,7 @@ class PaymentGateways {
 	 * @since 1.0.0
 	 */
 	public function init() {
-		$load_gateways = array(
-			'Masteriyo\Gateways\Offline\Offline',
-			'Masteriyo\Gateways\Paypal\Paypal',
-		);
+		$load_gateways = array( Offline::class, Paypal::class );
 
 		/**
 		 * Filters the payment gateway classes that will be loaded.
@@ -86,6 +85,15 @@ class PaymentGateways {
 
 		// Filter whether the payment instances are extended from PaymentGateway class.
 		$gateways = (array) array_filter( $gateways, array( $this, 'filter_valid_gateway_class' ) );
+
+		/**
+		 * Filters payment gateway instances.
+		 *
+		 * @since 2.6.10
+		 *
+		 * @param \Masteriyo\Abstracts\PaymentGateway[]
+		 */
+		$gateways = apply_filters( 'masteriyo_payment_gateways_instances', $gateways );
 
 		// Load gateways in order.
 		foreach ( $gateways as $gateway ) {

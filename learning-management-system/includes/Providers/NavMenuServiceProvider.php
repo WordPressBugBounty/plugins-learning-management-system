@@ -2,7 +2,6 @@
 /**
  * NavMenu service provider.
  *
- * @since x.x.x
  * @package Masteriyo\Providers
  */
 
@@ -16,8 +15,6 @@ use Masteriyo\NavMenu\NavMenu;
 
 /**
  * Registers and boots the login/logout nav menu feature.
- *
- * @since x.x.x
  */
 class NavMenuServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface {
 
@@ -27,15 +24,12 @@ class NavMenuServiceProvider extends AbstractServiceProvider implements Bootable
 	 * No container bindings needed — LoginLogoutNavMenu is instantiated
 	 * directly in boot() following the same pattern as BlocksServiceProvider.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function register(): void {}
 
 	/**
 	 * Check if the service provider provides a given service.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $id Service identifier.
 	 * @return bool
@@ -47,7 +41,6 @@ class NavMenuServiceProvider extends AbstractServiceProvider implements Bootable
 	/**
 	 * Boot the nav menu feature.
 	 *
-	 * @since x.x.x
 	 * @return void
 	 */
 	public function boot(): void {

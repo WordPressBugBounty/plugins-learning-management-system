@@ -3,7 +3,6 @@
  * Update Course Q&A ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseQA
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseQA;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Supports partial updates. Moderators use this to edit content or change the
  * status (approve/mark as spam) of a question or answer.
  * Requires the `edit_course_qas` capability.
- *
- * @since x.x.x
  */
 class UpdateCourseQAAbility extends RestProxyAbility {
 

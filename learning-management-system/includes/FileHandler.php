@@ -2,7 +2,7 @@
 /**
  * Handles file management operations.
  *
- * @since 1.14.0
+ * @since 2.15.0
  *
  * @package Masteriyo
  */
@@ -23,14 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles file management operations like creating files, copying, deleting, and listing files.
  *
- * @since 1.14.0
+ * @since 2.15.0
  */
 class FileHandler {
 
 	/**
 	 * Base directory for file operations.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @var string
 	 */
@@ -39,7 +39,7 @@ class FileHandler {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string|null $base_dir Optional base directory.
 	 */
@@ -53,7 +53,7 @@ class FileHandler {
 	/**
 	 * Initialize base directory if it doesn't exist.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 */
 	protected function initialize_base_dir() {
 		if ( ! is_dir( $this->base_dir ) ) {
@@ -67,7 +67,7 @@ class FileHandler {
 	/**
 	 * Get the WordPress FileSystem object.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return \WP_Filesystem_Direct|WP_Error
 	 */
@@ -84,7 +84,7 @@ class FileHandler {
 	/**
 	 * Create a file in a custom folder structure.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $folder_structure Custom folder structure.
 	 * @param string $filename File name.
@@ -115,9 +115,41 @@ class FileHandler {
 	}
 
 	/**
+	 * Deny web access to one folder under the upload directory.
+	 *
+	 * Only for folders holding data a visitor has no business fetching; the
+	 * export folders are downloaded by URL and must stay reachable.
+	 *
+	 * @param string $folder_structure Custom folder structure.
+	 * @return void
+	 */
+	public function protect_directory( $folder_structure ) {
+		$filesystem = $this->get_filesystem();
+
+		if ( is_wp_error( $filesystem ) ) {
+			return;
+		}
+
+		$folder_path = trailingslashit( $this->base_dir . $folder_structure );
+
+		$this->create_directory_recursive( $folder_path );
+
+		$guards = array(
+			'.htaccess'  => 'deny from all',
+			'index.html' => '',
+		);
+
+		foreach ( $guards as $file => $contents ) {
+			if ( ! file_exists( $folder_path . $file ) ) {
+				$filesystem->put_contents( $folder_path . $file, $contents );
+			}
+		}
+	}
+
+	/**
 	 * Create directories recursively.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $path Directory path.
 	 */
@@ -133,7 +165,7 @@ class FileHandler {
 	/**
 	 * Delete a file or folder.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $path Path relative to base_dir.
 	 * @param string $file_or_folder_name  File or folder name.
@@ -153,7 +185,6 @@ class FileHandler {
 		} else {
 			$full_path = $this->base_dir . trim( $path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file_or_folder_name, DIRECTORY_SEPARATOR );
 		}
-
 		if ( ! $filesystem->exists( $full_path ) ) {
 			return new WP_Error( 'file_not_found', __( 'File or directory not found', 'learning-management-system' ) );
 		}
@@ -164,7 +195,7 @@ class FileHandler {
 	/**
 	 * Get list of files in a specific folder (optionally recursive).
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $folder Folder path relative to base directory.
 	 * @param bool $include_hidden Whether to include hidden files.
@@ -194,7 +225,7 @@ class FileHandler {
 	/**
 	 * Search files in the directory with name starting with.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $prefix Filename prefix.
 	 * @param string $folder Folder path relative to base directory.
@@ -221,7 +252,7 @@ class FileHandler {
 	/**
 	 * Copy a file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $source Source file relative to base_dir.
 	 * @param string $destination Destination path relative to base_dir.
@@ -256,7 +287,7 @@ class FileHandler {
 	/**
 	 * Get the URL of a file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path Absolute file path.
 	 * @return string File URL.
@@ -270,7 +301,7 @@ class FileHandler {
 	/**
 	 * Log an error message.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $message Error message.
 	 */
@@ -281,7 +312,7 @@ class FileHandler {
 	/**
 	 * Get the base directory.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string Base directory path.
 	 */
@@ -292,7 +323,7 @@ class FileHandler {
 	/**
 	 * Get the base URL of the file directory.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @return string Base URL.
 	 */
@@ -304,7 +335,7 @@ class FileHandler {
 	/**
 	 * Normalize file path by ensuring it's relative to the base directory.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path to normalize.
 	 * @return string Normalized file path.
@@ -316,7 +347,7 @@ class FileHandler {
 	/**
 	 * Check if a file exists.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path relative to base_dir.
 	 * @return bool True if the file exists, false otherwise.
@@ -329,7 +360,7 @@ class FileHandler {
 	/**
 	 * Read the contents of a file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path relative to base_dir.
 	 * @return string|WP_Error File contents or an error if it cannot be read.
@@ -348,7 +379,7 @@ class FileHandler {
 	/**
 	 * Write content to a file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path relative to base_dir.
 	 * @param string $content Content to write to the file.
@@ -370,7 +401,7 @@ class FileHandler {
 	/**
 	 * Append content to an existing file.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path relative to base_dir.
 	 * @param string $content Content to append.
@@ -389,7 +420,7 @@ class FileHandler {
 	/**
 	 * Get file size.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path File path relative to base_dir.
 	 * @return int|WP_Error File size in bytes, or an error if file not found.
@@ -408,7 +439,7 @@ class FileHandler {
 	/**
 	 * Get the file creation or modification time.
 	 *
-	 * @since 1.14.0
+	 * @since 2.15.0
 	 *
 	 * @param string $file_path Absolute or relative file path to check.
 	 * @param string|null $date_format Optional. Custom date format. If null, it uses WordPress settings for date and time.

@@ -1,11 +1,4 @@
-import IsolatedBlockEditor, {
-	EditorLoaded,
-	ToolbarSlot,
-} from '@automattic/isolated-block-editor';
 import { Box, Flex, FormControl, FormLabel, Textarea } from '@chakra-ui/react';
-// @ts-ignore
-import '@automattic/isolated-block-editor/build-browser/core.css';
-import '@automattic/isolated-block-editor/build-browser/isolated-block-editor.css';
 import { serialize } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -13,6 +6,10 @@ import { uploadMedia } from '@wordpress/media-utils';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { BiExitFullscreen, BiFullscreen } from 'react-icons/bi';
+import StandaloneEditor, {
+	EditorLoaded,
+	ToolbarSlot,
+} from '../../../../../assets/js/back-end/components/common/StandaloneEditor';
 import localized from '../../../../../assets/js/back-end/utils/global';
 import { addMediaUpload, addSupportedBlocks } from '../utils/blocks';
 
@@ -32,6 +29,17 @@ const BlockEditor: React.FC<Props> = (props) => {
 	const { defaultValue, actions, fullscreenMode, setFullscreenMode } = props;
 	const { register, setValue } = useFormContext();
 
+	// Typed as an array in types/index.d.ts, but PHP localizes an object.
+	const editorSettingsObject = localized.editorSettings as unknown as
+		| { styles?: { css: string }[] }
+		| undefined;
+	const baseStyles = Array.isArray(editorSettingsObject?.styles)
+		? editorSettingsObject.styles
+		: [];
+	const editorStyles = Array.isArray(localized.editorStyles)
+		? localized.editorStyles
+		: [];
+
 	return (
 		<FormControl>
 			<FormLabel>
@@ -43,57 +51,28 @@ const BlockEditor: React.FC<Props> = (props) => {
 				className="masteriyo-standalone-editor"
 				mt={{ base: 10, md: 0 }}
 			>
-				<style>
-					{
-						'.is-fullscreen-mode .masteriyo-standalone-editor {height: 100vh !important;left: 0;position: fixed;top: 0;width: 100%;}.masteriyo-standalone-editor > div {width: 100%;height: 100%;overflow: auto;}.masteriyo-standalone-editor .iso-editor, .masteriyo-standalone-editor .iso-editor > div + div {height: 100%;}.masteriyo-standalone-editor .interface-interface-skeleton {height: 100%;}'
-					}
-				</style>
-				<IsolatedBlockEditor
+				<StandaloneEditor
 					id="masteriyo-certificate-builder"
 					settings={{
-						iso: {
-							blocks: {
-								allowBlocks: localized.allowedBlockTypes,
-							},
-							moreMenu: {
-								topToolbar: true,
-							},
-							sidebar: {
-								inserter: true,
-								inspector: true,
-							},
-							toolbar: {
-								navigation: true,
-								inspector: true,
-							},
-							allowEmbeds: [],
-						},
-						editor: {
-							...localized.editorSettings,
-							availableTemplates: [],
-							disablePostFormats: true,
-							__experimentalBlockPatterns: [],
-							__experimentalBlockPatternCategories: [],
-							supportsTemplateMode: true,
-							enableCustomFields: false,
-							generateAnchors: false,
-							canLockBlocks: true,
-							postLock: true,
-							supportsLayout: true,
-							mediaUpload: uploadMedia,
-							templateLock: true,
-							template: [['masteriyo/certificate']],
-						},
-						editorType: 'core',
-						allowUrlEmbed: false,
-						pastePlainText: false,
-						replaceParagraphCode: false,
+						...localized.editorSettings,
+						styles: [...baseStyles, ...editorStyles],
+						availableTemplates: [],
+						disablePostFormats: true,
+						__experimentalBlockPatterns: [],
+						__experimentalBlockPatternCategories: [],
+						enableCustomFields: false,
+						generateAnchors: false,
+						canLockBlocks: true,
+						supportsLayout: true,
+						mediaUpload: uploadMedia,
+						allowedBlockTypes: localized.allowedBlockTypes,
+						templateLock: true,
+						template: [['masteriyo/certificate']],
 					}}
-					onSaveBlocks={(blocks: any) =>
+					onSaveBlocks={(blocks) =>
 						setValue('html_content', serialize(blocks), { shouldDirty: true })
 					}
-					onLoad={(parse: any) => parse(defaultValue)}
-					onError={() => {}}
+					onLoad={(parse) => parse(defaultValue || '')}
 				>
 					<EditorLoaded
 						onLoaded={() => {
@@ -126,7 +105,7 @@ const BlockEditor: React.FC<Props> = (props) => {
 							/>
 						</Flex>
 					</ToolbarSlot>
-				</IsolatedBlockEditor>
+				</StandaloneEditor>
 			</Box>
 		</FormControl>
 	);

@@ -92,5 +92,3 @@ echo wp_kses(
 );
 echo '</div>';
 echo '</div>';
-
-

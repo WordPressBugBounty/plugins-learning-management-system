@@ -72,11 +72,12 @@ class UsageTrackingNoticeHandler extends AjaxHandler {
 		// Sanitize action variable.
 		$action = isset( $_POST['masteriyo_action'] ) ? sanitize_text_field( $_POST['masteriyo_action'] ) : null;
 
+		// Sparse writes — this notice is answered before onboarding; see masteriyo_set_raw_setting().
 		if ( 'allow' === $action ) {
-			masteriyo_set_setting( 'advance.tracking.allow_usage', true );
+			masteriyo_set_raw_setting( 'advance.tracking.allow_usage', true );
 			masteriyo_set_usage_tracking_preference_by_user();
 		} elseif ( 'deny' === $action ) {
-			masteriyo_set_setting( 'advance.tracking.allow_usage', false );
+			masteriyo_set_raw_setting( 'advance.tracking.allow_usage', false );
 			masteriyo_set_usage_tracking_preference_by_user();
 		} elseif ( 'close' === $action ) {
 			masteriyo_set_usage_tracking_notice_is_cancelled();

@@ -100,7 +100,7 @@ class WebhookServiceProvider extends AbstractServiceProvider implements Bootable
 			return;
 		}
 
-		$query    = new WebhookQuery(
+		$query = new WebhookQuery(
 			array(
 				'status'   => array( WebhookStatus::ACTIVE ),
 				'paginate' => false,

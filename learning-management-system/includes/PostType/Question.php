@@ -76,7 +76,6 @@ class Question extends PostType {
 			'capability_type'     => array( 'question', 'questions' ),
 			'exclude_from_search' => true,
 			'publicly_queryable'  => false,
-			'can_export'          => true,
 			'delete_with_user'    => true,
 		);
 	}

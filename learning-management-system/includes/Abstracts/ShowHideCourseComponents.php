@@ -59,7 +59,7 @@ abstract class ShowHideCourseComponents {
 	 * @since 1.6.13
 	 *
 	 */
-	abstract protected function get_prefix_selector():string;
+	abstract protected function get_prefix_selector(): string;
 
 	/**
 	 * Condition to should print or not.
@@ -67,7 +67,7 @@ abstract class ShowHideCourseComponents {
 	 * @since 1.6.13
 	 *
 	 */
-	abstract protected function should_print():bool;
+	abstract protected function should_print(): bool;
 
 	/**
 	 * Get styles to show/hide components.

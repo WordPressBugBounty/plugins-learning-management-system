@@ -3,7 +3,6 @@
  * Background batch processor for LMS migration.
  * Self-queues via Action Scheduler until a step is complete, then advances.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool
  */
 
@@ -17,22 +16,16 @@ class MigrationProcessJob {
 
 	/**
 	 * Action Scheduler hook name for this job.
-	 *
-	 * @since x.x.x
 	 */
 	const HOOK = 'masteriyo/migration/process';
 
 	/**
 	 * Items processed per batch. Balances throughput against per-item memory cost.
-	 *
-	 * @since x.x.x
 	 */
 	const BATCH_SIZE = 100;
 
 	/**
 	 * Register the Action Scheduler hook.
-	 *
-	 * @since x.x.x
 	 *
 	 * @return void
 	 */
@@ -47,7 +40,6 @@ class MigrationProcessJob {
 	 * Without this, a timed-out job leaves the session permanently stuck in 'running'
 	 * with no pending AS action to continue it.
 	 *
-	 * @since x.x.x
 	 * @param int $action_id Failed AS action ID.
 	 * @param int $timeout   Timeout value (seconds) that caused the failure.
 	 *
@@ -107,7 +99,6 @@ class MigrationProcessJob {
 	 * recursive call chains). On loopback-blocked hosts (e.g. LocalWP), the
 	 * spawn_cron() call in get_status() nudges the AS runner for each subsequent step.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @param string $lms_slug   LMS plugin slug.
 	 * @param string $step       Current step name.
@@ -134,7 +125,6 @@ class MigrationProcessJob {
 	/**
 	 * Inner implementation of handle() — called exclusively through the GET_LOCK wrapper.
 	 *
-	 * @since x.x.x
 	 * @param string $session_id Session ID.
 	 * @param string $lms_slug   LMS plugin slug.
 	 * @param string $step       Current step name.
@@ -153,7 +143,8 @@ class MigrationProcessJob {
 		$state = MigrationSession::get_step_state( $session_id, $step );
 		// DB is authoritative: a stale pending action may carry an older cursor in its args.
 		// Advancing to last_cursor here matches what handle_failed_action() already does.
-		$cursor   = max( $cursor, $state['last_cursor'] );
+		$cursor = max( $cursor, $state['last_cursor'] );
+
 		$migrator = masteriyo( 'migration-tool.registry' )->get( $lms_slug );
 
 		// Remove duplicate failed IDs and build a skip-set.
@@ -291,12 +282,12 @@ class MigrationProcessJob {
 	}
 
 	/**
-	 * Activate Masteriyo Pro addons equivalent to active source LMS addons for the given step.
+	 * Activate Masteriyo addons equivalent to active source LMS addons for the given step.
 	 *
-	 * No-op when Masteriyo Pro is not active — \Masteriyo\Pro\Addons won't exist in that case.
+	 * Delegates to the migrator to determine which slugs to activate — the migrator
+	 * checks both source-addon status and (implicitly, via the caller) item count > 0.
 	 * Silently skips slugs that are already active or not installed in this Pro build.
 	 *
-	 * @since x.x.x
 	 * @param \Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface $migrator Resolved migrator.
 	 * @param string                                                        $step     Current step name.
 	 * @return void
@@ -304,11 +295,11 @@ class MigrationProcessJob {
 	private function maybe_activate_equivalent_addons( $migrator, string $step ): void {
 		$slugs = $migrator->get_addons_to_activate( $step );
 
-		if ( empty( $slugs ) || ! class_exists( '\Masteriyo\Pro\Addons' ) ) {
+		if ( empty( $slugs ) ) {
 			return;
 		}
 
-		$addons = new \Masteriyo\Pro\Addons();
+		$addons = new \Masteriyo\AddonsFramework\Addons();
 
 		foreach ( $slugs as $slug ) {
 			if ( ! $addons->is_addon( $slug ) ) {
@@ -339,7 +330,6 @@ class MigrationProcessJob {
 	 * PHP process (prevents recursive call chains that can be killed mid-flight).
 	 * Empty steps are skipped synchronously so they require no extra cron tick.
 	 *
-	 * @since x.x.x
 	 * @param string                                                           $session_id Session ID.
 	 * @param string                                                           $lms_slug   LMS plugin slug.
 	 * @param string                                                           $step       Step that just finished.

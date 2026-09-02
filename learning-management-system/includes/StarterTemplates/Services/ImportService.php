@@ -15,7 +15,7 @@ use WP_REST_Response;
  * Handles the process of importing various demo content, plugins, customizer settings, and widgets.
  *
  * @package Masteriyo\StarterTemplates\Importer\Services
- * @since 2.0.0
+ * @since 3.0.0
  */
 class ImportService {
 

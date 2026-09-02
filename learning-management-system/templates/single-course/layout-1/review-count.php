@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -28,7 +28,7 @@ $review_distribution = masteriyo_get_course_review_distribution_by_rating( $cour
 /**
  * Fires before rendering author and rating section in single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_before_single_course_layout_1_review_count' );
 
@@ -79,6 +79,6 @@ do_action( 'masteriyo_before_single_course_layout_1_review_count' );
 /**
  * Fires after rendering author and rating section in single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  */
 do_action( 'masteriyo_after_single_course_layout_1_review_count' );

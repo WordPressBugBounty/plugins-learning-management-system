@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\AddonsFramework\Addons;
 
 /**
  * Main class for CommentController.
@@ -403,7 +404,7 @@ class CourseReviewsController extends CommentsController {
 			'author_name'       => $course_review->get_author_name( $context ),
 			'author_email'      => $course_review->get_author_email( $context ),
 			'author_url'        => $course_review->get_author_url( $context ),
-			'author_avatar_url' => is_wp_error( $author ) ? '' : $author->get_avatar_url(),
+			'author_avatar_url' => is_wp_error( $author ) ? '' : $author->profile_image_url(),
 			'ip_address'        => $course_review->get_ip_address( $context ),
 			'date_created'      => masteriyo_rest_prepare_date_response( $course_review->get_date_created( $context ) ),
 			'title'             => $course_review->get_title( $context ),
@@ -527,10 +528,24 @@ class CourseReviewsController extends CommentsController {
 					'required'    => true,
 				),
 				'rating'       => array(
-					'description' => __( 'Course Review rating.', 'learning-management-system' ),
-					'type'        => 'integer',
-					'context'     => array( 'view', 'edit' ),
-					'required'    => true,
+					'description'       => __( 'Course Review rating.', 'learning-management-system' ),
+					'type'              => 'integer',
+					'context'           => array( 'view', 'edit' ),
+					'validate_callback' => function( $value, $request, $key ) {
+						if ( empty( $request['parent'] ) && empty( $value ) ) {
+							return new \WP_Error(
+								'rest_required',
+								sprintf(
+								/* translators: %s: REST API parameter name */
+									__( '%s is required.', 'learning-management-system' ),
+									$key
+								)
+							);
+						}
+
+						return true;
+					},
+
 				),
 				'status'       => array(
 					'description' => __( 'Course Review Status.', 'learning-management-system' ),
@@ -636,11 +651,11 @@ class CourseReviewsController extends CommentsController {
 		}
 
 		if (
-		! $course_review &&
-		! is_null( $user ) &&
-		! isset( $request['author_id'] ) &&
-		! isset( $request['author_name'] ) &&
-		! isset( $request['author_email'] )
+			! $course_review &&
+			! is_null( $user ) &&
+			! isset( $request['author_id'] ) &&
+			! isset( $request['author_name'] ) &&
+			! isset( $request['author_email'] )
 		) {
 			$course_review->set_author_id( $user->get_id() );
 			$course_review->set_author_email( $user->get_email() );
@@ -693,6 +708,7 @@ class CourseReviewsController extends CommentsController {
 			$course_review->set_rating( $request['rating'] );
 		}
 
+		// Course Review Status.
 		$status = CommentStatus::APPROVE_STR;
 
 		$is_author = ! empty( $course_review ) ? masteriyo_is_current_user_post_author( $course_review->get_course_id() ) : false;
@@ -714,6 +730,12 @@ class CourseReviewsController extends CommentsController {
 			$course_review->set_is_new( $request['is_new'] );
 		}
 
+		$course_review->set_status( $status );
+
+		// Set is new status.
+		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ) && isset( $request['is_new'] ) ) {
+			$course_review->set_is_new( $request['is_new'] );
+		}
 		// Course Review Agent.
 		if ( isset( $request['agent'] ) ) {
 			$course_review->set_agent( $request['agent'] );
@@ -841,7 +863,7 @@ class CourseReviewsController extends CommentsController {
 			);
 		}
 
-		if ( PostStatus::PUBLISH !== $course->get_status() ) {
+		if ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_course_not_published',
 				__( 'Sorry, you can only create review for published courses.', 'learning-management-system' ),
@@ -865,6 +887,12 @@ class CourseReviewsController extends CommentsController {
 
 		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
 			return true;
+		}
+
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) && isset( $request['course_id'] ) && $request['course_id'] ) {
+			if ( masteriyo_is_instructor_or_additional_instructor( $request['course_id'] ?? 0 ) ) {
+					return true;
+			}
 		}
 
 		if ( ! $this->permission->rest_check_course_reviews_permissions( 'create' ) ) {
@@ -1002,6 +1030,13 @@ class CourseReviewsController extends CommentsController {
 			return true;
 		}
 
+		// Scope to the review's own course, never to a course ID the caller supplied.
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) && $review->get_course_id() ) {
+			if ( masteriyo_is_instructor_or_additional_instructor( $review->get_course_id() ) ) {
+					return true;
+			}
+		}
+
 		if ( get_current_user_id() !== $review->get_author_id() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
@@ -1069,6 +1104,13 @@ class CourseReviewsController extends CommentsController {
 
 		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_post_author( $review_course_id ) ) {
 			return true;
+		}
+
+		// Scope to the review's own course, never to a course ID the caller supplied.
+		if ( ( new Addons() )->is_active( 'multiple-instructors' ) && $review_course_id ) {
+			if ( masteriyo_is_instructor_or_additional_instructor( $review_course_id ) ) {
+					return true;
+			}
 		}
 
 		if ( get_current_user_id() !== $review->get_author_id() ) {
@@ -1153,7 +1195,6 @@ class CourseReviewsController extends CommentsController {
 	/**
 	 * Process objects collection.
 	 *
-	 * @since 1.6.7
 	 * @since 2.2.7
 	 *
 	 * @param array $objects Course reviews data.

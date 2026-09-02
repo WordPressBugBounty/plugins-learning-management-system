@@ -52,7 +52,7 @@ const ClassroomTextAndLinkSection: React.FC<Props> = ({
 					style={{ color: 'blue', cursor: 'pointer' }}
 					onClick={() =>
 						window.open(
-							'https://docs.masteriyo.com/free-addons/google-classroom-integration',
+							'https://docs.masteriyo.com/free-addons/google-classroom-integration/',
 							'_blank',
 						)
 					}

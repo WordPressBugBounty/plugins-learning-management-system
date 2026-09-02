@@ -11,7 +11,7 @@ use WP_REST_Response;
  * Handles the import of widgets for a demo configuration.
  *
  * @package Masteriyo\StarterTemplates\Importer\Importers
- * @since 2.0.0
+ * @since 3.0.0
  */
 class WidgetsImporter {
 
@@ -21,7 +21,7 @@ class WidgetsImporter {
 	 *
 	 * @param array $demo The demo configuration containing widget details.
 	 * @return WP_REST_Response|WP_Error The response of the import operation.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public function import( $demo ) {
 		if ( ! $demo['widgets'] ) {
@@ -55,7 +55,7 @@ class WidgetsImporter {
 	 * @param  array  $demo_data   The data of demo being imported.
 	 * @param  array  $term_id_map   Processed Terms Map
 	 * @return WP_Error|array WP_Error on failure, $results on success.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public static function processImport( $data, $demo_id, $demo_data, $term_id_map ) {
 		global $wp_registered_sidebars;

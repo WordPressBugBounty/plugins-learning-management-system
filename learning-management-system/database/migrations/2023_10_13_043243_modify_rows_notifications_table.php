@@ -25,8 +25,8 @@ class ModifyRowsNotificationsTable extends Migration {
     DROP COLUMN action_1,
     DROP COLUMN action_2,
     DROP COLUMN action_3,
-	ADD COLUMN topic_url varchar(250) DEFAULT ' ' AFTER type,
-	ADD COLUMN post_id BIGINT UNSIGNED DEFAULT 0 AFTER topic_url;";
+		ADD COLUMN topic_url varchar(250) DEFAULT ' ' AFTER type,
+		ADD COLUMN post_id BIGINT UNSIGNED DEFAULT 0 AFTER topic_url;";
 
 		$this->connection->query( $sql );
 	}

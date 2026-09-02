@@ -185,6 +185,7 @@ type Course = {
 	};
 	highlights: string;
 	price_type: CoursePriceType;
+	enable_cohort_mode: boolean;
 };
 
 type CoursePriceType = 'free' | 'paid';
@@ -714,8 +715,7 @@ type AdvancedSettings = {
 		set_default_payment_method: string;
 	};
 	debug: {
-		template_debug: boolean;
-		debug: boolean;
+		enable_logger: boolean;
 	};
 	uninstall: {
 		remove_data: boolean;

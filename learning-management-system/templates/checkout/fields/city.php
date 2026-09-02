@@ -18,19 +18,24 @@ defined( 'ABSPATH' ) || exit;
  */
 
 use Masteriyo\Notice;
+
+$field = isset( $field ) ? $field : array();
 ?>
 <div class="masteriyo-checkout----town">
-	<label for="billing-town-city" class="masteriyo-label">
+	<label for="billing-city" class="masteriyo-label">
 		<?php esc_html_e( 'Town/City', 'learning-management-system' ); ?>
-		<span>*</span>
+		<?php if ( ! empty( $field['required'] ) ) : ?>
+			<span>*</span>
+		<?php endif; ?>
 	</label>
 
 	<input
 		type="text"
-		id="billing-town-city"
+		id="billing-city"
 		class="masteriyo-input"
 		name="billing_city"
 		value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_billing_city() ); ?>"
+		<?php masteriyo_checkout_field_required_attributes( $field ); ?>
 	/>
 
 	<?php if ( masteriyo_notice_exists( 'billing_city', Notice::ERROR ) ) : ?>

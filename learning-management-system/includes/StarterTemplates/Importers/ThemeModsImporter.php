@@ -12,7 +12,7 @@ use WP_REST_Response;
  * Handles the import of theme modifications (theme mods) for a demo configuration.
  *
  * @package Masteriyo\StarterTemplates\Importer\Importers
- * @since 2.0.0
+ * @since 3.0.0
  */
 class ThemeModsImporter {
 
@@ -23,7 +23,7 @@ class ThemeModsImporter {
 	 * @param array $demo The demo configuration containing theme mods details.
 	 * @param array $args Additional arguments for the import process (e.g., blogname, blogdescription, etc.).
 	 * @return WP_REST_Response|WP_Error The response of the import operation.
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 
 	public function import( $demo, $args = array() ) {
@@ -59,7 +59,7 @@ class ThemeModsImporter {
 	 * @param  array  $demo_data   The data of demo being imported.
 	 * @param  array  $term_id_map   Processed Terms Map
 	 * @return void|WP_Error
-	 * @since 2.0.0
+	 * @since 3.0.0
 	 */
 	public static function processImport( $data, $demo_id, $demo_data, $term_id_map, $args ) {
 		global $wp_customize;
@@ -115,11 +115,22 @@ class ThemeModsImporter {
 
 		// Loop through theme mods and update them.
 		foreach ( $data as $key => $value ) {
-			$mods[ $key ] = $value;
+			$mods[ $key ] = is_string( $value )
+				? preg_replace( '#^https?://themegrilldemos\.com/[^/]+#', untrailingslashit( home_url() ), $value )
+				: $value;
 		}
 
 		if ( ! empty( $args['custom_logo'] ) ) {
 			$mods['custom_logo'] = $args['custom_logo'];
+
+			// The rest of the logo family still describes the demo's logo. The retina
+			// image is a different attachment, and the demos carry no width at all, so
+			// an uploaded logo would render at its natural size and crowd out the nav.
+			$mods['elearning_retina_logo']             = '';
+			$mods['elearning_header_site_logo_height'] = array(
+				'size' => self::get_logo_width( $args['custom_logo'] ),
+				'unit' => 'px',
+			);
 		}
 
 		if ( ! empty( $args['color_palette'] ) ) {
@@ -183,6 +194,22 @@ class ThemeModsImporter {
 		}
 
 		update_option( 'themegrill_starter_template_theme_mods', $mods );
+	}
+
+	/**
+	 * Width to render an imported logo at, in pixels.
+	 *
+	 * The eLearning theme asks for a 170x60 logo in its own customizer control, so a
+	 * narrower upload keeps its size and a wider one is capped rather than upscaled.
+	 *
+	 * @param int $attachment_id Attachment ID of the uploaded logo.
+	 * @return int
+	 */
+	private static function get_logo_width( $attachment_id ) {
+		$image = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$width = ( is_array( $image ) && ! empty( $image[1] ) ) ? (int) $image[1] : 0;
+
+		return ( $width > 0 && $width < 170 ) ? $width : 170;
 	}
 
 	/**

@@ -3,7 +3,6 @@
  * Get Quiz ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Returns the full quiz object including pass mark, time limit, attempts allowed,
  * and question display settings.
- *
- * @since x.x.x
  */
 class GetQuizAbility extends RestProxyAbility {
 

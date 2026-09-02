@@ -44,7 +44,7 @@ class BricksIntegrationAddon {
 		add_filter(
 			'bricks/builder/i18n',
 			function( $i18n ) {
-				$i18n['masteriyo'] = esc_html__( 'Masteriyo', 'learning-management-system' );
+				$i18n['masteriyo'] = esc_html( masteriyo_get_plugin_name() );
 
 				return $i18n;
 			}
@@ -72,8 +72,6 @@ class BricksIntegrationAddon {
 	 * course cards unstyled in preview. This hooks the extensibility filter to
 	 * enqueue public.css in those Bricks preview contexts.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param bool $enqueue Whether to enqueue Masteriyo public styles.
 	 *
 	 * @return bool
@@ -94,10 +92,11 @@ class BricksIntegrationAddon {
 		return $enqueue;
 	}
 
-		/**
+
+	/**
 	 * Render custom template for the Course Archive page.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $template_source
 	 * @param integer $template_id
@@ -111,13 +110,13 @@ class BricksIntegrationAddon {
 		echo ( new Templates() )->render_shortcode( array( 'id' => $template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		do_action( 'masteriyo_course_archive_after_template_content_bricks' );
 	}
+
 	/**
 	 * create a template on bricks page
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 */
 	public function create_template_on_bricks_page() {
-
 		// Check if the current page is one of the Bricks Builder pages
 		if ( isset( $_SERVER['REQUEST_URI'] ) && ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) ) {
 			$url             = $_SERVER['REQUEST_URI'];
@@ -146,7 +145,7 @@ class BricksIntegrationAddon {
 	/**
 	 * Render custom template for the Single Course page.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $template_source
 	 * @param integer $template_id
@@ -163,14 +162,27 @@ class BricksIntegrationAddon {
 	/**
 	 * Add custom template for the Course page Type.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param string $template_source
 	 * @param integer $template_id
 	 */
 	public function add_masteriyo_course_template_type( $control_options ) {
-		$control_options['templateTypes']['masteriyo-single-course']  = esc_html__( 'Masteriyo Single Course', 'learning-management-system' );
-		$control_options['templateTypes']['masteriyo-course-archive'] = esc_html__( 'Masteriyo Course Archive', 'learning-management-system' );
+		Helper::masteriyo_single_course_listing_template();
+		$control_options['templateTypes']['masteriyo-single-course'] = esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Single Course', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
+		$control_options['templateTypes']['masteriyo-course-archive'] = esc_html(
+			sprintf(
+				/* translators: %s: the product's name */
+				__( '%s Course Archive', 'learning-management-system' ),
+				masteriyo_get_plugin_name()
+			)
+		);
 		return $control_options;
 
 	}
@@ -179,7 +191,7 @@ class BricksIntegrationAddon {
 	/**
 	 * Localize more data to the backend script.
 	 *
-	 * @since 1.11.3
+	 * @since 2.12.0
 	 *
 	 * @param array $script_data
 	 *
@@ -190,7 +202,6 @@ class BricksIntegrationAddon {
 		$script_data['backend']['data']['courseArchiveTemplates']['bricks'] = Helper::masteriyo_course_archive_template();
 		return $script_data;
 	}
-
 
 	public function register_bricks_elements() {
 		$element_files = array(
@@ -223,8 +234,6 @@ class BricksIntegrationAddon {
 	/**
 	 * Show the Masteriyo category expanded at the top of the builder's elements panel.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string|false $category Category slug to show first, or false to use Bricks' own default.
 	 * @return string
 	 */
@@ -242,8 +251,6 @@ class BricksIntegrationAddon {
 	 * Runs before Bricks' own `enqueue_scripts` (priority 10) so the trimmed
 	 * registry is what gets sent to the panel. Elements already placed on a
 	 * page are loaded separately (on the earlier `wp` hook) and are unaffected.
-	 *
-	 * @since x.x.x
 	 */
 	public function restrict_panel_elements_by_template_type() {
 		if ( ! bricks_is_builder() || ! class_exists( '\Bricks\Elements' ) ) {

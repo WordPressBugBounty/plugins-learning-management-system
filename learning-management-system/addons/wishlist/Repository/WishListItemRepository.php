@@ -2,7 +2,7 @@
 /**
  * Wishlist item repository class.
  *
- * @since 1.12.2
+ * @since 2.3.4
  *
  * @package Masteriyo\Addons\WishList\Repository;
  */
@@ -22,7 +22,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Data stored in meta keys, but not considered "meta".
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @var array
 	 */
@@ -35,7 +35,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Create a wishlist item in the database.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
 	 */
@@ -51,7 +51,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Filters new wishlist item data before creating.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $data New wishlist item data.
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
@@ -82,7 +82,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 			/**
 			 * Fires after creating a wishlist item.
 			 *
-			 * @since 1.12.2
+			 * @since 2.3.4
 			 *
 			 * @param \Masteriyo\Addons\WishList\Models\WishListItem $object The wishlist item object.
 			 * @param integer $id The wishlist item ID.
@@ -94,7 +94,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Read a wishlist item.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @throws \Exception If invalid wishlist item.
 	 *
@@ -104,7 +104,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		$wishlist_item_obj = get_post( $wishlist_item->get_id() );
 
 		if ( ! $wishlist_item->get_id() || ! $wishlist_item_obj || $wishlist_item->get_type() !== $wishlist_item_obj->post_type ) {
-			throw new \Exception( __( 'Invalid Wishlist Item.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Wishlist Item.', 'learning-management-system' ) );
 		}
 
 		$wishlist_item->set_props(
@@ -122,7 +122,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires after reading a wishlist item from database.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param integer $id The wishlist item ID.
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $object The wishlist item object.
@@ -133,7 +133,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Update a wishlist item in the database.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
 	 */
@@ -194,7 +194,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires after updating a wishlist item in database.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $object The wishlist item object.
 		 * @param integer $id The wishlist item ID.
@@ -205,7 +205,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Delete a wishlist item from the database.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
 	 * @param array $args Array of args to pass.
@@ -221,7 +221,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires before a wishlist item is permanently deleted.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem $wishlist_item Wishlist item object.
 		 * @param integer $id Wishlist item ID.
@@ -234,7 +234,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Fires after wishlist item is permanently deleted.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param \Masteriyo\Addons\WishList\Models\WishListItem  $wishlist_item Wishlist item object.
 		 * @param int $id Wishlist item ID.
@@ -245,7 +245,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Read metadata.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param \Masteriyo\Addons\WishList\Models\WishListItem $course course object.
 	 */
@@ -272,7 +272,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Query wishlist items.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $query_vars Query vars.
 	 *
@@ -316,7 +316,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 	/**
 	 * Prepare valid WP_Query args from query variables.
 	 *
-	 * @since 1.12.2
+	 * @since 2.3.4
 	 *
 	 * @param array $query_vars Query vars.
 	 *
@@ -371,7 +371,7 @@ class WishListItemRepository extends AbstractRepository implements RepositoryInt
 		/**
 		 * Filters WP Query args for wishlist item post type query.
 		 *
-		 * @since 1.12.2
+		 * @since 2.3.4
 		 *
 		 * @param array $wp_query_args WP Query args.
 		 * @param array $query_vars Query vars.

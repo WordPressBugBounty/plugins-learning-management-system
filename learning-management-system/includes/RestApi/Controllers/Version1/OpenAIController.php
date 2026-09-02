@@ -2,7 +2,7 @@
 /**
  * OpenAI controller class.
  *
- * @since x,x,x
+ * @since 2.6.10
  *
  * @package Masteriyo\RestApi
  * @subpackage Controllers
@@ -13,14 +13,17 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 defined( 'ABSPATH' ) || exit;
 
 use Exception;
+use Masteriyo\Enums\PostStatus;
+use Masteriyo\AI\Provider;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Jobs\CreateCourseContentJob;
 use Masteriyo\Jobs\CreateLessonsContentJob;
+use Masteriyo\Enums\QuestionType;
 use Masteriyo\Jobs\CreateQuizzesForSectionsJob;
 use Masteriyo\PostType\PostType;
-use ThemeGrill\OpenAI\ChatGPT;
 
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 
 class OpenAIController extends RestController {
@@ -168,19 +171,13 @@ class OpenAIController extends RestController {
 			return new WP_Error( 'openai_invalid_parameters', 'Prompt cannot be empty.', array( 'status' => 400 ) );
 		}
 
-		$api_key = masteriyo_get_setting( 'advance.openai.api_key' );
+		$ai = masteriyo_ai();
 
-		if ( empty( $api_key ) ) {
+		if ( ! $ai->is_configured() ) {
 			return new WP_Error( 'openai_invalid_api_key', 'OpenAI API Key not found.', array( 'status' => 400 ) );
 		}
 
 		try {
-			$chatgpt = ChatGPT::get_instance( $api_key );
-
-			if ( null === $chatgpt ) {
-				return new WP_Error( 'openai_invalid_api_key', 'OpenAI API Key not found.', array( 'status' => 400 ) );
-			}
-
 			if ( 'quiz' === $content_type ) {
 				$question_type       = sanitize_text_field( $request->get_param( 'questionType' ) ?? 'true-false' );
 				$number_of_questions = absint( $request->get_param( 'numberOfQuestions' ) ?? 1 );
@@ -192,26 +189,15 @@ class OpenAIController extends RestController {
 					return new \WP_Error( 'openai_content_generation_failure', __( 'Invalid quiz ID.', 'learning-management-system' ) );
 				}
 
-				$prompt = masteriyo_generate_quiz_questions_prompt( $prompt, $question_type, $number_of_questions );
+				$prompt = masteriyo_generate_quiz_questions_prompt( $prompt, $question_type, $number_of_questions, 1, masteriyo_get_quiz_ai_context( $quiz ) );
 
-				$response_text = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $prompt ), 3 );
-				$response_text = wp_unslash( $response_text );
+				$response = $ai->generate_json( $prompt );
 
-				$response = is_string( $response_text ) ? json_decode( $response_text, true ) : $response_text;
-			
 				if ( is_wp_error( $response ) ) {
-					$error_code = $response->get_error_code();
-
-					if ( $error_code == 429 ) {
-						return new \WP_Error(
-							'openai_quota_exceeded',
-							__( 'You have exceeded your OpenAI quota. Please check your API usage and try again later.', 'learning-management-system' )
-						);
-					}
-
-					return new \WP_Error(
-						'openai_request_failed',
-						__( 'The request to OpenAI failed. Please try again later.', 'learning-management-system' )
+					return $this->map_ai_error(
+						$response,
+						'openai_content_generation_failure',
+						__( 'Failed to create question(s). Please try again.', 'learning-management-system' )
 					);
 				}
 
@@ -221,8 +207,51 @@ class OpenAIController extends RestController {
 
 				$questions = $response['questions'];
 
+				masteriyo_get_logger()->debug(
+					sprintf( 'AI quiz generation for quiz #%d returned %d question(s) of type %s.', $quiz->get_id(), count( $questions ), $question_type ),
+					array( 'source' => 'openai' )
+				);
+
 				if ( 1 > count( $questions ) ) {
 					return new \WP_Error( 'openai_content_generation_failure', __( 'Failed to create question(s). Please try again.', 'learning-management-system' ) );
+				}
+
+				if ( masteriyo_string_to_bool( $request->get_param( 'preview' ) ?? false ) ) {
+					$preview_questions = array();
+
+					foreach ( $questions as $ques ) {
+						$parsed = masteriyo_openai_parse_question( $ques );
+
+						if ( ! $parsed ) {
+							continue;
+						}
+
+						if ( QuestionType::TEXT_ANSWER === $parsed['type'] ) {
+							$parsed['meta_data'] = array(
+								array(
+									'key'   => '_max_character',
+									'value' => $parsed['max_character'],
+								),
+							);
+						}
+
+						unset( $parsed['max_character'] );
+
+						$parsed['parent_id'] = $quiz->get_id();
+						$parsed['course_id'] = $quiz->get_course_id();
+						$preview_questions[] = $parsed;
+					}
+
+					if ( empty( $preview_questions ) ) {
+						return new \WP_Error( 'openai_content_generation_failure', __( 'Failed to create question(s). Please try again.', 'learning-management-system' ) );
+					}
+
+					return rest_ensure_response(
+						array(
+							'questions' => $preview_questions,
+							'message'   => __( 'Question(s) generated. Review them before adding to the quiz.', 'learning-management-system' ),
+						)
+					);
 				}
 
 				$course = masteriyo_get_course( $quiz->get_course_id() );
@@ -231,10 +260,12 @@ class OpenAIController extends RestController {
 					return new \WP_Error( 'openai_content_generation_failure', __( 'Invalid course ID.', 'learning-management-system' ) );
 				}
 
-				$j = 0;
+				// Get total existing questions in the quiz to set proper menu order
+				$existing_questions_count = masteriyo_get_all_questions_count_by_quiz( $quiz->get_id() );
+
 				foreach ( $questions as $question ) {
-					++$j;
-					masteriyo_openai_create_question( $course, $quiz, $question, $j );
+					++$existing_questions_count;
+					masteriyo_openai_create_question( $course, $quiz, $question, $existing_questions_count );
 				}
 
 				$url = admin_url( "admin.php?page=masteriyo#courses/{$course->get_id()}/quiz/edit/{$quiz->get_id()}?page=questions" );
@@ -248,15 +279,14 @@ class OpenAIController extends RestController {
 			}
 
 			$prompt        = masteriyo_generate_content_prompt( $prompt, $content_type, $word_limit );
-			$response_text = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $prompt ), 3 );
-			$response_text = wp_unslash( $response_text );
+			$response_text = $ai->generate_text( $prompt );
 
-			if ( is_null( $response_text ) || is_wp_error( $response_text ) ) {
-				return $response_text;
-			}
-
-			if ( empty( $response_text ) ) {
-				return new \WP_Error( 'openai_content_generation_failure', __( 'Failed to generate the content. Please try again.', 'learning-management-system' ) );
+			if ( is_wp_error( $response_text ) ) {
+				return $this->map_ai_error(
+					$response_text,
+					'openai_content_generation_failure',
+					__( 'Failed to generate the content. Please try again.', 'learning-management-system' )
+				);
 			}
 
 			return rest_ensure_response(
@@ -272,7 +302,7 @@ class OpenAIController extends RestController {
 	}
 
 	/**
-	 * Create a new course using ChatGPT.
+	 * Create a new course using the AI provider.
 	 *
 	 * @since 1.6.15
 	 *
@@ -291,23 +321,19 @@ class OpenAIController extends RestController {
 		$create_quiz                = sanitize_text_field( $request->get_param( 'createQuiz' ) ?? 'none' );
 		$create_course_outline_only = masteriyo_string_to_bool( $request->get_param( 'createCourseOutlineOnly' ) ?? false );
 
-		$api_key = masteriyo_get_setting( 'advance.openai.api_key' );
+		$ai = masteriyo_ai();
 
-		if ( empty( $api_key ) ) {
+		if ( ! $ai->is_configured() ) {
 			return new WP_Error( 'openai_invalid_api_key', 'OpenAI API Key not found.', array( 'status' => 400 ) );
 		}
 
 		try {
-			$chatgpt = ChatGPT::get_instance( $api_key );
+			$course = $this->create_course_outline( $request, $ai, $course_title, $course_idea );
 
-			if ( null === $chatgpt ) {
-				return new WP_Error( 'openai_invalid_api_key', 'OpenAI API Key not found.', array( 'status' => 400 ) );
-			}
-
-			$course = $this->create_course_outline( $request, $chatgpt, $course_title, $course_idea );
-
+			// Already mapped to a public code (quota, invalid parameters, …) —
+			// rewriting it to the generic failure code would lose that.
 			if ( is_wp_error( $course ) ) {
-				throw new Exception( $course->get_error_message(), $course->get_error_data( 'status' ) );
+				return $course;
 			}
 
 			if ( is_null( $course ) ) {
@@ -369,40 +395,44 @@ class OpenAIController extends RestController {
 	 * @since 1.6.15
 	 *
 	 * @param  \WP_REST_Request $request Full details about the request.
-	 * @param mixed  $chatgpt      The ChatGPT instance.
-	 * @param string $course_title The title of the course.
-	 * @param string $course_idea  The main idea behind the course.
+	 * @param Provider $ai           The AI provider.
+	 * @param string   $course_title The title of the course.
+	 * @param string   $course_idea  The main idea behind the course.
 	 *
 	 * @return WP_Error|\Masteriyo\Models\Course Returns a WP_Error object on failure or a $course object on success.
 	 */
-	public function create_course_outline( $request, $chatgpt, $course_title, $course_idea ) {
+	public function create_course_outline( $request, Provider $ai, $course_title, $course_idea ) {
 		$num_sections            = absint( $request->get_param( 'numSections' ) ?? 4 );
 		$num_lessons_per_section = absint( $request->get_param( 'numLessonsPerSection' ) ?? 3 );
+
+		// The whitelist is the validation: anything but an explicit draft
+		// publishes, which is what this endpoint has always done.
+		$status = PostStatus::DRAFT === $request->get_param( 'status' ) ? PostStatus::DRAFT : PostStatus::PUBLISH;
 
 		if ( $num_sections < 1 || $num_lessons_per_section < 1 ) {
 			return new WP_Error( 'openai_invalid_parameters', 'Invalid parameters. Number of sections and lessons should be at least 1.', array( 'status' => 400 ) );
 		}
 
 		$course_outline_prompt = masteriyo_generate_course_outline_prompt( $course_title, $course_idea, $num_sections, $num_lessons_per_section );
-		$response_text         = masteriyo_openai_retry( array( $chatgpt, 'send_prompt' ), array( $course_outline_prompt ), 3 );
-		$response_text         = wp_unslash( $response_text );
+		$course_outline        = $ai->generate_json( $course_outline_prompt );
 
-		if ( is_null( $response_text ) || is_wp_error( $response_text ) ) {
-			return $response_text;
+		if ( is_wp_error( $course_outline ) ) {
+			return $this->map_ai_error(
+				$course_outline,
+				'openai_course_creation_failure',
+				__( 'Failed to create course. Please try again.', 'learning-management-system' )
+			);
 		}
 
-		if ( empty( $response_text ) ) {
+		// Validate before creating anything, or a refusal/malformed response
+		// leaves an empty course behind a success message.
+		if ( ! isset( $course_outline['course']['sections'] ) || ! is_array( $course_outline['course']['sections'] ) || ! count( $course_outline['course']['sections'] ) ) {
 			return new \WP_Error( 'openai_course_creation_failure', __( 'Failed to create course. Please try again.', 'learning-management-system' ) );
 		}
 
-		$course_outline = is_array( $response_text ) ? $response_text : json_decode( $response_text, true );
-		$course         = $this->create_entity( 'course', $course_title );
+		$course = $this->create_entity( 'course', $course_title, null, null, 0, $status );
 
 		if ( is_null( $course ) || is_wp_error( $course ) ) {
-			return $course;
-		}
-
-		if ( ! isset( $course_outline['course']['sections'] ) || ! is_array( $course_outline['course']['sections'] ) || ! count( $course_outline['course']['sections'] ) ) {
 			return $course;
 		}
 
@@ -424,11 +454,35 @@ class OpenAIController extends RestController {
 				++$j;
 
 				$lesson_title = isset( $less['title'] ) ? sanitize_text_field( $less['title'] ) : '';
-				$this->create_entity( 'lesson', $lesson_title, $course, $section, $j );
+				$this->create_entity( 'lesson', $lesson_title, $course, $section, $j, $status );
 			}
 		}
 
 		return $course;
+	}
+
+	/**
+	 * Map a normalized masteriyo_ai_* error onto this endpoint's public error codes.
+	 *
+	 * @param WP_Error $error           The provider error.
+	 * @param string   $failure_code    Public code for an empty/unusable response.
+	 * @param string   $failure_message Public message for an empty/unusable response.
+	 *
+	 * @return WP_Error
+	 */
+	private function map_ai_error( $error, $failure_code, $failure_message ) {
+		if ( 'masteriyo_ai_quota_exceeded' === $error->get_error_code() ) {
+			return new \WP_Error(
+				'openai_quota_exceeded',
+				__( 'You have exceeded your OpenAI quota. Please check your API usage and try again later.', 'learning-management-system' )
+			);
+		}
+
+		if ( 'masteriyo_ai_empty_response' === $error->get_error_code() ) {
+			return new \WP_Error( $failure_code, $failure_message );
+		}
+
+		return $error;
 	}
 
 	/**
@@ -443,14 +497,16 @@ class OpenAIController extends RestController {
 	 * @param \Masteriyo\Models\Course|null  $course  Optional. The course object to associate with the entity, if applicable.
 	 * @param \Masteriyo\Models\Course|\Masteriyo\Models\Section|null $parent  Optional. The parent entity (e.g., section) to associate with the entity, if applicable.
 	 * @param int          $menu_order  Optional. The menu order to assign to the entity, if applicable.
+	 * @param string       $status  Optional. Post status to save the entity with; the repository default (publish) applies when empty. Sections ignore it — their repository always publishes.
 	 *
 	 * @return \Masteriyo\Models\Course|\Masteriyo\Models\Section|\Masteriyo\Models\Lesson|null Returns the created entity object (Course, Section, Lesson) on success, or null if the title is empty or the creation fails.
 	 */
-	private function create_entity( $entity, $title, $course = null, $parent = null, $menu_order = 0 ) {
+	private function create_entity( $entity, $title, $course = null, $parent = null, $menu_order = 0, $status = '' ) {
 		if ( empty( $title ) ) {
 			return null;
 		}
 
+		/** @var \Masteriyo\Models\Course|\Masteriyo\Models\Section|\Masteriyo\Models\Lesson $instance */
 		$instance = masteriyo( $entity );
 		$instance->set_name( $title );
 
@@ -468,6 +524,10 @@ class OpenAIController extends RestController {
 
 		if ( 'course' === $entity ) {
 			$instance->set_is_ai_created( true );
+		}
+
+		if ( $status ) {
+			$instance->set_status( $status );
 		}
 
 		$instance->save();

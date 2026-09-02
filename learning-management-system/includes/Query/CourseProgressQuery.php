@@ -46,7 +46,7 @@ class CourseProgressQuery extends ObjectQuery {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Masteriyo\Models\CourseProgress[] Course objects
+	 * @return \Masteriyo\Models\CourseProgress[] Course objects
 	 */
 	public function get_course_progress() {
 		/**

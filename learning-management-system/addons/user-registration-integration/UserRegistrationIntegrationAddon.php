@@ -70,7 +70,7 @@ class UserRegistrationIntegrationAddon {
 	/**
 	 * Modify redirect url for masteriyo.
 	 *
-	 * @since 1.14.3
+	 * @since 1.14.3 [Free]
 	 *
 	 * @param string $redirect_url Redirect URL.
 	 * @param int $form_id Form ID.

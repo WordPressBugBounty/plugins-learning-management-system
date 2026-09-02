@@ -17,10 +17,12 @@ import RenderPricingZone from './RenderPricingZone';
 
 interface Props {
 	multiple_currency_data?: MultipleCurrencyData;
+	isCourseBundle?: boolean;
 }
 
 const MultipleCurrencyCoursesSetting: React.FC<Props> = ({
 	multiple_currency_data,
+	isCourseBundle,
 }) => {
 	const { register, control } = useFormContext();
 
@@ -31,7 +33,11 @@ const MultipleCurrencyCoursesSetting: React.FC<Props> = ({
 	});
 	return (
 		<Stack direction="column" spacing={2}>
-			<FormControlTwoCol>
+			<FormControlTwoCol
+				flexDirection={
+					isCourseBundle ? 'row' : ['column', 'column', 'column', 'row']
+				}
+			>
 				<FormLabel>
 					{__('Enable Multiple Currency', 'learning-management-system')}
 				</FormLabel>
@@ -48,6 +54,7 @@ const MultipleCurrencyCoursesSetting: React.FC<Props> = ({
 						<Stack spacing="3">
 							{multiple_currency_data?.pricing_zones?.map((zone, index) => (
 								<RenderPricingZone
+									isCourseBundle={isCourseBundle}
 									key={index}
 									zone={zone}
 									zoneId={zone?.id.toString()}

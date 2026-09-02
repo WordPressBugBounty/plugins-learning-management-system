@@ -13,15 +13,16 @@ use Masteriyo\Emails\Admin\InstructorApplyEmailToAdmin;
 use Masteriyo\Emails\Admin\NewOrderEmailToAdmin;
 use Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorRegistrationEmailToInstructor;
-use Masteriyo\Emails\Instructor\NewQuestionEmailToInstructor;
 use Masteriyo\Emails\Instructor\VerificationEmailToInstructor;
 use Masteriyo\Emails\Student\CancelledOrderEmailToStudent;
 use Masteriyo\Emails\Student\CompletedOrderEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
-use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Emails\Student\OnHoldOrderEmailToStudent;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
 use Masteriyo\Emails\Student\VerificationEmailToStudent;
+use Masteriyo\Emails\Student\GoogleMeetSessionReminderEmailToStudent;
+use Masteriyo\Emails\Instructor\NewQuestionEmailToInstructor;
+use Masteriyo\Emails\Student\NewQuestionReplyEmailToStudent;
 use Masteriyo\Emails\Admin\NewLessonCommentEmailToAdmin;
 use Masteriyo\Emails\Admin\NewLessonCommentReplyEmailToAdmin;
 use Masteriyo\Emails\Instructor\NewLessonCommentEmailToInstructor;
@@ -54,6 +55,9 @@ class EmailScheduleActions {
 
 		add_action( 'masteriyo/schedule/email/student-email-verification/to/student', array( __CLASS__, 'send_student_verification_email_to_student' ) );
 		add_action( 'masteriyo/schedule/email/instructor-email-verification/to/instructor', array( __CLASS__, 'send_instructor_verification_email_to_instructor' ) );
+
+		// Session reminder emails
+		add_action( 'masteriyo/job/send_google_meet_session_reminder_email', array( __CLASS__, 'send_google_meet_session_reminder_emails' ), 10, 2 );
 
 		// Q&A notification emails.
 		add_action( 'masteriyo/schedule/email/new-question/to/instructor', array( __CLASS__, 'send_new_question_email_to_instructor' ) );
@@ -215,9 +219,95 @@ class EmailScheduleActions {
 
 
 	/**
+	 * Send google meet session reminder emails to enrolled students.
+	 *
+	 * Processes email reminders in batches to avoid server overload. The batch size can be
+	 * customized using the 'masteriyo_email_batch_size' filter. If there are more students
+	 * than the batch size, subsequent batches are automatically scheduled.
+	 *
+	 * @since 2.30.0
+	 *
+	 * @param int|array $args Session ID or array with session_id and batch_number.
+	 * @param int $batch_number The batch number to process (optional, for backward compatibility).
+	 *
+	 * @return void
+	 */
+	public static function send_google_meet_session_reminder_emails( $args, $batch_number = 0 ) {
+		// Handle both old and new argument formats.
+		if ( is_array( $args ) ) {
+			$session_id   = isset( $args['session_id'] ) ? $args['session_id'] : 0;
+			$batch_number = isset( $args['batch_number'] ) ? $args['batch_number'] : 0;
+		} else {
+			$session_id = $args;
+		}
+		$session = masteriyo_get_google_meet( $session_id );
+		if ( ! $session ) {
+			return;
+		}
+
+		$course_id = $session->get_course_id();
+		if ( ! $course_id ) {
+			return;
+		}
+
+		// Get all enrolled students in the course.
+		$enrollments = masteriyo_get_enrolled_users( $course_id );
+		if ( empty( $enrollments ) ) {
+			return;
+		}
+
+		/**
+		 * Filter the batch size for sending email reminders.
+		 *
+		 * Allows customization of how many emails are sent per batch.
+		 * Lower values reduce server load but increase processing time.
+		 * Higher values process faster but may overwhelm the server.
+		 *
+		 * @since 2.30.0
+		 *
+		 * @param int $batch_size Number of emails to send per batch. Default 100.
+		 */
+		$batch_size     = apply_filters( 'masteriyo_email_batch_size', 100 );
+		$total_students = count( $enrollments );
+
+		// Calculate batch offset.
+		$offset = $batch_number * $batch_size;
+
+		// Get students for this batch.
+		$batch_students = array_slice( $enrollments, $offset, $batch_size );
+
+		if ( empty( $batch_students ) ) {
+			return;
+		}
+
+		$email = new GoogleMeetSessionReminderEmailToStudent();
+
+		// Send email to each student in this batch.
+		foreach ( $batch_students as $student_id ) {
+			$email->trigger( $student_id, $session_id );
+		}
+
+		// Schedule next batch if there are more students.
+		if ( $offset + $batch_size < $total_students ) {
+			$next_batch = $batch_number + 1;
+
+			// Schedule next batch to run after 2 seconds to avoid overwhelming the server.
+			as_schedule_single_action(
+				time() + 2,
+				'masteriyo/job/send_google_meet_session_reminder_email',
+				array(
+					'session_id'   => $session_id,
+					'batch_number' => $next_batch,
+				),
+				'masteriyo'
+			);
+		}
+	}
+
+	/**
 	 * Send new question email to instructor.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
@@ -240,7 +330,7 @@ class EmailScheduleActions {
 	/**
 	 * Send new question reply email to student.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0.0 [Free]
 	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
@@ -263,8 +353,6 @@ class EmailScheduleActions {
 	/**
 	 * Send new lesson comment email to admin.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
 	public static function send_new_lesson_comment_email_to_admin( $args ) {
@@ -285,8 +373,6 @@ class EmailScheduleActions {
 
 	/**
 	 * Send new lesson comment reply email to admin.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
@@ -309,8 +395,6 @@ class EmailScheduleActions {
 	/**
 	 * Send new lesson comment email to instructor.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
 	public static function send_new_lesson_comment_email_to_instructor( $args ) {
@@ -332,8 +416,6 @@ class EmailScheduleActions {
 	/**
 	 * Send new lesson comment reply email to instructor.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */
 	public static function send_new_lesson_comment_reply_email_to_instructor( $args ) {
@@ -354,8 +436,6 @@ class EmailScheduleActions {
 
 	/**
 	 * Send new lesson comment reply email to student.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param array $args Arguments passed from the schedule action.
 	 */

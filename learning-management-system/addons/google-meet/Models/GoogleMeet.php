@@ -2,7 +2,7 @@
 /**
  * GoogleMeet model.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\GoogleMeet
  */
@@ -20,14 +20,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Google Meet model (post type).
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class GoogleMeet extends Model {
 
 	/**
 	 * This is the name of this object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -36,7 +36,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -45,7 +45,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Cache group.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -54,7 +54,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Stores google Meet data.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var array
 	 */
@@ -79,7 +79,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get the Google Meet session if ID
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Repository\GoogleMeetRepository $google_meet_repository Google Met Repository.
 	*/
@@ -96,7 +96,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get the GoogleMeet session title. For courses this is the course name.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -104,7 +104,7 @@ class GoogleMeet extends Model {
 		/**
 		 * Filters GoogleMeet title.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $title GoogleMeet title.
 		 * @param Masteriyo\Models|GoogleMeet $GoogleMeet GoogleMeet object.
@@ -115,7 +115,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet description.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -137,7 +137,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get the object type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -148,7 +148,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get the post type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -159,7 +159,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get post preview link.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -169,7 +169,7 @@ class GoogleMeet extends Model {
 		/**
 		 * google_meet post preview link.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $url Preview URL.
 		 * @param Masteriyo\Models\google_meet $google_meet google_meet object.
@@ -180,7 +180,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get preview link in learn page.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -196,7 +196,7 @@ class GoogleMeet extends Model {
 		/**
 		 * google_meet preview link for learn page.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $url Preview URL.
 		 * @param \Masteriyo\Addons\google_meet\Models\google_meet $google_meet google_meet object.
@@ -207,7 +207,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get icon.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string
 	 */
@@ -217,7 +217,7 @@ class GoogleMeet extends Model {
 		/**
 		 * Filters google_meet icon.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $icon.
 		 * @param string $context.
@@ -234,7 +234,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session name.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -244,7 +244,7 @@ class GoogleMeet extends Model {
 		/**
 		 * Filters google_meet name.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param string $name google_meet name.
 		 * @param \Masteriyo\Models|GoogleMeet $google_meet google_meet object.
@@ -255,7 +255,7 @@ class GoogleMeet extends Model {
 	/**
 	* Get google_meet session type.
 	*
-	* @since  1.11.0
+	* @since  1.11.0 [free]
 	*
 	* @param  string $context What the value is for. Valid values are view and edit.
 	*
@@ -268,7 +268,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session created date.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -281,7 +281,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session modified date.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -296,7 +296,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns google_meet parent id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -309,7 +309,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns google_meet meeting id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -322,7 +322,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns google_meet meeting id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -335,7 +335,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns google_meet meeting id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -348,7 +348,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns google_meet session menu order.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -361,7 +361,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session status.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -374,7 +374,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet time zone.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -387,7 +387,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session starts date in timestamp
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -400,7 +400,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet session starts date in timestamp
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -413,7 +413,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Get google_meet course id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  integer $context What the value is for. Valid values are view and edit.
 	 *
@@ -426,7 +426,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns the google_meet author id.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -439,7 +439,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Returns the google_meet attendee value.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 *
@@ -458,7 +458,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet name.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $name google_meet name.
 	 */
@@ -469,7 +469,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet author id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $author_id author id.
 	 */
@@ -480,7 +480,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet timezone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $time_zone google_meet.
 	 */
@@ -491,7 +491,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet session created date.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -502,7 +502,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set course id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 *  @param int $course_id course id.
 	 */
@@ -513,7 +513,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet session modified date.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -524,7 +524,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet session descriptions.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $description google_meet description.
 	 */
@@ -535,7 +535,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet session parent id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $parent Parent id.
 	 */
@@ -546,7 +546,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet session meeting id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $meeting meeting id.
 	 */
@@ -557,7 +557,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet session meeting id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $meeting meeting id.
 	 */
@@ -569,7 +569,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet session meeting id.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $meeting meeting id.
 	 */
@@ -581,7 +581,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet session menu order.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int $menu_order Menu order id.
 	 */
@@ -592,7 +592,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet session status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $status google_meet status.
 	 */
@@ -603,7 +603,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet session type.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string $type google_meet type.
 	 */
@@ -614,7 +614,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet expiring time.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -625,7 +625,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet start time.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -636,7 +636,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set google_meet end time.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if their is no date.
 	 */
@@ -647,7 +647,7 @@ class GoogleMeet extends Model {
 	/**
 	 * Set the google_meet attendee data.
 	 *
-	 * @since  1.11.0
+	 * @since  1.11.0 [free]
 	 *
 	 * @param  boolean $add_all_students_as_attendee What the value is. Valid values are true and false.
 	 *

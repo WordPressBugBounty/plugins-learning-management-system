@@ -2,7 +2,7 @@
 /**
  * Google Meet Repository class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\GoogleMeet
  */
@@ -22,14 +22,14 @@ use Masteriyo\Repository\RepositoryInterface;
 /**
  * Google Meet class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class GoogleMeetRepository extends AbstractRepository implements RepositoryInterface {
 
 	/**
 	 * Data stored in meta keys, but not considered "meta".
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @var array
 	*/
 	protected $internal_meta_keys = array(
@@ -47,7 +47,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	* Create a Google Meet meeting  in the database.
 	*
-	* @since 1.11.0
+	* @since 1.11.0 [free]
 	*
 	* @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet GoogleMeet object.
 	*/
@@ -99,7 +99,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 			/**
 			 * Filters new google_meet data before creating.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param array $data New google_meet session data.
 			 * @param Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet google_meet object.
@@ -131,7 +131,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 			/**
 			 * Fires after creating a google_meet session.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The google_meet ID.
 			 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $object The GoogleMeet object.
@@ -143,7 +143,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	 * Read a Google Meet session.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet google_meet object.
 	 * @throws \Exception If invalid google_meet.
@@ -152,7 +152,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 		$google_meet_post = get_post( $google_meet->get_id() );
 
 		if ( ! $google_meet->get_id() || ! $google_meet_post || PostType::GOOGLEMEET !== $google_meet_post->post_type ) {
-			throw new \Exception( __( 'Invalid Google Meet.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Google Meet.', 'learning-management-system' ) );
 		}
 
 		$google_meet->set_props(
@@ -176,7 +176,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 		/**
 		 * Fires after reading a GoogleMeet from database.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param integer $id The GoogleMeet ID.
 		 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $object The GoogleMeet object.
@@ -187,7 +187,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	 * Read GoogleMeet data. Can be overridden by child classes to load other props.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet google_meet object.
 	 */
@@ -216,7 +216,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	 * Read extra data associated with the google_meet session, like button text or google_meet URL.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet GoogleMeet object.
 	 */
@@ -235,7 +235,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	 * Update a GoogleMeet in the database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet google_meet object.
 	 *
@@ -310,7 +310,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 		/* *
 		 * Fires after updating a GoogleMeet.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param integer $id The GoogleMeet ID.
 		 * @param \Masteriyo\Addons\GoogleM\Models\GoogleM $object The GoogleM object.
@@ -321,7 +321,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 	/**
 	 * Delete a GoogleMeet from the database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $google_meet GoogleMeet object.
 	 * @param array $args   Array of args to pass.alert-danger.
@@ -344,7 +344,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 			/**
 			 * Fires before deleting a google_meet.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The GoogleMeet ID.
 			 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $object The google_meet object.
@@ -357,7 +357,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 			/**
 			 * Fires after deleting a google_meet.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The google_meet ID.
 			 * @param \Masteriyo\Addons\GoogleMeet\Models\GoogleMeet $object The google_meet object.

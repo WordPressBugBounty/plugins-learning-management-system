@@ -35,7 +35,7 @@ class Template implements TemplateInterface {
 
 		if ( ! $template ) {
 			if ( $name ) {
-				$template = Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' ) ? '' : locate_template(
+				$template = masteriyo_is_template_debug_enabled() ? '' : locate_template(
 					array(
 						"{$slug}-{$name}.php",
 						Utils::template_path() . "{$slug}-{$name}.php",
@@ -46,11 +46,17 @@ class Template implements TemplateInterface {
 					$fallback = Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . "/templates/{$slug}-{$name}.php";
 					$template = file_exists( $fallback ) ? $fallback : '';
 				}
+
+				// Core's root did not hold it — search the rest, which is pro's in the
+				// pro product and nothing at all in free.
+				if ( ! $template ) {
+					$template = $this->locate_in_roots( "{$slug}-{$name}.php" );
+				}
 			}
 
 			if ( ! $template ) {
 				// If template file doesn't exist, look in yourtheme/slug.php and yourtheme/masteriyo/slug.php.
-				$template = Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' ) ? '' : locate_template(
+				$template = masteriyo_is_template_debug_enabled() ? '' : locate_template(
 					array(
 						"{$slug}.php",
 						Utils::template_path() . "{$slug}.php",
@@ -258,6 +264,12 @@ class Template implements TemplateInterface {
 			$template_path = Utils::template_path();
 		}
 
+		// An explicit $default_path is the caller naming the directory itself, and is
+		// honoured exactly as given. Only when it is absent are the plugin's own roots
+		// searched, so a caller that already knows where its template lives is unaffected
+		// by there being more than one root.
+		$explicit_default = '' !== $default_path;
+
 		if ( ! $default_path ) {
 			$default_path = Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/templates/';
 		}
@@ -271,8 +283,17 @@ class Template implements TemplateInterface {
 		);
 
 		// Get default template/.
-		if ( ! $template || Constants::get( 'MASTERIYO_TEMPLATE_DEBUG_MODE' ) ) {
+		if ( ! $template || masteriyo_is_template_debug_enabled() ) {
 			$template = $default_path . $template_name;
+
+			// Core's root did not hold it — search the rest, which is pro's in the pro
+			// product and nothing at all in free. A template no root holds still resolves
+			// to the path above, so the not-found case is what it was when there was one
+			// root, warning and all.
+			if ( ! $explicit_default && ! file_exists( $template ) ) {
+				$located  = $this->locate_in_roots( $template_name );
+				$template = $located ? $located : $template;
+			}
 		}
 
 		/**
@@ -285,5 +306,61 @@ class Template implements TemplateInterface {
 		 * @param string $template_path Template relative path.
 		 */
 		return apply_filters( 'masteriyo_locate_template', $template, $template_name, $template_path );
+	}
+
+	/**
+	 * Get the directories this plugin's own templates are searched in, in order.
+	 *
+	 * A theme override still beats every one of them: `locate()` consults these only
+	 * after `locate_template()` has found nothing, so the load order a theme sees is
+	 * unchanged by there being more than one root.
+	 *
+	 * Roots are searched in order and the first that holds the file wins, so a later
+	 * root can never shadow an earlier one. Core contributes the shared `templates/`
+	 * directory and nothing else; pro appends its own from `pro/bootstrap.php`, which
+	 * is absent from the free product — so the free product has exactly one root and
+	 * no inventory of pro templates anywhere in shared code.
+	 *
+	 * @return string[] Absolute directory paths, trailing-slashed, in search order.
+	 */
+	public function get_roots() {
+		$core = trailingslashit( Constants::get( 'MASTERIYO_PLUGIN_DIR' ) . '/templates' );
+
+		/**
+		 * Filters the directories this plugin's own templates are searched in.
+		 *
+		 * Append to add a root; the first root holding a given template wins, and
+		 * core's own root is always searched first.
+		 *
+		 * @param string[] $roots Absolute directory paths, trailing-slashed, in search order.
+		 */
+		$roots = (array) apply_filters( 'masteriyo_template_roots', array( $core ) );
+
+		// Core's root is not optional — a filter that dropped it would leave every
+		// template in the plugin unresolvable — so it is restored at the front.
+		if ( ! in_array( $core, $roots, true ) ) {
+			array_unshift( $roots, $core );
+		}
+
+		return $roots;
+	}
+
+	/**
+	 * Find a template by name in the plugin's own roots.
+	 *
+	 * @param string $template_name Template name, relative to a root.
+	 *
+	 * @return string Absolute path of the first root that holds it, or '' when none does.
+	 */
+	protected function locate_in_roots( $template_name ) {
+		foreach ( $this->get_roots() as $root ) {
+			$template = trailingslashit( $root ) . $template_name;
+
+			if ( file_exists( $template ) ) {
+				return $template;
+			}
+		}
+
+		return '';
 	}
 }

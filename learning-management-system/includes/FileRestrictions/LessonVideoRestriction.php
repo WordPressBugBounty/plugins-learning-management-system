@@ -39,6 +39,10 @@ class LessonVideoRestriction extends FileRestriction {
 			$this->send_lesson_video_file();
 		}
 
+		if ( masteriyo_is_lesson_previewable( $_GET['lesson_id'] ?? 0 ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$this->send_lesson_video_file();
+		}
+
 		if ( ! is_user_logged_in() ) {
 			$this->send_error( __( 'You are not allowed to access this file.', 'learning-management-system' ), '', 403 );
 		}

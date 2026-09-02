@@ -3,7 +3,6 @@
  * Delete Course Tag ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseTag
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseTag;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Taxonomy terms have no trash state — this operation is always permanent.
  * Courses previously assigned this tag will have that assignment removed.
  * Requires the `manage_masteriyo_settings` capability.
- *
- * @since x.x.x
  */
 class DeleteCourseTagAbility extends RestProxyAbility {
 

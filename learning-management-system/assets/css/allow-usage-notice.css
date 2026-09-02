@@ -28,7 +28,7 @@
 }
 .masteriyo-notice.masteriyo-allow-usage-notice .masteriyo-notice-main-content-wrapper .masteriyo-notice__description {
   font-size: 14px;
-  margin: 8px 0 0 0;
+  margin: 8px 0 0;
   color: #7c7d8f;
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@
 }
 .masteriyo-notice.masteriyo-allow-usage-notice .masteriyo-notice-main-content-wrapper .masteriyo-notice__actions {
   padding: 0;
-  margin: 16px 0 0 0;
+  margin: 16px 0 0;
 }
 .masteriyo-notice.masteriyo-allow-usage-notice .masteriyo-notice-main-content-wrapper .masteriyo-notice__actions .masteriyo-allow-usage-tracking {
   padding: 2px 12px;

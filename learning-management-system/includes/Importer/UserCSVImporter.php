@@ -12,6 +12,8 @@
 
 namespace Masteriyo\Importer;
 
+use Masteriyo\Roles;
+
 defined( 'ABSPATH' ) || exit;
 
 
@@ -102,6 +104,7 @@ class UserCSVImporter {
 		}
 
 		$file_content = $wp_filesystem->get_contents( $this->file_path );
+		$file_content = preg_replace( '/^\xEF\xBB\xBF/', '', (string) $file_content );
 		$lines        = explode( "\n", $file_content );
 
 		if ( $lines ) {
@@ -117,7 +120,7 @@ class UserCSVImporter {
 				if ( empty( trim( $line ) ) ) {
 					continue; // Skip empty lines.
 				}
-				$data = str_getcsv( $line );
+				$data = array_map( 'masteriyo_unescape_csv_formula', str_getcsv( $line ) );
 				if ( count( $header ) === count( $data ) ) {
 					$csv_data[] = array_combine( $header, $data );
 				}
@@ -193,6 +196,16 @@ class UserCSVImporter {
 		$row['username'] = sanitize_user( $row['username'] );
 		$row['roles']    = sanitize_text_field( $row['roles'] );
 
+		// Import may assign only Masteriyo-managed roles, and the Manager role
+		// only for a full administrator, so create_users alone cannot escalate.
+		$allowed_roles = array_keys( Roles::get_all() );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			$allowed_roles = array_diff( $allowed_roles, array( Roles::MANAGER ) );
+		}
+		if ( ! in_array( $row['roles'], $allowed_roles, true ) ) {
+			return new \WP_Error( 'invalid_role', 'The specified role is not assignable via import.' );
+		}
+
 		// Create the user.
 		$user = masteriyo_create_new_user(
 			$row['email'],
@@ -255,5 +268,4 @@ class UserCSVImporter {
 
 		return sanitize_text_field( $value );
 	}
-
 }

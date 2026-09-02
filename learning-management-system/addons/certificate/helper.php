@@ -2,18 +2,21 @@
 /**
  * Certificate utility functions.
  *
- * @since 1.13.0
+ * @since 2.3.7
  */
 
 use Masteriyo\Addons\Certificate\Models\Certificate;
 use Masteriyo\Addons\Certificate\PDF\BlockBuilders\Fallback;
+use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Roles;
+use FontLib\Font;
 
 if ( ! function_exists( 'masteriyo_get_certificate' ) ) {
 	/**
 	 * Get certificate.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param int|\Masteriyo\Addons\Certificate\Models\Certificate|\WP_Post $certificate Certificate id or Certificate Model or Post.
 	 *
@@ -43,31 +46,107 @@ if ( ! function_exists( 'masteriyo_get_certificate' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_create_certificate_object' ) ) {
+if ( ! function_exists( 'masteriyo_is_email_enabled_for_course' ) ) {
 	/**
-	 * Create instance of certificate model.
+	 * Check if certificate is enabled for a course.
 	 *
-	 * @since 1.13.0
+	 * @since 2.7.3
 	 *
-	 * @return \Masteriyo\Addons\Certificate\Models\Certificate
+	 * @param integer $$course_id
+	 *
+	 * @return boolean
 	 */
-	function masteriyo_create_certificate_object() {
-		return masteriyo( 'certificate' );
+	function masteriyo_is_email_enabled_for_course( $course_id ) {
+		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_email_enabled', true ) );
 	}
 }
 
-if ( ! function_exists( 'masteriyo_get_course_certificate_id' ) ) {
+if ( ! function_exists( 'masteriyo_is_certificate_enabled_for_single_course' ) ) {
 	/**
-	 * Get certificate ID of a course.
+	 * Check if certificate is enabled for a single course page.
 	 *
-	 * @since 1.13.0
+	 * @since 2.14.4 [free]
 	 *
-	 * @param integer $course_id
+	 * @param integer $$course_id
 	 *
-	 * @return integer
+	 * @return boolean
 	 */
-	function masteriyo_get_course_certificate_id( $course_id ) {
-		return absint( get_post_meta( $course_id, '_certificate_id', true ) );
+	function masteriyo_is_certificate_enabled_for_single_course( $course_id ) {
+		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_single_course_enabled', true ) );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_certificate_templates' ) ) {
+	/**
+	 * Get certificate templates.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @return array|\WP_Error
+	 */
+	function masteriyo_get_certificate_templates() {
+
+		if ( isset( $_GET['refresh'] ) ) {
+			delete_transient( 'masteriyo_pro_certificate_samples' );
+		}
+
+		$samples_json_url = 'https://d1sb0nhp4t2db4.cloudfront.net/resources/masteriyo/certificate/certificates.json';
+		$samples          = get_transient( 'masteriyo_pro_certificate_samples' );
+
+		if ( ! is_array( $samples ) ) {
+			$response = wp_remote_get( $samples_json_url, array( 'timeout' => 10 ) );
+
+			// Bail early if there is error in response.
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			// Bail early if the response code is not 200.
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_certificate_invalid_http_status_code',
+					__( 'Something went wrong.', 'learning-management-system' ),
+					array( 'status' => wp_remote_retrieve_response_code( $response ) )
+				);
+			}
+
+			$samples = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			// Bail early if the json is invalid.
+			if ( null === $samples ) {
+				return new \WP_Error(
+					'masteriyo_rest_certificate_invalid_json',
+					__( 'Unable to decode samples JSON.', 'learning-management-system' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			set_transient( 'masteriyo_pro_certificate_samples', $samples, HOUR_IN_SECONDS );
+		}
+
+		/**
+		 * Filters how many of the starter certificate templates are offered.
+		 *
+		 * Only the first is offered by default. `clone_template()` resolves a
+		 * requested template by scanning the array this function returns, so
+		 * this limit — not the editor's own licence check — is what actually
+		 * stops a paid starter template being cloned. Pro answers this with 0,
+		 * meaning no limit.
+		 *
+		 * The limit is applied on the way out rather than before the transient
+		 * is written, so the cache holds the full set and the answer can change
+		 * with the licence without waiting for it to expire.
+		 *
+		 * @param int   $limit   How many templates to offer; 0 means all of them.
+		 * @param array $samples The full set of templates fetched from the gallery.
+		 */
+		$limit = absint( apply_filters( 'masteriyo_certificate_template_samples_limit', 1, $samples ) );
+
+		if ( $limit > 0 && is_array( $samples ) && count( $samples ) > $limit ) {
+			$samples = array_slice( $samples, 0, $limit );
+		}
+
+		return apply_filters( 'masteriyo_get_certificate_templates', $samples, $samples_json_url );
 	}
 }
 
@@ -75,7 +154,7 @@ if ( ! function_exists( 'masteriyo_get_blank_certificate_template' ) ) {
 	/**
 	 * Get blank certificate template content.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return string
 	 */
@@ -86,57 +165,12 @@ if ( ! function_exists( 'masteriyo_get_blank_certificate_template' ) ) {
 	}
 }
 
-/**
- * Masteriyo process content for import.
- *
- * Downloads images locally and replaces remote image url to local.
- *
- * @param string $content
- * @return string
- */
-if ( ! function_exists( 'masteriyo_process_content_for_import' ) ) {
-	function masteriyo_process_content_for_import( $content = '' ) {
-		preg_match_all( '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $content, $match );
-
-		$urls = array_unique( $match[0] );
-
-		if ( empty( $urls ) ) {
-			return $content;
-		}
-
-		$map_urls   = array();
-		$image_urls = array();
-
-		foreach ( $urls as $url ) {
-			if ( masteriyo_is_image_url( $url ) ) {
-				$image_urls[] = $url;
-			}
-		}
-
-		if ( ! empty( $image_urls ) ) {
-			foreach ( $image_urls as $image_url ) {
-				$downloaded_image       = masteriyo_upload_certificate_image( $image_url );
-				$map_urls[ $image_url ] = $downloaded_image['url'];
-			}
-		}
-
-		foreach ( $map_urls as $old_url => $new_url ) {
-			$content = str_replace( $old_url, $new_url, $content );
-			$old_url = str_replace( '/', '/\\', $old_url );
-			$new_url = str_replace( '/', '/\\', $new_url );
-			$content = str_replace( $old_url, $new_url, $content );
-		}
-
-		return $content;
-	}
-}
-
 if ( ! function_exists( 'masteriyo_upload_certificate_image' ) ) {
 	/**
 	 * Upload image and create an attachment.
 	 * If an image with the given URL has already been uploaded, the uploaded image will be returned.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $url
 	 *
@@ -201,7 +235,7 @@ if ( ! function_exists( 'masteriyo_get_uploaded_certificate_image' ) ) {
 	/**
 	 * Check if an image with the given URL have been uploaded. If found, the uploaded image will be returned.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $url
 	 *
@@ -233,18 +267,46 @@ if ( ! function_exists( 'masteriyo_get_uploaded_certificate_image' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_is_image_url' ) ) {
+if ( ! function_exists( 'masteriyo_create_certificate_object' ) ) {
 	/**
-	 * Is image url.
+	 * Create instance of certificate model.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
-	 * @param string $url
-	 *
-	 * @return void
+	 * @return \Masteriyo\Addons\Certificate\Models\Certificate
 	 */
-	function masteriyo_is_image_url( $url = '' ) {
-		return preg_match( '/^((https?:\/\/)|(www\.))([a-z\d-].?)+(:\d+)?\/[\w\-]+\.(jpg|png|gif|jpeg)\/?$/i', $url );
+	function masteriyo_create_certificate_object() {
+		return masteriyo( 'certificate' );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_certificate_enabled_for_course' ) ) {
+	/**
+	 * Check if certificate is enabled for a course.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param integer $$course_id
+	 *
+	 * @return boolean
+	 */
+	function masteriyo_is_certificate_enabled_for_course( $course_id ) {
+		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_enabled', true ) );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_course_certificate_id' ) ) {
+	/**
+	 * Get certificate ID of a course.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param integer $course_id
+	 *
+	 * @return integer
+	 */
+	function masteriyo_get_course_certificate_id( $course_id ) {
+		return absint( get_post_meta( $course_id, '_certificate_id', true ) );
 	}
 }
 
@@ -252,7 +314,7 @@ if ( ! function_exists( 'masteriyo_generate_certificate_download_url' ) ) {
 	/**
 	 * Generate certificate download url.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
 	 *
@@ -277,7 +339,7 @@ if ( ! function_exists( 'masteriyo_generate_certificate_download_url' ) ) {
 		/**
 		 * Filters certificate download URL.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param string $url The download URL.
 		 * @param \Masteriyo\Models\Course $course Course object.
@@ -286,82 +348,13 @@ if ( ! function_exists( 'masteriyo_generate_certificate_download_url' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_is_certificate_enabled_for_course' ) ) {
-	/**
-	 * Check if certificate is enabled for a course.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param integer $$course_id
-	 *
-	 * @return boolean
-	 */
-	function masteriyo_is_certificate_enabled_for_course( $course_id ) {
-		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_enabled', true ) );
-	}
-}
-
-if ( ! function_exists( 'masteriyo_get_certificate_templates' ) ) {
-	/**
-	 * Get certificate templates.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @return array|\WP_Error
-	 */
-	function masteriyo_get_certificate_templates() {
-
-		if ( isset( $_GET['refresh'] ) ) {
-			delete_transient( 'masteriyo_pro_certificate_samples' );
-		}
-
-		$samples_json_url = 'https://d1sb0nhp4t2db4.cloudfront.net/resources/masteriyo/certificate/certificates.json';
-		$samples          = get_transient( 'masteriyo_pro_certificate_samples' );
-
-		if ( ! is_array( $samples ) ) {
-			$response = wp_remote_get( $samples_json_url, array( 'timeout' => 10 ) );
-
-			// Bail early if there is error in response.
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-
-			// Bail early if the response code is not 200.
-			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				return new \WP_Error(
-					'masteriyo_rest_certificate_invalid_http_status_code',
-					__( 'Something went wrong.', 'learning-management-system' ),
-					array( 'status' => wp_remote_retrieve_response_code( $response ) )
-				);
-			}
-
-			$samples = json_decode( wp_remote_retrieve_body( $response ), true );
-
-			// Bail early if the json is invalid.
-			if ( null === $samples ) {
-				return new \WP_Error(
-					'masteriyo_rest_certificate_invalid_json',
-					__( 'Unable to decode samples JSON.', 'learning-management-system' ),
-					array( 'status' => 400 )
-				);
-			}
-
-			if ( is_array( $samples ) ) {
-				$samples = array( reset( $samples ) );
-			}
-
-			set_transient( 'masteriyo_pro_certificate_samples', $samples, DAY_IN_SECONDS );
-		}
-
-		return apply_filters( 'masteriyo_get_certificate_templates', $samples, $samples_json_url );
-	}
-}
-
 if ( ! function_exists( 'masteriyo_process_certificate_template_smart_tags' ) ) {
 	/**
 	 * Process smart tags in certificate template html.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
+	 *
+	 * @since 2.4.4 Added $is_preview argument.
 	 *
 	 * @param string $template
 	 * @param int|\Masteriyo\Models\Course|\WP_Post|null $course_id
@@ -376,7 +369,9 @@ if ( ! function_exists( 'masteriyo_process_certificate_template_smart_tags' ) ) 
 		/**
 		 * Filters smart tags for the certificate template.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
+		 *
+		 * @since 2.4.4 Added $is_preview argument.
 		 *
 		 * @param array $smart_tags
 		 * @param string $template
@@ -393,7 +388,7 @@ if ( ! function_exists( 'masteriyo_process_certificate_template_smart_tags' ) ) 
 		/**
 		 * Filters certificate template after processing smart tags.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param string $template
 		 * @param int|\Masteriyo\Models\Course|\WP_Post|null $course_id
@@ -404,6 +399,57 @@ if ( ! function_exists( 'masteriyo_process_certificate_template_smart_tags' ) ) 
 	}
 }
 
+if ( ! function_exists( 'masteriyo_find_block_builder_class' ) ) {
+	/**
+	 * Find HTML builder class for a block.
+	 *
+	 * @since 2.3.7
+	 *
+	 * @param string $block_name
+	 *
+	 * @return string
+	 */
+	function masteriyo_find_block_builder_class( $block_name ) {
+		$short_name = str_replace( '/', '', ucwords( $block_name, '/' ) );
+		$short_name = str_replace( '-', '', ucwords( $short_name, '-' ) );
+
+		/**
+		 * Filters the namespaces searched for a block builder, in order.
+		 *
+		 * A block that ships only with pro has its builder in a namespace of its
+		 * own; pro appends that namespace here so the shared lookup finds the
+		 * builder without this file naming it. The first namespace holding a class
+		 * of the derived name wins, and nothing found means the fallback builder.
+		 *
+		 * @param string[] $namespaces Trailing-separator namespace prefixes.
+		 * @param string   $block_name The block name being resolved.
+		 */
+		$namespaces = apply_filters(
+			'masteriyo_certificate_block_builder_namespaces',
+			array( 'Masteriyo\\Addons\\Certificate\\PDF\\BlockBuilders\\' ),
+			$block_name
+		);
+
+		$class_name = Fallback::class;
+
+		foreach ( $namespaces as $namespace ) {
+			if ( class_exists( $namespace . $short_name ) ) {
+				$class_name = $namespace . $short_name;
+				break;
+			}
+		}
+
+		/**
+		 * Filters HTML builder class for a block.
+		 *
+		 * @since 2.3.7
+		 *
+		 * @param string $class_name
+		 * @param string $block_name
+		 */
+		return apply_filters( 'masteriyo_block_builder_class', $class_name, $block_name );
+	}
+}
 
 if ( ! function_exists( 'masteriyo_make_block_builder_instance' ) ) {
 	/**
@@ -421,7 +467,7 @@ if ( ! function_exists( 'masteriyo_make_block_builder_instance' ) ) {
 		/**
 		 * Filters block builder instance.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param \Masteriyo\Addons\Certificate\PDF\BlockBuilders\Block $block_builder
 		 * @param array $block_data Block data.
@@ -431,43 +477,11 @@ if ( ! function_exists( 'masteriyo_make_block_builder_instance' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_find_block_builder_class' ) ) {
-	/**
-	 * Find HTML builder class for a block.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param string $block_name
-	 *
-	 * @return string
-	 */
-	function masteriyo_find_block_builder_class( $block_name ) {
-		$class_name = str_replace( '/', '', ucwords( $block_name, '/' ) );
-		$class_name = str_replace( '-', '', ucwords( $class_name, '-' ) );
-		$namespace  = 'Masteriyo\\Addons\\Certificate\\PDF\\BlockBuilders\\';
-		$class_name = $namespace . $class_name;
-
-		if ( ! class_exists( $class_name ) ) {
-			$class_name = Fallback::class;
-		}
-
-		/**
-		 * Filters HTML builder class for a block.
-		 *
-		 * @since 1.13.0
-		 *
-		 * @param string $class_name
-		 * @param string $block_name
-		 */
-		return apply_filters( 'masteriyo_block_builder_class', $class_name, $block_name );
-	}
-}
-
 if ( ! function_exists( 'masteriyo_sanitize_pdf_page_size' ) ) {
 	/**
 	 * Validate PDF page size.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $page_size
 	 * @param string $default
@@ -488,7 +502,7 @@ if ( ! function_exists( 'masteriyo_sanitize_pdf_page_orientation' ) ) {
 	/**
 	 * Validate PDF page size.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $orientation
 	 * @param string $default
@@ -516,7 +530,7 @@ if ( ! function_exists( 'masteriyo_get_certificate_color_presets' ) ) {
 	/**
 	 * Get color presets for certificate.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return array
 	 */
@@ -572,11 +586,6 @@ if ( ! function_exists( 'masteriyo_get_certificate_color_presets' ) ) {
 				'slug'  => 'pale-cyan-blue',
 				'color' => '#8ed1fc',
 			),
-			'vivid-green-cyan'      => array(
-				'name'  => __( 'Vivid cyan blue', 'learning-management-system' ),
-				'slug'  => 'vivid-green-cyan',
-				'color' => '#00d084',
-			),
 			'vivid-purple'          => array(
 				'name'  => __( 'Vivid purple', 'learning-management-system' ),
 				'slug'  => 'vivid-purple',
@@ -587,7 +596,7 @@ if ( ! function_exists( 'masteriyo_get_certificate_color_presets' ) ) {
 		/**
 		 * Filters color presets for certificate.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param array $color_presets
 		 */
@@ -599,7 +608,7 @@ if ( ! function_exists( 'masteriyo_certificate_process_color' ) ) {
 	/**
 	 * Check if the given color string is a preset color name and return actual color value.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @param string $color
 	 *
@@ -615,29 +624,13 @@ if ( ! function_exists( 'masteriyo_certificate_process_color' ) ) {
 	}
 }
 
-if ( ! function_exists( 'masteriyo_percent_to_amount' ) ) {
-	/**
-	 * Convert a percentage to an amount.
-	 *
-	 * @since 1.13.0
-	 *
-	 * @param float $percentage
-	 * @param float $total
-	 *
-	 * @return float
-	 */
-	function masteriyo_percent_to_amount( $percentage, $total ) {
-		return ( $percentage / 100 ) * $total;
-	}
-}
-
 if ( ! function_exists( 'masteriyo_is_certificate_html_inspection_mode' ) ) {
 	/**
 	 * Returns boolean: True if certificate HTML inspection mode is enabled.
 	 *
 	 * If returned true, the certificate html will be outputted instead of a PDF file.
 	 *
-	 * @since 1.13.0
+	 * @since 2.3.7
 	 *
 	 * @return boolean
 	 */
@@ -647,7 +640,7 @@ if ( ! function_exists( 'masteriyo_is_certificate_html_inspection_mode' ) ) {
 		 *
 		 * If true, the certificate html will be outputted instead of a PDF file.
 		 *
-		 * @since 1.13.0
+		 * @since 2.3.7
 		 *
 		 * @param boolean $bool
 		 */
@@ -655,35 +648,77 @@ if ( ! function_exists( 'masteriyo_is_certificate_html_inspection_mode' ) ) {
 	}
 }
 
+/**
+ * Masteriyo process content for import.
+ *
+ * Downloads images locally and replaces remote image url to local.
+ *
+ * @param string $content
+ * @return string
+ */
+if ( ! function_exists( 'masteriyo_process_content_for_import' ) ) {
+	function masteriyo_process_content_for_import( $content = '' ) {
+		preg_match_all( '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $content, $match );
+
+		$urls = array_unique( $match[0] );
+
+		if ( empty( $urls ) ) {
+			return $content;
+		}
+
+		$map_urls   = array();
+		$image_urls = array();
+
+		foreach ( $urls as $url ) {
+			if ( masteriyo_is_image_url( $url ) ) {
+				$image_urls[] = $url;
+			}
+		}
+
+		if ( ! empty( $image_urls ) ) {
+			foreach ( $image_urls as $image_url ) {
+				$downloaded_image       = masteriyo_upload_certificate_image( $image_url );
+				$map_urls[ $image_url ] = $downloaded_image['url'];
+			}
+		}
+
+		foreach ( $map_urls as $old_url => $new_url ) {
+			$content = str_replace( $old_url, $new_url, $content );
+			$old_url = str_replace( '/', '/\\', $old_url );
+			$new_url = str_replace( '/', '/\\', $new_url );
+			$content = str_replace( $old_url, $new_url, $content );
+		}
+
+		return $content;
+	}
+}
+
+
+if ( ! function_exists( 'masteriyo_is_image_url' ) ) {
+	/**
+	 * Is image url.
+	 *
+	 * @since 2.8.0
+	 * @param string $url
+	 * @return void
+	 */
+	function masteriyo_is_image_url( $url = '' ) {
+		return preg_match( '/^((https?:\/\/)|(www\.))([a-z\d-].?)+(:\d+)?\/[\w\-]+\.(jpg|png|gif|jpeg)\/?$/i', $url );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_image_relative_path' ) ) {
+
 	/**
 	 * Image url to absolute path.
 	 *
-	 * @since 1.13.0
-	 *
+	 * @since 2.8.0
 	 * @param string $url Image url.
-	 *
 	 * @return string
 	 */
 	function masteriyo_get_image_relative_path( $url ) {
 		$relative_path = wp_make_link_relative( $url );
-
 		return ABSPATH . $relative_path;
-	}
-}
-
-if ( ! function_exists( 'masteriyo_is_certificate_enabled_for_single_course' ) ) {
-	/**
-	 * Check if certificate is enabled for a single course page.
-	 *
-	 * @since 1.13.3
-	 *
-	 * @param integer $$course_id
-	 *
-	 * @return boolean
-	 */
-	function masteriyo_is_certificate_enabled_for_single_course( $course_id ) {
-		return masteriyo_string_to_bool( get_post_meta( $course_id, '_certificate_single_course_enabled', true ) );
 	}
 }
 
@@ -692,7 +727,7 @@ if ( ! function_exists( 'masteriyo_get_certificate_addon_view_url' ) ) {
 	/**
 	 * Get the certificate view url of a user.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [free]
 	 *
 	 * @param \Masteriyo\Models\Course $course The course object.
 	 * @param int|WP_User|Masteriyo\Database\Model $user User ID, WP_User object, or Masteriyo\Database\Model object.
@@ -728,7 +763,7 @@ if ( ! function_exists( 'masteriyo_get_certificate_addon_view_url' ) ) {
 //  /**
 //   * Retrieve the public profile URL for a masteriyo student/instructor.
 //   *
-//   * @since 1.13.3
+//   * @since 2.14.4 [free]
 //   *
 //   * @param string $username Username of the user.
 //   * @return string The URL to the user's public profile.
@@ -752,7 +787,7 @@ if ( ! function_exists( 'masteriyo_get_user_by_username_certificate' ) ) {
 	/**
 	 * Get the masteriyo user from username.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4
 	 *
 	 * @param string $username The username to validate.
 	 *
@@ -791,7 +826,7 @@ if ( ! function_exists( 'masteriyo_validate_username_certificate' ) ) {
 	/**
 	 * Validates a username.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4
 	 *
 	 * @param string $username The username to validate.
 	 *
@@ -811,5 +846,151 @@ if ( ! function_exists( 'masteriyo_validate_username_certificate' ) ) {
 		}
 
 		return false;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_font_configurations' ) ) {
+	function masteriyo_get_font_configurations() {
+		$upload_dir = wp_upload_dir();
+		$font_dir   = $upload_dir['basedir'] . '/masteriyo/certificate-fonts';
+		$font_files = glob( "$font_dir/*.{ttf,otf}", GLOB_BRACE );
+		$config     = array();
+
+		$predefined_fonts = array(
+			'Cinzel-VariableFont_wght.ttf'        => array(
+				'key'     => 'cinzel',
+				'variant' => 'R',
+			),
+			'DejaVuSansCondensed.ttf'             => array(
+				'key'     => 'dejavusanscondensed',
+				'variant' => 'R',
+			),
+			'DejaVuSansCondensed-Bold.ttf'        => array(
+				'key'     => 'dejavusanscondensed',
+				'variant' => 'B',
+			),
+			'DMSans-Regular.ttf'                  => array(
+				'key'     => 'dmsans',
+				'variant' => 'R',
+			),
+			'DMSans-Bold.ttf'                     => array(
+				'key'     => 'dmsans',
+				'variant' => 'B',
+			),
+			'DMSans-Italic.ttf'                   => array(
+				'key'     => 'dmsans',
+				'variant' => 'I',
+			),
+			'GreatVibes-Regular.ttf'              => array(
+				'key'     => 'greatvibes',
+				'variant' => 'R',
+			),
+			'GrenzeGotisch-VariableFont_wght.ttf' => array(
+				'key'     => 'grenzegotisch',
+				'variant' => 'R',
+			),
+			'LibreBaskerville-Regular.ttf'        => array(
+				'key'     => 'librebaskerville',
+				'variant' => 'R',
+			),
+			'LibreBaskerville-Bold.ttf'           => array(
+				'key'     => 'librebaskerville',
+				'variant' => 'B',
+			),
+			'LibreBaskerville-Italic.ttf'         => array(
+				'key'     => 'librebaskerville',
+				'variant' => 'I',
+			),
+			'Lora-VariableFont_wght.ttf'          => array(
+				'key'     => 'lora',
+				'variant' => 'R',
+			),
+			'Lora-Italic-VariableFont_wght.ttf'   => array(
+				'key'     => 'lora',
+				'variant' => 'I',
+			),
+			'Poppins-Regular.otf'                 => array(
+				'key'     => 'poppins',
+				'variant' => 'R',
+			),
+			'Poppins-Bold.ttf'                    => array(
+				'key'     => 'poppins',
+				'variant' => 'B',
+			),
+			'Poppins-Italic.ttf'                  => array(
+				'key'     => 'poppins',
+				'variant' => 'I',
+			),
+			'Roboto-Regular.ttf'                  => array(
+				'key'     => 'roboto',
+				'variant' => 'R',
+			),
+			'Roboto-Bold.ttf'                     => array(
+				'key'     => 'roboto',
+				'variant' => 'B',
+			),
+			'Roboto-Italic.ttf'                   => array(
+				'key'     => 'roboto',
+				'variant' => 'I',
+			),
+			'AbhayaLibre-Regular.ttf'             => array(
+				'key'     => 'abhayalibre',
+				'variant' => 'R',
+			),
+			'AbhayaLibre-Bold.ttf'                => array(
+				'key'     => 'abhayalibre',
+				'variant' => 'B',
+			),
+			'AdineKirnberg.ttf'                   => array(
+				'key'     => 'adinekirnberg',
+				'variant' => 'R',
+			),
+			'AlexBrush-Regular.ttf'               => array(
+				'key'     => 'alexbrush',
+				'variant' => 'R',
+			),
+			'Allura-Regular.ttf'                  => array(
+				'key'     => 'allura',
+				'variant' => 'R',
+			),
+		);
+
+		foreach ( $font_files as $file_path ) {
+			$file_name = basename( $file_path );
+			$font_key  = '';
+			$variant   = 'R';
+
+			if ( isset( $predefined_fonts[ $file_name ] ) ) {
+				$font_key = $predefined_fonts[ $file_name ]['key'];
+				$variant  = $predefined_fonts[ $file_name ]['variant'];
+			} else {
+				$font_name = masteriyo_get_fontname( $file_path );
+				$font_key  = strtolower( preg_replace( '/[^a-z0-9]/i', '', $font_name ) );
+
+				$is_bold   = preg_match( '/(bold|black|heavy)/i', $file_name );
+				$is_italic = preg_match( '/(italic|oblique)/i', $file_name );
+
+				if ( $is_bold && $is_italic ) {
+					$variant = 'BI';
+				} elseif ( $is_bold ) {
+					$variant = 'B';
+				} elseif ( $is_italic ) {
+					$variant = 'I';
+				}
+			}
+
+			if ( ! isset( $config[ $font_key ] ) ) {
+				$config[ $font_key ] = array();
+			}
+
+			if ( ! isset( $config[ $font_key ][ $variant ] ) ) {
+				$config[ $font_key ][ $variant ] = $file_name;
+			}
+		}
+
+		$default_font_config = ( new \Mpdf\Config\FontVariables() )->getDefaults();
+		$fontdata            = $default_font_config['fontdata'];
+
+		return array_merge( $fontdata, $config );
 	}
 }

@@ -170,12 +170,13 @@ class GroupPriceButton extends BlockHandler {
 		echo '</div>';
 
 		return \ob_get_clean();
+
 	}
 
 	/**
 	 * Enqueue group pricing tiers script for the block.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 [Free]
 	 *
 	 * @param int $course_id Course ID.
 	 * @return void

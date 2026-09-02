@@ -84,6 +84,7 @@ class CourseProgress extends Model {
 		'completed_at'         => null,
 
 		// Meta keys
+		'manual_update'        => false,
 		'ratings_modal_opened' => false,
 	);
 
@@ -211,6 +212,18 @@ class CourseProgress extends Model {
 		return $this->get_prop( 'completed_at', $context );
 	}
 
+	/**
+	 * Get course progress manual update.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param  string $context What the value is for. valid values are view and edit.
+	 * @return bool
+	 */
+	public function get_manual_update( $context = 'view' ) {
+		return masteriyo_string_to_bool( $this->get_prop( 'manual_update', $context ) );
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Setters
@@ -328,7 +341,18 @@ class CourseProgress extends Model {
 		$this->set_date_prop( 'completed_at', $completed_at );
 	}
 
-		/**
+	/**
+	 * Set manual update flag.
+	 *
+	 * @since 2.18.0
+	 *
+	 * @param bool $manual_update Whether the course progress was manually updated.
+	 */
+	public function set_manual_update( $manual_update ) {
+		$this->set_prop( 'manual_update', masteriyo_string_to_bool( $manual_update ) );
+	}
+
+	/**
 	 * Set ratings modal.
 	 *
 	 * @since 2.18.0
@@ -338,7 +362,6 @@ class CourseProgress extends Model {
 	public function set_ratings_modal_opened( $ratings_modal_opened ) {
 		$this->set_prop( 'ratings_modal_opened', masteriyo_string_to_bool( $ratings_modal_opened ) );
 	}
-
 
 	/*
 	|--------------------------------------------------------------------------
@@ -470,17 +493,17 @@ class CourseProgress extends Model {
 	/**
 	 * Get ratings modal opened.
 	 *
-	 * @since 2.1.0
+	 * This gates the whole course completed dialog, which announces the
+	 * completion and holds the certificate link. It must not read the
+	 * review_after_course_completion setting: that setting gates only the review
+	 * offer inside the dialog, and the dialog has to appear without it.
 	 *
-	 * @return array
+	 * @since 3.1.0
+	 *
+	 * @return boolean
 	 */
 	public function get_ratings_modal_opened( $context = 'view' ) {
 		if ( ! masteriyo_string_to_bool( masteriyo_get_setting( 'single_course.display.enable_review' ) ) ) {
-			return true;
-		}
-
-		$course = masteriyo_get_course( $this->get_course_id( $context ) );
-		if ( $course && ! $course->get_reviews_allowed() ) {
 			return true;
 		}
 

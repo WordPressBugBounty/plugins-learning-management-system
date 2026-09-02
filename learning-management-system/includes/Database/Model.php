@@ -96,7 +96,7 @@ abstract class Model {
 	 * Contains a reference to the data store for this class.
 	 *
 	 * @since 1.0.0
-	 * @var object
+	 * @var \Masteriyo\Repository\RepositoryInterface
 	 */
 	protected $repository;
 
@@ -115,7 +115,7 @@ abstract class Model {
 	 * @since 1.0.0
 	 * @var array
 	 */
-	protected $meta_data = array();
+	protected $meta_data = null;
 
 	/**
 	 * Features supported by the model.
@@ -133,7 +133,6 @@ abstract class Model {
 	public function __construct( $read = 0 ) {
 		$this->data         = array_merge( $this->data, $this->extra_data );
 		$this->default_data = $this->data;
-
 	}
 
 	/**
@@ -239,7 +238,6 @@ abstract class Model {
 		$this->data    = array_replace_recursive( $this->data, $this->changes );
 		$this->changes = array();
 	}
-
 
 	/**
 	 * Prefix for action and filter hooks on data.
@@ -357,7 +355,7 @@ abstract class Model {
 	 */
 	public function delete( $force_delete = false, $args = array() ) {
 		if ( $this->repository ) {
-			$this->repository->delete(
+			$result = $this->repository->delete(
 				$this,
 				wp_parse_args(
 					$args,
@@ -366,6 +364,14 @@ abstract class Model {
 					)
 				)
 			);
+
+			// An explicit false is a repository refusing the delete (for
+			// example, a remote counterpart it must cancel first would
+			// survive the local record); the record is kept and keeps its ID.
+			if ( false === $result ) {
+				return false;
+			}
+
 			$this->set_id( 0 );
 			return true;
 		}
@@ -642,11 +648,9 @@ abstract class Model {
 			} elseif ( empty( $meta->id ) ) {
 				$meta->id = $this->repository->add_meta( $this, $meta );
 				$meta->apply_changes();
-			} else {
-				if ( $meta->get_changes() ) {
+			} elseif ( $meta->get_changes() ) {
 					$this->repository->update_meta( $this, $meta );
 					$meta->apply_changes();
-				}
 			}
 		}
 
@@ -692,7 +696,7 @@ abstract class Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function get_object_type() {
 		return $this->object_type;
@@ -705,7 +709,7 @@ abstract class Model {
 	 * @param string         $prop Name of prop to set.
 	 * @param string|integer $value Value of the prop.
 	 */
-	protected function set_date_prop( $prop, $value ) {
+	protected function set_date_prop( $prop, $value, $time_zone = '' ) {
 		try {
 			if ( empty( $value ) ) {
 				$this->set_prop( $prop, null );
@@ -728,8 +732,9 @@ abstract class Model {
 				$datetime = new DateTime( "@{$timestamp}", new \DateTimeZone( 'UTC' ) );
 			}
 
-			// Set local timezone or offset.
-			if ( get_option( 'timezone_string' ) ) {
+			if ( $time_zone ) {
+				$datetime->setTimezone( new \DateTimeZone( $time_zone ) );
+			} elseif ( get_option( 'timezone_string' ) ) {
 				$datetime->setTimezone( new \DateTimeZone( masteriyo_timezone_string() ) );
 			} else {
 				$datetime->set_utc_offset( masteriyo_timezone_offset() );
@@ -753,7 +758,7 @@ abstract class Model {
 	 * @param array  $data             Extra error data.
 	 */
 	protected function error( $code, $message, $http_status_code = 400, $data = array() ) {
-		throw new ModelException( $code, $message, $http_status_code, $data );
+		throw new ModelException( esc_html( $code ), esc_html( $message ), (int) $http_status_code, $data ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- $data is structured error data, not output.
 	}
 
 	/**
@@ -814,6 +819,7 @@ abstract class Model {
 			$array_keys = array_keys( wp_list_pluck( $this->meta_data, 'id' ), $meta_id, true );
 			$array_key  = $array_keys ? current( $array_keys ) : false;
 		} else {
+
 			if ( ! is_array( $this->meta_data ) ) {
 				$this->meta_data = array();
 			}

@@ -1,0 +1,23 @@
+@use "../../../../assets/scss/variable/structure";
+
+.masteriyo-checkout {
+	&-summary {
+		&-switch-currency {
+			padding: structure.$spacing_15px 0 structure.$spacing_20px;
+			margin-bottom: 0;
+			background-color: var(--masteriyo-color-white);
+			border: 0;
+			border-bottom: 1px solid var(--masteriyo-color-border);
+			color: var(--masteriyo-color-text);
+			border-radius: 0;
+
+			.masteriyo-label {
+				grid-area: coupon-label;
+				font-size: 15px;
+				line-height: 28px;
+				font-weight: bold;
+				color: var(--masteriyo-color-grey-dark);
+			}
+		}
+	}
+}

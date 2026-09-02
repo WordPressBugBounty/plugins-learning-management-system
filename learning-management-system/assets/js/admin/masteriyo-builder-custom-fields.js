@@ -1,9 +1,8 @@
-
-class CustomFieldRegistry {
+class CustomFieldRegistry { 
 	constructor() {
 		this.fields = {}; // Structure: { [section: string]: { [placement: string]: Array<config> } }
 	}
- 
+
 	registerField(section, placement, config) {
 		const missingProperties = [];
 		const fields = [

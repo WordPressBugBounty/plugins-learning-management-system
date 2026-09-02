@@ -12,7 +12,7 @@
  * the readme will list any important changes.
  *
  * @package Masteriyo\Templates
- * @version 1.10.0
+ * @version 1.10.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -34,7 +34,7 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 		?>
 		<img src="<?php echo esc_attr( $pp_placeholder ); ?>" alt="<?php echo esc_attr( $course_review->get_author_name() ); ?>" />
 	<?php else : ?>
-		<img src="<?php echo esc_attr( $author->get_avatar_url() ); ?>" alt="<?php echo esc_attr( $course_review->get_author_name() ); ?>" />
+		<img src="<?php echo esc_attr( $author->profile_image_url() ); ?>" alt="<?php echo esc_attr( $course_review->get_author_name() ); ?>" />
 	<?php endif; ?>
 
 	<div class="masteriyo-single-body__main--review-list-content">
@@ -96,7 +96,18 @@ $created_date = gmdate( 'M j, Y @ g:i a', $created_date );
 				></textarea>
 			</div>
 			<div class="masteriyo-single-form-actions">
-				<button type="button" class="masteriyo-cancel-reply masteriyo-btn masteriyo-btn-secondary" ><?php esc_attr_e( 'Cancel', 'learning-management-system' ); ?></button>
+				<button
+					type="button"
+					class="masteriyo-cancel-reply masteriyo-btn masteriyo-btn-secondary"
+				>
+					<?php
+					echo esc_attr_x(
+						'Cancel',
+						'button label to cancel a course review reply',
+						'learning-management-system'
+					);
+					?>
+				</button>
 				<button type="submit" value="yes" name="masteriyo-submit-review" class="masteriyo-single--review-submit masteriy-submit-reply masteriyo-btn masteriyo-btn-primary"><?php esc_attr_e( 'Reply', 'learning-management-system' ); ?></button>
 			</div>
 				<?php wp_nonce_field( 'masteriyo-submit-review' ); ?>

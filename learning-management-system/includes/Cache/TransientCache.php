@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Cache
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 
 namespace Masteriyo\Cache;
@@ -17,7 +17,7 @@ use Masteriyo\Contracts\TransientCacheInterface;
 /**
  * Transient Cache class
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  */
 class TransientCache implements TransientCacheInterface {
 
@@ -26,7 +26,7 @@ class TransientCache implements TransientCacheInterface {
 	 *
 	 * This prefix is used to ensure that the cache keys are unique and do not conflict with other cache keys in the system.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @access private
 	 *
@@ -42,7 +42,7 @@ class TransientCache implements TransientCacheInterface {
 	 * @param int    $expires Optional. Cache expiration time in seconds. Defaults to 0 (no expiration).
 	 * @param string $group   Optional. The cache group.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -56,7 +56,7 @@ class TransientCache implements TransientCacheInterface {
 			 * This action is fired after the cache data is set using `set_transient()`.
 			 * The action name is dynamically generated based on the cache key.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param mixed $cache_data The cache data that was set.
 			 */
@@ -69,7 +69,7 @@ class TransientCache implements TransientCacheInterface {
 			 *
 			 * This action hook can be used to perform additional actions or tasks after the cache data has been updated.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param array $cache_data The cache data that was updated.
 			 */
@@ -86,7 +86,7 @@ class TransientCache implements TransientCacheInterface {
 	 *
 	 * @param string $key The cache key.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return mixed|null Cached data if available, null otherwise.
 	 */
@@ -107,7 +107,7 @@ class TransientCache implements TransientCacheInterface {
 	 * @param string $key The cache key.
 	 * @param string $group The cache group.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return bool True if cache exists, false otherwise.
 	 */
@@ -127,7 +127,7 @@ class TransientCache implements TransientCacheInterface {
 	 * @param string $key The cache key.
 	 * @param string $group The cache group.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -147,7 +147,7 @@ class TransientCache implements TransientCacheInterface {
 	 * @param string $key The cache key.
 	 * @param string $group The cache group.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return string Modified cache key with prefix.
 	 */
@@ -158,7 +158,7 @@ class TransientCache implements TransientCacheInterface {
 	/**
 	 * Clear all caches with a specific prefix.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -176,7 +176,7 @@ class TransientCache implements TransientCacheInterface {
 			/**
 			 * Fires when caches are cleared.
 			 *
-			 * @since 1.13.0
+			 * @since 1.13.0 [Free]
 			 *
 			 * @param string $group The cache group.
 			 */

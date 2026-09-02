@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles log entries by writing to a file.
  *
  * @class LogHandlerFile
- * @since 1.12.2
+ * @since 2.12.2
  * @package Masteriyo\LogHandlers
  */
 class LogHandlerFile extends LogHandler {

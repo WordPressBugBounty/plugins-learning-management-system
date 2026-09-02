@@ -11,20 +11,24 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use WP_Error;
+use Exception;
+use WP_REST_Request;
+use WP_REST_Response;
 use Masteriyo\ModelException;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Models\CourseProgress;
 use Masteriyo\Enums\CourseAccessMode;
-use Masteriyo\Enums\CourseChildrenPostType;
-use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\Models\Order\OrderItem;
 use Masteriyo\Exceptions\RestException;
 use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Enums\CourseProgressStatus;
-use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\CourseChildrenPostType;
+use Masteriyo\Enums\CourseProgressPostType;
+use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\CourseProgressItemQuery;
-use Masteriyo\Pro\Addons;
 
 /**
  * User activities controller class.
@@ -71,7 +75,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Masteriyo\Helper\Permission;
+	 * @var \Masteriyo\Helper\Permission;
 	 */
 	protected $permission = null;
 
@@ -80,7 +84,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Permission $permission Permission object.
+	 * @param \Masteriyo\Helper\Permission $permission Permission object.
 	 */
 	public function __construct( ?Permission $permission = null ) {
 		$this->permission = $permission;
@@ -90,8 +94,6 @@ class CourseProgressController extends CrudController {
 	 * Register routes.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -205,7 +207,7 @@ class CourseProgressController extends CrudController {
 	/**
 	 * Creates video meta information.
 	 *
-	 * @since 1.12.0
+	 * @since 2.13.0
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *
@@ -244,7 +246,8 @@ class CourseProgressController extends CrudController {
 			$data_to_be_updated['resume_time'] = absint( $request->get_param( 'resume_time' ) ?? 0 );
 		}
 
-		if ( ! empty( $data_to_be_updated ) ) {
+		// A preview must not record progress (issue #679).
+		if ( ! empty( $data_to_be_updated ) && ! masteriyo_is_course_preview_request( $request ) ) {
 			$result = $this->update_lesson_meta( $lesson_id, $user_id, $course_id, $data_to_be_updated );
 
 			if ( is_wp_error( $result ) ) {
@@ -388,12 +391,13 @@ class CourseProgressController extends CrudController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
+		// No default, like course_id: a filled-in 0 made "named nobody"
+		// indistinguishable from "named user 0".
 		$params['user_id'] = array(
 			'description'       => __( 'User ID', 'learning-management-system' ),
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
-			'default'           => 0,
 		);
 
 		$params['course_id'] = array(
@@ -462,14 +466,14 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  int|CourseProgress $id Object ID.
-	 * @return object Model object or WP_Error object.
+	 * @param  int|\Masteriyo\Models\CourseProgress $id Object ID.
+	 * @return object|false Model object or WP_Error object.
 	 */
 	protected function get_object( $id ) {
 		try {
 			$id              = is_a( $id, 'Masteriyo\Database\Model' ) ? $id->get_id() : $id;
 			$course_progress = masteriyo_get_course_progress( $id );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			return false;
 		}
 
@@ -481,14 +485,14 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param  Masteriyo\Database\Model $object  Model object.
+	 * @param  \Masteriyo\Database\Model $object  Model object.
 	 * @param  WP_REST_Request $request Request object.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
-		$data    = $this->get_course_progress_data( $object, $context );
+		$data    = $this->get_course_progress_data( $object, $context, $request );
 
 		$data     = $this->add_additional_fields_to_object( $data, $request );
 		$data     = $this->filter_response_by_context( $data, $context );
@@ -503,7 +507,7 @@ class CourseProgressController extends CrudController {
 		 * @since 1.0.0
 		 *
 		 * @param WP_REST_Response $response The response object.
-		 * @param Masteriyo\Database\Model $object   Object data.
+		 * @param \Masteriyo\Database\Model $object   Object data.
 		 * @param WP_REST_Request  $request  Request object.
 		 */
 		return apply_filters( "masteriyo_rest_prepare_{$this->object_type}_object", $response, $object, $request );
@@ -517,35 +521,66 @@ class CourseProgressController extends CrudController {
 	 * @param \Masteriyo\Models\CourseProgress  $course_progress User activity instance.
 	 * @param string $context Request context.
 	 *                        Options: 'view' and 'edit'.
+	 * @param \WP_REST_Request|null $request The request the data is being prepared for, if any.
 	 *
 	 * @return array
 	 */
-	protected function get_course_progress_data( $course_progress, $context = 'view' ) {
+	protected function get_course_progress_data( $course_progress, $context = 'view', $request = null ) {
 		$course              = masteriyo_get_course( $course_progress->get_course_id( $context ) );
 		$summary             = $this->get_course_progress_summary( $course_progress );
 		$has_user_redirected = masteriyo_string_to_bool( get_user_meta( $course_progress->get_user_id( $context ), 'has_user_redirected_' . $course_progress->get_course_id( $context ), true ) );
 
 		$started_date_time = masteriyo_rest_prepare_date_response( $course_progress->get_started_at( $context ) );
 
-		$review_after_course_completion = false;
+		$review_after_course_completion = masteriyo_should_ask_review_after_completion(
+			$course,
+			$course_progress->get_user_id( $context )
+		);
 
-		if ( masteriyo_get_setting( 'single_course.display.enable_review' ) && $course ) {
-			$course_review_allowed          = $course->get_review_after_course_completion( $context );
-			$has_already_reviewed           = masteriyo_has_user_already_reviewed_course( $course_progress->get_course_id( $context ), $course_progress->get_user_id( $context ) );
-			$review_after_course_completion = $course_review_allowed && ! $has_already_reviewed;
+		// Snapshot pre-request status before any mutation.
+		$was_completed = CourseProgressStatus::COMPLETED === $course_progress->get_status( 'edit' );
+
+		// Persist completion on the first request so the response and PHP template are consistent.
+		// Guests (user_id 0) must never be persisted - their progress is session-only,
+		// and neither must a progress that was never saved (a preview, issue #679).
+		// A course with no items must not complete itself when a learner opens it. It
+		// stays in progress until it has content and the learner completes that content (issue #566).
+		// The logged-in check runs first: the guest (session) summary has no 'total' key.
+		if ( is_user_logged_in() && $course_progress->get_id() && ! $was_completed && 0 === $summary['total']['pending'] && $summary['total']['total'] > 0 ) {
+			$course_progress->set_status( CourseProgressStatus::COMPLETED );
+
+			if ( is_null( $course_progress->get_completed_at( 'edit' ) ) ) {
+				$course_progress->set_completed_at( current_time( 'mysql' ) );
+			}
+
+			$course_progress->save();
 		}
+
+		// Where this learner leaves the course for. Only the player reads it, and
+		// it asks for one progress at a time — a collection would run an enrolment
+		// lookup per row, and prepare_objects_query() narrows a non-admin's
+		// collection to their own rows, so owning them is no protection.
+		$is_collection = $request && 'GET' === $request->get_method() && ! isset( $request['id'] );
+		$learner_home  = ! $is_collection && get_current_user_id() === absint( $course_progress->get_user_id( $context ) )
+			? masteriyo_get_learner_home( $course )
+			: array(
+				'url'   => '',
+				'label' => '',
+			);
 
 		$data = array(
 			'id'                                 => $course_progress->get_id( $context ),
 			'user_id'                            => $course_progress->get_user_id( $context ),
 			'course_id'                          => $course_progress->get_course_id( $context ),
 			'course_permalink'                   => get_the_permalink( $course_progress->get_course_id( $context ) ),
+			'exit_url'                           => $learner_home['url'],
+			'exit_label'                         => $learner_home['label'],
 			'name'                               => $course ? wp_specialchars_decode( $course->get_name( $context ) ) : '',
 			'status'                             => $course_progress->get_status( $context ),
 			'started_at'                         => $started_date_time,
 			'modified_at'                        => masteriyo_rest_prepare_date_response( $course_progress->get_modified_at( $context ) ),
 			'completed_at'                       => masteriyo_rest_prepare_date_response( $course_progress->get_completed_at( $context ) ),
-			'items'                              => $this->get_course_progress_items( $course_progress ),
+			'items'                              => $this->get_course_progress_items( $course_progress, $request ),
 			'summary'                            => $summary,
 			'has_user_redirected_' . $course_progress->get_course_id( $context ) => empty( $has_user_redirected ) ? false : $has_user_redirected,
 			'course_thankyou_data'               => masteriyo_get_setting( 'general.pages.course_thankyou_page' ),
@@ -580,17 +615,15 @@ class CourseProgressController extends CrudController {
 		if ( 0 === $summary['total']['pending'] ) {
 
 			// Check if user has redirected after course completion.
+			// Use the pre-request status so the one-time redirect keeps its original timing.
 
-			if ( ( 'completed' === $data['status'] ) && ! $has_user_redirected ) {
+			if ( $was_completed && ! $has_user_redirected ) {
 				$data[ 'has_user_redirected_' . $course_progress->get_course_id() ] = false;
-				update_user_meta( $course_progress->get_user_id(), 'has_user_redirected_' . $course_progress->get_course_id(), true );
-			}
 
-			// Persist completion so the PHP template reflects the correct button state.
-			// Guests (user_id 0) must never be persisted - their progress is session-only.
-			if ( CourseProgressStatus::COMPLETED !== $course_progress->get_status( 'edit' ) && is_user_logged_in() ) {
-				$course_progress->set_status( CourseProgressStatus::COMPLETED );
-				$course_progress->save();
+				// Guests must never write user meta - the user id here is request-supplied.
+				if ( is_user_logged_in() ) {
+					update_user_meta( $course_progress->get_user_id(), 'has_user_redirected_' . $course_progress->get_course_id(), true );
+				}
 			}
 
 			$data['status'] = $course_progress->get_status();
@@ -601,9 +634,9 @@ class CourseProgressController extends CrudController {
 		 * @since 1.4.10
 		 *
 		 * @param array $data Course progress data.
-		 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
+		 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
 		 * @param string $context What the value is for. Valid values are view and edit.
-		 * @param Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST course progress controller object.
+		 * @param \Masteriyo\RestApi\Controllers\Version1\CoursesController $controller REST course progress controller object.
 		 */
 		return apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $course_progress, $context, $this );
 	}
@@ -623,7 +656,9 @@ class CourseProgressController extends CrudController {
 			array(
 				'page'         => 1,
 				'per_page'     => 10,
-				'user_id'      => 0,
+				// Null, not 0: the repository gates on isset(), so 0 narrows to
+				// the user with id 0.
+				'user_id'      => null,
 				'status'       => '',
 				'started_at'   => null,
 				'modified_at'  => null,
@@ -633,7 +668,8 @@ class CourseProgressController extends CrudController {
 
 		$args['paged'] = $args['page'];
 
-		if ( masteriyo_is_current_user_student() ) {
+		// Keyed on the permission, not on one role: every other role read whoever it named.
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
 			$args['user_id'] = get_current_user_id();
 		}
 
@@ -720,7 +756,7 @@ class CourseProgressController extends CrudController {
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
 	 *
-	 * @return WP_Error|Masteriyo\Database\Model
+	 * @return WP_Error|\Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
 		$id              = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
@@ -741,7 +777,7 @@ class CourseProgressController extends CrudController {
 				$course_progress->set_course_id( $course_id );
 			}
 		} catch ( RestException $e ) {
-			return new \WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
+			return new WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
 		}
 
 		// Activity status.
@@ -777,7 +813,7 @@ class CourseProgressController extends CrudController {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param Masteriyo\Database\Model $course_progress  Course progress object.
+		 * @param \Masteriyo\Database\Model $course_progress  Course progress object.
 		 * @param WP_REST_Request $request  Request object.
 		 * @param bool            $creating If is creating a new object.
 		 */
@@ -814,7 +850,7 @@ class CourseProgressController extends CrudController {
 	 */
 	public function get_item_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
 			);
@@ -859,7 +895,7 @@ class CourseProgressController extends CrudController {
 	 */
 	public function get_items_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
 			);
@@ -870,6 +906,17 @@ class CourseProgressController extends CrudController {
 		}
 
 		if ( ! $this->permission->rest_check_course_progress_permissions( 'read' ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		// `read` above is held by every logged-in role, so it says nothing about whose progress this is.
+		if ( ! empty( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -892,7 +939,7 @@ class CourseProgressController extends CrudController {
 	 */
 	public function create_item_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
 			);
@@ -903,8 +950,12 @@ class CourseProgressController extends CrudController {
 			return true;
 		}
 
+		if ( masteriyo_course_has_previewable_lessons( $request['course_id'] ) ) {
+			return true;
+		}
+
 		if ( ! $this->permission->rest_check_course_progress_permissions( 'create' ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_rest_cannot_create',
 				__( 'Sorry, you are not allowed to create resources.', 'learning-management-system' ),
 				array(
@@ -926,7 +977,7 @@ class CourseProgressController extends CrudController {
 	 */
 	public function update_item_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
 			);
@@ -939,7 +990,7 @@ class CourseProgressController extends CrudController {
 		}
 
 		if ( $progress && ! $this->permission->rest_check_course_progress_permissions( 'update', $request['id'] ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_rest_cannot_update',
 				__( 'Sorry, you are not allowed to update resources.', 'learning-management-system' ),
 				array(
@@ -961,7 +1012,7 @@ class CourseProgressController extends CrudController {
 	 */
 	public function delete_item_permissions_check( $request ) {
 		if ( is_null( $this->permission ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_null_permission',
 				__( 'Sorry, the permission object for this resource is null.', 'learning-management-system' )
 			);
@@ -970,7 +1021,7 @@ class CourseProgressController extends CrudController {
 		$progress = masteriyo_get_course_progress( (int) $request['id'] );
 
 		if ( $progress && ! $this->permission->rest_check_course_progress_permissions( 'delete', $request['id'] ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'masteriyo_rest_cannot_delete',
 				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
@@ -1005,7 +1056,7 @@ class CourseProgressController extends CrudController {
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
 	 *
-	 * @return WP_Error|Model
+	 * @return WP_Error|\Masteriyo\Database\Model
 	 */
 	protected function validate_user_id( $request, $creating = false ) {
 		$user_id = null;
@@ -1053,7 +1104,7 @@ class CourseProgressController extends CrudController {
 	 * @param WP_REST_Request $request Request object.
 	 * @param bool            $creating If is creating a new object.
 	 *
-	 * @return WP_Error|Model
+	 * @return WP_Error|\Masteriyo\Database\Model
 	 */
 	protected function validate_course_id( $request, $creating = false ) {
 		$course_id = null;
@@ -1083,7 +1134,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
-	 * @return WP_Error|WP_REST_Response
+	 * @return WP_Error|true
 	 */
 	protected function validate_start_course_progress( $request ) {
 		$item_types = array( 'lesson', 'quiz' );
@@ -1094,7 +1145,7 @@ class CourseProgressController extends CrudController {
 
 		foreach ( $request['items'] as $item ) {
 			if ( ! isset( $item['item_id'] ) ) {
-				return new \WP_Error(
+				return new WP_Error(
 					'rest_missing_callback_param',
 					sprintf(
 					/* translators: %s: missing parameter name(s) */
@@ -1107,11 +1158,10 @@ class CourseProgressController extends CrudController {
 					),
 					array( 'status' => rest_authorization_required_code() )
 				);
-
 			}
 
 			if ( ! isset( $item['item_type'] ) ) {
-				return new \WP_Error(
+				return new WP_Error(
 					'rest_missing_callback_param',
 					/* translators: %s: item type */
 					sprintf( __( 'Missing parameter(s): %s', 'learning-management-system' ), 'item_type' ),
@@ -1120,7 +1170,7 @@ class CourseProgressController extends CrudController {
 			}
 
 			if ( ! in_array( $item['item_type'], $item_types, true ) ) {
-				return new \WP_Error(
+				return new WP_Error(
 					'rest_invalid_param',
 					/* translators: %s: item type */
 					sprintf( __( 'Invalid parameter(s): %s', 'learning-management-system' ), 'item_type' ),
@@ -1138,7 +1188,7 @@ class CourseProgressController extends CrudController {
 			}
 
 			if ( isset( $item['completed'] ) && ! is_bool( $item['completed'] ) ) {
-				return new \WP_Error(
+				return new WP_Error(
 					'rest_invalid_param',
 					/* translators: %s: item type */
 					sprintf( __( 'Invalid parameter(s): %s', 'learning-management-system' ), 'item_type' ),
@@ -1160,8 +1210,8 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @param CourseProgress $course_progress Course progress item.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress item.
 	 */
 	protected function save_course_progress_items( $request, $course_progress ) {
 		global $wpdb;
@@ -1214,7 +1264,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Models\CourseProgressItem  $course_progress_item Course progress item object.
+	 * @param \Masteriyo\Models\CourseProgressItem  $course_progress_item Course progress item object.
 	 * @param string $context Request context.
 	 *                        Options: 'view' and 'edit'.
 	 *
@@ -1222,26 +1272,49 @@ class CourseProgressController extends CrudController {
 	 */
 	protected function get_course_progress_item_data( $course_progress_item, $context = 'view' ) {
 		$video               = '';
+		$google_meet_id      = '';
 		$video_source        = '';
 		$video_source_url    = '';
 		$video_playback_time = '';
+		$pdf                 = '';
+		$audio               = false;
 
 		if ( 'lesson' === $course_progress_item->get_item_type() ) {
 			$video               = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
 			$video_source        = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source', true );
 			$video_source_url    = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_source_url', true );
 			$video_playback_time = get_post_meta( $course_progress_item->get_item_id( $context ), '_video_playback_time', true );
+			$pdf                 = ! empty( get_post_meta( $course_progress_item->get_item_id( $context ), '_pdf', true ) );
+			$audio_source        = get_post_meta( $course_progress_item->get_item_id( $context ), '_audio_source', true );
+			$audio_source_url    = get_post_meta( $course_progress_item->get_item_id( $context ), '_audio_source_url', true );
+			$audio_source_files  = get_post_meta( $course_progress_item->get_item_id( $context ), '_audio_source_files', true );
+			$audio               = (
+					( 'self-hosted' === $audio_source && ! empty( $audio_source_files ) ) ||
+					( 'external' === $audio_source && ! empty( $audio_source_url ) ) ||
+					( 'embed-audio' === $audio_source && ! empty( $audio_source_url ) )
+			);
 		}
+
+		if ( 'google-meet' === $course_progress_item->get_item_type() ) {
+			$google_meet_id = get_post_meta( $course_progress_item->get_item_id( $context ), '_meeting_id', true );
+		}
+
+		// Only a preview ever carries an unpublished item, and the client badges it as a draft.
+		$item_status = get_post_status( $course_progress_item->get_item_id( $context ) );
 
 		$data = array(
 			'item_id'             => $course_progress_item->get_item_id( $context ),
-			'item_title'          => wp_specialchars_decode( $course_progress_item->get_item_title( $context ) ),
+			'item_title'          => wp_specialchars_decode( $course_progress_item->get_item_title() ),
 			'item_type'           => $course_progress_item->get_item_type( $context ),
+			'item_status'         => $item_status ? $item_status : PostStatus::PUBLISH,
 			'completed'           => $course_progress_item->get_completed( $context ),
 			'video'               => ! empty( trim( $video ) ),
-			'video_source'        => $video_source,
 			'video_source_url'    => $video_source_url,
 			'video_playback_time' => (int) $video_playback_time,
+			'google_meet_id'      => $google_meet_id ? $google_meet_id : '',
+			'video_source'        => $video_source,
+			'pdf'                 => $pdf,
+			'audio'               => $audio,
 		);
 
 		if ( 'quiz' === $course_progress_item->get_item_type() ) {
@@ -1255,7 +1328,7 @@ class CourseProgressController extends CrudController {
 		 * @since 1.0.3
 		 *
 		 * @param array $data The course progress item data.
-		 * @param Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
+		 * @param \Masteriyo\Models\CourseProgressItem $course_progress_item Course progress item object.
 		 * @param string $context Context.
 		 */
 		return apply_filters( 'masteriyo_course_progress_item_data', $data, $course_progress_item, $context );
@@ -1266,17 +1339,40 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param CourseProgress $course_progress
+	 * @param \Masteriyo\Models\CourseProgress $course_progress
+	 * @param \WP_REST_Request|null $request The request the items are being prepared for, if any.
 	 * @return array
 	 */
-	protected function get_course_progress_items( $course_progress ) {
+	protected function get_course_progress_items( $course_progress, $request = null ) {
 		if ( is_user_logged_in() ) {
-			$progress_items = $this->get_course_progress_items_from_db( $course_progress );
+			$progress_items = $this->get_course_progress_items_from_db( $course_progress, $request );
 		} else {
-			$progress_items = $this->get_course_progress_items_from_session( $course_progress );
+			$progress_items = $this->get_course_progress_items_from_session( $course_progress, $request );
 		}
 
 		return $progress_items;
+	}
+
+	/**
+	 * Post statuses the learn page curriculum is built from.
+	 *
+	 * An author previewing their own course sees its drafts too. A draft lesson is
+	 * already readable by URL for whoever may edit the course, so leaving it out of
+	 * the sidebar only made it unreachable — you could preview the lesson but not
+	 * find it. Everyone else, preview or not, gets the published curriculum.
+	 *
+	 * @param \WP_REST_Request|null $request The request being answered, if any.
+	 *
+	 * @return string[]
+	 */
+	protected function get_curriculum_post_statuses( $request = null ) {
+		$statuses = masteriyo_get_course_content_post_statuses();
+
+		if ( ! is_null( $request ) && masteriyo_is_course_preview_request( $request ) ) {
+			$statuses[] = PostStatus::DRAFT;
+		}
+
+		return array_values( array_unique( $statuses ) );
 	}
 
 	/**
@@ -1284,20 +1380,25 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.3.8
 	 *
-	 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 * @param \WP_REST_Request|null $request The request the items are being prepared for, if any.
 	 * @return array
 	 */
-	protected function get_course_progress_items_from_db( $course_progress ) {
+	protected function get_course_progress_items_from_db( $course_progress, $request = null ) {
+		// Keyed by item ID so filter_course_lessons_quizzes()/get_course_progress_item() can look items up
+		// by $lesson_quiz->ID without a per-item query.
 		$progress_items = array();
 
 		foreach ( $course_progress->get_items() as $progress_item ) {
 			$progress_items[ $progress_item->get_item_id() ] = $progress_item;
 		}
 
+		$post_statuses = $this->get_curriculum_post_statuses( $request );
+
 		$query = new \WP_Query(
 			array(
 				'post_type'      => CourseChildrenPostType::all(),
-				'post_status'    => PostStatus::PUBLISH,
+				'post_status'    => $post_statuses,
 				'posts_per_page' => -1,
 				'meta_key'       => '_course_id',
 				'meta_value'     => $course_progress->get_course_id( 'edit' ),
@@ -1307,7 +1408,7 @@ class CourseProgressController extends CrudController {
 		$sections = $this->filter_course_sections( $query->posts );
 
 		foreach ( $sections as $id => $section ) {
-			$sections[ $id ]['contents'] = $this->filter_course_lessons_quizzes( $query->posts, $section['item_id'] );
+			$sections[ $id ]['contents'] = $this->filter_course_lessons_quizzes( $query->posts, $section['item_id'], $post_statuses, $progress_items );
 		}
 
 		return $sections;
@@ -1318,13 +1419,14 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.3.8
 	 *
-	 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 * @param \WP_REST_Request|null $request The request the items are being prepared for, if any.
 	 * @return array
 	 */
-	protected function get_course_progress_items_from_session( $course_progress ) {
+	protected function get_course_progress_items_from_session( $course_progress, $request = null ) {
 		$session = masteriyo( 'session' );
 
-		$progress_items_from_db = $this->get_course_progress_items_from_db( $course_progress );
+		$progress_items_from_db = $this->get_course_progress_items_from_db( $course_progress, $request );
 
 		foreach ( $progress_items_from_db as $index => $progress_item_from_db ) {
 			if ( 'section' !== $progress_item_from_db['item_type'] ) {
@@ -1372,7 +1474,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param WP_Post[] $posts
+	 * @param \WP_Post[] $posts
 	 * @return array(
 	 *              'item_id' => (integer)
 	 *              'item_title' => (string)
@@ -1383,7 +1485,7 @@ class CourseProgressController extends CrudController {
 		$sections = array_filter(
 			$posts,
 			function( $post ) {
-				return 'mto-section' === $post->post_type;
+				return PostType::SECTION === $post->post_type;
 			}
 		);
 
@@ -1402,9 +1504,10 @@ class CourseProgressController extends CrudController {
 		$sections = array_map(
 			function( $section ) {
 				return array(
-					'item_id'    => $section->ID,
-					'item_title' => wp_specialchars_decode( $section->post_title ),
-					'item_type'  => str_replace( 'mto-', '', $section->post_type ),
+					'item_id'     => $section->ID,
+					'item_title'  => wp_specialchars_decode( $section->post_title ),
+					'item_type'   => str_replace( 'mto-', '', $section->post_type ),
+					'item_status' => $section->post_status,
 				);
 			},
 			$sections
@@ -1418,16 +1521,29 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param WP_Post[] $posts
+	 * @param \WP_Post[] $posts
 	 * @param int $section_id Section ID.
+	 * @param string[]|null $post_statuses Statuses a lesson or quiz may have to be listed. Defaults to the published curriculum.
+	 * @param \Masteriyo\Models\CourseProgressItem[] $progress_items Course progress items already fetched for this course, keyed by item ID.
 	 * @return array
 	 */
-	protected function filter_course_lessons_quizzes( $posts, $section_id ) {
-		$post_types = CourseProgressPostType::all();
+	protected function filter_course_lessons_quizzes( $posts, $section_id, $post_statuses = null, $progress_items = array() ) {
+		$post_types    = CourseProgressPostType::all();
+		$post_statuses = is_null( $post_statuses ) ? masteriyo_get_course_content_post_statuses() : $post_statuses;
 
 		$lessons_quizzes = array_filter(
 			$posts,
-			function( $post ) use ( $section_id, $post_types ) {
+			function( $post ) use ( $section_id, $post_types, $post_statuses ) {
+
+				// This is for backward compatibility, because there was previously not force deletion for the lesson.
+				if ( PostType::LESSON === $post->post_type && ! in_array( $post->post_status, $post_statuses, true ) ) {
+					return null;
+				}
+
+				if ( PostType::QUIZ === $post->post_type && ! in_array( $post->post_status, $post_statuses, true ) ) {
+					return null;
+				}
+
 				return in_array( $post->post_type, $post_types, true ) && $section_id === $post->post_parent;
 			}
 		);
@@ -1446,8 +1562,8 @@ class CourseProgressController extends CrudController {
 
 		$lessons_quizzes = array_filter(
 			array_map(
-				function( $lesson_quiz ) use ( $section_id ) {
-					$progress_item = $this->get_course_progress_item( $lesson_quiz );
+				function( $lesson_quiz ) use ( $section_id, $progress_items ) {
+					$progress_item = $this->get_course_progress_item( $lesson_quiz, $progress_items );
 
 					if ( ! $progress_item ) {
 						$progress_item = masteriyo( 'course-progress-item' );
@@ -1459,10 +1575,17 @@ class CourseProgressController extends CrudController {
 					return $this->get_course_progress_item_data( $progress_item );
 				},
 				$lessons_quizzes
-			)
+			),
+			// A filter removes an item by returning an empty array, but a later
+			// filter may add keys to it again; without item_id it's still removed.
+			// Non-array results (an object, WP_Error) are discarded rather than read.
+			function( $item ) {
+				return is_array( $item ) && ! empty( $item['item_id'] );
+			}
 		);
 
-		return $lessons_quizzes;
+		// Reindex so dropped items don't leave key gaps that JSON-encode as an object.
+		return array_values( $lessons_quizzes );
 	}
 
 	/**
@@ -1470,25 +1593,29 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.3.8
 	 *
-	 * @param WP_Post $lesson_quiz Either lesson or quiz post type.
+	 * @param \WP_Post $lesson_quiz Either lesson or quiz post type.
+	 * @param \Masteriyo\Models\CourseProgressItem[] $progress_items Course progress items already fetched for this course, keyed by item ID. Avoids an extra DB query per item when available.
 	 *
-	 * @return Masteriyo\Models\CourseProgressItem
+	 * @return \Masteriyo\Models\CourseProgressItem|null
 	 */
-	protected function get_course_progress_item( $lesson_quiz ) {
+	protected function get_course_progress_item( $lesson_quiz, $progress_items = array() ) {
 		$course_progress_item = null;
 
 		if ( is_user_logged_in() ) {
-			$query = new CourseProgressItemQuery(
-				array(
-					'user_id' => masteriyo_get_current_user_id(),
-					'item_id' => $lesson_quiz->ID,
-				)
-			);
+			if ( isset( $progress_items[ $lesson_quiz->ID ] ) ) {
+				$course_progress_item = $progress_items[ $lesson_quiz->ID ];
+			} else {
+				$query = new CourseProgressItemQuery(
+					array(
+						'user_id' => masteriyo_get_current_user_id(),
+						'item_id' => $lesson_quiz->ID,
+					)
+				);
 
-			$course_progress_item = current( $query->get_course_progress_items() );
+				$course_progress_item = current( $query->get_course_progress_items() );
+			}
 		} else {
-			$session = masteriyo( 'session' );
-
+			$session               = masteriyo( 'session' );
 			$course_progress_items = $session->get( 'course_progress_items', array() );
 
 			if ( isset( $course_progress_items[ $lesson_quiz->ID ] ) ) {
@@ -1504,9 +1631,9 @@ class CourseProgressController extends CrudController {
 		 *
 		 * @since 1.3.8
 		 *
-		 * @param Masteriyo\Models\CourseProgressItem $object The course progress item object.
-		 * @param WP_Post $quiz Quiz post object.
-		 * @param Masteriyo\RestApi\Controllers\Version1\CourseProgressController $controller Course progress API controller.
+		 * @param \Masteriyo\Models\CourseProgressItem $object The course progress item object.
+		 * @param \WP_Post $quiz Quiz post object.
+		 * @param \Masteriyo\RestApi\Controllers\Version1\CourseProgressController $controller Course progress API controller.
 		 */
 		return apply_filters( 'masteriyo_rest_get_course_progress_item', $course_progress_item, $lesson_quiz, $this );
 	}
@@ -1519,9 +1646,14 @@ class CourseProgressController extends CrudController {
 	 * @param  WP_REST_Request $request  Full details about the request.
 	 * @param  bool            $creating If is creating a new object.
 	 *
-	 * @return Model|WP_Error
+	 * @return \Masteriyo\Database\Model|WP_Error
 	 */
 	protected function save_object( $request, $creating = false ) {
+		// A preview must not record progress (issue #679).
+		if ( masteriyo_is_course_preview_request( $request ) ) {
+			return $this->prepare_object_for_database( $request, $creating );
+		}
+
 		// Save the object to database if the user is logged in.
 		if ( is_user_logged_in() ) {
 			$object = parent::save_object( $request, $creating );
@@ -1539,7 +1671,7 @@ class CourseProgressController extends CrudController {
 	 * @param  WP_REST_Request $request  Full details about the request.
 	 * @param  bool            $creating If is creating a new object.
 	 *
-	 * @return Model|WP_Error
+	 * @return \Masteriyo\Database\Model|WP_Error
 	 */
 	protected function save_object_in_session( $request, $creating = false ) {
 		try {
@@ -1599,8 +1731,8 @@ class CourseProgressController extends CrudController {
 		 * @since 1.3.8
 		 *
 		 * @param array $summary The course progress summary data.
-		 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
-		 * @param Masteriyo\RestApi\Controllers\Version1\CourseProgressController $controller Course progress API controller.
+		 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
+		 * @param \Masteriyo\RestApi\Controllers\Version1\CourseProgressController $controller Course progress API controller.
 		 */
 		return apply_filters( "masteriyo_rest_{$this->object_type}_summary", $summary, $course_progress, $this );
 	}
@@ -1644,7 +1776,7 @@ class CourseProgressController extends CrudController {
 	 *
 	 * @since 1.3.8
 	 *
-	 * @param Masteriyo\Models\CourseProgress $course_progress Course progress object.
+	 * @param \Masteriyo\Models\CourseProgress $course_progress Course progress object.
 	 * @return array
 	 */
 	protected function get_course_progress_summary_from_session( $course_progress ) {

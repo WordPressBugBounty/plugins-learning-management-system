@@ -144,7 +144,7 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 		$quiz_review_obj = get_comment( $quiz_review->get_id() );
 
 		if ( ! $quiz_review->get_id() || ! $quiz_review_obj ) {
-			throw new \Exception( __( 'Invalid Quiz Review.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid Quiz Review.', 'learning-management-system' ) );
 		}
 
 		// Map the comment status from numerical to word.

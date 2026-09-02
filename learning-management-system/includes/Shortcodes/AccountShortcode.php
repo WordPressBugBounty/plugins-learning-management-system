@@ -63,14 +63,34 @@ class AccountShortcode extends Shortcode {
 		if ( masteriyo_is_signup_page() && $is_registration_enable ) {
 			return masteriyo( 'template' )->locate( 'account/form-signup.php' );
 		}
+
 		if ( masteriyo_is_lost_password_page() ) {
 			return $this->get_lost_password_page_template();
 		}
+
 		if ( is_user_logged_in() ) {
 			if ( masteriyo_get_setting( 'accounts_page.display.layout.enable_header_footer' ) ) {
 				return masteriyo( 'template' )->locate( 'account.php' );
 			} else {
 				return masteriyo_locate_template( 'account-full-layout.php' );
+			}
+		}
+
+		if ( masteriyo_is_otp_page() ) {
+			/**
+			 * Filters the template path used to render the OTP login page.
+			 *
+			 * Core registers no OTP implementation. The two-factor authentication
+			 * feature supplies one by returning a template path; a listener that
+			 * cannot authenticate the request is free to redirect and exit.
+			 * Falling through to an empty path renders the ordinary login form.
+			 *
+			 * @param string $otp_template_path Absolute path to the OTP template. Empty by default.
+			 */
+			$otp_template_path = apply_filters( 'masteriyo_otp_page_template_path', '' );
+
+			if ( ! empty( $otp_template_path ) ) {
+				return $otp_template_path;
 			}
 		}
 
@@ -94,8 +114,8 @@ class AccountShortcode extends Shortcode {
 		if ( ! empty( $_GET['show-reset-form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) && 0 < strpos( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ], ':' ) ) {  // @codingStandardsIgnoreLine
 				list( $rp_id, $rp_key ) = array_map( 'masteriyo_clean', explode( ':', wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ), 2 ) ); // @codingStandardsIgnoreLine
-				$user                   = masteriyo_get_user( absint( $rp_id ) );
-				$rp_login               = $user ? $user->get_username() : '';
+				$user                   = get_user_by( 'id', absint( $rp_id ) );
+				$rp_login               = $user ? $user->user_login : '';
 
 				if ( is_wp_error( check_password_reset_key( $rp_key, $rp_login ) ) ) {
 					masteriyo_add_notice( __( 'This key is invalid or has already been used. Please request to reset your password again if needed.', 'learning-management-system' ), 'error' );

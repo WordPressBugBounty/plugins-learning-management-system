@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-
 /**
  * Masteriyo Quiz Functions
  *
@@ -16,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Masteriyo\Enums\PostStatus;
-use Masteriyo\Enums\QuizAttemptStatus;
-use Masteriyo\Models\QuizAttempt;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Models\QuizAttempt;
 use Masteriyo\Query\QuizAttemptQuery;
+use Masteriyo\Enums\QuizAttemptStatus;
 
 /**
  * Get quiz question.
@@ -29,20 +28,16 @@ use Masteriyo\Query\QuizAttemptQuery;
  * @since 1.5.37 Remove second parameter "$by".
  *
  * @param integer $quiz_id Quiz ID.
- * @return \Masteriyo\Models\Question[]
+ * @return \Masteriyo\Models\Question\Question[]
  */
 function masteriyo_get_quiz_questions( $quiz_id ) {
+	// Bank questions keep the post_parent of the quiz that first owned them.
+	$question_ids = masteriyo_get_all_question_ids_by_quiz( $quiz_id );
 
-	$query = new \WP_Query(
-		array(
-			'post_type'      => PostType::QUESTION,
-			'posts_per_page' => -1,
-			'post_status'    => PostStatus::PUBLISH,
-			'post_parent'    => $quiz_id,
-		)
-	);
+	// Each masteriyo_get_question() below is 2 queries otherwise.
+	_prime_post_caches( $question_ids );
 
-	return array_filter( array_map( 'masteriyo_get_question', $query->posts ) );
+	return array_filter( array_map( 'masteriyo_get_question', $question_ids ) );
 }
 
 /**
@@ -55,7 +50,6 @@ function masteriyo_get_quiz_questions( $quiz_id ) {
  * @return array|null|object
  */
 function masteriyo_is_quiz_started( $quiz_id = 0 ) {
-
 	$user_id = get_current_user_id();
 
 	if ( ! $user_id ) {
@@ -78,9 +72,9 @@ function masteriyo_is_quiz_started( $quiz_id = 0 ) {
 }
 
 /**
- * Determine if there is any started quiz exists.
+ * Determine if there is any started quiz exists on a particular course basis.
  *
- * @since 1.8.0 [free]
+ * @since 1.8.0 [Free]
  *
  * @param int $course_id
  * @param int $quiz_id
@@ -88,7 +82,6 @@ function masteriyo_is_quiz_started( $quiz_id = 0 ) {
  * @return array|null|object
  */
 function masteriyo_is_course_quiz_started( $course_id, $quiz_id = 0 ) {
-
 	$user_id = get_current_user_id();
 
 	if ( ! $user_id ) {
@@ -114,8 +107,6 @@ function masteriyo_is_course_quiz_started( $course_id, $quiz_id = 0 ) {
 /**
  * Get the ID of the quiz the current user (or guest) currently has an in-progress attempt for, in a
  * given course. Logged-in attempts are read from the database; guest attempts from the session.
- *
- * @since x.x.x
  *
  * @param int $course_id The course ID.
  *
@@ -171,8 +162,6 @@ function masteriyo_get_started_quiz_id_for_course( $course_id ) {
  * is blocked. Admins, instructors and users who can edit the course are exempt. This is enforced from
  * the REST permission checks so it applies to every request, including content opened in a new tab.
  * Both logged-in and guest (session-based) quiz attempts are covered.
- *
- * @since x.x.x
  *
  * @param \Masteriyo\Models\Course $course The course the content belongs to.
  * @param int|\WP_Post             $post   The content post (or its ID) being accessed.
@@ -465,6 +454,42 @@ function masteriyo_get_quiz( $quiz ) {
 }
 
 /**
+ * Calculate full points of quiz.
+ *
+ * @since 2.2.5
+ *
+ * @param int|Masteriyo\Models\Quiz|WP_Post $quiz Quiz id or Quiz Model or Post.
+ * @param \Masteriyo\Models\Question\Question[]|null $questions Question list to sum. Read from the quiz when null.
+ * @return float
+ */
+function masteriyo_calculate_quiz_full_points( $quiz, $questions = null ) {
+	$quiz        = masteriyo_get_quiz( $quiz );
+	$full_points = 0;
+
+	if ( $quiz ) {
+		$full_points = array_sum(
+			array_map(
+				function( $question ) {
+					return $question->get_points();
+				},
+				is_null( $questions ) ? masteriyo_get_quiz_questions( $quiz->get_id() ) : $questions
+			)
+		);
+	}
+
+	/**
+		 * Filter quiz full points.
+		 *
+		 * @since 2.2.5
+		 *
+		 * @param float $full_points Quiz full points.
+		 * @param \Masteriyo\Models\Quiz $quiz Quiz object.
+		 *
+		 */
+	return apply_filters( 'masteriyo_pro_calculate_quiz_full_points', $full_points, $quiz );
+}
+
+/**
  * Create quiz attempt object.
  *
  * @since 1.5.37
@@ -475,11 +500,58 @@ function masteriyo_create_quiz_attempt_object() {
 	return masteriyo( 'quiz-attempt' );
 }
 
+
+if ( ! function_exists( 'masteriyo_sync_quiz_attempt_attributes' ) ) {
+	/**
+	 * Sync quiz attempt attributes like correct answers count, incorrect answers count, earned marks with given answers etc.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param \Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
+	 */
+	function masteriyo_sync_quiz_attempt_attributes( &$quiz_attempt ) {
+		$answers = maybe_unserialize( $quiz_attempt->get_answers( 'edit' ) );
+
+		if ( ! is_array( $answers ) ) {
+			return;
+		}
+
+		$earned_marks      = 0;
+		$correct_answers   = 0;
+		$incorrect_answers = 0;
+
+		foreach ( $answers as $question_id => $attempt_answer ) {
+			$question = masteriyo_get_question( $question_id );
+
+			if ( isset( $attempt_answer['correct'] ) && $attempt_answer['correct'] ) {
+				++$correct_answers;
+			} else {
+				++$incorrect_answers;
+			}
+
+			try {
+				if ( isset( $attempt_answer['points'] ) && is_numeric( $attempt_answer['points'] ) ) {
+					$earned_marks += (float) $attempt_answer['points'];
+				} elseif ( $question && isset( $attempt_answer['correct'] ) && $attempt_answer['correct'] ) {
+					$earned_marks += (float) $question->get_points();
+				}
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+		}
+
+		$quiz_attempt->set_answers( $answers );
+		$quiz_attempt->set_earned_marks( $earned_marks );
+		$quiz_attempt->set_total_correct_answers( $correct_answers );
+		$quiz_attempt->set_total_incorrect_answers( $incorrect_answers );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_instructor_quiz_ids' ) ) {
 	/**
 	 * Retrieves the quiz IDs associated with a given instructor.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
 	 *
@@ -519,7 +591,7 @@ if ( ! function_exists( 'masteriyo_get_instructor_quiz_ids' ) ) {
 		/**
 		 * Filter the list of quiz IDs for an instructor.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $quiz_ids The array of quiz IDs.
 		 * @param int $instructor_id The instructor ID.
@@ -530,11 +602,92 @@ if ( ! function_exists( 'masteriyo_get_instructor_quiz_ids' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_create_manual_quiz_attempt' ) ) {
+	/**
+	 * Create a manual quiz attempt for a student if not already exists.
+	 *
+	 * This function checks if a quiz attempt already exists for a given student and quiz.
+	 * If it exists, it returns true. Otherwise, it creates a new quiz attempt and saves it.
+	 *
+	 * @since 2.18.1
+	 *
+	 * @param int $student_id The ID of the student.
+	 * @param int $course_id The ID of the course.
+	 * @param int $quiz_id The ID of the quiz.
+	 *
+	 * @return bool|int True if the attempt already exists, or the new attempt ID if created.
+	 */
+	function masteriyo_create_manual_quiz_attempt( $student_id, $course_id, $quiz_id ) {
+		$query = new QuizAttemptQuery(
+			array(
+				'quiz_id'  => $quiz_id,
+				'user_id'  => $student_id,
+				'order'    => 'desc',
+				'per_page' => 1,
+			)
+		);
+
+		$attempts     = $query->get_quiz_attempts();
+		$last_attempt = current( $attempts );
+
+		if ( $last_attempt instanceof \Masteriyo\Models\QuizAttempt ) {
+			$last_attempt->set_status( QuizAttemptStatus::ENDED );
+			$last_attempt->save();
+			return true;
+		}
+
+		// No attempt found, create one.
+
+		/** @var \Masteriyo\Models\QuizAttempt $quiz_attempt */
+		$quiz_attempt = masteriyo( 'quiz-attempt' );
+		$quiz_attempt->set_quiz_id( $quiz_id );
+		$quiz_attempt->set_user_id( $student_id );
+		$quiz_attempt->set_course_id( $course_id );
+		$quiz_attempt->set_status( QuizAttemptStatus::ENDED );
+
+		return $quiz_attempt->save();
+	}
+}
+
+if ( ! function_exists( 'masteriyo_check_manual_quiz_attempt' ) ) {
+	/**
+	 * Checks if the current user is allowed to manually complete a quiz.
+	 *
+	 * @since 2.18.1
+	 *
+	 * @param array $request The request data.
+	 *
+	 * @return boolean True if the user is allowed to manually complete the quiz, false otherwise.
+	 */
+	function masteriyo_check_manual_quiz_attempt( $request ) {
+		if (
+			! isset(
+				$request['is_manually_completed'],
+				$request['course_id'],
+				$request['item_id'],
+				$request['user_id'],
+				$request['item_type']
+			) ||
+			'quiz' !== $request['item_type']
+		) {
+			return false;
+		}
+
+		// Allow admins and managers to manually complete a quiz.
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		// Check if the current user is the author of the course.
+		return masteriyo_is_current_user_post_author( absint( $request['course_id'] ) );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_questions_bank_data_by_quiz_id' ) ) {
 	/**
 	 * Gets the questions associated with a quiz.
 	 *
-	 * @since 1.17.5
+	 * @since 1.17.5 [Free]
 	 *
 	 * @param int $quiz_id The ID of the quiz.
 	 *

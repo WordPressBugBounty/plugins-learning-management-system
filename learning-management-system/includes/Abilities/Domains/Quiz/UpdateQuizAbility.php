@@ -3,7 +3,6 @@
  * Update Quiz ability.
  *
  * @package Masteriyo\Abilities\Domains\Quiz
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Quiz;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports partial updates — only the supplied fields are changed.
  * Commonly used to adjust pass mark, time limit, or question display settings.
- *
- * @since x.x.x
  */
 class UpdateQuizAbility extends RestProxyAbility {
 

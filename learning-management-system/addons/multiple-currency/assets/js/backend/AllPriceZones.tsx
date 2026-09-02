@@ -492,7 +492,10 @@ const AllPriceZones = () => {
 					},
 					delete: {
 						header: __('Deleting PricingZones', 'learning-management-system'),
-						body: __('Are you sure? You can’t restore after deleting.'),
+						body: __(
+							'Are you sure? You can’t restore after deleting.',
+							'learning-management-system',
+						),
 						confirm: __('Delete', 'learning-management-system'),
 					},
 					restore: {

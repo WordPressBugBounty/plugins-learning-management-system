@@ -13,6 +13,8 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Gateways\Paypal\Response;
+use Masteriyo\Pro\Enums\SubscriptionStatus;
+use Masteriyo\Models\Order\Order;
 
 /**
  * Paypal_IPN_Handler class.
@@ -53,9 +55,7 @@ class IpnHandler extends Response {
 		masteriyo_get_logger()->info( 'Checking for PayPal IPN Response.', array( 'source' => 'payment-paypal' ) );
 		if ( ! empty( $_POST ) && $this->validate_ipn() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$posted = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
 			masteriyo_get_logger()->info( 'Found PayPal IPN Response.', array( 'source' => 'payment-paypal' ) );
-
 			/**
 			 * Fires if PayPal IPN request is valid.
 			 *
@@ -66,9 +66,10 @@ class IpnHandler extends Response {
 			do_action( 'masteriyo_valid_paypal_standard_ipn_request', $posted );
 			exit;
 		}
-
 		masteriyo_get_logger()->info( 'No PayPal IPN Response found.', array( 'source' => 'payment-paypal' ) );
 
+		// Safe: dispatched only from Masteriyo::handle_paypal_ipn(), which gates on the
+		// `paypalListener`/`test_ipn` POST fields, so this never fires on an ordinary page load.
 		wp_die( 'PayPal IPN Request Failure', 'PayPal IPN', array( 'response' => 500 ) );
 	}
 
@@ -81,22 +82,28 @@ class IpnHandler extends Response {
 	 */
 	public function valid_response( $posted ) {
 		masteriyo_get_logger()->info( 'Validating PayPal IPN Response.', array( 'source' => 'payment-paypal' ) );
-
 		$order = ! empty( $posted['custom'] ) ? $this->get_paypal_order( $posted['custom'] ) : false;
 
 		if ( $order ) {
-
-			// Lowercase returned variables.
-			$posted['payment_status'] = strtolower( $posted['payment_status'] );
+			$payment_status           = strtolower( $posted['payment_status'] ?? '' );
+			$posted['payment_status'] = $payment_status;
+			$txn_type                 = masteriyo_strtolower( $posted['txn_type'] ?? '' );
 
 			Paypal::log( 'Found order #' . $order->get_id() );
-			Paypal::log( 'Payment status: ' . $posted['payment_status'] );
+			Paypal::log( 'Payment status: ' . $payment_status );
 
 			masteriyo_get_logger()->info( 'Found order #' . $order->get_id(), array( 'source' => 'payment-paypal' ) );
-			masteriyo_get_logger()->info( 'Payment status: ' . $posted['payment_status'], array( 'source' => 'payment-paypal' ) );
+			masteriyo_get_logger()->info( 'Payment status: ' . $payment_status, array( 'source' => 'payment-paypal' ) );
 
-			if ( method_exists( $this, 'payment_status_' . $posted['payment_status'] ) ) {
-				call_user_func( array( $this, 'payment_status_' . $posted['payment_status'] ), $order, $posted );
+			if ( method_exists( $this, 'payment_status_' . $payment_status ) ) {
+				call_user_func( array( $this, 'payment_status_' . $payment_status ), $order, $posted );
+			}
+
+			if (
+				masteriyo_starts_with( $txn_type, 'subscr_' ) ||
+				masteriyo_starts_with( $txn_type, 'recurring_' )
+			) {
+				$this->update_subscription( $order, $posted );
 			}
 
 			masteriyo_get_logger()->info( 'Finished validating PayPal IPN Response.', array( 'source' => 'payment-paypal' ) );
@@ -128,7 +135,6 @@ class IpnHandler extends Response {
 
 		// Post back to get a response.
 		$response = wp_safe_remote_post( $this->sandbox ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr', $params );
-
 		masteriyo_get_logger()->info( 'Finished validating PayPal IPN.', array( 'source' => 'payment-paypal' ) );
 		Paypal::log( 'IPN Response: ' . masteriyo_print_r( $response, true ) );
 
@@ -159,7 +165,26 @@ class IpnHandler extends Response {
 	 */
 	protected function validate_transaction_type( $txn_type ) {
 		masteriyo_get_logger()->info( 'Checking transaction type: ' . $txn_type, array( 'source' => 'payment-paypal' ) );
-		$accepted_types = array( 'cart', 'instant', 'express_checkout', 'web_accept', 'masspay', 'send_money', 'paypal_here' );
+		$accepted_types = array(
+			'cart',
+			'instant',
+			'express_checkout',
+			'web_accept',
+			'masspay',
+			'send_money',
+			'paypal_here',
+			'subscr_payment',
+			'subscr_signup',
+			'subscr_cancel',
+			'subscr_eot',
+			'recurring_payment',
+			'recurring_payment_profile_created',
+			'recurring_payment_profile_cancel',
+			'recurring_payment_failed',
+			'recurring_payment_suspended',
+			'recurring_payment_suspended_due_to_max_failed_payment',
+			'recurring_payment_expired',
+		);
 
 		if ( ! in_array( strtolower( $txn_type ), $accepted_types, true ) ) {
 			masteriyo_get_logger()->error( 'Aborting, Invalid type:' . $txn_type, array( 'source' => 'payment-paypal' ) );
@@ -180,10 +205,8 @@ class IpnHandler extends Response {
 	 */
 	protected function validate_currency( $order, $currency ) {
 		masteriyo_get_logger()->info( 'Checking currency: ' . $currency, array( 'source' => 'payment-paypal' ) );
-
 		if ( $order->get_currency() !== $currency ) {
 			masteriyo_get_logger()->error( 'Aborting, Currencies do not match (sent "' . $order->get_currency() . '" | returned "' . $currency . '")', array( 'source' => 'payment-paypal' ) );
-
 			Paypal::log( 'Payment error: Currencies do not match (sent "' . $order->get_currency() . '" | returned "' . $currency . '")' );
 
 			/* translators: %s: currency code. */
@@ -223,7 +246,6 @@ class IpnHandler extends Response {
 	 */
 	protected function validate_receiver_email( $order, $receiver_email ) {
 		masteriyo_get_logger()->info( 'Checking receiver email: ' . $receiver_email, array( 'source' => 'payment-paypal' ) );
-
 		if ( strcasecmp( trim( $receiver_email ), trim( $this->receiver_email ) ) !== 0 ) {
 			masteriyo_get_logger()->error( 'Aborting, IPN Response is for another account: ' . $receiver_email, array( 'source' => 'payment-paypal' ) );
 			Paypal::log( "IPN Response is for another account: {$receiver_email}. Your email is {$this->receiver_email}" );
@@ -244,7 +266,6 @@ class IpnHandler extends Response {
 	 */
 	protected function payment_status_completed( $order, $posted ) {
 		masteriyo_get_logger()->info( 'Payment status completed', array( 'source' => 'payment-paypal' ) );
-
 		if ( $order->has_status( masteriyo_get_is_paid_statuses() ) ) {
 			masteriyo_get_logger()->error( 'Aborting, Order #' . $order->get_id() . ' is already complete.', array( 'source' => 'payment-paypal' ) );
 			Paypal::log( 'Aborting, Order #' . $order->get_id() . ' is already complete.' );
@@ -267,13 +288,11 @@ class IpnHandler extends Response {
 			}
 
 			$this->payment_complete( $order, ( ! empty( $posted['txn_id'] ) ? masteriyo_clean( $posted['txn_id'] ) : '' ), __( 'IPN payment completed.', 'learning-management-system' ) );
-		} else {
-			if ( 'authorization' === $posted['pending_reason'] ) {
+		} elseif ( 'authorization' === $posted['pending_reason'] ) {
 				$this->payment_on_hold( $order, __( 'Payment authorized. Change payment status to processing or complete to capture funds.', 'learning-management-system' ) );
-			} else {
-				/* translators: %s: Pending reason. */
-				$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'learning-management-system' ), $posted['pending_reason'] ) );
-			}
+		} else {
+			/* translators: %s: Pending reason. */
+			$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'learning-management-system' ), $posted['pending_reason'] ) );
 		}
 	}
 
@@ -450,20 +469,29 @@ class IpnHandler extends Response {
 	 */
 	protected function send_ipn_email_notification( $subject, $message ) {
 		$new_order_settings        = $this->get_new_order_settings();
-		$mailer                    = masteriyo( 'email' );
-		$message                   = $mailer->wrap_message( $subject, $message );
 		$masteriyo_paypal_settings = $this->get_paypal_settings();
 
-		if ( ! $masteriyo_paypal_settings['ipn_notification'] ) {
+		if ( ! isset( $masteriyo_paypal_settings['ipn_notification'] ) ) {
 			return;
 		}
-
+		$mailer     = new \Masteriyo\Emails\Admin\NewOrderEmailToAdmin();
 		$recipients = $new_order_settings['recipients'];
+
 		if ( empty( $recipients ) ) {
 			$recipients = (array) get_bloginfo( 'admin_email' );
 		}
 
-		$mailer->send( $recipients, wp_strip_all_tags( $subject ), $message );
+		$mailer->set_recipients( $recipients );
+		$mailer->set( 'subject', $subject );
+		$mailer->set( 'content', $message );
+
+		$mailer->send(
+			$mailer->get_recipients(),
+			$mailer->get_subject(),
+			$mailer->get_content(),
+			$mailer->get_headers(),
+			$mailer->get_attachments()
+		);
 	}
 
 	/**
@@ -511,5 +539,73 @@ class IpnHandler extends Response {
 			'live_api_password'      => masteriyo_get_setting( 'payments.paypal.live_api_password' ),
 			'live_api_signature'     => masteriyo_get_setting( 'payments.paypal.live_api_signature' ),
 		);
+	}
+
+	/**
+	 * Update subscription.
+	 *
+	 * @since 2.6.10
+	 * @param Order $order Order object.
+	 * @param array $posted Post data.
+	 */
+	protected function update_subscription( $order, $posted ) {
+		if ( ! masteriyo_order_has_recurring_courses( $order ) ) {
+			Paypal::log( "Order: {$order->get_id()} does not contain any recurring courses." );
+			exit;
+		}
+		$subscription = masteriyo_get_order_subscription( $order );
+
+		// The statuses below are pro's. `masteriyo_get_order_subscription()` already
+		// answers null without pro, so the second test only restates that for the
+		// analysis — a free site has no subscription for an IPN to be about.
+		if ( ! $subscription || ! masteriyo_service_provider_exists( 'subscription' ) ) {
+			Paypal::log( "Order: {$order->get_id()} does not have a subscription." );
+			exit;
+		}
+
+		$txn_type       = $posted['txn_type'];
+		$payment_status = $posted['payment_status'];
+
+		switch ( $txn_type ) {
+			case 'subscr_payment':
+				$subscription->set_props(
+					array(
+						'status'          => SubscriptionStatus::ACTIVE,
+						'transaction_id'  => $posted['txn_id'],
+						'subscription_id' => $posted['subscr_id'],
+					)
+				);
+				Paypal::log( "Subscription: #{$subscription->get_id()} has been updated." );
+				break;
+			case 'recurring_payment':
+			case 'recurring_payment_outstanding_payment':
+				switch ( $payment_status ) {
+					case 'failing':
+					case 'failed':
+						$subscription->set_status( SubscriptionStatus::FAILED );
+						Paypal::log( "Subscription: #{$subscription->get_id()} has failed." );
+						break;
+					default:
+						$subscription->set_status( SubscriptionStatus::ACTIVE );
+						Paypal::log( "Subscription: #{$subscription->get_id()} has been updated." );
+				}
+				break;
+			case 'recurring_payment_profile_cancel':
+			case 'recurring_payment_suspended_due_to_max_failed_payment':
+			case 'recurring_payment_suspended':
+				$subscription->set_status( SubscriptionStatus::CANCELLED );
+				Paypal::log( "Subscription: #{$subscription->get_id()} has been cancelled." );
+				break;
+			case 'recurring_payment_failed':
+				$subscription->set_status( SubscriptionStatus::FAILED );
+				Paypal::log( "Subscription: #{$subscription->get_id()} has failed." );
+				break;
+			case 'recurring_payment_expired':
+				$subscription->set_status( SubscriptionStatus::EXPIRED );
+				Paypal::log( "Subscription: #{$subscription->get_id()} has expired." );
+				break;
+		}
+
+		$subscription->save();
 	}
 }

@@ -129,3 +129,49 @@ function masteriyo_clear_usage_tracking_preference_by_user() {
 function masteriyo_is_set_usage_tracking_preference_by_user_set() {
 	return 'yes' === get_option( 'masteriyo_usage_tracking_user_preference' );
 }
+
+/**
+ * Remove onboarding payment secrets from an array before it is persisted or telemetried.
+ *
+ * Uses unset() rather than empty strings so the data is truly absent: an empty
+ * string would still be "set" and re-flow through the onboarding setup chain,
+ * potentially overwriting a merchant's real Stripe keys. Preserves all other
+ * onboarding options such as offer_paid_courses, currency, sandbox, started and
+ * the commission rates.
+ *
+ * @param mixed $data Onboarding data array (or anything else, returned unchanged).
+ * @return mixed The input array with Stripe/PayPal secrets removed.
+ */
+function masteriyo_redact_onboarding_secrets( $data ) {
+	if ( ! is_array( $data ) ) {
+		return $data;
+	}
+	$secret_keys = array(
+		'live_secret_key',
+		'test_secret_key',
+		'live_publishable_key',
+		'test_publishable_key',
+		'stripe_user_id',
+		'paypal_email',
+	);
+	foreach ( array( 'setup', 'payment' ) as $step ) { // current + legacy schema
+		foreach ( array( array( 'steps', $step, 'options', 'payments' ), array( 'steps', $step, 'options' ) ) as $path ) {
+			$ref = &$data;
+			$ok  = true;
+			foreach ( $path as $seg ) {
+				if ( ! isset( $ref[ $seg ] ) || ! is_array( $ref[ $seg ] ) ) {
+					$ok = false;
+					break;
+				}
+				$ref = &$ref[ $seg ];
+			}
+			if ( $ok ) {
+				foreach ( $secret_keys as $k ) {
+					unset( $ref[ $k ] );
+				}
+			}
+			unset( $ref );
+		}
+	}
+	return $data;
+}

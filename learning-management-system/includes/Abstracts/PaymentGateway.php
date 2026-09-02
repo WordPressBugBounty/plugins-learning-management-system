@@ -391,7 +391,7 @@ abstract class PaymentGateway {
 	 * @return string
 	 */
 	public function get_icon() {
-		$icon_url = '<img href="%s" alt="%s" />';
+		$icon_url = '<img src="%s" alt="%s" />';
 		$icon     = $this->icon ? sprintf( $icon_url, esc_url( $this->icon ), esc_attr( $this->get_title() ) ) : '';
 
 		/**
@@ -805,7 +805,7 @@ abstract class PaymentGateway {
 		/**
 		 * Filter: Allow developers to modify gateway availability.
 		 *
-		 * @since 2.1.0
+		 * @since 3.1.0
 		 *
 		 * @param bool $is_available Whether the gateway is available.
 		 * @param object $gateway    The gateway instance.

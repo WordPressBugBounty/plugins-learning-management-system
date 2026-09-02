@@ -7,6 +7,9 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\PostStatus;
+use Masteriyo\Enums\QuizAttemptStatus;
+use Masteriyo\PostType\PostType;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Models\QuizAttempt;
 use Masteriyo\Query\QuizAttemptQuery;
@@ -77,9 +80,7 @@ class QuizAttemptsController extends CrudController {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => function() {
-						return is_user_logged_in() || masteriyo( 'session' )->get_user_id();
-					},
+					'permission_callback' => array( $this, 'get_items_permissions_check' ),
 					'args'                => $this->get_collection_params(),
 				),
 				array(
@@ -123,6 +124,66 @@ class QuizAttemptsController extends CrudController {
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				),
+			)
+		);
+
+		// Pro.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/update_answer_points',
+			array(
+				'args' => array(
+					'id'        => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+					'answer_id' => array(
+						'description' => __( 'Answer to update the points.', 'learning-management-system' ),
+						'type'        => 'number',
+						'required'    => true,
+					),
+					'points'    => array(
+						'description' => __( 'The new points.', 'learning-management-system' ),
+						'type'        => 'number',
+						'required'    => true,
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_answer_points' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+
+		// Pro.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/update_answer_correct_status',
+			array(
+				'args' => array(
+					'id'         => array(
+						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+					'answer_id'  => array(
+						'description' => __( 'Answer to update the points.', 'learning-management-system' ),
+						'type'        => 'number',
+						'required'    => true,
+					),
+					'is_correct' => array(
+						'description' => __( 'The new status. True if correct otherwise false', 'learning-management-system' ),
+						'type'        => 'boolean',
+						'required'    => true,
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_answer_correct_status' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				),
 			)
 		);
@@ -314,6 +375,8 @@ class QuizAttemptsController extends CrudController {
 				'attempt_status'           => array(
 					'description' => __( 'Quiz attempt status.', 'learning-management-system' ),
 					'type'        => 'string',
+					'default'     => QuizAttemptStatus::STARTED,
+					'enum'        => QuizAttemptStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'attempt_started_at'       => array(
@@ -324,6 +387,11 @@ class QuizAttemptsController extends CrudController {
 				'attempt_ended_at'         => array(
 					'description' => __( 'Quiz attempt ended time.', 'learning-management-system' ),
 					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'reviewed'                 => array(
+					'description' => __( 'Quiz attempt reviewed.', 'learning-management-system' ),
+					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 			),
@@ -364,7 +432,10 @@ class QuizAttemptsController extends CrudController {
 	 * @return array
 	 */
 	protected function get_objects( $query_args ) {
-		if ( ! ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) ) {
+		$request   = masteriyo_current_http_request();
+		$course_id = isset( $request['course_id'] ) ? $request['course_id'] : 0;
+
+		if ( masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
 			$quiz_ids           = masteriyo_get_instructor_quiz_ids();
 			$quiz_ids           = empty( $quiz_ids ) ? array( 0 ) : $quiz_ids;
 			$query_args['quiz'] = $quiz_ids;
@@ -390,7 +461,7 @@ class QuizAttemptsController extends CrudController {
 	protected function get_quiz_attempts_from_session( $query_args ) {
 		$session = masteriyo( 'session' );
 
-		$quiz_id      = absint( $query_args['quiz_id'] );
+		$quiz_id      = isset( $query_args['quiz_id'] ) ? absint( $query_args['quiz_id'] ) : 0;
 		$all_attempts = $session->get( 'quiz_attempts', array() );
 		$attempts     = isset( $all_attempts[ $quiz_id ] ) ? $all_attempts[ $quiz_id ] : array();
 		$total_items  = count( $attempts );
@@ -542,6 +613,71 @@ class QuizAttemptsController extends CrudController {
 			$args['user_id'] = absint( $request['user_id'] );
 		}
 
+		#TODO - Need to manage permission for quiz attempts in proper way.
+		// Check for the guest user.
+		if ( ! is_user_logged_in() && masteriyo( 'session' )->get_user_id() ) {
+			$args['user_id'] = masteriyo( 'session' )->get_user_id();
+		}
+
+		// Prevent students from viewing other students' quiz attempts if sent request without user_id.
+		if ( ! isset( $request['user_id'] ) && masteriyo_is_current_user_student() ) {
+			$args['user_id'] = get_current_user_id();
+		}
+
+		if ( masteriyo_is_current_user_instructor() ) {
+			$current_user_id = get_current_user_id();
+
+			$main_author_courses = get_posts(
+				array(
+					'post_type'      => PostType::COURSE,
+					'post_status'    => PostStatus::PUBLISH,
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'author'         => $current_user_id,
+				)
+			);
+
+			$additional_author_courses = get_posts(
+				array(
+					'post_type'      => PostType::COURSE,
+					'post_status'    => PostStatus::PUBLISH,
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'meta_query'     => array(
+						array(
+							'key'     => '_additional_authors',
+							'value'   => $current_user_id,
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
+
+			$course_ids = array_unique( array_merge( $main_author_courses, $additional_author_courses ) );
+
+			$quiz_ids = array();
+
+			if ( ! empty( $course_ids ) ) {
+				$quiz_ids = get_posts(
+					array(
+						'post_type'      => PostType::QUIZ,
+						'post_status'    => PostStatus::PUBLISH,
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'meta_query'     => array(
+							array(
+								'key'     => '_course_id',
+								'value'   => $course_ids,
+								'compare' => 'IN',
+							),
+						),
+					)
+				);
+			}
+
+			$args['quiz'] = empty( $quiz_ids ) ? array( 0 ) : $quiz_ids;
+		}
+
 		/**
 		 * Filter the query arguments for a request.
 		 *
@@ -577,18 +713,193 @@ class QuizAttemptsController extends CrudController {
 		$response = rest_ensure_response( $data );
 
 		/**
-		 * Filter the data for a response.
-		 *
-		 * The dynamic portion of the hook name, $this->object_type,
-		 * refers to object type being prepared for the response.
-		 *
-		 * @since 1.3.2
-		 *
-		 * @param WP_REST_Response $response The response object.
-		 * @param Masteriyo\Database\Model $object   Object data.
-		 * @param WP_REST_Request  $request  Request object.
-		 */
+		* Filter the data for a response.
+		*
+		* The dynamic portion of the hook name, $this->object_type,
+		* refers to object type being prepared for the response.
+		*
+		* @since 1.3.2
+		*
+		* @param WP_REST_Response $response The response object.
+		* @param Masteriyo\Database\Model $object   Object data.
+		* @param WP_REST_Request  $request  Request object.
+		*/
 		return apply_filters( "masteriyo_rest_prepare_{$this->object_type}_object", $response, $object, $request );
+	}
+
+	/**
+	* Update obtained points for an answer.
+	*
+	* @since 2.4.0
+	*
+	* @param \WP_REST_Request $request Full details about the request.
+	*/
+	public function update_answer_points( $request ) {
+		$id         = absint( $request['id'] );
+		$answer_id  = absint( $request['answer_id'] );
+		$new_points = (float) $request['points'];
+		$note       = isset( $request['note'] ) ? $request['note'] : '';
+
+		if ( $id <= 0 ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$quiz_attempt = masteriyo_get_quiz_attempt( $id );
+
+		if ( is_null( $quiz_attempt ) ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$answers         = maybe_unserialize( $quiz_attempt->get_answers( 'edit' ) );
+		$is_answer_found = false;
+
+		if ( ! is_array( $answers ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'No answers in this quiz attempt.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		foreach ( $answers as $question_id => $attempt_answer ) {
+			if ( $answer_id === $question_id ) {
+				$is_answer_found               = true;
+				$attempt_answer['points']      = $new_points;
+				$attempt_answer['is_reviewed'] = true;
+				$attempt_answer['note']        = $note;
+				$answers[ $question_id ]       = $attempt_answer;
+				break;
+			}
+		}
+
+		if ( ! $is_answer_found ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid answer ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$quiz_attempt->set_answers( $answers );
+
+		masteriyo_sync_quiz_attempt_attributes( $quiz_attempt );
+
+		try {
+			$quiz_attempt->save();
+		} catch ( \Exception $e ) {
+			return new \WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		/**
+		 * Fires after the quiz point is updated.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param integer $id The quiz attempt ID.
+		 * @param \Masteriyo\Models\QuizAttempt $object The quiz attempt object.
+		 */
+		do_action( 'masteriyo_rest_quiz_attempt_update_answer_points', $quiz_attempt->get_id(), $quiz_attempt );
+
+		$response = $this->prepare_object_for_response( $quiz_attempt, $request );
+		$response = rest_ensure_response( $response );
+
+		$request->set_param( 'context', 'edit' );
+		$response->set_status( 201 );
+		$response->header( 'Location', rest_url( sprintf( '/%s/%s/%d', $this->namespace, $this->rest_base, $quiz_attempt->get_id() ) ) );
+
+		return $response;
+	}
+
+		/**
+		* Update correct status of an answer.
+		*
+		* @since 2.4.0
+		*
+		* @param \WP_REST_Request $request Full details about the request.
+		*/
+	public function update_answer_correct_status( $request ) {
+		$id         = absint( $request['id'] );
+		$answer_id  = absint( $request['answer_id'] );
+		$is_correct = masteriyo_string_to_bool( $request['is_correct'] );
+
+		if ( $id <= 0 ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$quiz_attempt = masteriyo_get_quiz_attempt( $id );
+
+		if ( is_null( $quiz_attempt ) ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$answers         = maybe_unserialize( $quiz_attempt->get_answers( 'edit' ) );
+		$is_answer_found = false;
+
+		if ( ! is_array( $answers ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_update',
+				__( 'No answers in this quiz attempt.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		foreach ( $answers as $question_id => $attempt_answer ) {
+			if ( $answer_id === $question_id ) {
+				$is_answer_found           = true;
+				$question                  = masteriyo_get_question( $question_id );
+				$attempt_answer['correct'] = $is_correct;
+
+				if ( $question && ! $question->is_reviewable() ) {
+					$attempt_answer['points'] = $is_correct ? (float) $question->get_points() : 0;
+				}
+
+				$answers[ $question_id ] = $attempt_answer;
+				break;
+			}
+		}
+
+		if ( ! $is_answer_found ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid answer ID', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$quiz_attempt->set_answers( $answers );
+
+		masteriyo_sync_quiz_attempt_attributes( $quiz_attempt );
+
+		try {
+			$quiz_attempt->save();
+		} catch ( \Exception $e ) {
+			return new \WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		$response = $this->prepare_object_for_response( $quiz_attempt, $request );
+		$response = rest_ensure_response( $response );
+
+		$request->set_param( 'context', 'edit' );
+		$response->set_status( 201 );
+		$response->header( 'Location', rest_url( sprintf( '/%s/%s/%d', $this->namespace, $this->rest_base, $quiz_attempt->get_id() ) ) );
+
+		return $response;
 	}
 
 	/**
@@ -605,6 +916,7 @@ class QuizAttemptsController extends CrudController {
 		}
 
 		$new_attempt_answers = array();
+
 		foreach ( $attempt_answers as $question_id => $attempt_answer ) {
 			$question = masteriyo_get_question( $question_id );
 
@@ -613,32 +925,75 @@ class QuizAttemptsController extends CrudController {
 			}
 
 			/**
-			 * For backward compatibility when attempt_answers was store in following format.
-			 * Old format: "answers" : [ '$question_id' => '$given_answered' ]
-			 * New format: "answers" : [ '$question_id' => [ 'answered' => '$given_answered', 'correct' => 'boolean' ]  ]
-			 */
-			$given_answers = isset( $attempt_answer['answered'] ) ? $attempt_answer['answered'] : $attempt_answer;
-			$name          = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
-
-			$new_attempt_answers[ $question_id ]['answered']       = $given_answers;
-			$new_attempt_answers[ $question_id ]['correct']        = $question->check_answer( $given_answers );
-			$new_attempt_answers[ $question_id ]['question']       = $name;
-			$new_attempt_answers[ $question_id ]['points']         = $question->get_points();
-			$new_attempt_answers[ $question_id ]['type']           = $question->get_type();
-			$new_attempt_answers[ $question_id ]['correct_answer'] = $question->get_correct_answers();
-
+			* For backward compatibility when attempt_answers was store in following format.
+			* Old format: "answers" : [ '$question_id' => '$given_answered' ]
+			* New format: "answers" : [ '$question_id' => [ 'answered' => '$given_answered', 'correct' => 'boolean' ]  ]
+			*/
+			$given_answers                       = isset( $attempt_answer['answered'] ) ? $attempt_answer['answered'] : $attempt_answer;
+			$is_correct                          = isset( $attempt_answer['correct'] ) ? $attempt_answer['correct'] : $question->check_answer( $given_answers );
+			$points                              = isset( $attempt_answer['points'] ) && is_numeric( $attempt_answer['points'] ) ? $attempt_answer['points'] : ( $is_correct ? $question->get_points() : 0 );
+			$is_reviewed                         = isset( $attempt_answer['is_reviewed'] ) ? (bool) $attempt_answer['is_reviewed'] : ! $question->is_reviewable();
+			$note                                = isset( $attempt_answer['note'] ) ? $attempt_answer['note'] : '';
+			$name                                = 'view' === $context ? apply_filters( 'the_content', $question->get_name() ) : $question->get_name();
+			$new_attempt_answers[ $question_id ] = array(
+				'answered'       => $given_answers,
+				'correct'        => $is_correct,
+				'question'       => $name,
+				'points'         => $points,
+				'type'           => $question->get_type(),
+				'correct_answer' => $question->get_correct_answers(),
+				'is_reviewed'    => $is_reviewed,
+				'max_points'     => $question->get_points(),
+				'note'           => $note,
+			);
 		}
 
 		/**
-		 * Filter quiz attempt answers data.
-		 *
-		 * @since 1.5.1
-		 *
-		 * @param array $new_attempt_answers New attempt answers.
-		 * @param mixed $attempt_answers Stored attempt answers.
-		 * @param Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController $controller REST quiz attempts controller object.
-		 */
+		* Filter quiz attempt answers data.
+		*
+		* @since 1.5.1
+		*
+		* @param array $new_attempt_answers New attempt answers.
+		* @param mixed $attempt_answers Stored attempt answers.
+		* @param Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController $controller REST quiz attempts controller object.
+		*/
 		return apply_filters( 'masteriyo_quiz_attempt_answers', $new_attempt_answers, $attempt_answers, $this );
+	}
+
+	/**
+	 * Get quiz attempt question answers explanation data.
+	 *
+	 * @since 2.13.0
+	 *
+	 * @param number $quiz_id
+	 * @return array
+	 */
+	protected function get_answers_explanation_data( $quiz_id, $context = 'view' ) {
+		if ( empty( $quiz_id ) ) {
+			return null;
+		}
+
+		$quiz_questions = masteriyo_get_quiz_questions( $quiz_id );
+
+		if ( empty( $quiz_questions ) ) {
+			return null;
+		}
+
+		$answer_explanation = array();
+
+		foreach ( $quiz_questions as $question ) {
+			$answer_explanation[ $question->get_id() ] = 'view' === $context ? apply_filters( 'the_content', $question->get_answer_explanation() ) : $question->get_answer_explanation();
+		}
+
+		/**
+			* Filter quiz attempt answer explanation data.
+			*
+			* @since 2.13.0
+			*
+			* @param array $answer_explanation New attempt answers.
+			* @param Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController $controller REST quiz attempts controller object.
+			*/
+		return apply_filters( 'masteriyo_quiz_attempt_answers_explanation', $answer_explanation, $this );
 	}
 
 	/**
@@ -662,13 +1017,17 @@ class QuizAttemptsController extends CrudController {
 			'total_correct_answers'    => $quiz_attempt->get_total_correct_answers( $context ),
 			'total_incorrect_answers'  => $quiz_attempt->get_total_incorrect_answers( $context ),
 			'earned_marks'             => $quiz_attempt->get_earned_marks( $context ),
-			'answers'                  => $this->get_answers_data( $quiz_attempt->get_answers( $context ) ),
+			'answers'                  => $this->get_answers_data( $quiz_attempt->get_answers(), $context ),
 			'attempt_status'           => $quiz_attempt->get_attempt_status( $context ),
 			'attempt_started_at'       => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_started_at( $context ) ),
 			'attempt_ended_at'         => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_ended_at( $context ) ),
 			'course'                   => null,
 			'quiz'                     => null,
 			'user'                     => null,
+			'answer_explanation'       => $this->get_answers_explanation_data(
+				$quiz_attempt->get_quiz_id(),
+				$context
+			),
 		);
 
 		$course = masteriyo_get_course( $quiz_attempt->get_course_id( $context ) );
@@ -700,6 +1059,7 @@ class QuizAttemptsController extends CrudController {
 				'pass_mark'          => $quiz->get_pass_mark(),
 				'duration'           => $quiz->get_duration(),
 				'reveal_mode'        => $quiz->get_reveal_mode(),
+				'pass_mark_type'     => $quiz->get_pass_mark_type(),
 				'view_last_attempts' => $view_last_attempts,
 			);
 		}
@@ -715,15 +1075,15 @@ class QuizAttemptsController extends CrudController {
 		}
 
 		/**
-		 * Filter quiz attempt rest response data.
-		 *
-		 * @since 1.4.10
-		 *
-		 * @param array $data Quiz attempt data.
-		 * @param Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
-		 * @param string $context What the value is for. Valid values are view and edit.
-		 * @param Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController $controller REST quiz attempts controller object.
-		 */
+		* Filter quiz attempt rest response data.
+		*
+		* @since 1.4.10
+		*
+		* @param array $data Quiz attempt data.
+		* @param Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
+		* @param string $context What the value is for. Valid values are view and edit.
+		* @param Masteriyo\RestApi\Controllers\Version1\QuizAttemptsController $controller REST quiz attempts controller object.
+		*/
 		return apply_filters( "masteriyo_rest_response_{$this->object_type}_data", $data, $quiz_attempt, $context, $this );
 	}
 
@@ -803,20 +1163,24 @@ class QuizAttemptsController extends CrudController {
 			$quiz_attempt->set_attempt_ended_at( $request['attempt_ended_at'] );
 		}
 
+		if ( isset( $request['reviewed'] ) ) {
+			$quiz_attempt->set_reviewed( $request['reviewed'] );
+		}
 		/**
-		 * Filters an object before it is inserted via the REST API.
-		 *
-		 * The dynamic portion of the hook name, `$this->object_type`,
-		 * refers to the object type slug.
-		 *
-		 * @since 1.5.4
-		 *
-		 * @param Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
-		 * @param WP_REST_Request $request Request object.
-		 * @param boolean $creating If is creating a new object.
-		 */
+		* Filters an object before it is inserted via the REST API.
+		*
+		* The dynamic portion of the hook name, `$this->object_type`,
+		* refers to the object type slug.
+		*
+		* @since 1.5.4
+		*
+		* @param Masteriyo\Models\QuizAttempt $quiz_attempt Quiz attempt object.
+		* @param WP_REST_Request $request Request object.
+		* @param boolean $creating If is creating a new object.
+		*/
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->object_type}_object", $quiz_attempt, $request, $creating );
 	}
+
 
 	/**
 	 * Check if a given request has access to delete an item.
@@ -1002,6 +1366,45 @@ class QuizAttemptsController extends CrudController {
 	}
 
 	/**
+	 * Check if a given request has access to read items.
+	 *
+	 * @since 2.14.4
+	 *
+	 * @param  \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return \WP_Error|boolean
+	 */
+	public function get_items_permissions_check( $request ) {
+		if ( is_user_logged_in() && masteriyo_is_current_user_has_masteriyo_role() ) {
+
+			// To make sure student don't get quiz attempts using user id param.
+			if ( masteriyo_is_current_user_student() ) {
+				if ( ! empty( $request['user_id'] ) && masteriyo_get_current_user_id() !== absint( $request['user_id'] ) ) {
+					return new \WP_Error(
+						'masteriyo_rest_cannot_read',
+						__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+						array(
+							'status' => rest_authorization_required_code(),
+						)
+					);
+
+				}
+			}
+			return true;
+		} elseif ( ! is_user_logged_in() && masteriyo( 'session' )->get_user_id() ) {
+			return true;
+		} else {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+	}
+
+	/**
 	 * Return last attempt of quiz.
 	 *
 	 * @since 1.5.28
@@ -1024,7 +1427,7 @@ class QuizAttemptsController extends CrudController {
 		}
 
 		if ( is_user_logged_in() ) {
-			$query    = new QuizAttemptQuery(
+			$query = new QuizAttemptQuery(
 				array(
 					'quiz_id'  => $quiz_id,
 					'user_id'  => masteriyo_get_current_user_id(),
@@ -1032,9 +1435,10 @@ class QuizAttemptsController extends CrudController {
 					'per_page' => 1,
 				)
 			);
-			$attempts = $query->get_quiz_attempts();
 
+			$attempts     = $query->get_quiz_attempts();
 			$last_attempt = current( $attempts );
+
 		} else {
 			$query_args   = array(
 				'quiz_id'  => $quiz_id,
@@ -1140,7 +1544,7 @@ class QuizAttemptsController extends CrudController {
 	/**
 	 * View Attempt
 	 *
-	 * @since 2.0.4
+	 * @since 2.0.4 [Free]
 	 *
 	 * @param \Masteriyo\Models\QuizAttempt $attempt
 	 * @return bool
@@ -1171,7 +1575,7 @@ class QuizAttemptsController extends CrudController {
 	/**
 	 * Check if a given request has access to read the terms.
 	 *
-	 * @since 2.0.4
+	 * @since 2.0.4 [Free]
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean

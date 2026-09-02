@@ -100,6 +100,7 @@
 			});
 		},
 	};
+
 	var masteriyo_utils = {
 		getErrorNotice: function (message) {
 			return (
@@ -116,6 +117,7 @@
 			);
 		},
 	};
+
 	var masteriyo_helper = {
 		confirm: function () {
 			var res = window.prompt(mto_data.labels.type_confirm);
@@ -153,7 +155,24 @@
 			}
 			return html;
 		},
+		stop_all_videos: function (container) {
+			$(container)
+				.find('video')
+				.each(function () {
+					if (this.pause) {
+						this.pause();
+					}
+				});
+
+			$(container)
+				.find('iframe')
+				.each(function () {
+					var iframeSrc = this.src;
+					this.src = iframeSrc;
+				});
+		},
 	};
+
 	var masteriyo_dialogs = {
 		confirm_delete_course_review: function (options = {}) {
 			$(document.body).append(
@@ -182,6 +201,7 @@
 			);
 		},
 	};
+
 	var masteriyo = {
 		$create_review_form: $('.masteriyo-submit-review-form'),
 		create_review_form_class: '.masteriyo-submit-review-form',
@@ -189,6 +209,7 @@
 		init: function () {
 			$(document).ready(function () {
 				masteriyo.init_sticky_sidebar();
+				masteriyo.init_immersive_sticky_guard();
 				masteriyo.init_rating_widget();
 				masteriyo.init_course_reviews_menu();
 				masteriyo.init_curriculum_accordions_handler();
@@ -196,16 +217,20 @@
 				masteriyo.init_edit_reviews_handler();
 				masteriyo.init_delete_reviews_handler();
 				masteriyo.init_reply_btn_handler();
+				masteriyo.init_featured_video_modals();
+				masteriyo.init_course_faq_handler();
 				masteriyo.init_course_reviews_loader();
-				masteriyo.init_password_projected_form_handler();
 				masteriyo.init_course_retake_handler();
 				masteriyo.init_course_complete_handler();
 				masteriyo.init_course_code_copy();
+				masteriyo.init_password_projected_form_handler();
 				masteriyo.init_layout_1_curriculum_accordions_handler();
 				masteriyo.init_single_course_review_item_visibility();
 				masteriyo.init_course_progress_chart();
 				masteriyo.toggle_masteriyo_instructor();
 				masteriyo.prerequisites_highlight();
+				masteriyo.cohort_highlight();
+				masteriyo.init_cohort_enroll();
 				masteriyo.toggle_review_form();
 			});
 		},
@@ -232,6 +257,46 @@
 					$('#masteriyo-show-review-form').css('display', 'inline-flex');
 				}
 			});
+		},
+		init_cohort_enroll: function () {
+			$('.masteriyo-enrollment-open').on('click', function () {
+				const courseId = $(this).data('course-id');
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						action: 'masteriyo_course_cohort',
+						nonce: mto_data.cohort_nonce,
+						course_id: courseId,
+					},
+					url: mto_data.ajaxURL,
+					success: function (response) {
+						if (response.success) {
+						} else {
+						}
+					},
+					error: function (xhr) {},
+				});
+			});
+		},
+		cohort_highlight: function () {
+			$(document).on(
+				'click',
+				'.masteriyo-enrollment-not-open,.masteriyo-enrollment-closed,.masteriyo-course-not-open',
+				function (e) {
+					e.preventDefault();
+
+					$('.masteriyo-single-course--cohort').addClass(
+						'masteriyo-single-course--cohort--required cohort-required',
+					);
+
+					setTimeout(function () {
+						$('.masteriyo-single-course--cohort').removeClass(
+							'masteriyo-single-course--cohort--required  cohort-required',
+						);
+					}, 1000);
+				},
+			);
 		},
 		prerequisites_highlight: function () {
 			$(document).on(
@@ -429,7 +494,6 @@
 				$('.masteriyo-login-msg').show();
 			} else {
 				$('.masteriyo-login-msg').hide();
-
 				// Only hide review form if user has already reviewed.
 				if ('yes' === mto_data.user_already_reviewed) {
 					$('.masteriyo-submit-container').hide();
@@ -465,6 +529,69 @@
 					}
 				}
 			}
+		},
+
+		init_featured_video_modals: function () {
+			$(
+				'.masteriyo-immersive-enroll-card .masteriyo-featured-video-modal',
+			).appendTo(document.body);
+
+			// Open modal
+			$(document.body).on(
+				'click',
+				'.masteriyo-play-featured-video-btn',
+				function () {
+					$('.masteriyo-featured-video-modal').fadeIn();
+					document.body.style.overflow = 'hidden';
+				},
+			);
+
+			$(document.body).on(
+				'click',
+				'.masteriyo-play-featured-video-btn-related',
+				function (e) {
+					e.preventDefault();
+
+					var $modal = $(this)
+						.closest('.masteriyo-course--card, .masteriyo-bundle__courses-item')
+						.find('.masteriyo-featured-video-modal-content-related');
+					var $player = $modal.find('video').length
+						? $modal.find('video')
+						: $modal.find('iframe');
+
+					if (!$player.attr('src')) {
+						$player.attr('src', $player.data('src'));
+					}
+
+					$modal.fadeIn();
+					document.body.style.overflow = 'hidden';
+				},
+			);
+
+			// Close modal when clicking on the overlay
+			$(document.body).on(
+				'click',
+				'.masteriyo-featured-video-modal',
+				function (e) {
+					if ($(e.target).hasClass('masteriyo-overlay')) {
+						$(this).fadeOut();
+						masteriyo_helper.stop_all_videos(this);
+						document.body.style.overflow = '';
+					}
+				},
+			);
+
+			$(document.body).on(
+				'click',
+				'.masteriyo-featured-video-modal-content-related',
+				function (e) {
+					if ($(e.target).hasClass('masteriyo-overlay')) {
+						$(this).fadeOut();
+						masteriyo_helper.stop_all_videos(this);
+						document.body.style.overflow = '';
+					}
+				},
+			);
 		},
 
 		init_course_reviews_menu: function () {
@@ -638,7 +765,6 @@
 							masteriyo_utils.getSuccessNotice(mto_data.labels.submit_success),
 						);
 						$form.trigger('reset');
-
 						// Update the flag and hide the form since user has now reviewed.
 						mto_data.user_already_reviewed = 'yes';
 						setTimeout(function () {
@@ -704,6 +830,7 @@
 				$(this).closest('.masteriyo-reply-form').slideUp(200);
 			});
 		},
+
 		init_edit_reviews_handler: function () {
 			$(document.body).on(
 				'click',
@@ -964,6 +1091,36 @@
 				);
 			});
 		},
+		// Immersive layout: unstick the enroll card when it is taller than the
+		// viewport — a top-pinned sticky would keep everything below the fold
+		// unreachable until the end of the page.
+		init_immersive_sticky_guard: function () {
+			var card = document.querySelector(
+				'[data-layout="immersive"] .masteriyo-immersive-enroll-card',
+			);
+
+			if (!card || !('ResizeObserver' in window)) {
+				return;
+			}
+
+			var update = function () {
+				var adminBar = document.getElementById('wpadminbar');
+				var available =
+					window.innerHeight -
+					32 -
+					(adminBar ? adminBar.offsetHeight : 0) -
+					16;
+
+				card.classList.toggle(
+					'masteriyo-immersive-enroll-card--static',
+					card.offsetHeight > available,
+				);
+			};
+
+			new ResizeObserver(update).observe(card);
+			window.addEventListener('resize', update);
+			update();
+		},
 		init_sticky_sidebar: function () {
 			var $content_ref = $('.masteriyo-single-course--main').get(0);
 
@@ -1034,12 +1191,60 @@
 				isCollapsedAll = true;
 			}
 		},
+		init_course_faq_handler: function () {
+			var isCollapsedAll = true;
+			$(document.body).on(
+				'click',
+				'.course-faqs .masteriyo-expand-collapse-all',
+				function () {
+					if (isCollapsedAll) {
+						expandAllFaqSections();
+					} else {
+						collapseAllFaqSections();
+					}
+				},
+			);
+
+			// Expand all
+			function expandAllFaqSections() {
+				$('.masteriyo-stab--items').addClass('active');
+				$('.course-faqs .masteriyo-expand-collapse-all').text(
+					mto_data.labels.collapse_all,
+				);
+				isCollapsedAll = false;
+			}
+
+			// Collapse all
+			function collapseAllFaqSections() {
+				$('.masteriyo-stab--items').removeClass('active');
+				$('.course-faqs .masteriyo-expand-collapse-all').text(
+					mto_data.labels.expand_all,
+				);
+				isCollapsedAll = true;
+			}
+			$(document.body).on('click', '.masteriyo-header', function () {
+				$(this).parent('.masteriyo-stab--items').toggleClass('active');
+
+				if (
+					$('.masteriyo-stab--items').length ===
+					$('.masteriyo-stab--items.active').length
+				) {
+					expandAllFaqSections();
+				}
+				if (
+					$('.masteriyo-stab--items').length ===
+					$('.masteriyo-stab--items').not('.active').length
+				) {
+					collapseAllFaqSections();
+				}
+			});
+		},
 		init_course_reviews_loader: function () {
 			var isLoadingReviews = false;
 			var currentPage = 1;
 			var searchText = '';
-			var prevSearchVal = '';
 			var rating = '';
+			var prevSearchVal = '';
 
 			$('button#masteriyo-course-reviews-search-button').on('click', () => {
 				var $button = $('button#masteriyo-course-reviews-search-button');
@@ -1157,6 +1362,7 @@
 						if (res.success) {
 							searchText = searchValue;
 							rating = ratingValue;
+
 							if (res.data.view_load_more_button) {
 								$loadMoreButton.show();
 							} else {
@@ -1365,6 +1571,130 @@
 				}, 2000);
 			});
 		},
+		/**
+		 * Initializes the password-protected form handler.
+		 *
+		 * This function sets up event listeners for the password-protected form modal,
+		 * allowing users to enter a password and access a protected project.
+		 *
+		 * @since 1.8.0
+		 */
+		init_password_projected_form_handler: function () {
+			var $passwordProjectedBtn = $('.masteriyo-password-protected');
+			var protectedCourseId = 0;
+
+			var $submitBtn = $(
+				'#masteriyoCoursePasswordProtectedModal .masteriyo-submit',
+			);
+			var originalSubmitBtnText = $submitBtn.text();
+			var submitBtnText = originalSubmitBtnText;
+
+			/** Submit data. */
+			function onSubmit(e) {
+				e.preventDefault();
+
+				submitBtnText = $submitBtn.data('loading-text');
+				$submitBtn.text(submitBtnText);
+				$submitBtn.prop('disabled', true);
+
+				var password = $('#masteriyoPostPassword').val();
+				if (!password) {
+					if (mto_data.labels && mto_data.labels.password_not_empty) {
+						$('#passwordError').text(mto_data.labels.password_not_empty).show();
+
+						submitBtnText = originalSubmitBtnText;
+						$submitBtn.text(submitBtnText);
+						$submitBtn.prop('disabled', false);
+					}
+					return;
+				}
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						action: 'masteriyo_course_password_protection',
+						nonce: mto_data.password_protected_nonce,
+						password,
+						course_id: protectedCourseId,
+					},
+					url: mto_data.ajaxURL,
+					success: function (response) {
+						submitBtnText = originalSubmitBtnText;
+						$submitBtn.text(submitBtnText);
+						$submitBtn.prop('disabled', false);
+
+						if (response.success) {
+							$('#masteriyoPostPassword').val('');
+							$('#passwordError').text('');
+							$('#masteriyoCoursePasswordProtectedModal').addClass(
+								'masteriyo-hidden',
+							);
+
+							if (response.data && response.data.start_url) {
+								window.open(response.data.start_url);
+							}
+						} else {
+							if (response.data && response.data.message) {
+								$('#passwordError').text(response.data.message).show();
+							}
+						}
+					},
+					error: function (xhr) {
+						submitBtnText = originalSubmitBtnText;
+						$submitBtn.text(submitBtnText);
+						$submitBtn.prop('disabled', false);
+
+						var errorMessage = 'An error occurred';
+						if (
+							xhr.responseJSON &&
+							xhr.responseJSON.data &&
+							xhr.responseJSON.data.message
+						) {
+							errorMessage = xhr.responseJSON.data.message;
+						}
+						$('#passwordError').text(errorMessage).show();
+					},
+				});
+			}
+
+			$passwordProjectedBtn.on('click', function (e) {
+				e.preventDefault();
+				protectedCourseId = $(this).attr('href').split('=')[1];
+				$('#masteriyoCoursePasswordProtectedModal').removeClass(
+					'masteriyo-hidden',
+				);
+			});
+
+			$('#masteriyoCoursePasswordProtectedModal .masteriyo-cancel').on(
+				'click',
+				function (e) {
+					e.preventDefault();
+					$('#masteriyoCoursePasswordProtectedModal').addClass(
+						'masteriyo-hidden',
+					);
+				},
+			);
+
+			$('#masteriyoCoursePasswordProtectedModal form').on(
+				'submit',
+				function (e) {
+					e.preventDefault();
+				},
+			);
+
+			$('#masteriyoCoursePasswordProtectedModal .masteriyo-submit').on(
+				'click',
+				function (e) {
+					onSubmit(e);
+				},
+			);
+
+			$('#masteriyoCoursePasswordProtectedModal form').keypress(function (e) {
+				if (e.which == 13) {
+					onSubmit(e);
+				}
+			});
+		},
 
 		/**
 		 * Initializes the layout 1 curriculum accordions handler for single course.
@@ -1373,7 +1703,7 @@
 		 * to toggle the accordion body open/closed. It also handles the expand/collapse all
 		 * accordion bodies functionality.
 		 *
-		 * @since 1.10.0
+		 * @since 1.10.0 [Free]
 		 */
 		init_layout_1_curriculum_accordions_handler: function () {
 			var $accordionHeaders = $(
@@ -1418,16 +1748,19 @@
 
 function masteriyo_select_single_course_page_tab(e, tabContentSelector) {
 	jQuery(
-		'.masteriyo-single-course--main__content .masteriyo-tab.active-tab',
+		'.masteriyo-single-course--main__content .masteriyo-tab.active-tab, .masteriyo-bundle__main .masteriyo-tab.active-tab',
 	).removeClass('active-tab');
-	jQuery('.masteriyo-single-course--main__content .tab-content').addClass(
-		'masteriyo-hidden',
-	);
+	jQuery(
+		'.masteriyo-single-course--main__content .tab-content, .masteriyo-bundle__main .tab-content',
+	).addClass('masteriyo-hidden');
 
 	jQuery(e.target).addClass('active-tab');
 	jQuery(
 		'.masteriyo-single-course--main__content ' + tabContentSelector,
 	).removeClass('masteriyo-hidden');
+	jQuery('.masteriyo-bundle__main ' + tabContentSelector).removeClass(
+		'masteriyo-hidden',
+	);
 
 	if (tabContentSelector === '#overview') {
 		setTimeout(() => {
@@ -1442,7 +1775,7 @@ function masteriyo_select_single_course_page_tab(e, tabContentSelector) {
 /**
  * Switches the active tab on the single course page.
  *
- * @since 1.10.0
+ * @since 1.10.0 [Free]
  *
  * @param {Object} e - The event object.
  */
@@ -1483,7 +1816,6 @@ function initCustomFieldsRenderer() {
 		'masteriyo-course-values',
 	)?.textContent;
 	if (!singleCourseElementTextContent) return;
-
 	let customFieldsInitialized = false;
 
 	if (customFieldsInitialized) return;
@@ -1493,6 +1825,18 @@ function initCustomFieldsRenderer() {
 
 	function nl2br(str) {
 		return typeof str === 'string' ? str.replace(/\n/g, '<br>') : str;
+	}
+
+	const htmlEntities = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+	};
+
+	function escapeHtml(str) {
+		return String(str).replace(/[&<>"']/g, (char) => htmlEntities[char]);
 	}
 
 	function isEmptyValue(displayValue) {
@@ -1512,6 +1856,7 @@ function initCustomFieldsRenderer() {
 		}
 		return false;
 	}
+
 	function renderFields(fields) {
 		const sortedFields = fields.sort(
 			(a, b) => (a.priority || 0) - (b.priority || 0),
@@ -1573,9 +1918,9 @@ function initCustomFieldsRenderer() {
 			displayValue.length > maxTextLength;
 
 		return `
-		<div class="masteriyo-field" data-type="${field.type}">
+		<div class="masteriyo-field" data-type="${escapeHtml(field.type)}">
 			<div class="field-header">
-				<span class="field-label">${field.label} </span>
+				<span class="field-label">${escapeHtml(field.label)} </span>
 				<div class="field-value">
 					${
 						isBoolean
@@ -1583,15 +1928,15 @@ function initCustomFieldsRenderer() {
 						<span class="boolean-indicator ${value ? 'yes' : 'no'}">
 							${value ? '✓' : '✕'}
 						</span>
-						<span class="boolean-text">${displayValue}</span>
+						<span class="boolean-text">${escapeHtml(displayValue)}</span>
 					`
 							: ''
 					}
 					${
 						isPassword
 							? `
-						<span class="password-display">${displayValue}</span>
-						<button class="toggle-password" data-value="${value}">
+						<span class="password-display">${escapeHtml(displayValue)}</span>
+						<button class="toggle-password" data-value="${escapeHtml(value)}">
 							Show
 						</button>
 					`
@@ -1600,7 +1945,7 @@ function initCustomFieldsRenderer() {
 					${
 						['select', 'radio'].includes(field.type)
 							? `
-						<span class="option-badge">${displayValue}</span>
+						<span class="option-badge">${escapeHtml(displayValue)}</span>
 					`
 							: ''
 					}
@@ -1611,13 +1956,13 @@ function initCustomFieldsRenderer() {
 							? isTextareaOverflow
 								? `
 									<span class="text-value">
-										<span class="truncated-text">${nl2br(displayValue.substring(0, maxTextLength) + '...')}</span>
-										<span class="full-text" style="display: none;">${nl2br(displayValue)}</span>
+										<span class="truncated-text">${nl2br(escapeHtml(displayValue.substring(0, maxTextLength) + '...'))}</span>
+										<span class="full-text" style="display: none;">${nl2br(escapeHtml(displayValue))}</span>
 										<p class="see-more-less">See more</p>
 									</span>
 								`
 								: `
-									<span class="text-value">${nl2br(displayValue)}</span>
+									<span class="text-value">${nl2br(escapeHtml(displayValue))}</span>
 								`
 							: ''
 					}
@@ -1687,4 +2032,54 @@ function initCustomFieldsRenderer() {
 
 document.addEventListener('DOMContentLoaded', function () {
 	initCustomFieldsRenderer();
+});
+
+/**
+ * Layout hint card: dismissing it — or following the settings link — hides it
+ * permanently for the current user via the REST dismiss endpoint.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+	var hint = document.querySelector('.masteriyo-layout-hint');
+
+	if (!hint || !window.masteriyo_data) {
+		return;
+	}
+
+	// sendBeacon so the request survives the settings-link navigation; the
+	// REST cookie auth accepts the nonce as a query param.
+	function dismiss() {
+		var url =
+			window.masteriyo_data.rootApiUrl +
+			'masteriyo/v1/single-course-layout-notice/dismiss';
+
+		// rootApiUrl already carries ?rest_route= on plain-permalink sites.
+		url +=
+			(url.indexOf('?') === -1 ? '?' : '&') +
+			'_wpnonce=' +
+			window.masteriyo_data.nonce;
+
+		// sendBeacon returns false when it cannot queue the request; fall back
+		// to a keepalive fetch, which also survives the link navigation.
+		if (!(navigator.sendBeacon && navigator.sendBeacon(url))) {
+			fetch(url, {
+				method: 'POST',
+				credentials: 'same-origin',
+				keepalive: true,
+			});
+		}
+	}
+
+	var dismissButton = hint.querySelector('.masteriyo-layout-hint__dismiss');
+	var settingsLink = hint.querySelector('.masteriyo-layout-hint__link');
+
+	if (dismissButton) {
+		dismissButton.addEventListener('click', function () {
+			dismiss();
+			hint.remove();
+		});
+	}
+
+	if (settingsLink) {
+		settingsLink.addEventListener('click', dismiss);
+	}
 });

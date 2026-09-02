@@ -70,7 +70,7 @@ const DNDJson: React.FC<Props> = ({ handleFileUpload }) => {
 		}
 
 		// Might need an API call here
-		handleFileUpload.mutateAsync(e?.dataTransfer?.files?.[0]);
+		handleFileUpload.mutateAsync(e.dataTransfer.files[0]);
 
 		setFileDNDInProgress(false);
 	};

@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Addons\BrevoIntegration\API
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 namespace Masteriyo\Addons\BrevoIntegration\API;
 
@@ -16,14 +16,14 @@ use Masteriyo\EmailMarketingAndCRM\APIClient;
 /**
  * Brevo API class.
  *
- * @since 1.13.3
+ * @since 2.14.4 [Free]
  */
 class API extends APIClient {
 
 	/**
 	 * API key.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -32,7 +32,7 @@ class API extends APIClient {
 	/**
 	 * API endpoint.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @var string
 	 */
@@ -41,7 +41,7 @@ class API extends APIClient {
 	/**
 	 * Constructor for API.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $api_key The API key.
 	 */
@@ -56,7 +56,7 @@ class API extends APIClient {
 	/**
 	 * Validate the API key.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $api_key The API key.
 	 *
@@ -77,7 +77,7 @@ class API extends APIClient {
 	/**
 	 * Get account details from the API.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return array|\WP_Error The API response or a WP_Error instance.
 	 */
@@ -88,7 +88,7 @@ class API extends APIClient {
 	/**
 	 * Get lists from the API.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @return array|\WP_Error The API response or a WP_Error instance.
 	 */
@@ -99,7 +99,7 @@ class API extends APIClient {
 	/**
 	 * Create a new contact.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $data The contact data.
 	 *
@@ -112,7 +112,7 @@ class API extends APIClient {
 	/**
 	 * Update a contact.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param array $data The contact data.
 	 *                   Required keys: `email`.
@@ -126,7 +126,7 @@ class API extends APIClient {
 	/**
 	 * Get contact by email.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $email The contact email.
 	 *
@@ -139,7 +139,7 @@ class API extends APIClient {
 	/**
 	 * Check if a contact exists by email.
 	 *
-	 * @since 1.13.3
+	 * @since 2.14.4 [Free]
 	 *
 	 * @param string $email The contact email.
 	 *

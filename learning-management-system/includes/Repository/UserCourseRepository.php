@@ -53,20 +53,15 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 	public function create( Model &$user_course ) {
 		global $wpdb;
 
-		$date_start    = '';
-		$date_modified = '';
-		$date_end      = '';
-
-		if ( $user_course->get_date_start( 'edit' ) ) {
-			$date_start = gmdate( 'Y-m-d H:i:s', $user_course->get_date_start( 'edit' )->getTimestamp() );
+		// `set_date_prop()` documents its string input as local WP time and converts it to
+		// UTC itself, so `current_time( 'mysql' )` is the correct form here. The setters take
+		// one argument; a second was being passed and silently discarded.
+		if ( ! $user_course->get_date_start( 'edit' ) ) {
+			$user_course->set_date_start( current_time( 'mysql' ) );
 		}
 
-		if ( $user_course->get_date_modified( 'edit' ) ) {
-			$date_modified = gmdate( 'Y-m-d H:i:s', $user_course->get_date_modified( 'edit' )->getTimestamp() );
-		}
-
-		if ( $user_course->get_date_end( 'edit' ) ) {
-			$date_end = gmdate( 'Y-m-d H:i:s', $user_course->get_date_end( 'edit' )->getTimestamp() );
+		if ( ! $user_course->get_date_modified( 'edit' ) ) {
+			$user_course->set_date_modified( current_time( 'mysql' ) );
 		}
 
 		if ( masteriyo_is_user_already_enrolled( $user_course->get_user_id(), $user_course->get_course_id() ) ) {
@@ -90,14 +85,33 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 					'item_id'       => $user_course->get_course_id( 'edit' ),
 					'item_type'     => $user_course->get_type( 'edit' ),
 					'status'        => $user_course->get_status( 'edit' ) ? $user_course->get_status( 'edit' ) : UserCourseStatus::ACTIVE,
-					'date_start'    => $date_start,
-					'date_modified' => $date_modified,
-					'date_end'      => $date_end,
+					'date_start'    => gmdate( 'Y-m-d H:i:s', $user_course->get_date_start( 'edit' )->getTimestamp() ),
+					'date_modified' => $user_course->get_date_modified( 'edit' ) ? gmdate( 'Y-m-d H:i:s', $user_course->get_date_modified( 'edit' )->getTimestamp() ) : '',
+					'date_end'      => $user_course->get_date_end( 'edit' ) ? gmdate( 'Y-m-d H:i:s', $user_course->get_date_end( 'edit' )->getTimestamp() ) : '',
 				),
 				$user_course
 			),
 			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
+
+		if ( false === $result && false !== strpos( (string) $wpdb->last_error, 'Duplicate entry' ) ) {
+			// The unique index on (user_id, item_id, item_type) is the authoritative guard against duplicate rows — the pre-check above is inherently racy. Losing the race means another request already created the row, so hydrate this object from it instead of treating the failed insert as an error.
+			$existing_id = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT id FROM {$user_course->get_table_name()} WHERE user_id = %d AND item_id = %d AND item_type = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$user_course->get_user_id( 'edit' ),
+					$user_course->get_course_id( 'edit' ),
+					$user_course->get_type( 'edit' )
+				)
+			);
+
+			if ( $existing_id ) {
+				$user_course->set_id( $existing_id );
+				$this->read( $user_course );
+			}
+
+			return;
+		}
 
 		if ( $result && $wpdb->insert_id ) {
 			$user_course->set_id( $wpdb->insert_id );
@@ -139,16 +153,14 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 			'date_end',
 		);
 
+		// Same rule as `create()` above: `set_date_prop()` converts a string from local WP
+		// time to UTC itself, so the local form is the correct one. This copy of the guard
+		// had kept the GMT form, which double-converts on any site not running UTC.
+		if ( ! $user_course->get_date_modified( 'edit' ) ) {
+			$user_course->set_date_modified( current_time( 'mysql' ) );
+		}
+
 		if ( array_intersect( $user_course_data_keys, array_keys( $changes ) ) ) {
-			$date_start = $user_course->get_date_start( 'edit' );
-			$date_start = is_null( $date_start ) ? '' : gmdate( 'Y-m-d H:i:s', $date_start->getTimestamp() );
-
-			$date_modified = $user_course->get_date_modified( 'edit' );
-			$date_modified = is_null( $date_modified ) ? '' : gmdate( 'Y-m-d H:i:s', $date_modified->getTimestamp() );
-
-			$date_end = $user_course->get_date_end( 'edit' );
-			$date_end = is_null( $date_end ) ? '' : gmdate( 'Y-m-d H:i:s', $date_end->getTimestamp() );
-
 			$wpdb->update(
 				$user_course->get_table_name(),
 				array(
@@ -156,9 +168,9 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 					'item_id'       => $user_course->get_course_id( 'edit' ),
 					'item_type'     => $user_course->get_type( 'edit' ),
 					'status'        => $user_course->get_status( 'edit' ),
-					'date_start'    => $date_start,
-					'date_modified' => $date_modified,
-					'date_end'      => $date_end,
+					'date_start'    => $user_course->get_date_start( 'edit' ) ? gmdate( 'Y-m-d H:i:s', $user_course->get_date_start( 'edit' )->getTimestamp() ) : '',
+					'date_modified' => $user_course->get_date_modified( 'edit' ) ? gmdate( 'Y-m-d H:i:s', $user_course->get_date_modified( 'edit' )->getTimestamp() ) : '',
+					'date_end'      => $user_course->get_date_end( 'edit' ) ? gmdate( 'Y-m-d H:i:s', $user_course->get_date_end( 'edit' )->getTimestamp() ) : '',
 				),
 				array( 'id' => $user_course->get_id() )
 			);
@@ -209,8 +221,9 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 			 * @since 1.0.0
 			 *
 			 * @param integer $id The user course ID.
+			 * @param \Masteriyo\Models\UserCourse $object The user course object.
 			 */
-			do_action( 'masteriyo_delete_user_course', $user_course->get_id() );
+			do_action( 'masteriyo_delete_user_course', $user_course->get_id(), $user_course );
 
 			$user_course->set_status( 'trash' );
 
@@ -245,7 +258,7 @@ class UserCourseRepository extends AbstractRepository implements RepositoryInter
 		}
 
 		if ( ! $result ) {
-			throw new \Exception( __( 'Invalid user course.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid user course.', 'learning-management-system' ) );
 		}
 
 		$user_course->set_props(

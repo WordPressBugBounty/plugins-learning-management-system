@@ -1,7 +1,5 @@
 /**
  * Frontend overrides for Masteriyo Elementor widgets.
- *
- * @since x.x.x
  */
 
 /* Enroll button widget: strip the card shell (border/shadow/bg) and put price + button in one row */
@@ -57,4 +55,14 @@
 .masteriyo-elementor-course-layout-layout1 .masteriyo-courses-view-mode-section,
 .masteriyo-elementor-course-layout-layout2 .masteriyo-courses-view-mode-section {
 	display: none !important;
+}
+
+/* Cohort highlight animation */
+.elementor-widget-masteriyo-course-cohort .masteriyo-single-course--cohort.cohort-required {
+	outline: 1.5px dashed var(--masteriyo-color-primary, #4584ff);
+	outline-offset: 6px;
+	border-radius: 4px;
+}
+.elementor-widget-masteriyo-course-cohort .masteriyo-single-course--cohort--required {
+	animation: vibrateCard 0.4s 0.1s linear;
 }

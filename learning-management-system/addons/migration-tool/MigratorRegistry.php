@@ -2,7 +2,6 @@
 /**
  * Migrator registry.
  *
- * @since x.x.x
  * @package Masteriyo\Addons\MigrationTool
  */
 
@@ -21,8 +20,6 @@ use Masteriyo\Addons\MigrationTool\Contracts\MigratorInterface;
  * Adding a new LMS requires only:
  *   1. A new class in Migrators/ implementing MigratorInterface.
  *   2. One `register()` call, typically via the `masteriyo_migration_tool_register` filter.
- *
- * @since x.x.x
  */
 class MigratorRegistry {
 
@@ -33,8 +30,6 @@ class MigratorRegistry {
 
 	/**
 	 * Registers a migrator instance.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param MigratorInterface $migrator
 	 * @return static Fluent — supports chaining in filter callbacks.
@@ -47,8 +42,6 @@ class MigratorRegistry {
 	/**
 	 * Returns the migrator for the given slug, or null if not registered.
 	 *
-	 * @since x.x.x
-	 *
 	 * @param string $slug
 	 * @return MigratorInterface|null
 	 */
@@ -59,8 +52,6 @@ class MigratorRegistry {
 	/**
 	 * Returns all registered migrators keyed by slug.
 	 *
-	 * @since x.x.x
-	 *
 	 * @return MigratorInterface[]
 	 */
 	public function all(): array {
@@ -69,8 +60,6 @@ class MigratorRegistry {
 
 	/**
 	 * Returns true if a migrator is registered for the given slug.
-	 *
-	 * @since x.x.x
 	 *
 	 * @param string $slug
 	 * @return bool

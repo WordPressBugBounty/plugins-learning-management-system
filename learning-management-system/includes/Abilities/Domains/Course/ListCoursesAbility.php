@@ -3,7 +3,6 @@
  * List Courses ability.
  *
  * @package Masteriyo\Abilities\Domains\Course
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Course;
@@ -17,8 +16,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  *
  * Supports filtering by status, category, instructor, difficulty, and search term.
  * Returns data + pagination envelope via ResponseEnvelope.
- *
- * @since x.x.x
  */
 class ListCoursesAbility extends RestProxyAbility {
 

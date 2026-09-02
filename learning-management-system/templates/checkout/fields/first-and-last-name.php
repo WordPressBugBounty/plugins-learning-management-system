@@ -19,14 +19,18 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Notice;
 
+$first_name_field = isset( $first_name_field ) ? $first_name_field : array( 'required' => true );
+$last_name_field  = isset( $last_name_field ) ? $last_name_field : array( 'required' => true );
 ?>
 
-<div class="masteriyo-checkout---fname-lname-wrapper masteriyo-col-2">
+<div class="masteriyo-checkout---fname-lname-wrapper">
 	<!-- First name -->
 	<div class="masteriyo-checkout----fname">
 		<label for="billing-first-name" class="masteriyo-label">
 			<?php esc_html_e( 'First Name', 'learning-management-system' ); ?>
-			<span>*</span>
+			<?php if ( ! empty( $first_name_field['required'] ) ) : ?>
+				<span>*</span>
+			<?php endif; ?>
 		</label>
 
 		<input
@@ -35,6 +39,7 @@ use Masteriyo\Notice;
 			class="masteriyo-input"
 			name="billing_first_name"
 			value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_first_name() ); ?>"
+			<?php masteriyo_checkout_field_required_attributes( $first_name_field ); ?>
 		/>
 
 		<?php if ( masteriyo_notice_exists( 'billing_first_name', Notice::ERROR ) ) : ?>
@@ -49,7 +54,9 @@ use Masteriyo\Notice;
 	<div class="masteriyo-checkout----lname">
 		<label for="billing-last-name" class="masteriyo-label">
 			<?php esc_html_e( 'Last Name', 'learning-management-system' ); ?>
-			<span>*</span>
+			<?php if ( ! empty( $last_name_field['required'] ) ) : ?>
+				<span>*</span>
+			<?php endif; ?>
 		</label>
 
 		<input
@@ -58,6 +65,7 @@ use Masteriyo\Notice;
 			class="masteriyo-input"
 			name="billing_last_name"
 			value="<?php echo is_null( $user ) || is_wp_error( $user ) ? '' : esc_attr( $user->get_last_name() ); ?>"
+			<?php masteriyo_checkout_field_required_attributes( $last_name_field ); ?>
 		/>
 
 		<?php if ( masteriyo_notice_exists( 'billing_last_name', Notice::ERROR ) ) : ?>

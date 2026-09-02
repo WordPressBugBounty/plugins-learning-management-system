@@ -3,7 +3,7 @@
 /**
  * BuddyPress Integration helper functions.
  *
- * @since 1.15.0
+ * @since 1.15.0 [Free]
  * @package Masteriyo\Addons\BuddyPress
  */
 
@@ -20,7 +20,7 @@ class Helper {
 	/**
 	 * Return if BuddyPress is active.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return boolean
 	 */
@@ -31,7 +31,7 @@ class Helper {
 	/**
 	 * Return if BuddyPress Groups is active.
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return boolean
 	 */
@@ -59,7 +59,7 @@ class Helper {
 	 * @param $course_id
 	 * @param $remove
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 */
 	public static function bp_masteriyo_user_course_access_update( $user_id, $course_id, $remove ) {
 		$group_attached = (int) get_post_meta( $course_id, 'bp_course_group', true );
@@ -133,7 +133,7 @@ class Helper {
 	 *
 	 * @param array $args
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return int|bool
 	 *
@@ -189,7 +189,7 @@ class Helper {
 	 * @param type $course_id
 	 * @param type $group_id
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return void
 	 */
@@ -214,7 +214,7 @@ class Helper {
 	 * @param type $course_id
 	 * @param type $group_id
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return void
 	 */
@@ -257,7 +257,7 @@ class Helper {
 	 * @param type $course_id
 	 * @param type $group_id
 	 *
-	 * @since 1.15.0
+	 * @since 1.15.0 [Free]
 	 *
 	 * @return void
 	 */

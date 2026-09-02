@@ -3,7 +3,6 @@
  * Get Course Progress ability.
  *
  * @package Masteriyo\Abilities\Domains\CourseProgress
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\CourseProgress;
@@ -14,8 +13,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
  * Ability: retrieve a course progress record by ID.
- *
- * @since x.x.x
  */
 class GetCourseProgressAbility extends RestProxyAbility {
 

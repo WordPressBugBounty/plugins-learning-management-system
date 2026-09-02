@@ -1,8 +1,6 @@
 <?php
 /**
  * Masteriyo H5P addon service providers.
- *
- * @since x.x.x
  */
 
 defined( 'ABSPATH' ) || exit;

@@ -1,7 +1,7 @@
 /**
  * Implements functionality for sharing certificate preview within the Masteriyo platform.
  *
- * @since 1.13.3
+ * @since 2.14.4 [free]
  *
  * @param {Object} $ - The jQuery object.
  */
@@ -36,7 +36,7 @@
 		/**
 		 * Show the certificate share modal.
 		 *
-		 * @since 1.13.3
+		 * @since 2.14.4 [free]
 		 *
 		 * @param {Event} e - The event object.
 		 */
@@ -48,7 +48,7 @@
 		/**
 		 * Hide the certificate share modal.
 		 *
-		 * @since 1.13.3
+		 * @since 2.14.4 [free]
 		 */
 		closeCertificateShareModal: function () {
 			$('#masteriyoCertificateShareModal').addClass('masteriyo-hidden');

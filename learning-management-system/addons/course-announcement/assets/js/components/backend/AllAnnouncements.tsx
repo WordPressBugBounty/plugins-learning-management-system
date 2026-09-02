@@ -352,21 +352,12 @@ const AllAnnouncements = () => {
 
 			<Container maxW="container.xl">
 				<Box bg="white" py={{ base: 6, md: 12 }} shadow="box" mx="auto">
-					<Stack direction="column" spacing="10">
+					<Stack direction="column" spacing={{ base: '15px', md: '2.5rem' }}>
 						<AnnouncementFilter
 							setFilterParams={setFilterParams}
 							filterParams={filterParams}
 						/>
-						<Stack
-							direction="column"
-							spacing="8"
-							mt={{
-								base: '15px !important',
-								sm: '15px !important',
-								md: '2.5rem !important',
-								lg: '2.5rem !important',
-							}}
-						>
+						<Stack direction="column" spacing="8">
 							<Table>
 								{announcementQuery.isLoading || !announcementQuery.isFetched ? (
 									<SkeletonAnnouncementList />
@@ -390,10 +381,9 @@ const AllAnnouncements = () => {
 										)}
 										isResultFiltered={Boolean(
 											filterParams?.search ||
-												filterParams?.course_id ||
-												filterParams?.author_id ||
-												(filterParams?.status &&
-													filterParams?.status !== 'any'),
+											filterParams?.course_id ||
+											filterParams?.author_id ||
+											(filterParams?.status && filterParams?.status !== 'any'),
 										)}
 									/>
 								) : (
@@ -409,7 +399,7 @@ const AllAnnouncements = () => {
 														}
 														isIndeterminate={
 															announcementQuery?.data?.data?.length !==
-																bulkIds?.length && bulkIds?.length > 0
+																bulkIds.length && bulkIds.length > 0
 														}
 														isChecked={
 															announcementQuery?.data?.data?.length ===
@@ -421,7 +411,7 @@ const AllAnnouncements = () => {
 																e.target.checked
 																	? announcementQuery?.data?.data?.map(
 																			(announcement: any) =>
-																				announcement?.id?.toString(),
+																				announcement.id.toString(),
 																		)
 																	: [],
 															)
@@ -550,7 +540,10 @@ const AllAnnouncements = () => {
 					},
 					delete: {
 						header: __('Deleting Announcements', 'learning-management-system'),
-						body: __('Are you sure? You can’t restore after deleting.'),
+						body: __(
+							'Are you sure? You can’t restore after deleting.',
+							'learning-management-system',
+						),
 						confirm: __('Delete', 'learning-management-system'),
 					},
 					restore: {

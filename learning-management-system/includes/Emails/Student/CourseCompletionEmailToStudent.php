@@ -4,7 +4,7 @@
  *
  * @package Masteriyo\Emails
  *
- * @since 1.15.0
+ * @since 2.7.3
  */
 
 namespace Masteriyo\Emails\Student;
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 /**
  * ResetPasswordEmail Class. Used for sending password reset email.
  *
- * @since 1.15.0
+ * @since 2.7.3
  *
  * @package Masteriyo\Emails
  */
@@ -26,7 +26,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Email method ID.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @var string
 	 */
@@ -35,7 +35,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * HTML template path.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @var string
 	 */
@@ -44,7 +44,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Send this email.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @param int $user_id User id.
 	 * @param int $course_id Course Id.
@@ -62,9 +62,16 @@ class CourseCompletionEmailToStudent extends Email {
 			return;
 		}
 
-		$student_email = $student->get_email();
+		$student_email        = $student->get_email();
+		$to_addresses_setting = masteriyo_get_setting( 'emails.student.course_completion.to_address' );
+		$to_address           = array();
 
-		$this->set_recipients( $student_email );
+		if ( ! empty( $to_addresses_setting ) ) {
+			$to_addresses_setting = str_replace( '{student_email}', $student_email, $to_addresses_setting );
+			$to_address           = explode( ',', $to_addresses_setting );
+		}
+
+		$this->set_recipients( ! empty( $to_address ) ? $to_address : $student_email );
 
 		$this->set( 'email_heading', $this->get_heading() );
 		$this->set( 'student', $student );
@@ -133,7 +140,7 @@ class CourseCompletionEmailToStudent extends Email {
 
 						$certificate_html_content = $certificate->get_html_content();
 
-						$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content );
+						$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content, $certificate_id );
 
 						$temp = tempnam( sys_get_temp_dir(), 'certificate' );
 						$temp = "$temp.pdf";
@@ -155,6 +162,11 @@ class CourseCompletionEmailToStudent extends Email {
 			$this->get_headers(),
 			$this->get_attachments()
 		);
+
+		// Delete the browser-uploaded temp PDF after the email is sent.
+		if ( $pdf_path && file_exists( $pdf_path ) ) {
+			@unlink( $pdf_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
 
 	}
 
@@ -179,7 +191,7 @@ class CourseCompletionEmailToStudent extends Email {
 
 			$certificate_html_content = $certificate->get_html_content();
 
-			$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content );
+			$certificate_pdf = new CertificatePDF( $course_id, $student_id, $certificate_html_content, $certificate_id );
 
 			$temp = tempnam( sys_get_temp_dir(), 'certificate' );
 			$temp = "$temp.pdf";
@@ -190,7 +202,7 @@ class CourseCompletionEmailToStudent extends Email {
 			/**
 		 * Filters email attachments.
 		 *
-		 * @since 1.15.0
+		 * @since 2.7.3
 		 *
 		 * @param array $attachments Absolute paths of attachments.
 		 * @param string $headers Email object id.
@@ -202,7 +214,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Return subject.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return string
 	 */
@@ -211,11 +223,12 @@ class CourseCompletionEmailToStudent extends Email {
 		/**
 		 * Filter instructor registration email subject to admin.
 		 *
-		 * @since 1.15.0
+		 * @since 2.7.3
 		 *
 		 * @param string $subject.
 		 */
-		$subject = apply_filters( $this->get_full_id(), masteriyo_get_default_email_contents()['student']['course_completion']['subject'] );
+		$subject = apply_filters( $this->get_full_id(), masteriyo_get_setting( 'emails.student.course_completion.subject' ) );
+		$subject = empty( trim( $subject ) ) ? masteriyo_get_default_email_contents()['student']['course_completion']['subject'] : $subject;
 
 		return $this->format_string( $subject );
 	}
@@ -223,7 +236,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Return true if it is enabled.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return bool
 	 */
@@ -234,7 +247,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Return heading.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return string
 	 */
@@ -242,7 +255,7 @@ class CourseCompletionEmailToStudent extends Email {
 		/**
 		 * Filter instructor registration email heading to instructor.
 		 *
-		 * @since 1.15.0
+		 * @since 2.7.3
 		 *
 		 * @param string $heading.
 		 */
@@ -254,7 +267,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Return additional content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return string
 	 */
@@ -263,7 +276,7 @@ class CourseCompletionEmailToStudent extends Email {
 		/**
 		 * Filter instructor registration email additional content to instructor.
 		 *
-		 * @since 1.15.0
+		 * @since 2.7.3
 		 *
 		 * @param string $additional_content.
 		 */
@@ -276,12 +289,19 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Get email content.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return string
 	 */
 	public function get_content() {
-		$content = masteriyo_string_translation( 'emails.student.course_completion.content', 'masteriyo-email-message', masteriyo_get_default_email_contents()['student']['course_completion']['content'] );
+		$content = masteriyo_string_translation( 'emails.student.course_completion.content', 'masteriyo-email-message', masteriyo_get_setting( 'emails.student.course_completion.content' ) );
+
+		$content = is_string( $content ) ? trim( $content ) : '';
+
+		if ( empty( $content ) ) {
+			$content = masteriyo_get_default_email_contents()['student']['course_completion']['content'];
+		}
+
 		$content = $this->format_string( $content );
 
 		$this->set( 'content', $content );
@@ -292,7 +312,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Get placeholders.
 	 *
-	 * @since 1.15.0
+	 * @since 2.7.3
 	 *
 	 * @return array
 	 */
@@ -322,7 +342,7 @@ class CourseCompletionEmailToStudent extends Email {
 				'{student_nickname}'                    => $student->get_nickname(),
 				'{student_email}'                       => $student->get_email(),
 				'{account_login_link}'                  => wp_kses_post(
-					'<a href="' . $this->get_account_url() . '" style="text-decoration: none;">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
+					'<a href="' . $this->get_account_url() . '" class="email-template--button">' . __( 'Login to Your Account', 'learning-management-system' ) . '</a>'
 				),
 				'{course_completion_celebration_image}' => $this->get_celebration_image(),
 			);
@@ -336,7 +356,7 @@ class CourseCompletionEmailToStudent extends Email {
 		}
 		$placeholders = $placeholders + array(
 			'{certificate_download_url}' => $certificate ? wp_kses_post(
-				'<a href="' . esc_url( $certificate ) . '" style="text-decoration: none;">' . __( 'Download Certificate', 'learning-management-system' ) . '</a>'
+				'<a href="' . esc_url( $certificate ) . '" class="email-template--button">' . __( 'Download Certificate', 'learning-management-system' ) . '</a>'
 			) : '',
 		);
 
@@ -346,7 +366,7 @@ class CourseCompletionEmailToStudent extends Email {
 	/**
 	 * Retrieves the HTML or URL for the celebration image for course completion.
 	 *
-	 * @since 1.15.0
+	 * @since 2.16.0
 	 *
 	 * @return string The celebration image HTML or URL.
 	 */
@@ -354,7 +374,7 @@ class CourseCompletionEmailToStudent extends Email {
 		/**
 		 * Retrieves the HTML for the course completion celebration image.
 		 *
-		 * @since 1.15.0
+		 * @since 2.16.0
 		 *
 		 * @return string The HTML for the celebration image.
 		 */
@@ -365,5 +385,89 @@ class CourseCompletionEmailToStudent extends Email {
 				esc_url( masteriyo_get_plugin_url() . '/assets/img/new-order-celebration.png' )
 			)
 		);
+	}
+
+	/**
+	 * Get the reply_to_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_name() {
+		/**
+		 * Filter automatic registration email reply_to_name to admin.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_name.
+		 */
+		$reply_to_name = apply_filters( $this->get_full_id() . 'reply_to_name', masteriyo_get_setting( 'emails.student.course_completion.reply_to_name' ) );
+		$reply_to_name = is_string( $reply_to_name ) ? trim( $reply_to_name ) : '';
+
+		return ! empty( $reply_to_name ) ? wp_specialchars_decode( esc_html( $reply_to_name ), ENT_QUOTES ) : parent::get_reply_to_name();
+	}
+
+	/**
+	 * Get the reply_to_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_reply_to_address( $reply_to_address = '' ) {
+		/**
+		 * Filter automatic registration email reply_to_address to admin.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $reply_to_address.
+		 */
+		$reply_to_address = apply_filters( $this->get_full_id() . 'reply_to_address', masteriyo_get_setting( 'emails.student.course_completion.reply_to_address' ) );
+		$reply_to_address = is_string( $reply_to_address ) ? trim( $reply_to_address ) : '';
+
+		return ! empty( $reply_to_address ) ? sanitize_email( $reply_to_address ) : parent::get_reply_to_address();
+	}
+
+	/**
+	 * Get the from_name.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_name() {
+		/**
+		 * Filter automatic registration email from_name to admin.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_name.
+		 */
+		$from_name = apply_filters( $this->get_full_id() . '_from_name', masteriyo_get_setting( 'emails.student.course_completion.from_name' ) );
+		$from_name = is_string( $from_name ) ? trim( $from_name ) : '';
+
+		return ! empty( $from_name ) ? wp_specialchars_decode( esc_html( $from_name ), ENT_QUOTES ) : parent::get_from_name();
+	}
+
+	/**
+	 * Get the from_address.
+	 *
+	 * @since 2.16.0
+	 *
+	 * @return string
+	 */
+	public function get_from_address( $from_address = '' ) {
+		/**
+		 * Filter automatic registration email from_address to admin.
+		 *
+		 * @since 2.16.0
+		 *
+		 * @param string $from_address.
+		 */
+		$from_address = apply_filters( $this->get_full_id() . '_from_address', masteriyo_get_setting( 'emails.student.course_completion.from_address' ) );
+		$from_address = is_string( $from_address ) ? trim( $from_address ) : '';
+
+		return ! empty( $from_address ) ? sanitize_email( $from_address ) : parent::get_from_address();
 	}
 }

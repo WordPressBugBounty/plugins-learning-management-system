@@ -53,6 +53,7 @@ class CourseResource {
 			'slug'                           => $course->get_slug( $context ),
 			'permalink'                      => $course->get_permalink(),
 			'preview_permalink'              => $course->get_preview_link(),
+			'page_preview_permalink'         => (string) $course->get_preview_course_link(),
 			'student_preview_permalink'      => masteriyo_current_user_can_student_preview()
 				? $course->get_student_preview_link()
 				: '',
@@ -80,7 +81,7 @@ class CourseResource {
 			'enrollment_limit'               => $course->get_enrollment_limit( $context ),
 			'duration'                       => $course->get_duration( $context ),
 			'access_mode'                    => $course->get_access_mode( $context ),
-			'billing_cycle'                  => $course->get_billing_cycle( $context ),
+			'billing_cycle'                  => $course->get_billing_interval( $context ),
 			'show_curriculum'                => $course->get_show_curriculum( $context ),
 			'review_after_course_completion' => $course->get_review_after_course_completion( $context ),
 			'highlights'                     => $course->get_highlights( $context ),
@@ -89,6 +90,10 @@ class CourseResource {
 			'tags'                           => self::get_taxonomy_terms( $course, 'tag' ),
 			'difficulty'                     => self::get_taxonomy_terms( $course, 'difficulty' ),
 			'end_date'                       => masteriyo_rest_prepare_date_response( $course->get_end_date( $context ) ),
+			'enrollment_opens_on'            => masteriyo_rest_prepare_date_response( $course->get_enrollment_opens_on( $context ) ),
+			'enrollment_closes_on'           => masteriyo_rest_prepare_date_response( $course->get_enrollment_closes_on( $context ) ),
+			'course_start_date'              => masteriyo_rest_prepare_date_response( $course->get_course_start_date( $context ) ),
+			'enable_cohort_mode'             => $course->get_enable_cohort_mode( $context ),
 			'enable_end_date'                => $course->get_enable_end_date( $context ),
 		);
 

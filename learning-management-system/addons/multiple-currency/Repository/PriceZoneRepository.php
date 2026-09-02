@@ -2,7 +2,7 @@
 /**
  * PriceZoneRepository class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency\Repository
  */
@@ -28,7 +28,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Data stored in meta keys, but not considered "meta".
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var array
 	 */
@@ -41,7 +41,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Create a prize zone in the database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone PriceZone object.
 	 */
@@ -58,7 +58,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Filters new prize zone data before creating.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param array $data New prize zone data.
 			 * @param Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone PriceZone object.
@@ -90,7 +90,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Fires after creating a prize zone.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The prize zone ID.
 			 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -103,7 +103,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Read a prize zone.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone PriceZone object.
 	 * @throws \Exception If invalid pricing zone.
@@ -112,7 +112,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 		$pricing_zone_post = get_post( $pricing_zone->get_id() );
 
 		if ( ! $pricing_zone->get_id() || ! $pricing_zone_post || PostType::PRICE_ZONE !== $pricing_zone_post->post_type ) {
-			throw new \Exception( __( 'Invalid pricing zone.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid pricing zone.', 'learning-management-system' ) );
 		}
 
 		$pricing_zone->set_props(
@@ -132,7 +132,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 		/**
 		 * Fires after reading a prize zone from database.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param integer $id The prize zone ID.
 		 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -143,7 +143,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Update a prize zone in the database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone PriceZone object.
 	 *
@@ -212,7 +212,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 		/**
 		 * Fires after updating a prize zone.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param integer $id The prize zone ID.
 		 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -223,7 +223,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Delete a prize zone from the database.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone PriceZone object.
 	 * @param array $args   Array of args to pass.alert-danger.
@@ -247,7 +247,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Fires before deleting a prize zone.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The prize zone ID.
 			 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -260,7 +260,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Fires after deleting a prize zone.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The prize zone ID.
 			 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -270,7 +270,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Fires before moving a prize zone to trash.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The prize zone ID.
 			 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -283,7 +283,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 			/**
 			 * Fires after moving a prize zone to trash.
 			 *
-			 * @since 1.11.0
+			 * @since 1.11.0 [free]
 			 *
 			 * @param integer $id The prize zone ID.
 			 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $object The prize zone object.
@@ -295,7 +295,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Restore an prize zone from the database to previous status.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone $pricing_zone prize zone object.
 	 * @param array $args   Array of args to pass.
@@ -337,7 +337,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 		/**
 		 * Fires after restoring an prize zone.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param integer $id The prize zone ID.
 		 * @param \Masteriyo\Addons\MultipleCurrency\Models\PriceZone  $object The prize zone object.
@@ -348,7 +348,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Read prize zone data. Can be overridden by child classes to load other props.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param PriceZone $pricing_zone PriceZone object.
 	 */
@@ -378,7 +378,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Read extra data associated with the prize zone, like button text or prize zone URL for external prize zones.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param PriceZone $pricing_zone PriceZone object.
 	 */
@@ -398,7 +398,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Fetch prize zones.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @param array $query_vars Query vars.
 	 * @return \Masteriyo\Addons\MultipleCurrency\Models\PriceZone[]
@@ -437,7 +437,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 	/**
 	 * Get valid WP_Query args from a PriceZoneQuery's query variables.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 * @param array $query_vars Query vars from a PriceZoneQuery.
 	 * @return array
 	 */
@@ -497,7 +497,7 @@ class PriceZoneRepository extends AbstractRepository implements RepositoryInterf
 		/**
 		 * Filters WP Query args for prize zone post type query.
 		 *
-		 * @since 1.11.0
+		 * @since 1.11.0 [free]
 		 *
 		 * @param array $wp_query_args WP Query args.
 		 * @param array $query_vars Query vars.

@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\BricksIntegration\BricksIntegrationAddon;
 use Masteriyo\Addons\BricksIntegration\Helper;
-use Masteriyo\Pro\Addons;
+use Masteriyo\AddonsFramework\Addons;
 
 define( 'MASTERIYO_BRICKS_INTEGRATION_FILE', __FILE__ );
 define( 'MASTERIYO_BRICKS_INTEGRATION_BASENAME', plugin_basename( __FILE__ ) );
@@ -30,7 +30,7 @@ if ( ( new Addons() )->is_active( MASTERIYO_BRICKS_INTEGRATION_SLUG ) && ! Helpe
 		function() {
 			printf(
 				'<div class="notice notice-warning is-dismissible"><p><strong>%s </strong>%s</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">%s</span></button></div>',
-				esc_html( 'Masteriyo:' ),
+				esc_html( masteriyo_get_plugin_name() . ':' ),
 				wp_kses_post( 'Bricks Integration addon requires Bricks Builder Theme to be installed and activated.', 'learning-management-system' ),
 				esc_html__( 'Dismiss this notice.', 'learning-management-system' )
 			);

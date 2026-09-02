@@ -115,7 +115,7 @@ class Webhook extends Model {
 				'X-MASTERIYO-Webhook-Source'      => home_url( '/' ),
 				'X-MASTERIYO-Webhook-Signature'   => $this->generate_signature( $http_body ),
 				'X-MASTERIYO-Webhook-ID'          => $this->get_id(),
-				'X-MASTERIYO-Webhook-Delivery-ID' => $this->get_new_delivery_id(),
+				'X-MASTERIYO-Webhook-Delivery-ID' => $delivery_id,
 			),
 			'cookies'     => array(),
 		);
@@ -150,14 +150,14 @@ class Webhook extends Model {
 	}
 
 	/**
-		 * Log the delivery request/response.
-		 *
-		 * @since 1.12.2
-		 *
-		 * @param string         $delivery_id Previously created hash.
-		 * @param array          $request     Request data.
-		 * @param array|WP_Error $response    Response data.
-		 */
+	 * Log the delivery request/response.
+	 *
+	 * @since 2.12.2
+	 *
+	 * @param string         $delivery_id Previously created hash.
+	 * @param array          $request     Request data.
+	 * @param array|WP_Error $response    Response data.
+	 */
 	public function log_delivery( $delivery_id, $request, $response ) {
 		$logger  = masteriyo_get_logger();
 		$message = array(

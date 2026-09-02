@@ -2,7 +2,7 @@
 /**
  * Masteriyo WooCommerce integration setting class.
  *
- * @since 1.8.1
+ * @since 2.2.0
  * @package Masteriyo\Addons\WcIntegration
  */
 
@@ -29,7 +29,7 @@ class Setting {
 	/**
 	 * Setting data.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @var array
 	 */
@@ -48,7 +48,7 @@ class Setting {
 	/**
 	 * Initialize.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 */
 	public function init() {
 		add_filter( 'masteriyo_rest_pre_insert_setting_object', array( $this, 'save' ), 10, 3 );
@@ -58,7 +58,7 @@ class Setting {
 	/**
 	 * Append WooCommerce integration setting to the global settings.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param WP_REST_Response $response The response object.
 	 * @param Model            $object   Object data.
@@ -77,7 +77,7 @@ class Setting {
 	/**
 	 * Store woocommerce integration settings.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param Model         $setting  Object object.
 	 * @param WP_REST_Request $request  Request object.
@@ -98,7 +98,7 @@ class Setting {
 	/**
 	 * Return setting value.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 * @param string $key Setting key.
 	 * @param mixed $default Setting default.
 	 * @return mixed
@@ -115,7 +115,7 @@ class Setting {
 	/**
 	 * Save setting value.
 	 *
-	 * @since 1.8.1
+	 * @since 2.2.0
 	 *
 	 * @param string $key Setting key.
 	 * @param mixed $default Setting default.

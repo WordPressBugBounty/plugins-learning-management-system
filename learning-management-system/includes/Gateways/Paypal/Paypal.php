@@ -12,7 +12,6 @@
 
 namespace Masteriyo\Gateways\Paypal;
 
-use Masteriyo\Constants;
 use Masteriyo\Gateways\Paypal\ApiHandler;
 use Masteriyo\Gateways\Paypal\Request;
 use Masteriyo\Gateways\Paypal\PdtHandler;
@@ -20,6 +19,7 @@ use Masteriyo\Gateways\Paypal\IpnHandler;
 use Masteriyo\Abstracts\PaymentGateway;
 use Masteriyo\Contracts\PaymentGateway as PaymentGatewayInterface;
 use Masteriyo\Enums\OrderStatus;
+use Masteriyo\Models\Order\Order;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,6 +62,15 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 	public static $log = false;
 
 	/**
+	 * Supported features such as 'default_credit_card_form', 'refunds'.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @var array
+	 */
+	protected $supports = array( 'course', 'refund', 'subscription' );
+
+	/**
 	 * Constructor for the gateway.
 	 *
 	 * @since 1.0.0
@@ -87,9 +96,15 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 		self::$log_enabled    = $this->debug;
 
 		if ( $this->sandbox ) {
-			/* translators: %s: Link to PayPal sandbox testing guide page */
-			$this->description .= ' ' . sprintf( __( 'SANDBOX ENABLED. You can use sandbox testing accounts only. See the <a href="%s">PayPal Sandbox Testing Guide</a> for more details.', 'learning-management-system' ), 'https://developer.paypal.com/docs/classic/lifecycle/ug_sandbox/' );
-			$this->description  = trim( $this->description );
+			$this->description .= ' ' . sprintf(
+				/* translators: %s: Link to PayPal sandbox testing guide page */
+				__(
+					'SANDBOX ENABLED. You can use sandbox testing accounts only. See the <a href="%s">PayPal Sandbox Testing Guide</a> for more details.',
+					'learning-management-system'
+				),
+				'https://developer.paypal.com/docs/classic/lifecycle/ug_sandbox/'
+			);
+			$this->description = trim( $this->description );
 		}
 
 		// Load the settings.
@@ -152,21 +167,16 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 	 * @return string
 	 */
 	public function get_icon() {
-		// We need a base country for the link to work, bail if in the unlikely event no country is set.
-		$base_country = masteriyo( 'countries' )->get_base_country();
-
-		if ( empty( $base_country ) ) {
-			return '';
-		}
-
-		$icon_html = '';
-		$icon      = (array) $this->get_icon_image( $base_country );
-
-		foreach ( $icon as $i ) {
-			$icon_html .= '<img src="' . esc_attr( $i ) . '" alt="' . esc_attr__( 'PayPal acceptance mark', 'learning-management-system' ) . '" />';
-		}
-
-		$icon_html .= sprintf( '<a href="%1$s" class="about_paypal" onclick="javascript:window.open(\'%1$s\',\'WIPaypal\',\'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700\'); return false;">' . esc_attr__( 'What is PayPal?', 'learning-management-system' ) . '</a>', esc_url( $this->get_icon_url( $base_country ) ) );
+		// The local brand badge, the same one the admin's payment settings show, so
+		// the header row is one square mark like every other gateway's. The
+		// country-dependent acceptance-mark strips that used to stand here are a
+		// banner's worth of width in a row sized for a logo, and they now render in
+		// the card's body instead — see `payment_fields()`.
+		$icon_html = sprintf(
+			'<img src="%1$s" alt="%2$s" />',
+			esc_url( masteriyo_get_plugin_url() . '/includes/Gateways/Paypal/images/paypal.png' ),
+			esc_attr__( 'PayPal logo', 'learning-management-system' )
+		);
 
 		/**
 		 * Filters paypal payment gateway icon.
@@ -180,25 +190,47 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Get the link for an icon based on country.
+	 * Display the gateway's own content inside its payment method card.
+	 *
+	 * The description, then the acceptance marks for the store's country — which
+	 * cards PayPal will take here, shown where a buyer weighing the method is
+	 * looking rather than crammed into the header beside the radio.
+	 *
+	 * The marks are PayPal's own images, served from paypalobjects.com, so they
+	 * are loaded lazily: the body they sit in is closed until the method is
+	 * chosen, and a checkout should not wait on a third party for a picture no
+	 * one has asked to see.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param  string $country Country two letter code.
-	 * @return string
 	 */
-	protected function get_icon_url( $country ) {
-		$url           = 'https://www.paypal.com/' . strtolower( $country );
-		$home_counties = array( 'BE', 'CZ', 'DK', 'HU', 'IT', 'JP', 'NL', 'NO', 'ES', 'SE', 'TR', 'IN' );
-		$countries     = array( 'DZ', 'AU', 'BH', 'BQ', 'BW', 'CA', 'CN', 'CW', 'FI', 'FR', 'DE', 'GR', 'HK', 'ID', 'JO', 'KE', 'KW', 'LU', 'MY', 'MA', 'OM', 'PH', 'PL', 'PT', 'QA', 'IE', 'RU', 'BL', 'SX', 'MF', 'SA', 'SG', 'SK', 'KR', 'SS', 'TW', 'TH', 'AE', 'GB', 'US', 'VN' );
+	public function payment_fields() {
+		parent::payment_fields();
 
-		if ( in_array( $country, $home_counties, true ) ) {
-			return $url . '/webapps/mpp/home';
-		} elseif ( in_array( $country, $countries, true ) ) {
-			return $url . '/webapps/mpp/paypal-popup';
-		} else {
-			return $url . '/cgi-bin/webscr?cmd=xpt/Marketing/general/WIPaypal-outside';
+		// The marks are indexed by the store's country, so with no base country
+		// there is nothing to look up.
+		$base_country = masteriyo( 'countries' )->get_base_country();
+
+		if ( empty( $base_country ) ) {
+			return;
 		}
+
+		$marks = array_filter( (array) $this->get_icon_image( $base_country ) );
+
+		if ( empty( $marks ) ) {
+			return;
+		}
+
+		echo '<span class="masteriyo-payment-method__acceptance">';
+
+		foreach ( $marks as $mark ) {
+			printf(
+				'<img src="%1$s" alt="%2$s" loading="lazy" />',
+				esc_url( $mark ),
+				esc_attr__( 'PayPal acceptance mark', 'learning-management-system' )
+			);
+		}
+
+		echo '</span>';
 	}
 
 	/**
@@ -207,7 +239,7 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 	 * @since 1.0.0
 	 *
 	 * @param string $country Country code.
-	 * @return array of image URLs
+	 * @return string|string[] Image URL, or URLs where a country has more than one.
 	 */
 	protected function get_icon_image( $country ) {
 		switch ( $country ) {
@@ -267,7 +299,12 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 				$icon = 'https://www.paypalobjects.com/webstatic/mktg/logo/AM_mc_vs_dc_ae.jpg';
 				break;
 			default:
-				$icon = masteriyo_get_plugin_url() . '/includes/gateways/paypal/assets/images/paypal.png';
+				// The local badge, which is also what the header wears. The path this
+				// named — `/includes/gateways/paypal/assets/images/paypal.png` — was
+				// wrong in both its case and its `assets/` segment, so every country
+				// outside the list above got a 404 on any host with a case-sensitive
+				// filesystem.
+				$icon = masteriyo_get_plugin_url() . '/includes/Gateways/Paypal/images/paypal.png';
 				break;
 		}
 
@@ -335,6 +372,8 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 	public function process_payment( $order_id ) {
 		$order          = masteriyo_get_order( $order_id );
 		$paypal_request = new Request( $this );
+
+		$this->create_subscription( $order );
 
 		return array(
 			'result'   => 'success',
@@ -478,5 +517,40 @@ class Paypal extends PaymentGateway implements PaymentGatewayInterface {
 		}
 
 		return $text;
+	}
+
+	/**
+	 * Create the subscription backing a recurring order.
+	 *
+	 * Subscriptions are pro's — the model, the statuses and the licence check all
+	 * live there — so this asks rather than builds. Core establishes only that the
+	 * order is one a subscription would be created for, which it does through the
+	 * `masteriyo_order_has_recurring_courses()` seam; with pro absent that seam
+	 * answers false and the action never fires.
+	 *
+	 * The guard has to come first. This ran before it, resolving `license` from a
+	 * container that has no such binding in the free product, and so threw on every
+	 * PayPal checkout there — caught by `Checkout`, which turned it into a failed
+	 * checkout with no way to complete the purchase.
+	 *
+	 * @since 2.6.10
+	 *
+	 * @param Order $order Order data.
+	 */
+	public function create_subscription( $order ) {
+		if ( ! masteriyo_order_has_recurring_courses( $order ) ) {
+			return;
+		}
+
+		/**
+		 * Fires when a gateway order needs its subscription created.
+		 *
+		 * Pro answers this from `SubscriptionServiceProvider`. Nothing answers it in
+		 * the free product, where no order can be recurring in the first place.
+		 *
+		 * @param \Masteriyo\Models\Order\Order $order   The order.
+		 * @param string                        $gateway The gateway that took it.
+		 */
+		do_action( 'masteriyo_gateway_create_order_subscription', $order, $this->name );
 	}
 }

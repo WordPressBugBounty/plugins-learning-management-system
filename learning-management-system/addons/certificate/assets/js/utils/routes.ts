@@ -15,3 +15,7 @@ export const certificateBackendRoutes = {
 export const accountPageRoutes = {
 	certificates: '/certificates',
 };
+
+export function newCertificateAdminUrl(adminUrl: string): string {
+	return `${adminUrl}admin.php?page=masteriyo#${certificateBackendRoutes.certificate.certificatesV2}`;
+}

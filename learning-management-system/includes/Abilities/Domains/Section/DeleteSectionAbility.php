@@ -3,7 +3,6 @@
  * Delete Section ability.
  *
  * @package Masteriyo\Abilities\Domains\Section
- * @since   x.x.x
  */
 
 namespace Masteriyo\Abilities\Domains\Section;
@@ -18,8 +17,6 @@ use Masteriyo\Abilities\Support\RestProxyAbility;
  * Without `force=true` the section is trashed and can be restored.
  * With `force=true` the section and all its child lessons and quizzes are
  * permanently deleted.
- *
- * @since x.x.x
  */
 class DeleteSectionAbility extends RestProxyAbility {
 

@@ -3,9 +3,12 @@
 /**
  * Wire transfer details.
  *
+ * Rendered inside the offline gateway's payment method card, below its
+ * description, so the bank details show exactly when that method is chosen.
+ *
  * @package Masteriyo\Templates
- * @since 1.16.0
- * @version 1.16.0
+ * @since 1.16.0 [Free]
+ * @version 1.16.0 [Free]
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -13,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 
 <div class="masteriyo-checkout-wire-transfer">
-	<h3><?php echo esc_html( $wire_transfer['title'] ); ?></h3>
+	<h4><?php echo esc_html( $wire_transfer['title'] ); ?></h4>
 	<p><?php echo esc_html( $wire_transfer['description'] ); ?></p>
 	<div class="wire-transfer-details">
 		<div class="wire-transfer-row">

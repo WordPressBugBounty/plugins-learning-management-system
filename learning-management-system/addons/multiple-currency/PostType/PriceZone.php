@@ -2,7 +2,7 @@
 /**
  * PriceZone class.
  *
- * @since 1.11.0
+ * @since 1.11.0 [free]
  *
  * @package Masteriyo\Addons\MultipleCurrency\PostType;
  */
@@ -22,7 +22,7 @@ class PriceZone extends PostType {
 	/**
 	 * Post slug.
 	 *
-	 * @since 1.11.0
+	 * @since 1.11.0 [free]
 	 *
 	 * @var string
 	 */
@@ -89,7 +89,6 @@ class PriceZone extends PostType {
 			'capability_type'     => array( 'price_zone', 'price_zones' ),
 			'exclude_from_search' => false,
 			'publicly_queryable'  => is_admin(),
-			'can_export'          => true,
 			'delete_with_user'    => true,
 		);
 	}
