@@ -1225,11 +1225,12 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 	 *
 	 * @since 1.11.0 [free]
 	 *
-	 * @param int|null $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
+	 * @param int|null     $instructor_id The ID of the instructor. If not provided, the current user's ID will be used.
+	 * @param string|array $post_status   Course statuses to include. Defaults to published courses.
 	 *
 	 * @return array An array of course IDs associated with the specified instructor.
 	 */
-	function masteriyo_get_instructor_course_ids( $instructor_id = null ) {
+	function masteriyo_get_instructor_course_ids( $instructor_id = null, $post_status = PostStatus::PUBLISH ) {
 		if ( is_null( $instructor_id ) ) {
 			$instructor_id = masteriyo_is_current_user_instructor() ? get_current_user_id() : 0;
 		}
@@ -1240,7 +1241,7 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 
 		$args = array(
 			'post_type'      => PostType::COURSE,
-			'post_status'    => PostStatus::PUBLISH,
+			'post_status'    => $post_status,
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
 			'author'         => $instructor_id,
@@ -1251,7 +1252,7 @@ if ( ! function_exists( 'masteriyo_get_instructor_course_ids' ) ) {
 		$additional_author_course_ids = get_posts(
 			array(
 				'post_type'      => PostType::COURSE,
-				'post_status'    => PostStatus::PUBLISH,
+				'post_status'    => $post_status,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'meta_query'     => array(

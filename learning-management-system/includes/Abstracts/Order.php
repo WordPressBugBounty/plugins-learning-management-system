@@ -169,7 +169,7 @@ abstract class Order extends Model {
 			),
 			$this->data,
 			array(
-				'meta_data'    => $this->get_meta_data(),
+				'meta_data'    => $this->get_exposed_meta_data(),
 				'course_lines' => $this->get_items( 'course' ),
 			)
 		);

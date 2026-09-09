@@ -15,11 +15,39 @@
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
+  max-width: calc(100vw - 24px);
+  cursor: grab;
+  touch-action: none;
+}
+#mto-preview-pill.mto-preview-pill-dragging {
+  cursor: grabbing;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+#mto-preview-pill .mto-preview-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 12px 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
+  cursor: grab;
+}
+#mto-preview-pill .mto-preview-drag-handle:focus-visible {
+  outline: 2px solid var(--mto-btn-color, #4584ff);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 #mto-preview-pill .mto-preview-label {
   padding: 10px 16px;
   font-weight: 500;
   opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 #mto-preview-pill .mto-preview-divider {
   display: block;
@@ -37,6 +65,8 @@
   color: var(--mto-btn-color, #4584ff) !important;
   text-decoration: none;
   font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 #mto-preview-pill a:hover, #mto-preview-pill a:focus {
   color: var(--mto-btn-hover-color, #2b6cb0) !important;

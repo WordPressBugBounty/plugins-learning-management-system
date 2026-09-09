@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 	object-fit: cover;
 	/*width: 20px ;*/
 	height: auto;
-	text-align: left;
+	text-align: <?php echo is_rtl() ? 'right' : 'left'; ?>;
 	background-repeat:no-repeat;
 	padding: 60px 40px 35px 40px;
 }

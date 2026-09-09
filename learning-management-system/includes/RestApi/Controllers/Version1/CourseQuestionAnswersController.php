@@ -11,6 +11,7 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
 
@@ -275,6 +276,53 @@ class CourseQuestionAnswersController extends CommentsController {
 	}
 
 	/**
+	 * Course IDs the current user manages as an instructor, including
+	 * courses assigned to them as an additional author. Resolved once per request.
+	 *
+	 * @return int[]
+	 */
+	protected function get_current_instructor_course_ids() {
+		static $ids = null;
+
+		if ( null === $ids ) {
+			// Every status: an instructor moderates the Q&A of their private and
+			// draft courses too, not only the published ones.
+			$ids = array_map( 'absint', masteriyo_get_instructor_course_ids( null, 'any' ) );
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Restrict a set of requested course IDs to the ones the current user may
+	 * read Q&A for: their own and enrolled courses. An empty result falls back
+	 * to a non-matching ID so the query returns nothing rather than everything.
+	 *
+	 * @param int|int[] $requested_course_ids Requested course IDs, if any.
+	 * @return int[]
+	 */
+	protected function get_scoped_course_ids( $requested_course_ids ) {
+		$allowed_course_ids = array_values(
+			array_unique(
+				array_merge(
+					$this->get_current_instructor_course_ids(),
+					// Not masteriyo_get_user_active_enrolled_course_ids(): that one keeps
+					// published courses only, and a student can be enrolled in a private one.
+					array_map( 'absint', masteriyo_get_all_user_course_ids( get_current_user_id() ) )
+				)
+			)
+		);
+
+		$requested_course_ids = array_filter( array_map( 'absint', (array) $requested_course_ids ) );
+
+		if ( ! empty( $requested_course_ids ) ) {
+			$allowed_course_ids = array_values( array_intersect( $allowed_course_ids, $requested_course_ids ) );
+		}
+
+		return empty( $allowed_course_ids ) ? array( 0 ) : $allowed_course_ids;
+	}
+
+	/**
 	 * Get objects.
 	 *
 	 * @since  1.0.0
@@ -282,13 +330,14 @@ class CourseQuestionAnswersController extends CommentsController {
 	 * @return array
 	 */
 	protected function get_objects( $query_args ) {
-		$request   = masteriyo_current_http_request();
-		$course_id = isset( $request['course_id'] ) ? $request['course_id'] : 0;
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			$query_args['post__in'] = $this->get_scoped_course_ids( $query_args['post__in'] ?? array() );
 
-		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
-			$course_ids             = masteriyo_get_instructor_course_ids();
-			$course_ids             = empty( $course_ids ) ? array( 0 ) : $course_ids;
-			$query_args['post__in'] = $course_ids;
+			// A learner reads the discussion, not the moderation queue: no
+			// status=all on someone else's pending question.
+			if ( $this->reads_as_learner_only( $query_args['post__in'] ) ) {
+				$query_args['status'] = CommentStatus::APPROVE_STR;
+			}
 		}
 
 		$mto_course_qas = new \WP_Comment_Query( $query_args );
@@ -345,6 +394,58 @@ class CourseQuestionAnswersController extends CommentsController {
 	}
 
 	/**
+	 * Whether the current user instructs none of the given courses, so they
+	 * read them purely as an enrolled learner.
+	 *
+	 * @param int[] $course_ids Scoped course IDs.
+	 * @return bool
+	 */
+	protected function reads_as_learner_only( $course_ids ) {
+		return empty( array_intersect( array_map( 'absint', (array) $course_ids ), $this->get_current_instructor_course_ids() ) );
+	}
+
+	/**
+	 * Whether the current user may read one Q&A record.
+	 *
+	 * Admins and managers are handled before this is called.
+	 *
+	 * @param \Masteriyo\Models\CourseQuestionAnswer $question_answer Q&A.
+	 * @return bool
+	 */
+	protected function current_user_can_read_course_qa( $question_answer ) {
+		if ( $this->can_view_contact_info( $question_answer ) ) {
+			return true;
+		}
+
+		$status      = $question_answer->get_status();
+		$is_approved = in_array( $status, array( CommentStatus::APPROVE_STR, CommentStatus::APPROVE ), true );
+
+		return $is_approved && masteriyo_is_current_user_enrolled_in_course( $question_answer->get_course_id() );
+	}
+
+	/**
+	 * Whether the current user may see a question-answerer's contact details.
+	 *
+	 * Restricted to admins, managers, the course's instructors, and the author
+	 * themselves so a student cannot read another user's email or IP.
+	 *
+	 * @param \Masteriyo\Models\CourseQuestionAnswer $course_qa Course question-answer instance.
+	 *
+	 * @return bool
+	 */
+	protected function can_view_contact_info( $course_qa ) {
+		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
+			return true;
+		}
+
+		if ( $course_qa->is_created_by_current_user() ) {
+			return true;
+		}
+
+		return in_array( absint( $course_qa->get_course_id() ), $this->get_current_instructor_course_ids(), true );
+	}
+
+	/**
 	 * Get course question-answer data.
 	 *
 	 * @param \Masteriyo\Models\CourseQuestionAnswer $course_qa Course question-answer instance.
@@ -354,21 +455,23 @@ class CourseQuestionAnswersController extends CommentsController {
 	 * @return array
 	 */
 	protected function get_course_qa_data( $course_qa, $context = 'view' ) {
+		$can_view_contact_info = $this->can_view_contact_info( $course_qa );
+
 		$data = array(
 			'id'              => $course_qa->get_id(),
 			'course_id'       => $course_qa->get_course_id(),
 			'course_name'     => '',
 			'user_name'       => $course_qa->get_user_name( $context ),
-			'user_email'      => $course_qa->get_user_email( $context ),
+			'user_email'      => $can_view_contact_info ? $course_qa->get_user_email( $context ) : '',
 			'user_url'        => $course_qa->get_user_url( $context ),
 			'user_avatar'     => $course_qa->get_avatar_url( $context ),
-			'ip_address'      => $course_qa->get_ip_address( $context ),
+			'ip_address'      => $can_view_contact_info ? $course_qa->get_ip_address( $context ) : '',
 			'created_at'      => masteriyo_rest_prepare_date_response( $course_qa->get_created_at( $context ) ),
 			'content'         => $course_qa->get_content( $context ),
 			'status'          => $course_qa->get_status( $context ),
-			'agent'           => $course_qa->get_agent( $context ),
+			'agent'           => $can_view_contact_info ? $course_qa->get_agent( $context ) : '',
 			'parent'          => $course_qa->get_parent( $context ),
-			'user_id'         => $course_qa->get_user_id( $context ),
+			'user_id'         => $can_view_contact_info ? $course_qa->get_user_id( $context ) : 0,
 			'by_current_user' => $course_qa->is_created_by_current_user(),
 			'sender'          => $course_qa->is_created_by_student() ? 'student' : 'instructor',
 		);
@@ -700,6 +803,18 @@ class CourseQuestionAnswersController extends CommentsController {
 			);
 		}
 
+		$question_answer = $this->get_object( absint( $request['id'] ) );
+
+		if ( ! is_object( $question_answer ) || ! $this->current_user_can_read_course_qa( $question_answer ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_read',
+				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
 		return true;
 	}
 
@@ -894,9 +1009,19 @@ class CourseQuestionAnswersController extends CommentsController {
 		$course_id  = isset( $request['course_id'] ) ? $request['course_id'] : 0;
 		$course_ids = array();
 
-		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && masteriyo_is_current_user_instructor() && ! ( $course_id && masteriyo_is_current_user_enrolled_in_course( $course_id ) ) ) {
-			$course_ids = masteriyo_get_instructor_course_ids();
-			$course_ids = empty( $course_ids ) ? array( 0 ) : $course_ids;
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			$course_ids = $this->get_scoped_course_ids( $course_id );
+		}
+
+		$counts = $this->get_comments_count( 0, $course_ids );
+
+		// Same rule as the rows: a learner learns the approved count only.
+		if ( ! empty( $course_ids ) && $this->reads_as_learner_only( $course_ids ) ) {
+			$approved = $counts[ CommentStatus::APPROVE_STR ] ?? 0;
+			$counts   = array_fill_keys( array_keys( $counts ), 0 );
+
+			$counts[ CommentStatus::APPROVE_STR ] = $approved;
+			$counts['all']                        = $approved;
 		}
 
 		return array(
@@ -906,7 +1031,7 @@ class CourseQuestionAnswersController extends CommentsController {
 				'pages'            => $query_results['pages'],
 				'current_page'     => $query_args['paged'],
 				'per_page'         => $query_args['number'],
-				'course_qas_count' => $this->get_comments_count( 0, $course_ids ),
+				'course_qas_count' => $counts,
 			),
 		);
 	}

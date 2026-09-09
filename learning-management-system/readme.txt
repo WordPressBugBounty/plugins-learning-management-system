@@ -2,9 +2,9 @@
 Contributors: Masteriyo, themeisle
 Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.4.0
+Stable tag: 3.4.1
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -296,76 +296,18 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-#### [Version 3.4.0](https://github.com/Codeinwp/learning-management-system-pro/compare/3.3.3...3.4.0) (2026-09-02)
+##### [Version 3.4.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.0...3.4.1) (2026-09-09)
 
-- Feature - Added a free Enrollments screen with manual and bulk enrollment from email lists, CSV files, and existing students.
-- Feature - Added an Immersive course layout with a full-width course story and sticky enroll card, plus redesigned layout pickers with hover previews.
-- Feature - Added guided course setup with access choices, a payment setup panel for paid courses, and optional AI curriculum drafts.
-- Feature - Added AI feedback drafts for quiz and assignment answers before instructors save grades. [PRO]
-- Feature - Added a one-click Login | Logout link for classic and block theme navigation.
-- Feature - Added dashboard-enabled Stripe payment methods including Klarna, iDEAL, and SEPA Direct Debit, with SEPA support for recurring payments.
-- Feature - Added group enrollment to the Group Courses add-on.
-- Feature - Added bulk editing for lesson options and drip date schedules.
-- Feature - Added tools to export and remove learner data and record consent.
-- Feature - Added separate editor settings for lessons and course overviews.
-- Feature - Added controls that hide commerce menus on sites that do not sell courses.
-- Feature - Added automatic Migration Tool activation and a notice when another LMS is detected.
-- Feature - Added H5P installation and activation from the H5P editor popup.
-- Feature - Added an Edit Course admin-bar link, direct Settings buttons for enabled addons, and a Create new certificate link in certificate selectors.
-- Feature - New sites now start with three draft sample courses, no unused instructor pages, and instructor registration and marketplace pages turned off.
-- Enhancement - Reworked the account area with separate instructor and student views, an onboarding screen for students with no courses, and My Courses cards with certificate downloads and coming-soon availability.
-- Enhancement - Improved the course curriculum and quiz builders with faster editing, search, and bulk uploads.
-- Enhancement - Redesigned checkout with clear sections, payment choices, a responsive order summary, and automatic learner account creation.
-- Enhancement - Improved lesson previews with direct editor controls and a free upgrade prompt.
-- Enhancement - Improved AI course generation and quiz questions with current models, lesson-based questions, and an editable review.
-- Enhancement - Streamlined onboarding with a single course-access question, currency suggestions from your site address, and an optional Courses page.
-- Enhancement - Improved the Status page with clear WordPress and server information cards.
-- Enhancement - Simplified course display settings, linked them to global course settings, and removed the per-course Reports page.
-- Enhancement - Improved compatibility of Account and Checkout pages with Neve and eLearning themes.
-- Fix - Fixed order updates (including WooCommerce and PMPro) resetting or reassigning students enrollment start dates and restoring expired course access.
-- Fix - Fixed native Stripe checkout: paid orders left pending, missing Apple Pay and Google Pay, decimal prices charged without cents, migration errors, unclear webhook notices, and Stripe Connect opening in the same tab.
-- Fix - Fixed license plan names showing as Unknown and activation errors or delays when the license server is unavailable. [PRO]
-- Fix - Enhanced security: unauthorized access to enrollment details, course progress, student reports, quiz answers, system status, and the Stripe connection; unsafe course imports, embedded audio, and course custom fields; CSV formula injection and imports accepting unapproved roles; instructors creating instructor accounts with their own automation keys.
-- Fix - Enhanced security for Gradebook results, assignment answers, Zoom credentials, public profile email addresses, and OTP resend user enumeration. [PRO]
-- Fix - Fixed coupons: Apply Coupon creating full-price orders, automatic coupons replacing an entered code, and uses counted before payment. [PRO]
-- Fix - Fixed course bundles: missing original and sale prices in foreign currency zones, multiple currency alignment, and refunds removing access to courses bought separately. [PRO]
-- Fix - Fixed Gradebook: overlapping sample grade ranges, stale grades after course retakes, results after deleting quizzes or assignments, empty grade rows after a first graded submission, and course filters for instructors. [PRO]
-- Fix - Fixed content drip letting students start quizzes or complete locked lessons before their release date. [PRO]
-- Fix - Fixed EDD orders not enrolling customers in every purchased course and order changes removing access from the wrong student. [PRO]
-- Fix - Fixed course access remaining after a Paid Memberships Pro membership ends. [PRO]
-- Fix - Fixed H5P quiz attempts starting without course access and scores exceeding 100%. [PRO]
-- Fix - Fixed assignment and Zoom content crashing the learn page and assignment video links crashing the course editor. [PRO]
-- Fix - Fixed Public Profile settings failing to open and profile cards disappearing on phones. [PRO]
-- Fix - Fixed Razorpay payments completing a different order. [PRO]
-- Fix - Fixed missing feedback when a prerequisite blocks starting an Immersive course. [PRO]
-- Fix - Fixed extra commas after the last instructor on course pages. [PRO]
-- Fix - Fixed White Label branding across WordPress admin pages, notices, and the Plugins page. [PRO]
-- Fix - Fixed SCORM: failed lessons completing the course and SCORM 2004 progress not recording.
-- Fix - Fixed certificates: backslashes stripped on save, 0m shown for courses without duration, and empty student names in classic certificates.
-- Fix - Fixed manual enrollment into unpublished courses.
-- Fix - Fixed course previews recording progress for admins, not opening preview lessons, opening a missing page for drafts, and not reflecting unsaved changes.
-- Fix - Fixed course groups: status changes affecting unrelated courses, the Enroll Group course list, and missing emails on removal.
-- Fix - Fixed setup wizard and starter templates: translations, oversized logos, demo-server errors, wrong saved layout default, missing Skill School styles, screen-reader text in the upload modal, and payment secrets leaking into usage tracking.
-- Fix - Fixed Revenue Sharing re-enabling after being turned off during setup and instructor analytics showing full sales instead of revenue-share earnings.
-- Fix - Fixed the learn page: external videos not playing, PDF lessons without a download fallback, videos restarting instead of resuming, large courses timing out, guests seeing a completed course, quiz reviews submitting the attempt, and featured videos hidden in the Immersive layout.
-- Fix - Fixed the account area: notifications popover size and links, stuck logout buttons, overlapping My Courses buttons, empty enrolled course lists, course exits not opening Your Courses, missing password reset success message, and search results lost on back navigation.
-- Fix - Fixed emails: duplicate completion reminders, blank instructor notification recipients, and missing tax amounts in order emails.
-- Fix - Fixed pricing display: tax-inclusive sale prices, the checkout tax sign, blank manual currency prices showing courses as free, and Mollie totals with tax or discounts.
-- Fix - Fixed WooCommerce: errors deleting an inactive Masteriyo product beside an active one, and guest checkout blocking orders when Create User is unchecked.
-- Fix - Fixed course pages: empty Reviews tabs, review forms allowing empty submissions, payment pending not shown for offline orders, duplicate lock icons, block theme header styles, and the archive price filter with no courses.
-- Fix - Fixed old course end dates unexpectedly unlisting courses and deleting enrollments.
-- Fix - Fixed administrators losing access after changing their own role and bulk user deletion not reassigning courses.
-- Fix - Fixed instructors enrolling Google Classroom students in courses they do not own.
-- Fix - Fixed course completion records for users not enrolled and student lists for authorized course managers.
-- Fix - Fixed course builder: changes lost when opening an editor, Auto Calculate pass marks exceeding the quiz total, the block editor sidebar staying hidden in full screen, and parent category search breaking with no matches.
-- Fix - Fixed profile photo uploads causing a critical error when image processing fails.
-- Fix - Fixed the Instructor Registration page showing blank content to logged-in visitors and Student Preview not returning to the requested admin page.
-- Fix - Fixed announcements submitting without a selected course and password reset links for deleted users showing a server error.
-- Fix - Fixed user CSV imports for files starting with a UTF-8 BOM.
-- Fix - Fixed BuddyPress errors on orders with multiple courses.
-- Fix - Fixed theme color sync for published Customizer changes and child themes.
-- Fix - Fixed expired sessions showing repeated cookie errors and the review notice appearing twice in the admin.
-- Fix - Fixed assorted admin UI issues: menu icon alignment, color picker position, table spacing, misspelled labels, dead Debug switches, the dashboard logo link, encoded ampersands in the categories column, and a clear Attributes button in the Shortcodes tool.
+- Enhancement - The Viewing as Demo Student pill can now be dragged out of the way, remembers its position, and stays inside the viewport.
+- Fix - Enhanced security: stored metadata could instantiate PHP objects on read, course highlights allowed script event handlers, quiz answer keys and other users Q&A contact details were exposed to logged-in users, course export returned other authors courses and non-course posts, and PayPal PDT completed orders from browser-supplied values instead of the authenticated response.
+- Fix - Fixed paginated quizzes with Answer All Questions rejecting fully answered attempts as incomplete.
+- Fix - Fixed quizzes resuming on page 1 instead of the last reached page when saved progress loads late.
+- Fix - Fixed perfect point-based quiz attempts being labelled Fail.
+- Fix - Fixed a fatal error on lesson access checks when enrollment expiration data is served from a persistent object cache.
+- Fix - Fixed Require Full Video Watch leaving Mark as Complete enabled for external video lessons.
+- Fix - Fixed course updates rejecting a previously saved Maximum Students value.
+- Fix - Fixed RTL sites: player overlays piling into one corner, seek buttons painting over the learn page footer, emails losing text direction, a missing RTL toggle in the email editor, and quiz and FAQ text inheriting the wrong direction.
+- Fix - Fixed the free translation template shipping with only four strings.
 
 
 

@@ -120,7 +120,7 @@ class SessionRepository implements RepositoryInterface {
 				$session->set_props(
 					array(
 						'key'        => $result->session_key,
-						'data'       => maybe_unserialize( $result->session_data ),
+						'data'       => masteriyo_maybe_unserialize( $result->session_data ),
 						'expiry'     => $result->session_expiry,
 						'user_agent' => $result->user_agent,
 					)

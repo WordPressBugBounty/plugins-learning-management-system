@@ -246,6 +246,12 @@ class CourseProgressController extends CrudController {
 			$data_to_be_updated['resume_time'] = absint( $request->get_param( 'resume_time' ) ?? 0 );
 		}
 
+		// The "watched once" fact behind Require Full Video Watch. Kept on the lesson's
+		// progress row so an admin progress reset clears it (browser storage cannot be).
+		if ( isset( $request['watched_full'] ) ) {
+			$data_to_be_updated['watched_full'] = masteriyo_string_to_bool( $request->get_param( 'watched_full' ) ) ? 1 : 0;
+		}
+
 		// A preview must not record progress (issue #679).
 		if ( ! empty( $data_to_be_updated ) && ! masteriyo_is_course_preview_request( $request ) ) {
 			$result = $this->update_lesson_meta( $lesson_id, $user_id, $course_id, $data_to_be_updated );

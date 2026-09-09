@@ -1,7 +1,7 @@
 {
   "name": "masteriyo/masteriyo-pro",
   "description": "An WordPress LMS plugin",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "homepage": "https://example.com",
   "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
@@ -61,6 +61,7 @@
       "includes/Helper/course-content.php",
       "includes/Helper/course-preview.php",
       "includes/Helper/public-profile.php",
+      "includes/Helper/serialize.php",
       "vendor/codeinwp/themeisle-sdk/load.php"
     ],
     "psr-4": {
@@ -201,12 +202,10 @@
       "\"vendor/bin/phpcbf\""
     ],
     "makepot-audit": [
-      "@putenv WP_CLI_PHP_ARGS=-d memory_limit=2G",
-      "wp i18n make-pot . --slug=learning-management-system"
+      "@makepot"
     ],
     "makepot": [
-      "@putenv WP_CLI_PHP_ARGS=-d memory_limit=2G",
-      "\"vendor/bin/wp\" i18n make-pot . ./i18n/languages/learning-management-system.pot --include=\"assets/js/build,includes,templates,addons,pro\" --exclude=\"dist,artifact\""
+      "bash bin/makepot.sh"
     ],
     "post-autoload-dump": [
       "@php -r \"file_exists('scripts/razorpay-deprecated.php') && copy('scripts/razorpay-deprecated.php', 'vendor/razorpay/razorpay/Deprecated.php');\""
@@ -231,8 +230,8 @@
     "scripts-description": {
       "phpcs": "Analyze code against the WordPress coding standard with PHP_CodeSniffer",
       "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier",
-      "makepot-audit": "Generate i18n/languages/masteriyo.pot file and run audit",
-      "makepot": "Generate i18n/languages/masteriyo.pot file"
+      "makepot-audit": "Generate the translation template and run its string audit",
+      "makepot": "Generate i18n/languages/learning-management-system.pot"
     }
   }
 }

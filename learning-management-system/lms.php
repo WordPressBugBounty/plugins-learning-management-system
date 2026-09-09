@@ -5,7 +5,7 @@
  * Description: A Complete WordPress LMS plugin to create and sell online courses in no time.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com
- * Version: 3.4.0
+ * Version: 3.4.1
  * Requires at least: 6.6
  * Requires PHP: 7.4
  * Text Domain: learning-management-system
@@ -69,7 +69,7 @@ if ( $masteriyo_pro_is_active ) {
 unset( $masteriyo_pro_is_active );
 
 define( 'MASTERIYO_IS_PRO', false );
-define( 'MASTERIYO_VERSION', '3.4.0' );
+define( 'MASTERIYO_VERSION', '3.4.1' );
 define( 'MASTERIYO_PLUGIN_FILE', __FILE__ );
 
 require_once __DIR__ . '/bootstrap/plugin.php';

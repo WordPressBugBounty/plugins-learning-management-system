@@ -53,7 +53,7 @@ class QuizAttemptStatusChangeListener {
 		$user_id      = $attempt->get_user_id();
 		$course_id    = $attempt->get_course_id();
 		$category_ids = Helper::get_category_ids_of_course( $course_id );
-		$failed       = $attempt->get_earned_marks() < $quiz->get_pass_mark();
+		$failed       = ! masteriyo_is_quiz_attempt_passed( $attempt, $quiz );
 
 		if ( $failed ) {
 			/**

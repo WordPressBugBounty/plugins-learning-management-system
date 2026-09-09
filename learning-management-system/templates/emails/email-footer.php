@@ -22,7 +22,7 @@ $footer_text = str_replace( '{site_title}', get_bloginfo( 'name' ), $footer_text
 ?>
 		</div>
 		<?php if ( ! empty( $footer_text ) ) : ?>
-		<div class="email-footer">
+		<div class="email-footer" dir="auto">
 			<p><?php echo wp_kses_post( $footer_text ); ?></p>
 		</div>
 		<?php endif; ?>

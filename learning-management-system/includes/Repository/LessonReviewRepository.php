@@ -356,7 +356,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 
 		foreach ( $this->internal_meta_keys as $prop => $meta_key ) {
 			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
-			$set_props[ $prop ] = maybe_unserialize( $meta_value ); // get_post_meta only unserializes single values.
+			$set_props[ $prop ] = masteriyo_maybe_unserialize( $meta_value ); // get_post_meta only unserializes single values.
 		}
 
 		$lesson_review->set_props( $set_props );

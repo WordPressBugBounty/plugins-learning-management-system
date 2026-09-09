@@ -441,6 +441,8 @@ class ScriptStyle {
 			$language_hash_preserve_src = self::get_asset_url( '/assets/js/admin/masteriyo-language-hash-preserver.js' );
 		}
 
+		$student_preview_banner_src = self::get_asset_url( '/assets/js/frontend/student-preview-banner.js' );
+
 		/**
 		 * Filters the scripts.
 		 *
@@ -536,6 +538,14 @@ class ScriptStyle {
 					'context'  => 'public',
 					'callback' => function () {
 						return masteriyo_is_single_course_page() || isset( $_GET['masteriyo-load-single-course-js'] ) || is_masteriyo_block(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					},
+				),
+				'student-preview-banner'            => array(
+					'src'      => $student_preview_banner_src,
+					'deps'     => array(),
+					'context'  => 'public',
+					'callback' => static function () {
+						return masteriyo_validate_preview_originator_cookie() !== null;
 					},
 				),
 				'courses'                           => array(

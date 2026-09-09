@@ -70,16 +70,23 @@ abstract class Response {
 	 * @param  Order $order Order object.
 	 * @param  string   $txn_id Transaction ID.
 	 * @param  string   $note Payment note.
+	 * @return bool Whether the order actually completed — Order::payment_complete()
+	 *              refuses when its database lock times out, and side effects
+	 *              gated on payment (subscription activation) must not run then.
 	 */
 	protected function payment_complete( $order, $txn_id = '', $note = '' ) {
+		$completed = false;
+
 		if ( ! $order->has_status( array( OrderStatus::PROCESSING, OrderStatus::COMPLETED ) ) ) {
 			$order->add_order_note( $note );
-			$order->payment_complete( $txn_id );
+			$completed = (bool) $order->payment_complete( $txn_id );
 
 			if ( ! is_null( masteriyo( 'cart' ) ) ) {
 				masteriyo( 'cart' )->clear();
 			}
 		}
+
+		return $completed;
 	}
 
 	/**

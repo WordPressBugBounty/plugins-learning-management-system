@@ -134,6 +134,10 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
+	 * Every row comes back, the model's own internal (`_`-prefixed) keys
+	 * included: repositories hydrate props from this list. Exposure filters
+	 * through filter_exposed_meta_data().
+	 *
 	 * @param Model $model Model object.
 	 *
 	 * @return MetaData[]
@@ -174,7 +178,7 @@ abstract class AbstractRepository {
 					array(
 						'id'    => $meta_data->meta_id,
 						'key'   => $meta_data->meta_key,
-						'value' => maybe_unserialize( $meta_data->meta_value ),
+						'value' => masteriyo_maybe_unserialize( $meta_data->meta_value ),
 					)
 				);
 			},
@@ -189,19 +193,19 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Masteriyo\Database\Model $model        Model object.
-	 * @param array   $raw_meta_data Array of std object of meta data to be filtered.
+	 * @param Masteriyo\Database\Model $model            Model object.
+	 * @param array                    $raw_meta_data    Array of std object of meta data to be filtered.
+	 * @param bool                     $exclude_internal Whether to drop the model's internal
+	 *                                                   meta keys. Only the model's exposed
+	 *                                                   meta bag wants this; prop hydration
+	 *                                                   needs every row.
 	 *
 	 * @return array
 	 */
-	public function filter_raw_meta_data( &$model, $raw_meta_data ) {
-		$extra_data_meta_keys = array();
-		foreach ( $model->get_extra_data_keys() as $key ) {
-			$extra_data_meta_keys[ $key ] = '_' . $key;
-		}
+	public function filter_raw_meta_data( &$model, $raw_meta_data, $exclude_internal = false ) {
+		$this->expand_internal_meta_keys( $model );
 
-		$this->internal_meta_keys = array_merge( array_map( array( $this, 'prefix_key' ), $model->get_data_keys() ), $this->internal_meta_keys, $extra_data_meta_keys );
-		$meta_data                = array_filter( $raw_meta_data, array( $this, 'exclude_internal_meta_keys' ) );
+		$meta_data = $exclude_internal ? array_filter( $raw_meta_data, array( $this, 'exclude_internal_meta_keys' ) ) : $raw_meta_data;
 
 		/**
 		 * Filters raw meta data of a model.
@@ -216,6 +220,43 @@ abstract class AbstractRepository {
 	}
 
 	/**
+	 * Filter a model's internal rows out of a meta list for exposure
+	 * (serialization, script localization). Unlike filter_raw_meta_data()
+	 * this is not the read path: the read_meta filter does not run here, and
+	 * the list is re-indexed so it stays a JSON array, not an object.
+	 *
+	 * @param \Masteriyo\Database\Model $model     Model object.
+	 * @param MetaData[]                $meta_data Meta rows (e.g. the model's bag).
+	 *
+	 * @return MetaData[]
+	 */
+	public function filter_exposed_meta_data( &$model, $meta_data ) {
+		$this->expand_internal_meta_keys( $model );
+
+		return array_values( array_filter( $meta_data, array( $this, 'exclude_internal_meta_keys' ) ) );
+	}
+
+	/**
+	 * Fold the model's data and extra-data keys into the prop => meta-key map.
+	 * Load-bearing for hydration, not just for exclusion: read_*_data()
+	 * methods iterate internal_meta_keys after read_meta(), and extra data
+	 * keys (e.g. a subscription's subscription_id) reach the map only through
+	 * this merge.
+	 *
+	 * @param \Masteriyo\Database\Model $model Model object.
+	 *
+	 * @return void
+	 */
+	protected function expand_internal_meta_keys( &$model ) {
+		$extra_data_meta_keys = array();
+		foreach ( $model->get_extra_data_keys() as $key ) {
+			$extra_data_meta_keys[ $key ] = '_' . $key;
+		}
+
+		$this->internal_meta_keys = array_merge( array_map( array( $this, 'prefix_key' ), $model->get_data_keys() ), $this->internal_meta_keys, $extra_data_meta_keys );
+	}
+
+	/**
 	 * Callback to remove unwanted meta data.
 	 *
 	 * @since 1.0.0
@@ -224,11 +265,13 @@ abstract class AbstractRepository {
 	 * @return bool
 	 */
 	protected function exclude_internal_meta_keys( $meta ) {
-		if ( ! $meta->meta_key ) {
+		$key = isset( $meta->key ) ? $meta->key : ( isset( $meta->meta_key ) ? $meta->meta_key : '' );
+
+		if ( ! $key ) {
 			return true;
 		}
 
-		return ! in_array( $meta->meta_key, $this->internal_meta_keys, true ) && 0 !== stripos( $meta->meta_key, 'wp_' );
+		return ! in_array( $key, $this->internal_meta_keys, true ) && 0 !== stripos( $key, 'wp_' );
 	}
 
 	/**

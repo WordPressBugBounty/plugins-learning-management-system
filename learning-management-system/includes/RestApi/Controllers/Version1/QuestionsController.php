@@ -415,7 +415,7 @@ class QuestionsController extends PostsController {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param  Masteriyo\Database\Model $object  Model object.
+	 * @param  \Masteriyo\Models\Question\Question $object Question object.
 	 * @param  WP_REST_Request $request Request object.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
@@ -423,12 +423,17 @@ class QuestionsController extends PostsController {
 	protected function prepare_object_for_response( $object, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 
-		// Show correct answer if current user is admin or post author while request from question bank for builder.
-		if ( ( isset( $request['selected_quiz_id'] ) && masteriyo_is_current_user_admin() ) || masteriyo_is_current_user_post_author( $object->get_course_id() ) ) {
-			$request['show_correct_answer'] = true;
-		}
+		// The caller-supplied show_correct_answer flag is a request, never an
+		// authorization: it was used to defeat answer-key redaction. Staff and
+		// authors always get the key; a learner only for a review the quiz's
+		// own reveal policy allows.
+		$show_correct_answer = masteriyo_is_current_user_admin()
+			|| masteriyo_is_current_user_manager()
+			|| masteriyo_is_current_user_post_author( $object->get_course_id() )
+			|| masteriyo_is_current_user_post_author( $object->get_id() )
+			|| ( ! empty( $request['show_correct_answer'] ) && $this->current_user_can_review_answer_key( $object ) );
 
-		$data = $this->get_question_data( $object, $context, $request['show_correct_answer'] );
+		$data = $this->get_question_data( $object, $context, $show_correct_answer );
 
 		$data     = $this->add_additional_fields_to_object( $data, $request );
 		$data     = $this->filter_response_by_context( $data, $context );
@@ -448,6 +453,31 @@ class QuestionsController extends PostsController {
 		 * @param WP_REST_Request  $request  Request object.
 		 */
 		return apply_filters( "masteriyo_rest_prepare_{$this->post_type}_object", $response, $object, $request );
+	}
+
+	/**
+	 * Whether the current learner may see this question's answer key on the
+	 * "Review Last attempt" screen: the quiz reveals answers, its attempts are
+	 * capped, and the learner has used them all — the same rule
+	 * QuizAttemptsController uses to offer that screen (view_last_attempts).
+	 *
+	 * @param \Masteriyo\Models\Question\Question $question Question.
+	 * @return bool
+	 */
+	protected function current_user_can_review_answer_key( $question ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$quiz = masteriyo_get_quiz( $question->get_parent_id() );
+
+		if ( ! $quiz || ! $quiz->get_reveal_mode() || $quiz->get_attempts_allowed() < 1 ) {
+			return false;
+		}
+
+		return masteriyo_get_quiz_attempt_count( $quiz->get_id(), $user_id ) >= $quiz->get_attempts_allowed();
 	}
 
 	/**

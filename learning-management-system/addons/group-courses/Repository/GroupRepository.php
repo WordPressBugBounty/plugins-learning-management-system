@@ -368,7 +368,7 @@ class GroupRepository extends AbstractRepository implements RepositoryInterface 
 
 		foreach ( $this->internal_meta_keys as $prop => $meta_key ) {
 			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
-			$set_props[ $prop ] = maybe_unserialize( $meta_value ); // get_post_meta only unserialize single values.
+			$set_props[ $prop ] = masteriyo_maybe_unserialize( $meta_value ); // get_post_meta only unserialize single values.
 		}
 
 		$group->set_props( $set_props );

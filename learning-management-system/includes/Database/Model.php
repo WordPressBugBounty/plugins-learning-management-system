@@ -152,7 +152,8 @@ abstract class Model {
 	public function __wakeup() {
 		try {
 			$this->__construct( absint( $this->id ) );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
+			// Throwable, not Exception: repository-typed constructors raise a TypeError here.
 			$this->set_id( 0 );
 			$this->set_object_read( true );
 		}
@@ -461,7 +462,7 @@ abstract class Model {
 		return array_merge(
 			array( $this->primary_key => $this->get_id() ),
 			$this->data,
-			array( 'meta_data' => $this->get_meta_data() )
+			array( 'meta_data' => $this->get_exposed_meta_data() )
 		);
 	}
 
@@ -547,6 +548,25 @@ abstract class Model {
 	}
 
 	/**
+	 * Get the meta bag for wholesale serialization (get_data(), __toString(),
+	 * script localization): the model's own internal rows dropped, every other
+	 * row kept. get_meta_data() — the internal meta API — keeps all rows.
+	 *
+	 * @return array of objects.
+	 */
+	public function get_exposed_meta_data() {
+		$meta_data = $this->get_meta_data();
+
+		// Only the abstract repository knows a model's internal keys; the
+		// interface stays as it was so third-party implementations keep loading.
+		if ( ! $this->repository instanceof \Masteriyo\Repository\AbstractRepository ) {
+			return array_values( $meta_data );
+		}
+
+		return $this->repository->filter_exposed_meta_data( $this, $meta_data );
+	}
+
+	/**
 	 * Filter null meta values from array.
 	 *
 	 * @since  1.0.0
@@ -571,8 +591,13 @@ abstract class Model {
 	}
 
 	/**
-	 * Read meta data from the database. Ignore internal properties.
+	 * Read meta data from the database into the internal meta bag.
 	 * Uses it's own caches because get_metadata doesn't provide meta_ids.
+	 *
+	 * The bag holds every row, internal (`_`-prefixed) ones included:
+	 * add/update/delete_meta_data() and get_meta() operate on it and must
+	 * see the internal rows. Consumers that expose the bag wholesale
+	 * (get_data(), localization) filter through get_exposed_meta_data().
 	 *
 	 * @since 1.0.0
 	 *

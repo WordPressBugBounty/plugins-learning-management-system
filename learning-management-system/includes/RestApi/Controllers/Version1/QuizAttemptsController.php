@@ -394,6 +394,12 @@ class QuizAttemptsController extends CrudController {
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
+				'passed'                   => array(
+					'description' => __( 'Whether the quiz attempt passed. Null until the attempt has ended.', 'learning-management-system' ),
+					'type'        => array( 'boolean', 'null' ),
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 
@@ -1023,6 +1029,7 @@ class QuizAttemptsController extends CrudController {
 			'attempt_ended_at'         => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_ended_at( $context ) ),
 			'course'                   => null,
 			'quiz'                     => null,
+			'passed'                   => null,
 			'user'                     => null,
 			'answer_explanation'       => $this->get_answers_explanation_data(
 				$quiz_attempt->get_quiz_id(),
@@ -1053,15 +1060,21 @@ class QuizAttemptsController extends CrudController {
 				$view_last_attempts = true;
 			}
 
+			// The pass mark this attempt is measured against, not the stored one:
+			// a point-mode threshold sits on the quiz's stale full_mark scale.
 			$data['quiz'] = array(
 				'id'                 => $quiz->get_id(),
 				'name'               => $quiz->get_name(),
-				'pass_mark'          => $quiz->get_pass_mark(),
+				'pass_mark'          => masteriyo_get_quiz_effective_pass_mark( $quiz, $data['total_marks'] ),
 				'duration'           => $quiz->get_duration(),
 				'reveal_mode'        => $quiz->get_reveal_mode(),
 				'pass_mark_type'     => $quiz->get_pass_mark_type(),
 				'view_last_attempts' => $view_last_attempts,
 			);
+
+			if ( QuizAttemptStatus::ENDED === $data['attempt_status'] ) {
+				$data['passed'] = masteriyo_is_quiz_attempt_passed( $quiz_attempt, $quiz );
+			}
 		}
 
 		if ( ! is_null( $user ) && ! is_wp_error( $user ) ) {

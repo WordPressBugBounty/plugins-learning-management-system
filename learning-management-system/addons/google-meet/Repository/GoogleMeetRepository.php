@@ -207,7 +207,7 @@ class GoogleMeetRepository extends AbstractRepository implements RepositoryInter
 
 		foreach ( $this->internal_meta_keys as $prop => $meta_key ) {
 			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
-			$set_props[ $prop ] = maybe_unserialize( $meta_value );
+			$set_props[ $prop ] = masteriyo_maybe_unserialize( $meta_value );
 		}
 
 		$google_meet->set_props( $set_props );

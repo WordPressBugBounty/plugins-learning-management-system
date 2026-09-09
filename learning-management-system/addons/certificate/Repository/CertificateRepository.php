@@ -308,7 +308,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 
 		foreach ( $this->internal_meta_keys as $prop => $meta_key ) {
 			$meta_value         = isset( $meta_values[ $meta_key ][0] ) ? $meta_values[ $meta_key ][0] : null;
-			$set_props[ $prop ] = maybe_unserialize( $meta_value ); // get_post_meta only unserializes single values.
+			$set_props[ $prop ] = masteriyo_maybe_unserialize( $meta_value ); // get_post_meta only unserializes single values.
 		}
 
 		$set_props['content_format'] = $set_props['content_format'] ?? 'gutenberg';

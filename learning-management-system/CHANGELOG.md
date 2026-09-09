@@ -1,3 +1,16 @@
+##### [Version 3.4.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.0...3.4.1) (2026-09-09)
+
+- Enhancement - The Viewing as Demo Student pill can now be dragged out of the way, remembers its position, and stays inside the viewport.
+- Fix - Enhanced security: stored metadata could instantiate PHP objects on read, course highlights allowed script event handlers, quiz answer keys and other users Q&A contact details were exposed to logged-in users, course export returned other authors courses and non-course posts, and PayPal PDT completed orders from browser-supplied values instead of the authenticated response.
+- Fix - Fixed paginated quizzes with Answer All Questions rejecting fully answered attempts as incomplete.
+- Fix - Fixed quizzes resuming on page 1 instead of the last reached page when saved progress loads late.
+- Fix - Fixed perfect point-based quiz attempts being labelled Fail.
+- Fix - Fixed a fatal error on lesson access checks when enrollment expiration data is served from a persistent object cache.
+- Fix - Fixed Require Full Video Watch leaving Mark as Complete enabled for external video lessons.
+- Fix - Fixed course updates rejecting a previously saved Maximum Students value.
+- Fix - Fixed RTL sites: player overlays piling into one corner, seek buttons painting over the learn page footer, emails losing text direction, a missing RTL toggle in the email editor, and quiz and FAQ text inheriting the wrong direction.
+- Fix - Fixed the free translation template shipping with only four strings.
+
 #### [Version 3.4.0](https://github.com/Codeinwp/learning-management-system-pro/compare/3.3.3...3.4.0) (2026-09-02)
 
 - Feature - Added a free Enrollments screen with manual and bulk enrollment from email lists, CSV files, and existing students.

@@ -129,7 +129,7 @@ class QuizAttemptRepository extends AbstractRepository implements RepositoryInte
 				'total_correct_answers'    => $data->total_correct_answers,
 				'total_incorrect_answers'  => $data->total_incorrect_answers,
 				'earned_marks'             => $data->earned_marks,
-				'answers'                  => maybe_unserialize( $data->answers ),
+				'answers'                  => masteriyo_maybe_unserialize( $data->answers ),
 				'attempt_status'           => $data->attempt_status,
 				'attempt_started_at'       => $this->string_to_timestamp( $data->attempt_started_at ),
 				'attempt_ended_at'         => $this->string_to_timestamp( $data->attempt_ended_at ),

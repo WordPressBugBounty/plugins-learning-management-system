@@ -1051,9 +1051,10 @@ class CoursesController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'highlights'                     => array(
-					'description' => __( 'Course highlights', 'learning-management-system' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
+					'description'       => __( 'Course highlights', 'learning-management-system' ),
+					'type'              => 'string',
+					'context'           => array( 'view', 'edit' ),
+					'sanitize_callback' => 'wp_kses_post',
 				),
 				'wp_edit_link'                   => array(
 					'description' => __( 'Course WordPress edit link.', 'learning-management-system' ),

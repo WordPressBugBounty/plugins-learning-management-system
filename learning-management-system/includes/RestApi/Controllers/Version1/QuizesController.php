@@ -1072,6 +1072,7 @@ class QuizesController extends PostsController {
 			'attempt_status'           => $quiz_attempt->get_attempt_status(),
 			'attempt_started_at'       => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_started_at() ),
 			'attempt_ended_at'         => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_ended_at() ),
+			'passed'                   => QuizAttemptStatus::ENDED === $quiz_attempt->get_attempt_status() ? masteriyo_is_quiz_attempt_passed( $quiz_attempt ) : null,
 		);
 	}
 
@@ -1179,9 +1180,7 @@ class QuizesController extends PostsController {
 			'questions_count'                   => $quiz->get_questions_count(),
 			'navigation'                        => $this->get_navigation_items( $quiz, $context ),
 			'require_all_questions_attempted'   => $quiz->get_require_all_questions_attempted( $context ),
-			'question_ids'                      => $quiz->get_require_all_questions_attempted()
-				? masteriyo_get_all_question_ids_by_quiz( $quiz )
-				: array(),
+			'question_ids'                      => masteriyo_get_all_question_ids_by_quiz( $quiz ),
 		);
 
 		/**
@@ -1724,6 +1723,7 @@ class QuizesController extends PostsController {
 			'attempt_status'           => $quiz_attempt->get_attempt_status(),
 			'attempt_started_at'       => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_started_at() ),
 			'attempt_ended_at'         => masteriyo_rest_prepare_date_response( $quiz_attempt->get_attempt_ended_at() ),
+			'passed'                   => QuizAttemptStatus::ENDED === $quiz_attempt->get_attempt_status() ? masteriyo_is_quiz_attempt_passed( $quiz_attempt ) : null,
 		);
 	}
 

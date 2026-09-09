@@ -574,8 +574,9 @@ class LessonsController extends PostsController {
 		$short_description = 'view' === $context ? apply_filters( 'masteriyo_short_description', $lesson->get_short_description() ) : $lesson->get_short_description();
 
 		$user_progress_videos_meta = array(
-			'notes'       => masteriyo_get_user_activity_meta( get_current_user_id(), $lesson->get_id(), 'notes', 'lesson' ),
-			'resume_time' => absint( masteriyo_get_user_activity_meta( get_current_user_id(), $lesson->get_id(), 'resume_time', 'lesson' ) ),
+			'notes'        => masteriyo_get_user_activity_meta( get_current_user_id(), $lesson->get_id(), 'notes', 'lesson' ),
+			'resume_time'  => absint( masteriyo_get_user_activity_meta( get_current_user_id(), $lesson->get_id(), 'resume_time', 'lesson' ) ),
+			'watched_full' => masteriyo_string_to_bool( masteriyo_get_user_activity_meta( get_current_user_id(), $lesson->get_id(), 'watched_full', 'lesson' ) ),
 		);
 
 		$data = array(
@@ -1720,7 +1721,7 @@ class LessonsController extends PostsController {
 				)
 			);
 
-			$meta_keys = array( 'resume_time', 'notes' );
+			$meta_keys = array( 'resume_time', 'notes', 'watched_full' );
 
 			$item_id   = $lesson->get_id();
 			$item_type = 'lesson';

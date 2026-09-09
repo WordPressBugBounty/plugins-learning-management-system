@@ -1944,10 +1944,10 @@ class Course extends Model {
 	 *
 	 *
 	 * @since 1.0.0
-	 * @param array $value
+	 * @param string $value
 	 */
 	public function set_highlights( $value ) {
-		$this->set_prop( 'highlights', $value );
+		$this->set_prop( 'highlights', wp_kses_post( $value ) );
 	}
 
 	/**

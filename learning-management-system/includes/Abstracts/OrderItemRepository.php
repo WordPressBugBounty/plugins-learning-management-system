@@ -299,7 +299,7 @@ class OrderItemRepository extends AbstractRepository {
 			$function = "set_{$meta_value->key}";
 
 			if ( is_callable( array( $item, $function ) ) ) {
-				$item->$function( maybe_unserialize( $meta_value->value ) );
+				$item->$function( masteriyo_maybe_unserialize( $meta_value->value ) );
 			}
 		}
 

@@ -73,6 +73,10 @@ class CoursesExportJob {
 	 * @param int $current_user_id The current user ID.
 	 */
 	public function handle( $current_user_id ) {
+		// Action Scheduler runs with no user; the export authorizes every post
+		// against the user who started it.
+		wp_set_current_user( $current_user_id );
+
 		try {
 			$args = json_decode( get_option( 'masteriyo_exporting_courses_args_' . $current_user_id, null ), true );
 
@@ -124,6 +128,8 @@ class CoursesExportJob {
 	 * @since 2.15.0
 	 */
 	public function handle_append_post_data( $current_user_id ) {
+		wp_set_current_user( $current_user_id );
+
 		$args = json_decode( get_option( 'masteriyo_exporting_post_type_append_args_' . $current_user_id, null ), true );
 
 		if ( is_array( $args ) ) {
@@ -143,7 +149,7 @@ class CoursesExportJob {
 				CourseExporter::append( $file_path, ',' );
 			}
 
-			self::append_posts_data( $post_type_ids, 'chunk_lesson', $file_path );
+			self::append_posts_data( $post_type_ids, $post_type, $file_path, true );
 
 			if ( ! empty( $remaining_chunks ) ) {
 				$next_chunk = array_shift( $remaining_chunks );
@@ -232,16 +238,15 @@ class CoursesExportJob {
 	 *
 	 * @since 2.15.0
 	 *
-	 * @param array  $course_ids The course IDs.
-	 * @param string $post_type  The post type.
-	 * @param string $file_path  The file path for export.
-	 * @param array  $remaining_post_types The remaining post types.
+	 * @param array  $ids       Course IDs, or with $ids_are_posts the IDs of one chunk of $post_type posts.
+	 * @param string $post_type The post type.
+	 * @param string $file_path The file path for export.
+	 * @param bool   $ids_are_posts Whether $ids name the posts themselves rather than their courses.
 	 */
-	public static function append_posts_data( $course_ids, $post_type, $file_path ) {
-		$get_attachments = 'chunk_lesson' === $post_type ? true : $post_type;
-		$post_type       = 'chunk_lesson' === $post_type ? '' : $post_type;
-
-		$posts_data_generator = CourseExporter::get_posts_data( $course_ids, $post_type, $get_attachments );
+	public static function append_posts_data( $ids, $post_type, $file_path, $ids_are_posts = false ) {
+		$posts_data_generator = $ids_are_posts
+			? CourseExporter::get_posts_by_ids( $ids, $post_type )
+			: CourseExporter::get_posts_data( $ids, $post_type );
 
 		$is_first_post = true;
 

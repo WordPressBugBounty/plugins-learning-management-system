@@ -133,6 +133,10 @@ class CourseExporter {
 			$course_ids = $this->get_all_course_ids();
 		}
 
+		// Drop foreign and non-course IDs here, before anything about them
+		// (terms, term meta, featured attachments) is written to the file.
+		$course_ids = self::filter_exportable_course_ids( $course_ids );
+
 		if ( empty( $course_ids ) ) {
 			return new \WP_Error( 'course_not_found', 'No courses found to export.', array( 'status' => 404 ) );
 		}
@@ -250,14 +254,8 @@ class CourseExporter {
 
 		$get_attachments = in_array( $post_type, array( PostType::COURSE, PostType::ASSIGNMENT, PostType::LESSON ), true ) ? true : $get_attachments;
 
-		if ( PostType::COURSE === $post_type || '' === $post_type ) {
-			foreach ( $course_ids as $course_id ) {
-				$post_id = ( $course_id instanceof \WP_Post ) ? $course_id->ID : $course_id;
-				$post    = self::fetch_post_data( $post_id, $get_attachments );
-				if ( $post ) {
-					yield $post;
-				}
-			}
+		if ( PostType::COURSE === $post_type ) {
+			yield from self::get_posts_by_ids( $course_ids, PostType::COURSE, $get_attachments );
 			return;
 		}
 
@@ -271,6 +269,7 @@ class CourseExporter {
 		while ( $has_more_posts ) {
 			$args['paged'] = $paged;
 
+			/** @var int[] $post_ids With 'fields' => 'ids', get_posts() returns IDs. */
 			$post_ids = get_posts( $args );
 
 			if ( empty( $post_ids ) ) {
@@ -278,7 +277,7 @@ class CourseExporter {
 			}
 
 			foreach ( $post_ids as $post_id ) {
-				$post = self::fetch_post_data( $post_id, $get_attachments );
+				$post = self::fetch_post_data( (int) $post_id, $get_attachments, $post_type );
 				if ( $post ) {
 					yield $post;
 				}
@@ -290,18 +289,69 @@ class CourseExporter {
 	}
 
 	/**
+	 * Fetch the given posts, each validated against one post type and the
+	 * current user's export rights. Used for courses (named by ID) and for the
+	 * background job's chunks of child posts.
+	 *
+	 * @param array  $post_ids        Post IDs (or WP_Post objects).
+	 * @param string $post_type       Post type every row must have.
+	 * @param bool   $get_attachments Whether to fetch attachments for the posts.
+	 *
+	 * @return \Generator
+	 */
+	public static function get_posts_by_ids( array $post_ids, string $post_type, bool $get_attachments = true ): \Generator {
+		foreach ( $post_ids as $post_id ) {
+			$post_id = ( $post_id instanceof \WP_Post ) ? $post_id->ID : $post_id;
+			$post    = self::fetch_post_data( (int) $post_id, $get_attachments, $post_type );
+			if ( $post ) {
+				yield $post;
+			}
+		}
+	}
+
+	/**
+	 * Keep only the IDs of courses the current user may export.
+	 *
+	 * @param array $course_ids Caller-supplied IDs.
+	 * @return int[]
+	 */
+	public static function filter_exportable_course_ids( array $course_ids ) {
+		$exportable = array();
+
+		foreach ( $course_ids as $course_id ) {
+			$course_id = ( $course_id instanceof \WP_Post ) ? $course_id->ID : (int) $course_id;
+			$post      = $course_id ? get_post( $course_id ) : null;
+
+			if ( $post && PostType::COURSE === $post->post_type && self::current_user_can_export_post( $post->to_array() ) ) {
+				$exportable[] = $course_id;
+			}
+		}
+
+		return $exportable;
+	}
+
+	/**
 	 * Fetch post data, including meta, terms, and attachments (if requested).
 	 *
 	 * @since 2.15.0
 	 *
-	 * @param int    $post_id      Post ID.
-	 * @param bool   $get_attachments Whether to fetch attachments.
+	 * @param int         $post_id         Post ID.
+	 * @param bool        $get_attachments Whether to fetch attachments.
+	 * @param string|null $expected_type   Required post type, or null to skip the type check.
 	 *
-	 * @return array|null Post data, or null if post does not exist.
+	 * @return array|null Post data, or null if the post must not be exported.
 	 */
-	private static function fetch_post_data( int $post_id, bool $get_attachments ) {
+	private static function fetch_post_data( int $post_id, bool $get_attachments, $expected_type = null ) {
 		$post = get_post( $post_id, ARRAY_A );
 		if ( ! $post ) {
+			return null;
+		}
+
+		if ( $expected_type && $expected_type !== $post['post_type'] ) {
+			return null;
+		}
+
+		if ( ! self::current_user_can_export_post( $post ) ) {
 			return null;
 		}
 
@@ -313,6 +363,26 @@ class CourseExporter {
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Whether the current user may include this post in an export.
+	 *
+	 * Admins may export any course-tree post. Everyone else is limited to
+	 * posts they authored — the same rule prepare_query_args() already applies
+	 * to non-course types.
+	 *
+	 * @param array $post Post row from get_post( ..., ARRAY_A ).
+	 * @return bool
+	 */
+	private static function current_user_can_export_post( array $post ) {
+		if ( masteriyo_is_current_user_admin() ) {
+			return true;
+		}
+
+		$user_id = get_current_user_id();
+
+		return $user_id && (int) $post['post_author'] === (int) $user_id;
 	}
 
 	/**

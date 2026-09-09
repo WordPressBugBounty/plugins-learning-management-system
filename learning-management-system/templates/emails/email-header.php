@@ -24,8 +24,10 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 		<title><?php echo wp_kses_post( get_bloginfo( 'name', 'display' ) ); ?></title>
 	</head>
 	<body>
-	<div class="email-template">
+	<?php // Repeats the <html> dir on the outermost element the email keeps: webmail clients routinely drop <html> and <body> and render the rest inside their own LTR document. ?>
+	<div class="email-template" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>">
 		<div class="email-header">
 			<img src="<?php echo esc_url( masteriyo_get_email_template_header_logo() ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ) . esc_html__( ' Logo', 'learning-management-system' ); ?>" />
 		</div>
-		<div id="content" class="email-body">
+		<?php // dir="auto" so the author's own text picks the direction: a site can be RTL and still send an English email, and vice versa. ?>
+		<div id="content" class="email-body" dir="auto">

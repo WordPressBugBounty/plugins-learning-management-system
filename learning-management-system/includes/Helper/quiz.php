@@ -19,6 +19,7 @@ use Masteriyo\PostType\PostType;
 use Masteriyo\Models\QuizAttempt;
 use Masteriyo\Query\QuizAttemptQuery;
 use Masteriyo\Enums\QuizAttemptStatus;
+use Masteriyo\Enums\QuizPassMarkType;
 
 /**
  * Get quiz question.
@@ -487,6 +488,86 @@ function masteriyo_calculate_quiz_full_points( $quiz, $questions = null ) {
 		 *
 		 */
 	return apply_filters( 'masteriyo_pro_calculate_quiz_full_points', $full_points, $quiz );
+}
+
+/**
+ * Get the pass mark an attempt should actually be measured against.
+ *
+ * A point-mode pass mark is stored on the scale of the quiz's stored full_mark,
+ * and that goes stale as questions are added or removed while an attempt is
+ * graded against the questions it really held. Rescaling it onto the attempt's
+ * own total is what keeps "all questions right" and "passed" the same answer.
+ *
+ * @param int|\Masteriyo\Models\Quiz|\WP_Post $quiz Quiz id or Quiz model or Post.
+ * @param float|int|string $total_marks The total marks the attempt was graded out of.
+ * @return float
+ */
+function masteriyo_get_quiz_effective_pass_mark( $quiz, $total_marks ) {
+	$quiz = masteriyo_get_quiz( $quiz );
+
+	if ( ! $quiz ) {
+		return 0.0;
+	}
+
+	$pass_mark = (float) $quiz->get_pass_mark();
+
+	// A percentage threshold carries no scale, so nothing to rescale.
+	if ( QuizPassMarkType::POINT !== $quiz->get_pass_mark_type() ) {
+		$effective = $pass_mark;
+	} else {
+		$total_marks = (float) $total_marks;
+		$full_mark   = (float) $quiz->get_full_mark();
+		$scaled      = ( $full_mark > 0 && $total_marks > 0 ) ? round( $pass_mark * $total_marks / $full_mark, 2 ) : $pass_mark;
+		$effective   = min( max( 0.0, $scaled ), max( 0.0, $total_marks ) );
+	}
+
+	/**
+	 * Filters the pass mark an attempt is measured against.
+	 *
+	 * @param float $effective The effective pass mark.
+	 * @param \Masteriyo\Models\Quiz $quiz The quiz object.
+	 * @param float $total_marks The total marks the attempt was graded out of.
+	 */
+	return (float) apply_filters( 'masteriyo_quiz_effective_pass_mark', $effective, $quiz, (float) $total_marks );
+}
+
+/**
+ * Whether a quiz attempt passed.
+ *
+ * The one rule every consumer should share: point mode compares earned marks
+ * against the rescaled threshold, percentage mode compares the earned share.
+ *
+ * @param \Masteriyo\Models\QuizAttempt $quiz_attempt The quiz attempt.
+ * @param int|\Masteriyo\Models\Quiz|\WP_Post|null $quiz Quiz to measure against. Read from the attempt when null.
+ * @return bool
+ */
+function masteriyo_is_quiz_attempt_passed( $quiz_attempt, $quiz = null ) {
+	if ( ! $quiz_attempt ) {
+		return false;
+	}
+
+	// An attempt that is still open has no total yet, and 0 >= 0 would read as a pass.
+	if ( QuizAttemptStatus::ENDED !== $quiz_attempt->get_attempt_status() ) {
+		return false;
+	}
+
+	$quiz = masteriyo_get_quiz( is_null( $quiz ) ? $quiz_attempt->get_quiz_id() : $quiz );
+
+	if ( ! $quiz ) {
+		return false;
+	}
+
+	$earned_marks = (float) $quiz_attempt->get_earned_marks();
+	$total_marks  = (float) $quiz_attempt->get_total_marks();
+
+	if ( QuizPassMarkType::POINT === $quiz->get_pass_mark_type() ) {
+		$passed = $earned_marks >= masteriyo_get_quiz_effective_pass_mark( $quiz, $total_marks );
+	} else {
+		$percentage = $total_marks > 0 ? ( $earned_marks / $total_marks ) * 100 : 0.0;
+		$passed     = $percentage >= masteriyo_get_quiz_effective_pass_mark( $quiz, $total_marks );
+	}
+
+	return $passed;
 }
 
 /**

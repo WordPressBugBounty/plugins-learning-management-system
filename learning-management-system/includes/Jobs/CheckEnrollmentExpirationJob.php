@@ -149,10 +149,13 @@ class CheckEnrollmentExpirationJob {
 
 		$expiration_days = $course->get_enrollment_expiration_duration();
 
-		$cache_key   = 'masteriyo_enrollment_expiry_' . $course->get_id() . '_' . $user->get_id();
-		$user_course = wp_cache_get( $cache_key, 'masteriyo' );
+		$cache_key = 'masteriyo_enrollment_expiry_' . $course->get_id() . '_' . $user->get_id();
 
-		if ( false === $user_course ) {
+		// Cache a plain array, never the model: a persistent cache serializes it and
+		// the model does not survive the round trip. Empty array = no enrollment (false means a miss).
+		$enrollment = wp_cache_get( $cache_key, 'masteriyo' );
+
+		if ( ! is_array( $enrollment ) ) {
 			$query = new UserCourseQuery(
 				array(
 					'course_id' => $course->get_id(),
@@ -162,24 +165,34 @@ class CheckEnrollmentExpirationJob {
 			);
 
 			$user_course = current( $query->get_user_courses() );
-			wp_cache_set( $cache_key, $user_course ? $user_course : null, 'masteriyo', MINUTE_IN_SECONDS );
+			$enrollment  = array();
+
+			if ( $user_course ) {
+				$enrollment = array(
+					'id'         => $user_course->get_id(),
+					'status'     => $user_course->get_status(),
+					'date_start' => masteriyo_rest_prepare_date_response( $user_course->get_date_start() ),
+				);
+			}
+
+			wp_cache_set( $cache_key, $enrollment, 'masteriyo', MINUTE_IN_SECONDS );
 		}
 
 		// No enrollment record — let other access logic decide.
-		if ( ! $user_course ) {
+		if ( empty( $enrollment ) ) {
 			return $can_start_course;
 		}
 
 		// The job has already revoked it.
-		if ( UserCourseStatus::ACTIVE !== $user_course->get_status() ) {
+		if ( UserCourseStatus::ACTIVE !== $enrollment['status'] ) {
 			$this->log( sprintf( 'Access denied for user #%1$d on course #%2$d — enrollment inactive (revoked).', $user->get_id(), $course->get_id() ), 'debug' );
 			return false;
 		}
 
 		// Still active but past the window (job hasn't run yet) — deny anyway.
-		$date_start = $user_course->get_date_start();
+		$date_start = empty( $enrollment['date_start'] ) ? 0 : strtotime( $enrollment['date_start'] );
 
-		if ( $date_start && ( $date_start->getTimestamp() + $expiration_days * DAY_IN_SECONDS ) <= time() ) {
+		if ( $date_start && ( $date_start + $expiration_days * DAY_IN_SECONDS ) <= time() ) {
 			$this->log( sprintf( 'Access denied for user #%1$d on course #%2$d — past window, job not yet run.', $user->get_id(), $course->get_id() ), 'debug' );
 			return false;
 		}

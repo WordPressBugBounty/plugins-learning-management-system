@@ -79,7 +79,7 @@ class SettingRepository extends AbstractRepository implements RepositoryInterfac
 		$setting_in_db = $this->clean_setting( $setting_in_db );
 
 		if ( isset( $setting_in_db['payments']['taxes']['regions'] ) ) {
-			$setting_in_db['payments']['taxes']['regions'] = maybe_unserialize( $setting_in_db['payments']['taxes']['regions'] );
+			$setting_in_db['payments']['taxes']['regions'] = masteriyo_maybe_unserialize( $setting_in_db['payments']['taxes']['regions'] );
 		}
 
 		$setting->set_data( $setting_in_db );

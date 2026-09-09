@@ -50,5 +50,6 @@ return array(
     '811de1787477ba7a0ca1af8343771886' => $baseDir . '/includes/Helper/course-content.php',
     '03589833341b5a9815771018e9789a9b' => $baseDir . '/includes/Helper/course-preview.php',
     'c2ecb3a65abf8b223815c6719d5027d0' => $baseDir . '/includes/Helper/public-profile.php',
+    '4c6a6199b2d1605b761b575506111bb1' => $baseDir . '/includes/Helper/serialize.php',
     'e1c2a8668dae933b2de67412bf8ef96c' => $vendorDir . '/codeinwp/themeisle-sdk/load.php',
 );

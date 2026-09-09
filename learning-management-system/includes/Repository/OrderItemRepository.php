@@ -328,7 +328,7 @@ class OrderItemRepository extends AbstractRepository {
 
 			if ( is_callable( array( $item, $function ) ) ) {
 				try {
-					call_user_func_array( array( $item, $function ), array( maybe_unserialize( $meta_value->value ) ) );
+					call_user_func_array( array( $item, $function ), array( masteriyo_maybe_unserialize( $meta_value->value ) ) );
 				} catch ( \Exception $e ) {
 					$message = $e->getMessage();
 				}
