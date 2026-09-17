@@ -1,3 +1,7 @@
+##### [Version 3.4.2](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.1...3.4.2) (2026-09-17)
+
+- Fix - Enhanced security: course progress and quiz question endpoints exposed other learners progress and answer keys to logged-in users.
+
 ##### [Version 3.4.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.0...3.4.1) (2026-09-09)
 
 - Enhancement - The Viewing as Demo Student pill can now be dragged out of the way, remembers its position, and stays inside the viewport.

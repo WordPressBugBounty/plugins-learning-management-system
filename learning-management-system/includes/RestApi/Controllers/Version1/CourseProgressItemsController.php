@@ -359,6 +359,10 @@ class CourseProgressItemsController extends CrudController {
 			)
 		);
 
+		if ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() ) {
+			$args['user_id'] = get_current_user_id();
+		}
+
 		/**
 		 * Filter the query arguments for a request.
 		 *
@@ -659,7 +663,8 @@ class CourseProgressItemsController extends CrudController {
 		// The collection is scoped by the `user_id` query arg, which defaults to the
 		// current user but is overridden by the request. Scope it the way the singular
 		// sibling scopes a single item, or the ownership check above is bypassed in bulk.
-		if ( ! empty( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
+		// isset(), not !empty(): empty(0) is true.
+		if ( isset( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),

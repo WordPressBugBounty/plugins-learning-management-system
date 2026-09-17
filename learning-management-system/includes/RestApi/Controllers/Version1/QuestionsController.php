@@ -15,6 +15,12 @@ use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use WP_Error;
 
 class QuestionsController extends PostsController {
+
+	/**
+	 * A fill-in-the-blanks answer marker, `{{answer}}`. The same grammar the learner
+	 * field renders a blank from, so a marker spanning lines is masked too.
+	 */
+	const BLANK_MARKER_PATTERN = '/{{[^{}]*}}/';
 	/**
 	 * Endpoint namespace.
 	 *
@@ -431,7 +437,7 @@ class QuestionsController extends PostsController {
 			|| masteriyo_is_current_user_manager()
 			|| masteriyo_is_current_user_post_author( $object->get_course_id() )
 			|| masteriyo_is_current_user_post_author( $object->get_id() )
-			|| ( ! empty( $request['show_correct_answer'] ) && $this->current_user_can_review_answer_key( $object ) );
+			|| ( ! empty( $request['show_correct_answer'] ) && $this->current_user_can_review_answer_key( $object, $this->served_quiz_id( $request, $object ) ) );
 
 		$data = $this->get_question_data( $object, $context, $show_correct_answer );
 
@@ -462,22 +468,53 @@ class QuestionsController extends PostsController {
 	 * QuizAttemptsController uses to offer that screen (view_last_attempts).
 	 *
 	 * @param \Masteriyo\Models\Question\Question $question Question.
+	 * @param int                                   $quiz_id  The quiz being served; the question's parent when 0.
 	 * @return bool
 	 */
-	protected function current_user_can_review_answer_key( $question ) {
+	protected function current_user_can_review_answer_key( $question, $quiz_id = 0 ) {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
 			return false;
 		}
 
-		$quiz = masteriyo_get_quiz( $question->get_parent_id() );
+		// The quiz being served, not the question's origin: a bank question is reused
+		// across quizzes, and each quiz has its own reveal policy.
+		$quiz = masteriyo_get_quiz( $quiz_id ? $quiz_id : $question->get_parent_id() );
 
 		if ( ! $quiz || ! $quiz->get_reveal_mode() || $quiz->get_attempts_allowed() < 1 ) {
 			return false;
 		}
 
 		return masteriyo_get_quiz_attempt_count( $quiz->get_id(), $user_id ) >= $quiz->get_attempts_allowed();
+	}
+
+	/**
+	 * The named quiz this row is served for, which is the quiz that licensed it.
+	 *
+	 * A request may name several quizzes, and each row follows its own quiz's policy.
+	 *
+	 * @param \WP_REST_Request                    $request  Request.
+	 * @param \Masteriyo\Models\Question\Question $question The row.
+	 * @return int 0 when no named quiz serves this row.
+	 */
+	protected function served_quiz_id( $request, $question ) {
+		$parent = isset( $request['parent'] ) ? $request['parent'] : array();
+		$named  = array_values( array_filter( array_map( 'absint', (array) $parent ) ) );
+		$own    = absint( $question->get_parent_id( 'edit' ) );
+
+		if ( in_array( $own, $named, true ) ) {
+			return $own;
+		}
+
+		// Reused from the bank: the model resolves a named quiz the question is linked to.
+		foreach ( $named as $quiz_id ) {
+			if ( absint( $question->get_parent_id( 'edit', $quiz_id ) ) === $quiz_id ) {
+				return $quiz_id;
+			}
+		}
+
+		return 0;
 	}
 
 	/**
@@ -526,33 +563,17 @@ class QuestionsController extends PostsController {
 			'answer_explanation'     => $answer_explanation,
 		);
 
-		$answers          = $question->get_answers( $context );
-		$filtered_answers = array();
+		$answers = $question->get_answers( $context );
 
-		// Other question type might doesn't have answer correct key or array type answer.
-		$filter_question_type = array(
-			'true-false',
-			'single-choice',
-			'multiple-choice',
-		);
+		$filtered_answers = $show_correct_answer ? $answers : $this->redact_answer_key( $answers, $question );
 
-		// Remove answer correct key for view context.
-		if ( ! $show_correct_answer && is_array( $answers ) && in_array( $question->get_type( $context ), $filter_question_type, true ) ) {
-			$filtered_answers = array_map(
-				function ( $obj ) {
-					return (object) array( 'name' => $obj->name );
-				},
-				$answers
-			);
-		} else {
-			$filtered_answers = $answers;
-		}
-
-		if ( $question->get_randomize( $context ) ) {
+		// Randomize is for the attempt. An authorized response keeps the stored order:
+		// the editor saves it back, and for a sortable it is the key.
+		if ( ! $show_correct_answer && is_array( $filtered_answers ) && $question->get_randomize( $context ) ) {
 			shuffle( $filtered_answers );
 		}
 
-		$data['answers'] = ! $show_correct_answer ? $filtered_answers : $answers;
+		$data['answers'] = $filtered_answers;
 
 		if ( 'view' === $context ) {
 			$data['formatted_answers'] = $this->process_answers( $filtered_answers, $question );
@@ -572,6 +593,80 @@ class QuestionsController extends PostsController {
 	}
 
 	/**
+	 * Strip the stored answer key. What remains is what attempting the question takes.
+	 *
+	 * @param mixed $answers Raw answers.
+	 * @param \Masteriyo\Models\Question\Question $question The question being served.
+	 * @return mixed
+	 */
+	protected function redact_answer_key( $answers, $question ) {
+		switch ( $question->get_type( 'edit' ) ) {
+			case QuestionType::TRUE_FALSE:
+			case QuestionType::SINGLE_CHOICE:
+			case QuestionType::MULTIPLE_CHOICE:
+				if ( ! is_array( $answers ) ) {
+					return $answers;
+				}
+
+				return array_map(
+					function ( $obj ) {
+						return (object) array( 'name' => $obj->name );
+					},
+					$answers
+				);
+
+			case QuestionType::SORTABLE:
+				if ( ! is_array( $answers ) ) {
+					return $answers;
+				}
+
+				$redacted = array_values( $answers );
+				shuffle( $redacted );
+
+				return $redacted;
+
+			case QuestionType::MATCHING:
+				if ( ! is_array( $answers ) ) {
+					return $answers;
+				}
+
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$matches = array();
+				foreach ( $answers as $answer ) {
+					$answer    = (array) $answer;
+					$matches[] = array(
+						'match'         => isset( $answer['match'] ) ? $answer['match'] : null,
+						'imageMatch'    => isset( $answer['imageMatch'] ) ? $answer['imageMatch'] : null,
+						'imageMatchUrl' => isset( $answer['imageMatchUrl'] ) ? $answer['imageMatchUrl'] : null,
+					);
+				}
+
+				shuffle( $matches );
+
+				$redacted = array();
+				foreach ( array_values( $answers ) as $i => $answer ) {
+					// get_answers() returns the model's own objects.
+					$copy                = is_object( $answer ) ? clone $answer : (object) $answer;
+					$copy->match         = $matches[ $i ]['match'];
+					$copy->imageMatch    = $matches[ $i ]['imageMatch'];
+					$copy->imageMatchUrl = $matches[ $i ]['imageMatchUrl'];
+					$redacted[]          = $copy;
+				}
+				// phpcs:enable
+
+				return $redacted;
+
+			case QuestionType::FILL_IN_THE_BLANKS:
+				$answers = is_array( $answers ) ? join( '', $answers ) : $answers;
+
+				return is_string( $answers ) ? preg_replace( self::BLANK_MARKER_PATTERN, '{{blanks}}', $answers ) : $answers;
+
+			default:
+				return $answers;
+		}
+	}
+
+	/**
 	 * Process answers based on user roles.
 	 *
 	 * @since 1.0.0
@@ -582,8 +677,7 @@ class QuestionsController extends PostsController {
 	protected function process_answers( $answers, $question ) {
 		if ( QuestionType::FILL_IN_THE_BLANKS === $question->get_type() ) {
 			$answers = is_array( $answers ) ? join( '', $answers ) : $answers;
-			$pattern = '/{{.+}}/mU';
-			$answers = preg_replace( $pattern, '{{blanks}}', $answers );
+			$answers = preg_replace( self::BLANK_MARKER_PATTERN, '{{blanks}}', $answers );
 		}
 
 		return $answers;
@@ -601,14 +695,18 @@ class QuestionsController extends PostsController {
 	protected function prepare_objects_query( $request ) {
 		$args = parent::prepare_objects_query( $request );
 
+		// A named parent of 0 asks for parentless questions, which no quiz licenses;
+		// the permission check drops it, so the query must too.
+		$args['post_parent__in'] = array_filter( (array) $args['post_parent__in'] );
+
 		// Support quiz's question randomization for only single quiz.
 		if ( isset( $request['random_id'] ) && 'rand' === $args['orderby'] ) {
 			$args['orderby']   = $args['orderby'] . '(' . $request['random_id'] . ')';
 			$args['random_id'] = $request['random_id'];
 		}
 
-		// Set post_status.
-		$args['post_status'] = $request['status'];
+		// `status` is a staff filter over the bank; a learner attempts published questions only.
+		$args['post_status'] = $this->current_user_is_staff() ? $request['status'] : PostStatus::PUBLISH;
 
 		if ( ! isset( $args['meta_query'] ) ) {
 			$args['meta_query'] = array();
@@ -1140,29 +1238,13 @@ class QuestionsController extends PostsController {
 			);
 		}
 
-		$quizzes          = get_posts( array( 'include' => $request['parent'] ) );
-		$courses          = array_filter(
-			array_map(
-				function( $quiz ) {
-					$course_id = get_post_meta( $quiz->ID, '_course_id', true );
-					return masteriyo_get_course( $course_id );
-				},
-				$quizzes
-			)
-		);
-		$all_open_courses = array_reduce(
-			$courses,
-			function( $result, $course ) {
-				return $result && CourseAccessMode::OPEN === $course->get_access_mode();
-			},
-			true
-		);
-
-		if ( $all_open_courses ) {
+		if ( $this->current_user_is_staff() ) {
 			return true;
 		}
 
-		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'read' ) ) {
+		$quiz_ids = array_filter( array_map( 'absint', (array) $request['parent'] ) );
+
+		if ( empty( $quiz_ids ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you cannot list resources.', 'learning-management-system' ),
@@ -1172,7 +1254,67 @@ class QuestionsController extends PostsController {
 			);
 		}
 
+		foreach ( $quiz_ids as $quiz_id ) {
+			if ( ! $this->quiz_is_attemptable( $quiz_id ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_cannot_read',
+					__( 'Sorry, you cannot list resources.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+		}
+
 		return true;
+	}
+
+	/**
+	 * Whether the caller builds quizzes and so works the site-wide question bank.
+	 *
+	 * @return bool
+	 */
+	protected function current_user_is_staff() {
+		return masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || masteriyo_is_current_user_instructor();
+	}
+
+	/**
+	 * Whether the current caller may attempt a quiz, decided from the quiz and its course.
+	 *
+	 * @param int $quiz_id Quiz ID.
+	 * @return bool
+	 */
+	protected function quiz_is_attemptable( $quiz_id ) {
+		$quiz = masteriyo_get_quiz( $quiz_id );
+
+		// The same statuses the learn page shows a quiz in.
+		if ( is_null( $quiz ) || ! in_array( $quiz->get_status(), masteriyo_get_course_content_post_statuses(), true ) ) {
+			return false;
+		}
+
+		$course = masteriyo_get_course( $quiz->get_course_id() );
+
+		if ( is_null( $course ) || ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) ) {
+			return false;
+		}
+
+		// masteriyo_can_start_course() is true for an open course before it looks at the
+		// caller, so the course page's own gates have to be asked here.
+		if ( post_password_required( get_post( $course->get_id() ) ) ) {
+			return false;
+		}
+
+		if ( PostStatus::PVT === $course->get_status() && ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) ) {
+			return false;
+		}
+
+		// Open access included: the cohort start, end and enrolment-close gates live in
+		// here, and it is safe for a guest on every access mode. The filter is the quiz
+		// start route's last gate (content drip holds an unreleased quiz there); true or
+		// a WP_Error comes back.
+		$can_start = (bool) masteriyo_can_start_course( $course );
+
+		return true === apply_filters( 'masteriyo_rest_check_quiz_start_permission', $can_start, $quiz, $course );
 	}
 
 	/**
@@ -1325,7 +1467,8 @@ class QuestionsController extends PostsController {
 		$request = masteriyo_current_http_request();
 
 		if ( isset( $request['is_from_learn'], $request['parent'] ) ) {
-			$quiz_id = is_array( $request['parent'] ) ? absint( current( $request['parent'] ) ) : absint( $request['parent'] );
+			// From the query args, not the raw request: prepare_objects_query() has dropped a 0.
+			$quiz_id = absint( current( (array) $query_args['post_parent__in'] ) );
 
 			$query_args['post_parent'] = $quiz_id;
 

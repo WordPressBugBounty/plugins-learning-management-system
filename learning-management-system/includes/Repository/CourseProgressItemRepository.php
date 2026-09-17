@@ -378,8 +378,8 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 		$search_criteria = array();
 		$sql[]           = "SELECT * FROM {$wpdb->prefix}masteriyo_user_activities";
 
-		// Construct where clause part.
-		if ( ! empty( $query_vars['user_id'] ) ) {
+		// Construct where clause part. isset(), not !empty(): empty(0) is true.
+		if ( isset( $query_vars['user_id'] ) ) {
 			$search_criteria[] = $wpdb->prepare( 'user_id = %d', $query_vars['user_id'] );
 		}
 

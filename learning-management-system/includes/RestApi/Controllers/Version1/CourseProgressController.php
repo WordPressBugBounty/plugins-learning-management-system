@@ -922,7 +922,8 @@ class CourseProgressController extends CrudController {
 		}
 
 		// `read` above is held by every logged-in role, so it says nothing about whose progress this is.
-		if ( ! empty( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
+		// isset(), not !empty(): empty(0) is true.
+		if ( isset( $request['user_id'] ) && absint( $request['user_id'] ) !== get_current_user_id() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),

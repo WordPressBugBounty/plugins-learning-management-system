@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'masteriyo/masteriyo-pro',
-        'pretty_version' => '3.4.1',
-        'version' => '3.4.1.0',
+        'pretty_version' => '3.4.2',
+        'version' => '3.4.2.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -119,8 +119,8 @@
             'dev_requirement' => false,
         ),
         'masteriyo/masteriyo-pro' => array(
-            'pretty_version' => '3.4.1',
-            'version' => '3.4.1.0',
+            'pretty_version' => '3.4.2',
+            'version' => '3.4.2.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 3.4.1\n"
+"Project-Id-Version: Masteriyo LMS 3.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-09T07:40:13+00:00\n"
+"POT-Creation-Date: 2026-09-17T10:57:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -2823,7 +2823,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:204
 #: includes/RestApi/Controllers/Version1/OrdersController.php:161
 #: includes/RestApi/Controllers/Version1/OrdersController.php:211
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:160
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:166
 #: includes/RestApi/Controllers/Version1/QuizesController.php:147
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:142
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:198
@@ -2879,7 +2879,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:155
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:712
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:101
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:392
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:396
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:112
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:161
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:534
@@ -2907,9 +2907,9 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:132
 #: includes/RestApi/Controllers/Version1/OrdersController.php:176
 #: includes/RestApi/Controllers/Version1/OrdersController.php:548
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:131
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:238
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:672
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:137
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:244
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:770
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:101
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:138
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:168
@@ -3028,7 +3028,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1086
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:334
 #: includes/RestApi/Controllers/Version1/OrdersController.php:810
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:793
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:891
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1445
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:618
 #: includes/RestApi/Controllers/Version1/SectionsController.php:402
@@ -3049,7 +3049,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1093
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:341
 #: includes/RestApi/Controllers/Version1/OrdersController.php:817
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:800
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:898
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1452
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:625
 #: includes/RestApi/Controllers/Version1/SectionsController.php:409
@@ -3070,7 +3070,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1099
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:347
 #: includes/RestApi/Controllers/Version1/OrdersController.php:823
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:806
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:904
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1458
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:631
 #: includes/RestApi/Controllers/Version1/SectionsController.php:415
@@ -3091,7 +3091,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1104
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:352
 #: includes/RestApi/Controllers/Version1/OrdersController.php:828
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:811
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:909
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1463
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:636
 #: includes/RestApi/Controllers/Version1/SectionsController.php:420
@@ -3148,11 +3148,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:364
 #: includes/RestApi/Controllers/Version1/PostsController.php:735
 #: includes/RestApi/Controllers/Version1/PostsController.php:784
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:293
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1063
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1109
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1295
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1381
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:299
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1161
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1207
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1437
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1524
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:752
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:762
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:842
@@ -3186,7 +3186,7 @@ msgstr ""
 #: addons/multiple-currency/Controllers/PriceZonesController.php:961
 #: addons/wc-integration/WcIntegrationAddon.php:2603
 #: addons/wc-integration/WcIntegrationAddon.php:2619
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:615
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:619
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:980
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1179
 #: includes/RestApi/Controllers/Version1/CoursesController.php:1589
@@ -3320,7 +3320,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:540
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:483
 #: includes/RestApi/Controllers/Version1/LessonsController.php:825
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:730
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:828
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:321
 #: includes/RestApi/Controllers/Version1/QuizesController.php:1324
 #: includes/RestApi/Controllers/Version1/SectionsController.php:385
@@ -3375,14 +3375,14 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseChildrenController.php:116
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:861
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:906
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:950
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:988
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1023
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:594
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:643
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:685
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:742
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:790
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:951
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:989
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1024
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:598
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:647
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:690
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:747
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:795
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:745
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:788
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:833
@@ -3428,12 +3428,12 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:304
 #: includes/RestApi/Controllers/Version1/PostsController.php:344
 #: includes/RestApi/Controllers/Version1/PostsController.php:775
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:263
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1003
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1049
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1095
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1139
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1234
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:269
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1101
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1147
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1193
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1237
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1376
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1489
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:137
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:458
@@ -3474,7 +3474,7 @@ msgstr ""
 #: addons/google-meet/RestApi/GoogleMeetController.php:1128
 #: addons/multiple-currency/Controllers/PriceZonesController.php:275
 #: includes/RestApi/Controllers/Version1/CommentsController.php:275
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:966
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:967
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:844
 #: includes/RestApi/Controllers/Version1/EnrollmentsController.php:180
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:664
@@ -3482,7 +3482,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1128
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1151
 #: includes/RestApi/Controllers/Version1/PostsController.php:208
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1014
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1112
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:465
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:211
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:754
@@ -3501,9 +3501,9 @@ msgstr ""
 #: addons/multiple-currency/Controllers/PriceZonesController.php:401
 #: addons/scorm/Controllers/ScormController.php:383
 #: includes/RestApi/Controllers/Version1/CommentsController.php:306
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1032
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:801
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:811
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1033
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:806
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:816
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:899
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1053
 #: includes/RestApi/Controllers/Version1/EnrollmentsController.php:202
@@ -3511,7 +3511,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:684
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1182
 #: includes/RestApi/Controllers/Version1/PostsController.php:282
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1073
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1171
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1250
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:961
 #: includes/RestApi/Controllers/Version1/SectionsController.php:580
@@ -3527,9 +3527,9 @@ msgstr ""
 #: addons/multiple-currency/Controllers/PriceZonesController.php:322
 #: addons/scorm/Controllers/ScormController.php:195
 #: includes/RestApi/Controllers/Version1/CommentsController.php:337
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1001
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:753
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:763
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1002
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:758
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:768
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:940
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:1129
 #: includes/RestApi/Controllers/Version1/LessonReviewsController.php:1267
@@ -3538,10 +3538,10 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:746
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1228
 #: includes/RestApi/Controllers/Version1/PostsController.php:396
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1119
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1269
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1281
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1305
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1217
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1411
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1423
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1447
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:1028
 #: includes/RestApi/Controllers/Version1/SectionsController.php:626
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:785
@@ -5235,7 +5235,8 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/NotificationsController.php:818
 #: includes/RestApi/Controllers/Version1/OrderItemsController.php:583
 #: includes/RestApi/Controllers/Version1/PostsController.php:168
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1168
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1250
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1261
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:793
 #: includes/RestApi/Controllers/Version1/RestTermsController.php:191
 #: includes/RestApi/Controllers/Version1/SectionChildrenController.php:123
@@ -5573,11 +5574,11 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseBuilderController.php:143
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:884
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:917
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:928
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:605
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:623
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:654
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:665
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:929
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:609
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:627
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:658
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:670
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:799
 #: includes/RestApi/Controllers/Version1/CourseQuestionAnswersController.php:811
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:828
@@ -5592,7 +5593,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/OrdersController.php:1067
 #: includes/RestApi/Controllers/Version1/PostsController.php:103
 #: includes/RestApi/Controllers/Version1/PostsController.php:114
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:270
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:276
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1398
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1412
 #: includes/RestApi/Controllers/Version1/QuizBuilderController.php:146
@@ -5617,7 +5618,7 @@ msgstr ""
 #: addons/wishlist/RestApi/Controllers/Version1/WishListItemsController.php:520
 #: includes/Models/Order/OrderItemCourse.php:194
 #: includes/RestApi/Controllers/Version1/CourseReviewsController.php:859
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1027
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1125
 #: includes/RestApi/Controllers/Version1/QuizesController.php:368
 msgid "Invalid course ID"
 msgstr ""
@@ -6283,7 +6284,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/PostsController.php:238
 #: includes/RestApi/Controllers/Version1/PostsController.php:312
 #: includes/RestApi/Controllers/Version1/PostsController.php:352
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1242
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1384
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1216
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:1497
 #: includes/RestApi/Controllers/Version1/QuizzesImportExportController.php:220
@@ -21330,7 +21331,7 @@ msgstr ""
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:403
 #: includes/RestApi/Controllers/Version1/CourseProgressController.php:718
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:174
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:404
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:408
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:249
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:331
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:212
@@ -21373,56 +21374,56 @@ msgstr ""
 msgid "Course progress complete date in GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1087
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:864
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1088
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:869
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:867
 msgid "User ID is invalid."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1097
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:878
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1098
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:883
 msgid "Student cannot access other's course progress."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1127
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:920
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1128
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:925
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:908
 #: includes/RestApi/Controllers/Version1/UserCoursesController.php:917
 msgid "Course ID is invalid."
 msgstr ""
 
 #. translators: %s: missing parameter name(s)
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1158
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1159
 #, php-format
 msgctxt "REST API missing parameters"
 msgid "Missing parameter(s): %s"
 msgstr ""
 
 #. translators: %s: item type
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1173
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1174
 #, php-format
 msgid "Missing parameter(s): %s"
 msgstr ""
 
 #. translators: %s: item type
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1182
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1200
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1183
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1201
 #, php-format
 msgid "Invalid parameter(s): %s"
 msgstr ""
 
 #. translators: %s: item types
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1188
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1189
 #, php-format
 msgid "item_type is not of type %s"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1204
+#: includes/RestApi/Controllers/Version1/CourseProgressController.php:1205
 msgid "completed is not of type boolean"
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:167
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:398
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:402
 msgid "Course progress ID."
 msgstr ""
 
@@ -21431,39 +21432,39 @@ msgid "Course progress (lesson, quiz) item type."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:189
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:421
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:425
 msgid "Course progress item completed."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:409
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:413
 msgid "Lesson/Quiz ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:415
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:419
 msgid "Course progress ( Lesson, Quiz) item type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:426
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:430
 msgid "Course progress item start date in GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:432
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:436
 msgid "Course progress item complete date in GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:438
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:442
 msgid "Course progress item update date in GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:697
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:702
 msgid "Please sign in to record your progress."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:944
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:949
 msgid "Invalid item ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:1037
+#: includes/RestApi/Controllers/Version1/CourseProgressItemsController.php:1042
 msgid "Course progress item ID is invalid."
 msgstr ""
 
@@ -21734,12 +21735,12 @@ msgid "List courses with specific price type (free or paid)."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:343
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:350
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:356
 msgid "Limit result set to courses assigned a specific category ID."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:350
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:357
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:363
 msgid "Limit result set to courses assigned a specific tag ID."
 msgstr ""
 
@@ -21835,7 +21836,7 @@ msgid "Amount of reviews that the course have."
 msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CoursesController.php:900
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:724
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:822
 msgid "Course parent ID."
 msgstr ""
 
@@ -22057,7 +22058,7 @@ msgstr ""
 
 #: includes/RestApi/Controllers/Version1/CrudController.php:710
 #: includes/RestApi/Controllers/Version1/EnrollmentsController.php:229
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:371
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:377
 msgid "Maximum number of items to be returned in result set."
 msgstr ""
 
@@ -22963,12 +22964,12 @@ msgstr ""
 msgid "Sorry, you are not allowed to clone resources."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:165
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:171
 msgid "Whether the question is from the question bank."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:170
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:223
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:176
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:229
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:203
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:243
 #: includes/RestApi/Controllers/Version1/QuizAttemptsController.php:326
@@ -22976,136 +22977,136 @@ msgstr ""
 msgid "Quiz ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:190
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:196
 msgid "Question ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:197
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:203
 msgid "Chosen answer or answers."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:215
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:221
 msgid "Question IDs"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:298
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:304
 msgid "The answer is correct."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:299
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:305
 msgid "The answer is incorrect."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:326
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:332
 #: includes/RestApi/Controllers/Version1/SectionsController.php:190
 msgid "Limit result by course id."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:334
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:340
 msgid "Limit result set to questions assigned a specific status."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:342
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:348
 msgid "Limit result set to questions assigned a specific type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:364
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:370
 msgid "Random ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:678
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:776
 #: assets/js/build/masteriyo-backend.js:279
 msgid "Question name"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:683
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:781
 msgid "Question slug"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:688
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:786
 msgid "Question URL"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:695
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:793
 msgid "The date the question was created, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:700
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:798
 msgid "The date the question was created, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:705
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:803
 msgid "The date the question was last modified, in the site's timezone."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:711
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:809
 msgid "The date the question was last modified, as GMT."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:717
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:815
 msgid "Question status (post status)."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:736
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:834
 msgid "Menu order, used to custom sort questions."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:741
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:839
 msgid "Question description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:746
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:844
 msgid "Question short description."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:751
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:849
 msgid "Question type."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:757
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:855
 msgid "Whether the question is required or not."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:762
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:860
 msgid "Given answer list for the question."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:767
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:865
 msgid "Return if the answers are decoded successfully."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:773
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:871
 msgid "Points for the correct answer."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:778
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:876
 msgid "Whether to randomize answers."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:783
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:881
 msgid "Whether to enable points."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:788
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:886
 msgid "Description for answer."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1224
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1366
 #: assets/js/build/masteriyo-backend.js:65
 #: assets/js/build/masteriyo-backend.js:67
 msgid "Invalid request"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1259
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1401
 #: includes/RestApi/Controllers/Version1/QuizReviewsController.php:887
 msgid "Invalid quiz ID"
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1428
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1571
 msgid "Invalid question IDs or quiz ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/QuestionsController.php:1458
+#: includes/RestApi/Controllers/Version1/QuestionsController.php:1601
 msgid "No valid questions were updated."
 msgstr ""
 

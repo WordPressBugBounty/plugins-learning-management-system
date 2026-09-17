@@ -430,13 +430,11 @@ if ( ! function_exists( 'masteriyo_get_questions_by_quiz_with_pagination' ) ) {
 
 		if ( ! $quiz_id ) {
 			return array(
-				'objects' => array(),
-				'meta'    => array(
-					'total'        => $total,
-					'pages'        => 0,
-					'current_page' => $page,
-					'per_page'     => $per_page,
-				),
+				'objects'      => array(),
+				'total'        => 0,
+				'pages'        => 0,
+				'current_page' => $page,
+				'per_page'     => $per_page,
 			);
 		}
 
