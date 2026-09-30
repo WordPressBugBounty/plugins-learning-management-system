@@ -582,6 +582,14 @@ class EnrollmentsController extends \WP_REST_Controller {
 
 		$max_pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 0;
 
+		/**
+		 * Filters one page of the Enrollments list before it is returned.
+		 *
+		 * @param array            $data    The page's rows.
+		 * @param \WP_REST_Request $request The request.
+		 */
+		$data = apply_filters( 'masteriyo_rest_enrollments_list_items', $data, $request );
+
 		$response = rest_ensure_response( $data );
 		$response->header( 'X-WP-Total', $total );
 		$response->header( 'X-WP-TotalPages', $max_pages );

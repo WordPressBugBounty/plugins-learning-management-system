@@ -1,3 +1,10 @@
+##### [Version 3.4.3](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.2...3.4.3) (2026-09-30)
+
+- Feature - Added a Progress column to the Enrollments list. [PRO]
+- Enhancement - Added an Enrolled Students link to the course row menu.
+- Fix - Fixed Certificate Builder list pagination.
+- Fix - Fixed Basic plan showing upgrade prompts and hiding course progress and Manual Enrollment email settings. [PRO]
+
 ##### [Version 3.4.2](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.1...3.4.2) (2026-09-17)
 
 - Fix - Enhanced security: course progress and quiz question endpoints exposed other learners progress and answer keys to logged-in users.

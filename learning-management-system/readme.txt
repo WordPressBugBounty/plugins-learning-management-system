@@ -4,7 +4,7 @@ Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.4.2
+Stable tag: 3.4.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -296,9 +296,12 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-##### [Version 3.4.2](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.1...3.4.2) (2026-09-17)
+##### [Version 3.4.3](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.2...3.4.3) (2026-09-30)
 
-- Fix - Enhanced security: course progress and quiz question endpoints exposed other learners progress and answer keys to logged-in users.
+- Feature - Added a Progress column to the Enrollments list. [PRO]
+- Enhancement - Added an Enrolled Students link to the course row menu.
+- Fix - Fixed Certificate Builder list pagination.
+- Fix - Fixed Basic plan showing upgrade prompts and hiding course progress and Manual Enrollment email settings. [PRO]
 
 
 

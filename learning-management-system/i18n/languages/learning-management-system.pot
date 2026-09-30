@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Masteriyo LMS 3.4.2\n"
+"Project-Id-Version: Masteriyo LMS 3.4.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learning-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-17T10:57:46+00:00\n"
+"POT-Creation-Date: 2026-09-30T09:51:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: learning-management-system\n"
@@ -2262,8 +2262,8 @@ msgstr ""
 #: addons/google-meet/RestApi/GoogleMeetController.php:296
 #: addons/wishlist/AjaxHandlers/AddCourseToWishlistAjaxHandler.php:60
 #: includes/AjaxHandlers/CourseReviewsInfiniteLoadingAjaxHandler.php:133
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:715
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:933
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:723
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:941
 #: includes/RestApi/Controllers/Version1/LessonsController.php:1646
 #: includes/RestApi/Controllers/Version1/OpenAIController.php:260
 #: includes/RestApi/Controllers/Version1/PostsController.php:62
@@ -22173,33 +22173,33 @@ msgstr ""
 msgid "Amount to record on the created order: zero, or the course price excluding tax."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:639
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:647
 msgid "This course uses a subscription (recurring) access mode. Manual enrollment does not support recurring-access courses because access could never be tied to a subscription."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:660
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:668
 msgid "This course is not published. Publish the course before enrolling students."
 msgstr ""
 
 #. translators: %d: maximum number of emails allowed per request.
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:862
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:870
 #, php-format
 msgid "A maximum of %d emails are allowed per request. Split the list into smaller batches and send them one at a time."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1125
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1133
 msgid "Could not enroll student."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1255
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1263
 msgid "Invalid enrollment ID."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1277
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1285
 msgid "The enrollment cannot be deleted."
 msgstr ""
 
-#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1361
+#: includes/RestApi/Controllers/Version1/EnrollmentsController.php:1369
 msgid "Access to this course could not be revoked."
 msgstr ""
 
@@ -30943,6 +30943,7 @@ msgid "Design certificate templates that can be awarded to students upon course 
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:23
+#: assets/js/build/masteriyo-backend.js:24
 msgid "Certificates Per Page:"
 msgstr ""
 
@@ -34796,6 +34797,10 @@ msgid "View enrolled students"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:141
+msgid "Enrolled Students"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:141
 msgid "WordPress Editor"
 msgstr ""
 
@@ -38342,6 +38347,14 @@ msgid "Back to Enrollments"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:189
+msgid "Showing this course's students"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:189
+msgid "Show all enrollments"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:189
 msgid "Filter by course"
 msgstr ""
 
@@ -38439,6 +38452,10 @@ msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:193
 msgid "Select all active on this page"
+msgstr ""
+
+#: assets/js/build/masteriyo-backend.js:193
+msgid "Progress"
 msgstr ""
 
 #: assets/js/build/masteriyo-backend.js:193

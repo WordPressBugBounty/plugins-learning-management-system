@@ -15,7 +15,12 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import '@pdfdraft/designer/style.css';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Add } from 'iconsax-react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -33,10 +38,13 @@ import {
 	HeaderRightSection,
 	HeaderTop,
 } from '../../../../../assets/js/back-end/components/common/Header';
+import MasteriyoPagination from '../../../../../assets/js/back-end/components/common/MasteriyoPagination';
 import { getAllCertificates } from '../utils/certificates';
 import CertificateCardV2 from './CertificateCardV2';
 import CertificateTemplatePicker from './CertificateTemplatePicker';
 import NewCertificateDialog from './NewCertificateDialog';
+
+type FilterParams = { page?: number; per_page?: number };
 
 type StatusFilter = 'any' | 'publish' | 'draft' | 'trash';
 type OrientationFilter = 'all' | 'portrait' | 'landscape';
@@ -74,8 +82,16 @@ const CertificatesV2: React.FC = () => {
 	const [orientationFilter, setOrientationFilter] =
 		useState<OrientationFilter>('all');
 	const [search, setSearch] = useState('');
+	const [debouncedSearch, setDebouncedSearch] = useState('');
+	const [filterParams, setFilterParams] = useState<FilterParams>({
+		page: 1,
+		per_page: 20,
+	});
 	const [bulkSelectMode, setBulkSelectMode] = useState(false);
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+	// Status and search narrow the whole collection, so restart at page one.
+	const resetPage = () => setFilterParams((prev) => ({ ...prev, page: 1 }));
 
 	// Gate certificate creation behind the Pro license, matching the v1 builder.
 	// triggerLicenseCheck() shows the license popup when the license is inactive/expired.
@@ -152,17 +168,38 @@ const CertificatesV2: React.FC = () => {
 
 	const isTrashView = statusFilter === 'trash';
 
+	useEffect(() => {
+		const timer = setTimeout(() => setDebouncedSearch(search.trim()), 400);
+		return () => clearTimeout(timer);
+	}, [search]);
+
 	const certificatesQuery = useQuery({
-		queryKey: ['certificatesV2List', statusFilter],
+		queryKey: [
+			'certificatesV2List',
+			statusFilter,
+			debouncedSearch,
+			filterParams,
+		],
 		queryFn: () =>
 			getAllCertificates({
+				...filterParams,
 				status: statusFilter,
-				per_page: 100,
+				search: debouncedSearch,
 				order: 'desc',
 				orderby: 'date',
 				content_format: 'pdfdraft',
 			}),
+		placeholderData: keepPreviousData,
 	});
+
+	// Removing the last record on a page leaves the request past the end; the
+	// collection still reports the real page count, so land on its last page.
+	const meta = certificatesQuery.data?.meta;
+	useEffect(() => {
+		if (meta && meta.pages > 0 && meta.current_page > meta.pages) {
+			setFilterParams((prev) => ({ ...prev, page: meta.pages }));
+		}
+	}, [meta]);
 
 	const allCerts: any[] = useMemo(
 		() =>
@@ -192,20 +229,15 @@ const CertificatesV2: React.FC = () => {
 		}
 	}, [certificatesQuery.data?.meta?.counts]);
 
-	const displayed = useMemo(() => {
-		let certs = allCerts;
-		if (orientationFilter !== 'all')
-			certs = certs.filter((c) => getOrientation(c) === orientationFilter);
-		if (search.trim()) {
-			const q = search.toLowerCase();
-			certs = certs.filter((c) => (c.name ?? '').toLowerCase().includes(q));
-		}
-		return [...certs].sort(
-			(a, b) =>
-				new Date(b.date_modified ?? b.date_created ?? 0).getTime() -
-				new Date(a.date_modified ?? a.date_created ?? 0).getTime(),
-		);
-	}, [allCerts, orientationFilter, search]);
+	// Orientation lives inside the template JSON, so it is the one filter the
+	// REST collection cannot apply; it narrows the current page only.
+	const displayed = useMemo(
+		() =>
+			orientationFilter === 'all'
+				? allCerts
+				: allCerts.filter((c) => getOrientation(c) === orientationFilter),
+		[allCerts, orientationFilter],
+	);
 
 	if (showPicker) {
 		return (
@@ -228,7 +260,10 @@ const CertificatesV2: React.FC = () => {
 						<FilterTabs
 							tabs={STATUS_TABS}
 							defaultActive="any"
-							onTabChange={(s) => setStatusFilter(s as StatusFilter)}
+							onTabChange={(s) => {
+								setStatusFilter(s as StatusFilter);
+								resetPage();
+							}}
 							counts={counts}
 							isCounting={certificatesQuery.isLoading}
 						/>
@@ -309,7 +344,10 @@ const CertificatesV2: React.FC = () => {
 								'learning-management-system',
 							)}
 							value={search}
-							onChange={(e) => setSearch(e.target.value)}
+							onChange={(e) => {
+								setSearch(e.target.value);
+								resetPage();
+							}}
 							borderRadius="full"
 							bg="white"
 							borderColor="gray.200"
@@ -339,7 +377,7 @@ const CertificatesV2: React.FC = () => {
 					<Box bg="white" py={{ base: 6, md: 12 }} shadow="box" mx="auto">
 						{statusFilter === 'any' &&
 						allCerts.length === 0 &&
-						!search.trim() &&
+						!debouncedSearch &&
 						orientationFilter === 'all' ? (
 							<EmptyInfo
 								onPrimaryButtonClick={handleAddNewCertificate}
@@ -375,6 +413,19 @@ const CertificatesV2: React.FC = () => {
 							/>
 						))}
 					</SimpleGrid>
+				)}
+
+				{allCerts.length > 0 && (
+					<MasteriyoPagination
+						metaData={certificatesQuery.data?.meta}
+						setFilterParams={(newParams: FilterParams) =>
+							setFilterParams({ ...filterParams, page: 1, ...newParams })
+						}
+						perPageText={__(
+							'Certificates Per Page:',
+							'learning-management-system',
+						)}
+					/>
 				)}
 			</Container>
 
