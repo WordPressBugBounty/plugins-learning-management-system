@@ -22,7 +22,7 @@ Accept payments via Stripe, PayPal, Razorpay, Mollie, and more. Sell in multiple
 
 ### ⚡ Quick Links
 
-- [Try Masteriyo](https://app.instawp.io/launch?t=masteriyo-demo&d=v2)
+- [Try Masteriyo](https://app.sandywp.com/launch/P1vU9ePZyfSCnijligAIYg5yCg8FZxuA)
 - [Live Demo](https://masteriyo-site.vertisite.cloud/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
 - [Masteriyo Pro](https://masteriyo.com/pricing/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
 - [Free vs Pro](https://masteriyo.com/free-vs-pro/?utm_source=wporg&utm_medium=readme&utm_campaign=quicklinks)
@@ -306,4 +306,4 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 
 
-You can find old changelog from [here](https://plugins.svn.wordpress.org/learning-management-system/trunk/changelog.txt).
+You can find the full changelog [here](https://masteriyo.com/changelog/).
