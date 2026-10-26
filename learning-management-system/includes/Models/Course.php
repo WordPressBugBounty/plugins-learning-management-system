@@ -118,7 +118,7 @@ class Course extends Model {
 		'category_ids'                       => array(),
 		'tag_ids'                            => array(),
 		'difficulty_id'                      => 0,
-		'featured_image'                     => '',
+		'featured_image'                     => 0,
 		'rating_counts'                      => array(),
 		'average_rating'                     => 0,
 		'review_count'                       => 0,
@@ -281,6 +281,16 @@ class Course extends Model {
 	 * @return boolean
 	 */
 	public function has_featured_video() {
+		/**
+		 * Filters whether courses show a featured video. Off in free, which has none; Pro turns it on.
+		 *
+		 * @param bool $enabled Whether featured videos are shown.
+		 * @param \Masteriyo\Models\Course $course Course object.
+		 */
+		if ( ! apply_filters( 'masteriyo_course_featured_video_enabled', false, $this ) ) {
+			return false;
+		}
+
 		$video_source = $this->get_featured_video_source();
 		$video_url    = $this->get_featured_video_url();
 
@@ -2421,7 +2431,7 @@ class Course extends Model {
 	 * @return string
 	 */
 	public function single_add_to_cart_text() {
-		$text = __( 'Buy Now', 'learning-management-system' );
+		$text = masteriyo_get_cta_button_label( 'buy_now', __( 'Buy Now', 'learning-management-system' ) );
 
 		if ( CourseAccessMode::NEED_REGISTRATION === $this->get_access_mode() ) {
 			$text = __( 'Need Registration', 'learning-management-system' );
@@ -2446,6 +2456,8 @@ class Course extends Model {
 	 * @return string
 	 */
 	public function single_course_start_text() {
+		$text = masteriyo_get_cta_button_label( 'start_course', __( 'Start Course', 'learning-management-system' ) );
+
 		/**
 		 * Filters start course button text for a course.
 		 *
@@ -2454,7 +2466,7 @@ class Course extends Model {
 		 * @param string $text Start course button text.
 		 * @param Masteriyo\Models\Course $course Course object.
 		 */
-		return apply_filters( 'masteriyo_single_course_start_text', __( 'Start Course', 'learning-management-system' ), $this );
+		return apply_filters( 'masteriyo_single_course_start_text', $text, $this );
 	}
 
 
@@ -2469,7 +2481,7 @@ class Course extends Model {
 
 		$button_text = apply_filters(
 			'masteriyo_single_course_enroll_text',
-			__( 'Enroll Now', 'learning-management-system' ),
+			masteriyo_get_cta_button_label( 'enroll', __( 'Enroll Now', 'learning-management-system' ) ),
 			$this
 		);
 
@@ -2508,6 +2520,8 @@ class Course extends Model {
 	 * @return string
 	 */
 	public function single_course_continue_text() {
+		$text = masteriyo_get_cta_button_label( 'continue', __( 'Continue', 'learning-management-system' ) );
+
 		/**
 		 * Filters continue button text for a course.
 		 *
@@ -2516,7 +2530,7 @@ class Course extends Model {
 		 * @param string $text Continue button text.
 		 * @param Masteriyo\Models|Course $course Course object.
 		 */
-		return apply_filters( 'masteriyo_single_course_continue_text', __( 'Continue', 'learning-management-system' ), $this );
+		return apply_filters( 'masteriyo_single_course_continue_text', $text, $this );
 	}
 
 	/**
@@ -2719,7 +2733,7 @@ class Course extends Model {
 		$text = __( 'Read more', 'learning-management-system' );
 
 		if ( $this->is_purchasable() ) {
-			$text = __( 'Buy Now', 'learning-management-system' );
+			$text = masteriyo_get_cta_button_label( 'buy_now', __( 'Buy Now', 'learning-management-system' ) );
 		}
 
 		if ( CourseAccessMode::NEED_REGISTRATION === $this->get_access_mode() ) {

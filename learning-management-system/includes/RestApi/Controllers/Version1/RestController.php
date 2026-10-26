@@ -505,7 +505,7 @@ abstract class RestController extends \WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'create' => array(
-					'description' => __( 'List of created resources.', 'learning-management-system' ),
+					'description' => 'List of created resources.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -513,7 +513,7 @@ abstract class RestController extends \WP_REST_Controller {
 					),
 				),
 				'update' => array(
-					'description' => __( 'List of updated resources.', 'learning-management-system' ),
+					'description' => 'List of updated resources.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -521,7 +521,7 @@ abstract class RestController extends \WP_REST_Controller {
 					),
 				),
 				'delete' => array(
-					'description' => __( 'List of delete resources.', 'learning-management-system' ),
+					'description' => 'List of deleted resources.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(

@@ -17,7 +17,7 @@ do_action( 'masteriyo_before_account' );
 ?>
 
 <!DOCTYPE html>
-<html lang="en" <?php echo( is_rtl() ? 'dir="rtl"' : '' ); ?> >
+<html <?php language_attributes(); ?>>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,6 +26,7 @@ do_action( 'masteriyo_before_account' );
 	</head>
 
 	<body <?php body_class(); ?> translate="no">
+		<?php wp_body_open(); ?>
 		<div id="masteriyo-account-page"></div>
 		<?php wp_footer(); ?>
 	</body>

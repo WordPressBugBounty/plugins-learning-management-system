@@ -13,6 +13,7 @@ namespace Masteriyo\Jobs;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Emails\Student\EnrollmentExpiryWarningEmailToStudent;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\UserCourseStatus;
@@ -75,12 +76,28 @@ class CheckEnrollmentExpirationJob {
 	const SCHEDULE_SIGNATURE_META = '_enrollment_expiration_schedule_signature';
 
 	/**
+	 * The unique identifier for the per-enrollment expiry warning.
+	 *
+	 * @var string
+	 */
+	const WARNING_HOOK = 'masteriyo/job/warn_enrollment_expiration';
+
+	/**
+	 * User meta key prefix (suffixed with the enrollment id) holding the start
+	 * date of the enrollment window the warning was already sent for.
+	 *
+	 * @var string
+	 */
+	const WARNING_SENT_META = '_masteriyo_expiry_warning_sent_';
+
+	/**
 	 * Register all action hook handlers for this job.
 	 */
 	public function register() {
 		add_action( self::NAME, array( $this, 'handle_batch_check' ) );
 		add_action( self::SINGLE_ENROLLMENT_HOOK, array( $this, 'handle_single_enrollment_expiration' ) );
 		add_action( self::PROCESS_COURSE_HOOK, array( $this, 'handle_process_course_expiration' ), 10, 2 );
+		add_action( self::WARNING_HOOK, array( $this, 'handle_expiry_warning' ) );
 	}
 
 	/**
@@ -92,6 +109,7 @@ class CheckEnrollmentExpirationJob {
 		add_action( 'masteriyo_new_course', array( $this, 'handle_course_expiration_settings_change' ), 10, 2 );
 		add_action( 'masteriyo_update_course', array( $this, 'handle_course_expiration_settings_change' ), 10, 2 );
 		add_filter( 'masteriyo_can_start_course', array( $this, 'deny_access_for_expired_enrollment' ), 10, 3 );
+		add_filter( 'masteriyo_rest_response_user_course_data', array( $this, 'append_access_ends_at' ), 10, 2 );
 	}
 
 	/**
@@ -263,7 +281,7 @@ class CheckEnrollmentExpirationJob {
 		$date_start = $user_course->get_date_start();
 		if ( $date_start && ( $date_start->getTimestamp() + $expiration_days * DAY_IN_SECONDS ) <= time() ) {
 			$this->log( sprintf( 'Enrollment #%d reactivated past its window — resetting date_start to now.', $user_course_id ) );
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			$user_course->set_date_start( time() );
 			$user_course->save();
 		}
 
@@ -434,6 +452,8 @@ class CheckEnrollmentExpirationJob {
 
 		$args = array( 'user_course_id' => $user_course_id );
 
+		$this->schedule_expiry_warning( $user_course, $args, $enrollment_timestamp, $expiration_timestamp );
+
 		if ( as_has_scheduled_action( self::SINGLE_ENROLLMENT_HOOK, $args, 'masteriyo' ) ) {
 			$this->log( sprintf( 'Enrollment #%d already has a pending expiry action — skipping schedule.', $user_course_id ), 'debug' );
 			return;
@@ -451,9 +471,134 @@ class CheckEnrollmentExpirationJob {
 	private function cancel_scheduled_expiration( $user_course_id ) {
 		$args = array( 'user_course_id' => $user_course_id );
 
-		if ( as_has_scheduled_action( self::SINGLE_ENROLLMENT_HOOK, $args, 'masteriyo' ) ) {
-			as_unschedule_action( self::SINGLE_ENROLLMENT_HOOK, $args, 'masteriyo' );
+		foreach ( array( self::SINGLE_ENROLLMENT_HOOK, self::WARNING_HOOK ) as $hook ) {
+			if ( as_has_scheduled_action( $hook, $args, 'masteriyo' ) ) {
+				as_unschedule_action( $hook, $args, 'masteriyo' );
+			}
 		}
+	}
+
+	/**
+	 * Days before access ends that the warning goes out; 0 turns it off.
+	 *
+	 * @return int
+	 */
+	private function get_warning_days() {
+		return absint( masteriyo_get_setting( 'emails.student.enrollment_expiry_warning.reminder_offset' ) );
+	}
+
+	/**
+	 * Whether the warning was already sent for this enrollment window.
+	 *
+	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
+	 * @param int                          $starts_at   Enrollment start timestamp.
+	 *
+	 * @return bool
+	 */
+	private function is_warning_sent( \Masteriyo\Models\UserCourse $user_course, int $starts_at ): bool {
+		return (int) get_user_meta( $user_course->get_user_id(), self::WARNING_SENT_META . $user_course->get_id(), true ) === $starts_at;
+	}
+
+	/**
+	 * Schedule the expiry warning, unless the whole enrollment fits in the warning window.
+	 *
+	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
+	 * @param array{user_course_id: int}   $args        Action args.
+	 * @param int                          $starts_at   Enrollment start timestamp.
+	 * @param int                          $expires_at  Expiration timestamp.
+	 */
+	private function schedule_expiry_warning( \Masteriyo\Models\UserCourse $user_course, $args, $starts_at, $expires_at ) {
+		$days    = $this->get_warning_days();
+		$warn_at = $expires_at - $days * DAY_IN_SECONDS;
+
+		if ( ! $days || $warn_at <= $starts_at || $this->is_warning_sent( $user_course, $starts_at ) || ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_single_action' ) ) {
+			return;
+		}
+
+		// Not `$unique`: before Action Scheduler 4.0 it ignores args, so it would allow one warning per site.
+		if ( as_has_scheduled_action( self::WARNING_HOOK, $args, 'masteriyo' ) ) {
+			return;
+		}
+
+		as_schedule_single_action( max( $warn_at, time() ), self::WARNING_HOOK, $args, 'masteriyo' );
+	}
+
+	/**
+	 * When an active enrollment's access ends, if that is inside the warning window.
+	 *
+	 * @param \Masteriyo\Models\UserCourse|null $user_course User course object.
+	 *
+	 * @return int|null Expiration timestamp.
+	 */
+	private function get_expiry_in_warning_window( $user_course ) {
+		if ( ! $user_course || UserCourseStatus::ACTIVE !== $user_course->get_status() ) {
+			return null;
+		}
+
+		/** @var \Masteriyo\DateTime|null $date_start */
+		$date_start = $user_course->get_date_start();
+		$course     = masteriyo_get_course( $user_course->get_course_id() );
+
+		if ( ! $date_start || ! $this->course_expires_per_enrollment( $course ) ) {
+			return null;
+		}
+
+		$expires_at = $date_start->getTimestamp() + absint( $course->get_enrollment_expiration_duration() ) * DAY_IN_SECONDS;
+		$now        = time();
+
+		return ( $expires_at > $now && $expires_at - $this->get_warning_days() * DAY_IN_SECONDS <= $now ) ? $expires_at : null;
+	}
+
+	/**
+	 * Send the expiry warning once per enrollment window.
+	 *
+	 * @param int $user_course_id User course ID.
+	 */
+	public function handle_expiry_warning( $user_course_id = 0 ) {
+		$user_course = masteriyo_get_user_course( absint( $user_course_id ) );
+		$expires_at  = $this->get_expiry_in_warning_window( $user_course );
+
+		if ( ! $expires_at ) {
+			return;
+		}
+
+		/** @var \Masteriyo\DateTime $date_start */
+		$date_start = $user_course->get_date_start();
+		$starts_at  = $date_start->getTimestamp();
+
+		if ( $this->is_warning_sent( $user_course, $starts_at ) ) {
+			return;
+		}
+
+		$email = new EnrollmentExpiryWarningEmailToStudent();
+
+		if ( ! $email->is_enabled() ) {
+			return;
+		}
+
+		// Unrecorded on failure, so the daily batch reschedules it for another try.
+		if ( ! $email->trigger( $user_course, $expires_at ) ) {
+			return;
+		}
+
+		update_user_meta( $user_course->get_user_id(), self::WARNING_SENT_META . $user_course->get_id(), $starts_at );
+		$this->log( sprintf( 'Sent expiry warning for enrollment #%d.', $user_course->get_id() ) );
+	}
+
+	/**
+	 * Add `access_ends_at` to the user course response while inside the warning window.
+	 *
+	 * @param array                        $data        Response data.
+	 * @param \Masteriyo\Models\UserCourse $user_course User course object.
+	 *
+	 * @return array
+	 */
+	public function append_access_ends_at( $data, $user_course ) {
+		$expires_at = $this->get_expiry_in_warning_window( $user_course );
+
+		$data['access_ends_at'] = $expires_at ? gmdate( 'Y-m-d\TH:i:s\Z', $expires_at ) : null;
+
+		return $data;
 	}
 
 	/**

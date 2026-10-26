@@ -174,8 +174,9 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) :
 						?>
 			<div class="masteriyo-course-card__content--amount">
-						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
-					<div class="masteriyo-course-card__content--amount-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></div>
+						<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course ); ?>
+						<?php if ( $regular_price_html ) : ?>
+					<div class="masteriyo-course-card__content--amount-offer-price"><?php echo wp_kses_post( $regular_price_html ); ?></div>
 				<?php endif; ?>
 				<span class="masteriyo-course-card__content--amount-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 			</div>

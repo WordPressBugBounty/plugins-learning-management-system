@@ -1,5 +1,5 @@
 import {
-	Box,
+	Button,
 	Icon,
 	IconButton,
 	Image,
@@ -14,11 +14,10 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { useState } from 'react';
-import { BiLock, BiShow } from 'react-icons/bi';
+import { BiDownload, BiLock, BiShow } from 'react-icons/bi';
 import MasteriyoPlayer from '../../assets/js/back-end/components/common/masteriyoPlayer/MasteriyoPlayer';
-import { getIcon } from '../add-ons/components/DocPreview';
 
 interface Props {
 	items: DownloadMaterials;
@@ -73,75 +72,126 @@ const InteractiveDownloadMaterial: React.FC<Props> = (props) => {
 
 	if (accessMessage) {
 		return (
-			<Box
-				display="flex"
-				alignItems="center"
-				gap="2"
-				p="3"
-				borderRadius="md"
-				bg="orange.50"
-				borderWidth="1px"
-				borderColor="orange.200"
+			<Stack
+				direction="row"
+				align="flex-start"
+				spacing="10px"
+				px="14px"
+				py="12px"
+				borderRadius="8px"
+				border="1px solid"
+				borderColor="player.border"
+				bg="player.bg"
+				fontSize="14px"
+				lineHeight="1.5"
+				color="player.text2"
 			>
-				<Icon as={BiLock} color="orange.500" boxSize="4" flexShrink={0} />
-				<Text fontSize="sm" color="orange.700">
-					{accessMessage}
-				</Text>
-			</Box>
+				<Icon as={BiLock} fontSize="16px" flexShrink={0} mt="2px" />
+				<Text>{accessMessage}</Text>
+			</Stack>
 		);
 	}
 
+	const extension = (file: DownloadMaterial) => {
+		const fromTitle = (file.title || '').split('.').pop() || '';
+		const fromUrl = (file.url || '').split('?')[0].split('.').pop() || '';
+		const ext = fromTitle.length <= 5 ? fromTitle : fromUrl;
+		return ext.slice(0, 5).toUpperCase() || 'FILE';
+	};
+
 	return (
 		<>
-			<List>
-				{attachments?.map((file, index) => (
-					<ListItem
-						key={index}
-						borderBottom="1px"
-						borderColor="gray.100"
-						py="1"
-						_last={{ border: 'none' }}
-					>
-						<Stack direction="row" align="center" justify="space-between">
-							<Stack direction="row" align="center">
-								<Box fontSize="md">{getIcon(file)}</Box>
-								<Text
-									as="a"
-									href={file.url}
-									fontSize="xs"
-									fontWeight="normal"
-									color="saint-blue"
-									lineHeight="24px"
-									cursor="pointer"
-									_hover={{ color: 'blue.500' }}
-									download
-								>
-									{file.title}
-								</Text>
-							</Stack>
-							<Stack direction="row" align="center" spacing="2" flexShrink={0}>
-								<Text fontSize="x-small" color="gray.500">
-									{file.formatted_file_size}
-								</Text>
-								{isPreviewable(file) && (
-									<IconButton
-										w="auto"
-										minW="auto"
-										variant="link"
-										_hover={{ color: 'blue.500' }}
-										aria-label={__(
-											'Preview file',
-											'learning-management-system',
-										)}
-										icon={<BiShow />}
-										onClick={() => setPreviewFile(file)}
-									/>
-								)}
-							</Stack>
-						</Stack>
-					</ListItem>
-				))}
-			</List>
+			<Stack direction="column" spacing="8px" mt="6px">
+				<Text fontSize="13px" fontWeight="700" color="player.text">
+					{sprintf(
+						/* translators: %d: number of files */
+						_n(
+							'Materials · %d file',
+							'Materials · %d files',
+							attachments?.length ?? 0,
+							'learning-management-system',
+						),
+						attachments?.length ?? 0,
+					)}
+				</Text>
+				<List spacing="8px">
+					{attachments?.map((file, index) => (
+						<ListItem
+							key={index}
+							display="flex"
+							alignItems="center"
+							gap="12px"
+							border="1px solid"
+							borderColor="player.border"
+							borderRadius="10px"
+							px="14px"
+							py="10px"
+						>
+							<Text
+								as="span"
+								fontFamily="mono"
+								data-mono
+								fontSize="9px"
+								fontWeight="600"
+								lineHeight="1"
+								color="player.text3"
+								bg="player.subtle"
+								borderRadius="4px"
+								px="5px"
+								py="4px"
+								flexShrink={0}
+							>
+								{extension(file)}
+							</Text>
+							<Text
+								as="span"
+								flex="1"
+								minW={0}
+								fontSize="14px"
+								color="player.text"
+								isTruncated
+								title={file.title}
+							>
+								{file.title}
+							</Text>
+							<Text
+								as="span"
+								fontSize="12px"
+								color="player.muted"
+								flexShrink={0}
+							>
+								{file.formatted_file_size}
+							</Text>
+							{isPreviewable(file) && (
+								<IconButton
+									aria-label={__('Preview file', 'learning-management-system')}
+									title={__('Preview file', 'learning-management-system')}
+									icon={<BiShow />}
+									onClick={() => setPreviewFile(file)}
+									variant="player-secondary"
+									w="32px"
+									h="32px"
+									px={0}
+								/>
+							)}
+							<Button
+								as="a"
+								href={file.url}
+								download
+								variant="player-secondary"
+								h="32px"
+								px="12px"
+								fontSize="13px"
+								flexShrink={0}
+								leftIcon={<Icon as={BiDownload} fontSize="14px" />}
+								iconSpacing="6px"
+							>
+								{__('Download', 'learning-management-system')}
+							</Button>
+						</ListItem>
+					))}
+				</List>
+			</Stack>
 
 			<Modal
 				isOpen={!!previewFile}

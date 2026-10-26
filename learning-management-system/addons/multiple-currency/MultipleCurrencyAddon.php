@@ -691,33 +691,33 @@ class MultipleCurrencyAddon {
 			$schema,
 			array(
 				'multiple_currency' => array(
-					'description' => __( 'Multiple currency setting', 'learning-management-system' ),
+					'description' => 'Multiple currency setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'enabled'        => array(
-								'description' => __( 'Enable multiple currency.', 'learning-management-system' ),
+								'description' => 'Enable multiple currency.',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'pricing_method' => array(
-								'description' => __( 'Maximum Group Size', 'learning-management-system' ),
+								'description' => 'Pricing method: exchange rate or manual price.',
 								'type'        => 'string',
 								'default'     => 'exchange_rate',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'regular_price'  => array(
-								'description' => __( 'Course regular price.', 'learning-management-system' ),
+								'description' => 'Course regular price.',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'sale_price'     => array(
-								'description' => __( 'Course sale price.', 'learning-management-system' ),
+								'description' => 'Course sale price.',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),

@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Stripe Payment Gateway
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Easily sell online courses and accept credit card payments via Stripe. It supports major cards like Visa, MasterCard, American Express, Discover, debit cards, etc.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

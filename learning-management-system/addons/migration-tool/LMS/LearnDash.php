@@ -12,6 +12,8 @@ namespace Masteriyo\Addons\MigrationTool\LMS;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
+use Masteriyo\Addons\MigrationTool\PostCloner;
 use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\CourseProgressItemType;
 use Masteriyo\Enums\CourseProgressStatus;
@@ -31,240 +33,186 @@ use WpProQuiz_Model_AnswerTypes;
  */
 class LearnDash {
 
+	/**
+	 * Migrator slug, the key every migration map row is written under.
+	 */
+	const SLUG = 'sfwd-lms';
+
 	// ──────────────────────────────────────────────────────────────────────────
 	// Batch API — called by LearnDashMigrator
 	// ──────────────────────────────────────────────────────────────────────────
 
 	/**
-	 * Return the total number of source items for the given migration step.
+	 * Count the source items a step still has to copy.
 	 *
-	 * @param string $step
+	 * Rows already in the migration map are left out, so a second run counts only
+	 * what is new. Nothing is removed from LearnDash.
+	 *
+	 * @param string $step Step name.
 	 * @return int
 	 */
 	public static function count_source_items( string $step ): int {
 		global $wpdb;
 
+		$activity_table = $wpdb->prefix . 'learndash_user_activity';
+		$not_post       = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
-				$ld_activity_table = $wpdb->prefix . 'learndash_user_activity';
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$not_user = MigrationMap::unmapped_sql( 'id', self::SLUG, MigrationMap::USER );
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM (
-							SELECT DISTINCT u.ID
+							SELECT DISTINCT u.ID AS id
 							FROM {$wpdb->users} u
 							INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
 							WHERE um.meta_key = %s AND um.meta_value LIKE %s
 							UNION
-							SELECT DISTINCT user_id AS ID
-							FROM {$ld_activity_table}
+							SELECT DISTINCT user_id AS id
+							FROM {$activity_table}
 							WHERE activity_type = %s
-						) AS combined",
-						'wp_capabilities',
+						) AS combined
+						WHERE 1=1 {$not_user}",
+						$wpdb->get_blog_prefix() . 'capabilities',
 						'%group_leader%',
 						'access'
 					)
 				);
-				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			case 'courses':
-				return (int) $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
-						'sfwd-courses'
-					)
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'sfwd-courses' {$not_post}" );
 
 			case 'enrollments':
-				$table = $wpdb->prefix . 'learndash_user_activity';
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				return (int) $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM {$table} WHERE activity_type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						'access'
-					)
-				);
+				$not_enrollment = MigrationMap::unmapped_sql( 'activity_id', self::SLUG, 'enrollments' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$activity_table} WHERE activity_type = 'access' {$not_enrollment}" );
 
 			case 'lesson_progress':
-				$table = $wpdb->prefix . 'learndash_user_activity';
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$table} WHERE activity_type IN ('lesson', 'topic', 'quiz')" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				);
+				$not_progress = MigrationMap::unmapped_sql( 'activity_id', self::SLUG, 'lesson_progress' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$activity_table} WHERE activity_type IN ('lesson', 'topic', 'quiz') {$not_progress}" );
 
 			case 'orders':
-				return (int) $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
-						'sfwd-transactions'
-					)
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'sfwd-transactions' {$not_post}" );
 
 			case 'quiz_attempts':
 				$ref_table = $wpdb->prefix . 'learndash_pro_quiz_statistic_ref';
 				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $ref_table ) ) !== $ref_table ) {
 					return 0;
 				}
-				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$ref_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$not_attempt = MigrationMap::unmapped_sql( 'statistic_ref_id', self::SLUG, 'quiz_attempts' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$ref_table} WHERE 1=1 {$not_attempt}" );
 
 			case 'assignments':
+				// Lessons with at least one submission that has not been copied yet.
+				$not_submission = MigrationMap::unmapped_sql( 'p.ID', self::SLUG, MigrationMap::POST );
 				return (int) $wpdb->get_var(
-					"SELECT COUNT(DISTINCT pm.meta_value)
+					"SELECT COUNT(DISTINCT CAST(pm.meta_value AS UNSIGNED))
 					 FROM {$wpdb->postmeta} pm
 					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-					 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id' {$not_submission}"
 				);
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return 0;
 	}
 
 	/**
-	 * Return a paginated list of source item IDs for the given migration step.
+	 * Return one batch of source IDs starting after $cursor.
 	 *
-	 * Courses, enrollments, lesson_progress, and orders are self-excluding: the row
-	 * disappears from the source query after migration (CPT rename or row deletion), so
-	 * offset is always 0. Users use OFFSET-based pagination since role assignment does not
-	 * remove the user from the query.
+	 * Every step pages by ID and leaves out rows already in the migration map. Nothing
+	 * is removed from LearnDash, so nothing is "self-cleaning"; $exclude is unused
+	 * because a cursor never revisits a failed ID within a run.
 	 *
-	 * @param string $step   Step name.
-	 * @param int    $limit  Batch size.
-	 * @param int    $cursor Last processed ID (0 = first batch).
+	 * @param string $step    Step name.
+	 * @param int    $limit   Batch size.
+	 * @param int    $cursor  Last processed ID (0 = first batch).
+	 * @param int[]  $exclude Unused.
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
 		global $wpdb;
 
-		// NOT IN for ID-column self-cleaning steps.
-		$not_in      = '';
-		$not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$not_in       = "AND ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$not_in_args  = array_map( 'intval', $exclude );
-		}
+		$activity_table = $wpdb->prefix . 'learndash_user_activity';
+		$not_post       = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
 
-		// NOT IN for activity_id-column steps.
-		$act_not_in      = '';
-		$act_not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders    = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$act_not_in      = "AND activity_id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$act_not_in_args = array_map( 'intval', $exclude );
-		}
-
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
-				// Cursor-based — user rows persist after role assignment; $exclude ignored.
-				$ld_activity_table = $wpdb->prefix . 'learndash_user_activity';
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT id FROM (
-								SELECT DISTINCT u.ID AS id
-								FROM {$wpdb->users} u
-								INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
-								WHERE um.meta_key = %s AND um.meta_value LIKE %s
-								UNION
-								SELECT DISTINCT user_id AS id
-								FROM {$ld_activity_table}
-								WHERE activity_type = %s
-							) AS combined
-							WHERE id > %d
-							ORDER BY id ASC
-							LIMIT %d",
-							'wp_capabilities',
-							'%group_leader%',
-							'access',
-							$cursor,
-							$limit
-						)
+				$not_user = MigrationMap::unmapped_sql( 'id', self::SLUG, MigrationMap::USER );
+				$ids      = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT id FROM (
+							SELECT DISTINCT u.ID AS id
+							FROM {$wpdb->users} u
+							INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
+							WHERE um.meta_key = %s AND um.meta_value LIKE %s
+							UNION
+							SELECT DISTINCT user_id AS id
+							FROM {$activity_table}
+							WHERE activity_type = %s
+						) AS combined
+						WHERE id > %d {$not_user}
+						ORDER BY id ASC
+						LIMIT %d",
+						$wpdb->get_blog_prefix() . 'capabilities',
+						'%group_leader%',
+						'access',
+						$cursor,
+						$limit
 					)
 				);
-				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'courses':
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s {$not_in} ORDER BY ID ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							array_merge( array( 'sfwd-courses' ), $not_in_args, array( $limit ) )
-						)
-					)
-				);
+				return self::post_ids_after( 'sfwd-courses', $cursor, $limit, $not_post );
 
 			case 'enrollments':
-				$table = $wpdb->prefix . 'learndash_user_activity';
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT activity_id FROM {$table} WHERE activity_type = %s {$act_not_in} ORDER BY activity_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							array_merge( array( 'access' ), $act_not_in_args, array( $limit ) )
-						)
-					)
-				);
+				return self::activity_ids_after( "activity_type = 'access'", 'enrollments', $cursor, $limit );
 
 			case 'lesson_progress':
-				$table = $wpdb->prefix . 'learndash_user_activity';
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT activity_id FROM {$table} WHERE activity_type IN ('lesson', 'topic', 'quiz') {$act_not_in} ORDER BY activity_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
-							array_merge( $act_not_in_args, array( $limit ) )
-						)
-					)
-				);
+				return self::activity_ids_after( "activity_type IN ('lesson', 'topic', 'quiz')", 'lesson_progress', $cursor, $limit );
 
 			case 'orders':
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s {$not_in} ORDER BY ID ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							array_merge( array( 'sfwd-transactions' ), $not_in_args, array( $limit ) )
-						)
-					)
-				);
+				return self::post_ids_after( 'sfwd-transactions', $cursor, $limit, $not_post );
 
 			case 'quiz_attempts':
-				// Cursor-based — source rows are not deleted; $exclude ignored.
 				$ref_table = $wpdb->prefix . 'learndash_pro_quiz_statistic_ref';
 				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $ref_table ) ) !== $ref_table ) {
 					return array();
 				}
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT statistic_ref_id FROM {$ref_table} WHERE statistic_ref_id > %d ORDER BY statistic_ref_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							$cursor,
-							$limit
-						)
+				$not_attempt = MigrationMap::unmapped_sql( 'statistic_ref_id', self::SLUG, 'quiz_attempts' );
+				$ids         = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT statistic_ref_id FROM {$ref_table}
+						 WHERE statistic_ref_id > %d {$not_attempt}
+						 ORDER BY statistic_ref_id ASC
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
+				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'assignments':
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED) AS lesson_id
-							 FROM {$wpdb->postmeta} pm
-							 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-							 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id'
-							   AND CAST(pm.meta_value AS UNSIGNED) > %d
-							 ORDER BY lesson_id ASC
-							 LIMIT %d",
-							$cursor,
-							$limit
-						)
+				// Lessons with at least one submission that has not been copied yet.
+				$not_submission = MigrationMap::unmapped_sql( 'p.ID', self::SLUG, MigrationMap::POST );
+				$ids            = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED) AS lesson_id
+						 FROM {$wpdb->postmeta} pm
+						 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+						 WHERE p.post_type = 'sfwd-assignment' AND pm.meta_key = 'lesson_id'
+						   AND CAST(pm.meta_value AS UNSIGNED) > %d {$not_submission}
+						 ORDER BY lesson_id ASC
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
+				return array_map( 'intval', $ids ? $ids : array() );
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array();
 	}
@@ -272,8 +220,11 @@ class LearnDash {
 	/**
 	 * Migrate a single item for the given step.
 	 *
-	 * @param string $step
-	 * @param int    $item_id
+	 * Must be idempotent: safe to call twice for the same (step, item_id) pair.
+	 *
+	 * @param string $step    Step name matching a key in get_steps().
+	 * @param int    $item_id Source item ID (post ID, user ID or table row ID).
+	 * @throws \Exception Triggers ROLLBACK in the job engine; item is added to the failed list.
 	 */
 	public static function migrate_item( string $step, int $item_id ): void {
 		switch ( $step ) {
@@ -301,70 +252,139 @@ class LearnDash {
 		}
 	}
 
+	/**
+	 * One page of post IDs of a type, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $post_type Source post type.
+	 * @param int    $cursor    Last processed ID.
+	 * @param int    $limit     Batch size.
+	 * @param string $not_post  Map exclusion fragment for the ID column.
+	 * @return int[]
+	 */
+	private static function post_ids_after( string $post_type, int $cursor, int $limit, string $not_post ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				 WHERE post_type = %s
+				   AND ID > %d
+				 {$not_post}
+				 ORDER BY ID ASC
+				 LIMIT %d",
+				$post_type,
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
+	}
+
+	/**
+	 * One page of learndash_user_activity IDs, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $where  Activity type condition, a literal SQL fragment.
+	 * @param string $entity Map entity the step records under.
+	 * @param int    $cursor Last processed ID.
+	 * @param int    $limit  Batch size.
+	 * @return int[]
+	 */
+	private static function activity_ids_after( string $where, string $entity, int $cursor, int $limit ): array {
+		global $wpdb;
+
+		$table   = $wpdb->prefix . 'learndash_user_activity';
+		$not_row = MigrationMap::unmapped_sql( 'activity_id', self::SLUG, $entity );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT activity_id FROM {$table}
+				 WHERE {$where}
+				   AND activity_id > %d
+				 {$not_row}
+				 ORDER BY activity_id ASC
+				 LIMIT %d",
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
+	}
+
 	// ──────────────────────────────────────────────────────────────────────────
 	// Per-item migration
 	// ──────────────────────────────────────────────────────────────────────────
 
 	/**
-	 * Assign the Masteriyo instructor role to a LearnDash group_leader user.
+	 * Give a LearnDash group leader or learner the matching Masteriyo role.
 	 *
-	 * @param int $user_id
+	 * LearnDash's own roles and capabilities stay: LearnDash keeps running until the
+	 * site owner deactivates it.
+	 *
+	 * @param int $user_id WP user ID.
+	 * @throws \Exception If the user does not exist.
 	 */
 	private static function migrate_single_user( int $user_id ): void {
-		$caps = get_user_meta( $user_id, 'wp_capabilities', true );
-		if ( is_array( $caps ) && isset( $caps['group_leader'] ) ) {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			throw new \Exception( sprintf( 'migrate_single_user: WP user %d not found.', $user_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$caps = is_array( $user->caps ) ? $user->caps : array();
+		if ( in_array( 'group_leader', (array) $user->roles, true ) || isset( $caps['group_leader'] ) ) {
 			Helper::update_user_role( $user_id, Roles::INSTRUCTOR );
-			$wp_user = new \WP_User( $user_id );
-			$wp_user->remove_cap( 'group_leader' );
 		} else {
 			Helper::update_user_role( $user_id, Roles::STUDENT );
 		}
+
+		MigrationMap::record( self::SLUG, MigrationMap::USER, $user_id, $user_id );
 	}
 
 	/**
-	 * Migrate a single LearnDash course: rename CPT, rebuild curriculum, copy metadata.
+	 * Copy a LearnDash course with its sections, lessons, topics, quizzes and questions.
 	 *
-	 * The post ID is preserved (rename-in-place) so existing user-progress references
-	 * remain valid.
+	 * LearnDash's posts are read, never changed: the course is cloned and the clone
+	 * converted; the clone carries the source meta, so the LearnDash meta reads below
+	 * keep working on it. Enrollments are owned by the 'enrollments' step.
 	 *
-	 * @param int $course_id
+	 * @param int $source_course_id sfwd-courses post ID.
+	 * @throws \Exception If the post does not exist or cannot be copied.
 	 */
-	private static function migrate_single_course( int $course_id ): void {
-		$result = wp_update_post(
-			array(
-				'ID'        => $course_id,
-				'post_type' => PostType::COURSE,
-			)
-		);
-
-		if ( is_wp_error( $result ) || 0 === $result ) {
-			masteriyo_get_logger()->error(
-				'Migration: failed to rename sfwd-courses CPT for course ID: ' . $course_id,
-				array( 'source' => 'migration-tool' )
-			);
-			return;
+	private static function migrate_single_course( int $source_course_id ): void {
+		$course = get_post( $source_course_id );
+		if ( ! $course ) {
+			throw new \Exception( sprintf( 'migrate_single_course: post %d not found.', $source_course_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		self::build_course_curriculum( $course_id );
+		$course_id = PostCloner::clone_post( self::SLUG, $source_course_id, array( 'post_type' => PostType::COURSE ) );
+
+		self::build_course_curriculum( $source_course_id, $course_id );
 		self::update_masteriyo_course_from_ld( $course_id );
 		Helper::migrate_course_author( $course_id );
 	}
 
 	/**
-	 * Rebuild the course curriculum: sections, lessons, topics, and quizzes.
+	 * Build the copied course's curriculum: sections, lessons, topics, and quizzes.
 	 *
-	 * LearnDash stores section headings in the `course_sections` post-meta as a JSON
-	 * array of `{order, post_title}` objects, where `order` is the 0-based index of the
-	 * section heading in the COMBINED flat list of all course items (section headings +
-	 * lessons). Because section headings themselves occupy positions in that list, `order`
-	 * is NOT a direct lesson index. To convert: lesson_index = order − idx, where idx is
-	 * the 0-based position of this section in the sections-sorted-by-order array (i.e.,
-	 * the number of section headings that precede it).
+	 * Steps are read from the LearnDash course; each lesson, topic and quiz is cloned
+	 * into a new section of the copied course. LearnDash stores section headings in the
+	 * `course_sections` post-meta as a JSON array of `{order, post_title}` objects, where
+	 * `order` is the 0-based index of the section heading in the COMBINED flat list of
+	 * all course items (section headings + lessons). Because section headings themselves
+	 * occupy positions in that list, `order` is NOT a direct lesson index. To convert:
+	 * lesson_index = order − idx, where idx is the 0-based position of this section in
+	 * the sections-sorted-by-order array (the number of section headings that precede it).
 	 *
-	 * @param int $course_id
+	 * @param int $source_course_id sfwd-courses post ID.
+	 * @param int $course_id        Copied mto-course post ID.
 	 */
-	private static function build_course_curriculum( int $course_id ): void {
-		$total_data = self::get_course_steps( $course_id );
+	private static function build_course_curriculum( int $source_course_id, int $course_id ): void {
+		$total_data = self::get_course_steps( $source_course_id );
 
 		if ( empty( $total_data ) ) {
 			return;
@@ -373,7 +393,7 @@ class LearnDash {
 		$author_id = (int) get_post_field( 'post_author', $course_id );
 
 		// Build a map of lesson-index → section title.
-		$raw_headings = get_post_meta( $course_id, 'course_sections', true );
+		$raw_headings = get_post_meta( $source_course_id, 'course_sections', true );
 		$raw_headings = $raw_headings ? json_decode( $raw_headings, true ) : array();
 
 		$sorted_headings = array_values( (array) $raw_headings );
@@ -407,35 +427,37 @@ class LearnDash {
 			foreach ( $total_data['sfwd-lessons'] as $lesson_key => $lesson_data ) {
 				// Create a new section when this lesson index is a boundary.
 				if ( isset( $sections_at[ $i ] ) ) {
-					$section_id = Helper::insert_post( $sections_at[ $i ], '', $author_id, PostType::SECTION, $menu_order, $course_id );
+					$section_id = self::inserted( Helper::insert_post( $sections_at[ $i ], '', $author_id, PostType::SECTION, $menu_order, $course_id ), 'section' );
 					self::update_course_item_meta( $section_id, $course_id, $course_id );
 					++$menu_order;
 				}
 
-				$lesson_id = Helper::update_post( $lesson_key, PostType::LESSON, $menu_order, $section_id );
-				self::update_course_item_meta( $lesson_id, $course_id, $section_id );
-				++$menu_order;
+				if ( self::copy_course_step( (int) $lesson_key, PostType::LESSON, $menu_order, $section_id, $course_id ) ) {
+					++$menu_order;
+				}
 
 				// LearnDash topics are sub-lessons → Masteriyo lessons in the same section.
 				foreach ( (array) ( isset( $lesson_data['sfwd-topic'] ) ? $lesson_data['sfwd-topic'] : array() ) as $topic_key => $topic_data ) {
-					$topic_id = Helper::update_post( $topic_key, PostType::LESSON, $menu_order, $section_id );
-					self::update_course_item_meta( $topic_id, $course_id, $section_id );
-					++$menu_order;
+					if ( self::copy_course_step( (int) $topic_key, PostType::LESSON, $menu_order, $section_id, $course_id ) ) {
+						++$menu_order;
+					}
 
 					foreach ( array_keys( (array) ( isset( $topic_data['sfwd-quiz'] ) ? $topic_data['sfwd-quiz'] : array() ) ) as $quiz_key ) {
-						$quiz_id = Helper::update_post( $quiz_key, PostType::QUIZ, $menu_order, $section_id );
-						self::update_course_item_meta( $quiz_id, $course_id, $section_id );
-						++$menu_order;
-						self::migrate_ld_quiz( $quiz_id, $course_id );
+						$quiz_id = self::copy_course_step( (int) $quiz_key, PostType::QUIZ, $menu_order, $section_id, $course_id );
+						if ( $quiz_id ) {
+							++$menu_order;
+							self::migrate_ld_quiz( $quiz_id, $course_id );
+						}
 					}
 				}
 
 				// Quizzes directly under this lesson (not under a topic).
 				foreach ( array_keys( (array) ( isset( $lesson_data['sfwd-quiz'] ) ? $lesson_data['sfwd-quiz'] : array() ) ) as $quiz_key ) {
-					$quiz_id = Helper::update_post( $quiz_key, PostType::QUIZ, $menu_order, $section_id );
-					self::update_course_item_meta( $quiz_id, $course_id, $section_id );
-					++$menu_order;
-					self::migrate_ld_quiz( $quiz_id, $course_id );
+					$quiz_id = self::copy_course_step( (int) $quiz_key, PostType::QUIZ, $menu_order, $section_id, $course_id );
+					if ( $quiz_id ) {
+						++$menu_order;
+						self::migrate_ld_quiz( $quiz_id, $course_id );
+					}
 				}
 
 				++$i;
@@ -444,35 +466,87 @@ class LearnDash {
 			// Top-level quizzes not nested under any lesson.
 			if ( ! empty( $total_data['sfwd-quiz'] ) ) {
 				foreach ( array_keys( $total_data['sfwd-quiz'] ) as $quiz_key ) {
-					$quiz_id = Helper::update_post( $quiz_key, PostType::QUIZ, $menu_order, $section_id );
-					self::update_course_item_meta( $quiz_id, $course_id, $section_id );
-					++$menu_order;
-					self::migrate_ld_quiz( $quiz_id, $course_id );
+					$quiz_id = self::copy_course_step( (int) $quiz_key, PostType::QUIZ, $menu_order, $section_id, $course_id );
+					if ( $quiz_id ) {
+						++$menu_order;
+						self::migrate_ld_quiz( $quiz_id, $course_id );
+					}
 				}
 			}
 		}
 
 		// Courses that contain only standalone quizzes (no lessons at all).
 		if ( empty( $total_data['sfwd-lessons'] ) && ! empty( $total_data['sfwd-quiz'] ) ) {
-			$section_id = Helper::insert_post( __( 'Section', 'learning-management-system' ), '', $author_id, PostType::SECTION, 0, $course_id );
+			$section_id = self::inserted( Helper::insert_post( __( 'Section', 'learning-management-system' ), '', $author_id, PostType::SECTION, 0, $course_id ), 'section' );
 			self::update_course_item_meta( $section_id, $course_id, $course_id );
 
 			foreach ( array_keys( $total_data['sfwd-quiz'] ) as $quiz_key ) {
-				$quiz_id = Helper::update_post( $quiz_key, PostType::QUIZ, $menu_order, $section_id );
-				self::update_course_item_meta( $quiz_id, $course_id, $section_id );
-				++$menu_order;
-				self::migrate_ld_quiz( $quiz_id, $course_id );
+				$quiz_id = self::copy_course_step( (int) $quiz_key, PostType::QUIZ, $menu_order, $section_id, $course_id );
+				if ( $quiz_id ) {
+					++$menu_order;
+					self::migrate_ld_quiz( $quiz_id, $course_id );
+				}
 			}
 		}
 	}
 
 	/**
-	 * Migrate a single LearnDash enrollment (activity_type='access') to masteriyo_user_items.
+	 * Copy a LearnDash lesson, topic or quiz into a section of the copied course.
 	 *
-	 * The source row is deleted after a successful insert so that offset-0 pagination
-	 * always returns unseen rows.
+	 * LearnDash shared course steps: a step in several courses has one copy, kept by
+	 * the course that copied it first; later courses skip it with a warning.
 	 *
-	 * @param int $activity_id  Primary key of the wp_learndash_user_activity row.
+	 * @param int    $source_id  sfwd-lessons, sfwd-topic or sfwd-quiz post ID.
+	 * @param string $post_type  Masteriyo post type for the copy.
+	 * @param int    $menu_order Position in the section.
+	 * @param int    $section_id Copied mto-section post ID.
+	 * @param int    $course_id  Copied mto-course post ID.
+	 * @return int Copied post ID, or 0 when the copy belongs to another course.
+	 */
+	private static function copy_course_step( int $source_id, string $post_type, int $menu_order, int $section_id, int $course_id ): int {
+		if ( Helper::copy_kept_by_another_course( self::SLUG, 'LearnDash', $post_type, $source_id, $course_id ) ) {
+			return 0;
+		}
+
+		$copy_id = PostCloner::clone_post(
+			self::SLUG,
+			$source_id,
+			array(
+				'post_type'   => $post_type,
+				'post_parent' => $section_id,
+				'menu_order'  => $menu_order,
+			)
+		);
+		self::update_course_item_meta( $copy_id, $course_id, $section_id );
+
+		return $copy_id;
+	}
+
+	/**
+	 * The ID Helper::insert_post() returned, or an exception naming what could not be made.
+	 *
+	 * @param int|\WP_Error $post_id Result of Helper::insert_post().
+	 * @param string        $what    What was being inserted, for the message.
+	 * @return int
+	 * @throws \Exception When the insert failed.
+	 */
+	private static function inserted( $post_id, string $what ): int {
+		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			$reason = is_wp_error( $post_id ) ? $post_id->get_error_message() : 'wp_insert_post returned 0';
+			throw new \Exception( sprintf( 'Could not insert the %s: %s', $what, $reason ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		return (int) $post_id;
+	}
+
+	/**
+	 * Copy a LearnDash enrollment (activity_type='access') to masteriyo_user_items.
+	 *
+	 * The activity row stays. A row whose user is gone or who is already enrolled in
+	 * the copied course is recorded as a skip so it is not fetched again.
+	 *
+	 * @param int $activity_id Primary key of the learndash_user_activity row.
+	 * @throws \Exception If the row or its copied course is missing, or the insert fails.
 	 */
 	private static function migrate_single_enrollment( int $activity_id ): void {
 		global $wpdb;
@@ -484,13 +558,24 @@ class LearnDash {
 		);
 
 		if ( ! $activity ) {
+			throw new \Exception( sprintf( 'migrate_single_enrollment: activity %d not found.', $activity_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$user_id          = (int) $activity['user_id'];
+		$source_course_id = (int) $activity['course_id'];
+
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $activity_id ): void {
+			MigrationMap::record( self::SLUG, 'enrollments', $activity_id, 0 );
+		};
+
+		if ( ! get_userdata( $user_id ) ) {
+			$skip();
 			return;
 		}
 
-		$user_id   = (int) $activity['user_id'];
-		$course_id = (int) $activity['course_id'];
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
 
-		// Idempotent: skip if already enrolled.
 		$already = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_user_items WHERE user_id = %d AND item_id = %d AND item_type = 'user_course'",
@@ -500,7 +585,7 @@ class LearnDash {
 		);
 
 		if ( $already ) {
-			$wpdb->delete( $ld_table, array( 'activity_id' => $activity_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$skip();
 			return;
 		}
 
@@ -514,8 +599,9 @@ class LearnDash {
 			? gmdate( 'Y-m-d H:i:s', (int) $activity['activity_completed'] )
 			: null;
 
-		// Find the associated transaction so we can record order_id and price meta.
-		$order_id = (int) $wpdb->get_var(
+		// The LearnDash transaction for this pair; its copy, when the orders step has
+		// already run, becomes the order reference. Otherwise the orders step links it.
+		$source_order_id = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT p.ID
 				 FROM {$wpdb->posts} p
@@ -523,18 +609,20 @@ class LearnDash {
 				 INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = %s
 				 WHERE CAST(pm1.meta_value AS UNSIGNED) = %d
 				   AND CAST(pm2.meta_value AS UNSIGNED) = %d
-				   AND p.post_type IN ('sfwd-transactions','mto-order')
+				   AND p.post_type = 'sfwd-transactions'
 				 LIMIT 1",
 				'course_id',
 				'user_id',
-				$course_id,
+				$source_course_id,
 				$user_id
 			)
 		);
 
+		$order_id = $source_order_id ? MigrationMap::target( self::SLUG, MigrationMap::POST, $source_order_id ) : 0;
+
 		$price = 0.0;
-		if ( $order_id ) {
-			$course_meta = get_post_meta( $course_id, '_sfwd-courses', true );
+		if ( $source_order_id ) {
+			$course_meta = get_post_meta( $source_course_id, '_sfwd-courses', true );
 			$price       = isset( $course_meta['sfwd-courses_course_price'] )
 				? floatval( $course_meta['sfwd-courses_course_price'] )
 				: 0.0;
@@ -542,25 +630,21 @@ class LearnDash {
 
 		$user_item_id = Helper::enroll_user( $user_id, $course_id, $date_start, $date_end, UserCourseStatus::ACTIVE, $order_id ? $order_id : null, $price, $date_modified );
 		if ( null === $user_item_id ) {
-			masteriyo_get_logger()->error(
-				'Migration: failed to insert enrollment for user ' . $user_id . ' course ' . $course_id,
-				array( 'source' => 'migration-tool' )
-			);
-			return;
+			throw new \Exception( sprintf( 'migrate_single_enrollment: failed to enroll user %d in course %d.', $user_id, $course_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		// Source cleanup — row deleted so offset-0 pagination always sees fresh rows.
-		$wpdb->delete( $ld_table, array( 'activity_id' => $activity_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		MigrationMap::record( self::SLUG, 'enrollments', $activity_id, $user_item_id );
 	}
 
 	/**
-	 * Migrate a single LearnDash lesson/topic/quiz activity to masteriyo_user_activities.
+	 * Copy a LearnDash lesson/topic/quiz activity to masteriyo_user_activities.
 	 *
-	 * Finds or creates the parent course_progress row, records the individual item
-	 * completion, then recalculates the overall course-progress status. The source row
-	 * is deleted after a successful write.
+	 * Finds or creates the parent course_progress row on the copied course and records
+	 * the item completion against the copied lesson or quiz. The activity row stays;
+	 * finalize_step() recalculates the course-progress status once.
 	 *
-	 * @param int $activity_id  Primary key of the wp_learndash_user_activity row.
+	 * @param int $activity_id Primary key of the learndash_user_activity row.
+	 * @throws \Exception If the row, its copied course or its copied item is missing, or a write fails.
 	 */
 	private static function migrate_single_lesson_progress( int $activity_id ): void {
 		global $wpdb;
@@ -572,38 +656,38 @@ class LearnDash {
 		);
 
 		if ( ! $activity ) {
+			throw new \Exception( sprintf( 'migrate_single_lesson_progress: activity %d not found.', $activity_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$user_id          = (int) $activity['user_id'];
+		$source_course_id = (int) $activity['course_id'];
+		$source_post_id   = (int) $activity['post_id'];
+
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $activity_id ): void {
+			MigrationMap::record( self::SLUG, 'lesson_progress', $activity_id, 0 );
+		};
+
+		if ( ! $source_post_id || ! $source_course_id || ! get_userdata( $user_id ) ) {
+			$skip();
 			return;
 		}
 
-		$user_id   = (int) $activity['user_id'];
-		$course_id = (int) $activity['course_id'];
-		$post_id   = (int) $activity['post_id'];
-
-		if ( ! $post_id ) {
-			$wpdb->delete( $ld_table, array( 'activity_id' => $activity_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			return;
-		}
-
-		$item_type = ( 'quiz' === $activity['activity_type'] )
-			? CourseProgressItemType::QUIZ
-			: CourseProgressItemType::LESSON;
+		$is_quiz   = 'quiz' === $activity['activity_type'];
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
+		$post_id   = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_post_id, $is_quiz ? 'quiz' : 'lesson' );
+		$item_type = $is_quiz ? CourseProgressItemType::QUIZ : CourseProgressItemType::LESSON;
 		$act_table = $wpdb->prefix . 'masteriyo_user_activities';
 
-		// Find or create the course-level progress row.
 		$started_at  = $activity['activity_started']
 			? gmdate( 'Y-m-d H:i:s', (int) $activity['activity_started'] )
 			: current_time( 'mysql', true );
 		$progress_id = Helper::get_or_create_course_progress( $user_id, $course_id, $started_at );
 
 		if ( ! $progress_id ) {
-			masteriyo_get_logger()->error(
-				'Migration: could not create course_progress row for user ' . $user_id . ' course ' . $course_id,
-				array( 'source' => 'migration-tool' )
-			);
-			return;
+			throw new \Exception( sprintf( 'migrate_single_lesson_progress: could not create course_progress for user %d course %d.', $user_id, $course_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		// Insert the individual item row (skip if already recorded — idempotent).
 		$item_exists = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$act_table} WHERE user_id = %d AND item_id = %d AND parent_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -613,50 +697,60 @@ class LearnDash {
 			)
 		);
 
-		if ( ! $item_exists ) {
-			$item_status  = $activity['activity_status']
-				? CourseProgressStatus::COMPLETED
-				: CourseProgressStatus::STARTED;
-			$completed_at = ( CourseProgressStatus::COMPLETED === $item_status && ! empty( $activity['activity_completed'] ) )
-				? gmdate( 'Y-m-d H:i:s', (int) $activity['activity_completed'] )
-				: null;
-			$created_at   = $activity['activity_started']
-				? gmdate( 'Y-m-d H:i:s', (int) $activity['activity_started'] )
-				: current_time( 'mysql', true );
-
-			$wpdb->insert(
-				$act_table,
-				array(
-					'user_id'         => $user_id,
-					'item_id'         => $post_id,
-					'activity_type'   => $item_type,
-					'activity_status' => $item_status,
-					'parent_id'       => $progress_id,
-					'created_at'      => $created_at,
-					'modified_at'     => $created_at,
-					'completed_at'    => $completed_at,
-				),
-				array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
-			);
+		if ( $item_exists ) {
+			$skip();
+			return;
 		}
 
-		// Source cleanup.
-		$wpdb->delete( $ld_table, array( 'activity_id' => $activity_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$item_status  = $activity['activity_status']
+			? CourseProgressStatus::COMPLETED
+			: CourseProgressStatus::STARTED;
+		$completed_at = ( CourseProgressStatus::COMPLETED === $item_status && ! empty( $activity['activity_completed'] ) )
+			? gmdate( 'Y-m-d H:i:s', (int) $activity['activity_completed'] )
+			: null;
+
+		$inserted = $wpdb->insert(
+			$act_table,
+			array(
+				'user_id'         => $user_id,
+				'item_id'         => $post_id,
+				'activity_type'   => $item_type,
+				'activity_status' => $item_status,
+				'parent_id'       => $progress_id,
+				'created_at'      => $started_at,
+				'modified_at'     => $started_at,
+				'completed_at'    => $completed_at,
+			),
+			array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+		);
+
+		if ( false === $inserted ) {
+			throw new \Exception( sprintf( 'migrate_single_lesson_progress: insert failed for activity %d: %s', $activity_id, $wpdb->last_error ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		MigrationMap::record( self::SLUG, 'lesson_progress', $activity_id, (int) $wpdb->insert_id );
 	}
 
 	/**
-	 * Migrate a single LearnDash transaction (sfwd-transactions) to an mto-order.
+	 * Copy a LearnDash transaction (sfwd-transactions) to a new mto-order.
 	 *
 	 * All LD transactions represent successful payments so they map to
-	 * OrderStatus::COMPLETED.
+	 * OrderStatus::COMPLETED. The transaction post stays; the copy carries its meta.
 	 *
-	 * @param int $order_id
+	 * @param int $source_order_id sfwd-transactions post ID.
+	 * @throws \Exception If the post or its copied course is missing.
 	 */
-	private static function migrate_single_order( int $order_id ): void {
-		$post = get_post( $order_id );
+	private static function migrate_single_order( int $source_order_id ): void {
+		$post = get_post( $source_order_id );
 		if ( ! $post ) {
-			return;
+			throw new \Exception( sprintf( 'migrate_single_order: post %d not found.', $source_order_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
+
+		// Resolved before the copy so a missing course leaves nothing half-made.
+		$source_course_id = (int) get_post_meta( $source_order_id, 'course_id', true );
+		$course_id        = $source_course_id
+			? MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' )
+			: 0;
 
 		$order_time = strtotime( $post->post_date );
 		$title      = __( 'Order', 'learning-management-system' )
@@ -665,9 +759,10 @@ class LearnDash {
 			. ' @ '
 			. gmdate( get_option( 'time_format' ), $order_time );
 
-		wp_update_post(
+		$order_id = PostCloner::clone_post(
+			self::SLUG,
+			$source_order_id,
 			array(
-				'ID'            => $order_id,
 				'post_type'     => PostType::ORDER,
 				'post_status'   => OrderStatus::COMPLETED,
 				'post_title'    => $title,
@@ -675,18 +770,65 @@ class LearnDash {
 			)
 		);
 
-		self::migrate_order_item_from_ld( $order_id );
-		self::update_order_meta_from_ld( $order_id );
+		self::migrate_order_item_from_ld( $order_id, $course_id );
+		self::update_order_meta_from_ld( $order_id, $course_id );
+		self::link_order_to_enrollment( $order_id, $course_id, (int) get_post_meta( $order_id, 'user_id', true ) );
 	}
 
 	/**
-	 * Migrate a single WPProQuiz quiz attempt (statistic_ref row + its statistic rows)
-	 * to the masteriyo_quiz_attempts table.
+	 * Point an already-copied enrollment at its copied order.
 	 *
-	 * The source rows are deleted after a successful insert so cursor-based pagination
-	 * always sees fresh rows.
+	 * The enrollments step runs before orders, so the order did not exist when the
+	 * enrollment was copied.
 	 *
-	 * @param int $ref_id  Primary key of the wp_learndash_pro_quiz_statistic_ref row.
+	 * @param int $order_id    Copied mto-order post ID.
+	 * @param int $course_id   Copied mto-course post ID.
+	 * @param int $customer_id WP user ID.
+	 */
+	private static function link_order_to_enrollment( int $order_id, int $course_id, int $customer_id ): void {
+		global $wpdb;
+
+		if ( ! $course_id || ! $customer_id ) {
+			return;
+		}
+
+		$user_item_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT ui.id FROM {$wpdb->prefix}masteriyo_user_items ui
+				 WHERE ui.user_id = %d AND ui.item_id = %d AND ui.item_type = 'user_course'
+				   AND NOT EXISTS (
+				       SELECT 1 FROM {$wpdb->prefix}masteriyo_user_itemmeta m
+				       WHERE m.user_item_id = ui.id AND m.meta_key = '_order_id'
+				   )
+				 LIMIT 1",
+				$customer_id,
+				$course_id
+			)
+		);
+
+		if ( ! $user_item_id ) {
+			return;
+		}
+
+		$wpdb->insert(
+			$wpdb->prefix . 'masteriyo_user_itemmeta',
+			array(
+				'user_item_id' => $user_item_id,
+				'meta_key'     => '_order_id',
+				'meta_value'   => $order_id,
+			)
+		);
+	}
+
+	/**
+	 * Copy a WPProQuiz attempt (statistic_ref row + its statistic rows) to
+	 * masteriyo_quiz_attempts, against the copied quiz and course.
+	 *
+	 * The statistic rows stay. An attempt already present on the copied quiz is
+	 * recorded as a skip so it is not fetched again.
+	 *
+	 * @param int $ref_id Primary key of the learndash_pro_quiz_statistic_ref row.
+	 * @throws \Exception If the row or its copied quiz is missing, or the insert fails.
 	 */
 	private static function migrate_single_quiz_attempt( int $ref_id ): void {
 		global $wpdb;
@@ -699,6 +841,39 @@ class LearnDash {
 			ARRAY_A
 		);
 		if ( ! $ref ) {
+			throw new \Exception( sprintf( 'migrate_single_quiz_attempt: statistic_ref %d not found.', $ref_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $ref_id ): void {
+			MigrationMap::record( self::SLUG, 'quiz_attempts', $ref_id, 0 );
+		};
+
+		$user_id = (int) $ref['user_id'];
+		if ( ! get_userdata( $user_id ) ) {
+			$skip();
+			return;
+		}
+
+		$quiz_id          = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $ref['quiz_post_id'], 'quiz' );
+		$source_course_id = (int) $ref['course_post_id'];
+		$course_id        = $source_course_id
+			? MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' )
+			: (int) get_post_meta( $quiz_id, '_course_id', true );
+		$started_at       = gmdate( 'Y-m-d H:i:s', (int) $ref['create_time'] );
+		$attempts_table   = $wpdb->prefix . 'masteriyo_quiz_attempts';
+
+		$already = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$attempts_table} WHERE quiz_id = %d AND user_id = %d AND attempt_started_at = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$quiz_id,
+				$user_id,
+				$started_at
+			)
+		);
+
+		if ( $already ) {
+			$skip();
 			return;
 		}
 
@@ -714,6 +889,9 @@ class LearnDash {
 		$has_essay       = false;
 		$answers_json    = array();
 
+		// Answers reference the copied questions; a question that was not copied keeps its LearnDash ID.
+		$question_map = MigrationMap::targets( self::SLUG, MigrationMap::POST, array_column( $stats, 'question_post_id' ) );
+
 		// Determine pro_quiz question table once — same logic used by migrate_ld_quiz.
 		$qm_table = $wpdb->get_var(
 			$wpdb->prepare( 'SHOW TABLES LIKE %s', "{$wpdb->prefix}learndash_pro_quiz_question" )
@@ -725,15 +903,13 @@ class LearnDash {
 			$total_incorrect += ( 0 === $correct ) ? 1 : 0;
 			$earned_marks    += (float) $stat['points'];
 			$answers_json[]   = array(
-				'question_id'   => (int) $stat['question_post_id'],
+				'question_id'   => $question_map[ (int) $stat['question_post_id'] ] ?? (int) $stat['question_post_id'],
 				'correct_count' => $correct,
 				'points'        => (float) $stat['points'],
 				'answer_data'   => maybe_unserialize( $stat['answer_data'] ),
 			);
 
-			// Check essay type via the pro_quiz table — _type post-meta is on the new mto-question
-			// post (created by migrate_ld_quiz), not on the original sfwd-question post referenced
-			// by question_post_id in the statistic row.
+			// Essay type comes from the pro_quiz table, read through the LearnDash question post.
 			$pro_id = (int) get_post_meta( (int) $stat['question_post_id'], 'question_pro_id', true );
 			if ( $pro_id ) {
 				$answer_type = $wpdb->get_var(
@@ -745,8 +921,7 @@ class LearnDash {
 			}
 		}
 
-		// Compute total_marks by summing question points from the pro-quiz question table.
-		$quiz_id     = (int) $ref['quiz_post_id'];
+		// Total marks come from the pro-quiz question table; the copied quiz carries quiz_pro_id.
 		$quiz_pro_id = (int) get_post_meta( $quiz_id, 'quiz_pro_id', true );
 		$total_marks = 0.0;
 		if ( $quiz_pro_id ) {
@@ -755,6 +930,7 @@ class LearnDash {
 			);
 		}
 
+		// _pass_mark was written onto the copied quiz by the courses step.
 		$pass_mark     = (float) get_post_meta( $quiz_id, '_pass_mark', true );
 		$pass_mark_pts = ( $total_marks > 0 && $pass_mark > 0 ) ? ( $pass_mark / 100 ) * $total_marks : 0;
 
@@ -766,14 +942,12 @@ class LearnDash {
 			$attempt_status = 'passed';
 		}
 
-		$started_at = gmdate( 'Y-m-d H:i:s', (int) $ref['create_time'] );
-
-		$wpdb->insert(
-			$wpdb->prefix . 'masteriyo_quiz_attempts',
+		$inserted = $wpdb->insert(
+			$attempts_table,
 			array(
 				'quiz_id'                  => $quiz_id,
-				'course_id'                => (int) $ref['course_post_id'],
-				'user_id'                  => (int) $ref['user_id'],
+				'course_id'                => $course_id,
+				'user_id'                  => $user_id,
 				'total_questions'          => $total_questions,
 				'total_answered_questions' => $total_questions,
 				'total_marks'              => $total_marks,
@@ -789,69 +963,85 @@ class LearnDash {
 			array( '%d', '%d', '%d', '%d', '%d', '%f', '%d', '%d', '%d', '%f', '%s', '%s', '%s', '%s' )
 		);
 
-		// Delete source rows — self-exclusion for cursor-based pagination.
-		$wpdb->delete( $ref_table, array( 'statistic_ref_id' => $ref_id ), array( '%d' ) );
-		$wpdb->delete( $stat_table, array( 'statistic_ref_id' => $ref_id ), array( '%d' ) );
+		if ( false === $inserted ) {
+			throw new \Exception( sprintf( 'migrate_single_quiz_attempt: insert failed for statistic_ref %d: %s', $ref_id, $wpdb->last_error ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		MigrationMap::record( self::SLUG, 'quiz_attempts', $ref_id, (int) $wpdb->insert_id );
 	}
 
 	/**
-	 * Migrate all sfwd-assignment submissions for a single lesson into
-	 * mto-assignment + mto-assignment-reply posts.
+	 * Copy the sfwd-assignment submissions of one LearnDash lesson into an
+	 * mto-assignment on the copied lesson, with one mto-assignment-reply per submission.
 	 *
-	 * @param int $lesson_id  The LD lesson that owns the assignment.
+	 * The lesson's assignment is made once and reused; each submission is copied once.
+	 * A lesson is listed by the batch queries while it has an uncopied submission, so a
+	 * second run copies only what students handed in since.
+	 *
+	 * @param int $source_lesson_id sfwd-lessons post ID that owns the assignments.
+	 * @throws \Exception If the copied lesson is missing or a post insert fails.
 	 */
-	private static function migrate_single_assignment( int $lesson_id ): void {
-		$lesson_meta    = get_post_meta( $lesson_id, '_sfwd-lessons', true );
-		$lesson_meta    = is_array( $lesson_meta ) ? $lesson_meta : array();
-		$points_enabled = ! empty( $lesson_meta['sfwd-lessons_assignment_points_enabled'] );
-		$total_points   = $points_enabled ? (int) ( isset( $lesson_meta['sfwd-lessons_assignment_points_amount'] ) ? $lesson_meta['sfwd-lessons_assignment_points_amount'] : 100 ) : 100;
-		$due_date       = isset( $lesson_meta['sfwd-lessons_assignment_due_date'] ) ? $lesson_meta['sfwd-lessons_assignment_due_date'] : '';
-		$max_upload     = (int) ( isset( $lesson_meta['sfwd-lessons_max_upload_size'] ) ? $lesson_meta['sfwd-lessons_max_upload_size'] : 5 );
+	private static function migrate_single_assignment( int $source_lesson_id ): void {
+		$lesson_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_lesson_id, 'lesson' );
+		$course_id = (int) get_post_meta( $lesson_id, '_course_id', true );
 
-		$assignment_id = wp_insert_post(
-			array(
-				'post_type'   => 'mto-assignment',
-				'post_status' => 'publish',
-				'post_title'  => get_the_title( $lesson_id ) . ' Assignment',
-				'post_author' => (int) get_post_field( 'post_author', $lesson_id ),
-				'post_parent' => $lesson_id,
-			)
-		);
+		$assignment_id = MigrationMap::target( self::SLUG, 'assignments', $source_lesson_id );
 
-		if ( ! $assignment_id || is_wp_error( $assignment_id ) ) {
-			masteriyo_get_logger()->error(
-				'Migration: failed to create mto-assignment for lesson ' . $lesson_id,
-				array( 'source' => 'migration-tool' )
+		if ( ! $assignment_id || ! get_post( $assignment_id ) ) {
+			$lesson_meta    = get_post_meta( $source_lesson_id, '_sfwd-lessons', true );
+			$lesson_meta    = is_array( $lesson_meta ) ? $lesson_meta : array();
+			$points_enabled = ! empty( $lesson_meta['sfwd-lessons_assignment_points_enabled'] );
+			$total_points   = $points_enabled ? (int) ( isset( $lesson_meta['sfwd-lessons_assignment_points_amount'] ) ? $lesson_meta['sfwd-lessons_assignment_points_amount'] : 100 ) : 100;
+			$due_date       = isset( $lesson_meta['sfwd-lessons_assignment_due_date'] ) ? $lesson_meta['sfwd-lessons_assignment_due_date'] : '';
+			$max_upload     = (int) ( isset( $lesson_meta['sfwd-lessons_max_upload_size'] ) ? $lesson_meta['sfwd-lessons_max_upload_size'] : 5 );
+
+			$assignment_id = wp_insert_post(
+				array(
+					'post_type'   => 'mto-assignment',
+					'post_status' => 'publish',
+					'post_title'  => get_the_title( $lesson_id ) . ' Assignment',
+					'post_author' => (int) get_post_field( 'post_author', $lesson_id ),
+					'post_parent' => $lesson_id,
+				)
 			);
-			return;
-		}
 
-		update_post_meta( $assignment_id, '_total_points', $total_points );
-		update_post_meta( $assignment_id, '_max_file_upload_size', $max_upload );
+			if ( ! $assignment_id || is_wp_error( $assignment_id ) ) {
+				throw new \Exception( sprintf( 'migrate_single_assignment: failed to create mto-assignment for lesson %d.', $lesson_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			}
 
-		if ( ! empty( $due_date ) ) {
-			update_post_meta( $assignment_id, '_due_date', sanitize_text_field( $due_date ) );
-		}
+			update_post_meta( $assignment_id, '_total_points', $total_points );
+			update_post_meta( $assignment_id, '_max_file_upload_size', $max_upload );
 
-		$course_id = get_post_meta( $lesson_id, '_course_id', true );
-		if ( $course_id ) {
-			update_post_meta( $assignment_id, '_course_id', (int) $course_id );
+			if ( ! empty( $due_date ) ) {
+				update_post_meta( $assignment_id, '_due_date', sanitize_text_field( $due_date ) );
+			}
+
+			if ( $course_id ) {
+				update_post_meta( $assignment_id, '_course_id', $course_id );
+			}
+
+			MigrationMap::record( self::SLUG, 'assignments', $source_lesson_id, (int) $assignment_id );
 		}
 
 		$submissions = get_posts(
 			array(
 				'post_type'      => 'sfwd-assignment',
+				'post_status'    => 'any',
 				'posts_per_page' => -1,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => 'lesson_id',
-						'value' => $lesson_id,
+						'value' => $source_lesson_id,
 					),
 				),
 			)
 		);
 
 		foreach ( $submissions as $sub ) {
+			if ( MigrationMap::is_settled_post( self::SLUG, (int) $sub->ID ) ) {
+				continue;
+			}
+
 			$reply_id = wp_insert_post(
 				array(
 					'post_type'    => 'mto-assignment-reply',
@@ -863,15 +1053,19 @@ class LearnDash {
 				)
 			);
 
-			if ( $reply_id && ! is_wp_error( $reply_id ) ) {
-				$upload_url = get_post_meta( $sub->ID, 'upload', true );
-				if ( $upload_url ) {
-					update_post_meta( $reply_id, '_upload', esc_url_raw( $upload_url ) );
-				}
-				if ( $course_id ) {
-					update_post_meta( $reply_id, '_course_id', (int) $course_id );
-				}
+			if ( ! $reply_id || is_wp_error( $reply_id ) ) {
+				throw new \Exception( sprintf( 'migrate_single_assignment: failed to copy submission %d.', $sub->ID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
+
+			$upload_url = get_post_meta( $sub->ID, 'upload', true );
+			if ( $upload_url ) {
+				update_post_meta( $reply_id, '_upload', esc_url_raw( $upload_url ) );
+			}
+			if ( $course_id ) {
+				update_post_meta( $reply_id, '_course_id', $course_id );
+			}
+
+			MigrationMap::record( self::SLUG, MigrationMap::POST, (int) $sub->ID, (int) $reply_id );
 		}
 	}
 
@@ -883,12 +1077,14 @@ class LearnDash {
 	 * Migrate quiz questions for a given quiz post.
 	 *
 	 * Handles single-choice, multiple-choice, true/false, text-answer, fill-in-the-blanks,
-	 * sortable, and matching types. Assessment and unknown types are skipped silently.
+	 * sortable, and matching types. Assessment and unknown types are skipped and noted on
+	 * the copied quiz. Questions are new mto-question posts; the sfwd-question posts stay.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $quiz_id
-	 * @param int $course_id
+	 * @param int $quiz_id   Copied mto-quiz post ID; it carries the LearnDash quiz meta.
+	 * @param int $course_id Copied mto-course post ID.
+	 * @throws \Exception If a question insert fails.
 	 */
 	private static function migrate_ld_quiz( int $quiz_id, int $course_id ): void {
 		global $wpdb;
@@ -945,6 +1141,14 @@ class LearnDash {
 
 		foreach ( array_keys( (array) $question_ids ) as $question_post_id ) {
 			++$menu_order;
+
+			// A reused quiz copy keeps its questions; they follow it to the new course. The
+			// lookup is per quiz because LearnDash shares one question between quizzes.
+			$existing = self::question_copy_in_quiz( $quiz_id, (int) $question_post_id );
+			if ( $existing ) {
+				update_post_meta( $existing, '_course_id', $course_id );
+				continue;
+			}
 
 			$pro_id = (int) get_post_meta( $question_post_id, 'question_pro_id', true );
 			$row    = $wpdb->get_row(
@@ -1041,8 +1245,8 @@ class LearnDash {
 					break;
 
 				default:
-					// assessment and any unknown types — skip silently.
-					Helper::store_unmigrated_meta( (int) $question_post_id, 'ld_answer_type', $row['answer_type'] );
+					// assessment and any unknown types — noted on the copied quiz, never on LearnDash's question.
+					Helper::store_unmigrated_meta( $quiz_id, 'ld_skipped_question_' . $question_post_id, $row['answer_type'] );
 					continue 2;
 			}
 
@@ -1058,24 +1262,49 @@ class LearnDash {
 				)
 			);
 
-			if ( is_wp_error( $new_id ) ) {
-				masteriyo_get_logger()->error(
-					'Migration: failed to insert question for quiz ' . $quiz_id,
-					array( 'source' => 'migration-tool' )
-				);
-				continue;
+			if ( ! $new_id || is_wp_error( $new_id ) ) {
+				throw new \Exception( sprintf( 'migrate_ld_quiz: failed to insert question %d for quiz %d.', $question_post_id, $quiz_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
 
 			update_post_meta( $new_id, '_course_id', $course_id );
 			update_post_meta( $new_id, '_type', $question_type );
 			update_post_meta( $new_id, '_points', $row['points'] );
 			update_post_meta( $new_id, '_parent_id', $quiz_id );
+			update_post_meta( $new_id, '_ld_question_id', (int) $question_post_id );
 
 			// For cloze questions, also store answers separately so they can be graded.
 			if ( 'fill-in-the-blanks' === $question_type ) {
 				update_post_meta( $new_id, '_answers', wp_json_encode( $answers ) );
 			}
+
+			// The map keeps the first copy; quiz attempts resolve their question IDs through it.
+			if ( ! MigrationMap::is_settled_post( self::SLUG, (int) $question_post_id ) ) {
+				MigrationMap::record( self::SLUG, MigrationMap::POST, (int) $question_post_id, (int) $new_id );
+			}
 		}
+	}
+
+	/**
+	 * The copy of a LearnDash question under a copied quiz, or 0.
+	 *
+	 * @param int $quiz_id          Copied mto-quiz post ID.
+	 * @param int $question_post_id sfwd-question post ID.
+	 * @return int
+	 */
+	private static function question_copy_in_quiz( int $quiz_id, int $question_post_id ): int {
+		$ids = get_posts(
+			array(
+				'post_type'      => PostType::QUESTION,
+				'post_parent'    => $quiz_id,
+				'post_status'    => 'any',
+				'meta_key'       => '_ld_question_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => $question_post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+			)
+		);
+
+		return $ids ? (int) $ids[0] : 0;
 	}
 
 	/**
@@ -1144,10 +1373,20 @@ class LearnDash {
 			}
 		}
 
-		// Prerequisites.
+		// Prerequisites point at the copies; a prerequisite not copied yet keeps its LearnDash ID.
 		$prerequisite_ids = isset( $meta['sfwd-courses_course_prerequisite'] ) ? $meta['sfwd-courses_course_prerequisite'] : array();
 		if ( ! empty( $prerequisite_ids ) && is_array( $prerequisite_ids ) ) {
-			update_post_meta( $course_id, '_prerequisites_courses', array_map( 'intval', $prerequisite_ids ) );
+			$copies = MigrationMap::targets( self::SLUG, MigrationMap::POST, $prerequisite_ids );
+			update_post_meta(
+				$course_id,
+				'_prerequisites_courses',
+				array_map(
+					function( $id ) use ( $copies ) {
+						return $copies[ (int) $id ] ?? (int) $id;
+					},
+					$prerequisite_ids
+				)
+			);
 		}
 
 		// Sequential flow — enforced unless LD explicitly disables progression.
@@ -1170,12 +1409,12 @@ class LearnDash {
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $order_id
+	 * @param int $order_id  Copied mto-order post ID.
+	 * @param int $course_id Copied mto-course post ID, or 0 when the transaction names none.
 	 */
-	private static function migrate_order_item_from_ld( int $order_id ): void {
+	private static function migrate_order_item_from_ld( int $order_id, int $course_id ): void {
 		global $wpdb;
 
-		$course_id = (int) get_post_meta( $order_id, 'course_id', true );
 		if ( ! $course_id ) {
 			return;
 		}
@@ -1219,16 +1458,17 @@ class LearnDash {
 	}
 
 	/**
-	 * Write Masteriyo order post-meta from the LearnDash transaction's metadata.
+	 * Write Masteriyo order post-meta from the LearnDash transaction's metadata, which
+	 * the copied order carries.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $order_id
+	 * @param int $order_id  Copied mto-order post ID.
+	 * @param int $course_id Copied mto-course post ID, or 0 when the transaction names none.
 	 */
-	private static function update_order_meta_from_ld( int $order_id ): void {
+	private static function update_order_meta_from_ld( int $order_id, int $course_id ): void {
 		global $wpdb;
 
-		$course_id   = (int) get_post_meta( $order_id, 'course_id', true );
 		$customer_id = (int) get_post_meta( $order_id, 'user_id', true );
 
 		$course_meta = get_post_meta( $course_id, '_sfwd-courses', true );
@@ -1320,6 +1560,11 @@ class LearnDash {
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {
+		if ( 'courses' === $step ) {
+			Helper::relink_prerequisites( self::SLUG );
+			return;
+		}
+
 		if ( 'enrollments' === $step ) {
 			// Catch group-enrolled users who never visited the course page
 			// and therefore have no row in wp_learndash_user_activity (activity_type='access').
@@ -1333,6 +1578,8 @@ class LearnDash {
 
 		global $wpdb;
 		$tbl = $wpdb->prefix . 'masteriyo_user_activities';
+		// Only this run's copies: a course the site made natively keeps its own dates.
+		$copied = MigrationMap::targets_sql( self::SLUG, MigrationMap::POST );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
@@ -1352,11 +1599,12 @@ class LearnDash {
 			     END,
 			     parent.completed_at = IF(
 			         counts.total_all > 0 AND counts.total_done >= counts.total_all,
-			         UTC_TIMESTAMP(),
+			         COALESCE( NULLIF( parent.completed_at, '0000-00-00 00:00:00' ), UTC_TIMESTAMP() ),
 			         NULL
 			     ),
 			     parent.modified_at  = UTC_TIMESTAMP()
-			 WHERE parent.activity_type = 'course_progress'"
+			 WHERE parent.activity_type = 'course_progress'
+			   AND parent.item_id IN ( {$copied} )"
 		);
 		// phpcs:enable
 	}
@@ -1366,8 +1614,9 @@ class LearnDash {
 	 * so they have no row in wp_learndash_user_activity (activity_type='access').
 	 *
 	 * Reads group membership from `learndash_group_users_{group_id}` post meta and
-	 * course assignments from `ld_auto_enroll_group_course_ids` post meta.
-	 * Inserts into masteriyo_user_items only when the pair is not already enrolled.
+	 * course assignments from `ld_auto_enroll_group_course_ids` post meta. Enrolls into
+	 * the copied course, only when the pair is not already enrolled; a course not copied
+	 * yet is passed over. The group posts stay.
 	 */
 	private static function migrate_group_enrollments(): void {
 		global $wpdb;
@@ -1393,15 +1642,15 @@ class LearnDash {
 				continue;
 			}
 
-			foreach ( $course_ids as $course_id ) {
-				$course_id = (int) $course_id;
+			foreach ( $course_ids as $source_course_id ) {
+				$course_id = MigrationMap::target( self::SLUG, MigrationMap::POST, (int) $source_course_id );
 				if ( ! $course_id ) {
 					continue;
 				}
 
 				foreach ( $member_ids as $user_id ) {
 					$user_id = (int) $user_id;
-					if ( ! $user_id ) {
+					if ( ! $user_id || ! get_userdata( $user_id ) ) {
 						continue;
 					}
 

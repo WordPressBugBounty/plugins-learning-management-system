@@ -73,14 +73,24 @@ abstract class PostsController extends CrudController {
 				return $restriction;
 			}
 
-			if ( CourseAccessMode::OPEN === $course->get_access_mode() && ! post_password_required( get_post( $course->get_id() ) ) ) {
+			if ( $this->current_user_co_instructs( $course_id ) ) {
 				return true;
 			}
 
-			if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
-				if ( masteriyo_is_instructor_or_additional_instructor( $course_id ) ) {
-					return true;
-				}
+			// Status and password rules come before the open-course and preview shortcuts.
+			$readable = array( PostStatus::PUBLISH, PostStatus::PVT );
+			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), $readable, true ) || ! in_array( $post->post_status, $readable, true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
+				return new \WP_Error(
+					'masteriyo_rest_cannot_read',
+					__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+
+			if ( CourseAccessMode::OPEN === $course->get_access_mode() ) {
+				return true;
 			}
 
 			if ( masteriyo_course_has_previewable_lessons( $course_id ) ) {
@@ -91,16 +101,6 @@ abstract class PostsController extends CrudController {
 				return new \WP_Error(
 					'masteriyo_rest_cannot_start_course',
 					__( 'Sorry, you have not bought the course.', 'learning-management-system' ),
-					array(
-						'status' => rest_authorization_required_code(),
-					)
-				);
-			}
-
-			if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
-				return new \WP_Error(
-					'masteriyo_rest_cannot_start_course',
-					__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
 					array(
 						'status' => rest_authorization_required_code(),
 					)
@@ -119,6 +119,171 @@ abstract class PostsController extends CrudController {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if the current user is an instructor who co-teaches the course.
+	 *
+	 * @param int $course_id Course ID.
+	 *
+	 * @return bool
+	 */
+	protected function current_user_co_instructs( int $course_id ): bool {
+		return ( new Addons() )->is_active( 'multiple-instructors' ) && masteriyo_is_current_user_instructor() && masteriyo_is_instructor_or_additional_instructor( $course_id );
+	}
+
+	/**
+	 * Check if the current user can read a course item, judged by the course and item status.
+	 *
+	 * @param \Masteriyo\Models\Course $course Course.
+	 * @param \Masteriyo\Models\Lesson|\Masteriyo\Models\Quiz $item Lesson or quiz.
+	 *
+	 * @return bool
+	 */
+	protected function can_read_course_item( \Masteriyo\Models\Course $course, $item ): bool {
+		$readable = array( PostStatus::PUBLISH, PostStatus::PVT );
+
+		return user_can( get_current_user_id(), 'edit_course', $course->get_id() )
+			|| ( in_array( $course->get_status(), $readable, true ) && in_array( $item->get_status(), $readable, true ) && ! post_password_required( get_post( $course->get_id() ) ) );
+	}
+
+	/**
+	 * Apply the single-item access rules before serializing section, lesson and quiz collections.
+	 *
+	 * @param string $post_type Post type.
+	 * @param string $context Permission context.
+	 * @param int    $object_id Post ID.
+	 * @return bool
+	 */
+	protected function check_item_permission( $post_type, $context = 'read', $object_id = 0 ) {
+		if ( 'read' === $context && $this->is_course_content_controller() ) {
+			if ( isset( $this->readable_ids[ $object_id ] ) ) {
+				return true;
+			}
+
+			$request       = new \WP_REST_Request( 'GET' );
+			$request['id'] = $object_id;
+
+			return true === $this->get_item_permissions_check( $request );
+		}
+
+		return parent::check_item_permission( $post_type, $context, $object_id );
+	}
+
+	/**
+	 * Whether this controller lists sections, lessons or quizzes.
+	 *
+	 * @return bool
+	 */
+	protected function is_course_content_controller() {
+		return in_array( $this->post_type, array( PostType::SECTION, PostType::LESSON, PostType::QUIZ ), true );
+	}
+
+	/**
+	 * Whether the current user can edit this controller's post type.
+	 *
+	 * @return bool
+	 */
+	protected function current_user_edits_post_type() {
+		return current_user_can( get_post_type_object( $this->post_type )->cap->edit_posts );
+	}
+
+	/**
+	 * Whether the course's own access rules could let the current user read its items.
+	 *
+	 * Course-level only: callers must admit lesson-level grants such as `_enable_preview` themselves.
+	 *
+	 * @param int $course_id Course ID.
+	 * @return bool
+	 */
+	protected function course_may_grant_read( $course_id ) {
+		$course = masteriyo_get_course( $course_id );
+
+		if ( is_null( $course ) ) {
+			return false;
+		}
+
+		if ( $this->current_user_co_instructs( $course->get_id() ) || user_can( get_current_user_id(), 'edit_course', $course->get_id() ) ) {
+			return true;
+		}
+
+		if ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) {
+			return false;
+		}
+
+		return CourseAccessMode::OPEN === $course->get_access_mode()
+			|| ! is_user_logged_in()
+			|| masteriyo_is_current_user_admin()
+			|| masteriyo_is_current_user_instructor()
+			|| masteriyo_course_has_previewable_lessons( $course->get_id() )
+			|| masteriyo_can_start_course( $course );
+	}
+
+	/**
+	 * IDs that passed the read check while paging a filtered collection, keyed by ID.
+	 *
+	 * @var array<int, true>
+	 */
+	protected $readable_ids = array();
+
+	/**
+	 * Page learners over the items they can read, so totals and pages do not count hidden content.
+	 *
+	 * @param array<string, mixed> $query_args WP_Query arguments.
+	 * @return array{objects: array<int, object>, total: int, pages: int}
+	 */
+	protected function get_objects( $query_args ) {
+		$this->readable_ids = array();
+
+		if ( ! $this->is_course_content_controller() || $this->current_user_edits_post_type() ) {
+			return parent::get_objects( $query_args );
+		}
+
+		$id_query = new \WP_Query();
+		$ids      = $id_query->query(
+			array_merge(
+				$query_args,
+				array(
+					'fields'         => 'ids',
+					'posts_per_page' => -1,
+					'paged'          => 1,
+					'offset'         => 0,
+					'no_found_rows'  => true,
+				)
+			)
+		);
+
+		update_meta_cache( 'post', $ids );
+
+		$courses  = array();
+		$readable = array();
+		foreach ( $ids as $id ) {
+			$id        = (int) $id;
+			$course_id = (int) get_post_meta( $id, '_course_id', true );
+
+			if ( ! isset( $courses[ $course_id ] ) ) {
+				$courses[ $course_id ] = $this->course_may_grant_read( $course_id );
+			}
+
+			// A preview lesson can open in a course the learner has not bought.
+			$preview = PostType::LESSON === $this->post_type && ! empty( get_post_meta( $id, '_enable_preview', true ) );
+
+			if ( ( $courses[ $course_id ] || $preview ) && $this->check_item_permission( $this->post_type, 'read', $id ) ) {
+				$readable[] = $id;
+			}
+		}
+		$this->readable_ids = array_fill_keys( $readable, true );
+
+		$per_page = max( 1, (int) $query_args['posts_per_page'] );
+		// WP_Query gives a numeric offset, zero included, precedence over paged.
+		$offset   = isset( $query_args['offset'] ) && is_numeric( $query_args['offset'] ) ? absint( $query_args['offset'] ) : ( max( 1, (int) $query_args['paged'] ) - 1 ) * $per_page;
+		$page_ids = array_slice( $readable, $offset, $per_page );
+
+		return array(
+			'objects' => array_filter( array_map( array( $this, 'get_object' ), $page_ids ) ),
+			'total'   => count( $readable ),
+			'pages'   => (int) ceil( count( $readable ) / $per_page ),
+		);
 	}
 
 	/**
@@ -151,7 +316,7 @@ abstract class PostsController extends CrudController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  WP_REST_Request $request Full details about the request.
+	 * @param  \WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
 	 */
 	public function get_items_permissions_check( $request ) {
@@ -170,6 +335,21 @@ abstract class PostsController extends CrudController {
 					'status' => rest_authorization_required_code(),
 				)
 			);
+		}
+
+		if ( in_array( $this->post_type, array( PostType::LESSON, PostType::QUIZ ), true ) && ! $this->current_user_edits_post_type() ) {
+			// Keep the editor's default of "any", but default learner requests to published content.
+			$defaults           = $request->get_default_params();
+			$defaults['status'] = PostStatus::PUBLISH;
+			$request->set_default_params( $defaults );
+
+			if ( PostStatus::PUBLISH !== $request['status'] ) {
+				return new \WP_Error(
+					'masteriyo_rest_cannot_read_status',
+					__( 'Sorry, you cannot list resources with this status.', 'learning-management-system' ),
+					array( 'status' => rest_authorization_required_code() )
+				);
+			}
 		}
 
 		return true;
@@ -247,7 +427,7 @@ abstract class PostsController extends CrudController {
 		if ( $post && $this->post_type !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -319,7 +499,7 @@ abstract class PostsController extends CrudController {
 		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'batch' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -361,7 +541,7 @@ abstract class PostsController extends CrudController {
 		if ( $post && $this->post_type !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -732,7 +912,7 @@ abstract class PostsController extends CrudController {
 		if ( ! $object || 0 === $object->get_id() ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -781,7 +961,7 @@ abstract class PostsController extends CrudController {
 		if ( $post && $this->post_type !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)

@@ -160,7 +160,10 @@ const AllWithdraws: React.FC = () => {
 								) : withdrawsQuery.isSuccess &&
 								  isEmpty(withdrawsQuery?.data?.data) ? (
 									<EmptyInfo
-										title={__('No Withdraws Yet', 'learning-management-system')}
+										title={__(
+											'No Withdrawals Yet',
+											'learning-management-system',
+										)}
 										isResultFiltered={Boolean(
 											filterParams?.after ||
 											filterParams?.before ||
@@ -198,7 +201,10 @@ const AllWithdraws: React.FC = () => {
 												</Th>
 												<Th>{__('Amount', 'learning-management-system')}</Th>
 												<Th>
-													{__('Withdraw Method', 'learning-management-system')}
+													{__(
+														'Withdrawal Method',
+														'learning-management-system',
+													)}
 												</Th>
 												<Th>{__('Status', 'learning-management-system')}</Th>
 												<Th>{__('Actions', 'learning-management-system')}</Th>
@@ -229,7 +235,7 @@ const AllWithdraws: React.FC = () => {
 						metaData={withdrawsQuery?.data?.meta}
 						setFilterParams={setFilterParams}
 						perPageText={__(
-							'Withdraws Per Page:',
+							'Withdrawals Per Page:',
 							'learning-management-system',
 						)}
 					/>

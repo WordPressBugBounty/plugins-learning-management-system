@@ -58,6 +58,6 @@ class UpdateSectionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing section title or order.', 'learning-management-system' );
+		return 'Update an existing section title or order.';
 	}
 }

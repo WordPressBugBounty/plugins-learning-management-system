@@ -93,7 +93,7 @@ class CohortAjaxHandler extends AjaxHandler {
 		$user_course->set_user_id( $user_id );
 		$user_course->set_price( $course->get_price() );
 		$user_course->set_status( UserCourseStatus::ACTIVE ); // mark as active immediately
-		$user_course->set_date_start( current_time( 'mysql', true ) );
+		$user_course->set_date_start( time() );
 
 		$user_course->save();
 		wp_send_json_success(

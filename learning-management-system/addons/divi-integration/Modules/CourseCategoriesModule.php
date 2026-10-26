@@ -8,7 +8,7 @@
 namespace Masteriyo\Addons\DiviIntegration\Modules;
 
 use Masteriyo\Addons\DiviIntegration\DiviModule;
-use Masteriyo\Taxonomy\Taxonomy;
+use Masteriyo\Addons\DiviIntegration\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -335,30 +335,14 @@ class CourseCategoriesModule extends DiviModule {
 		$attrs                  = array();
 		$include_sub_categories = masteriyo_string_to_bool( $props['include_sub_categories'] );
 		$hide_courses_count     = ! masteriyo_string_to_bool( $props['show_courses_count'] );
-		$args                   = array(
-			'taxonomy'   => Taxonomy::COURSE_CATEGORY,
-			'order'      => masteriyo_array_get( $props, 'order', 'ASC' ),
-			'orderby'    => masteriyo_array_get( $props, 'order_by', 'name' ),
-			'number'     => $limit,
-			'hide_empty' => false,
+		$categories             = Helper::query_course_categories(
+			array(
+				'per_page'               => $limit,
+				'order'                  => masteriyo_array_get( $props, 'order', 'ASC' ),
+				'order_by'               => masteriyo_array_get( $props, 'order_by', 'name' ),
+				'include_sub_categories' => $include_sub_categories,
+			)
 		);
-
-		if ( ! masteriyo_string_to_bool( $include_sub_categories ) ) {
-			$args['parent'] = 0;
-		}
-
-		/**
-		 * Filters the prepared query args for the course categories query in Course Categories Divi module.
-		 *
-		 * @since 1.6.13
-		 *
-		 * @param array $args
-		 */
-		$args = apply_filters( 'masteriyo_course_categories_module_prepare_query_args', $args );
-
-		$query      = new \WP_Term_Query();
-		$result     = $query->query( $args );
-		$categories = array_filter( array_map( 'masteriyo_get_course_cat', $result ) );
 
 		$attrs['count']                  = $limit;
 		$attrs['columns']                = $columns;

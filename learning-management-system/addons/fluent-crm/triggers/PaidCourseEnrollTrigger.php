@@ -92,7 +92,7 @@ class PaidCourseEnrollTrigger extends BaseTrigger {
 				),
 				'subscription_status_info' => array(
 					'type'       => 'html',
-					'info'       => '<b>' . __( 'An Automated double-option email will be sent for new subscribers', 'learning-management-system' ) . '</b>',
+					'info'       => '<b>' . __( 'An automated double opt-in email will be sent to new subscribers', 'learning-management-system' ) . '</b>',
 					'dependency' => array(
 						'depends_on' => 'subscription_status',
 						'operator'   => '=',

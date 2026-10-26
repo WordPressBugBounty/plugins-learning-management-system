@@ -14,7 +14,6 @@ import {
 	Text,
 	Tooltip,
 	useColorMode,
-	useColorModeValue,
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -27,6 +26,7 @@ import API from '../../../../../../../assets/js/back-end/utils/api';
 import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../../../../assets/js/interactive/constants/general';
 import { urls } from '../../backend/constants/urls';
 import { AnnouncementSchema } from '../../backend/types/announcement';
+import { announcementsQueryKey } from '../hooks/useAnnouncementsQuery';
 
 interface Props {
 	announcement: AnnouncementSchema;
@@ -65,20 +65,17 @@ const Message: React.FC<Props> = ({
 		mutationFn: (data: object) => announcementAPI.update(id, data),
 		onSuccess: () => {
 			// Never merge the response: its edit-context description is raw markup.
-			queryClient.setQueryData(
-				[`announcement${courseId}`, courseId],
-				(old: any) => {
-					if (!old || !old.pages) return old;
-					const newPages = old.pages.map((page: any) => {
-						if (!page || !page.data) return page;
-						const newData = page.data.map((n: any) =>
-							n.id === id ? { ...n, [`has_user_read_${id}`]: true } : n,
-						);
-						return { ...page, data: newData };
-					});
-					return { ...old, pages: newPages };
-				},
-			);
+			queryClient.setQueryData(announcementsQueryKey(courseId), (old: any) => {
+				if (!old || !old.pages) return old;
+				const newPages = old.pages.map((page: any) => {
+					if (!page || !page.data) return page;
+					const newData = page.data.map((n: any) =>
+						n.id === id ? { ...n, [`has_user_read_${id}`]: true } : n,
+					);
+					return { ...page, data: newData };
+				});
+				return { ...old, pages: newPages };
+			});
 		},
 		onError: (err: any) => {
 			toast({
@@ -100,9 +97,9 @@ const Message: React.FC<Props> = ({
 		});
 	};
 
-	const markTextAsReadColor = useColorModeValue('gray.600', 'gray.200');
-	const iconColor = useColorModeValue('#424360', 'white');
-	const titleColor = useColorModeValue('oxford-night', 'white');
+	const markTextAsReadColor = 'player.text3';
+	const iconColor = 'currentColor';
+	const titleColor = 'player.text';
 
 	return (
 		<Container
@@ -212,13 +209,7 @@ const Message: React.FC<Props> = ({
 								onClick={(e) => e.stopPropagation()}
 								disabled={updateAnnouncement.isPending}
 							/>
-							<MenuList
-								py={'10px'}
-								px={'14px'}
-								rounded={'base'}
-								border={'none'}
-								shadow={'0px 0px 20px 0px #00000012'}
-							>
+							<MenuList py={'6px'} px={'6px'} minW="160px">
 								{!isRead && (
 									<MenuItem
 										fontSize={'sm'}

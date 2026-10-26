@@ -12,6 +12,9 @@ namespace Masteriyo\Addons\MigrationTool\LMS;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
+use Masteriyo\Addons\MigrationTool\PostCloner;
+use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Enums\CommentType;
 use Masteriyo\Enums\CourseProgressItemType;
 use Masteriyo\Enums\CourseProgressStatus;
@@ -29,12 +32,20 @@ use Masteriyo\Roles;
  */
 class LearnPress {
 
+	/**
+	 * Migrator slug, the key every migration map row is written under.
+	 */
+	const SLUG = 'learnpress';
+
 	// -------------------------------------------------------------------------
 	// Batch API — count / paginate / dispatch
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Return the total number of source items for a migration step.
+	 * Count the source items a step still has to copy.
+	 *
+	 * Rows already in the migration map are left out, so a second run counts only
+	 * what is new.
 	 *
 	 * @param string $step Step name.
 	 * @return int
@@ -42,77 +53,67 @@ class LearnPress {
 	public static function count_source_items( string $step ): int {
 		global $wpdb;
 
+		$not_post = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
+				$not_user         = MigrationMap::unmapped_sql( 'user_id', self::SLUG, MigrationMap::USER );
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM (
-							SELECT DISTINCT u.ID
+							SELECT DISTINCT u.ID AS user_id
 							FROM {$wpdb->users} u
 							INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
 							WHERE um.meta_key = %s AND um.meta_value LIKE %s
 							UNION
 							SELECT DISTINCT user_id FROM {$wpdb->prefix}learnpress_user_items
 							WHERE item_type = 'lp_course'
-						) AS lp_users",
+						) AS lp_users
+						WHERE 1=1 {$not_user}",
 						$capabilities_key,
 						'%lp_teacher%'
 					)
 				);
 
 			case 'courses':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'lp_course'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'lp_course' {$not_post}" );
 
 			case 'enrollments':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->prefix}learnpress_user_items WHERE item_type = 'lp_course'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				$not_enrollment = MigrationMap::unmapped_sql( 'user_item_id', self::SLUG, 'enrollments' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}learnpress_user_items WHERE item_type = 'lp_course' {$not_enrollment}" );
 
 			case 'lesson_progress':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->prefix}learnpress_user_items WHERE item_type IN ('lp_lesson','lp_quiz')" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				$not_progress = MigrationMap::unmapped_sql( 'user_item_id', self::SLUG, 'lesson_progress' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}learnpress_user_items WHERE item_type IN ('lp_lesson','lp_quiz') {$not_progress}" );
 
 			case 'orders':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'lp_order'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'lp_order' {$not_post}" );
 
 			case 'reviews':
+				$not_comment = MigrationMap::unmapped_sql( 'c.comment_ID', self::SLUG, MigrationMap::COMMENT );
 				return (int) $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(c.comment_ID)
-						 FROM {$wpdb->comments} c
-						 INNER JOIN {$wpdb->posts} p ON c.comment_post_ID = p.ID
-						 WHERE (
-						     p.post_type = 'lp_course'
-						     OR (
-						         p.post_type = %s
-						         AND EXISTS (
-						             SELECT 1 FROM {$wpdb->postmeta}
-						             WHERE post_id = p.ID AND meta_key = '_was_lp_course'
-						         )
-						     )
-						 )
-						   AND c.comment_type IN ('course_rate', 'comment', '')
-						   AND c.comment_type != %s",
-						PostType::COURSE,
-						CommentType::COURSE_REVIEW
-					)
+					"SELECT COUNT(c.comment_ID)
+					 FROM {$wpdb->comments} c
+					 INNER JOIN {$wpdb->posts} p ON c.comment_post_ID = p.ID
+					 WHERE p.post_type = 'lp_course'
+					   AND c.comment_type IN ('course_rate', 'comment', '')
+					   {$not_comment}"
 				);
 
 			case 'quiz_results':
+				$not_result = MigrationMap::unmapped_sql( 'lur.id', self::SLUG, 'quiz_results' );
 				return (int) $wpdb->get_var(
 					"SELECT COUNT(*) FROM {$wpdb->prefix}learnpress_user_item_results lur
 					 INNER JOIN {$wpdb->prefix}learnpress_user_items lui
 					     ON lur.user_item_id = lui.user_item_id
-					 WHERE lui.item_type = 'lp_quiz'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					 WHERE lui.item_type = 'lp_quiz'
+					   {$not_result}"
 				);
 
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return 0;
 	}
@@ -120,41 +121,26 @@ class LearnPress {
 	/**
 	 * Return one batch of source IDs starting after $cursor.
 	 *
-	 * Self-cleaning steps ignore $cursor — processed rows vanish from the WHERE clause
-	 * automatically. The users step uses WHERE user_id > $cursor because role removal
-	 * does not remove the user from the UNION result set.
+	 * Every step pages by ID and leaves out rows already in the migration map. Nothing
+	 * is removed from the source, so a cursor is what moves a run forward; $exclude is
+	 * unused because a cursor never revisits a failed ID within a run.
 	 *
-	 * @param string $step   Step name.
-	 * @param int    $limit  Batch size.
-	 * @param int    $cursor Last processed ID (0 = first batch).
+	 * @param string $step    Step name.
+	 * @param int    $limit   Batch size.
+	 * @param int    $cursor  Last processed ID (0 = first batch).
+	 * @param int[]  $exclude Unused.
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
 		global $wpdb;
 
-		// NOT IN for ID-column steps.
-		$not_in      = '';
-		$not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$not_in       = "AND ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$not_in_args  = array_map( 'intval', $exclude );
-		}
-
-		// NOT IN for user_item_id-column steps.
-		$ui_not_in      = '';
-		$ui_not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders   = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$ui_not_in      = "AND user_item_id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$ui_not_in_args = array_map( 'intval', $exclude );
-		}
+		$not_post = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
-				// Cursor-based — user rows persist after role assignment; $exclude ignored.
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
+				$not_user         = MigrationMap::unmapped_sql( 'user_id', self::SLUG, MigrationMap::USER );
 				$ids              = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT user_id FROM (
@@ -167,6 +153,7 @@ class LearnPress {
 							WHERE item_type = 'lp_course'
 						) AS lp_users
 						WHERE user_id > %d
+						{$not_user}
 						ORDER BY user_id ASC
 						LIMIT %d",
 						$capabilities_key,
@@ -178,97 +165,51 @@ class LearnPress {
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'courses':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'lp_course' {$not_in} ORDER BY ID ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'lp_course', $cursor, $limit, $not_post );
 
 			case 'enrollments':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT user_item_id FROM {$wpdb->prefix}learnpress_user_items
-						 WHERE item_type = 'lp_course'
-						 {$ui_not_in}
-						 ORDER BY user_item_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $ui_not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::user_item_ids_after( "item_type = 'lp_course'", 'enrollments', $cursor, $limit );
 
 			case 'lesson_progress':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT user_item_id FROM {$wpdb->prefix}learnpress_user_items
-						 WHERE item_type IN ('lp_lesson','lp_quiz')
-						 {$ui_not_in}
-						 ORDER BY user_item_id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $ui_not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::user_item_ids_after( "item_type IN ('lp_lesson','lp_quiz')", 'lesson_progress', $cursor, $limit );
 
 			case 'orders':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'lp_order' {$not_in} ORDER BY ID ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'lp_order', $cursor, $limit, $not_post );
 
 			case 'reviews':
-				$rev_not_in      = '';
-				$rev_not_in_args = array();
-				if ( ! empty( $exclude ) ) {
-					$placeholders    = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-					$rev_not_in      = "AND c.comment_ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$rev_not_in_args = array_map( 'intval', $exclude );
-				}
-				$ids = $wpdb->get_col(
+				$not_comment = MigrationMap::unmapped_sql( 'c.comment_ID', self::SLUG, MigrationMap::COMMENT );
+				$ids         = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT c.comment_ID
 						 FROM {$wpdb->comments} c
 						 INNER JOIN {$wpdb->posts} p ON c.comment_post_ID = p.ID
-						 WHERE (
-						     p.post_type = 'lp_course'
-						     OR (
-						         p.post_type = %s
-						         AND EXISTS (
-						             SELECT 1 FROM {$wpdb->postmeta}
-						             WHERE post_id = p.ID AND meta_key = '_was_lp_course'
-						         )
-						     )
-						 )
+						 WHERE p.post_type = 'lp_course'
 						   AND c.comment_type IN ('course_rate', 'comment', '')
-						   AND c.comment_type != %s
-						   {$rev_not_in}
-						 ORDER BY c.comment_ID ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( array( PostType::COURSE, CommentType::COURSE_REVIEW ), $rev_not_in_args, array( $limit ) )
+						   AND c.comment_ID > %d
+						   {$not_comment}
+						 ORDER BY c.comment_ID ASC
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'quiz_results':
-				$qr_not_in      = '';
-				$qr_not_in_args = array();
-				if ( ! empty( $exclude ) ) {
-					$placeholders   = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-					$qr_not_in      = "AND lur.id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$qr_not_in_args = array_map( 'intval', $exclude );
-				}
-				$ids = $wpdb->get_col(
+				$not_result = MigrationMap::unmapped_sql( 'lur.id', self::SLUG, 'quiz_results' );
+				$ids        = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT lur.id
 						 FROM {$wpdb->prefix}learnpress_user_item_results lur
 						 INNER JOIN {$wpdb->prefix}learnpress_user_items lui
 						     ON lur.user_item_id = lui.user_item_id
 						 WHERE lui.item_type = 'lp_quiz'
-						 {$qr_not_in}
-						 ORDER BY lur.id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $qr_not_in_args, array( $limit ) )
+						   AND lur.id > %d
+						   {$not_result}
+						 ORDER BY lur.id ASC
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
@@ -277,6 +218,69 @@ class LearnPress {
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array();
+	}
+
+	/**
+	 * One page of post IDs of a type, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $post_type Source post type.
+	 * @param int    $cursor    Last processed ID.
+	 * @param int    $limit     Batch size.
+	 * @param string $not_post  Map exclusion fragment for the ID column.
+	 * @return int[]
+	 */
+	private static function post_ids_after( string $post_type, int $cursor, int $limit, string $not_post ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				 WHERE post_type = %s
+				   AND ID > %d
+				 {$not_post}
+				 ORDER BY ID ASC
+				 LIMIT %d",
+				$post_type,
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
+	}
+
+	/**
+	 * One page of learnpress_user_items IDs, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $where  Item type condition, e.g. "item_type = 'lp_course'".
+	 * @param string $entity Map entity the step records under.
+	 * @param int    $cursor Last processed ID.
+	 * @param int    $limit  Batch size.
+	 * @return int[]
+	 */
+	private static function user_item_ids_after( string $where, string $entity, int $cursor, int $limit ): array {
+		global $wpdb;
+
+		$not_mapped = MigrationMap::unmapped_sql( 'user_item_id', self::SLUG, $entity );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_item_id FROM {$wpdb->prefix}learnpress_user_items
+				 WHERE {$where}
+				   AND user_item_id > %d
+				 {$not_mapped}
+				 ORDER BY user_item_id ASC
+				 LIMIT %d",
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
 	}
 
 	/**
@@ -320,9 +324,10 @@ class LearnPress {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Assign Masteriyo roles to a single LearnPress user.
+	 * Give a LearnPress teacher or enrolled student the matching Masteriyo role.
 	 *
-	 * lp_teacher → Masteriyo instructor; enrolled students receive the student role.
+	 * LearnPress's own roles and capabilities stay: LearnPress keeps running until the
+	 * site owner deactivates it.
 	 *
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If the WP user record does not exist.
@@ -342,12 +347,8 @@ class LearnPress {
 		$caps     = is_array( $user->caps ) ? $user->caps : array();
 		$is_admin = in_array( 'administrator', $roles, true ) || isset( $caps['administrator'] );
 
-		if ( in_array( 'lp_teacher', $roles, true ) || isset( $caps['lp_teacher'] ) ) {
-			if ( ! $is_admin ) {
-				$user->add_role( Roles::INSTRUCTOR );
-			}
-			$user->remove_role( 'lp_teacher' );
-			$user->remove_cap( 'lp_teacher' );
+		if ( ( in_array( 'lp_teacher', $roles, true ) || isset( $caps['lp_teacher'] ) ) && ! $is_admin ) {
+			$user->add_role( Roles::INSTRUCTOR );
 			$roles = (array) $user->roles;
 			$caps  = is_array( $user->caps ) ? $user->caps : array();
 		}
@@ -387,49 +388,49 @@ class LearnPress {
 				);
 			}
 		}
+
+		MigrationMap::record( self::SLUG, MigrationMap::USER, $user_id, $user_id );
 	}
 
 	/**
-	 * Migrate a single LearnPress course to a Masteriyo mto-course.
+	 * Copy a LearnPress course with its sections, lessons, quizzes and questions into Masteriyo.
 	 *
-	 * Renames lp_lesson → mto-lesson and lp_quiz → mto-quiz in-place, creates
-	 * sections, migrates questions, and updates all course meta. Idempotent.
+	 * LearnPress's posts are read, never changed: the course, lessons and quizzes are
+	 * cloned and the clones converted; sections and questions are new posts.
 	 *
-	 * @param int $course_id LearnPress lp_course post ID.
+	 * @param int $source_course_id LearnPress lp_course post ID.
 	 * @throws \Exception If the post does not exist or is not an lp_course post.
 	 */
-	public static function migrate_single_course( int $course_id ): void {
-		$post = get_post( $course_id );
+	public static function migrate_single_course( int $source_course_id ): void {
+		$post = get_post( $source_course_id );
 
 		if ( ! $post ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_course: post %d not found.', $course_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_course: post %d not found.', $source_course_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
-		}
-
-		if ( PostType::COURSE === $post->post_type ) {
-			return; // Already migrated.
 		}
 
 		if ( 'lp_course' !== $post->post_type ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_course: post %d is not an lp_course post (got %s).', $course_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_course: post %d is not an lp_course post (got %s).', $source_course_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
 		}
 
-		self::process_course_curriculum( $course_id );
-		self::update_course_meta( $course_id );
+		$course_id = PostCloner::clone_post( self::SLUG, $source_course_id, array( 'post_type' => PostType::COURSE ) );
+
+		self::process_course_curriculum( $source_course_id, $course_id );
+		self::update_course_meta( $source_course_id, $course_id );
 	}
 
 	/**
-	 * Migrate a single LearnPress enrollment to a Masteriyo user_course item.
+	 * Copy a LearnPress enrollment (learnpress_user_items row, item_type lp_course) to a
+	 * Masteriyo user_course item on the copied course.
 	 *
-	 * Operates on one learnpress_user_items row (item_type = 'lp_course').
-	 * Idempotent: skips insert if the user is already enrolled in Masteriyo.
-	 * Deletes the source row after successful migration.
+	 * The source row stays. A user already enrolled in the copied course is recorded as
+	 * a skip so the row is not fetched again.
 	 *
 	 * @param int $user_item_id Primary key of the learnpress_user_items row.
-	 * @throws \Exception If the row is not found or the DB insert fails.
+	 * @throws \Exception If the row or its copied course is not found, or the insert fails.
 	 */
 	public static function migrate_single_enrollment( int $user_item_id ): void {
 		global $wpdb;
@@ -450,10 +451,10 @@ class LearnPress {
 		}
 
 		$user_id   = (int) $row->user_id;
-		$course_id = (int) $row->item_id;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $row->item_id, 'course' );
 
 		if ( masteriyo_is_user_already_enrolled( $user_id, $course_id ) ) {
-			$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
+			MigrationMap::record( self::SLUG, 'enrollments', $user_item_id, 0 );
 			return;
 		}
 
@@ -472,37 +473,34 @@ class LearnPress {
 			? self::parse_lp_datetime( $row->end_time, current_time( 'mysql', true ) )
 			: '0000-00-00 00:00:00';
 
-		$order_id    = (int) $row->ref_id;
-		$price       = $order_id ? (float) get_post_meta( $order_id, '_order_total', true ) : null;
-		$new_item_id = Helper::enroll_user( $user_id, $course_id, $date_start, $date_end, $status, $order_id ? $order_id : null, $price );
+		// The price is read from the LearnPress order; the copied order, when it exists
+		// already, is what the enrollment links to. Orders copied later link themselves.
+		$source_order_id = (int) $row->ref_id;
+		$order_id        = $source_order_id ? MigrationMap::target( self::SLUG, MigrationMap::POST, $source_order_id ) : 0;
+		$price           = $source_order_id ? (float) get_post_meta( $source_order_id, '_order_total', true ) : null;
+		$new_item_id     = Helper::enroll_user( $user_id, $course_id, $date_start, $date_end, $status, $order_id ? $order_id : null, $price );
 
 		if ( null === $new_item_id ) {
-			masteriyo_get_logger()->error(
-				sprintf(
-					'Migration: DB insert failed for enrollment user %d course %d: %s',
-					$user_id,
-					$course_id,
-					$wpdb->last_error
-				),
-				array( 'source' => 'migration-tool' )
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception(
+				sprintf( 'migrate_single_enrollment: DB insert failed for user %d course %d: %s', $user_id, $course_id, $wpdb->last_error )
 			);
-			$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
-			return;
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
+		MigrationMap::record( self::SLUG, 'enrollments', $user_item_id, $new_item_id );
 	}
 
 	/**
-	 * Migrate a single LearnPress lesson or quiz progress row to masteriyo_user_activities.
+	 * Copy a LearnPress lesson or quiz progress row to masteriyo_user_activities.
 	 *
-	 * Gets course_id from the _course_id postmeta on the lesson/quiz post (set during
-	 * the courses step). Writes a course_progress parent activity if one does not exist,
-	 * then writes the lesson/quiz activity. Recounts completed items to keep
-	 * course_progress status accurate. Deletes the source row after migrating.
+	 * The lesson or quiz is resolved to its copy through the migration map, and the
+	 * course from the _course_id meta the courses step wrote on that copy. Writes a
+	 * course_progress parent activity if one does not exist, then the item activity.
+	 * The source row stays.
 	 *
 	 * @param int $user_item_id Primary key of the learnpress_user_items row.
-	 * @throws \Exception If the row is not found.
+	 * @throws \Exception If the row or the copied lesson/quiz is not found.
 	 */
 	public static function migrate_single_lesson_progress( int $user_item_id ): void {
 		global $wpdb;
@@ -526,23 +524,28 @@ class LearnPress {
 		}
 
 		$user_id   = (int) $row->user_id;
-		$item_id   = (int) $row->item_id;
+		$is_quiz   = 'lp_quiz' === $row->item_type;
+		$item_id   = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $row->item_id, $is_quiz ? 'quiz' : 'lesson' );
 		$course_id = (int) get_post_meta( $item_id, '_course_id', true );
+
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $user_item_id ): void {
+			MigrationMap::record( self::SLUG, 'lesson_progress', $user_item_id, 0 );
+		};
 
 		if ( ! $course_id ) {
 			masteriyo_get_logger()->warning(
 				sprintf( 'Migration: No _course_id on %s %d (user %d) — skipping.', $row->item_type, $item_id, $user_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
+			$skip();
 			return;
 		}
 
-		$activity_type = ( 'lp_quiz' === $row->item_type ) ? CourseProgressItemType::QUIZ : CourseProgressItemType::LESSON;
+		$activity_type = $is_quiz ? CourseProgressItemType::QUIZ : CourseProgressItemType::LESSON;
 		$completed     = in_array( $row->status, array( 'completed', 'passed' ), true );
 		$date          = self::parse_lp_datetime( $row->start_time, $now );
 
-		// Find or create the course_progress parent activity.
 		$progress_id = Helper::get_or_create_course_progress( $user_id, $course_id, $date );
 
 		if ( ! $progress_id ) {
@@ -550,16 +553,16 @@ class LearnPress {
 				sprintf( 'Migration: Could not get/create course_progress for user %d course %d.', $user_id, $course_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
+			$skip();
 			return;
 		}
 
-		// Idempotency: skip if activity already exists.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$already_exists = (int) $wpdb->get_var(
+		$existing_id = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$activities_tbl}
-				 WHERE user_id = %d AND item_id = %d AND activity_type = %s AND parent_id = %d",
+				"SELECT id FROM {$activities_tbl}
+				 WHERE user_id = %d AND item_id = %d AND activity_type = %s AND parent_id = %d
+				 LIMIT 1",
 				$user_id,
 				$item_id,
 				$activity_type,
@@ -568,57 +571,70 @@ class LearnPress {
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		if ( ! $already_exists ) {
-			$activity_status = $completed ? CourseProgressStatus::COMPLETED : CourseProgressStatus::STARTED;
-			$completed_at    = $completed
-				? self::parse_lp_datetime( $row->end_time, $now )
-				: '0000-00-00 00:00:00';
-
-			$wpdb->insert(
-				$activities_tbl,
-				array(
-					'user_id'         => $user_id,
-					'item_id'         => $item_id,
-					'activity_type'   => $activity_type,
-					'activity_status' => $activity_status,
-					'parent_id'       => $progress_id,
-					'created_at'      => $date,
-					'modified_at'     => $now,
-					'completed_at'    => $completed_at,
-				),
-				array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
-			);
+		if ( $existing_id ) {
+			MigrationMap::record( self::SLUG, 'lesson_progress', $user_item_id, $existing_id );
+			return;
 		}
 
-		$wpdb->delete( $wpdb->prefix . 'learnpress_user_items', array( 'user_item_id' => $user_item_id ), array( '%d' ) );
+		$activity_status = $completed ? CourseProgressStatus::COMPLETED : CourseProgressStatus::STARTED;
+		$completed_at    = $completed
+			? self::parse_lp_datetime( $row->end_time, $now )
+			: '0000-00-00 00:00:00';
+
+		$inserted = $wpdb->insert(
+			$activities_tbl,
+			array(
+				'user_id'         => $user_id,
+				'item_id'         => $item_id,
+				'activity_type'   => $activity_type,
+				'activity_status' => $activity_status,
+				'parent_id'       => $progress_id,
+				'created_at'      => $date,
+				'modified_at'     => $now,
+				'completed_at'    => $completed_at,
+			),
+			array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+		);
+
+		if ( ! $inserted ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception(
+				sprintf( 'migrate_single_lesson_progress: failed to insert activity for row %d.', $user_item_id )
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		MigrationMap::record( self::SLUG, 'lesson_progress', $user_item_id, (int) $wpdb->insert_id );
 	}
 
 	/**
-	 * Migrate a single LearnPress order to a Masteriyo mto-order.
+	 * Copy a LearnPress order to a new Masteriyo mto-order.
 	 *
-	 * Renames lp_order → mto-order in-place with accurate status mapping.
-	 * Idempotent: returns early if already an mto-order.
+	 * The lp_order post stays. Items and meta are written on the copy, and enrollments
+	 * copied earlier from this order are linked to the copy.
 	 *
-	 * @param int $order_id LearnPress lp_order post ID.
-	 * @throws \Exception If the post does not exist or is not an lp_order post.
+	 * @param int $source_order_id LearnPress lp_order post ID.
+	 * @throws \Exception If the post is not an lp_order post or a course on it has no copy.
 	 */
-	public static function migrate_single_order( int $order_id ): void {
-		$post = get_post( $order_id );
+	public static function migrate_single_order( int $source_order_id ): void {
+		$post = get_post( $source_order_id );
 
 		if ( ! $post ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_order: post %d not found.', $order_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_order: post %d not found.', $source_order_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
-		}
-
-		if ( PostType::ORDER === $post->post_type ) {
-			return; // Already migrated.
 		}
 
 		if ( 'lp_order' !== $post->post_type ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_order: post %d is not an lp_order post (got %s).', $order_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_order: post %d is not an lp_order post (got %s).', $source_order_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
+		}
+
+		// Resolve every course first, so an order on an uncopied course fails before any write.
+		$items = self::get_lp_order_items( $source_order_id );
+		foreach ( $items as $item ) {
+			$item->course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $item->course_id, 'course' );
 		}
 
 		$status_map = array(
@@ -633,34 +649,72 @@ class LearnPress {
 		$order_time = strtotime( $post->post_date );
 		$title      = __( 'Order', 'learning-management-system' ) . ' &ndash; ' . gmdate( get_option( 'date_format' ), $order_time ) . ' @ ' . gmdate( get_option( 'time_format' ), $order_time );
 
-		wp_update_post(
+		$order_id = PostCloner::clone_post(
+			self::SLUG,
+			$source_order_id,
 			array(
-				'ID'            => $order_id,
-				'post_status'   => $mto_status,
 				'post_type'     => PostType::ORDER,
+				'post_status'   => $mto_status,
 				'post_title'    => $title,
 				'post_password' => masteriyo_generate_order_key(),
 			)
 		);
 
-		foreach ( self::get_lp_order_items( $order_id ) as $lp_order_item ) {
-			self::migrate_order_item( $lp_order_item, $order_id );
+		foreach ( $items as $item ) {
+			self::migrate_order_item( $item, $order_id );
 		}
 
 		self::migrate_order_meta( $order_id );
+		self::link_copied_enrollments( $source_order_id, $order_id );
 	}
 
 	/**
-	 * Update a LearnPress review comment to a Masteriyo course_review.
+	 * Point the Masteriyo enrollments copied from a LearnPress order at the order's copy.
 	 *
-	 * Updates comment_type in-place. Idempotent: returns early if already migrated.
+	 * The enrollments step runs before orders, so at that point the copy did not exist.
 	 *
-	 * @param int $comment_id WP comment ID.
-	 * @throws \Exception If the comment does not exist.
+	 * @param int $source_order_id LearnPress lp_order post ID.
+	 * @param int $order_id        Copied mto-order post ID.
 	 */
-	public static function migrate_single_review( int $comment_id ): void {
+	private static function link_copied_enrollments( int $source_order_id, int $order_id ): void {
 		global $wpdb;
 
+		$source_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_item_id FROM {$wpdb->prefix}learnpress_user_items WHERE item_type = 'lp_course' AND ref_id = %d",
+				$source_order_id
+			)
+		);
+
+		foreach ( MigrationMap::targets( self::SLUG, 'enrollments', array_map( 'intval', (array) $source_ids ) ) as $user_item_id ) {
+			$has_order = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT 1 FROM {$wpdb->prefix}masteriyo_user_itemmeta WHERE user_item_id = %d AND meta_key = '_order_id' LIMIT 1",
+					$user_item_id
+				)
+			);
+
+			if ( ! $has_order ) {
+				$wpdb->insert(
+					$wpdb->prefix . 'masteriyo_user_itemmeta',
+					array(
+						'user_item_id' => $user_item_id,
+						'meta_key'     => '_order_id',
+						'meta_value'   => $order_id,
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * Copy a LearnPress course comment or rating to a new Masteriyo course_review on the
+	 * copied course. The source comment stays.
+	 *
+	 * @param int $comment_id WP comment ID.
+	 * @throws \Exception If the comment or its copied course does not exist.
+	 */
+	public static function migrate_single_review( int $comment_id ): void {
 		$comment = get_comment( $comment_id );
 
 		if ( ! $comment ) {
@@ -669,19 +723,19 @@ class LearnPress {
 			);
 		}
 
-		if ( CommentType::COURSE_REVIEW === $comment->comment_type ) {
-			return; // Already migrated.
-		}
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $comment->comment_post_ID, 'course' );
 
-		$wpdb->update(
-			$wpdb->comments,
+		PostCloner::clone_comment(
+			self::SLUG,
+			$comment_id,
 			array(
+				'comment_post_ID'  => $course_id,
 				'comment_type'     => CommentType::COURSE_REVIEW,
 				'comment_approved' => 1,
 				'comment_agent'    => 'Masteriyo',
-				'comment_karma'    => $comment->comment_karma ? $comment->comment_karma : 0,
-			),
-			array( 'comment_ID' => $comment_id )
+				'comment_karma'    => $comment->comment_karma ? (int) $comment->comment_karma : 0,
+				'comment_parent'   => 0,
+			)
 		);
 	}
 
@@ -690,69 +744,106 @@ class LearnPress {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Build Masteriyo sections from the LearnPress curriculum and rename lesson/quiz posts.
+	 * Build Masteriyo sections from the LearnPress curriculum and copy its lessons and quizzes.
 	 *
-	 * @param int $course_id LearnPress course post ID.
+	 * Sections are read from learnpress_sections and written as new posts, keyed in the
+	 * map by the LearnPress section ID. Lessons and quizzes are cloned under the new
+	 * section; anything else in a section is skipped with a warning.
+	 *
+	 * @param int $source_course_id LearnPress course post ID.
+	 * @param int $course_id        Copied mto-course post ID.
 	 */
-	private static function process_course_curriculum( int $course_id ): void {
-		if ( ! function_exists( 'learn_press_get_course' ) ) {
-			return;
-		}
+	private static function process_course_curriculum( int $source_course_id, int $course_id ): void {
+		global $wpdb;
 
-		$course = \learn_press_get_course( $course_id );
+		$sections = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT section_id, section_name, section_description
+				 FROM {$wpdb->prefix}learnpress_sections
+				 WHERE section_course_id = %d
+				 ORDER BY section_order ASC, section_id ASC",
+				$source_course_id
+			)
+		);
 
-		if ( ! $course ) {
-			return;
-		}
-
-		$curriculum = $course->get_curriculum();
-
-		if ( ! $curriculum ) {
-			return;
-		}
-
+		$author        = (int) get_post_field( 'post_author', $course_id );
 		$section_order = 0;
-		foreach ( $curriculum as $section ) {
+
+		foreach ( (array) $sections as $section ) {
 			++$section_order;
 
-			$section_id = wp_insert_post(
-				array(
-					'post_type'    => PostType::SECTION,
-					'post_title'   => $section->get_title(),
-					'post_content' => $section->get_description(),
-					'post_status'  => PostStatus::PUBLISH,
-					'post_author'  => $course->get_author( 'id' ),
-					'post_parent'  => $course_id,
-					'menu_order'   => $section_order,
+			$lp_section_id = (int) $section->section_id;
+			$section_id    = MigrationMap::target( self::SLUG, 'sections', $lp_section_id );
+
+			if ( ! $section_id || ! get_post( $section_id ) ) {
+				$section_id = wp_insert_post(
+					array(
+						'post_type'    => PostType::SECTION,
+						'post_title'   => (string) $section->section_name,
+						'post_content' => (string) $section->section_description,
+						'post_status'  => PostStatus::PUBLISH,
+						'post_author'  => $author,
+						'post_parent'  => $course_id,
+						'menu_order'   => $section_order,
+					),
+					true
+				);
+
+				if ( ! $section_id || is_wp_error( $section_id ) ) {
+					masteriyo_get_logger()->error( 'Migration: Failed to insert section post.', array( 'source' => 'migration-tool' ) );
+					continue;
+				}
+
+				MigrationMap::record( self::SLUG, 'sections', $lp_section_id, $section_id );
+			} else {
+				// A section kept from a deleted course copy follows the course's new copy.
+				PostCloner::place(
+					$section_id,
+					array(
+						'post_parent' => $course_id,
+						'menu_order'  => $section_order,
+					)
+				);
+			}
+			update_post_meta( $section_id, '_course_id', $course_id );
+
+			$items = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT item_id FROM {$wpdb->prefix}learnpress_section_items
+					 WHERE section_id = %d
+					 ORDER BY item_order ASC, section_item_id ASC",
+					$lp_section_id
 				)
 			);
 
-			if ( is_wp_error( $section_id ) ) {
-				masteriyo_get_logger()->error( 'Migration: Failed to insert section post.', array( 'source' => 'migration-tool' ) );
-				continue;
-			}
-
-			update_post_meta( $section_id, '_course_id', $course_id );
-
 			$item_order = 0;
-			foreach ( $section->get_items() as $item ) {
+			foreach ( (array) $items as $item ) {
 				++$item_order;
 
-				$raw_type = \learn_press_get_post_type( $item->get_id() );
+				$source_item_id = (int) $item->item_id;
+				$raw_type       = get_post_type( $source_item_id );
 
 				if ( 'lp_quiz' === $raw_type ) {
 					$mto_type = PostType::QUIZ;
-					self::migrate_quiz_questions( $item->get_id(), $course_id );
 				} elseif ( 'lp_lesson' === $raw_type ) {
 					$mto_type = PostType::LESSON;
 				} else {
-					$mto_type = $raw_type;
+					masteriyo_get_logger()->warning(
+						sprintf( 'Migration: Curriculum item %d of course %d is a %s, not a lesson or quiz — skipping.', $source_item_id, $source_course_id, (string) $raw_type ),
+						array( 'source' => 'migration-tool' )
+					);
+					continue;
 				}
 
-				$item_id = $item->get_id();
-				wp_update_post(
+				// An item reused in several courses has one copy, kept by the first course.
+				if ( Helper::copy_kept_by_another_course( self::SLUG, 'LearnPress', $raw_type, $source_item_id, $course_id ) ) {
+					continue;
+				}
+
+				$item_id = PostCloner::clone_post(
+					self::SLUG,
+					$source_item_id,
 					array(
-						'ID'          => $item_id,
 						'post_type'   => $mto_type,
 						'post_parent' => $section_id,
 						'menu_order'  => $item_order,
@@ -760,10 +851,11 @@ class LearnPress {
 				);
 				update_post_meta( $item_id, '_course_id', $course_id );
 
-				if ( 'lp_lesson' === $raw_type ) {
+				if ( PostType::LESSON === $mto_type ) {
 					update_post_meta( $item_id, '_duration', self::parse_lp_duration( $item_id ) );
 					self::migrate_single_lesson_preview( $item_id );
-				} elseif ( 'lp_quiz' === $raw_type ) {
+				} else {
+					self::migrate_quiz_questions( $source_item_id, $item_id, $course_id );
 					self::migrate_single_quiz_meta( $item_id );
 				}
 			}
@@ -771,12 +863,13 @@ class LearnPress {
 	}
 
 	/**
-	 * Migrate all questions for a LearnPress quiz.
+	 * Copy the questions of a LearnPress quiz as new mto-question posts under the copied quiz.
 	 *
-	 * @param int $quiz_id   Quiz post ID.
-	 * @param int $course_id Course post ID.
+	 * @param int $source_quiz_id LearnPress quiz post ID.
+	 * @param int $quiz_id        Copied mto-quiz post ID.
+	 * @param int $course_id      Copied mto-course post ID.
 	 */
-	private static function migrate_quiz_questions( int $quiz_id, int $course_id ): void {
+	private static function migrate_quiz_questions( int $source_quiz_id, int $quiz_id, int $course_id ): void {
 		global $wpdb;
 
 		$questions = $wpdb->get_results(
@@ -792,7 +885,7 @@ class LearnPress {
 				LEFT JOIN {$wpdb->postmeta} question_mark_meta
 					ON question_id = question_mark_meta.post_id AND question_mark_meta.meta_key = '_lp_mark'
 				WHERE quiz_id = %d",
-				$quiz_id
+				$source_quiz_id
 			)
 		);
 
@@ -803,12 +896,32 @@ class LearnPress {
 		);
 
 		foreach ( $questions as $question ) {
-			// Handle fill_in_blanks separately — LP stores blanks as [fib fill="..." id="..."] shortcodes.
+			$lp_question_id = (int) $question->question_id;
+
+			// A LearnPress question can sit in several quizzes; one copy per quiz.
+			$existing = get_posts(
+				array(
+					'post_type'      => PostType::QUESTION,
+					'post_parent'    => $quiz_id,
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'meta_key'       => '_lp_question_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => $lp_question_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			if ( ! empty( $existing ) ) {
+				// A reused quiz copy keeps its questions; they follow it to the new course.
+				update_post_meta( (int) $existing[0], '_course_id', $course_id );
+				continue;
+			}
+
+			// LP stores blanks as [fib fill="..." id="..."] shortcodes.
 			if ( 'fill_in_blanks' === $question->question_type ) {
 				$fib_row = $wpdb->get_row(
 					$wpdb->prepare(
 						"SELECT title FROM {$wpdb->prefix}learnpress_question_answers WHERE question_id = %d LIMIT 1",
-						$question->question_id
+						$lp_question_id
 					)
 				);
 
@@ -838,7 +951,7 @@ class LearnPress {
 					)
 				);
 
-				if ( is_wp_error( $question_id ) ) {
+				if ( ! $question_id || is_wp_error( $question_id ) ) {
 					masteriyo_get_logger()->error( 'Migration: Failed to insert LearnPress FIB question post.', array( 'source' => 'migration-tool' ) );
 					continue;
 				}
@@ -847,12 +960,14 @@ class LearnPress {
 				update_post_meta( $question_id, '_type', QuestionType::FILL_IN_THE_BLANKS );
 				update_post_meta( $question_id, '_points', $question->question_mark );
 				update_post_meta( $question_id, '_parent_id', $quiz_id );
+				update_post_meta( $question_id, '_lp_question_id', $lp_question_id );
 
-				$explanation = get_post_meta( $question->question_id, '_lp_explanation', true );
+				$explanation = get_post_meta( $lp_question_id, '_lp_explanation', true );
 				if ( $explanation ) {
 					update_post_meta( $question_id, '_answer_explanation', $explanation );
 				}
 
+				MigrationMap::record( self::SLUG, MigrationMap::POST, $lp_question_id, $question_id );
 				continue;
 			}
 
@@ -862,7 +977,7 @@ class LearnPress {
 				continue;
 			}
 
-			$answers              = self::get_question_answers( $question->question_id );
+			$answers              = self::get_question_answers( $lp_question_id );
 			$question_description = sanitize_text_field( $question->post_content );
 
 			$question_id = wp_insert_post(
@@ -877,7 +992,7 @@ class LearnPress {
 				)
 			);
 
-			if ( is_wp_error( $question_id ) ) {
+			if ( ! $question_id || is_wp_error( $question_id ) ) {
 				masteriyo_get_logger()->error( 'Migration: Failed to insert LearnPress question post.', array( 'source' => 'migration-tool' ) );
 				continue;
 			}
@@ -886,16 +1001,18 @@ class LearnPress {
 			update_post_meta( $question_id, '_type', $question_type );
 			update_post_meta( $question_id, '_points', $question->question_mark );
 			update_post_meta( $question_id, '_parent_id', $quiz_id );
+			update_post_meta( $question_id, '_lp_question_id', $lp_question_id );
 
 			if ( $question_description ) {
 				update_post_meta( $question_id, '_enable_description', true );
 			}
 
-			// Copy answer explanation.
-			$explanation = get_post_meta( $question->question_id, '_lp_explanation', true );
+			$explanation = get_post_meta( $lp_question_id, '_lp_explanation', true );
 			if ( $explanation ) {
 				update_post_meta( $question_id, '_answer_explanation', $explanation );
 			}
+
+			MigrationMap::record( self::SLUG, MigrationMap::POST, $lp_question_id, $question_id );
 		}
 	}
 
@@ -928,15 +1045,18 @@ class LearnPress {
 	}
 
 	/**
-	 * Rename the lp_course post and migrate all course-level meta.
+	 * Convert the copied course's LearnPress meta to Masteriyo meta.
 	 *
-	 * @param int $course_id Course post ID.
+	 * The clone carries the source's meta and terms, so everything is read from and
+	 * written to the copy; the thumbnail arrived with the meta.
+	 *
+	 * @param int $source_course_id LearnPress course post ID.
+	 * @param int $course_id        Copied mto-course post ID.
 	 */
-	private static function update_course_meta( int $course_id ): void {
+	private static function update_course_meta( int $source_course_id, int $course_id ): void {
 		$_lp_price              = floatval( get_post_meta( $course_id, '_lp_regular_price', true ) );
 		$_lp_sale_price         = floatval( get_post_meta( $course_id, '_lp_sale_price', true ) );
 		$_lp_max_students       = (int) get_post_meta( $course_id, '_lp_max_students', true );
-		$_lp_thumbnail_id       = (int) get_post_meta( $course_id, '_thumbnail_id', true );
 		$_lp_no_required_enroll = get_post_meta( $course_id, '_lp_no_required_enroll', true );
 		$_lp_sale_start         = get_post_meta( $course_id, '_lp_sale_start', true );
 		$_lp_sale_end           = get_post_meta( $course_id, '_lp_sale_end', true );
@@ -945,13 +1065,6 @@ class LearnPress {
 
 		$price_type = ( $_lp_price > 0 ) ? 'paid' : 'free';
 		wp_set_object_terms( $course_id, $price_type, 'course_visibility', false );
-
-		wp_update_post(
-			array(
-				'ID'        => $course_id,
-				'post_type' => PostType::COURSE,
-			)
-		);
 
 		update_post_meta( $course_id, '_was_lp_course', true );
 		update_post_meta( $course_id, '_price', $_lp_price );
@@ -963,7 +1076,6 @@ class LearnPress {
 
 		update_post_meta( $course_id, '_duration', self::parse_lp_duration( $course_id ) );
 		update_post_meta( $course_id, '_enrollment_limit', $_lp_max_students );
-		update_post_meta( $course_id, '_thumbnail_id', $_lp_thumbnail_id );
 		update_post_meta( $course_id, '_show_curriculum', true );
 
 		if ( ! empty( $_lp_sale_start ) ) {
@@ -998,24 +1110,24 @@ class LearnPress {
 			update_post_meta( $course_id, '_highlights', $highlights );
 		}
 
-		self::migrate_single_course_faqs( $course_id );
+		self::migrate_single_course_faqs( $source_course_id, $course_id );
 	}
 
 	/**
-	 * Get LearnPress order items.
+	 * Get LearnPress order items with the source course each one is for.
 	 *
-	 * @param int $order_id Order post ID.
-	 * @return array Order item objects.
+	 * @param int $order_id LearnPress order post ID.
+	 * @return array Order item objects (id, name, course_id).
 	 */
 	private static function get_lp_order_items( int $order_id ): array {
 		global $wpdb;
 
-		return $wpdb->get_results(
+		return (array) $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT oi.order_item_id as id, oi.order_item_name as name,
 					oim.meta_value as course_id
-				FROM {$wpdb->learnpress_order_items} oi
-				INNER JOIN {$wpdb->learnpress_order_itemmeta} oim
+				FROM {$wpdb->prefix}learnpress_order_items oi
+				INNER JOIN {$wpdb->prefix}learnpress_order_itemmeta oim
 					ON oi.order_item_id = oim.learnpress_order_item_id AND oim.meta_key = '_course_id'
 				WHERE oi.order_id = %d",
 				$order_id
@@ -1026,8 +1138,8 @@ class LearnPress {
 	/**
 	 * Insert one LP order item into masteriyo_order_items and copy its meta.
 	 *
-	 * @param object $lp_item  LP order item object (id, name, course_id).
-	 * @param int    $order_id Order post ID.
+	 * @param object $lp_item  LP order item object (id, name, course_id); course_id is the copied course.
+	 * @param int    $order_id Copied mto-order post ID.
 	 */
 	private static function migrate_order_item( object $lp_item, int $order_id ): void {
 		global $wpdb;
@@ -1058,7 +1170,7 @@ class LearnPress {
 			array(
 				'order_item_id' => $order_item_id,
 				'meta_key'      => 'course_id',
-				'meta_value'    => masteriyo_array_get( $meta_map, '_course_id', 0 ),
+				'meta_value'    => (int) $lp_item->course_id,
 			),
 			array(
 				'order_item_id' => $order_item_id,
@@ -1183,6 +1295,8 @@ class LearnPress {
 
 		global $wpdb;
 		$tbl = $wpdb->prefix . 'masteriyo_user_activities';
+		// Only this run's copies: a course the site made natively keeps its own dates.
+		$copied = MigrationMap::targets_sql( self::SLUG, MigrationMap::POST );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
@@ -1210,19 +1324,20 @@ class LearnPress {
 			     END,
 			     parent.completed_at = IF(
 			         curriculum.curriculum_total > 0 AND completed.done >= curriculum.curriculum_total,
-			         UTC_TIMESTAMP(),
+			         COALESCE( NULLIF( parent.completed_at, '0000-00-00 00:00:00' ), UTC_TIMESTAMP() ),
 			         '0000-00-00 00:00:00'
 			     ),
 			     parent.modified_at  = UTC_TIMESTAMP()
-			 WHERE parent.activity_type = 'course_progress'"
+			 WHERE parent.activity_type = 'course_progress'
+			   AND parent.item_id IN ( {$copied} )"
 		);
 		// phpcs:enable
 	}
 
 	/**
-	 * Copy LearnPress quiz-level settings to Masteriyo postmeta.
+	 * Copy LearnPress quiz-level settings to Masteriyo postmeta on the copied quiz.
 	 *
-	 * @param int $quiz_id Quiz post ID (already renamed to mto-quiz).
+	 * @param int $quiz_id Copied mto-quiz post ID.
 	 */
 	private static function migrate_single_quiz_meta( int $quiz_id ): void {
 		$pass_mark = get_post_meta( $quiz_id, '_lp_passing_grade', true );
@@ -1252,13 +1367,18 @@ class LearnPress {
 	}
 
 	/**
-	 * Migrate one LearnPress quiz result row to masteriyo_quiz_attempts.
+	 * Copy one LearnPress quiz result row to masteriyo_quiz_attempts against the copied quiz.
+	 *
+	 * The source row stays. A result already present for the same quiz, user and start
+	 * time is recorded as a skip.
 	 *
 	 * @param int $result_id Primary key of the learnpress_user_item_results row.
-	 * @throws \Exception If the row is not found.
+	 * @throws \Exception If the row or the copied quiz is not found, or the insert fails.
 	 */
 	private static function migrate_single_quiz_result( int $result_id ): void {
 		global $wpdb;
+
+		$attempts_tbl = $wpdb->prefix . 'masteriyo_quiz_attempts';
 
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
@@ -1278,15 +1398,20 @@ class LearnPress {
 		}
 
 		$user_id   = (int) $row->user_id;
-		$quiz_id   = (int) $row->quiz_id;
+		$quiz_id   = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $row->quiz_id, 'quiz' );
 		$course_id = (int) get_post_meta( $quiz_id, '_course_id', true );
+
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $result_id ): void {
+			MigrationMap::record( self::SLUG, 'quiz_results', $result_id, 0 );
+		};
 
 		if ( ! $course_id ) {
 			masteriyo_get_logger()->warning(
 				sprintf( 'Migration: No _course_id on quiz %d (user %d) — skipping quiz result.', $quiz_id, $user_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			$wpdb->delete( $wpdb->prefix . 'learnpress_user_item_results', array( 'id' => $result_id ), array( '%d' ) );
+			$skip();
 			return;
 		}
 
@@ -1301,68 +1426,94 @@ class LearnPress {
 		$started_at   = self::parse_lp_datetime( $row->start_time, $now );
 		$ended_at     = self::parse_lp_datetime( $row->end_time, $now );
 
-		// Idempotency: skip if already migrated.
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$already = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_quiz_attempts WHERE quiz_id = %d AND user_id = %d",
+				"SELECT COUNT(*) FROM {$attempts_tbl} WHERE quiz_id = %d AND user_id = %d AND attempt_started_at = %s",
+				$quiz_id,
+				$user_id,
+				$started_at
+			)
+		);
+
+		if ( $already ) {
+			$skip();
+			return;
+		}
+
+		$total_attempts_seq = 1 + (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$attempts_tbl} WHERE quiz_id = %d AND user_id = %d",
 				$quiz_id,
 				$user_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		if ( ! $already ) {
-			$wpdb->insert(
-				$wpdb->prefix . 'masteriyo_quiz_attempts',
-				array(
-					'course_id'                => $course_id,
-					'quiz_id'                  => $quiz_id,
-					'user_id'                  => $user_id,
-					'total_questions'          => $total_q,
-					'total_answered_questions' => $answered_q,
-					'total_marks'              => $total_marks,
-					'total_attempts'           => 1,
-					'total_correct_answers'    => $correct_q,
-					'total_incorrect_answers'  => $incorrect_q,
-					'earned_marks'             => $earned_marks,
-					'answers'                  => null,
-					'attempt_status'           => 'attempt_ended',
-					'attempt_started_at'       => $started_at,
-					'attempt_ended_at'         => $ended_at,
-				),
-				array( '%d', '%d', '%d', '%d', '%d', '%f', '%d', '%d', '%d', '%f', '%s', '%s', '%s', '%s' )
+		$inserted = $wpdb->insert(
+			$attempts_tbl,
+			array(
+				'course_id'                => $course_id,
+				'quiz_id'                  => $quiz_id,
+				'user_id'                  => $user_id,
+				'total_questions'          => $total_q,
+				'total_answered_questions' => $answered_q,
+				'total_marks'              => $total_marks,
+				'total_attempts'           => $total_attempts_seq,
+				'total_correct_answers'    => $correct_q,
+				'total_incorrect_answers'  => $incorrect_q,
+				'earned_marks'             => $earned_marks,
+				'answers'                  => null,
+				'attempt_status'           => 'attempt_ended',
+				'attempt_started_at'       => $started_at,
+				'attempt_ended_at'         => $ended_at,
+			),
+			array( '%d', '%d', '%d', '%d', '%d', '%f', '%d', '%d', '%d', '%f', '%s', '%s', '%s', '%s' )
+		);
+
+		if ( ! $inserted ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception(
+				sprintf( 'migrate_single_quiz_result: failed to insert attempt for result %d.', $result_id )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$wpdb->delete( $wpdb->prefix . 'learnpress_user_item_results', array( 'id' => $result_id ), array( '%d' ) );
+		MigrationMap::record( self::SLUG, 'quiz_results', $result_id, (int) $wpdb->insert_id );
 	}
 
 	/**
-	 * Enable preview on a single migrated lesson that had _lp_preview = 'yes'.
+	 * Enable preview on a copied lesson whose LearnPress meta has _lp_preview = 'yes'.
 	 *
-	 * @param int $lesson_id mto-lesson post ID.
+	 * The copy carries the source's meta, which stays as it is on both.
+	 *
+	 * @param int $lesson_id Copied mto-lesson post ID.
 	 */
 	private static function migrate_single_lesson_preview( int $lesson_id ): void {
-		$lp_preview = get_post_meta( $lesson_id, '_lp_preview', true );
-		if ( 'yes' === $lp_preview ) {
+		if ( 'yes' === get_post_meta( $lesson_id, '_lp_preview', true ) ) {
 			update_post_meta( $lesson_id, '_enable_preview', 1 );
 		}
-		delete_post_meta( $lesson_id, '_lp_preview' );
 	}
 
 	/**
-	 * Migrate _lp_faqs from a course to mto_course_faq comments.
+	 * Copy a course's _lp_faqs to mto_course_faq comments on the copied course.
 	 *
-	 * Each FAQ entry becomes one wp_comments row (comment_type = mto_course_faq)
-	 * with the answer in comment_content and the question stored in _title commentmeta.
+	 * Each FAQ entry becomes one wp_comments row (comment_type = mto_course_faq) with
+	 * the answer in comment_content and the question in _title commentmeta. The source
+	 * meta stays; the course is recorded under 'course_faqs' so a second run skips it.
 	 *
-	 * @param int $course_id mto-course post ID.
+	 * @param int $source_course_id LearnPress course post ID.
+	 * @param int $course_id        Copied mto-course post ID.
 	 */
-	private static function migrate_single_course_faqs( int $course_id ): void {
-		$faqs = maybe_unserialize( get_post_meta( $course_id, '_lp_faqs', true ) );
+	private static function migrate_single_course_faqs( int $source_course_id, int $course_id ): void {
+		if ( MigrationMap::is_mapped( self::SLUG, 'course_faqs', $source_course_id ) ) {
+			return;
+		}
+
+		$faqs = maybe_unserialize( get_post_meta( $source_course_id, '_lp_faqs', true ) );
 
 		if ( ! is_array( $faqs ) || empty( $faqs ) ) {
-			delete_post_meta( $course_id, '_lp_faqs' );
+			MigrationMap::record( self::SLUG, 'course_faqs', $source_course_id, $course_id );
 			return;
 		}
 
@@ -1382,7 +1533,7 @@ class LearnPress {
 					'comment_post_ID'  => $course_id,
 					'comment_content'  => $answer,
 					'comment_karma'    => $menu_order,
-					'comment_approved' => 'approve',
+					'comment_approved' => CommentStatus::APPROVE,
 					'comment_type'     => 'mto_course_faq',
 					'comment_parent'   => 0,
 					'comment_date'     => $now,
@@ -1397,6 +1548,6 @@ class LearnPress {
 			++$menu_order;
 		}
 
-		delete_post_meta( $course_id, '_lp_faqs' );
+		MigrationMap::record( self::SLUG, 'course_faqs', $source_course_id, $course_id );
 	}
 }

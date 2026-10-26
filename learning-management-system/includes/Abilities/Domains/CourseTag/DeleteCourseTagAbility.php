@@ -59,6 +59,6 @@ class DeleteCourseTagAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Permanently delete a course tag. Requires id (tag ID). Deletion is immediate and irreversible. Returns the deleted tag object.', 'learning-management-system' );
+		return 'Permanently delete a course tag. Requires id (tag ID). Deletion is immediate and irreversible. Returns the deleted tag object.';
 	}
 }

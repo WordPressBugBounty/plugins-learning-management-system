@@ -58,6 +58,6 @@ class GetLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single lesson by ID including content and video settings.', 'learning-management-system' );
+		return 'Retrieve a single lesson by ID including content and video settings.';
 	}
 }

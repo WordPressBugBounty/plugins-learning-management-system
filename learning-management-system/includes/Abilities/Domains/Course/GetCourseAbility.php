@@ -58,6 +58,6 @@ class GetCourseAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single course by ID, including all its metadata and settings.', 'learning-management-system' );
+		return 'Retrieve a single course by ID, including all its metadata and settings.';
 	}
 }

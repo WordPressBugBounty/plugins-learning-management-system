@@ -14,6 +14,7 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Helper\Permission;
 
 /**
@@ -141,9 +142,12 @@ class SectionChildrenController extends CrudController {
 		$params = parent::get_collection_params();
 
 		$params['context']['default'] = 'view';
+		// Children list in the order the course shows them.
+		$params['orderby']['default'] = 'menu_order';
+		$params['order']['default']   = 'asc';
 
 		$params['section'] = array(
-			'description'       => __( 'Limit result set to resources assigned to a specific section.', 'learning-management-system' ),
+			'description'       => 'Limit result set to resources assigned to a specific section.',
 			'type'              => 'integer',
 			'default'           => null,
 			'required'          => true,
@@ -163,6 +167,8 @@ class SectionChildrenController extends CrudController {
 	protected function prepare_objects_query( $request ) {
 		$args                = parent::prepare_objects_query( $request );
 		$args['post_parent'] = $request['section'];
+		// `any` skips post types excluded from search, which every child type is.
+		$args['post_type'] = SectionChildrenPostType::all();
 		return $args;
 	}
 

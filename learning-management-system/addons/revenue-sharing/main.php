@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Revenue Sharing
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Effortlessly set up and customize revenue sharing agreements with instructors, providing a fair and transparent way to reward their hard work and dedications.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

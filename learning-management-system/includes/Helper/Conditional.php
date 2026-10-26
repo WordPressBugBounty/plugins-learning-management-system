@@ -1293,6 +1293,29 @@ function masteriyo_is_signup_page() {
 }
 
 /**
+ * Check if the current page shows the student registration form, wherever it renders.
+ *
+ * The account endpoint is one surface. The standalone `[masteriyo_student_registration]`
+ * shortcode is another, and it can sit on any page.
+ *
+ * @since 1.0.0
+ *
+ * @return boolean
+ */
+function masteriyo_is_student_registration_page() {
+	if ( masteriyo_is_signup_page() ) {
+		return true;
+	}
+
+	$post = get_post();
+
+	// The shortcode renders nothing for a signed-in visitor, so there is no form here to protect.
+	return $post instanceof \WP_Post
+		&& ! is_user_logged_in()
+		&& has_shortcode( $post->post_content, 'masteriyo_student_registration' );
+}
+
+/**
  * Check if the current page is view account page.
  *
  * @since 1.0.0

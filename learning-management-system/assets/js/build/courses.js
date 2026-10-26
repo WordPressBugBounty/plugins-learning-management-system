@@ -501,7 +501,17 @@
 					}
 
 					var pct = total > 0 ? (completed / total) * 100 : 0;
-					var titleStr = String(component).toUpperCase();
+					var localized = window._MASTERIYO_COURSES_ || {};
+					var progressLabels = localized.course_progress_labels || {};
+					var labels = localized.labels || {};
+					var titleStr = String(progressLabels[component] || component);
+					var completedText = (
+						labels.progress_completed || '%s Completed'
+					).replace('%s', completed);
+					var leftText = (labels.progress_left || '%s Left').replace(
+						'%s',
+						pending,
+					);
 					var radius = 90;
 					var circumference = 2 * Math.PI * radius;
 					var strokeDashoffset = circumference - (pct / 100) * circumference;
@@ -529,11 +539,11 @@
 						'</div>' +
 						'<div class="progress-details">' +
 						'<div class="progress-completed">' +
-						completed +
-						' Completed</div>' +
+						completedText +
+						'</div>' +
 						'<div class="progress-left">' +
-						pending +
-						' Left</div>' +
+						leftText +
+						'</div>' +
 						'</div>' +
 						'</div>' +
 						'</div>'

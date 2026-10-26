@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Brevo Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Seamlessly integrate Brevo with Masteriyo LMS for efficient and automated email marketing within your learning management system.
  * Author: Masteriyo
  * Addon Type: integration

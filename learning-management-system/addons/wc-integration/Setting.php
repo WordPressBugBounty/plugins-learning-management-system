@@ -8,6 +8,7 @@
 
 namespace Masteriyo\Addons\WcIntegration;
 
+use Masteriyo\Addons\WcIntegration\Enums\AutoRedirectType;
 use Masteriyo\Enums\OrderStatus;
 
 defined( 'ABSPATH' ) || exit;
@@ -16,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * Masteriyo WooCommerce integration setting class.
  *
  * @class Masteriyo\Addons\WcIntegration\Setting
+ *
+ * @phpstan-type AutoRedirect array{display_type: AutoRedirectType::*, page_id: int<0, max>, custom_url: string}
  */
 
 class Setting {
@@ -41,7 +44,9 @@ class Setting {
 			'enroll_btn_label_after'  => 'View Cart',
 		),
 		'auto_redirect'       => array(
-			'enable' => false,
+			'display_type' => AutoRedirectType::NONE,
+			'page_id'      => 0,
+			'custom_url'   => '',
 		),
 	);
 
@@ -90,6 +95,8 @@ class Setting {
 		$post_data     = masteriyo_array_get( $request, 'integrations.woocommerce', array() );
 		$setting_arr   = wp_parse_args( $post_data, $setting_in_db );
 
+		$setting_arr['auto_redirect'] = $this->normalize_auto_redirect( (array) $setting_arr['auto_redirect'] );
+
 		update_option( $this->name, $setting_arr );
 
 		return $setting;
@@ -107,9 +114,31 @@ class Setting {
 		$setting = get_option( $this->name, array() );
 		$setting = wp_parse_args( $setting, $this->data );
 
+		$setting['auto_redirect'] = $this->normalize_auto_redirect( (array) $setting['auto_redirect'] );
+
 		$value = $key ? masteriyo_array_get( $setting, $key, $default ) : $setting;
 
 		return $value;
+	}
+
+	/**
+	 * Sanitize the redirect destination, deriving it from the old on/off toggle on
+	 * sites that saved only that: on meant the Courses tab, off meant no redirect.
+	 *
+	 * @param array{enable?: bool|string, display_type?: string, page_id?: int|string, custom_url?: string} $auto_redirect Stored or posted value.
+	 *
+	 * @return AutoRedirect
+	 */
+	private function normalize_auto_redirect( array $auto_redirect ): array {
+		$type = $auto_redirect['display_type'] ?? (
+			masteriyo_string_to_bool( $auto_redirect['enable'] ?? false ) ? AutoRedirectType::COURSES : AutoRedirectType::NONE
+		);
+
+		return array(
+			'display_type' => in_array( $type, AutoRedirectType::all(), true ) ? $type : AutoRedirectType::NONE,
+			'page_id'      => absint( $auto_redirect['page_id'] ?? 0 ),
+			'custom_url'   => esc_url_raw( (string) ( $auto_redirect['custom_url'] ?? '' ) ),
+		);
 	}
 
 	/**

@@ -59,6 +59,6 @@ class UpdateQuizAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing quiz settings, title, or pass mark.', 'learning-management-system' );
+		return 'Update an existing quiz settings, title, or pass mark.';
 	}
 }

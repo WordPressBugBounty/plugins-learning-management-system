@@ -9,6 +9,8 @@ namespace Masteriyo\Addons\MigrationTool\LMS;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
+use Masteriyo\Addons\MigrationTool\PostCloner;
 use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Enums\CommentType;
 use Masteriyo\Enums\CourseAccessMode;
@@ -21,6 +23,11 @@ use Masteriyo\Roles;
 use WP_Query;
 
 class TutorLMS {
+
+	/**
+	 * Migrator slug, the key every migration map row is written under.
+	 */
+	const SLUG = 'tutor';
 
 	/**
 	 * Register an addon service provider in the DI container on-demand.
@@ -108,7 +115,11 @@ class TutorLMS {
 	}
 
 	/**
-	 * Count total source items for a given step. Uses fast COUNT queries — no records loaded.
+	 * Count the source items a step still has to copy. Fast COUNT queries, no records loaded.
+	 *
+	 * Rows already in the migration map are left out, so a second run counts only
+	 * what is new. Progress and wishlists are re-read every run: their source is
+	 * per-user state that grows, and copying them is idempotent.
 	 *
 	 * @param string $step Step name.
 	 * @return int
@@ -116,16 +127,22 @@ class TutorLMS {
 	public static function count_source_items( string $step ): int {
 		global $wpdb;
 
+		$not_post    = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
+		$not_comment = MigrationMap::unmapped_sql( 'comment_ID', self::SLUG, MigrationMap::COMMENT );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
+				$not_user         = MigrationMap::unmapped_sql( 'u.ID', self::SLUG, MigrationMap::USER );
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(DISTINCT u.ID)
 						 FROM {$wpdb->users} u
 						 INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
 						 WHERE um.meta_key = %s
-						   AND ( um.meta_value LIKE %s OR um.meta_value LIKE %s )",
+						   AND ( um.meta_value LIKE %s OR um.meta_value LIKE %s )
+						   {$not_user}",
 						$capabilities_key,
 						'%tutor_student%',
 						'%tutor_instructor%'
@@ -133,14 +150,11 @@ class TutorLMS {
 				);
 
 			case 'courses':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'courses'"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'courses' {$not_post}" );
 
 			case 'enrollments':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor_enrolled'"
-				);
+				$not_enrollment = MigrationMap::unmapped_sql( 'ID', self::SLUG, 'enrollments' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor_enrolled' {$not_enrollment}" );
 
 			case 'orders':
 				if ( ! function_exists( 'tutor_utils' ) ) {
@@ -151,38 +165,29 @@ class TutorLMS {
 					return 0; // WC orders handled inside enrollments step.
 				}
 				if ( 'edd' === $monetize_by ) {
-					return (int) $wpdb->get_var(
-						"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'edd_payment'"
-					);
+					return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'edd_payment' {$not_post}" );
 				}
 				if ( 'tutor' === $monetize_by ) {
 					$orders_tbl = $wpdb->prefix . 'tutor_orders';
 					if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders_tbl ) ) ) {
 						return 0;
 					}
-					return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_tbl}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$not_order = MigrationMap::unmapped_sql( 'id', self::SLUG, 'orders' );
+					return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_tbl} WHERE 1=1 {$not_order}" );
 				}
 				return 0;
 
 			case 'reviews':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_type = 'tutor_course_rating'"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_type = 'tutor_course_rating' {$not_comment}" );
 
 			case 'announcement':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor_announcements'"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor_announcements' {$not_post}" );
 
 			case 'questions_n_answers':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_type = 'tutor_q_and_a' AND comment_parent = 0"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_type = 'tutor_q_and_a' AND comment_parent = 0 {$not_comment}" );
 
 			case 'progress':
-				// Count tutor_enrolled CPTs where the student has at least one lesson
-				// completion in usermeta. Uses TutorLMS source data so this is valid at
-				// session start (before the enrollment step deletes the CPTs).
+				// Enrollments whose student has completed at least one lesson in Tutor.
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(DISTINCT p.ID)
@@ -200,18 +205,16 @@ class TutorLMS {
 				);
 
 			case 'quiz_attempts':
-				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tutor_quiz_attempts" );
+				$not_attempt = MigrationMap::unmapped_sql( 'attempt_id', self::SLUG, 'quiz_attempts' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tutor_quiz_attempts WHERE 1=1 {$not_attempt}" );
 
 			case 'google_meet':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor-google-meet'"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'tutor-google-meet' {$not_post}" );
 
 			case 'wishlists':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} WHERE meta_key = '_tutor_course_wishlist'"
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} WHERE meta_key = '_tutor_course_wishlist'" );
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return 0;
 	}
@@ -219,84 +222,52 @@ class TutorLMS {
 	/**
 	 * Return one batch of source IDs starting after $cursor.
 	 *
-	 * @param string $step   Step name.
-	 * @param int    $limit  Batch size.
-	 * @param int    $cursor Last processed ID (0 = first batch).
+	 * Every step pages by ID and leaves out rows already in the migration map. Nothing
+	 * is removed from the source, so nothing is "self-cleaning" any more; $exclude is
+	 * unused because a cursor never revisits a failed ID within a run.
+	 *
+	 * @param string $step    Step name.
+	 * @param int    $limit   Batch size.
+	 * @param int    $cursor  Last processed ID (0 = first batch).
+	 * @param int[]  $exclude Unused.
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
 		global $wpdb;
 
-		// NOT IN for ID-column self-cleaning steps.
-		$not_in      = '';
-		$not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$not_in       = "AND ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$not_in_args  = array_map( 'intval', $exclude );
-		}
-
-		// NOT IN for comment_ID-column self-cleaning steps.
-		$c_not_in      = '';
-		$c_not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders  = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$c_not_in      = "AND comment_ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$c_not_in_args = array_map( 'intval', $exclude );
-		}
+		$not_post    = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
+		$not_comment = MigrationMap::unmapped_sql( 'comment_ID', self::SLUG, MigrationMap::COMMENT );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
-				// No OFFSET — migrate_single_user removes tutor roles, processed users vanish automatically.
-				$u_not_in      = '';
-				$u_not_in_args = array();
-				if ( ! empty( $exclude ) ) {
-					$placeholders  = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-					$u_not_in      = "AND u.ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$u_not_in_args = array_map( 'intval', $exclude );
-				}
-				$ids = $wpdb->get_col(
+				$not_user         = MigrationMap::unmapped_sql( 'u.ID', self::SLUG, MigrationMap::USER );
+				$ids              = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT DISTINCT u.ID
 						 FROM {$wpdb->users} u
 						 INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
 						 WHERE um.meta_key = %s
 						   AND ( um.meta_value LIKE %s OR um.meta_value LIKE %s )
-						   {$u_not_in}
+						   AND u.ID > %d
+						   {$not_user}
 						 ORDER BY u.ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( array( $capabilities_key, '%tutor_student%', '%tutor_instructor%' ), $u_not_in_args, array( $limit ) )
+						 LIMIT %d",
+						$capabilities_key,
+						'%tutor_student%',
+						'%tutor_instructor%',
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'courses':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'courses'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'courses', $cursor, $limit, $not_post );
 
 			case 'enrollments':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'tutor_enrolled'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'tutor_enrolled', $cursor, $limit, MigrationMap::unmapped_sql( 'ID', self::SLUG, 'enrollments' ) );
 
 			case 'orders':
 				if ( ! function_exists( 'tutor_utils' ) ) {
@@ -307,37 +278,23 @@ class TutorLMS {
 					return array(); // WC orders handled inside enrollments step.
 				}
 				if ( 'edd' === $monetize_by ) {
-					$ids = $wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT ID FROM {$wpdb->posts}
-							 WHERE post_type = 'edd_payment'
-							 {$not_in}
-							 ORDER BY ID ASC
-							 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							array_merge( $not_in_args, array( $limit ) )
-						)
-					);
-					return array_map( 'intval', $ids ? $ids : array() );
+					return self::post_ids_after( 'edd_payment', $cursor, $limit, $not_post );
 				}
 				if ( 'tutor' === $monetize_by ) {
 					$orders_tbl = $wpdb->prefix . 'tutor_orders';
 					if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders_tbl ) ) ) {
 						return array();
 					}
-					$order_not_in      = '';
-					$order_not_in_args = array();
-					if ( ! empty( $exclude ) ) {
-						$placeholders      = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-						$order_not_in      = "WHERE id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						$order_not_in_args = array_map( 'intval', $exclude );
-					}
-					$ids = $wpdb->get_col(
+					$not_order = MigrationMap::unmapped_sql( 'id', self::SLUG, 'orders' );
+					$ids       = $wpdb->get_col(
 						$wpdb->prepare(
 							"SELECT id FROM {$orders_tbl}
-							 {$order_not_in}
+							 WHERE id > %d
+							 {$not_order}
 							 ORDER BY id ASC
-							 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							array_merge( $order_not_in_args, array( $limit ) )
+							 LIMIT %d",
+							$cursor,
+							$limit
 						)
 					);
 					return array_map( 'intval', $ids ? $ids : array() );
@@ -349,55 +306,50 @@ class TutorLMS {
 					$wpdb->prepare(
 						"SELECT comment_ID FROM {$wpdb->comments}
 						 WHERE comment_type = 'tutor_course_rating'
-						 {$c_not_in}
+						   AND comment_ID > %d
+						 {$not_comment}
 						 ORDER BY comment_ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $c_not_in_args, array( $limit ) )
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'announcement':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'tutor_announcements'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'tutor_announcements', $cursor, $limit, $not_post );
 
 			case 'questions_n_answers':
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT comment_ID FROM {$wpdb->comments}
 						 WHERE comment_type = 'tutor_q_and_a' AND comment_parent = 0
-						 {$c_not_in}
+						   AND comment_ID > %d
+						 {$not_comment}
 						 ORDER BY comment_ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $c_not_in_args, array( $limit ) )
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'progress':
-				// Cursor-based — source row is not deleted; $exclude ignored.
+				// Re-read every run: a student can complete more lessons in Tutor between runs.
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT mui.id
-						 FROM {$wpdb->prefix}masteriyo_user_items mui
-						 WHERE mui.item_type = 'user_course'
-						   AND mui.id > %d
+						"SELECT p.ID
+						 FROM {$wpdb->posts} p
+						 WHERE p.post_type = 'tutor_enrolled'
+						   AND p.post_status != 'trash'
+						   AND p.ID > %d
 						   AND EXISTS (
 						       SELECT 1 FROM {$wpdb->usermeta} um
-						       WHERE um.user_id = mui.user_id
+						       WHERE um.user_id = p.post_author
 						         AND um.meta_key LIKE %s
 						         AND um.meta_value != ''
 						   )
-						 ORDER BY mui.id ASC
+						 ORDER BY p.ID ASC
 						 LIMIT %d",
 						$cursor,
 						$wpdb->esc_like( '_tutor_completed_lesson_id_' ) . '%',
@@ -407,26 +359,22 @@ class TutorLMS {
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'quiz_attempts':
-				$qa_not_in      = '';
-				$qa_not_in_args = array();
-				if ( ! empty( $exclude ) ) {
-					$placeholders   = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-					$qa_not_in      = "WHERE attempt_id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$qa_not_in_args = array_map( 'intval', $exclude );
-				}
-				$ids = $wpdb->get_col(
+				$not_attempt = MigrationMap::unmapped_sql( 'attempt_id', self::SLUG, 'quiz_attempts' );
+				$ids         = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT attempt_id FROM {$wpdb->prefix}tutor_quiz_attempts
-						 {$qa_not_in}
+						 WHERE attempt_id > %d
+						 {$not_attempt}
 						 ORDER BY attempt_id ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $qa_not_in_args, array( $limit ) )
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'wishlists':
-				// Cursor-based — source row is not deleted; $exclude ignored.
+				// Re-read every run: wishlists grow, and copying an entry twice is a no-op.
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT DISTINCT user_id FROM {$wpdb->usermeta}
@@ -441,22 +389,43 @@ class TutorLMS {
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'google_meet':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'tutor-google-meet'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'tutor-google-meet', $cursor, $limit, $not_post );
 
 		}
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array();
+	}
+
+	/**
+	 * One page of post IDs of a type, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $post_type Source post type.
+	 * @param int    $cursor    Last processed ID.
+	 * @param int    $limit     Batch size.
+	 * @param string $not_post  Map exclusion fragment for the ID column.
+	 * @return int[]
+	 */
+	private static function post_ids_after( string $post_type, int $cursor, int $limit, string $not_post ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				 WHERE post_type = %s
+				   AND ID > %d
+				 {$not_post}
+				 ORDER BY ID ASC
+				 LIMIT %d",
+				$post_type,
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
 	}
 
 	/**
@@ -466,12 +435,20 @@ class TutorLMS {
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {
+		if ( 'courses' === $step ) {
+			Helper::relink_prerequisites( self::SLUG );
+			return;
+		}
+
 		if ( 'progress' !== $step ) {
 			return;
 		}
 
 		global $wpdb;
 		$tbl = $wpdb->prefix . 'masteriyo_user_activities';
+		// Only this run's copies: a course the site made natively keeps its own dates.
+		// A course already completed keeps the date it was first completed on a rerun.
+		$copied = MigrationMap::targets_sql( self::SLUG, MigrationMap::POST );
 
 		$lesson_type = PostType::LESSON;
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -499,18 +476,22 @@ class TutorLMS {
 			     END,
 			     parent.completed_at = IF(
 			         curriculum.curriculum_total > 0 AND completed.done >= curriculum.curriculum_total,
-			         UTC_TIMESTAMP(),
+			         COALESCE( NULLIF( parent.completed_at, '0000-00-00 00:00:00' ), UTC_TIMESTAMP() ),
 			         '0000-00-00 00:00:00'
 			     ),
 			     parent.modified_at  = UTC_TIMESTAMP()
 			 WHERE parent.activity_type = 'course_progress'
-			   AND completed.done       > 0"
+			   AND completed.done       > 0
+			   AND parent.item_id IN ( {$copied} )"
 		);
 		// phpcs:enable
 	}
 
 	/**
-	 * Migrate a single TutorLMS student/instructor user to a Masteriyo student/instructor.
+	 * Give a Tutor student or instructor the matching Masteriyo role.
+	 *
+	 * Tutor's own roles and capabilities stay: Tutor keeps running until the site
+	 * owner deactivates it.
 	 *
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If user does not exist.
@@ -526,66 +507,52 @@ class TutorLMS {
 
 		if ( in_array( 'tutor_student', $roles, true ) || isset( $caps['tutor_student'] ) ) {
 			$user->add_role( Roles::STUDENT );
-			$user->remove_role( 'tutor_student' );
-			$user->remove_cap( 'tutor_student' );
 		}
 
 		if ( in_array( 'tutor_instructor', $roles, true ) || isset( $caps['tutor_instructor'] ) ) {
 			if ( ! in_array( 'administrator', $roles, true ) && ! isset( $caps['administrator'] ) ) {
 				$user->add_role( Roles::INSTRUCTOR );
 			}
-			$user->remove_role( 'tutor_instructor' );
-			$user->remove_cap( 'tutor_instructor' );
 		}
 
-		// Migrate profile bio/photo for all users (instructors also handled via migrate_single_course,
-		// but the _masteriyo_profile_migrated guard prevents double-processing).
+		// Instructors are also handled via migrate_single_course; the guard prevents double-processing.
 		if ( ! get_user_meta( $user_id, '_masteriyo_profile_migrated', true ) ) {
 			static::migrate_instructor_profile( $user_id );
 			update_user_meta( $user_id, '_masteriyo_profile_migrated', '1' );
 		}
+
+		MigrationMap::record( self::SLUG, MigrationMap::USER, $user_id, $user_id );
 	}
 
 	/**
-	 * Migrate a single TutorLMS course CPT to Masteriyo.
+	 * Copy a Tutor course with its topics, lessons, quizzes and questions into Masteriyo.
 	 *
-	 * Renames 'courses' → 'mto-course', assigns instructor role, migrates
-	 * course meta/sections/lessons/quizzes/wishlist entries.
-	 * Does NOT process enrollments — those are owned by the 'enrollments' step.
+	 * Tutor's posts are read, never changed: each is cloned and the clone converted.
+	 * Enrollments are owned by the 'enrollments' step.
 	 *
-	 * @param int $course_id TutorLMS course post ID.
+	 * @param int $source_course_id Tutor course post ID.
 	 * @throws \Exception If the post record does not exist.
 	 */
-	public static function migrate_single_course( int $course_id ): void {
-		global $wpdb;
-
-		$course = get_post( $course_id );
+	public static function migrate_single_course( int $source_course_id ): void {
+		$course = get_post( $source_course_id );
 		if ( ! $course ) {
-			throw new \Exception( sprintf( 'migrate_single_course: post %d not found.', $course_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception( sprintf( 'migrate_single_course: post %d not found.', $source_course_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$new_status = 'pending' === $course->post_status ? 'draft' : $course->post_status;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->update(
-			$wpdb->posts,
+		$course_id = PostCloner::clone_post(
+			self::SLUG,
+			$source_course_id,
 			array(
 				'post_type'   => PostType::COURSE,
-				'post_status' => $new_status,
-			),
-			array( 'ID' => $course_id ),
-			array( '%s', '%s' ),
-			array( '%d' )
+				'post_status' => 'pending' === $course->post_status ? 'draft' : $course->post_status,
+			)
 		);
-		clean_post_cache( $course_id );
 
 		if ( 0 !== (int) $course->post_author ) {
 			$user_id = (int) $course->post_author;
 			$user    = new \WP_User( $user_id );
 			if ( $user->exists() ) {
-				$user->remove_role( 'tutor_instructor' );
 				$user->remove_role( Roles::STUDENT );
-				delete_user_meta( $user_id, '_tutor_instructor_status' );
-				delete_user_meta( $user_id, '_is_tutor_instructor' );
 				if ( ! in_array( 'administrator', (array) $user->roles, true ) ) {
 					$user->add_role( Roles::INSTRUCTOR );
 				}
@@ -598,7 +565,7 @@ class TutorLMS {
 
 		static::update_masteriyo_course_from_tutor( $course_id );
 
-		// For EDD: set product→course meta so migrate_single_order() can resolve course_id.
+		// For EDD: point the download at the copied course so migrate_single_order() can resolve it.
 		if ( function_exists( 'tutor_utils' ) && 'edd' === \tutor_utils()->get_option( 'monetize_by' ) ) {
 			$product_id = (int) get_post_meta( $course_id, '_tutor_course_product_id', true );
 			if ( $product_id && function_exists( 'edd_get_download' ) && \edd_get_download( $product_id ) ) {
@@ -612,7 +579,7 @@ class TutorLMS {
 		$sections = get_posts(
 			array(
 				'post_type'      => 'topics',
-				'post_parent'    => $course_id,
+				'post_parent'    => $source_course_id,
 				'posts_per_page' => -1,
 				'orderby'        => 'menu_order',
 				'order'          => 'ASC',
@@ -621,19 +588,14 @@ class TutorLMS {
 		);
 
 		foreach ( $sections as $section ) {
-			$section_id = $section->ID;
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->update(
-				$wpdb->posts,
+			$section_id = PostCloner::clone_post(
+				self::SLUG,
+				$section->ID,
 				array(
 					'post_type'   => PostType::SECTION,
 					'post_parent' => $course_id,
-				),
-				array( 'ID' => $section_id ),
-				array( '%s', '%d' ),
-				array( '%d' )
+				)
 			);
-			clean_post_cache( $section_id );
 
 			$mto_section = masteriyo_get_section( $section_id );
 			if ( $mto_section ) {
@@ -644,7 +606,7 @@ class TutorLMS {
 			$items = get_posts(
 				array(
 					'post_type'      => array( 'lesson', 'tutor_quiz', 'tutor_assignments' ),
-					'post_parent'    => $section_id,
+					'post_parent'    => $section->ID,
 					'posts_per_page' => -1,
 					'orderby'        => 'menu_order',
 					'order'          => 'ASC',
@@ -659,23 +621,24 @@ class TutorLMS {
 				 * Fires for each TutorLMS curriculum item during the courses step.
 				 *
 				 * TutorLMS section children the shared migration does not handle —
-				 * assignments — are migrated here.
+				 * assignments — are copied here.
 				 *
-				 * @param \WP_Post $item       TutorLMS curriculum item post object.
-				 * @param int      $section_id Masteriyo section post ID.
-				 * @param int      $course_id  Masteriyo course post ID.
+				 * @param \WP_Post $item       TutorLMS curriculum item post object (the source).
+				 * @param int      $section_id Masteriyo section post ID (the copy).
+				 * @param int      $course_id  Masteriyo course post ID (the copy).
 				 */
 				do_action( 'masteriyo_migration_tool_tutorlms_curriculum_item', $item, $section_id, $course_id );
 			}
 		}
-
 	}
 
 	/**
-	 * Migrate a single TutorLMS enrollment (tutor_enrolled CPT) to a Masteriyo user_course record.
+	 * Copy a single TutorLMS enrollment (tutor_enrolled CPT) to a Masteriyo user_course record.
+	 *
+	 * The tutor_enrolled post stays.
 	 *
 	 * @param int $enrollment_post_id Post ID of the tutor_enrolled CPT.
-	 * @throws \Exception If the enrollment post or its user does not exist.
+	 * @throws \Exception If the enrollment post, its user or its copied course does not exist, or the Masteriyo enrollment did not save.
 	 */
 	public static function migrate_single_enrollment( int $enrollment_post_id ): void {
 		$enrolled_post = get_post( $enrollment_post_id );
@@ -687,7 +650,7 @@ class TutorLMS {
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$course_id = (int) $enrolled_post->post_parent;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $enrolled_post->post_parent, 'course' );
 		$user_id   = (int) $enrolled_post->post_author;
 		$user      = get_userdata( $user_id );
 
@@ -699,10 +662,10 @@ class TutorLMS {
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$email  = sanitize_email( $user->user_email );
-		$result = static::update_tutor_enrolled_user_to_masteriyo_enrolled_user( $course_id, $email, $enrolled_post );
+		$email          = sanitize_email( $user->user_email );
+		$user_course_id = static::update_tutor_enrolled_user_to_masteriyo_enrolled_user( $course_id, $email, $enrolled_post );
 
-		if ( false !== $result && function_exists( 'tutor_utils' ) ) {
+		if ( function_exists( 'tutor_utils' ) ) {
 			$order_id    = get_post_meta( $enrollment_post_id, '_tutor_enrolled_by_order_id', true );
 			$monetize_by = \tutor_utils()->get_option( 'monetize_by' );
 			if ( 'wc' === $monetize_by && $order_id ) {
@@ -710,16 +673,18 @@ class TutorLMS {
 			}
 		}
 
-		wp_delete_post( $enrollment_post_id, true );
+		// Not the post entity: the target is a user-items row, not a post.
+		MigrationMap::record( self::SLUG, 'enrollments', $enrollment_post_id, $user_course_id );
 	}
 
 	/**
-	 * Migrate a single order for EDD or Tutor native checkout to a Masteriyo mto-order.
+	 * Copy a single order for EDD or Tutor native checkout to a Masteriyo mto-order.
 	 *
 	 * WC orders are handled inside migrate_single_enrollment() — this method is a no-op for WC.
+	 * The EDD payment and the Tutor order row stay.
 	 *
 	 * @param int $order_id EDD payment post ID or Tutor native order ID.
-	 * @throws \Exception If the order or its course cannot be resolved.
+	 * @throws \Exception If the order or its copied course cannot be resolved.
 	 */
 	public static function migrate_single_order( int $order_id ): void {
 		global $wpdb;
@@ -739,6 +704,7 @@ class TutorLMS {
 				throw new \Exception( sprintf( 'migrate_single_order: EDD payment %d not found.', $order_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
 
+			// The courses step points the download at the copied course.
 			$course_id = 0;
 			foreach ( (array) $payment->cart_details as $item ) {
 				$product_id = (int) ( $item['id'] ?? 0 );
@@ -750,44 +716,33 @@ class TutorLMS {
 				}
 			}
 
-			if ( ! $course_id ) {
+			if ( ! $course_id || PostType::COURSE !== get_post_type( $course_id ) ) {
 				masteriyo_get_logger()->warning(
-					sprintf(
-						'Order %d skipped: no linked course found. Make sure the Courses step is complete before Orders.',
-						$order_id
-					),
+					sprintf( 'Order %d skipped: no copied course is linked to it. Make sure the Courses step is complete before Orders.', $order_id ),
 					array( 'source' => 'migration-tool' )
 				);
+				MigrationMap::record( self::SLUG, MigrationMap::POST, $order_id, 0 );
 				return;
 			}
 
-			if ( PostType::COURSE !== get_post_type( $course_id ) ) {
-				masteriyo_get_logger()->warning(
-					sprintf(
-						'Order %d skipped: course %d has not been migrated yet. Complete the Courses step first.',
-						$order_id,
-						$course_id
-					),
-					array( 'source' => 'migration-tool' )
-				);
-				return;
+			$copy_id = static::insert_edd_order( $order_id, $course_id );
+			if ( ! $copy_id ) {
+				throw new \Exception( sprintf( 'migrate_single_order: could not copy EDD payment %d.', $order_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
-
-			static::insert_edd_order( $order_id, $course_id );
-			wp_delete_post( $order_id, true );
+			MigrationMap::record( self::SLUG, MigrationMap::POST, $order_id, $copy_id );
 			return;
 		}
 
 		if ( 'tutor' === $monetize_by ) {
-			$course_id = (int) $wpdb->get_var(
+			$source_course_id = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT item_id FROM {$wpdb->prefix}tutor_order_items WHERE order_id = %d LIMIT 1",
 					$order_id
 				)
 			);
 
-			if ( ! $course_id ) {
-				$course_id = (int) $wpdb->get_var(
+			if ( ! $source_course_id ) {
+				$source_course_id = (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT p.post_parent
 						 FROM {$wpdb->postmeta} pm
@@ -801,7 +756,7 @@ class TutorLMS {
 				);
 			}
 
-			if ( ! $course_id ) {
+			if ( ! $source_course_id ) {
 				// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				throw new \Exception(
 					sprintf( 'migrate_single_order: cannot resolve course_id for Tutor order %d.', $order_id )
@@ -809,23 +764,22 @@ class TutorLMS {
 				// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
 
-			if ( PostType::COURSE !== get_post_type( $course_id ) ) {
-				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-				throw new \Exception( sprintf( 'Order %d: course %d was not migrated.', $order_id, $course_id ) );
-			}
+			$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
 
-			static::insert_tutor_native_order( $order_id, $course_id );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->delete( $wpdb->prefix . 'tutor_orders', array( 'id' => $order_id ), array( '%d' ) );
+			$copy_id = static::insert_tutor_native_order( $order_id, $course_id );
+			if ( ! $copy_id ) {
+				throw new \Exception( sprintf( 'migrate_single_order: could not copy Tutor order %d.', $order_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			}
+			MigrationMap::record( self::SLUG, 'orders', $order_id, $copy_id );
 			return;
 		}
 	}
 
 	/**
-	 * Migrate a single TutorLMS course rating comment to a Masteriyo course_review.
+	 * Copy a single TutorLMS course rating comment to a new Masteriyo course_review.
 	 *
 	 * @param int $comment_id WP comment ID of the tutor_course_rating comment.
-	 * @throws \Exception If the comment does not exist.
+	 * @throws \Exception If the comment or its copied course does not exist.
 	 */
 	public static function migrate_single_review( int $comment_id ): void {
 		$review = get_comment( $comment_id );
@@ -833,33 +787,36 @@ class TutorLMS {
 			throw new \Exception( sprintf( 'migrate_single_review: comment %d not found.', $comment_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $review->comment_post_ID, 'course' );
+
 		$rating_raw    = get_comment_meta( $comment_id, 'tutor_rating', true );
 		$rating        = ( '' !== $rating_raw && false !== $rating_raw ) ? $rating_raw : $review->comment_karma;
 		$content       = $review->comment_content ?? '';
 		$content_title = wp_trim_words( $content, 15, '...' );
 
-		wp_update_comment(
+		$copy_id = PostCloner::clone_comment(
+			self::SLUG,
+			$comment_id,
 			array(
-				'comment_ID'       => $comment_id,
-				'comment_content'  => $content,
+				'comment_post_ID'  => $course_id,
 				'comment_approved' => in_array( $review->comment_approved ?? '', array( 'approved', '1', 1 ), true ) ? CommentStatus::APPROVE : CommentStatus::HOLD,
 				'comment_type'     => CommentType::COURSE_REVIEW,
 				'comment_agent'    => 'Masteriyo',
 				'comment_karma'    => (int) $rating,
-				'comment_parent'   => (int) $review->comment_parent,
+				'comment_parent'   => 0,
 			)
 		);
 
-		update_comment_meta( $comment_id, '_title', $content_title );
-		update_comment_meta( $comment_id, '_rating', (float) $rating );
-		delete_comment_meta( $comment_id, 'tutor_rating' );
+		update_comment_meta( $copy_id, '_title', $content_title );
+		update_comment_meta( $copy_id, '_rating', (float) $rating );
+		delete_comment_meta( $copy_id, 'tutor_rating' );
 	}
 
 	/**
-	 * Migrate a single tutor-announcements post to a Masteriyo course announcement.
+	 * Copy a single tutor-announcements post to a new Masteriyo course announcement.
 	 *
 	 * @param int $post_id tutor-announcements post ID.
-	 * @throws \Exception If the post does not exist.
+	 * @throws \Exception If the post or its copied course does not exist.
 	 */
 	public static function migrate_single_announcement( int $post_id ): void {
 		$announcement = get_post( $post_id );
@@ -867,29 +824,29 @@ class TutorLMS {
 			throw new \Exception( sprintf( 'migrate_single_announcement: post %d not found.', $post_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$course_id = (int) $announcement->post_parent;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $announcement->post_parent, 'course' );
 
-		wp_update_post(
+		$copy_id = PostCloner::clone_post(
+			self::SLUG,
+			$post_id,
 			array(
-				'ID'          => $post_id,
 				'post_type'   => PostType::COURSEANNOUNCEMENT,
 				'post_status' => in_array( $announcement->post_status, array( 'publish', 'draft' ), true )
 					? $announcement->post_status
 					: PostStatus::PUBLISH,
-				'post_author' => $announcement->post_author,
 				'ping_status' => 'closed',
 				'post_parent' => 0,
 			)
 		);
 
-		update_post_meta( $post_id, '_course_id', $course_id );
+		update_post_meta( $copy_id, '_course_id', $course_id );
 	}
 
 	/**
-	 * Migrate a single TutorLMS Q&A thread (parent question + all replies) to Masteriyo course_qa.
+	 * Copy a single TutorLMS Q&A thread (parent question + all replies) to new Masteriyo course_qa comments.
 	 *
 	 * @param int $comment_id Parent Q&A comment ID.
-	 * @throws \Exception If the parent comment does not exist.
+	 * @throws \Exception If the parent comment or its copied course does not exist.
 	 */
 	public static function migrate_single_qa( int $comment_id ): void {
 		$question = get_comment( $comment_id );
@@ -897,60 +854,62 @@ class TutorLMS {
 			throw new \Exception( sprintf( 'migrate_single_qa: comment %d not found.', $comment_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$question_data_tutors = \tutor_utils()->get_qa_answer_by_question( $comment_id );
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $question->comment_post_ID, 'course' );
+		$approved  = function( $comment ) {
+			return in_array( $comment->comment_approved ?? '', array( 'approved', '1', 1 ), true ) ? CommentStatus::APPROVE : CommentStatus::HOLD;
+		};
 
-		foreach ( (array) $question_data_tutors as $qa ) {
-			$result = wp_update_comment(
-				array(
-					'comment_ID'       => $qa->comment_ID,
-					'comment_type'     => CommentType::COURSE_QA,
-					'comment_approved' => in_array( $qa->comment_approved ?? '', array( 'approved', '1', 1 ), true ) ? CommentStatus::APPROVE : CommentStatus::HOLD,
-					'comment_agent'    => 'Masteriyo',
-				)
-			);
-
-			if ( is_wp_error( $result ) ) {
-				masteriyo_get_logger()->error(
-					sprintf( 'Could not update Q&A comment %d.', $qa->comment_ID ),
-					array( 'source' => 'migration-tool' )
-				);
-			}
-		}
-
-		wp_update_comment(
+		$copy_id = PostCloner::clone_comment(
+			self::SLUG,
+			$comment_id,
 			array(
-				'comment_ID'       => $comment_id,
+				'comment_post_ID'  => $course_id,
 				'comment_type'     => CommentType::COURSE_QA,
-				'comment_approved' => in_array( $question->comment_approved ?? '', array( 'approved', '1', 1 ), true ) ? CommentStatus::APPROVE : CommentStatus::HOLD,
+				'comment_approved' => $approved( $question ),
 				'comment_agent'    => 'Masteriyo',
+				'comment_parent'   => 0,
 			)
 		);
+
+		foreach ( (array) \tutor_utils()->get_qa_answer_by_question( $comment_id ) as $qa ) {
+			if ( (int) $qa->comment_ID === $comment_id ) {
+				continue;
+			}
+			PostCloner::clone_comment(
+				self::SLUG,
+				(int) $qa->comment_ID,
+				array(
+					'comment_post_ID'  => $course_id,
+					'comment_type'     => CommentType::COURSE_QA,
+					'comment_approved' => $approved( $qa ),
+					'comment_agent'    => 'Masteriyo',
+					'comment_parent'   => $copy_id,
+				)
+			);
+		}
 	}
 
 	/**
-	 * Migrate lesson completion progress for a single Masteriyo enrollment.
+	 * Copy the lesson completions behind one Tutor enrollment onto the copied course.
 	 *
-	 * @param int $user_course_id masteriyo_user_items.id for item_type='user_course'.
+	 * Idempotent, and the Tutor completion meta stays, so the step re-reads every
+	 * enrollment on every run and picks up lessons completed since the last one.
+	 *
+	 * @param int $enrollment_post_id Post ID of the tutor_enrolled CPT.
+	 * @throws \Exception If the enrollment post or its copied course does not exist.
 	 */
-	public static function migrate_single_progress( int $user_course_id ): void {
+	public static function migrate_single_progress( int $enrollment_post_id ): void {
 		global $wpdb;
 		$now            = gmdate( 'Y-m-d H:i:s' );
 		$activities_tbl = $wpdb->prefix . 'masteriyo_user_activities';
 
-		$user_course = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT user_id, item_id FROM {$wpdb->prefix}masteriyo_user_items
-				 WHERE id = %d AND item_type = 'user_course'",
-				$user_course_id
-			)
-		);
-
-		if ( ! $user_course ) {
-			return;
+		$enrolled_post = get_post( $enrollment_post_id );
+		if ( ! $enrolled_post || 'tutor_enrolled' !== $enrolled_post->post_type ) {
+			throw new \Exception( sprintf( 'migrate_single_progress: tutor_enrolled post %d not found.', $enrollment_post_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		$user_id   = (int) $user_course->user_id;
-		$course_id = (int) $user_course->item_id;
+		$user_id   = (int) $enrolled_post->post_author;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $enrolled_post->post_parent, 'course' );
 
 		$lesson_ids = $wpdb->get_col(
 			$wpdb->prepare(
@@ -969,16 +928,6 @@ class TutorLMS {
 			return;
 		}
 
-		$progress_id = Helper::get_or_create_course_progress( $user_id, $course_id, $now );
-
-		if ( ! $progress_id ) {
-			masteriyo_get_logger()->warning(
-				sprintf( 'Could not create progress record for user %d in course %d.', $user_id, $course_id ),
-				array( 'source' => 'migration-tool' )
-			);
-			return;
-		}
-
 		$completions = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT CAST(REPLACE(meta_key, '_tutor_completed_lesson_id_', '') AS UNSIGNED) AS lesson_id,
@@ -992,12 +941,15 @@ class TutorLMS {
 			)
 		);
 
+		// Completions name Tutor's lesson IDs; the activities need the copies'.
+		$copied_lessons    = MigrationMap::targets( self::SLUG, MigrationMap::POST, wp_list_pluck( $completions, 'lesson_id' ) );
 		$lesson_ids_set    = array_flip( $lesson_ids );
 		$valid_completions = array();
 		foreach ( $completions as $c ) {
-			$lid = (int) $c->lesson_id;
-			if ( isset( $lesson_ids_set[ $lid ] ) ) {
-				$ts                  = ! empty( $c->completed_ts ) ? (int) strtotime( $c->completed_ts ) : 0;
+			$lid = $copied_lessons[ (int) $c->lesson_id ] ?? 0;
+			if ( $lid && isset( $lesson_ids_set[ $lid ] ) ) {
+				// Tutor stores a Unix timestamp; older data may hold a date string.
+				$ts                  = is_numeric( $c->completed_ts ) ? (int) $c->completed_ts : (int) strtotime( (string) $c->completed_ts );
 				$valid_completions[] = array(
 					'lesson_id'    => $lid,
 					'completed_at' => $ts > 0 ? gmdate( 'Y-m-d H:i:s', $ts ) : $now,
@@ -1006,6 +958,16 @@ class TutorLMS {
 		}
 
 		if ( empty( $valid_completions ) ) {
+			return;
+		}
+
+		$progress_id = Helper::get_or_create_course_progress( $user_id, $course_id, $now );
+
+		if ( ! $progress_id ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Could not create progress record for user %d in course %d.', $user_id, $course_id ),
+				array( 'source' => 'migration-tool' )
+			);
 			return;
 		}
 
@@ -1042,19 +1004,15 @@ class TutorLMS {
 				array( '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
 			);
 		}
-
-		foreach ( $lesson_ids as $lid ) {
-			delete_user_meta( $user_id, '_tutor_completed_lesson_id_' . $lid );
-		}
 	}
 
 	/**
-	 * Migrate a single Tutor quiz attempt to masteriyo_quiz_attempts.
+	 * Copy a single Tutor quiz attempt to masteriyo_quiz_attempts. The Tutor rows stay.
 	 *
 	 * Idempotent via (quiz_id, user_id, attempt_started_at) deduplication guard.
 	 *
 	 * @param int $attempt_id tutor_quiz_attempts.attempt_id.
-	 * @throws \Exception If the attempt record is missing or the insert fails.
+	 * @throws \Exception If the attempt record, its copied course or quiz is missing, or the insert fails.
 	 */
 	public static function migrate_single_quiz_attempt( int $attempt_id ): void {
 		global $wpdb;
@@ -1072,33 +1030,32 @@ class TutorLMS {
 			throw new \Exception( sprintf( 'migrate_single_quiz_attempt: attempt %d not found.', $attempt_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		// Removes the source rows on any skip path so the step stays self-cleaning.
-		$delete_source = function() use ( $wpdb, $attempt_id ): void {
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->delete( $wpdb->prefix . 'tutor_quiz_attempt_answers', array( 'quiz_attempt_id' => $attempt_id ), array( '%d' ) );
-			$wpdb->delete( $wpdb->prefix . 'tutor_quiz_attempts', array( 'attempt_id' => $attempt_id ), array( '%d' ) );
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// Records a skip so the row is not fetched again.
+		$skip = function() use ( $attempt_id ): void {
+			MigrationMap::record( self::SLUG, 'quiz_attempts', $attempt_id, 0 );
 		};
 
 		if ( empty( $attempt->attempt_started_at ) ) {
-			$delete_source();
+			$skip();
 			return;
 		}
 
-		$course_id      = (int) $attempt->course_id;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $attempt->course_id, 'course' );
+		$quiz_id   = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $attempt->quiz_id, 'quiz' );
+
 		$already_exists = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$attempts_tbl}
 				 WHERE quiz_id = %d AND user_id = %s AND attempt_started_at = %s",
-				(int) $attempt->quiz_id,
+				$quiz_id,
 				$attempt->user_id,
 				$attempt->attempt_started_at
 			)
 		);
 
 		if ( $already_exists ) {
-			$delete_source();
+			$skip();
 			return;
 		}
 
@@ -1161,7 +1118,7 @@ class TutorLMS {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$attempts_tbl} WHERE quiz_id = %d AND user_id = %d",
-				(int) $attempt->quiz_id,
+				$quiz_id,
 				$attempt->user_id
 			)
 		);
@@ -1170,7 +1127,7 @@ class TutorLMS {
 			$attempts_tbl,
 			array(
 				'course_id'                => $course_id,
-				'quiz_id'                  => (int) $attempt->quiz_id,
+				'quiz_id'                  => $quiz_id,
 				'user_id'                  => (int) $attempt->user_id,
 				'total_questions'          => (int) $attempt->total_questions,
 				'total_answered_questions' => (int) $attempt->total_answered_questions,
@@ -1195,6 +1152,8 @@ class TutorLMS {
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
+		MigrationMap::record( self::SLUG, 'quiz_attempts', $attempt_id, (int) $wpdb->insert_id );
+
 		if ( 'pass' === $attempt_status ) {
 			$activities_tbl = $wpdb->prefix . 'masteriyo_user_activities';
 			$progress_id    = (int) $wpdb->get_var(
@@ -1215,7 +1174,7 @@ class TutorLMS {
 						"SELECT id FROM {$activities_tbl}
 						 WHERE item_id = %d AND user_id = %d AND activity_type = 'quiz' AND parent_id = %d
 						 LIMIT 1",
-						(int) $attempt->quiz_id,
+						$quiz_id,
 						(int) $attempt->user_id,
 						$progress_id
 					)
@@ -1226,7 +1185,7 @@ class TutorLMS {
 						$activities_tbl,
 						array(
 							'user_id'         => (int) $attempt->user_id,
-							'item_id'         => (int) $attempt->quiz_id,
+							'item_id'         => $quiz_id,
 							'activity_type'   => 'quiz',
 							'activity_status' => 'completed',
 							'parent_id'       => $progress_id,
@@ -1239,42 +1198,46 @@ class TutorLMS {
 				}
 			}
 		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete( $wpdb->prefix . 'tutor_quiz_attempt_answers', array( 'quiz_attempt_id' => $attempt_id ), array( '%d' ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete( $wpdb->prefix . 'tutor_quiz_attempts', array( 'attempt_id' => $attempt_id ), array( '%d' ) );
 	}
 
 	/**
-	 * Migrate a single tutor-google-meet post to mto-google-meet.
+	 * Copy a single tutor-google-meet post to a new mto-google-meet.
 	 *
-	 * Renames the CPT in-place (preserves post ID) and maps the 4 meta keys that
-	 * differ between TutorLMS and Masteriyo Google Meet schemas.
+	 * Maps the meta keys that differ between the TutorLMS and Masteriyo Google Meet schemas.
 	 *
 	 * @param int $post_id tutor-google-meet post ID.
+	 * @throws \Exception If the post or its copied course does not exist.
 	 */
 	public static function migrate_single_google_meet( int $post_id ): void {
-		global $wpdb;
+		if ( ! get_post( $post_id ) ) {
+			throw new \Exception( sprintf( 'migrate_single_google_meet: post %d not found.', $post_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->update( $wpdb->posts, array( 'post_type' => PostType::GOOGLEMEET ), array( 'ID' => $post_id ) );
-		clean_post_cache( $post_id );
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) get_post_meta( $post_id, '_tutor_google_meet_course_id', true ), 'course' );
+		// The parent is the Tutor topic or course; the copy sits under its copy.
+		$parent_id = MigrationMap::target( self::SLUG, MigrationMap::POST, (int) get_post_field( 'post_parent', $post_id ) );
+		$copy_id   = PostCloner::clone_post(
+			self::SLUG,
+			$post_id,
+			array(
+				'post_type'   => PostType::GOOGLEMEET,
+				'post_parent' => $parent_id ? $parent_id : $course_id,
+			)
+		);
 
-		// Read all TutorLMS meta keys.
-		$meet_url      = get_post_meta( $post_id, '_tutor_google_meet_meeting_url', true );
-		$starts_at     = get_post_meta( $post_id, '_tutor_google_meet_start_datetime', true );
-		$ends_at       = get_post_meta( $post_id, '_tutor_google_meet_end_datetime', true );
-		$course_id_val = get_post_meta( $post_id, '_tutor_google_meet_course_id', true );
-		$author_id_val = get_post_meta( $post_id, '_tutor_google_meet_instructor_id', true );
-		$event_details = get_post_meta( $post_id, '_tutor_google_meet_event_details', true );
+		// Read the TutorLMS meta keys, which the copy carries.
+		$meet_url      = get_post_meta( $copy_id, '_tutor_google_meet_meeting_url', true );
+		$starts_at     = get_post_meta( $copy_id, '_tutor_google_meet_start_datetime', true );
+		$ends_at       = get_post_meta( $copy_id, '_tutor_google_meet_end_datetime', true );
+		$author_id_val = get_post_meta( $copy_id, '_tutor_google_meet_instructor_id', true );
+		$event_details = get_post_meta( $copy_id, '_tutor_google_meet_event_details', true );
 
 		// Write Masteriyo meta keys.
-		update_post_meta( $post_id, 'meet_url', $meet_url );
-		update_post_meta( $post_id, 'starts_at', $starts_at );
-		update_post_meta( $post_id, 'ends_at', $ends_at );
-		update_post_meta( $post_id, 'course_id', (int) $course_id_val );
-		update_post_meta( $post_id, 'author_id', (int) $author_id_val );
+		update_post_meta( $copy_id, 'meet_url', $meet_url );
+		update_post_meta( $copy_id, 'starts_at', $starts_at );
+		update_post_meta( $copy_id, 'ends_at', $ends_at );
+		update_post_meta( $copy_id, 'course_id', $course_id );
+		update_post_meta( $copy_id, 'author_id', (int) $author_id_val );
 
 		// Parse event_details JSON → individual Masteriyo keys.
 		$event = is_string( $event_details ) && '' !== $event_details
@@ -1283,18 +1246,18 @@ class TutorLMS {
 		$event = is_array( $event ) ? $event : array();
 
 		if ( ! empty( $event['id'] ) ) {
-			update_post_meta( $post_id, 'meeting_id', sanitize_text_field( $event['id'] ) );
+			update_post_meta( $copy_id, 'meeting_id', sanitize_text_field( $event['id'] ) );
 		}
 		if ( ! empty( $event['timezone'] ) ) {
-			update_post_meta( $post_id, 'time_zone', sanitize_text_field( $event['timezone'] ) );
+			update_post_meta( $copy_id, 'time_zone', sanitize_text_field( $event['timezone'] ) );
 		}
 		// 'calender_url' is the intentional Masteriyo spelling.
 		$calendar_url = $event['hangoutLink'] ?? $event['htmlLink'] ?? '';
 		if ( $calendar_url ) {
-			update_post_meta( $post_id, 'calender_url', esc_url_raw( $calendar_url ) );
+			update_post_meta( $copy_id, 'calender_url', esc_url_raw( $calendar_url ) );
 		}
 
-		// Delete all original TutorLMS meta keys so none remain on the migrated post.
+		// The copy needs none of the TutorLMS keys.
 		$tutor_keys = array(
 			'_tutor_google_meet_meeting_url',
 			'_tutor_google_meet_start_datetime',
@@ -1304,7 +1267,7 @@ class TutorLMS {
 			'_tutor_google_meet_event_details',
 		);
 		foreach ( $tutor_keys as $key ) {
-			delete_post_meta( $post_id, $key );
+			delete_post_meta( $copy_id, $key );
 		}
 	}
 
@@ -1355,10 +1318,11 @@ class TutorLMS {
 	 *
 	 * @param int $payment_id EDD payment post ID.
 	 * @param int $course_id  Masteriyo course post ID.
+	 * @return int The new order ID, or 0 when none was created.
 	 */
 	public static function insert_edd_order( $payment_id, $course_id ) {
 		if ( ! function_exists( 'edd_get_payment' ) ) {
-			return;
+			return 0;
 		}
 
 		$payment = edd_get_payment( $payment_id );
@@ -1367,7 +1331,7 @@ class TutorLMS {
 				sprintf( 'Order %d skipped: EDD payment record not found.', $payment_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			return;
+			return 0;
 		}
 
 		$status_map = array(
@@ -1384,10 +1348,11 @@ class TutorLMS {
 		);
 
 		$masteriyo_status = $status_map[ $payment->status ] ?? OrderStatus::PENDING;
-		$payment_date     = $payment->date ? $payment->date : current_time( 'mysql', true );
+		$payment_date     = $payment->date ? $payment->date : time();
 		$user_info        = is_array( $payment->user_info ) ? $payment->user_info : array();
 		$edd_currency     = function_exists( 'edd_get_currency' ) ? edd_get_currency() : get_option( 'woocommerce_currency', 'USD' );
 
+		/** @var \Masteriyo\Models\Order\Order $order */
 		$order = masteriyo( 'order' );
 		$order->set_status( $masteriyo_status );
 		$order->set_customer_id( absint( $payment->user_id ) );
@@ -1415,7 +1380,7 @@ class TutorLMS {
 				sprintf( 'Could not create order for EDD payment %d.', $payment_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			return;
+			return 0;
 		}
 
 		$order_item = masteriyo( 'order-item.course' );
@@ -1435,6 +1400,8 @@ class TutorLMS {
 			$user_course->set_order_id( $order->get_id() );
 			$user_course->save();
 		}
+
+		return (int) $order->get_id();
 	}
 
 	/**
@@ -1442,6 +1409,7 @@ class TutorLMS {
 	 *
 	 * @param int $order_id  Tutor order ID (tutor_orders.id).
 	 * @param int $course_id Masteriyo course post ID.
+	 * @return int The new order ID, or 0 when none was created.
 	 */
 	public static function insert_tutor_native_order( $order_id, $course_id ) {
 		global $wpdb;
@@ -1479,7 +1447,7 @@ class TutorLMS {
 				sprintf( 'Order %d skipped: Tutor order record not found.', $order_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			return;
+			return 0;
 		}
 
 		// Map Tutor order/payment status to Masteriyo OrderStatus.
@@ -1494,7 +1462,7 @@ class TutorLMS {
 			$masteriyo_status = OrderStatus::CANCELLED;
 		}
 
-		$order_date   = $tutor_order->created_at_gmt ? $tutor_order->created_at_gmt : current_time( 'mysql', true );
+		$order_date   = $tutor_order->created_at_gmt ? masteriyo_string_to_timestamp( $tutor_order->created_at_gmt ) : time();
 		$total        = isset( $tutor_order->total_price ) ? (float) $tutor_order->total_price : 0.0;
 		$tutor_option = get_option( 'tutor_option' );
 		// Prefer the per-order currency column; fall back to the site-wide setting.
@@ -1504,6 +1472,7 @@ class TutorLMS {
 				? $tutor_option['tutor_currency']
 				: get_option( 'woocommerce_currency', 'USD' ) );
 
+		/** @var \Masteriyo\Models\Order\Order $order */
 		$order = masteriyo( 'order' );
 		$order->set_status( $masteriyo_status );
 		$order->set_customer_id( absint( $tutor_order->user_id ) );
@@ -1545,7 +1514,7 @@ class TutorLMS {
 				sprintf( 'Could not create order for Tutor order %d.', $order_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			return;
+			return 0;
 		}
 
 		if ( ! empty( $tutor_order->tax_type ) ) {
@@ -1553,9 +1522,8 @@ class TutorLMS {
 		}
 
 		// Coupon line item. Coupons are pro's, so free migrates the order without the
-		// discount line rather than failing the migration — which would be the worse
-		// outcome, this being one-way and the source deleted after it. The FAQ path
-		// below asks the same question the same way.
+		// discount line rather than failing the migration. The FAQ path asks the same
+		// question the same way.
 		if ( ! empty( $tutor_order->coupon_code ) && masteriyo_service_provider_exists( 'order-item.coupon' ) ) {
 			$coupon_item = masteriyo( 'order-item.coupon' );
 			$coupon_item->set_order_id( $order->get_id() );
@@ -1580,15 +1548,17 @@ class TutorLMS {
 			$user_course->set_order_id( $order->get_id() );
 			$user_course->save();
 		}
+
+		return (int) $order->get_id();
 	}
 
 
 	/**
-	 * Migrate all TutorLMS wishlist entries for a single user to Masteriyo wishlist items.
+	 * Copy all TutorLMS wishlist entries for a single user to Masteriyo wishlist items.
 	 *
-	 * Reads _tutor_course_wishlist usermeta for one user (a serialized array of course IDs)
-	 * and creates an mto-wishlist-item post for each wishlisted course that hasn't been
-	 * migrated yet. O(1) per user vs the old O(courses × users) approach.
+	 * Reads the user's _tutor_course_wishlist usermeta rows (Tutor adds one row per course;
+	 * older sites may hold a serialized array) and creates an mto-wishlist-item post for
+	 * each wishlisted course whose copy exists and has no item yet. The usermeta stays.
 	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return void
@@ -1596,9 +1566,14 @@ class TutorLMS {
 	private static function migrate_single_wishlist_user( int $user_id ): void {
 		global $wpdb;
 
-		$wishlist = get_user_meta( $user_id, '_tutor_course_wishlist', true );
-		if ( empty( $wishlist ) || ! is_array( $wishlist ) ) {
-			delete_user_meta( $user_id, '_tutor_course_wishlist' );
+		$wishlist = array();
+		foreach ( (array) get_user_meta( $user_id, '_tutor_course_wishlist', false ) as $row ) {
+			foreach ( (array) maybe_unserialize( $row ) as $course_id ) {
+				$wishlist[] = (int) $course_id;
+			}
+		}
+		$wishlist = array_values( array_unique( array_filter( $wishlist ) ) );
+		if ( empty( $wishlist ) ) {
 			return;
 		}
 
@@ -1613,8 +1588,11 @@ class TutorLMS {
 			)
 		);
 
-		foreach ( array_map( 'intval', $wishlist ) as $course_id ) {
-			if ( in_array( $course_id, $already_migrated, true ) ) {
+		$copied_courses = MigrationMap::targets( self::SLUG, MigrationMap::POST, $wishlist );
+
+		foreach ( array_map( 'intval', $wishlist ) as $source_course_id ) {
+			$course_id = $copied_courses[ $source_course_id ] ?? 0;
+			if ( ! $course_id || in_array( $course_id, $already_migrated, true ) ) {
 				continue;
 			}
 
@@ -1651,46 +1629,34 @@ class TutorLMS {
 				);
 			}
 		}
-
-		// Delete source meta so this user no longer appears in get_source_ids — makes
-		// the step self-cleaning (LIMIT-only pagination, no OFFSET needed).
-		delete_user_meta( $user_id, '_tutor_course_wishlist' );
 	}
 
 	/**
-	 * Migrate a Tutor LMS quiz post to a Masteriyo quiz (mto-quiz).
+	 * Copy a Tutor LMS quiz post to a new Masteriyo quiz (mto-quiz) with its questions.
 	 *
-	 * Also sets randomize flag via model setter and migrates content drip schedule.
-	 *
-	 * @param \WP_Post $item       Tutor LMS quiz post object.
-	 * @param int      $section_id Masteriyo section post ID (parent).
-	 * @param int      $course_id  Masteriyo course post ID.
+	 * @param \WP_Post $item       Tutor LMS quiz post object (the source).
+	 * @param int      $section_id Masteriyo section post ID (the copy).
+	 * @param int      $course_id  Masteriyo course post ID (the copy).
 	 * @return void
 	 */
 	public static function update_tutor_course_quiz_to_masteriyo( $item, $section_id, $course_id ) {
-		global $wpdb;
-
 		if ( 'tutor_quiz' !== $item->post_type ) {
 			return;
 		}
 
-		$quiz_id = $item->ID;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->update(
-			$wpdb->posts,
+		$quiz_id = PostCloner::clone_post(
+			self::SLUG,
+			$item->ID,
 			array(
 				'post_type'   => PostType::QUIZ,
 				'post_parent' => $section_id,
-			),
-			array( 'ID' => $quiz_id ),
-			array( '%s', '%d' ),
-			array( '%d' )
+			)
 		);
-		clean_post_cache( $quiz_id );
 
-		$questions   = ( $quiz_id > 0 ) ? \tutor_utils()->get_questions_by_quiz( $quiz_id ) : array();
+		// Questions live in Tutor's own tables, keyed by the source quiz.
+		$questions   = \tutor_utils()->get_questions_by_quiz( $item->ID );
 		$total_marks = 0;
-		foreach ( $questions as $question ) {
+		foreach ( (array) $questions as $question ) {
 			static::process_question_migration_from_tutor( $question, $quiz_id, $course_id );
 			$total_marks += (int) $question->question_mark;
 		}
@@ -1698,13 +1664,14 @@ class TutorLMS {
 		$mto_quiz = masteriyo_get_quiz( $quiz_id );
 		if ( ! $mto_quiz ) {
 			masteriyo_get_logger()->error(
-				sprintf( 'Could not load quiz %d after migration — it may not have been saved correctly.', $quiz_id ),
+				sprintf( 'Could not load quiz %d after copying — it may not have been saved correctly.', $quiz_id ),
 				array( 'source' => 'migration-tool' )
 			);
 			return;
 		}
 
-		$quiz_options = get_post_meta( $quiz_id, 'tutor_quiz_option', true );
+		// From the source: the copy loses this meta below, and a reused copy has none.
+		$quiz_options = get_post_meta( $item->ID, 'tutor_quiz_option', true );
 		$quiz_options = is_array( $quiz_options ) ? $quiz_options : array();
 
 		$pass_pct  = (float) ( $quiz_options['passing_grade'] ?? 0 );
@@ -1742,51 +1709,44 @@ class TutorLMS {
 		delete_post_meta( $quiz_id, 'tutor_quiz_option' );
 
 		/**
-		 * Fires after a TutorLMS curriculum item has been migrated.
+		 * Fires after a TutorLMS curriculum item has been copied.
 		 *
 		 * Carries the per-item schedules the shared migration has no home for.
 		 *
-		 * @param int $item_id   Post ID of the migrated lesson/quiz.
-		 * @param int $course_id Course post ID.
+		 * @param int $item_id   Post ID of the copied lesson/quiz.
+		 * @param int $course_id Course post ID (the copy).
 		 */
 		do_action( 'masteriyo_migration_tool_tutorlms_item_migrated', $quiz_id, $course_id );
 	}
 
 	/**
-	 * Migrate a Tutor LMS lesson post to a Masteriyo lesson (mto-lesson).
+	 * Copy a Tutor LMS lesson post to a new Masteriyo lesson (mto-lesson).
 	 *
 	 * Sets enable_preview via model setter and migrates content drip schedule.
 	 *
-	 * @param \WP_Post $item       Tutor LMS lesson post object.
-	 * @param int      $section_id Masteriyo section post ID (parent).
-	 * @param int      $course_id  Masteriyo course post ID.
+	 * @param \WP_Post $item       Tutor LMS lesson post object (the source).
+	 * @param int      $section_id Masteriyo section post ID (the copy).
+	 * @param int      $course_id  Masteriyo course post ID (the copy).
 	 * @return void
 	 */
 	public static function update_tutor_lesson_to_masteriyo( $item, $section_id, $course_id ) {
-		global $wpdb;
-
 		if ( 'lesson' !== $item->post_type ) {
 			return;
 		}
 
-		$lesson_id = $item->ID;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->update(
-			$wpdb->posts,
+		$lesson_id = PostCloner::clone_post(
+			self::SLUG,
+			$item->ID,
 			array(
 				'post_type'   => PostType::LESSON,
 				'post_parent' => $section_id,
-			),
-			array( 'ID' => $lesson_id ),
-			array( '%s', '%d' ),
-			array( '%d' )
+			)
 		);
-		clean_post_cache( $lesson_id );
 
 		$mto_lesson = masteriyo_get_lesson( $lesson_id );
 		if ( ! $mto_lesson ) {
 			masteriyo_get_logger()->error(
-				sprintf( 'Could not load lesson %d after migration — it may not have been saved correctly.', $lesson_id ),
+				sprintf( 'Could not load lesson %d after copying — it may not have been saved correctly.', $lesson_id ),
 				array( 'source' => 'migration-tool' )
 			);
 			return;
@@ -1813,7 +1773,7 @@ class TutorLMS {
 		}
 
 		// Attachments — tutor stores in _tutor_attachments; we write _download_materials.
-		$attachments = \tutor_utils()->get_attachments( $lesson_id );
+		$attachments = \tutor_utils()->get_attachments( $item->ID );
 		if ( ! empty( $attachments ) ) {
 			$mto_lesson->set_download_materials( wp_list_pluck( $attachments, 'post_id' ) );
 		}
@@ -1831,14 +1791,17 @@ class TutorLMS {
 	}
 
 	/**
-	 * Migrate enrollments from Tutor to Masteriyo.
+	 * Enroll a Tutor student into the copied Masteriyo course.
+	 *
+	 * The student gains the Masteriyo role and keeps the Tutor one.
 	 *
 	 * @since 1.13.0
 	 *
-	 * @param int    $course_id     Masteriyo course post ID.
+	 * @param int    $course_id     Masteriyo course post ID (the copy).
 	 * @param string $email         Enrolled user email.
 	 * @param object $enrolled_user Enrollment post object (tutor_enrolled CPT).
-	 * @return int|false Masteriyo user-course ID, or false on failure.
+	 * @return int Masteriyo user-course ID.
+	 * @throws \Exception If no user has the email or the enrollment cannot be saved.
 	 */
 	public static function update_tutor_enrolled_user_to_masteriyo_enrolled_user( $course_id, $email, $enrolled_user ) {
 		global $wpdb;
@@ -1851,11 +1814,8 @@ class TutorLMS {
 		);
 
 		if ( ! $user_row || empty( $user_row->ID ) ) {
-			masteriyo_get_logger()->warning(
-				sprintf( 'Enrollment skipped: user with email "%s" not found.', $email ),
-				array( 'source' => 'migration-tool' )
-			);
-			return false;
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception( sprintf( 'Enrollment %d: user with email "%s" not found.', $enrolled_user->ID, $email ) );
 		}
 
 		$wp_user = new \WP_User( $user_row->ID );
@@ -1865,10 +1825,6 @@ class TutorLMS {
 			if ( empty( array_intersect( $masteriyo_roles, (array) $wp_user->roles ) ) ) {
 				$wp_user->add_role( Roles::STUDENT );
 			}
-			delete_user_meta( $wp_user->ID, '_is_tutor_student' );
-			// Remove TutorLMS capability roles so Tutor permissions don't remain active after migration.
-			$wp_user->remove_role( 'tutor_student' );
-			$wp_user->remove_role( 'tutor_instructor' );
 		}
 
 		$status_map = array(
@@ -1893,11 +1849,11 @@ class TutorLMS {
 		}
 
 		if ( ! $inserted_id ) {
-			masteriyo_get_logger()->error( 'Could not save enrollment record — it may already exist or the user was not found.', array( 'source' => 'migration-tool' ) );
-			return false;
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception( sprintf( 'Enrollment %d: could not save the Masteriyo enrollment for user %d on course %d.', $enrolled_user->ID, $wp_user->ID, $course_id ) );
 		}
 
-		return $inserted_id;
+		return (int) $inserted_id;
 	}
 
 
@@ -1908,7 +1864,7 @@ class TutorLMS {
 	 * Additionally sets WC subscription → RECURRING access mode, writes prerequisites
 	 * directly to _prerequisites_courses, and sets content drip type on the course.
 	 *
-	 * @param int $course_id Course post ID (already renamed to mto-course).
+	 * @param int $course_id Course post ID (the mto-course copy, carrying Tutor's meta).
 	 * @return void
 	 */
 	public static function update_masteriyo_course_from_tutor( $course_id ) {
@@ -1922,7 +1878,7 @@ class TutorLMS {
 		}
 
 		if ( ! function_exists( 'tutor_utils' ) ) {
-			return; // TutorLMS inactive — course renamed but pricing/settings skipped.
+			return; // TutorLMS inactive — course copied but pricing/settings skipped.
 		}
 
 		// --- Pricing ---
@@ -1938,11 +1894,9 @@ class TutorLMS {
 				$regular_price = \wc_get_price_to_display( $wc_product, array( 'price' => $wc_product->get_regular_price() ) );
 				$sale_price    = \wc_get_price_to_display( $wc_product, array( 'price' => $wc_product->get_sale_price() ) );
 
-				$new_type = $wc_product->is_type( 'subscription' ) || $wc_product->is_type( 'variable-subscription' )
-					? 'mto_course_recurring'
-					: 'mto_course';
-
-				wp_set_object_terms( $product_id, $new_type, 'product_type' );
+				// The product keeps its type while Tutor still sells it; Masteriyo's
+				// WooCommerce integration finds the course through _masteriyo_course_id
+				// and completes its paid orders as it does a course product's.
 				update_post_meta( $course_id, '_wc_product_id', $product_id );
 				update_post_meta( $product_id, '_masteriyo_course_id', $course_id );
 			}
@@ -2088,12 +2042,22 @@ class TutorLMS {
 			}
 		}
 
-		// Prerequisites — write _prerequisites_courses and _prerequisites_enable.
+		// Prerequisites point at the copies; one not copied yet keeps its Tutor ID until finalize_step().
 		$raw_prerequisite_ids = maybe_unserialize( get_post_meta( $course_id, '_tutor_course_prerequisites_ids', true ) );
 		if ( ! empty( $raw_prerequisite_ids ) && is_array( $raw_prerequisite_ids ) ) {
 			$prerequisite_ids = array_values( array_filter( array_map( 'intval', $raw_prerequisite_ids ) ) );
 			if ( ! empty( $prerequisite_ids ) ) {
-				update_post_meta( $course_id, '_prerequisites_courses', $prerequisite_ids );
+				$copies = MigrationMap::targets( self::SLUG, MigrationMap::POST, $prerequisite_ids );
+				update_post_meta(
+					$course_id,
+					'_prerequisites_courses',
+					array_map(
+						function( $id ) use ( $copies ) {
+							return $copies[ $id ] ?? $id;
+						},
+						$prerequisite_ids
+					)
+				);
 				update_post_meta( $course_id, '_prerequisites_enable', true );
 			}
 		}
@@ -2451,6 +2415,8 @@ class TutorLMS {
 		);
 
 		if ( $existing_question_id ) {
+			// A reused quiz copy keeps its questions; they follow it to the new course.
+			update_post_meta( (int) $existing_question_id, '_course_id', $course_id );
 			return;
 		}
 
@@ -2539,7 +2505,7 @@ class TutorLMS {
 	}
 
 	/**
-	 * Add the masteriyo_student user role and remove Tutor roles.
+	 * Add the masteriyo_student user role when the user has no Masteriyo role yet.
 	 *
 	 * @since 1.13.0
 	 *
@@ -2560,7 +2526,6 @@ class TutorLMS {
 			! in_array( Roles::INSTRUCTOR, (array) $user->roles, true )
 		) {
 			$user->add_role( Roles::STUDENT );
-			delete_user_meta( $user->get_id(), '_is_tutor_student' );
 		}
 	}
 

@@ -11,10 +11,13 @@ namespace Masteriyo\Addons\GroupCourses\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Addons\GroupCourses\Models\Group;
 use Masteriyo\Addons\GroupCourses\Models\Setting;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Models\Course;
 use Masteriyo\PostType\PostType;
+use Masteriyo\Query\CourseProgressQuery;
 use Masteriyo\Query\OrderQuery;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 
@@ -97,7 +100,7 @@ class GroupsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -126,7 +129,7 @@ class GroupsController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -146,17 +149,17 @@ class GroupsController extends PostsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Group IDs.', 'learning-management-system' ),
+							'description' => 'Group IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.',
 							'type'        => 'boolean',
 						),
 					),
@@ -175,7 +178,7 @@ class GroupsController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Group Ids', 'learning-management-system' ),
+							'description' => 'Group Ids',
 							'type'        => 'array',
 						),
 					),
@@ -189,7 +192,7 @@ class GroupsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -204,6 +207,24 @@ class GroupsController extends PostsController {
 							)
 						),
 					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/progress',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => 'Unique identifier for the resource.',
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item_progress' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
 			)
 		);
@@ -274,6 +295,187 @@ class GroupsController extends PostsController {
 			__( 'Sorry, you are not allowed to view this resource.', 'learning-management-system' ),
 			array(
 				'status' => rest_authorization_required_code(),
+			)
+		);
+	}
+
+	/**
+	 * How far each member of a group has got in the group's courses.
+	 *
+	 * Scoped to the group's own emails and linked courses, so a leader never
+	 * sees progress outside the group they manage.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function get_item_progress( \WP_REST_Request $request ) {
+		$group = $this->get_object( (int) $request['id'] );
+
+		if ( ! $group || PostType::GROUP !== get_post_type( $group->get_id() ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_id',
+				__( 'Invalid ID.', 'learning-management-system' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$courses = array();
+		$totals  = array();
+		foreach ( $this->group_course_ids( $group ) as $course_id ) {
+			$course = masteriyo_get_course( $course_id );
+			if ( $course ) {
+				$courses[]            = $course;
+				$totals[ $course_id ] = array(
+					'lesson' => $this->course_item_count( $course_id, PostType::LESSON ),
+					'quiz'   => $this->course_item_count( $course_id, PostType::QUIZ ),
+				);
+			}
+		}
+
+		$members = array();
+		foreach ( $group->get_emails() as $email ) {
+			$user    = get_user_by( 'email', $email );
+			$user_id = $user ? (int) $user->ID : 0;
+
+			$members[] = array(
+				'email'   => $email,
+				'user'    => $user ? array(
+					'id'           => $user_id,
+					'display_name' => $user->display_name,
+					'avatar_url'   => get_avatar_url( $user_id ),
+				) : null,
+				'courses' => array_map(
+					fn( Course $course ) => $this->member_course_progress( $user_id, $course, $totals[ $course->get_id() ] ),
+					$courses
+				),
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'courses' => array_map(
+					fn( Course $course ) => array(
+						'id'        => $course->get_id(),
+						'name'      => wp_specialchars_decode( $course->get_name() ),
+						'permalink' => $course->get_permalink(),
+					),
+					$courses
+				),
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * One member's standing in one course: enrollment, progress and item counts.
+	 *
+	 * @param int                              $user_id Member's user ID, 0 when the email has no account.
+	 * @param Course                           $course  A course linked to the group.
+	 * @param array{lesson: int, quiz: int}    $totals  Published lessons and quizzes, for a member with no progress record.
+	 *
+	 * @return array{course_id: int, enrollment_status: string|null, progress_status: string|null, percentage: int, lessons: array{completed: int, total: int}, quizzes: array{completed: int, total: int}, started_at: string|null, modified_at: string|null, completed_at: string|null}
+	 */
+	private function member_course_progress( int $user_id, Course $course, array $totals ): array {
+		$row = array(
+			'course_id'         => $course->get_id(),
+			'enrollment_status' => null,
+			'progress_status'   => null,
+			'percentage'        => 0,
+			'lessons'           => array(
+				'completed' => 0,
+				'total'     => $totals['lesson'],
+			),
+			'quizzes'           => array(
+				'completed' => 0,
+				'total'     => $totals['quiz'],
+			),
+			'started_at'        => null,
+			'modified_at'       => null,
+			'completed_at'      => null,
+		);
+
+		if ( ! $user_id ) {
+			return $row;
+		}
+
+		$enrollment = masteriyo_get_user_course_by_user_and_course( $user_id, $course->get_id() );
+		if ( $enrollment ) {
+			$row['enrollment_status'] = $enrollment->get_status();
+		}
+
+		$progress = current(
+			( new CourseProgressQuery(
+				array(
+					'course_id' => $course->get_id(),
+					'user_id'   => $user_id,
+					'per_page'  => 1,
+				)
+			) )->get_course_progress()
+		);
+
+		if ( ! $progress ) {
+			return $row;
+		}
+
+		// The record's own summary, so counts and totals come from one source.
+		$summary = $progress->get_summary( 'all' );
+		$done    = (int) ( $summary['total']['completed'] ?? 0 );
+		$all     = max( 1, (int) ( $summary['total']['total'] ?? 0 ) );
+
+		$row['progress_status'] = $progress->get_status();
+		$row['percentage']      = (int) masteriyo_round( $done / $all * 100 );
+		$row['lessons']         = array(
+			'completed' => (int) ( $summary['lesson']['completed'] ?? 0 ),
+			'total'     => (int) ( $summary['lesson']['total'] ?? $totals['lesson'] ),
+		);
+		$row['quizzes']         = array(
+			'completed' => (int) ( $summary['quiz']['completed'] ?? 0 ),
+			'total'     => (int) ( $summary['quiz']['total'] ?? $totals['quiz'] ),
+		);
+		$row['started_at']           = masteriyo_rest_prepare_date_response( $progress->get_started_at() );
+		$row['modified_at']          = masteriyo_rest_prepare_date_response( $progress->get_modified_at() );
+		$row['completed_at']         = masteriyo_rest_prepare_date_response( $progress->get_completed_at() );
+
+		return $row;
+	}
+
+	/**
+	 * How many items of one type a course has.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param string $post_type Item post type.
+	 *
+	 * @return int
+	 */
+	private function course_item_count( int $course_id, string $post_type ): int {
+		return count(
+			get_posts(
+				array(
+					'post_type'      => $post_type,
+					'post_status'    => PostStatus::PUBLISH,
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'meta_key'       => '_course_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => $course_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			)
+		);
+	}
+
+	/**
+	 * IDs of the courses linked to a group.
+	 *
+	 * @param Group $group Group instance.
+	 *
+	 * @return list<positive-int>
+	 */
+	private function group_course_ids( Group $group ): array {
+		$courses_data = get_post_meta( $group->get_id(), 'masteriyo_course_data', true );
+
+		return array_values(
+			array_filter(
+				array_map( 'absint', wp_list_pluck( (array) $courses_data, 'course_id' ) )
 			)
 		);
 	}
@@ -480,14 +682,14 @@ class GroupsController extends PostsController {
 		$params = parent::get_collection_params();
 
 		$params['author_id'] = array(
-			'description'       => __( 'Limit groups by author id.', 'learning-management-system' ),
+			'description'       => 'Limit groups by author id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']    = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to groups assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to groups assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future', 'trash' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -700,14 +902,8 @@ class GroupsController extends PostsController {
 			'avatar_url'   => $author->get_avatar_url(),
 		);
 
-		$courses_data = get_post_meta( $group->get_id(), 'masteriyo_course_data', true );
-
-		$course_ids = array_filter(
-			wp_list_pluck( (array) $courses_data, 'course_id' ),
-			fn( $id ) => ! empty( $id )
-		);
-
-		$courses = array();
+		$course_ids = $this->group_course_ids( $group );
+		$courses    = array();
 
 		foreach ( $course_ids as $course_id ) {
 			$course = masteriyo_get_course( $course_id );
@@ -803,46 +999,46 @@ class GroupsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'             => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'title'          => array(
-					'description' => __( 'Group name', 'learning-management-system' ),
+					'description' => 'Group name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created'   => array(
-					'description' => __( "The date the group was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the group was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'  => array(
-					'description' => __( "The date the group was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the group was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'         => array(
-					'description' => __( 'Group status (post status).', 'learning-management-system' ),
+					'description' => 'Group status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'    => array(
-					'description' => __( 'Group description', 'learning-management-system' ),
+					'description' => 'Group description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'     => array(
-					'description' => __( 'Menu order, used to custom sort groups.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort groups.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'emails'         => array(
-					'description' => __( 'A list of the emails for the group.', 'learning-management-system' ),
+					'description' => 'A list of the emails for the group.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -850,30 +1046,30 @@ class GroupsController extends PostsController {
 					),
 				),
 				'author_id'      => array(
-					'description' => __( 'Group leader ID', 'learning-management-system' ),
+					'description' => 'Group leader ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author'         => array(
-					'description' => __( 'Group leader', 'learning-management-system' ),
+					'description' => 'Group leader',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 					'type'        => 'object',
 					'properties'  => array(
 						'id'           => array(
-							'description' => __( 'Leader ID', 'learning-management-system' ),
+							'description' => 'Leader ID',
 							'type'        => 'integer',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'display_name' => array(
-							'description' => __( 'Display name of the leader', 'learning-management-system' ),
+							'description' => 'Display name of the leader',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'avatar_url'   => array(
-							'description' => __( 'Avatar URL of the leader', 'learning-management-system' ),
+							'description' => 'Avatar URL of the leader',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
@@ -881,19 +1077,19 @@ class GroupsController extends PostsController {
 					),
 				),
 				'order'          => array(
-					'description' => __( 'Associated order information', 'learning-management-system' ),
+					'description' => 'Associated order information',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 					'type'        => array( 'object', 'null' ),
 					'properties'  => array(
 						'id'     => array(
-							'description' => __( 'Order ID', 'learning-management-system' ),
+							'description' => 'Order ID',
 							'type'        => 'integer',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'status' => array(
-							'description' => __( 'Order status', 'learning-management-system' ),
+							'description' => 'Order status',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
@@ -901,44 +1097,44 @@ class GroupsController extends PostsController {
 					),
 				),
 				'display_status' => array(
-					'description' => __( 'Frontend display status derived from linked order.', 'learning-management-system' ),
+					'description' => 'Frontend display status derived from linked order.',
 					'type'        => 'string',
 					'enum'        => array( 'active', 'pending', 'inactive' ),
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status_reason'  => array(
-					'description' => __( 'Reason key for inactive display status.', 'learning-management-system' ),
+					'description' => 'Reason key for inactive display status.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'repurchase_url' => array(
-					'description' => __( 'Checkout URL to retry this group purchase (only set when display_status is inactive).', 'learning-management-system' ),
+					'description' => 'Checkout URL to retry this group purchase (only set when display_status is inactive).',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'meta_data'      => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),

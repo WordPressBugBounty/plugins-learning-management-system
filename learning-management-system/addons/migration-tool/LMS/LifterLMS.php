@@ -12,6 +12,8 @@ namespace Masteriyo\Addons\MigrationTool\LMS;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
+use Masteriyo\Addons\MigrationTool\PostCloner;
 use Masteriyo\Addons\WcIntegration\CourseProduct;
 use Masteriyo\Addons\WcIntegration\Helper as HelperWoocommerce;
 use Masteriyo\Enums\CommentStatus;
@@ -30,203 +32,181 @@ use Masteriyo\Roles;
 /**
  * Class LifterLMS.
  *
+ * LifterLMS's posts, tables and roles are read, never changed: each record is copied
+ * into Masteriyo and the copy recorded in the migration map, so the site can keep
+ * running LifterLMS while the copy is checked and a second run picks up only what is new.
+ *
  * @since 1.16.0
  */
 class LifterLMS {
 
 	/**
-	 * Migrates a single LifterLMS course.
+	 * Migrator slug, the key every migration map row is written under.
+	 */
+	const SLUG = 'lifterlms';
+
+	/**
+	 * Copy a LifterLMS course with its sections, lessons, quizzes and questions.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $course_id LifterLMS course ID.
+	 * @param int $source_course_id LifterLMS course ID.
+	 * @return int Masteriyo course ID (the copy).
 	 */
-	private static function migrate_course( $course_id ) {
-		$course   = new \LLMS_Course( $course_id );
+	private static function migrate_course( int $source_course_id ): int {
+		$course   = new \LLMS_Course( $source_course_id );
 		$sections = $course->get_sections();
 
-		if ( empty( $sections ) ) {
-			wp_update_post(
+		$course_id = PostCloner::clone_post( self::SLUG, $source_course_id, array( 'post_type' => PostType::COURSE ) );
+		update_post_meta( $course_id, '_was_lf_course', true );
+
+		$section_order = 0;
+
+		foreach ( (array) $sections as $section ) {
+			$section_id = PostCloner::clone_post(
+				self::SLUG,
+				(int) $section->id,
 				array(
-					'ID'        => $course_id,
-					'post_type' => PostType::COURSE,
+					'post_type'   => PostType::SECTION,
+					'post_status' => PostStatus::PUBLISH,
+					'post_author' => $course->post->post_author,
+					'post_parent' => $course_id,
+					'menu_order'  => $section_order,
 				)
 			);
-			return;
-		}
-
-		$mto_course       = array();
-		$lesson_post_type = PostType::LESSON;
-		$section_order    = 0;
-
-		foreach ( $sections as $section ) {
-			$mto_section = array(
-				'post_type'    => PostType::SECTION,
-				'post_title'   => $section->post->post_title,
-				'post_content' => $section->post->post_content,
-				'post_status'  => PostStatus::PUBLISH,
-				'post_author'  => $course->post->post_author,
-				'post_parent'  => $course_id,
-				'menu_order'   => $section_order,
-				'items'        => array(),
-			);
-
 			++$section_order;
-
-			$lessons = $section->get_lessons();
-
-			if ( empty( $lessons ) ) {
-				continue;
-			}
-
-			$lesson_order = 0;
-
-			foreach ( $lessons as $lesson ) {
-
-				if ( $lesson->has_quiz() ) {
-					$quiz = $lesson->get_quiz();
-
-					if ( $quiz ) {
-						$mto_section['items'][] = array(
-							'ID'           => $quiz->id,
-							'post_type'    => PostType::QUIZ,
-							'post_title'   => $quiz->post->post_title,
-							'post_content' => $quiz->post->post_content,
-							'post_parent'  => '{section_id}',
-							'menu_order'   => $lesson_order,
-						);
-					} else {
-						$mto_section['items'][] = array(
-							'ID'           => $lesson->id,
-							'post_type'    => PostType::LESSON,
-							'post_title'   => $lesson->post->post_title,
-							'post_content' => $lesson->post->post_content,
-							'post_parent'  => '{section_id}',
-							'menu_order'   => $lesson_order,
-						);
-					}
-				} else {
-					$mto_section['items'][] = array(
-						'ID'           => $lesson->id,
-						'post_type'    => PostType::LESSON,
-						'post_title'   => $lesson->post->post_title,
-						'post_content' => $lesson->post->post_content,
-						'post_parent'  => '{section_id}',
-						'menu_order'   => $lesson_order,
-					);
-				}
-
-				++$lesson_order;
-			}
-
-			$mto_course[] = $mto_section;
-		}
-
-		if ( empty( $mto_course ) ) {
-			return;
-		}
-
-		foreach ( $mto_course as $section ) {
-			$items = $section['items'];
-			unset( $section['items'] );
-
-			$section_id = wp_insert_post( $section );
-
-			if ( is_wp_error( $section_id ) ) {
-				masteriyo_get_logger()->error( 'Migration: Failed to insert LifterLMS section post.', array( 'source' => 'migration-tool' ) );
-				continue;
-			}
 
 			update_post_meta( $section_id, '_course_id', $course_id );
 
-			foreach ( $items as $item ) {
-				if ( PostType::QUIZ === $item['post_type'] ) {
-					$quiz_id = masteriyo_array_get( $item, 'ID', 0 );
+			$item_order = 0;
 
-					$quiz      = new \LLMS_Quiz( $quiz_id );
-					$questions = $quiz->get_questions();
+			foreach ( (array) $section->get_lessons() as $lesson ) {
+				$quiz = $lesson->has_quiz() ? $lesson->get_quiz() : false;
 
-					if ( empty( $questions ) ) {
-						continue;
-					}
-
-					$k = 0;
-					foreach ( $questions as $question ) {
-						self::process_question_migration( $question, $quiz_id, $course_id, $k );
-						++$k;
-					}
+				// A lesson that ends in a quiz is copied as that quiz alone, as it always was.
+				if ( $quiz ) {
+					self::copy_quiz( $quiz, $section_id, $course_id, $item_order );
+				} else {
+					self::copy_lesson( $lesson, $section_id, $course_id, $item_order );
 				}
 
-				$item['post_parent'] = $section_id;
-				$item_id             = masteriyo_array_get( $item, 'ID', 0 );
-				wp_update_post( $item );
-				update_post_meta( $item_id, '_course_id', $course_id );
-
-				if ( PostType::QUIZ === $item['post_type'] ) {
-					if ( 'no' === $quiz->get( 'limit_attempts' ) ) {
-						update_post_meta( $item_id, '_attempts_allowed', 0 );
-					} else {
-						update_post_meta( $item_id, '_attempts_allowed', absint( $quiz->get( 'allowed_attempts' ) ) );
-					}
-
-					if ( 'no' === $quiz->get( 'limit_time' ) ) {
-						update_post_meta( $item_id, '_duration', 0 );
-					} else {
-						update_post_meta( $item_id, '_duration', absint( $quiz->get( 'time_limit' ) ) * 60 );
-					}
-
-					update_post_meta( $item_id, '_pass_mark', floatval( $quiz->get( 'passing_percent' ) ) );
-
-					// Migrate quiz randomize and answer reveal settings.
-					update_post_meta( $item_id, '_randomize', $quiz->get( 'random_questions' ) );
-					$reveal_mode = ( 'yes' === $quiz->get( 'show_correct_answer' ) ) ? 'reveal' : 'no_reveal';
-					update_post_meta( $item_id, '_reveal_mode', $reveal_mode );
-				} elseif ( PostType::LESSON === $item['post_type'] ) {
-					$url = get_post_meta( $item_id, '_llms_video_embed', true );
-
-					$source = Helper::determine_video_source_from_url( $url );
-
-					if ( is_array( $source ) ) {
-						$source = $source[0];
-					}
-
-					update_post_meta( $item_id, '_video_source', $source );
-					update_post_meta( $item_id, '_video_source_url', $url );
-
-					// Migrate free lesson preview flag.
-					if ( 'yes' === get_post_meta( $item_id, '_llms_free_lesson', true ) ) {
-						update_post_meta( $item_id, '_enable_preview', 1 );
-					}
-
-					self::migrate_single_content_drip( $item_id );
-				}
+				++$item_order;
 			}
 		}
 
-		$mto_course = array(
-			'ID'        => $course_id,
-			'post_type' => PostType::COURSE,
-		);
-
-		wp_update_post( $mto_course );
-		update_post_meta( $course_id, '_was_lf_course', true );
+		return $course_id;
 	}
 
 	/**
-	 * Migrate course info from LifterLMS.
+	 * Copy a LifterLMS lesson into a section of the copied course.
+	 *
+	 * @param object $lesson     LifterLMS lesson (LLMS_Lesson).
+	 * @param int    $section_id Masteriyo section ID (the copy).
+	 * @param int    $course_id  Masteriyo course ID (the copy).
+	 * @param int    $menu_order Position in the section.
+	 */
+	private static function copy_lesson( $lesson, int $section_id, int $course_id, int $menu_order ): void {
+		$lesson_id = PostCloner::clone_post(
+			self::SLUG,
+			(int) $lesson->id,
+			array(
+				'post_type'   => PostType::LESSON,
+				'post_parent' => $section_id,
+				'menu_order'  => $menu_order,
+			)
+		);
+
+		update_post_meta( $lesson_id, '_course_id', $course_id );
+
+		// The copy carries the LifterLMS meta.
+		$url    = get_post_meta( $lesson_id, '_llms_video_embed', true );
+		$source = Helper::determine_video_source_from_url( $url );
+
+		if ( is_array( $source ) ) {
+			$source = $source[0];
+		}
+
+		update_post_meta( $lesson_id, '_video_source', $source );
+		update_post_meta( $lesson_id, '_video_source_url', $url );
+
+		if ( 'yes' === get_post_meta( $lesson_id, '_llms_free_lesson', true ) ) {
+			update_post_meta( $lesson_id, '_enable_preview', 1 );
+		}
+
+		self::migrate_single_content_drip( $lesson_id );
+	}
+
+	/**
+	 * Copy a LifterLMS quiz and its questions into a section of the copied course.
+	 *
+	 * @param object $quiz       LifterLMS quiz (LLMS_Quiz).
+	 * @param int    $section_id Masteriyo section ID (the copy).
+	 * @param int    $course_id  Masteriyo course ID (the copy).
+	 * @param int    $menu_order Position in the section.
+	 */
+	private static function copy_quiz( $quiz, int $section_id, int $course_id, int $menu_order ): void {
+		$questions = $quiz->get_questions();
+
+		// A quiz with no questions has nothing to copy and is left out, as it always was.
+		if ( empty( $questions ) ) {
+			masteriyo_get_logger()->debug(
+				sprintf( 'Migration: Skipping LifterLMS quiz %d (no questions).', $quiz->id ),
+				array( 'source' => 'migration-tool' )
+			);
+			return;
+		}
+
+		$quiz_id = PostCloner::clone_post(
+			self::SLUG,
+			(int) $quiz->id,
+			array(
+				'post_type'   => PostType::QUIZ,
+				'post_parent' => $section_id,
+				'menu_order'  => $menu_order,
+			)
+		);
+
+		update_post_meta( $quiz_id, '_course_id', $course_id );
+
+		$k = 0;
+		foreach ( $questions as $question ) {
+			self::process_question_migration( $question, $quiz_id, $course_id, $k );
+			++$k;
+		}
+
+		if ( 'no' === $quiz->get( 'limit_attempts' ) ) {
+			update_post_meta( $quiz_id, '_attempts_allowed', 0 );
+		} else {
+			update_post_meta( $quiz_id, '_attempts_allowed', absint( $quiz->get( 'allowed_attempts' ) ) );
+		}
+
+		if ( 'no' === $quiz->get( 'limit_time' ) ) {
+			update_post_meta( $quiz_id, '_duration', 0 );
+		} else {
+			update_post_meta( $quiz_id, '_duration', absint( $quiz->get( 'time_limit' ) ) * 60 );
+		}
+
+		update_post_meta( $quiz_id, '_pass_mark', floatval( $quiz->get( 'passing_percent' ) ) );
+		update_post_meta( $quiz_id, '_randomize', $quiz->get( 'random_questions' ) );
+		update_post_meta( $quiz_id, '_reveal_mode', ( 'yes' === $quiz->get( 'show_correct_answer' ) ) ? 'reveal' : 'no_reveal' );
+	}
+
+	/**
+	 * Migrate course info from LifterLMS onto the copied course.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $course_id LifterLMS course ID.
+	 * @param int $course_id        Masteriyo course ID (the copy, which carries the LifterLMS meta).
+	 * @param int $source_course_id LifterLMS course ID, which the access plans point at.
 	 */
-	private static function migrate_course_info( $course_id ) {
+	private static function migrate_course_info( int $course_id, int $source_course_id ) {
 		$max_student = absint( get_post_meta( $course_id, '_llms_capacity', true ) );
 		update_post_meta( $course_id, '_enrollment_limit', $max_student );
 
 		$review_enabled = get_post_meta( $course_id, '_llms_reviews_enabled', true );
 		update_post_meta( $course_id, '_reviews_allowed', masteriyo_string_to_bool( $review_enabled ) );
 
-		$product_ids = self::get_access_plan_ids( $course_id );
+		$product_ids = self::get_access_plan_ids( $source_course_id );
 		$product_id  = reset( $product_ids );
 
 		if ( ! $product_id ) {
@@ -265,7 +245,7 @@ class LifterLMS {
 			masteriyo_get_logger()->warning(
 				sprintf(
 					'Migration: Course %d has a limited-period access plan — expiry date cannot be computed at migration time and was not migrated.',
-					$course_id
+					$source_course_id
 				),
 				array( 'source' => 'migration-tool' )
 			);
@@ -283,22 +263,22 @@ class LifterLMS {
 		} else {
 			update_post_meta( $course_id, '_price', $regular_price );
 		}
-
 	}
 
 	/**
-	 * Creates a WooCommerce product for a migrated LifterLMS course.
+	 * Creates a WooCommerce product for a copied LifterLMS course.
 	 *
-	 * @param int $course_id LifterLMS course ID.
+	 * @param int $course_id        Masteriyo course ID (the copy).
+	 * @param int $source_course_id LifterLMS course ID, which the access plans point at.
 	 *
 	 * @return void
 	 */
-	private static function create_woocommerce_product( $course_id ) {
+	private static function create_woocommerce_product( int $course_id, int $source_course_id ) {
 		if ( ! HelperWoocommerce::is_wc_active() ) {
 			return;
 		}
 
-		$product_ids = self::get_access_plan_ids( $course_id );
+		$product_ids = self::get_access_plan_ids( $source_course_id );
 		$course      = masteriyo_get_course( $course_id );
 
 		if ( empty( $product_ids ) || ! $course ) {
@@ -367,89 +347,24 @@ class LifterLMS {
 	}
 
 	/**
-	 * Migrates user enrollments for a given LifterLMS course ID.
+	 * Copy a single LifterLMS quiz question into the copied quiz.
+	 *
+	 * Group questions are flattened: the children are copied, the group itself is not.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $course_id LifterLMS course ID.
-	 */
-	private static function migrate_course_enrollment( $course_id ) {
-		global $wpdb;
-
-		$lf_enrollments = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}lifterlms_user_postmeta lifuer
-				WHERE lifuer.post_id = %d AND lifuer.meta_key='_status' AND lifuer.meta_value='enrolled';",
-				$course_id
-			)
-		);
-
-		if ( ! $lf_enrollments ) {
-			return;
-		}
-
-		foreach ( $lf_enrollments as $lf_enrollment ) {
-			$user_id = absint( $lf_enrollment->user_id );
-
-			if ( masteriyo_is_user_already_enrolled( $user_id, $course_id, 'active' ) ) {
-				continue;
-			}
-
-			$order_id = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT meta_value FROM {$wpdb->prefix}lifterlms_user_postmeta
-					WHERE user_id = %d AND post_id = %d AND meta_key = '_enrollment_trigger';",
-					$user_id,
-					$course_id
-				)
-			);
-
-			if ( ! $order_id ) {
-				continue;
-			}
-
-			$order_id = str_replace( 'order_', '', $order_id );
-
-			if ( masteriyo_is_user_already_enrolled( $user_id, $course_id, 'inactive' ) ) {
-				$wpdb->update(
-					$wpdb->prefix . 'masteriyo_user_items',
-					array(
-						'status' => 'active',
-					),
-					array(
-						'user_id' => $user_id,
-						'item_id' => $course_id,
-						'status'  => 'inactive',
-					),
-					array( '%s' ),
-					array( '%d', '%d', '%s' )
-				);
-			} else {
-				$price        = (float) get_post_meta( $order_id, '_llms_total', true );
-				$order_id_int = (int) $order_id;
-				Helper::enroll_user( $user_id, $course_id, $lf_enrollment->updated_date, null, 'active', $order_id_int ? $order_id_int : null, $price );
-			}
-		}
-	}
-
-	/**
-	 * Processes migration for a single LifterLMS quiz question.
-	 *
-	 * @since 1.16.0
-	 *
-	 * @param object $question LifterLMS quiz question data.
-	 * @param int $quiz_id Masteriyo quiz ID.
-	 * @param int $course_id Masteriyo course ID.
+	 * @param object $question   LifterLMS quiz question.
+	 * @param int    $quiz_id    Masteriyo quiz ID (the copy).
+	 * @param int    $course_id  Masteriyo course ID (the copy).
+	 * @param int    $menu_order Position in the quiz.
 	 *
 	 * @return void
 	 */
 	private static function process_question_migration( $question, $quiz_id, $course_id, $menu_order = 0 ) {
 		$ques_id       = $question->id;
-		$meta_key      = '_llms_question_type';
-		$ques_type     = get_post_meta( $ques_id, $meta_key, true );
+		$ques_type     = get_post_meta( $ques_id, '_llms_question_type', true );
 		$question_type = self::determine_question_type( $ques_type, $question );
 
-		// Flatten group: recurse into children as top-level questions.
 		if ( 'group' === $ques_type ) {
 			$children = $question->get_questions();
 			if ( ! empty( $children ) ) {
@@ -462,7 +377,7 @@ class LifterLMS {
 			return;
 		}
 
-		// Skip content-type display blocks (no Masteriyo equivalent) and unknown types.
+		// Content-type display blocks and unknown types have no Masteriyo equivalent.
 		if ( ! $question_type ) {
 			return;
 		}
@@ -473,23 +388,20 @@ class LifterLMS {
 			return;
 		}
 
-		$question_data = array(
-			'ID'           => $question->post->ID,
-			'post_type'    => PostType::QUESTION,
-			'post_title'   => sanitize_text_field( $question->post->post_title ),
-			'post_content' => wp_json_encode( $formatted_answers ),
-			'post_excerpt' => sanitize_text_field( $question->post_content ),
-			'post_status'  => PostStatus::PUBLISH,
-			'post_parent'  => $quiz_id,
-			'menu_order'   => $menu_order,
+		// The answers go on the copy's post_content; the LifterLMS question keeps its own.
+		$question_id = PostCloner::clone_post(
+			self::SLUG,
+			(int) $question->post->ID,
+			array(
+				'post_type'    => PostType::QUESTION,
+				'post_title'   => sanitize_text_field( $question->post->post_title ),
+				'post_content' => wp_json_encode( $formatted_answers ),
+				'post_excerpt' => sanitize_text_field( $question->post_content ),
+				'post_status'  => PostStatus::PUBLISH,
+				'post_parent'  => $quiz_id,
+				'menu_order'   => $menu_order,
+			)
 		);
-
-		$question_id = wp_update_post( $question_data );
-
-		if ( is_wp_error( $question_id ) ) {
-			masteriyo_get_logger()->error( 'Migration: Failed to update LifterLMS question post.', array( 'source' => 'migration-tool' ) );
-			return;
-		}
 
 		update_post_meta( $question_id, '_course_id', $course_id );
 		update_post_meta( $question_id, '_type', $question_type );
@@ -554,7 +466,9 @@ class LifterLMS {
 	}
 
 	/**
-	 * Count total source items for a given migration step. Fast COUNT query — no records loaded.
+	 * Count the source items a step still has to copy. Fast COUNT queries, no records loaded.
+	 *
+	 * Rows already in the migration map are left out, so a second run counts only what is new.
 	 *
 	 * @param string $step Step name.
 	 * @return int
@@ -562,13 +476,17 @@ class LifterLMS {
 	public static function count_source_items( string $step ): int {
 		global $wpdb;
 
+		$not_post = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
+				$not_user         = MigrationMap::unmapped_sql( 'user_id', self::SLUG, MigrationMap::USER );
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM (
-							SELECT DISTINCT u.ID
+							SELECT DISTINCT u.ID AS user_id
 							FROM {$wpdb->users} u
 							INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
 							WHERE um.meta_key = %s
@@ -577,7 +495,8 @@ class LifterLMS {
 							SELECT DISTINCT user_id
 							FROM {$wpdb->prefix}lifterlms_user_postmeta
 							WHERE meta_key = '_status'
-						) AS llms_users",
+						) AS llms_users
+						WHERE 1=1 {$not_user}",
 						$capabilities_key,
 						'%"instructor"%',
 						'%"lms_manager"%'
@@ -585,108 +504,73 @@ class LifterLMS {
 				);
 
 			case 'courses':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'course'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'course' {$not_post}" );
 
 			case 'enrollments':
+				$not_row = MigrationMap::unmapped_sql( 'upm.meta_id', self::SLUG, 'enrollments' );
 				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->prefix}lifterlms_user_postmeta WHERE meta_key = '_status'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					"SELECT COUNT(*) FROM {$wpdb->prefix}lifterlms_user_postmeta upm
+					 INNER JOIN {$wpdb->posts} p ON p.ID = upm.post_id
+					 WHERE upm.meta_key = '_status'
+					   AND p.post_type = 'course'
+					   {$not_row}"
 				);
 
 			case 'lesson_progress':
-				// LifterLMS stores _is_complete only for lessons, never for quizzes.
-				// Lessons without quizzes are renamed to mto-lesson by the courses step.
-				// Lessons that had quizzes are NOT renamed — their quiz becomes mto-quiz but
-				// the original lesson post keeps post_type = 'lesson'. Both must be counted.
+				// LifterLMS stores _is_complete on lessons only, never on quizzes.
+				$not_row = MigrationMap::unmapped_sql( 'upm.meta_id', self::SLUG, 'lesson_progress' );
 				return (int) $wpdb->get_var(
 					"SELECT COUNT(*) FROM {$wpdb->prefix}lifterlms_user_postmeta upm
 					 INNER JOIN {$wpdb->posts} p ON p.ID = upm.post_id
 					 WHERE upm.meta_key = '_is_complete'
-					   AND p.post_type IN ('mto-lesson', 'lesson')" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					   AND p.post_type = 'lesson'
+					   {$not_row}"
 				);
 
 			case 'orders':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'llms_order'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'llms_order' {$not_post}" );
 
 			case 'reviews':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'llms_review'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				$not_review = MigrationMap::unmapped_sql( 'ID', self::SLUG, 'reviews' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'llms_review' {$not_review}" );
 
 			case 'quiz_attempts':
 				$attempts_table = $wpdb->prefix . 'lifterlms_quiz_attempts';
-				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $attempts_table ) ) !== $attempts_table ) {
+				if ( ! self::table_exists( $attempts_table ) ) {
 					return 0;
 				}
-				$mto_attempts_table = $wpdb->prefix . 'masteriyo_quiz_attempts';
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(*) FROM {$attempts_table} la
-					 LEFT JOIN {$mto_attempts_table} ma
-					     ON ma.quiz_id = la.quiz_id
-					    AND ma.user_id = la.student_id
-					    AND ma.attempt_started_at = la.start_date
-					 WHERE ma.id IS NULL"
-				);
-				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-			case 'earned_certificates':
-				return (int) $wpdb->get_var(
-					"SELECT COUNT(DISTINCT pm.meta_value)
-					 FROM {$wpdb->postmeta} pm
-					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-					 WHERE p.post_type = 'llms_my_certificate'
-					   AND pm.meta_key = '_llms_related'
-					   AND pm.meta_value > 0" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				);
+				$not_attempt = MigrationMap::unmapped_sql( 'id', self::SLUG, 'quiz_attempts' );
+				return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$attempts_table} WHERE 1=1 {$not_attempt}" );
 
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return 0;
 	}
 
 	/**
-	 * Return paginated source IDs for a given migration step.
+	 * Return one batch of source IDs starting after $cursor.
 	 *
-	 * Courses, orders, and reviews use no OFFSET because their migration mutates the source
-	 * record (CPT rename or deletion), making migrated items self-remove from the result set.
-	 * Enrollments and lesson_progress rows are deleted after migration, so they also self-remove.
-	 * Users use OFFSET because user rows persist after role assignment.
+	 * Every step pages by its own ID column and leaves out rows already in the
+	 * migration map. Nothing is removed from the source, so $exclude is unused: a
+	 * cursor never revisits a failed ID within a run.
 	 *
-	 * @param string $step   Step name.
-	 * @param int    $limit  Batch size.
-	 * @param int    $cursor Last processed ID (0 = first batch).
+	 * @param string $step    Step name.
+	 * @param int    $limit   Batch size.
+	 * @param int    $cursor  Last processed ID (0 = first batch).
+	 * @param int[]  $exclude Unused.
 	 * @return int[]
 	 */
 	public static function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array {
 		global $wpdb;
 
-		// NOT IN for ID-column self-cleaning steps.
-		$not_in      = '';
-		$not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$not_in       = "AND ID NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$not_in_args  = array_map( 'intval', $exclude );
-		}
-
-		// NOT IN for meta_id-column self-cleaning steps.
-		$meta_not_in      = '';
-		$meta_not_in_args = array();
-		if ( ! empty( $exclude ) ) {
-			$placeholders     = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-			$meta_not_in      = "AND upm.meta_id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$meta_not_in_args = array_map( 'intval', $exclude );
-		}
+		$not_post = MigrationMap::unmapped_sql( 'ID', self::SLUG, MigrationMap::POST );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		switch ( $step ) {
 			case 'users':
-				// Cursor-based — user rows persist after role change; $exclude ignored.
 				$capabilities_key = $wpdb->get_blog_prefix() . 'capabilities';
+				$not_user         = MigrationMap::unmapped_sql( 'user_id', self::SLUG, MigrationMap::USER );
 				$ids              = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT user_id FROM (
@@ -701,6 +585,7 @@ class LifterLMS {
 							WHERE meta_key = '_status'
 						) AS llms_users
 						WHERE user_id > %d
+						{$not_user}
 						ORDER BY user_id ASC
 						LIMIT %d",
 						$capabilities_key,
@@ -713,117 +598,62 @@ class LifterLMS {
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'courses':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'course'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'course', $cursor, $limit, $not_post );
 
 			case 'enrollments':
-				$enr_not_in      = '';
-				$enr_not_in_args = array();
-				if ( ! empty( $exclude ) ) {
-					$placeholders    = implode( ',', array_fill( 0, count( $exclude ), '%d' ) );
-					$enr_not_in      = "AND meta_id NOT IN ({$placeholders})"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$enr_not_in_args = array_map( 'intval', $exclude );
-				}
-				$ids = $wpdb->get_col(
+				$not_row = MigrationMap::unmapped_sql( 'upm.meta_id', self::SLUG, 'enrollments' );
+				$ids     = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT meta_id FROM {$wpdb->prefix}lifterlms_user_postmeta
-						 WHERE meta_key = '_status'
-						 {$enr_not_in}
-						 ORDER BY meta_id ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $enr_not_in_args, array( $limit ) )
+						"SELECT upm.meta_id FROM {$wpdb->prefix}lifterlms_user_postmeta upm
+						 INNER JOIN {$wpdb->posts} p ON p.ID = upm.post_id
+						 WHERE upm.meta_key = '_status'
+						   AND p.post_type = 'course'
+						   AND upm.meta_id > %d
+						   {$not_row}
+						 ORDER BY upm.meta_id ASC
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'lesson_progress':
-				$ids = $wpdb->get_col(
+				$not_row = MigrationMap::unmapped_sql( 'upm.meta_id', self::SLUG, 'lesson_progress' );
+				$ids     = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT upm.meta_id FROM {$wpdb->prefix}lifterlms_user_postmeta upm
 						 INNER JOIN {$wpdb->posts} p ON p.ID = upm.post_id
 						 WHERE upm.meta_key = '_is_complete'
-						   AND p.post_type IN ('mto-lesson', 'lesson')
-						   {$meta_not_in}
+						   AND p.post_type = 'lesson'
+						   AND upm.meta_id > %d
+						   {$not_row}
 						 ORDER BY upm.meta_id ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $meta_not_in_args, array( $limit ) )
+						 LIMIT %d",
+						$cursor,
+						$limit
 					)
 				);
 				return array_map( 'intval', $ids ? $ids : array() );
 
 			case 'orders':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'llms_order'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'llms_order', $cursor, $limit, $not_post );
 
 			case 'reviews':
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts}
-						 WHERE post_type = 'llms_review'
-						 {$not_in}
-						 ORDER BY ID ASC
-						 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $not_in_args, array( $limit ) )
-					)
-				);
-				return array_map( 'intval', $ids ? $ids : array() );
+				return self::post_ids_after( 'llms_review', $cursor, $limit, MigrationMap::unmapped_sql( 'ID', self::SLUG, 'reviews' ) );
 
 			case 'quiz_attempts':
-				// Cursor-based — source rows are not deleted after migration; already-migrated rows
-				// are excluded via LEFT JOIN so re-running shows the correct remaining count.
-				$attempts_table     = $wpdb->prefix . 'lifterlms_quiz_attempts';
-				$mto_attempts_table = $wpdb->prefix . 'masteriyo_quiz_attempts';
-				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $attempts_table ) ) !== $attempts_table ) {
+				$attempts_table = $wpdb->prefix . 'lifterlms_quiz_attempts';
+				if ( ! self::table_exists( $attempts_table ) ) {
 					return array();
 				}
-				return array_map(
-					'intval',
-					$wpdb->get_col(
-						$wpdb->prepare(
-							"SELECT la.id FROM {$attempts_table} la
-							 LEFT JOIN {$mto_attempts_table} ma
-							     ON ma.quiz_id = la.quiz_id
-							    AND ma.user_id = la.student_id
-							    AND ma.attempt_started_at = la.start_date
-							 WHERE la.id > %d
-							   AND ma.id IS NULL
-							 ORDER BY la.id ASC
-							 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-							$cursor,
-							$limit
-						)
-					)
-				);
-
-			case 'earned_certificates':
-				// Cursor-based — source posts are not deleted; $exclude ignored.
-				$ids = $wpdb->get_col(
+				$not_attempt = MigrationMap::unmapped_sql( 'id', self::SLUG, 'quiz_attempts' );
+				$ids         = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED) AS course_id
-						 FROM {$wpdb->postmeta} pm
-						 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-						 WHERE p.post_type = 'llms_my_certificate'
-						   AND pm.meta_key = '_llms_related'
-						   AND CAST(pm.meta_value AS UNSIGNED) > %d
-						 ORDER BY course_id ASC
+						"SELECT id FROM {$attempts_table}
+						 WHERE id > %d
+						 {$not_attempt}
+						 ORDER BY id ASC
 						 LIMIT %d",
 						$cursor,
 						$limit
@@ -835,6 +665,55 @@ class LifterLMS {
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array();
+	}
+
+	/**
+	 * One page of post IDs of a type, after the cursor, that are not in the map yet.
+	 *
+	 * @param string $post_type Source post type.
+	 * @param int    $cursor    Last processed ID.
+	 * @param int    $limit     Batch size.
+	 * @param string $not_post  Map exclusion fragment for the ID column.
+	 * @return int[]
+	 */
+	private static function post_ids_after( string $post_type, int $cursor, int $limit, string $not_post ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				 WHERE post_type = %s
+				   AND ID > %d
+				 {$not_post}
+				 ORDER BY ID ASC
+				 LIMIT %d",
+				$post_type,
+				$cursor,
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids ? $ids : array() );
+	}
+
+	/**
+	 * Whether a table exists. A probe rather than SHOW TABLES, which cannot see the
+	 * temporary tables the WordPress test library creates.
+	 *
+	 * @param string $table Prefixed table name.
+	 * @return bool
+	 */
+	private static function table_exists( string $table ): bool {
+		global $wpdb;
+
+		$suppressed = $wpdb->suppress_errors();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = false !== $wpdb->query( "SELECT 1 FROM {$table} LIMIT 1" );
+		$wpdb->suppress_errors( $suppressed );
+
+		return $exists;
 	}
 
 	/**
@@ -870,20 +749,15 @@ class LifterLMS {
 			case 'quiz_attempts':
 				static::migrate_single_quiz_attempt( $item_id );
 				break;
-			case 'earned_certificates':
-				static::migrate_single_earned_certificate( $item_id );
-				break;
 		}
 	}
 
 	/**
-	 * Assign Masteriyo roles to a single LifterLMS user.
+	 * Give a LifterLMS instructor, manager or student the matching Masteriyo role.
 	 *
-	 * Maps LifterLMS instructor/lms_manager roles to Masteriyo instructor.
-	 * Students receive the Masteriyo student role via Helper::update_user_role()
-	 * when their enrollment is processed in the 'enrollments' step.
-	 *
-	 * Idempotent: LifterLMS roles are removed and Masteriyo roles added; safe to call twice.
+	 * LifterLMS's own roles and capabilities stay: LifterLMS keeps running until the
+	 * site owner deactivates it. Students who have an enrollment also get the student
+	 * role from Helper::update_user_role() in the 'enrollments' step.
 	 *
 	 * @param int $user_id WP user ID.
 	 * @throws \Exception If the WP user record does not exist.
@@ -903,17 +777,8 @@ class LifterLMS {
 		$caps     = is_array( $user->caps ) ? $user->caps : array();
 		$is_admin = in_array( 'administrator', $roles, true ) || isset( $caps['administrator'] );
 
-		$llms_instructor_roles = array( 'instructor', 'lms_manager' );
-		$has_llms_instructor   = ! empty( array_intersect( $llms_instructor_roles, $roles ) );
-
-		if ( $has_llms_instructor ) {
-			if ( ! $is_admin ) {
-				$user->add_role( Roles::INSTRUCTOR );
-			}
-			foreach ( $llms_instructor_roles as $llms_role ) {
-				$user->remove_role( $llms_role );
-			}
-			// Refresh after mutation so the student check below sees updated roles.
+		if ( ! $is_admin && array_intersect( array( 'instructor', 'lms_manager' ), $roles ) ) {
+			$user->add_role( Roles::INSTRUCTOR );
 			$roles = (array) $user->roles;
 			$caps  = is_array( $user->caps ) ? $user->caps : array();
 		}
@@ -936,61 +801,74 @@ class LifterLMS {
 				$user->add_role( Roles::STUDENT );
 			}
 		}
+
+		MigrationMap::record( self::SLUG, MigrationMap::USER, $user_id, $user_id );
 	}
 
 	/**
-	 * Migrate a single LifterLMS course to a Masteriyo mto-course.
+	 * Copy a LifterLMS course into a Masteriyo mto-course.
 	 *
-	 * Idempotent: returns early if post_type is already mto-course.
+	 * The LifterLMS course keeps its post type, meta and terms; the conversion runs on
+	 * the copy. The copy shares LifterLMS's course_cat, course_tag and course_difficulty
+	 * relationships, so the taxonomy helpers below only ever touch the copy.
 	 *
-	 * @param int $course_id LifterLMS course post ID.
+	 * @param int $source_course_id LifterLMS course post ID.
 	 * @throws \Exception If the post does not exist or is not a LifterLMS course.
 	 */
-	public static function migrate_single_course( int $course_id ): void {
-		$post = get_post( $course_id );
+	public static function migrate_single_course( int $source_course_id ): void {
+		$post = get_post( $source_course_id );
 
 		if ( ! $post ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_course: post %d not found.', $course_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_course: post %d not found.', $source_course_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
-		}
-
-		if ( PostType::COURSE === $post->post_type ) {
-			return;
 		}
 
 		if ( 'course' !== $post->post_type ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_course: post %d is not a LifterLMS course (got %s).', $course_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_course: post %d is not a LifterLMS course (got %s).', $source_course_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
 		}
 
-		static::migrate_course( $course_id );
-		static::migrate_course_info( $course_id );
-		static::create_woocommerce_product( $course_id );
+		$course_id = static::migrate_course( $source_course_id );
+		static::migrate_course_info( $course_id, $source_course_id );
+		static::create_woocommerce_product( $course_id, $source_course_id );
 		Helper::migrate_course_author( $course_id );
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_cat' );
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_difficulty', 'course_difficulty' );
 		Helper::migrate_course_categories_from_to_masteriyo( $course_id, 'course_tag', 'course_tag' );
+		self::link_prerequisite( $course_id );
+	}
 
-		// Migrate course prerequisites.
-		if ( 'yes' === get_post_meta( $course_id, '_llms_has_prerequisite', true ) ) {
-			$prereq_id = (int) get_post_meta( $course_id, '_llms_prerequisite', true );
-			if ( $prereq_id > 0 ) {
-				update_post_meta( $course_id, '_prerequisites_courses', array( $prereq_id ) );
-			}
-			// Track-level prerequisite (_llms_prerequisite_track) has no Masteriyo equivalent — skip.
+	/**
+	 * Point a copied course's prerequisite at the copy of the LifterLMS prerequisite.
+	 *
+	 * Left alone when that course has not been copied yet; finalize_step('courses')
+	 * comes back for it. Track-level prerequisites have no Masteriyo equivalent.
+	 *
+	 * @param int $course_id Masteriyo course ID (the copy, which carries the LifterLMS meta).
+	 */
+	private static function link_prerequisite( int $course_id ): void {
+		if ( 'yes' !== get_post_meta( $course_id, '_llms_has_prerequisite', true ) ) {
+			return;
+		}
+
+		$source_prereq_id = (int) get_post_meta( $course_id, '_llms_prerequisite', true );
+		$prereq_id        = $source_prereq_id ? MigrationMap::target( self::SLUG, MigrationMap::POST, $source_prereq_id ) : 0;
+
+		if ( $prereq_id ) {
+			update_post_meta( $course_id, '_prerequisites_courses', array( $prereq_id ) );
 		}
 	}
 
 	/**
-	 * Migrate a single LifterLMS enrollment record to a Masteriyo user_course item.
+	 * Copy a single LifterLMS enrollment row to a Masteriyo user_course item on the copied course.
 	 *
-	 * Operates on one lifterlms_user_postmeta row by its meta_id primary key.
-	 * Deletes the source row after migration so it self-removes from paginated queries.
+	 * Operates on one lifterlms_user_postmeta row by its meta_id primary key. The row stays;
+	 * the map remembers it, with a target of 0 when it was skipped on purpose.
 	 *
 	 * @param int $meta_id Primary key of the lifterlms_user_postmeta row (meta_key = '_status').
-	 * @throws \Exception If the row does not exist or the DB insert fails.
+	 * @throws \Exception If the row does not exist, its course has no copy, or the DB insert fails.
 	 */
 	public static function migrate_single_enrollment( int $meta_id ): void {
 		global $wpdb;
@@ -1010,15 +888,32 @@ class LifterLMS {
 			);
 		}
 
-		$user_id   = (int) $row->user_id;
-		$course_id = (int) $row->post_id;
+		$user_id          = (int) $row->user_id;
+		$source_course_id = (int) $row->post_id;
+
+		$skip = function() use ( $meta_id ): void {
+			MigrationMap::record( self::SLUG, 'enrollments', $meta_id, 0 );
+		};
+
+		// Membership enrollments have no Masteriyo counterpart.
+		if ( 'course' !== get_post_type( $source_course_id ) ) {
+			$skip();
+			return;
+		}
+
+		if ( ! get_userdata( $user_id ) ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Migration: Enrollment row %d skipped: user %d does not exist.', $meta_id, $user_id ),
+				array( 'source' => 'migration-tool' )
+			);
+			$skip();
+			return;
+		}
+
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
 
 		if ( masteriyo_is_user_already_enrolled( $user_id, $course_id ) ) {
-			$wpdb->delete(
-				$wpdb->prefix . 'lifterlms_user_postmeta',
-				array( 'meta_id' => $meta_id ),
-				array( '%d' )
-			);
+			$skip();
 			return;
 		}
 
@@ -1058,63 +953,102 @@ class LifterLMS {
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
+		$user_item_id = (int) $wpdb->insert_id;
+
 		Helper::update_user_role( $user_id );
 
 		// Link to the Masteriyo order if an enrollment trigger exists (format: 'order_123').
-		$user_item_id = (int) $wpdb->insert_id;
-		if ( $user_item_id ) {
-			$trigger = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT meta_value FROM {$wpdb->prefix}lifterlms_user_postmeta
-					 WHERE user_id = %d AND post_id = %d AND meta_key = '_enrollment_trigger'
-					 LIMIT 1",
-					$user_id,
-					$course_id
-				)
-			);
+		$trigger = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_value FROM {$wpdb->prefix}lifterlms_user_postmeta
+				 WHERE user_id = %d AND post_id = %d AND meta_key = '_enrollment_trigger'
+				 LIMIT 1",
+				$user_id,
+				$source_course_id
+			)
+		);
 
-			if ( $trigger && 0 === strpos( $trigger, 'order_' ) ) {
-				$order_id = (int) str_replace( 'order_', '', $trigger );
+		if ( $trigger && 0 === strpos( $trigger, 'order_' ) ) {
+			$source_order_id = (int) str_replace( 'order_', '', $trigger );
 
-				if ( $order_id ) {
-					$itemmeta_tbl = $wpdb->prefix . 'masteriyo_user_itemmeta';
-					$wpdb->insert(
-						$itemmeta_tbl,
-						array(
-							'user_item_id' => $user_item_id,
-							'meta_key'     => '_order_id',
-							'meta_value'   => $order_id,
-						),
-						array( '%d', '%s', '%s' )
-					);
-					$wpdb->insert(
-						$itemmeta_tbl,
-						array(
-							'user_item_id' => $user_item_id,
-							'meta_key'     => '_price',
-							'meta_value'   => get_post_meta( $order_id, '_llms_total', true ),
-						),
-						array( '%d', '%s', '%s' )
-					);
-				}
+			// The copied order's ID is new, so the order is copied here if the orders step has not reached it.
+			$order_id = ( $source_order_id && 'llms_order' === get_post_type( $source_order_id ) )
+				? self::migrate_order( $source_order_id )
+				: 0;
+
+			if ( $order_id ) {
+				$itemmeta_tbl = $wpdb->prefix . 'masteriyo_user_itemmeta';
+				$wpdb->insert(
+					$itemmeta_tbl,
+					array(
+						'user_item_id' => $user_item_id,
+						'meta_key'     => '_order_id',
+						'meta_value'   => $order_id,
+					),
+					array( '%d', '%s', '%s' )
+				);
+				$wpdb->insert(
+					$itemmeta_tbl,
+					array(
+						'user_item_id' => $user_item_id,
+						'meta_key'     => '_price',
+						'meta_value'   => get_post_meta( $source_order_id, '_llms_total', true ),
+					),
+					array( '%d', '%s', '%s' )
+				);
 			}
 		}
 
-		$wpdb->delete(
-			$wpdb->prefix . 'lifterlms_user_postmeta',
-			array( 'meta_id' => $meta_id ),
-			array( '%d' )
-		);
+		MigrationMap::record( self::SLUG, 'enrollments', $meta_id, $user_item_id );
 	}
 
 	/**
-	 * Migrate a single lifterlms_user_postmeta lesson/quiz progress row to masteriyo_user_activities.
+	 * The copied quiz a LifterLMS quiz maps to, or 0 when the courses step left it out.
 	 *
-	 * Writes a course_progress activity (if missing) and a lesson or quiz activity.
-	 * Deletes the source row after migrating so it self-removes from paginated queries.
+	 * Throws when the quiz's course has not been copied, so the item is retried later
+	 * rather than skipped for good.
+	 *
+	 * @param int $source_quiz_id LifterLMS quiz post ID.
+	 * @return int
+	 * @throws \Exception When the course has no copy yet.
+	 */
+	private static function copied_quiz( int $source_quiz_id ): int {
+		$quiz_id = MigrationMap::target( self::SLUG, MigrationMap::POST, $source_quiz_id );
+
+		if ( $quiz_id ) {
+			return $quiz_id;
+		}
+
+		$lesson_id = (int) get_post_meta( $source_quiz_id, '_llms_lesson_id', true );
+		self::require_copied_course_of_lesson( $lesson_id );
+
+		return 0;
+	}
+
+	/**
+	 * Throw unless the course a LifterLMS lesson belongs to has been copied.
+	 *
+	 * A lesson with no course cannot be waited for, so it passes.
+	 *
+	 * @param int $source_lesson_id LifterLMS lesson post ID.
+	 * @throws \Exception When the course has no copy yet.
+	 */
+	private static function require_copied_course_of_lesson( int $source_lesson_id ): void {
+		$source_course_id = (int) get_post_meta( $source_lesson_id, '_llms_parent_course', true );
+
+		if ( $source_course_id ) {
+			MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
+		}
+	}
+
+	/**
+	 * Copy a single lifterlms_user_postmeta completion row to masteriyo_user_activities.
+	 *
+	 * Writes a course_progress activity (if missing) and a lesson or quiz activity on
+	 * the copied item. The row stays; the map remembers it.
 	 *
 	 * @param int $meta_id Primary key of the lifterlms_user_postmeta row (meta_key = '_is_complete').
-	 * @throws \Exception If the row does not exist.
+	 * @throws \Exception If the row does not exist or its course has no copy.
 	 */
 	public static function migrate_single_lesson_progress( int $meta_id ): void {
 		global $wpdb;
@@ -1137,42 +1071,44 @@ class LifterLMS {
 			);
 		}
 
-		$user_id   = (int) $row->user_id;
-		$lesson_id = (int) $row->post_id;
-		$completed = ( 'yes' === $row->meta_value );
-		$date      = $row->updated_date ? $row->updated_date : $now;
+		$user_id          = (int) $row->user_id;
+		$source_lesson_id = (int) $row->post_id;
+		$completed        = ( 'yes' === $row->meta_value );
+		$date             = $row->updated_date ? $row->updated_date : $now;
 
-		// Default: plain lesson renamed to mto-lesson by migrate_course().
+		$skip = function() use ( $meta_id ): void {
+			MigrationMap::record( self::SLUG, 'lesson_progress', $meta_id, 0 );
+		};
+
+		// A plain lesson has a copy; a lesson that ended in a quiz was copied as that quiz,
+		// and LifterLMS writes _is_complete on the lesson when its quiz passes.
 		$activity_type    = CourseProgressItemType::LESSON;
-		$activity_item_id = $lesson_id;
-		$course_id        = (int) get_post_meta( $lesson_id, '_course_id', true );
+		$activity_item_id = MigrationMap::target( self::SLUG, MigrationMap::POST, $source_lesson_id );
 
-		// If the lesson still has post_type = 'lesson', it had a quiz. migrate_course() renamed
-		// the QUIZ to mto-quiz and left the lesson post behind. LifterLMS writes _is_complete on
-		// the lesson when its quiz passes — we must map this to a QUIZ activity on the quiz post.
-		if ( 'lesson' === get_post_type( $lesson_id ) ) {
-			$quiz_id = (int) get_post_meta( $lesson_id, '_llms_quiz', true );
+		if ( ! $activity_item_id ) {
+			$source_quiz_id = (int) get_post_meta( $source_lesson_id, '_llms_quiz', true );
 
-			if ( ! $quiz_id ) {
-				masteriyo_get_logger()->warning(
-					sprintf( 'Migration: Lesson %d (post_type=lesson) has no _llms_quiz meta — skipping progress row %d.', $lesson_id, $meta_id ),
-					array( 'source' => 'migration-tool' )
-				);
-				$wpdb->delete( $wpdb->prefix . 'lifterlms_user_postmeta', array( 'meta_id' => $meta_id ), array( '%d' ) );
-				return;
+			if ( $source_quiz_id ) {
+				$activity_type    = CourseProgressItemType::QUIZ;
+				$activity_item_id = self::copied_quiz( $source_quiz_id );
+			} else {
+				self::require_copied_course_of_lesson( $source_lesson_id );
 			}
-
-			$activity_type    = CourseProgressItemType::QUIZ;
-			$activity_item_id = $quiz_id;
-			$course_id        = (int) get_post_meta( $quiz_id, '_course_id', true );
 		}
+
+		// Not a skip: the lesson may be copied later, and the row must still be picked up then.
+		if ( ! $activity_item_id ) {
+			throw new \Exception( sprintf( 'migrate_single_lesson_progress: lesson %d has no copy.', $source_lesson_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$course_id = (int) get_post_meta( $activity_item_id, '_course_id', true );
 
 		if ( ! $course_id ) {
 			masteriyo_get_logger()->warning(
-				sprintf( 'Migration: No course found for lesson %d — skipping progress row %d.', $lesson_id, $meta_id ),
+				sprintf( 'Migration: No course found for lesson %d — skipping progress row %d.', $source_lesson_id, $meta_id ),
 				array( 'source' => 'migration-tool' )
 			);
-			$wpdb->delete( $wpdb->prefix . 'lifterlms_user_postmeta', array( 'meta_id' => $meta_id ), array( '%d' ) );
+			$skip();
 			return;
 		}
 
@@ -1208,12 +1144,11 @@ class LifterLMS {
 		}
 
 		if ( ! $progress_id ) {
-			masteriyo_get_logger()->warning(
-				sprintf( 'Migration: Failed to get/create course_progress activity for user %d course %d.', $user_id, $course_id ),
-				array( 'source' => 'migration-tool' )
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			throw new \Exception(
+				sprintf( 'migrate_single_lesson_progress: could not create course_progress for user %d course %d.', $user_id, $course_id )
 			);
-			$wpdb->delete( $wpdb->prefix . 'lifterlms_user_postmeta', array( 'meta_id' => $meta_id ), array( '%d' ) );
-			return;
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		// Idempotency: skip inserting the activity if it already exists.
@@ -1250,14 +1185,11 @@ class LifterLMS {
 			);
 		}
 
-		// Delete source row — makes it self-removing from paginated queries.
-		$wpdb->delete( $wpdb->prefix . 'lifterlms_user_postmeta', array( 'meta_id' => $meta_id ), array( '%d' ) );
+		MigrationMap::record( self::SLUG, 'lesson_progress', $meta_id, $progress_id );
 	}
 
 	/**
-	 * Migrate a single LifterLMS order to a Masteriyo mto-order.
-	 *
-	 * Idempotent: returns early if post_type is already mto-order.
+	 * Copy a single LifterLMS order to a Masteriyo mto-order.
 	 *
 	 * @param int $order_id LifterLMS llms_order post ID.
 	 * @throws \Exception If the post does not exist or is not an llms_order post.
@@ -1265,32 +1197,22 @@ class LifterLMS {
 	public static function migrate_single_order( int $order_id ): void {
 		$post = get_post( $order_id );
 
-		if ( ! $post ) {
+		if ( ! $post || 'llms_order' !== $post->post_type ) {
 			throw new \Exception(
-				sprintf( 'migrate_single_order: post %d not found.', $order_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				sprintf( 'migrate_single_order: llms_order post %d not found.', $order_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			);
 		}
 
-		if ( PostType::ORDER === $post->post_type ) {
-			return;
-		}
-
-		if ( 'llms_order' !== $post->post_type ) {
-			throw new \Exception(
-				sprintf( 'migrate_single_order: post %d is not an llms_order post (got %s).', $order_id, $post->post_type ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-			);
-		}
-
-		static::migrate_order( $order_id );
+		self::migrate_order( $order_id );
 	}
 
 	/**
-	 * Migrate a single LifterLMS review (llms_review CPT) to a Masteriyo course_review comment.
+	 * Copy a single LifterLMS review (llms_review CPT) to a new Masteriyo course_review comment.
 	 *
-	 * Deletes the source post after inserting the WP comment so it self-removes from paginated queries.
+	 * The llms_review post stays; the new comment is recorded against it.
 	 *
 	 * @param int $review_id LifterLMS llms_review post ID.
-	 * @throws \Exception If the post does not exist or is not an llms_review post.
+	 * @throws \Exception If the post does not exist, is not an llms_review, or its course has no copy.
 	 */
 	public static function migrate_single_review( int $review_id ): void {
 		$llms_review = get_post( $review_id );
@@ -1301,7 +1223,7 @@ class LifterLMS {
 			);
 		}
 
-		$course_id = (int) $llms_review->post_parent;
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, (int) $llms_review->post_parent, 'course' );
 		$user_id   = (int) $llms_review->post_author;
 		$rating    = get_post_meta( $review_id, 'rating', true );
 
@@ -1320,41 +1242,65 @@ class LifterLMS {
 			? CommentStatus::APPROVE
 			: CommentStatus::HOLD;
 
-		$review_data = array(
-			'comment_post_ID'      => $course_id,
-			'comment_author'       => $comment_author,
-			'comment_author_email' => $comment_author_email,
-			'comment_author_url'   => $comment_author_url,
-			'comment_date'         => $llms_review->post_date,
-			'comment_date_gmt'     => $llms_review->post_date_gmt,
-			'comment_content'      => $llms_review->post_content,
-			'comment_karma'        => (int) $rating,
-			'comment_parent'       => 0,
-			'user_id'              => $user_id,
-			'comment_approved'     => $comment_status,
-			'comment_type'         => CommentType::COURSE_REVIEW,
-			'comment_agent'        => 'Masteriyo',
+		$new_comment_id = wp_insert_comment(
+			array(
+				'comment_post_ID'      => $course_id,
+				'comment_author'       => $comment_author,
+				'comment_author_email' => $comment_author_email,
+				'comment_author_url'   => $comment_author_url,
+				'comment_date'         => $llms_review->post_date,
+				'comment_date_gmt'     => $llms_review->post_date_gmt,
+				'comment_content'      => $llms_review->post_content,
+				'comment_karma'        => (int) $rating,
+				'comment_parent'       => 0,
+				'user_id'              => $user_id,
+				'comment_approved'     => $comment_status,
+				'comment_type'         => CommentType::COURSE_REVIEW,
+				'comment_agent'        => 'Masteriyo',
+			)
 		);
 
-		$new_comment_id = wp_insert_comment( $review_data );
-
-		if ( $new_comment_id ) {
-			update_comment_meta( $new_comment_id, '_title', sanitize_text_field( $llms_review->post_title ) );
+		if ( ! $new_comment_id ) {
+			throw new \Exception(
+				sprintf( 'migrate_single_review: could not insert a comment for review %d.', $review_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			);
 		}
 
-		// Delete the original source post so it no longer appears in source queries.
-		wp_delete_post( $review_id, true );
+		update_comment_meta( $new_comment_id, '_title', sanitize_text_field( $llms_review->post_title ) );
+
+		// Not the post entity: the target is a comment, not a post.
+		MigrationMap::record( self::SLUG, 'reviews', $review_id, (int) $new_comment_id );
 	}
 
 	/**
-	 * Migrates an order from LifterLMS to Masteriyo.
+	 * Copy an order from LifterLMS to Masteriyo, once.
+	 *
+	 * Called from the orders step and from an enrollment that points at the order.
+	 * An order for a membership has no Masteriyo counterpart and is skipped.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $order_id LifterLMS order ID.
+	 * @param int $source_order_id LifterLMS order ID.
+	 * @return int Masteriyo order ID (the copy), or 0 when skipped.
+	 * @throws \Exception When the order's course has no copy yet.
 	 */
-	private static function migrate_order( $order_id ) {
-		$current_status = get_post_status( $order_id );
+	private static function migrate_order( int $source_order_id ): int {
+		if ( MigrationMap::is_settled_post( self::SLUG, $source_order_id ) ) {
+			return MigrationMap::target( self::SLUG, MigrationMap::POST, $source_order_id );
+		}
+
+		$source_course_id = absint( get_post_meta( $source_order_id, '_llms_product_id', true ) );
+
+		if ( 'course' !== get_post_type( $source_course_id ) ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Migration: Order %d skipped: its product %d is not a LifterLMS course.', $source_order_id, $source_course_id ),
+				array( 'source' => 'migration-tool' )
+			);
+			MigrationMap::record( self::SLUG, MigrationMap::POST, $source_order_id, 0 );
+			return 0;
+		}
+
+		$course_id = MigrationMap::require_target( self::SLUG, MigrationMap::POST, $source_course_id, 'course' );
 
 		$order_status_map = array(
 			'llms-completed'      => OrderStatus::COMPLETED,
@@ -1367,29 +1313,33 @@ class LifterLMS {
 			'llms-refunded'       => OrderStatus::REFUNDED,
 			'llms-failed'         => OrderStatus::FAILED,
 		);
-		$status           = $order_status_map[ $current_status ] ?? OrderStatus::PENDING;
+		$status           = $order_status_map[ get_post_status( $source_order_id ) ] ?? OrderStatus::PENDING;
 
-		$order = array(
-			'ID'            => $order_id,
-			'post_type'     => PostType::ORDER,
-			'post_status'   => $status,
-			'post_password' => masteriyo_generate_order_key(),
+		$order_id = PostCloner::clone_post(
+			self::SLUG,
+			$source_order_id,
+			array(
+				'post_type'     => PostType::ORDER,
+				'post_status'   => $status,
+				'post_password' => masteriyo_generate_order_key(),
+			)
 		);
 
-		wp_update_post( $order );
+		self::update_order_items( $order_id, $course_id );
+		self::update_order_meta( $order_id, $source_order_id );
 
-		self::update_order_items( $order_id );
-		self::update_order_meta( $order_id );
+		return $order_id;
 	}
 
 	/**
-	 * Updates the order items.
+	 * Insert the order item for a copied order.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $order_id LifterLMS order ID.
+	 * @param int $order_id  Masteriyo order ID (the copy, which carries the LifterLMS meta).
+	 * @param int $course_id Masteriyo course ID (the copy).
 	 */
-	private static function update_order_items( $order_id ) {
+	private static function update_order_items( int $order_id, int $course_id ) {
 		global $wpdb;
 
 		$item_name = get_post_meta( $order_id, '_llms_product_title', true );
@@ -1407,24 +1357,24 @@ class LifterLMS {
 			return;
 		}
 
-		self::update_order_items_meta( $order_item_id, $order_id );
+		self::update_order_items_meta( $order_item_id, $order_id, $course_id );
 	}
 
 	/**
-	 * Updates order item meta for a given order item and order.
+	 * Insert order item meta for a copied order.
 	 *
 	 * @since 1.16.0
 	 *
 	 * @param int $order_item_id Order item ID.
-	 * @param int $order_id      Order ID.
+	 * @param int $order_id      Masteriyo order ID (the copy, which carries the LifterLMS meta).
+	 * @param int $course_id     Masteriyo course ID (the copy).
 	 */
-	private static function update_order_items_meta( $order_item_id, $order_id ) {
+	private static function update_order_items_meta( int $order_item_id, int $order_id, int $course_id ) {
 		global $wpdb;
 
-		$quantity  = 1;
-		$course_id = absint( get_post_meta( $order_id, '_llms_product_id', true ) );
-		$subtotal  = get_post_meta( $order_id, '_llms_original_total', true );
-		$total     = get_post_meta( $order_id, '_llms_total', true );
+		$quantity = 1;
+		$subtotal = get_post_meta( $order_id, '_llms_original_total', true );
+		$total    = get_post_meta( $order_id, '_llms_total', true );
 
 		$item_metas = array(
 			array(
@@ -1457,13 +1407,14 @@ class LifterLMS {
 	}
 
 	/**
-	 * Updates the order meta data.
+	 * Write the Masteriyo order meta on a copied order from the LifterLMS meta it carries.
 	 *
 	 * @since 1.16.0
 	 *
-	 * @param int $order_id Masteriyo order ID.
+	 * @param int $order_id        Masteriyo order ID (the copy).
+	 * @param int $source_order_id LifterLMS order ID, which the transactions hang off.
 	 */
-	private static function update_order_meta( $order_id ) {
+	private static function update_order_meta( int $order_id, int $source_order_id ) {
 		$billing_email = get_post_meta( $order_id, '_llms_billing_email', true );
 
 		$payment_gateway = get_post_meta( $order_id, '_llms_payment_gateway', true );
@@ -1491,11 +1442,11 @@ class LifterLMS {
 		update_post_meta( $order_id, '_billing_phone', get_post_meta( $order_id, '_llms_billing_phone', true ) );
 		update_post_meta( $order_id, '_was_lf_order', true );
 
-		// Map gateway transaction reference from llms_transaction child post.
+		// Map gateway transaction reference from the llms_transaction child of the LifterLMS order.
 		$transactions = get_posts(
 			array(
 				'post_type'      => 'llms_transaction',
-				'post_parent'    => $order_id,
+				'post_parent'    => $source_order_id,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'post_status'    => 'any',
@@ -1510,11 +1461,10 @@ class LifterLMS {
 	}
 
 	/**
-	 * Migrate a single LifterLMS quiz attempt row to masteriyo_quiz_attempts.
-	 *
-	 * Cursor-based — source rows are not deleted (historical records are preserved).
+	 * Copy a single LifterLMS quiz attempt row to masteriyo_quiz_attempts. The LifterLMS row stays.
 	 *
 	 * @param int $attempt_id Primary key of the lifterlms_quiz_attempts row.
+	 * @throws \Exception If the row does not exist, its course has no copy, or the insert fails.
 	 */
 	private static function migrate_single_quiz_attempt( int $attempt_id ): void {
 		global $wpdb;
@@ -1526,10 +1476,26 @@ class LifterLMS {
 		);
 
 		if ( ! $row ) {
+			throw new \Exception(
+				sprintf( 'migrate_single_quiz_attempt: attempt %d not found.', $attempt_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			);
+		}
+
+		$skip = function() use ( $attempt_id ): void {
+			MigrationMap::record( self::SLUG, 'quiz_attempts', $attempt_id, 0 );
+		};
+
+		$quiz_id = self::copied_quiz( (int) $row['quiz_id'] );
+
+		if ( ! $quiz_id ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Migration: Quiz %d has no copy — skipping attempt %d.', (int) $row['quiz_id'], $attempt_id ),
+				array( 'source' => 'migration-tool' )
+			);
+			$skip();
 			return;
 		}
 
-		$quiz_id   = (int) $row['quiz_id'];
 		$course_id = (int) get_post_meta( $quiz_id, '_course_id', true );
 
 		$raw_questions   = maybe_unserialize( $row['questions'] );
@@ -1539,13 +1505,25 @@ class LifterLMS {
 		$total_questions = is_array( $raw_questions ) ? count( $raw_questions ) : 0;
 
 		if ( is_array( $raw_questions ) ) {
+			// Answers reference the copied questions; one that was not copied keeps its LifterLMS ID.
+			$question_map = MigrationMap::targets(
+				self::SLUG,
+				MigrationMap::POST,
+				array_map(
+					static function ( $q ): int {
+						return (int) ( ( (array) $q )['id'] ?? 0 );
+					},
+					$raw_questions
+				)
+			);
 			foreach ( $raw_questions as $q ) {
 				$q                = (array) $q;
 				$is_correct       = ! empty( $q['correct'] ) ? 1 : 0;
 				$total_correct   += $is_correct;
 				$total_incorrect += ( 1 - $is_correct );
+				$question_id      = isset( $q['id'] ) ? (int) $q['id'] : 0;
 				$answers_json[]   = array(
-					'question_id' => isset( $q['id'] ) ? (int) $q['id'] : 0,
+					'question_id' => $question_map[ $question_id ] ?? $question_id,
 					'correct'     => (bool) $is_correct,
 					'points'      => isset( $q['points'] ) ? (float) $q['points'] : 0.0,
 					'answer_data' => isset( $q['answer'] ) ? $q['answer'] : null,
@@ -1568,7 +1546,6 @@ class LifterLMS {
 		$started_at = ! empty( $row['start_date'] ) ? $row['start_date'] : current_time( 'mysql', true );
 		$ended_at   = ! empty( $row['end_date'] ) ? $row['end_date'] : $started_at;
 
-		// Idempotency — skip if this attempt was already migrated (source rows are not deleted).
 		$already_exists = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}masteriyo_quiz_attempts
@@ -1579,10 +1556,11 @@ class LifterLMS {
 			)
 		);
 		if ( $already_exists ) {
+			$skip();
 			return;
 		}
 
-		$wpdb->insert(
+		$inserted = $wpdb->insert(
 			$wpdb->prefix . 'masteriyo_quiz_attempts',
 			array(
 				'quiz_id'                  => $quiz_id,
@@ -1602,34 +1580,22 @@ class LifterLMS {
 			),
 			array( '%d', '%d', '%d', '%d', '%d', '%f', '%d', '%d', '%d', '%f', '%s', '%s', '%s', '%s' )
 		);
+
+		if ( ! $inserted ) {
+			throw new \Exception(
+				sprintf( 'migrate_single_quiz_attempt: failed to insert attempt %d.', $attempt_id ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			);
+		}
+
+		MigrationMap::record( self::SLUG, 'quiz_attempts', $attempt_id, (int) $wpdb->insert_id );
 	}
 
 	/**
-	 * Assign a Masteriyo certificate template to a course that had earned certificates in LifterLMS.
+	 * Migrate content drip settings for a single copied lesson from LifterLMS to Masteriyo Pro.
 	 *
-	 * LifterLMS certificate designs cannot be converted — a starter template is auto-assigned.
-	 * Students who completed the course will be able to download the certificate immediately.
+	 * The copy carries the LifterLMS drip meta and already has _course_id.
 	 *
-	 * @param int $course_id Masteriyo course post ID.
-	 */
-	private static function migrate_single_earned_certificate( int $course_id ): void {
-		$author_id = (int) get_post_field( 'post_author', $course_id );
-		Helper::assign_certificate_template( $course_id, $author_id );
-		masteriyo_get_logger()->info(
-			sprintf(
-				'Migration: Certificate template assigned to course %d (original LifterLMS design cannot be converted).',
-				$course_id
-			),
-			array( 'source' => 'migration-tool' )
-		);
-	}
-
-	/**
-	 * Migrate content drip settings for a single lesson from LifterLMS to Masteriyo Pro.
-	 *
-	 * Runs after the courses step so all lessons already have _course_id meta set.
-	 *
-	 * @param int $lesson_id Masteriyo mto-lesson post ID.
+	 * @param int $lesson_id Masteriyo mto-lesson post ID (the copy).
 	 */
 	private static function migrate_single_content_drip( int $lesson_id ): void {
 		$drip_method = get_post_meta( $lesson_id, '_llms_drip_method', true );
@@ -1661,31 +1627,33 @@ class LifterLMS {
 	}
 
 	/**
-	 * Bulk-update course_progress status once all lesson_progress items are migrated.
-	 * Replaces the per-item recount queries — runs once after the step completes.
-	 *
-	 * @param string $step Step name.
-	 */
-	/**
-	 * Assign starter certificate templates to all migrated LifterLMS courses that had
-	 * earned certificates. Runs once as a single batch after the 'courses' step completes —
-	 * avoids one extra DB query per course during migration.
+	 * Assign starter certificate templates to the copies of every LifterLMS course that
+	 * had earned certificates. Runs once after the 'courses' step completes.
 	 */
 	private static function assign_certificate_templates_for_lifterlms_courses(): void {
 		global $wpdb;
 
-		// One JOIN query finds every migrated mto-course linked to at least one llms_my_certificate.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// The certificates name LifterLMS's course IDs; the map gives the copies'. _llms_related
+		// can also name the lesson or quiz that earned it, so only course copies are kept.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
 		$course_ids = $wpdb->get_col(
-			"SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED) AS course_id
-			 FROM {$wpdb->postmeta} pm
-			 INNER JOIN {$wpdb->posts} cert   ON cert.ID   = pm.post_id
-			 INNER JOIN {$wpdb->posts} course ON course.ID = CAST(pm.meta_value AS UNSIGNED)
-			 WHERE cert.post_type   = 'llms_my_certificate'
-			   AND pm.meta_key      = '_llms_related'
-			   AND pm.meta_value    > 0
-			   AND course.post_type = 'mto-course'
-			 ORDER BY course_id ASC"
+			$wpdb->prepare(
+				"SELECT DISTINCT m.target_id
+				 FROM {$wpdb->postmeta} pm
+				 INNER JOIN {$wpdb->posts} cert ON cert.ID = pm.post_id
+				 INNER JOIN " . MigrationMap::table() . " m
+				         ON m.source_id = CAST(pm.meta_value AS UNSIGNED)
+				        AND m.lms = %s AND m.entity = %s AND m.target_id > 0
+				 INNER JOIN {$wpdb->posts} course ON course.ID = m.target_id AND course.post_type = %s
+				 WHERE cert.post_type = %s
+				   AND pm.meta_key = %s
+				 ORDER BY m.target_id ASC",
+				self::SLUG,
+				MigrationMap::POST,
+				PostType::COURSE,
+				'llms_my_certificate',
+				'_llms_related'
+			)
 		);
 		// phpcs:enable
 
@@ -1699,13 +1667,37 @@ class LifterLMS {
 	}
 
 	/**
-	 * Bulk post-step operations: assign certificate templates after 'courses',
-	 * recalculate course_progress status after 'lesson_progress'.
+	 * Point every copied course with a LifterLMS prerequisite at the prerequisite's copy.
+	 *
+	 * Per-course linking only works when the prerequisite was copied first; this pass
+	 * covers the rest.
+	 */
+	private static function link_prerequisites(): void {
+		$course_ids = get_posts(
+			array(
+				'post_type'      => PostType::COURSE,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_key'       => '_llms_has_prerequisite',
+				'meta_value'     => 'yes',
+			)
+		);
+
+		foreach ( $course_ids as $course_id ) {
+			self::link_prerequisite( (int) $course_id );
+		}
+	}
+
+	/**
+	 * Bulk post-step operations: link prerequisites and assign certificate templates
+	 * after 'courses', recalculate course_progress status after 'lesson_progress'.
 	 *
 	 * @param string $step Step name.
 	 */
 	public static function finalize_step( string $step ): void {
 		if ( 'courses' === $step ) {
+			self::link_prerequisites();
 			self::assign_certificate_templates_for_lifterlms_courses();
 			return;
 		}
@@ -1716,6 +1708,8 @@ class LifterLMS {
 
 		global $wpdb;
 		$tbl = $wpdb->prefix . 'masteriyo_user_activities';
+		// Only this run's copies: a course the site made natively keeps its own dates.
+		$copied = MigrationMap::targets_sql( self::SLUG, MigrationMap::POST );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
@@ -1742,12 +1736,13 @@ class LifterLMS {
 			     END,
 			     parent.completed_at = IF(
 			         curriculum.curriculum_total > 0 AND completed.done >= curriculum.curriculum_total,
-			         UTC_TIMESTAMP(),
+			         COALESCE( NULLIF( parent.completed_at, '0000-00-00 00:00:00' ), UTC_TIMESTAMP() ),
 			         '0000-00-00 00:00:00'
 			     ),
 			     parent.modified_at  = UTC_TIMESTAMP()
 			 WHERE parent.activity_type = 'course_progress'
-			   AND completed.done       > 0"
+			   AND completed.done       > 0
+			   AND parent.item_id IN ( {$copied} )"
 		);
 		// phpcs:enable
 	}

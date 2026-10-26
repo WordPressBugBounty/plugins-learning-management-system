@@ -74,7 +74,7 @@ const WithdrawDetail: React.FC<Props> = ({ userDataQuery }) => {
 					</GridItem>
 					<GridItem>
 						<StatCard
-							label={__('Withdraw Method', 'learning-management-system')}
+							label={__('Withdrawal Method', 'learning-management-system')}
 							value={
 								<Stack direction="row" align="center" spacing="2">
 									<Text>

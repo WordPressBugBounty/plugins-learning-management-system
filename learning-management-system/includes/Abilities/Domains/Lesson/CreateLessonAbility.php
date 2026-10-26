@@ -59,6 +59,6 @@ class CreateLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new lesson inside a section.', 'learning-management-system' );
+		return 'Create a new lesson inside a section.';
 	}
 }

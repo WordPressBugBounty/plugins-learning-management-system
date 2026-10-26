@@ -949,6 +949,13 @@
 .masteriyo-badge.masteriyo-badge-pink {
   background-color: var(--masteriyo-color-badge-pink);
 }
+.masteriyo-badge.masteriyo-badge-draft {
+  align-self: center;
+  font-size: 10px;
+  padding: 2px 8px;
+  color: var(--masteriyo-color-text);
+  background-color: var(--masteriyo-color-primary-a20);
+}
 
 .masteriyo--modal {
   max-width: 500px;
@@ -1678,7 +1685,7 @@ body.theme-elearning .masteriyo-container {
 .masteriyo-course-progress-bar .course-progress-box .completed-component .course-progress-popover .row .course-progress-text .label {
   color: #16181a;
   font-weight: 500;
-  text-transform: capitalize;
+  text-transform: uppercase;
   margin-bottom: 2px;
 }
 .masteriyo-course-progress-bar .course-progress-box .completed-component .course-progress-popover .row .course-progress-text .big,
@@ -3321,6 +3328,9 @@ body .masteriyo-container .masteriyo-single-course.masteriyo-single-course--wrap
   display: block;
   width: 100%;
   border: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 16/9;
 }
 .masteriyo-single-course--wrapper[data-layout=immersive] .masteriyo-immersive-enroll-card__media img {
   display: block;
@@ -7862,18 +7872,18 @@ body.masteriyo-courses-page {
   transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
   animation: progress-animation 2s ease-in-out;
 }
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) {
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) {
   cursor: not-allowed;
 }
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) > a {
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) > a {
   pointer-events: none;
 }
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) svg,
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) a {
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) svg,
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) a {
   opacity: 0.6;
 }
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) svg:last-child,
-.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-lesson-not-started) a:last-child {
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) svg:last-child,
+.masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item:has(.masteriyo-course-item-lock) a:last-child {
   opacity: 1;
 }
 .masteriyo-single-course--main__content .tab-content.course-curriculum .masteriyo-stab--citems .masteriyo-cbody .masteriyo-lesson-list .masteriyo-lesson-item .masteriyo-course-preview-wrapper .masteriyo-lesson-preview-link {
@@ -9801,18 +9811,18 @@ body.single-mto-course .masteriyo-container .masteriyo-single-course--wrapper .m
   transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
   animation: progress-animation 2s ease-in-out;
 }
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) {
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) {
   cursor: not-allowed;
 }
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) > a {
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) > a {
   pointer-events: none;
 }
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) svg,
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) a {
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) svg,
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) a {
   opacity: 0.6;
 }
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) svg:last-child,
-.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-lesson-status-not-started) a:last-child {
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) svg:last-child,
+.masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon:has(.masteriyo-course-item-lock) a:last-child {
   opacity: 1;
 }
 .masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon .masteriyo-course-preview-wrapper .masteriyo-lesson-preview-link {

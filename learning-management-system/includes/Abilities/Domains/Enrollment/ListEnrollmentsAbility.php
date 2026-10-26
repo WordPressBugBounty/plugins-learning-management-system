@@ -43,6 +43,6 @@ class ListEnrollmentsAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of course enrollments. Optionally filter by course_id, user_id, or status. Returns data array and pagination metadata (total, total_pages, page, per_page).', 'learning-management-system' );
+		return 'Retrieve a paginated list of course enrollments. Optionally filter by course_id, user_id, or status. Returns data array and pagination metadata (total, total_pages, page, per_page).';
 	}
 }

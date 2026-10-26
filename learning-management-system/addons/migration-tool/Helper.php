@@ -77,8 +77,9 @@ class Helper {
 			$user->add_role( $role );
 		}
 
+		// Added, not set: the user keeps the source LMS role while that plugin still runs.
 		if ( empty( array_intersect( $valid_roles, (array) $user->roles ) ) ) {
-			$user->set_role( Roles::STUDENT );
+			$user->add_role( Roles::STUDENT );
 		}
 	}
 
@@ -174,6 +175,52 @@ class Helper {
 	}
 
 	/**
+	 * Whether a source post's copy is kept by another copied course that still exists.
+	 *
+	 * A step shared by several courses has one copy, owned by the course that copied
+	 * it first; later courses skip it with a warning. A copy whose course the site
+	 * deleted is not kept by anyone and follows the course's new copy instead.
+	 *
+	 * @param string $lms       Migrator slug.
+	 * @param string $lms_name  Source LMS name, for the warning.
+	 * @param string $item      What the source post is, for the warning.
+	 * @param int    $source_id Source post ID.
+	 * @param int    $course_id Masteriyo course ID (the copy) being built.
+	 * @return bool
+	 */
+	public static function copy_kept_by_another_course( string $lms, string $lms_name, string $item, int $source_id, int $course_id ): bool {
+		$existing = MigrationMap::target( $lms, MigrationMap::POST, $source_id );
+		$owner    = $existing ? (int) get_post_meta( $existing, '_course_id', true ) : 0;
+
+		if ( ! $owner || $owner === $course_id || ! get_post( $owner ) ) {
+			return false;
+		}
+
+		masteriyo_get_logger()->warning(
+			sprintf( 'Migration: %s %d is shared by several %s courses; its copy %d stays in course %d.', $item, $source_id, $lms_name, $existing, $owner ),
+			array( 'source' => 'migration-tool' )
+		);
+
+		return true;
+	}
+
+	/**
+	 * Masteriyo term IDs by "taxonomy|name", for the categories a batch of courses shares.
+	 *
+	 * @var array<string, int>
+	 */
+	private static $term_cache = array();
+
+	/**
+	 * Forget the per-run caches. Called when a job run starts.
+	 *
+	 * @return void
+	 */
+	public static function reset_caches(): void {
+		self::$term_cache = array();
+	}
+
+	/**
 	 * Migrates course categories from LearnPress to Masteriyo.
 	 *
 	 * This function retrieves the course categories associated with a given course from LearnPress
@@ -187,10 +234,6 @@ class Helper {
 	 * @return void This function does not return anything. It operates by side effect, updating the course taxonomy.
 	 */
 	public static function migrate_course_categories_from_to_masteriyo( $course_id, $taxonomy = 'course_category', $target_taxonomy = 'course_cat' ) {
-		// Static cache: "{$target_taxonomy}:{$name}" → Masteriyo term_id.
-		// Persists for the lifetime of the AS job, eliminating repeated term_exists() DB queries.
-		static $masteriyo_cat_cache = array();
-
 		$categories = wp_get_post_terms( $course_id, $taxonomy, array( 'fields' => 'ids' ) );
 
 		if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
@@ -200,10 +243,10 @@ class Helper {
 				$cat = get_term( $cat_id, $taxonomy );
 
 				if ( ! is_wp_error( $cat ) ) {
-					$cache_key = $target_taxonomy . ':' . $cat->name;
+					$cache_key = $target_taxonomy . '|' . $cat->name;
 
-					if ( isset( $masteriyo_cat_cache[ $cache_key ] ) ) {
-						$masteriyo_categories[] = $masteriyo_cat_cache[ $cache_key ];
+					if ( isset( self::$term_cache[ $cache_key ] ) ) {
+						$masteriyo_categories[] = self::$term_cache[ $cache_key ];
 						continue;
 					}
 
@@ -220,8 +263,8 @@ class Helper {
 					}
 
 					if ( $masteriyo_cat_id ) {
-						$masteriyo_cat_cache[ $cache_key ] = (int) $masteriyo_cat_id;
-						$masteriyo_categories[]            = (int) $masteriyo_cat_id;
+						self::$term_cache[ $cache_key ] = (int) $masteriyo_cat_id;
+						$masteriyo_categories[]         = (int) $masteriyo_cat_id;
 					}
 				}
 			}
@@ -528,6 +571,58 @@ class Helper {
 
 		$cert_id = $new_id;
 		return $cert_id;
+	}
+
+	/**
+	 * Point copied courses' prerequisites at the copies, once every course is copied.
+	 *
+	 * Course A may name course B as a prerequisite before B has a copy, so the courses
+	 * step leaves B's source ID in place and this pass, run when the step completes,
+	 * replaces every source ID that has a copy by then.
+	 *
+	 * @param string $lms Migrator slug.
+	 * @return void
+	 */
+	public static function relink_prerequisites( string $lms ): void {
+		global $wpdb;
+
+		$map = MigrationMap::table();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT pm.post_id, pm.meta_value
+				 FROM {$wpdb->postmeta} pm
+				 INNER JOIN {$map} m ON m.target_id = pm.post_id AND m.lms = %s AND m.entity = %s
+				 WHERE pm.meta_key = '_prerequisites_courses'",
+				$lms,
+				MigrationMap::POST
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		foreach ( (array) $rows as $row ) {
+			$ids = array_map( 'intval', (array) maybe_unserialize( $row->meta_value ) );
+			if ( empty( $ids ) ) {
+				continue;
+			}
+
+			$copies = MigrationMap::targets( $lms, MigrationMap::POST, $ids );
+			$linked = array_values(
+				array_unique(
+					array_map(
+						function( $id ) use ( $copies ) {
+							return $copies[ $id ] ?? $id;
+						},
+						$ids
+					)
+				)
+			);
+
+			if ( $linked !== $ids ) {
+				update_post_meta( (int) $row->post_id, '_prerequisites_courses', $linked );
+			}
+		}
 	}
 
 	/**

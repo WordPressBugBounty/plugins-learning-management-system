@@ -115,7 +115,7 @@ class WishListItemsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -152,7 +152,7 @@ class WishListItemsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -177,7 +177,7 @@ class WishListItemsController extends PostsController {
 
 		$params['status'] = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to a specific status.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -392,28 +392,28 @@ class WishListItemsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'             => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'course_title'   => array(
-					'description' => __( 'Course title.', 'learning-management-system' ),
+					'description' => 'Course title.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'created_at'     => array(
-					'description' => __( "The date the wishlist item was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the wishlist item was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'created_at_gmt' => array(
-					'description' => __( 'The date the wishlist item was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the wishlist item was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'      => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'required'    => true,
@@ -566,7 +566,7 @@ class WishListItemsController extends PostsController {
 		if ( is_null( $wishlist_item ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -613,7 +613,7 @@ class WishListItemsController extends PostsController {
 		if ( is_null( $wishlist_item ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)

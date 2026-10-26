@@ -59,6 +59,6 @@ class DeleteCourseCategoryAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Permanently delete a course category. Requires id (category ID). Taxonomy terms have no trash state — deletion is immediate and irreversible. Returns the deleted category object.', 'learning-management-system' );
+		return 'Permanently delete a course category. Requires id (category ID). Taxonomy terms have no trash state — deletion is immediate and irreversible. Returns the deleted category object.';
 	}
 }

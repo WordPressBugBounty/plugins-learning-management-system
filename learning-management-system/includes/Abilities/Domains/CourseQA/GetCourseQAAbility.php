@@ -59,6 +59,6 @@ class GetCourseQAAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single course Q&A entry by its ID. Requires id (Q&A entry ID). Returns the entry including content, author, status, course_id, and parent (set when the entry is an answer to another question).', 'learning-management-system' );
+		return 'Retrieve a single course Q&A entry by its ID. Requires id (Q&A entry ID). Returns the entry including content, author, status, course_id, and parent (set when the entry is an answer to another question).';
 	}
 }

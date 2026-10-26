@@ -120,9 +120,9 @@ class UserRegistrationIntegrationAddon {
 	 *
 	 * @since 1.7.1
 	 *
-	 * @param string $status The new status of the user.
-	 * @param int    $user_id The ID of the user whose status is being updated.
-	 * @param bool   $alert_user Whether the user should be alerted about the status change.
+	 * @param int|string $status The new status of the user.
+	 * @param int        $user_id The ID of the user whose status is being updated.
+	 * @param bool       $alert_user Whether the user should be alerted about the status change.
 	 */
 	public function update_user_status( $status, $user_id, $alert_user ) {
 		$user = masteriyo_get_user( $user_id );
@@ -132,7 +132,10 @@ class UserRegistrationIntegrationAddon {
 		}
 
 		if ( in_array( Roles::INSTRUCTOR, $user->get_roles(), true ) ) {
-			if ( '1' === $status ) {
+			// Approving from the Users screen reports the integer 1, editing a
+			// profile reports the string. Comparing against one spelling left
+			// admin approvals setting the account inactive.
+			if ( 1 === (int) $status ) {
 				$user->set_status( UserStatus::ACTIVE );
 			} else {
 				$user->set_status( UserStatus::INACTIVE );
@@ -157,6 +160,66 @@ class UserRegistrationIntegrationAddon {
 		if ( is_wp_error( $user ) || is_null( $user ) ) {
 			return;
 		}
+
+		$role = $this->get_role_for_form( $form_id );
+
+		if ( empty( $role ) ) {
+			return;
+		}
+
+		$wp_user = get_user_by( 'id', $user_id );
+
+		if ( ! $wp_user ) {
+			return;
+		}
+
+		// Added rather than set: whatever role the registration plugin gave them is the site's own choice.
+		$wp_user->add_role( $role );
+
+		// Every path Masteriyo owns leaves a new instructor awaiting moderation,
+		// including its own form and the email-verification hand-off, so this one
+		// does too. update_user_status() activates them when User Registration
+		// reports the account approved.
+		if ( Roles::INSTRUCTOR === $role ) {
+			// Read again: the model above was loaded before the role was added, and
+			// saving that stale copy would write the old roles back over it.
+			$instructor = masteriyo_get_user( $user_id );
+
+			if ( ! is_wp_error( $instructor ) && ! is_null( $instructor ) ) {
+				$instructor->set_status( UserStatus::INACTIVE );
+				$instructor->save();
+			}
+		}
+	}
+
+	/**
+	 * The Masteriyo role a submitted form stands in for, if it stands in for one.
+	 *
+	 * Only the forms the site actually put in place of Masteriyo's registration
+	 * count. Every other User Registration form on the site registers its own
+	 * users, and they must not be turned into students (#997).
+	 *
+	 * @param int $form_id The submitted form's ID.
+	 *
+	 * @return string Role name, or an empty string.
+	 */
+	private function get_role_for_form( $form_id ) {
+		$roles = array(
+			'student'    => Roles::STUDENT,
+			'instructor' => Roles::INSTRUCTOR,
+		);
+
+		foreach ( $roles as $form_name => $role ) {
+			if ( ! Helper::is_registration_form_replaceable( $form_name ) ) {
+				continue;
+			}
+
+			if ( absint( Setting::get( "{$form_name}_registration_form" ) ) === absint( $form_id ) ) {
+				return $role;
+			}
+		}
+
+		return '';
 	}
 
 	/**

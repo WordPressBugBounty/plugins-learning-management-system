@@ -115,7 +115,7 @@ class LessonReviewsController extends CourseReviewsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -143,12 +143,12 @@ class LessonReviewsController extends CourseReviewsController {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
 						'force_delete' => array(
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
 						'children'     => array(
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -167,7 +167,7 @@ class LessonReviewsController extends CourseReviewsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -197,17 +197,17 @@ class LessonReviewsController extends CourseReviewsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Review IDs.', 'learning-management-system' ),
+							'description' => 'Review IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 						),
 					),
@@ -226,7 +226,7 @@ class LessonReviewsController extends CourseReviewsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Review Ids', 'learning-management-system' ),
+							'description' => 'Review Ids',
 							'type'        => 'array',
 						),
 					),
@@ -445,7 +445,7 @@ class LessonReviewsController extends CourseReviewsController {
 
 		$params['lesson'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to lesson reviews assigned to specific lesson IDs.', 'learning-management-system' ),
+			'description' => 'Limit result set to lesson reviews assigned to specific lesson IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -684,121 +684,121 @@ class LessonReviewsController extends CourseReviewsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'lesson_id'    => array(
-					'description' => __( 'Lesson ID', 'learning-management-system' ),
+					'description' => 'Lesson ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'name'         => array(
-					'description' => __( 'Lesson Reviewer Author.', 'learning-management-system' ),
+					'description' => 'Lesson Reviewer Author.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'email'        => array(
-					'description' => __( 'Lesson Reviewer Author Email.', 'learning-management-system' ),
+					'description' => 'Lesson Reviewer Author Email.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'url'          => array(
-					'description' => __( 'Lesson Reviewer Author URL.', 'learning-management-system' ),
+					'description' => 'Lesson Reviewer Author URL.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'ip_address'   => array(
-					'description' => __( 'The IP address of the reviewer', 'learning-management-system' ),
+					'description' => 'The IP address of the reviewer',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created' => array(
-					'description' => __( "The date the lesson was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the lesson was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description'  => array(
-					'description' => __( 'Lesson Review Description.', 'learning-management-system' ),
+					'description' => 'Lesson Review Description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content'      => array(
-					'description' => __( 'Lesson Review Content.', 'learning-management-system' ),
+					'description' => 'Lesson Review Content.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'required'    => true,
 				),
 				'status'       => array(
-					'description' => __( 'Lesson Review Status.', 'learning-management-system' ),
+					'description' => 'Lesson Review Status.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'agent'        => array(
-					'description' => __( 'Lesson Review Agent.', 'learning-management-system' ),
+					'description' => 'Lesson Review Agent.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'         => array(
-					'description' => __( 'Lesson Review Type.', 'learning-management-system' ),
+					'description' => 'Lesson Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent'       => array(
-					'description' => __( 'Lesson Review Parent.', 'learning-management-system' ),
+					'description' => 'Lesson Review Parent.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_id'    => array(
-					'description' => __( 'The User ID.', 'learning-management-system' ),
+					'description' => 'The User ID.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'author_name'  => array(
-					'description'       => __( 'Lesson reviewer display name.', 'learning-management-system' ),
+					'description'       => 'Lesson reviewer display name.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_text_field',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_email' => array(
-					'description'       => __( 'Lesson reviewer email address.', 'learning-management-system' ),
+					'description'       => 'Lesson reviewer email address.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_email',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_url'   => array(
-					'description'       => __( 'Lesson reviewer URL.', 'learning-management-system' ),
+					'description'       => 'Lesson reviewer URL.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'esc_url_raw',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'meta_data'    => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -987,6 +987,18 @@ class LessonReviewsController extends CourseReviewsController {
 	 */
 	public function get_lesson_permissions_check( $request ) {
 		$lesson = masteriyo_get_lesson( $request['lesson_id'] );
+
+		// masteriyo_get_lesson() returns null for a deleted or unknown id.
+		if ( is_null( $lesson ) ) {
+			return new \WP_Error(
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid lesson ID.', 'learning-management-system' ),
+				array(
+					'status' => 404,
+				)
+			);
+		}
+
 		$course = masteriyo_get_course( $lesson->get_course_id() );
 
 		if ( ! empty( $course ) && 'open' === $course->get_access_mode() ) {
@@ -1062,8 +1074,8 @@ class LessonReviewsController extends CourseReviewsController {
 
 		if ( is_null( $lesson ) ) {
 			return new \WP_Error(
-				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid lesson ID', 'learning-management-system' ),
+				"masteriyo_rest_{$this->object_type}_invalid_id",
+				__( 'Invalid lesson ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -1170,7 +1182,7 @@ class LessonReviewsController extends CourseReviewsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1225,7 +1237,7 @@ class LessonReviewsController extends CourseReviewsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

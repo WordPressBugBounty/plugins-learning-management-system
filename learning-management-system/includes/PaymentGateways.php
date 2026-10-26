@@ -181,7 +181,15 @@ class PaymentGateways {
 			)
 		);
 
-		return array_combine( $available_gateway_keys, $available_gateways );
+		$available_gateways = array_combine( $available_gateway_keys, $available_gateways );
+
+		// Establish the session's gateway, or the first available one. Nothing else
+		// called this, so templates/checkout/payment-method.php — whose `checked`
+		// output depends on is_chosen() — rendered every radio unselected on a
+		// checkout with no previously chosen method.
+		$this->set_current_gateway( $available_gateways );
+
+		return $available_gateways;
 	}
 
 	/**

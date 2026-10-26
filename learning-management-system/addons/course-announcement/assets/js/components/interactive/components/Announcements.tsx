@@ -2,6 +2,7 @@ import {
 	Box,
 	Flex,
 	Icon,
+	IconButton,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -11,10 +12,8 @@ import {
 	SimpleGrid,
 	Spinner,
 	Tooltip,
-	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useRef } from 'react';
 import CustomAlert from '../../../../../../../assets/js/back-end/components/common/CustomAlert';
@@ -23,58 +22,41 @@ import {
 	Cancel,
 } from '../../../../../../../assets/js/back-end/constants/images';
 import { isEmpty } from '../../../../../../../assets/js/back-end/utils/utils';
-import API from './../../../../../../../assets/js/back-end/utils/api';
-import { urls } from './../../backend/constants/urls';
+import BottomSheet from '../../../../../../../assets/js/interactive/components/shell/BottomSheet';
 import { AnnouncementSchema } from './../../backend/types/announcement';
+import { useAnnouncementsQuery } from '../hooks/useAnnouncementsQuery';
 import Message from './Message';
 
 interface Props {
 	courseId: number;
+	/** `sheet` renders the list in a bottom sheet the caller opens; no megaphone. */
+	presentation?: 'popover' | 'sheet';
+	isOpen?: boolean;
+	onClose?: () => void;
 }
 
-const Announcements: React.FC<Props> = ({ courseId }) => {
-	const announcementAPI = new API(urls.courseAnnouncement);
-	const perPage = 5;
+const Announcements: React.FC<Props> = ({
+	courseId,
+	presentation = 'popover',
+	isOpen: isOpenProp,
+	onClose: onCloseProp,
+}) => {
+	const isSheet = presentation === 'sheet';
 
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const disclosure = useDisclosure();
+	const isOpen = isSheet ? Boolean(isOpenProp) : disclosure.isOpen;
+	const onClose = isSheet
+		? (onCloseProp ?? disclosure.onClose)
+		: disclosure.onClose;
 
 	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 	const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-	const announcementQuery = useInfiniteQuery({
-		queryKey: [`announcement${courseId}`, courseId],
-		queryFn: ({ pageParam = 1 }) =>
-			announcementAPI.list({
-				course_id: courseId,
-				per_page: perPage,
-				page: pageParam,
-				status: 'publish',
-				request_from: 'learn',
-			}),
-		initialPageParam: 1,
-		getNextPageParam: (lastPage, allPages) => {
-			if (!lastPage || !lastPage.data) return undefined;
-			if (lastPage.data.length < perPage) return undefined;
-			return allPages.length + 1;
-		},
-	});
-
-	const announcements = announcementQuery.isSuccess
-		? announcementQuery.data.pages.flatMap((p: any) => p.data)
-		: [];
-
-	const unreadCount = announcementQuery.isSuccess
-		? announcements.filter(
-				(announcement: AnnouncementSchema) =>
-					announcement[`has_user_read_${announcement?.id}`] === false,
-			).length
-		: 0;
-
-	const queryClient = useQueryClient();
-
-	const announcementIds = announcementQuery.isSuccess
-		? announcements.map((a: any) => a.id.toString())
-		: null;
+	const {
+		query: announcementQuery,
+		announcements,
+		unreadCount,
+	} = useAnnouncementsQuery(courseId);
 
 	const isEmptyAnnouncement =
 		announcementQuery.isSuccess && isEmpty(announcements);
@@ -116,75 +98,125 @@ const Announcements: React.FC<Props> = ({ courseId }) => {
 		announcementQuery.isFetchingNextPage,
 	]);
 
-	const iconColor = useColorModeValue('currentColor', 'white');
+	const iconColor = 'currentColor';
 
-	const titleColor = useColorModeValue('oxford-night', 'white');
+	const body = (
+		<SimpleGrid
+			columns={1}
+			spacing={0}
+			maxH={isSheet ? undefined : '400px'}
+			flex={isSheet ? 1 : undefined}
+			minH={0}
+			overflowY="auto"
+			overflowX={'hidden'}
+			ref={scrollContainerRef}
+		>
+			{isEmptyAnnouncement ? (
+				<Box m={6}>
+					<CustomAlert status="info">
+						{__('No announcements found.', 'learning-management-system')}
+					</CustomAlert>
+				</Box>
+			) : (
+				announcementQuery.isSuccess &&
+				announcements.map((announcement: AnnouncementSchema, index: number) => (
+					<Box
+						key={announcement.id}
+						p={0}
+						borderBottomWidth={index !== announcements.length - 1 ? '1px' : '0'}
+						borderBottomColor="player.border"
+					>
+						<Message announcement={announcement} courseId={courseId} />
+					</Box>
+				))
+			)}
+
+			<Box ref={sentinelRef} height={1} />
+
+			{announcementQuery.isFetchingNextPage && (
+				<Flex justify={'center'} align={'center'} py={4}>
+					<Spinner />
+				</Flex>
+			)}
+		</SimpleGrid>
+	);
+
+	if (isSheet) {
+		return (
+			<BottomSheet
+				isOpen={isOpen}
+				onClose={onClose}
+				title={__('Announcements', 'learning-management-system')}
+				label="announcements"
+			>
+				{body}
+			</BottomSheet>
+		);
+	}
 
 	return (
-		<Box sx={{ position: 'relative', top: '0', right: '0' }}>
+		<Box position="relative">
 			<Popover
 				placement="bottom-end"
 				isOpen={isOpen}
-				onOpen={onOpen}
+				onOpen={disclosure.onOpen}
 				onClose={onClose}
 			>
 				<PopoverTrigger>
-					<span>
-						<Tooltip label={__('Announcements', 'learning-management-system')}>
-							<span>
-								<Icon
-									_hover={{
-										color: 'primary.500',
-									}}
-									as={Announcement}
-									fill={iconColor}
-									color={'saint-blue'}
-									cursor={'pointer'}
-									fontSize={'xl'}
-								/>
-							</span>
+					<Box position="relative" width="fit-content">
+						<Tooltip
+							label={__('Announcements', 'learning-management-system')}
+							isDisabled={isOpen}
+						>
+							<IconButton
+								aria-label={__('Announcements', 'learning-management-system')}
+								icon={
+									<Icon as={Announcement} fill={iconColor} fontSize="18px" />
+								}
+								variant="unstyled"
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								w="32px"
+								h="32px"
+								minW={0}
+								borderRadius="8px"
+								border="1px solid"
+								borderColor="player.border"
+								bg="player.card"
+								color="player.text"
+								_hover={{ bg: 'player.bg' }}
+								sx={{ '&:focus-visible': { boxShadow: 'outline' } }}
+							/>
 						</Tooltip>
 						{unreadCount > 0 && (
 							<Box
 								position="absolute"
-								top="-16px"
-								right="-10px"
-								w={'22px'}
-								h={'22px'}
+								top="-3px"
+								insetEnd="-3px"
+								w="9px"
+								h="9px"
 								borderRadius="full"
-								bg="red.500"
-								color="white"
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								fontSize="11px"
-								fontWeight="bold"
-								lineHeight="1"
-								boxShadow="sm"
-							>
-								{unreadCount > 9 ? '9+' : String(unreadCount)}
-							</Box>
+								bg="player.primary"
+								border="2px solid"
+								borderColor="player.card"
+								pointerEvents="none"
+								aria-hidden="true"
+							/>
 						)}
-					</span>
+					</Box>
 				</PopoverTrigger>
 
-				<PopoverContent
-					borderRadius={'6px'}
-					width="sm"
-					shadow="0px 0px 20px 0px #00000012 !important"
-					border={'none'}
-				>
-					<PopoverArrow shadow="0px 0px 20px 0px #00000012 !important" />
+				<PopoverContent width="360px" maxW="calc(100vw - 24px)">
+					<PopoverArrow />
 					<PopoverHeader
-						fontWeight="semibold"
-						fontSize="lg"
+						fontWeight="600"
+						fontSize="15px"
 						borderBottomWidth={'1px'}
-						borderBottomColor={'icy-blue-gray'}
 						padding={'14px'}
 						display={'flex'}
 						justifyContent={'space-between'}
 						alignItems={'center'}
-						color={titleColor}
 					>
 						{__('Announcements', 'learning-management-system')}
 						<Icon
@@ -192,58 +224,11 @@ const Announcements: React.FC<Props> = ({ courseId }) => {
 							cursor={'pointer'}
 							onClick={onClose}
 							fill={iconColor}
-							color={'saint-blue'}
+							color="player.text3"
 						/>
 					</PopoverHeader>
 
-					<PopoverBody padding={0}>
-						<SimpleGrid
-							columns={1}
-							spacing={0}
-							maxH="400px"
-							overflowY="auto"
-							overflowX={'hidden'}
-							ref={scrollContainerRef}
-						>
-							{isEmptyAnnouncement ? (
-								<Box m={6}>
-									<CustomAlert status="info">
-										{__(
-											'No announcements found.',
-											'learning-management-system',
-										)}
-									</CustomAlert>
-								</Box>
-							) : (
-								announcementQuery.isSuccess &&
-								announcements.map(
-									(announcement: AnnouncementSchema, index: number) => (
-										<Box
-											key={announcement.id}
-											p={0}
-											borderBottomWidth={
-												index !== announcements.length - 1 ? '1px' : '0'
-											}
-											borderBottomColor={'icy-blue-gray'}
-										>
-											<Message
-												announcement={announcement}
-												courseId={courseId}
-											/>
-										</Box>
-									),
-								)
-							)}
-
-							<Box ref={sentinelRef} height={1} />
-
-							{announcementQuery.isFetchingNextPage && (
-								<Flex justify={'center'} align={'center'} py={4}>
-									<Spinner />
-								</Flex>
-							)}
-						</SimpleGrid>
-					</PopoverBody>
+					<PopoverBody padding={0}>{body}</PopoverBody>
 				</PopoverContent>
 			</Popover>
 		</Box>

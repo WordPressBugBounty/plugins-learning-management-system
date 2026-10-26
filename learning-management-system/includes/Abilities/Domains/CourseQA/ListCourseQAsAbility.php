@@ -59,6 +59,6 @@ class ListCourseQAsAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of course Q&A entries. Optionally filter by course_id or status (approved, hold, spam). Returns data array of Q&A entries with content, author, and course context, plus pagination metadata.', 'learning-management-system' );
+		return 'Retrieve a paginated list of course Q&A entries. Optionally filter by course_id or status (approved, hold, spam). Returns data array of Q&A entries with content, author, and course context, plus pagination metadata.';
 	}
 }

@@ -57,6 +57,6 @@ class GetCourseDifficultyAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single course difficulty level by its ID. Requires id (difficulty ID). Returns the difficulty object including name, slug, description, and course count.', 'learning-management-system' );
+		return 'Retrieve a single course difficulty level by its ID. Requires id (difficulty ID). Returns the difficulty object including name, slug, description, and course count.';
 	}
 }

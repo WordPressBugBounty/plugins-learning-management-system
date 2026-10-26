@@ -59,6 +59,6 @@ class CreateCourseCategoryAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new course category. Requires name. Optionally accepts slug, description, and parent (ID of a parent category for hierarchical nesting). Returns the created category with its ID and course count.', 'learning-management-system' );
+		return 'Create a new course category. Requires name. Optionally accepts slug, description, and parent (ID of a parent category for hierarchical nesting). Returns the created category with its ID and course count.';
 	}
 }

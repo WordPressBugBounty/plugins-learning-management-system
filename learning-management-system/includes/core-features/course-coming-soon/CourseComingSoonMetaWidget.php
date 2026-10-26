@@ -13,7 +13,6 @@ use Elementor\Controls_Manager;
 use Masteriyo\Addons\ElementorIntegration\Helper;
 use Masteriyo\Addons\ElementorIntegration\WidgetBase;
 use Masteriyo\Addons\ElementorIntegration\SingleCourseWidgetBase;
-use Masteriyo\AddonsFramework\Addons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -158,9 +157,6 @@ class CourseComingSoonMetaWidget extends SingleCourseWidgetBase {
 		$course = Helper::get_elementor_preview_course();
 
 		if ( ! $course ) {
-			return;
-		}
-		if ( ! ( new Addons() )->is_active( MASTERIYO_COURSE_COMING_SOON_SLUG ) ) {
 			return;
 		}
 

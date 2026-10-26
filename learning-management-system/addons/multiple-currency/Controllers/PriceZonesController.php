@@ -103,7 +103,7 @@ class PriceZonesController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -132,7 +132,7 @@ class PriceZonesController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -152,17 +152,17 @@ class PriceZonesController extends PostsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Price zone IDs.', 'learning-management-system' ),
+							'description' => 'Price zone IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.',
 							'type'        => 'boolean',
 						),
 					),
@@ -181,7 +181,7 @@ class PriceZonesController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Price zone Ids', 'learning-management-system' ),
+							'description' => 'Price zone Ids',
 							'type'        => 'array',
 						),
 					),
@@ -195,7 +195,7 @@ class PriceZonesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -309,7 +309,7 @@ class PriceZonesController extends PostsController {
 		if ( is_null( $price_zone ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -355,7 +355,7 @@ class PriceZonesController extends PostsController {
 		if ( is_null( $price_zone ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -419,7 +419,7 @@ class PriceZonesController extends PostsController {
 
 		$params['status'] = array(
 			'default'           => PriceZoneStatus::ANY,
-			'description'       => __( 'Limit result set to price zones assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to price zones assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => wp_parse_args( PriceZoneStatus::all(), array( PriceZoneStatus::ANY ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -625,33 +625,33 @@ class PriceZonesController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'            => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'title'         => array(
-					'description' => __( 'Price zone name', 'learning-management-system' ),
+					'description' => 'Price zone name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'exchange_rate' => array(
-					'description' => __( 'Price zone exchange rate', 'learning-management-system' ),
+					'description' => 'Price zone exchange rate',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'currency'      => array(
-					'description' => __( 'Price zone currency', 'learning-management-system' ),
+					'description' => 'Price zone currency',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'    => array(
-					'description' => __( 'Menu order, used to custom sort price zones.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort price zones.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'countries'     => array(
-					'description' => __( 'A list of the countries for the price zone.', 'learning-management-system' ),
+					'description' => 'A list of the countries for the price zone.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -659,48 +659,48 @@ class PriceZonesController extends PostsController {
 					),
 				),
 				'status'        => array(
-					'description' => __( 'Price zone status (post status).', 'learning-management-system' ),
+					'description' => 'Price zone status (post status).',
 					'type'        => 'string',
 					'default'     => PriceZoneStatus::ACTIVE,
 					'enum'        => PriceZoneStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_id'     => array(
-					'description' => __( 'Price zone author ID', 'learning-management-system' ),
+					'description' => 'Price zone author ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created'  => array(
-					'description' => __( "The date the price zone was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the price zone was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified' => array(
-					'description' => __( "The date the price zone was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the price zone was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'meta_data'     => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),

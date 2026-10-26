@@ -152,7 +152,7 @@ class DatabaseService {
 		$country_code = '';
 
 		if ( ! Setting::get( 'maxmind.enabled' ) ) {
-			masteriyo_get_logger()->notice( __( 'MaxMind Integration has\'n enabled!', 'learning-management-system' ), array( 'source' => 'maxmind-geolocation' ) );
+			masteriyo_get_logger()->notice( __( 'MaxMind integration is not enabled.', 'learning-management-system' ), array( 'source' => 'maxmind-geolocation' ) );
 			return $country_code;
 		}
 

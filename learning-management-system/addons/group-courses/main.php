@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Groups
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Groups let instructors sell courses to student groups, facilitating collective learning and shared educational experiences.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

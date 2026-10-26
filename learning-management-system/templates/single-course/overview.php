@@ -57,25 +57,16 @@ if (
 	$show_overview_active = true;
 }
 
-$is_hidden     = ! $show_overview_active;
-$course_values = $course->get_custom_fields();
-$course_values = is_array( $course_values ) ? $course_values : array();
+$is_hidden = ! $show_overview_active;
 
 ?>
 
 <div class="tab-content course-overview <?php echo $is_hidden ? 'masteriyo-hidden' : ''; ?>">
 	<?php
-	echo wp_kses_post( masteriyo_format_content_for_view( $course->get_description() ) );
+	echo masteriyo_kses_post_for_user( masteriyo_format_content_for_view( $course->get_description() ), masteriyo_get_course_author_id( $course ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	?>
 
-	<?php if ( ! empty( $course_values ) ) : ?>
-		<div id="masteriyo-custom-fields">
-			<script type="application/json" id="masteriyo-course-values">
-				<?php echo wp_json_encode( $course_values, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ); ?>
-			</script>
-			<div class="custom-fields-container"></div>
-		</div>
-	<?php endif; ?>
+	<?php masteriyo_get_template( 'single-course/custom-fields.php', array( 'course' => $course ) ); ?>
 </div>
 
 <?php

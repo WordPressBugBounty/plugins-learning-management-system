@@ -41,7 +41,7 @@ const WithdrawsHistory: React.FC = () => {
 					<Tr>
 						<Th>{__('Requested On', 'learning-management-system')}</Th>
 						<Th>{__('Amount', 'learning-management-system')}</Th>
-						<Th>{__('Withdraw Method', 'learning-management-system')}</Th>
+						<Th>{__('Withdrawal Method', 'learning-management-system')}</Th>
 						<Th>{__('Status', 'learning-management-system')}</Th>
 					</Tr>
 				</Thead>
@@ -82,7 +82,7 @@ const WithdrawsHistory: React.FC = () => {
 						<EmptyTableData
 							span={4}
 							label={__(
-								'No withdraw requests found.',
+								'No withdrawal requests found.',
 								'learning-management-system',
 							)}
 						/>
@@ -97,7 +97,7 @@ const WithdrawsHistory: React.FC = () => {
 										metaData={withdrawsQuery.data.meta}
 										setFilterParams={setFilterParams}
 										perPageText={__(
-											'Withdraws Per Page:',
+											'Withdrawals Per Page:',
 											'learning-management-system',
 										)}
 										extraFilterParams={{

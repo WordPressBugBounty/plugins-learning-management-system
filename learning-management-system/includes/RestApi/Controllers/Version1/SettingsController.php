@@ -135,7 +135,7 @@ class SettingsController extends CrudController {
 					'allow_usage' => array(
 						'required'    => true,
 						'type'        => 'boolean',
-						'description' => __( 'User consent for sharing diagnostic data.', 'learning-management-system' ),
+						'description' => 'User consent for sharing diagnostic data.',
 					),
 				),
 			)
@@ -152,7 +152,7 @@ class SettingsController extends CrudController {
 					'email_id' => array(
 						'required'    => true,
 						'type'        => 'string',
-						'description' => __( 'Individual email ID.', 'learning-management-system' ),
+						'description' => 'Individual email ID.',
 					),
 				),
 			)
@@ -221,20 +221,90 @@ class SettingsController extends CrudController {
 		$file_system = masteriyo_get_filesystem();
 
 		$file_contents = json_decode( $file_system->get_contents( $file ), true );
+		$manifest      = is_array( $file_contents ) ? ( $file_contents['manifest'] ?? array() ) : array();
+		$unresolved    = array();
 
 		if ( isset( $file_contents['manifest'] ) ) {
 			unset( $file_contents['manifest'] );
+		}
+
+		if ( isset( $file_contents['general']['pages'] ) && is_array( $file_contents['general']['pages'] ) ) {
+			$file_contents['general']['pages'] = $this->resolve_pages(
+				$file_contents['general']['pages'],
+				is_array( $manifest['pages'] ?? null ) ? $manifest['pages'] : null,
+				$unresolved
+			);
 		}
 
 		if ( $file_contents ) {
 			update_option( 'masteriyo_settings', $file_contents );
 		}
 
+		if ( $unresolved ) {
+			return new \WP_REST_Response(
+				array(
+					'status'  => 'partial',
+					'message' => sprintf(
+						/* translators: %s: the page settings, e.g. "Account, Checkout" */
+						__( 'Some pages were not found on this site, so its current choices were kept. Review Settings → General → Pages: %s.', 'learning-management-system' ),
+						implode( ', ', $unresolved )
+					),
+				)
+			);
+		}
+
 		return new \WP_REST_Response(
 			array(
+				'status'  => 'completed',
 				'message' => __( 'Import successful.', 'learning-management-system' ),
 			)
 		);
+	}
+
+	/**
+	 * Replace the exporting site's page IDs with this site's pages at the same path.
+	 *
+	 * A page with no match keeps this site's current choice and is named in
+	 * `$unresolved`, unless the exporting site had no page there.
+	 *
+	 * @param array<string, mixed>       $pages      The imported general.pages setting.
+	 * @param array<string, string>|null $slugs      Page URI paths keyed by setting path, from the export manifest; null for exports made before they were recorded.
+	 * @param list<string>          $unresolved Filled with the labels of pages that could not be resolved.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function resolve_pages( array $pages, ?array $slugs, array &$unresolved ): array {
+		foreach ( SettingExporter::get_page_setting_paths( $pages ) as $path => $imported_id ) {
+			$slug    = $slugs[ $path ] ?? '';
+			$page    = $slug ? get_page_by_path( $slug, 'OBJECT', 'page' ) : null;
+			$page_id = $page ? $page->ID : absint( masteriyo_get_setting( 'general.pages.' . $path ) );
+
+			// A source with no page there asks for nothing; an older export cannot say, so any ID counts.
+			if ( ! $page && ( null === $slugs ? $imported_id : $slug ) ) {
+				$unresolved[] = self::page_setting_label( $path );
+			}
+
+			list( $key, $child ) = array_pad( explode( '.', $path, 2 ), 2, null );
+
+			if ( $child ) {
+				$pages[ $key ][ $child ] = $page_id;
+			} else {
+				$pages[ $key ] = $page_id;
+			}
+		}
+
+		return $pages;
+	}
+
+	/**
+	 * Human name of a page setting: `account_page_id` → "Account", `course_thankyou_page.page_id` → "Course Thankyou".
+	 *
+	 * @param string $path Dotted setting path under general.pages.
+	 *
+	 * @return string
+	 */
+	private static function page_setting_label( string $path ): string {
+		return ucwords( str_replace( '_', ' ', preg_replace( '/(_page_id|_page\.page_id)$/', '', $path ) ) );
 	}
 
 
@@ -369,7 +439,7 @@ class SettingsController extends CrudController {
 		 * @since 1.3.13
 		 */
 		$params['name'] = array(
-			'description'       => __( 'Group setting or single setting.', 'learning-management-system' ),
+			'description'       => 'Group setting or single setting.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
@@ -406,42 +476,70 @@ class SettingsController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'general'        => array(
-					'description' => __( 'General Settings', 'learning-management-system' ),
+					'description' => 'General Settings',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
-						'type'         => 'object',
-						'styling'      => array(
-							'description' => __( 'Styling', 'learning-management-system' ),
+						'type'          => 'object',
+						'button_labels' => array(
+							'description' => 'Custom labels for the course call-to-action buttons. Empty means the built-in label.',
+							'type'        => 'object',
+							'context'     => array( 'view', 'edit' ),
+							'items'       => array(
+								'type'         => 'object',
+								'start_course' => array(
+									'description' => 'Start course button label.',
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'continue'     => array(
+									'description' => 'Continue course button label.',
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'enroll'       => array(
+									'description' => 'Enroll button label.',
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+								'buy_now'      => array(
+									'description' => 'Buy now button label.',
+									'type'        => 'string',
+									'context'     => array( 'view', 'edit' ),
+								),
+							),
+						),
+						'styling'       => array(
+							'description' => 'Styling',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'               => 'object',
 								'primary_color'      => array(
-									'description' => __( 'Primary color', 'learning-management-system' ),
+									'description' => 'Primary color',
 									'type'        => 'string',
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'theme'              => array(
-									'description' => __( 'Theme', 'learning-management-system' ),
+									'description' => 'Theme',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'primary_color_for_learn_page' => array(
-									'description' => __( 'Primary color for learn page', 'learning-management-system' ),
+									'description' => 'Primary color for learn page',
 									'type'        => 'string',
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'button_color'       => array(
-									'description' => __( 'Button color', 'learning-management-system' ),
+									'description' => 'Button color',
 									'type'        => 'string',
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'button_hover_color' => array(
-									'description' => __( 'Button hover color', 'learning-management-system' ),
+									'description' => 'Button hover color',
 									'type'        => 'string',
 									'format'      => 'hex-color',
 									'context'     => array( 'view', 'edit' ),
@@ -449,33 +547,33 @@ class SettingsController extends CrudController {
 							),
 						),
 						'widgets_css'  => array(
-							'description' => __( 'Widgets CSS', 'learning-management-system' ),
+							'description' => 'Widgets CSS',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'pages'        => array(
-							'description' => __( 'Pages Setting', 'learning-management-system' ),
+							'description' => 'Pages Setting',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                 => 'object',
 								'account_page_id'      => array(
-									'description' => __( 'Account page ID', 'learning-management-system' ),
+									'description' => 'Account page ID',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'courses_page_id'      => array(
-									'description' => __( 'Archive course page ID', 'learning-management-system' ),
+									'description' => 'Archive course page ID',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'checkout_page_id'     => array(
-									'description' => __( 'Checkout page ID', 'learning-management-system' ),
+									'description' => 'Checkout page ID',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'course_thankyou_page' => array(
-									'description' => __( 'Course Thankyou page ID', 'learning-management-system' ),
+									'description' => 'Course Thankyou page ID',
 									'type'        => 'object',
 									'context'     => array( 'view', 'edit' ),
 									'items'       => array(
@@ -486,7 +584,7 @@ class SettingsController extends CrudController {
 									),
 								),
 								'after_checkout_page'  => array(
-									'description' => __( 'Landing Page ID', 'learning-management-system' ),
+									'description' => 'Landing Page ID',
 									'type'        => 'object',
 									'context'     => array( 'view', 'edit' ),
 									'items'       => array(
@@ -499,28 +597,28 @@ class SettingsController extends CrudController {
 							),
 						),
 						'registration' => array(
-							'description' => __( 'Registration related setting.', 'learning-management-system' ),
+							'description' => 'Registration related setting.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                  => 'object',
 								'enable_student_registration' => array(
-									'description' => __( 'Enable or disable student registration.', 'learning-management-system' ),
+									'description' => 'Enable or disable student registration.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_instructor_registration' => array(
-									'description' => __( 'Enable or disable instructor registration.', 'learning-management-system' ),
+									'description' => 'Enable or disable instructor registration.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_guest_checkout' => array(
-									'description' => __( 'Allow non-registered users to checkout and create an account during the process.', 'learning-management-system' ),
+									'description' => 'Allow non-registered users to checkout and create an account during the process.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'editor'                => array(
-									'description' => __( 'Editor', 'learning-management-system' ),
+									'description' => 'Editor',
 									'type'        => 'object',
 									'context'     => array( 'view', 'edit' ),
 									'items'       => array(
@@ -533,39 +631,39 @@ class SettingsController extends CrudController {
 					),
 				),
 				'course_archive' => array(
-					'description' => __( 'Courses Settings', 'learning-management-system' ),
+					'description' => 'Courses Settings',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'    => 'object',
 						'display' => array(
-							'description' => __( 'Styling', 'learning-management-system' ),
+							'description' => 'Styling',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'           => 'object',
 								'view_mode'      => array(
-									'description' => __( 'Select between list and grid view for courses.', 'learning-management-system' ),
+									'description' => 'Select between list and grid view for courses.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_search'  => array(
-									'description' => __( 'Enable course search.', 'learning-management-system' ),
+									'description' => 'Enable course search.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'per_page'       => array(
-									'description' => __( 'Courses per page.', 'learning-management-system' ),
+									'description' => 'Courses per page.',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'per_row'        => array(
-									'description' => __( 'Courses per row.', 'learning-management-system' ),
+									'description' => 'Courses per row.',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'thumbnail_size' => array(
-									'description' => __( 'Course thumbnail size.', 'learning-management-system' ),
+									'description' => 'Course thumbnail size.',
 									'type'        => 'string',
 									'enum'        => get_intermediate_image_sizes(),
 									'context'     => array( 'view', 'edit' ),
@@ -575,50 +673,50 @@ class SettingsController extends CrudController {
 					),
 				),
 				'single_course'  => array(
-					'description' => __( 'Single course settings.', 'learning-management-system' ),
+					'description' => 'Single course settings.',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'    => 'object',
 						'display' => array(
-							'description' => __( 'Single course display settings.', 'learning-management-system' ),
+							'description' => 'Single course display settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'enable_review'        => array(
-									'description' => __( 'Enable course review.', 'learning-management-system' ),
+									'description' => 'Enable course review.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_review_visibility_control' => array(
-									'description' => __( 'Enable course Review Visibility Control.', 'learning-management-system' ),
+									'description' => 'Enable course Review Visibility Control.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_review_enrolled_users_only' => array(
-									'description' => __( 'Enable course review for enrolled users only.', 'learning-management-system' ),
+									'description' => 'Enable course review for enrolled users only.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'auto_approve_reviews' => array(
-									'description' => __( 'Automatically approve new reviews.', 'learning-management-system' ),
+									'description' => 'Automatically approve new reviews.',
 									'type'        => 'boolean',
 									'default'     => true,
 									'context'     => array( 'view', 'edit' ),
 								),
 								'course_visibility'    => array(
-									'description' => __( 'Students must be logged in to view course.', 'learning-management-system' ),
+									'description' => 'Students must be logged in to view course.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'show_curriculum'      => array(
-									'description' => __( 'Show the curriculum tab to everyone, not only enrolled students.', 'learning-management-system' ),
+									'description' => 'Show the curriculum tab to everyone, not only enrolled students.',
 									'type'        => 'boolean',
 									'default'     => true,
 									'context'     => array( 'view', 'edit' ),
 								),
 								'review_after_course_completion' => array(
-									'description' => __( 'Ask the student for a review after the student completes a course.', 'learning-management-system' ),
+									'description' => 'Ask the student for a review after the student completes a course.',
 									'type'        => 'boolean',
 									'default'     => false,
 									'context'     => array( 'view', 'edit' ),
@@ -628,59 +726,59 @@ class SettingsController extends CrudController {
 					),
 				),
 				'quiz'           => array(
-					'description' => __( 'Quiz Setting', 'learning-management-system' ),
+					'description' => 'Quiz Setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'    => 'object',
 						'display' => array(
-							'description' => __( 'Quiz display settings.', 'learning-management-system' ),
+							'description' => 'Quiz display settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                   => 'object',
 								'questions_display_per_page' => array(
-									'description' => __( 'Quiz questions per page.', 'learning-management-system' ),
+									'description' => 'Quiz questions per page.',
 									'type'        => 'integer',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'quiz_completion_button' => array(
-									'description' => __( 'Quiz complete button visibility', 'learning-management-system' ),
+									'description' => 'Quiz complete button visibility',
 									'type'        => 'boolean',
 									'content'     => array( 'view', 'edit' ),
 								),
 								'quiz_review_visibility' => array(
-									'description' => __( 'Quiz Review button visibility', 'learning-management-system' ),
+									'description' => 'Quiz Review button visibility',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'quiz_previous_page'     => array(
-									'description' => __( 'Show quiz previous page', 'learning-management-system' ),
+									'description' => 'Show quiz previous page',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'general' => array(
-							'description' => __( 'Quiz general settings.', 'learning-management-system' ),
+							'description' => 'Quiz general settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'        => 'object',
 								'grading'     => array(
-									'description' => __( 'Quiz grading calculation type', 'learning-management-system' ),
+									'description' => 'Quiz grading calculation type',
 									'type'        => 'string',
 									'default'     => QuizGradingType::LAST_ATTEMPT,
 									'enum'        => QuizGradingType::all(),
 									'context'     => array( 'view', 'edit' ),
 								),
 								'quiz_access' => array(
-									'description' => __( 'Quiz access for guest users.', 'learning-management-system' ),
+									'description' => 'Quiz access for guest users.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'automatically_submit_quiz' => array(
-									'description' => __( 'Automatically submit the quiz.', 'learning-management-system' ),
+									'description' => 'Automatically submit the quiz.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -689,72 +787,72 @@ class SettingsController extends CrudController {
 					),
 				),
 				'learn_page'     => array(
-					'description' => __( 'Learn page settings', 'learning-management-system' ),
+					'description' => 'Learn page settings',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'    => 'object',
 						'general' => array(
-							'description' => __( 'Learn page general settings.', 'learning-management-system' ),
+							'description' => 'Learn page general settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                   => 'object',
 								'logo_id'                => array(
-									'description' => __( 'Learn page logo id.', 'learning-management-system' ),
+									'description' => 'Learn page logo id.',
 									'type'        => 'number',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'auto_load_next_content' => array(
-									'description' => __( "When enabled, the page will automatically navigate to the next content as we press 'Mark as complete.'", 'learning-management-system' ),
+									'description' => "When enabled, the page will automatically navigate to the next content as we press 'Mark as complete.'",
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_content_protection' => array(
-									'description' => __( 'Content protection for course content', 'learning-management-system' ),
+									'description' => 'Content protection for course content',
 									'type'        => 'boolean',
 									'content'     => array( 'view', 'edit' ),
 								),
 								'lesson_video_url_type'  => array(
-									'description' => __( "Lesson video URL type.'", 'learning-management-system' ),
+									'description' => "Lesson video URL type.'",
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'display' => array(
-							'description' => __( 'Learn page display settings.', 'learning-management-system' ),
+							'description' => 'Learn page display settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                     => 'object',
 								'enable_questions_answers' => array(
-									'description' => __( 'Enable questions answers in learn page.', 'learning-management-system' ),
+									'description' => 'Enable questions answers in learn page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_focus_mode'        => array(
-									'description' => __( 'Enable or disable focus mode.', 'learning-management-system' ),
+									'description' => 'Enable or disable focus mode.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'show_sidebar'             => array(
-									'description' => __( 'Show or hide sidebar in focus mode.', 'learning-management-system' ),
+									'description' => 'Show or hide sidebar in focus mode.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'show_header'              => array(
-									'description' => __( 'Show or hide header in focus mode.', 'learning-management-system' ),
+									'description' => 'Show or hide header in focus mode.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_lesson_comment'    => array(
-									'description' => __( 'Show or hide lesson comments in learn page.', 'learning-management-system' ),
+									'description' => 'Show or hide lesson comments in learn page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'auto_approve_comments'    => array(
-									'description' => __( 'Show or hide lesson comments in learn page.', 'learning-management-system' ),
+									'description' => 'Show or hide lesson comments in learn page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -763,85 +861,85 @@ class SettingsController extends CrudController {
 					),
 				),
 				'payments'       => array(
-					'description' => __( 'Payments Settings', 'learning-management-system' ),
+					'description' => 'Payments Settings',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'            => 'object',
 						'enabled'         => array(
 							// Tri-state string, matching the `'yes' === ...` check in masteriyo_commerce_enabled(). Not boolean: WP REST would coerce a 'boolean' schema type to PHP true/false, which that comparison would never match.
-							'description' => __( 'Whether commerce (payments) is explicitly enabled. Empty string falls back to evidence-based detection.', 'learning-management-system' ),
+							'description' => 'Whether commerce (payments) is explicitly enabled. Empty string falls back to evidence-based detection.',
 							'type'        => 'string',
 							'enum'        => array( '', 'yes', 'no' ),
 							'context'     => array( 'view', 'edit' ),
 						),
 						'store'           => array(
-							'description' => __( 'General Settings', 'learning-management-system' ),
+							'description' => 'General Settings',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'          => 'object',
 								'address_line1' => array(
-									'description' => __( 'Address Line 1', 'learning-management-system' ),
+									'description' => 'Address Line 1',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'address_line2' => array(
-									'description' => __( 'Address Line 2', 'learning-management-system' ),
+									'description' => 'Address Line 2',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'city'          => array(
-									'description' => __( 'City Name', 'learning-management-system' ),
+									'description' => 'City Name',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'country'       => array(
-									'description' => __( 'Country Name', 'learning-management-system' ),
+									'description' => 'Country Name',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'postcode'      => array(
-									'description' => __( 'Postal Code', 'learning-management-system' ),
+									'description' => 'Postal Code',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'currency'        => array(
-							'description' => __( 'Currency Settings', 'learning-management-system' ),
+							'description' => 'Currency Settings',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'               => 'object',
 								'currency'           => array(
-									'description' => __( 'Currency Code', 'learning-management-system' ),
+									'description' => 'Currency Code',
 									'type'        => 'string',
 									'default'     => 'USD',
 									'enum'        => masteriyo_get_currency_codes(),
 									'context'     => array( 'view', 'edit' ),
 								),
 								'currency_position'  => array(
-									'description' => __( 'Position of Currency', 'learning-management-system' ),
+									'description' => 'Position of Currency',
 									'type'        => 'string',
 									'default'     => 'left',
 									'enum'        => array( 'left', 'right', 'left_space', 'right_space' ),
 									'context'     => array( 'view', 'edit' ),
 								),
 								'thousand_separator' => array(
-									'description' => __( 'Thousand Separator', 'learning-management-system' ),
+									'description' => 'Thousand Separator',
 									'type'        => 'string',
 									'default'     => ',',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'decimal_separator'  => array(
-									'description' => __( 'Decimal Separator', 'learning-management-system' ),
+									'description' => 'Decimal Separator',
 									'type'        => 'string',
 									'default'     => '.',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'number_of_decimals' => array(
-									'description' => __( 'Number of Decimals', 'learning-management-system' ),
+									'description' => 'Number of Decimals',
 									'type'        => 'integer',
 									'default'     => 3,
 									'context'     => array( 'view', 'edit' ),
@@ -850,171 +948,171 @@ class SettingsController extends CrudController {
 						),
 						'offline'         => array(
 							'enable'       => array(
-								'description' => __( 'Enable offline payment.', 'learning-management-system' ),
+								'description' => 'Enable offline payment.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'title'        => array(
-								'description' => __( 'Offline payment title which the user sees during checkout.', 'learning-management-system' ),
+								'description' => 'Offline payment title which the user sees during checkout.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'description'  => array(
-								'description' => __( 'Offline payment description which the user sees during checkout.', 'learning-management-system' ),
+								'description' => 'Offline payment description which the user sees during checkout.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'instructions' => array(
-								'description' => __( 'Offline payment instructions.', 'learning-management-system' ),
+								'description' => 'Offline payment instructions.',
 								'default'     => true,
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'paypal'          => array(
 							'enable'                  => array(
-								'description' => __( 'Enable standard paypal.', 'learning-management-system' ),
+								'description' => 'Enable standard paypal.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'title'                   => array(
-								'description' => __( 'Paypal title which the user sees during checkout.', 'learning-management-system' ),
+								'description' => 'Paypal title which the user sees during checkout.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'description'             => array(
-								'description' => __( 'Paypal description which the user sees during checkout.', 'learning-management-system' ),
+								'description' => 'Paypal description which the user sees during checkout.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'ipn_email_notifications' => array(
-								'description' => __( 'Enable IPN email notifications.', 'learning-management-system' ),
+								'description' => 'Enable IPN email notifications.',
 								'type'        => 'boolean',
 								'default'     => true,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'sandbox'                 => array(
-								'description' => __( 'Enable sandbox/sandbox mode on paypal.', 'learning-management-system' ),
+								'description' => 'Enable sandbox/sandbox mode on paypal.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'email'                   => array(
-								'description' => __( 'Paypal email.', 'learning-management-system' ),
+								'description' => 'Paypal email.',
 								'type'        => 'email',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'receiver_email'          => array(
-								'description' => __( 'Paypal receiver email.', 'learning-management-system' ),
+								'description' => 'Paypal receiver email.',
 								'type'        => 'email',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'identity_token'          => array(
-								'description' => __( 'Paypal identity token.', 'learning-management-system' ),
+								'description' => 'Paypal identity token.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'invoice_prefix'          => array(
-								'description' => __( 'Paypal invoice prefix.', 'learning-management-system' ),
+								'description' => 'Paypal invoice prefix.',
 								'type'        => 'string',
 								'default'     => 'masteriyo-',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'payment_action'          => array(
-								'description' => __( 'Paypal payment action.', 'learning-management-system' ),
+								'description' => 'Paypal payment action.',
 								'type'        => 'string',
 								'default'     => 'capture',
 								'enum'        => array( 'capture', 'authorize' ),
 								'context'     => array( 'view', 'edit' ),
 							),
 							'image_url'               => array(
-								'description' => __( 'Paypal image url.', 'learning-management-system' ),
+								'description' => 'Paypal image url.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'debug'                   => array(
-								'description' => __( 'Enable log.', 'learning-management-system' ),
+								'description' => 'Enable log.',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'sandbox_api_username'    => array(
-								'description' => __( 'Paypal sandbox API username.', 'learning-management-system' ),
+								'description' => 'Paypal sandbox API username.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'sandbox_api_password'    => array(
-								'description' => __( 'Paypal sandbox API password.', 'learning-management-system' ),
+								'description' => 'Paypal sandbox API password.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'sandbox_api_signature'   => array(
-								'description' => __( 'Paypal sandbox API signature.', 'learning-management-system' ),
+								'description' => 'Paypal sandbox API signature.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'live_api_username'       => array(
-								'description' => __( 'Paypal live API username.', 'learning-management-system' ),
+								'description' => 'Paypal live API username.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'live_api_password'       => array(
-								'description' => __( 'Paypal live API password.', 'learning-management-system' ),
+								'description' => 'Paypal live API password.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'live_api_signature'      => array(
-								'description' => __( 'Paypal live API signature.', 'learning-management-system' ),
+								'description' => 'Paypal live API signature.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'checkout_fields' => array(
 							'address_1'         => array(
-								'description' => __( 'Address line One ', 'learning-management-system' ),
+								'description' => 'Address line One ',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'address_2'         => array(
-								'description' => __( 'Address line two', 'learning-management-system' ),
+								'description' => 'Address line two',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'company'           => array(
-								'description' => __( 'Company Name', 'learning-management-system' ),
+								'description' => 'Company Name',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'country'           => array(
-								'description' => __( 'Country', 'learning-management-system' ),
+								'description' => 'Country',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'customer_note'     => array(
-								'description' => __( 'Customer Note', 'learning-management-system' ),
+								'description' => 'Customer Note',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'attachment_upload' => array(
-								'description' => __( 'Customer Note', 'learning-management-system' ),
+								'description' => 'Customer Note',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'phone'             => array(
-								'description' => __( 'Phone Number', 'learning-management-system' ),
+								'description' => 'Phone Number',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'postcode'          => array(
-								'description' => __( 'Postal / Zip Code', 'learning-management-system' ),
+								'description' => 'Postal / Zip Code',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'state'             => array(
-								'description' => __( 'State', 'learning-management-system' ),
+								'description' => 'State',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'city'              => array(
-								'description' => __( 'Town/City', 'learning-management-system' ),
+								'description' => 'Town/City',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1022,22 +1120,34 @@ class SettingsController extends CrudController {
 						'taxes'           => array(
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
-							'description' => __( 'Taxes settings', 'learning-management-system' ),
+							'description' => 'Taxes settings',
 							'items'       => array(
 								'calculation_method' => array(
-									'description' => __( 'Tax calculation method', 'learning-management-system' ),
+									'description' => 'Tax calculation method',
 									'type'        => 'string',
 									'enum'        => array( 'inclusive', 'exclusive' ),
 									'context'     => array( 'view', 'edit' ),
 								),
 								'display_inclusive'  => array(
-									'description' => __( 'Display inclusive tax', 'learning-management-system' ),
+									'description' => 'Display inclusive tax',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'regions'            => array(
-									'description' => __( 'Tax regions', 'learning-management-system' ),
+									'description' => 'Tax regions',
 									'type'        => 'object',
+									'context'     => array( 'view', 'edit' ),
+								),
+							),
+						),
+						'invoice'         => array(
+							'type'        => 'object',
+							'context'     => array( 'view', 'edit' ),
+							'description' => 'Invoice',
+							'items'       => array(
+								'enable' => array(
+									'description' => 'Enable Invoices',
+									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
@@ -1045,70 +1155,70 @@ class SettingsController extends CrudController {
 					),
 				),
 				'emails'         => array(
-					'description' => __( 'Email Setting', 'learning-management-system' ),
+					'description' => 'Email Setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'general'              => array(
 							'from_name'         => array(
-								'description' => __( 'Email send from.', 'learning-management-system' ),
+								'description' => 'Email send from.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'from_email'        => array(
-								'description' => __( 'Email address to send email.', 'learning-management-system' ),
+								'description' => 'Email address to send email.',
 								'type'        => 'email',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'default_content'   => array(
-								'description' => __( 'Default content for email.', 'learning-management-system' ),
+								'description' => 'Default content for email.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'header_image'      => array(
-								'description' => __( 'Email header image.', 'learning-management-system' ),
+								'description' => 'Email header image.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'footer_text'       => array(
-								'description' => __( 'Email footer text.', 'learning-management-system' ),
+								'description' => 'Email footer text.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'body_bg_color'     => array(
-								'description' => __( 'Email template body background color.', 'learning-management-system' ),
+								'description' => 'Email template body background color.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'body_text_color'   => array(
-								'description' => __( 'Email template body text color.', 'learning-management-system' ),
+								'description' => 'Email template body text color.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'header_bg_color'   => array(
-								'description' => __( 'Email template header background color.', 'learning-management-system' ),
+								'description' => 'Email template header background color.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'button_bg_color'   => array(
-								'description' => __( 'Email template button background color.', 'learning-management-system' ),
+								'description' => 'Email template button background color.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'button_text_color' => array(
-								'description' => __( 'Email template button text color.', 'learning-management-system' ),
+								'description' => 'Email template button text color.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'new_order'            => array(
 							'enable'     => array(
-								'description' => __( 'Enable new order.', 'learning-management-system' ),
+								'description' => 'Enable new order.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'recipients' => array(
-								'description' => __( 'Recipients email address.', 'learning-management-system' ),
+								'description' => 'Recipients email address.',
 								'type'        => 'array',
 								'context'     => array( 'view', 'edit' ),
 								'items'       => array(
@@ -1116,95 +1226,95 @@ class SettingsController extends CrudController {
 								),
 							),
 							'subject'    => array(
-								'description' => __( 'New order email subject.', 'learning-management-system' ),
+								'description' => 'New order email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading'    => array(
-								'description' => __( 'New order email heading.', 'learning-management-system' ),
+								'description' => 'New order email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content'    => array(
-								'description' => __( 'New order email content.', 'learning-management-system' ),
+								'description' => 'New order email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'processing_order'     => array(
 							'enable'  => array(
-								'description' => __( 'Enable processing order.', 'learning-management-system' ),
+								'description' => 'Enable processing order.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'Processing order email subject.', 'learning-management-system' ),
+								'description' => 'Processing order email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'Processing order email heading.', 'learning-management-system' ),
+								'description' => 'Processing order email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'Processing order email content.', 'learning-management-system' ),
+								'description' => 'Processing order email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'completed_order'      => array(
 							'enable'  => array(
-								'description' => __( 'Enable completed order.', 'learning-management-system' ),
+								'description' => 'Enable completed order.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'Completed order email subject.', 'learning-management-system' ),
+								'description' => 'Completed order email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'Completed order email heading.', 'learning-management-system' ),
+								'description' => 'Completed order email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'Completed order email content.', 'learning-management-system' ),
+								'description' => 'Completed order email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'onhold_order'         => array(
 							'enable'  => array(
-								'description' => __( 'Enable on hold order.', 'learning-management-system' ),
+								'description' => 'Enable on hold order.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'On hold order email subject.', 'learning-management-system' ),
+								'description' => 'On hold order email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'On hold order email heading.', 'learning-management-system' ),
+								'description' => 'On hold order email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'On hold order email content.', 'learning-management-system' ),
+								'description' => 'On hold order email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'cancelled_order'      => array(
 							'enable'     => array(
-								'description' => __( 'Enable cancelled order.', 'learning-management-system' ),
+								'description' => 'Enable cancelled order.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'recipients' => array(
-								'description' => __( 'Recipients email address.', 'learning-management-system' ),
+								'description' => 'Recipients email address.',
 								'type'        => 'email',
 								'context'     => array( 'view', 'edit' ),
 								'items'       => array(
@@ -1212,83 +1322,83 @@ class SettingsController extends CrudController {
 								),
 							),
 							'subject'    => array(
-								'description' => __( 'Cancelled order email subject.', 'learning-management-system' ),
+								'description' => 'Cancelled order email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading'    => array(
-								'description' => __( 'Cancelled order email heading.', 'learning-management-system' ),
+								'description' => 'Cancelled order email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content'    => array(
-								'description' => __( 'Cancelled order email content.', 'learning-management-system' ),
+								'description' => 'Cancelled order email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'enrolled_course'      => array(
 							'enable'  => array(
-								'description' => __( 'Enable enrolled course.', 'learning-management-system' ),
+								'description' => 'Enable enrolled course.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'Enrolled course email subject.', 'learning-management-system' ),
+								'description' => 'Enrolled course email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'Enrolled course email heading.', 'learning-management-system' ),
+								'description' => 'Enrolled course email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'Enrolled course email content.', 'learning-management-system' ),
+								'description' => 'Enrolled course email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'completed_course'     => array(
 							'enable'  => array(
-								'description' => __( 'Enable completed course.', 'learning-management-system' ),
+								'description' => 'Enable completed course.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'Completed course email subject.', 'learning-management-system' ),
+								'description' => 'Completed course email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'Completed course email heading.', 'learning-management-system' ),
+								'description' => 'Completed course email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'Completed course email content.', 'learning-management-system' ),
+								'description' => 'Completed course email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 						),
 						'become_an_instructor' => array(
 							'enable'  => array(
-								'description' => __( 'Enable become an instructor.', 'learning-management-system' ),
+								'description' => 'Enable become an instructor.',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subject' => array(
-								'description' => __( 'Become an instructor email subject.', 'learning-management-system' ),
+								'description' => 'Become an instructor email subject.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'heading' => array(
-								'description' => __( 'Become an instructor email heading.', 'learning-management-system' ),
+								'description' => 'Become an instructor email heading.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'content' => array(
-								'description' => __( 'Become an instructor email content.', 'learning-management-system' ),
+								'description' => 'Become an instructor email content.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1296,168 +1406,168 @@ class SettingsController extends CrudController {
 					),
 				),
 				'advance'        => array(
-					'description' => __( 'Advance setting', 'learning-management-system' ),
+					'description' => 'Advance setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'checkout'              => array(
-							'description' => __( 'Checkout endpoints', 'learning-management-system' ),
+							'description' => 'Checkout endpoints',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'pay'                   => array(
-									'description' => __( 'Pay endpoint', 'learning-management-system' ),
+									'description' => 'Pay endpoint',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'order_received'        => array(
-									'description' => __( 'Order received endpoint.', 'learning-management-system' ),
+									'description' => 'Order received endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'add_payment_method'    => array(
-									'description' => __( 'Add payment method endpoint.', 'learning-management-system' ),
+									'description' => 'Add payment method endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'delete_payment_method' => array(
-									'description' => __( 'Delete payment method endpoint.', 'learning-management-system' ),
+									'description' => 'Delete payment method endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'set_default_payment_method' => array(
-									'description' => __( 'Set default payment method endpoint.', 'learning-management-system' ),
+									'description' => 'Set default payment method endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'account'               => array(
-							'description' => __( 'Account endpoints', 'learning-management-system' ),
+							'description' => 'Account endpoints',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'orders'          => array(
-									'description' => __( 'Orders endpoint', 'learning-management-system' ),
+									'description' => 'Orders endpoint',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'view_order'      => array(
-									'description' => __( 'View order endpoint.', 'learning-management-system' ),
+									'description' => 'View order endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'my_courses'      => array(
-									'description' => __( 'My courses endpoint.', 'learning-management-system' ),
+									'description' => 'My courses endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'edit_account'    => array(
-									'description' => __( 'Edit account endpoint.', 'learning-management-system' ),
+									'description' => 'Edit account endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'payment_methods' => array(
-									'description' => __( 'Payment methods endpoint.', 'learning-management-system' ),
+									'description' => 'Payment methods endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'lost_password'   => array(
-									'description' => __( 'Lost password endpoint.', 'learning-management-system' ),
+									'description' => 'Lost password endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'logout'          => array(
-									'description' => __( 'Logout endpoint.', 'learning-management-system' ),
+									'description' => 'Logout endpoint.',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'permalinks'            => array(
-							'description' => __( 'Permalinks', 'learning-management-system' ),
+							'description' => 'Permalinks',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                     => 'object',
 								'category_base'            => array(
-									'description' => __( 'Course category base', 'learning-management-system' ),
+									'description' => 'Course category base',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'tag_base'                 => array(
-									'description' => __( 'Course tag base', 'learning-management-system' ),
+									'description' => 'Course tag base',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'difficulty_base'          => array(
-									'description' => __( 'Course difficulty base', 'learning-management-system' ),
+									'description' => 'Course difficulty base',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'single_course_permalink'  => array(
-									'description' => __( 'Single course permalink', 'learning-management-system' ),
+									'description' => 'Single course permalink',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'single_lesson_permalink'  => array(
-									'description' => __( 'Course lessons permalink', 'learning-management-system' ),
+									'description' => 'Course lessons permalink',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'single_quiz_permalink'    => array(
-									'description' => __( 'Course quizzes permalink', 'learning-management-system' ),
+									'description' => 'Course quizzes permalink',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'single_section_permalink' => array(
-									'description' => __( 'Course sections permalink', 'learning-management-system' ),
+									'description' => 'Course sections permalink',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'debug'                 => array(
-							'description' => __( 'Debug', 'learning-management-system' ),
+							'description' => 'Debug',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'          => 'object',
 								'enable_logger' => array(
-									'description' => __( 'Enable logger.', 'learning-management-system' ),
+									'description' => 'Enable logger.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 							),
 						),
 						'mailchimp_integration' => array(
-							'description' => __( 'Set the client secrets for the data and content message with default list and group.', 'learning-management-system' ),
+							'description' => 'Set the client secrets for the data and content message with default list and group.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'          => 'object',
 								'client_id'     => array(
-									'description' => __( 'Client Id created from mailchimp', 'learning-management-system' ),
+									'description' => 'Client Id created from mailchimp',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'client_secret' => array(
-									'description' => __( 'Client Secret created from mailchimp', 'learning-management-system' ),
+									'description' => 'Client Secret created from mailchimp',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'subscriber_consent_message' => array(
-									'description' => __( 'Subscriber Consent Message created from mailchimp', 'learning-management-system' ),
+									'description' => 'Subscriber Consent Message created from mailchimp',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'default_group' => array(
-									'description' => __( 'Default Group created for mailchimp', 'learning-management-system' ),
+									'description' => 'Default Group created for mailchimp',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'default_list'  => array(
-									'description' => __( 'Default List created for mailchimp', 'learning-management-system' ),
+									'description' => 'Default List created for mailchimp',
 									'type'        => 'string',
 									'context'     => array( 'view', 'edit' ),
 								),
@@ -1466,59 +1576,59 @@ class SettingsController extends CrudController {
 					),
 				),
 				'accounts_page'  => array(
-					'description' => __( 'Account page settings', 'learning-management-system' ),
+					'description' => 'Account page settings',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'    => 'object',
 						'display' => array(
-							'description' => __( 'Account page display settings.', 'learning-management-system' ),
+							'description' => 'Account page display settings.',
 							'type'        => 'object',
 							'context'     => array( 'view', 'edit' ),
 							'items'       => array(
 								'type'                    => 'object',
 								'enable_assignments_page' => array(
-									'description' => __( 'Enable assignment in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable assignment in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_certificate_page' => array(
-									'description' => __( 'Enable certificate in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable certificate in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_gradebook_page'   => array(
-									'description' => __( 'Enable gradebook in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable gradebook in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_history_page'     => array(
-									'description' => __( 'Enable history in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable history in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_invoice'          => array(
-									'description' => __( 'Enable invoice in orders table.', 'learning-management-system' ),
+									'description' => 'Enable invoice in orders table.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_quiz_attempts_page' => array(
-									'description' => __( 'Enable quiz attempts in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable quiz attempts in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_subscriptions_page' => array(
-									'description' => __( 'Enable subscription in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable subscription in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_instructor_apply' => array(
-									'description' => __( 'Enable instructor apply button in accounts page in profile tab.', 'learning-management-system' ),
+									'description' => 'Enable instructor apply button in accounts page in profile tab.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'instructor_max_attempts' => array(
-									'description' => __( 'Maximum number of times a user can apply for instructor status.', 'learning-management-system' ),
+									'description' => 'Maximum number of times a user can apply for instructor status.',
 									'type'        => 'integer',
 									'default'     => 3,
 									'minimum'     => 1,
@@ -1526,12 +1636,12 @@ class SettingsController extends CrudController {
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_profile_page'     => array(
-									'description' => __( 'Enable profile page tab in accounts page.', 'learning-management-system' ),
+									'description' => 'Enable profile page tab in accounts page.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),
 								'enable_edit_profile'     => array(
-									'description' => __( 'Enable edit profile button for accounts page in profile tab.', 'learning-management-system' ),
+									'description' => 'Enable edit profile button for accounts page in profile tab.',
 									'type'        => 'boolean',
 									'context'     => array( 'view', 'edit' ),
 								),

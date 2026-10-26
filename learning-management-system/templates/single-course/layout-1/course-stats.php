@@ -74,7 +74,7 @@ do_action( 'masteriyo_before_course_layout_1_meta_data' );
 		<p class="masteriyo-single-desc">
 			<?php
 			$modified_date  = strtotime( $course->get_date_modified() );
-			$formatted_date = gmdate( 'F j, Y', $modified_date );
+			$formatted_date = wp_date( masteriyo_date_format(), $modified_date );
 			echo esc_html( $formatted_date );
 			?>
 		</p>
@@ -94,7 +94,7 @@ do_action( 'masteriyo_before_course_layout_1_meta_data' );
 			<p class="masteriyo-single-desc">
 				<?php
 				$started_date   = strtotime( $progress->get_started_at() );
-				$formatted_date = gmdate( 'F j, Y', $started_date );
+				$formatted_date = wp_date( masteriyo_date_format(), $started_date );
 				echo esc_html( $formatted_date );
 				?>
 			</p>

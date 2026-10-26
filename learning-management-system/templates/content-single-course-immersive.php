@@ -108,7 +108,17 @@ $remaining_seats  = $enrollment_limit > 0 ? max( 0, $enrollment_limit - $enrolle
 				<?php endif; ?>
 
 				<?php if ( $show_title ) : ?>
-					<h1 class="masteriyo-single-course--title masteriyo-immersive-hero__title"><?php echo esc_html( $course->get_name() ); ?></h1>
+					<h1 class="masteriyo-single-course--title masteriyo-immersive-hero__title">
+						<?php
+						/** This action is documented in templates/single-course/title.php */
+						do_action( 'masteriyo_before_single_course_title_text', $course );
+
+						echo esc_html( $course->get_name() );
+
+						/** This action is documented in templates/single-course/title.php */
+						do_action( 'masteriyo_after_single_course_title_text', $course );
+						?>
+					</h1>
 				<?php endif; ?>
 
 				<div class="masteriyo-immersive-hero__meta">
@@ -168,7 +178,7 @@ $remaining_seats  = $enrollment_limit > 0 ? max( 0, $enrollment_limit - $enrolle
 							printf(
 								/* translators: %s: date of the last course update */
 								esc_html__( 'Updated %s', 'learning-management-system' ),
-								esc_html( $date_modified->date_i18n( 'F j, Y' ) )
+								esc_html( $date_modified->date_i18n( masteriyo_date_format() ) )
 							);
 							?>
 						</span>
@@ -355,12 +365,20 @@ $remaining_seats  = $enrollment_limit > 0 ? max( 0, $enrollment_limit - $enrolle
 				</section>
 			<?php endif; ?>
 
-			<?php if ( trim( wp_strip_all_tags( $description, true ) ) ) : ?>
+			<?php
+			$has_description = (bool) trim( wp_strip_all_tags( $description, true ) );
+			$custom_fields   = $course->get_custom_fields();
+			$has_fields      = is_array( $custom_fields ) && ! empty( $custom_fields );
+			?>
+			<?php if ( $has_description || $has_fields ) : ?>
 				<section class="masteriyo-immersive-section masteriyo-immersive-description course-overview">
 					<h2 class="masteriyo-immersive-section__title"><?php esc_html_e( 'About this course', 'learning-management-system' ); ?></h2>
-					<div class="masteriyo-immersive-description__content">
-						<?php echo wp_kses_post( masteriyo_format_content_for_view( $description ) ); ?>
-					</div>
+					<?php if ( $has_description ) : ?>
+						<div class="masteriyo-immersive-description__content">
+							<?php echo masteriyo_kses_post_for_user( masteriyo_format_content_for_view( $description ), masteriyo_get_course_author_id( $course ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</div>
+					<?php endif; ?>
+					<?php masteriyo_get_template( 'single-course/custom-fields.php', array( 'course' => $course ) ); ?>
 				</section>
 			<?php endif; ?>
 

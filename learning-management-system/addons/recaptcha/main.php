@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Google reCAPTCHA
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Allows to add Google reCAPTCHA for Masteriyo forms (login, student registration and instructor registration).
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

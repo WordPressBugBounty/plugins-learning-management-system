@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Multiple Currency
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Multiple Currency allows you to sell the same product in multiple currencies based on the country of the customer.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

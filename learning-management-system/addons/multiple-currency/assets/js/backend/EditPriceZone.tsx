@@ -87,7 +87,7 @@ const EditPriceZone: React.FC = () => {
 				queryClient.invalidateQueries({ queryKey: [`pricingZonesList`] });
 				toast({
 					title: __(
-						'PriceZone updated successfully.',
+						'Price zone updated successfully.',
 						'learning-management-system',
 					),
 					isClosable: true,

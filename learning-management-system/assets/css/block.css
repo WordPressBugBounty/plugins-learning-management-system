@@ -667,6 +667,13 @@
 .masteriyo-badge.masteriyo-badge-pink {
   background-color: var(--masteriyo-color-badge-pink);
 }
+.masteriyo-badge.masteriyo-badge-draft {
+  align-self: center;
+  font-size: 10px;
+  padding: 2px 8px;
+  color: var(--masteriyo-color-text);
+  background-color: var(--masteriyo-color-primary-a20);
+}
 
 .masteriyo-search-section {
   display: flex;

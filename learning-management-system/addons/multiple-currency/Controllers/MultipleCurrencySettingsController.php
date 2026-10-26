@@ -244,18 +244,18 @@ class MultipleCurrencySettingsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'test_mode' => array(
-					'description' => __( 'Test Mode', 'learning-management-system' ),
+					'description' => 'Test Mode',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'properties'  => array(
 						'enabled' => array(
-							'description' => __( 'Enable', 'learning-management-system' ),
+							'description' => 'Enable',
 							'type'        => 'boolean',
 							'default'     => false,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country' => array(
-							'description' => __( 'Test Country', 'learning-management-system' ),
+							'description' => 'Test Country',
 							'type'        => 'string',
 							'default'     => '',
 							'context'     => array( 'view', 'edit' ),
@@ -263,18 +263,18 @@ class MultipleCurrencySettingsController extends PostsController {
 					),
 				),
 				'maxmind'   => array(
-					'description' => __( 'MaxMind', 'learning-management-system' ),
+					'description' => 'MaxMind',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'properties'  => array(
 						'enabled'     => array(
-							'description' => __( 'Enable', 'learning-management-system' ),
+							'description' => 'Enable',
 							'type'        => 'boolean',
 							'default'     => false,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'license_key' => array(
-							'description' => __( 'License Key', 'learning-management-system' ),
+							'description' => 'License Key',
 							'type'        => 'string',
 							'default'     => '',
 							'context'     => array( 'view', 'edit' ),

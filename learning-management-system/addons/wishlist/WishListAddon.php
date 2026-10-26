@@ -50,6 +50,7 @@ class WishListAddon {
 		add_action( 'masteriyo_after_layout_1_course_title', array( $this, 'render_wishlist_toggle_button' ), 10 );
 		add_action( 'masteriyo_after_layout_2_course_title', array( $this, 'render_wishlist_toggle_button' ), 10 );
 		add_action( 'masteriyo_after_layout_1_single_course_title', array( $this, 'render_wishlist_toggle_button' ), 1 );
+		add_action( 'masteriyo_update_course', array( $this, 'on_course_update' ), 10, 2 );
 		add_action( 'masteriyo_before_delete_course', array( $this, 'on_course_update' ), 10, 2 );
 		add_action( 'masteriyo_before_trash_course', array( $this, 'on_course_update' ), 10, 2 );
 	}
@@ -73,12 +74,11 @@ class WishListAddon {
 		);
 
 		$layout = masteriyo_get_setting( 'course_archive.display.template.layout' ) ?? 'default';
-		if ( 'layout2' === $layout ) {
-			return;
-		}
 
 		if ( 'layout1' === $layout ) {
 			$class[] = 'masteriyo-archive-card__image-favorite-icon';
+		} elseif ( 'layout2' === $layout ) {
+			$class[] = 'masteriyo-course-card__favorite-icon';
 		} else {
 			$class[] = 'masteriyo-single-course__favorite-icon';
 		}
@@ -144,7 +144,7 @@ class WishListAddon {
 			'callback' => function() {
 				global $post;
 
-				return masteriyo_is_courses_page() || masteriyo_is_single_course_page() || ( $post && has_shortcode( $post->post_content, 'masteriyo_courses' ) ) || ( new Addons() )->is_active( 'oxygen-integration' );
+				return masteriyo_is_courses_page() || masteriyo_is_single_course_page() || ( $post && has_shortcode( $post->post_content, 'masteriyo_courses' ) ) || \Masteriyo\ScriptStyle::current_page_has_elementor_course_list_widget() || \Masteriyo\ScriptStyle::current_page_has_divi_course_list_module() || ( new Addons() )->is_active( 'oxygen-integration' );
 			},
 		);
 

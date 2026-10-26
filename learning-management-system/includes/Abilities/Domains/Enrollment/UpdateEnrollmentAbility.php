@@ -43,6 +43,6 @@ class UpdateEnrollmentAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Update an existing course enrollment. Requires id (enrollment ID). Optionally accepts status (active, inactive). Returns the updated enrollment object.', 'learning-management-system' );
+		return 'Update an existing course enrollment. Requires id (enrollment ID). Optionally accepts status (active, inactive). Returns the updated enrollment object.';
 	}
 }

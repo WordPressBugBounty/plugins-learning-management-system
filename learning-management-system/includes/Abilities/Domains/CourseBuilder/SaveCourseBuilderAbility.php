@@ -68,7 +68,7 @@ class SaveCourseBuilderAbility extends RestProxyAbility {
 
 		$schema['properties']['confirm_published_overwrite'] = array(
 			'type'        => 'boolean',
-			'description' => __( 'Set to true to confirm that you intend to overwrite a published course. Required when the course status is "publish".', 'learning-management-system' ),
+			'description' => 'Set to true to confirm that you intend to overwrite a published course. Required when the course status is "publish".',
 			'default'     => false,
 		);
 
@@ -120,6 +120,6 @@ class SaveCourseBuilderAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Atomically save the entire course structure (sections, lessons, quizzes). Replaces the existing structure — provide the full desired tree.', 'learning-management-system' );
+		return 'Atomically save the entire course structure (sections, lessons, quizzes). Replaces the existing structure — provide the full desired tree.';
 	}
 }

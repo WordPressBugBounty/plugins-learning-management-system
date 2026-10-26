@@ -39,7 +39,7 @@ function masteriyo_course_has_previewable_lessons( $course_id ) {
 }
 
 /**
- * Whether a request is a course preview by a user allowed to preview (admin or course author).
+ * Whether a request is a course preview by a user allowed to preview (admin, course author, or anyone who may edit the course).
  *
  * @param \WP_REST_Request|array $request Request carrying `mto-preview` and `course_id`.
  *
@@ -54,7 +54,7 @@ function masteriyo_is_course_preview_request( $request ) {
 
 	$course_id = isset( $request['course_id'] ) ? absint( $request['course_id'] ) : 0;
 
-	return masteriyo_is_current_user_admin() || ( $course_id && masteriyo_is_current_user_post_author( $course_id ) );
+	return masteriyo_is_current_user_admin() || ( $course_id && ( masteriyo_is_current_user_post_author( $course_id ) || current_user_can( 'edit_course', $course_id ) ) );
 }
 
 /**

@@ -79,19 +79,21 @@ const CertificateCourseSettings: React.FC<Props> = (props) => {
 	return (
 		<Stack direction="column" spacing={8}>
 			<FormControlTwoCol>
-				<FormLabel minW="160px">
-					{__('Enable Certificate', 'learning-management-system')}
-					<ToolTip
-						label={__(
-							'Allow students to get certificate after course completion.',
-							'learning-management-system',
-						)}
+				<Stack direction="row">
+					<FormLabel minW="160px">
+						{__('Enable Certificate', 'learning-management-system')}
+						<ToolTip
+							label={__(
+								'Allow students to get certificate after course completion.',
+								'learning-management-system',
+							)}
+						/>
+					</FormLabel>
+					<Switch
+						{...register('certificate_enabled')}
+						defaultChecked={courseData?.certificate?.enabled}
 					/>
-				</FormLabel>
-				<Switch
-					{...register('certificate_enabled')}
-					defaultChecked={courseData?.certificate?.enabled}
-				/>
+				</Stack>
 			</FormControlTwoCol>
 
 			{isCertificateEnabled && certificatesQuery.isLoading ? (

@@ -59,6 +59,6 @@ class CreateCourseReviewAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Submit a new course review with rating and comment.', 'learning-management-system' );
+		return 'Submit a new course review with rating and comment.';
 	}
 }

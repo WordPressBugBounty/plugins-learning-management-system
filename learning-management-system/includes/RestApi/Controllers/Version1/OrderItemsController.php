@@ -100,7 +100,7 @@ class OrderItemsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -144,21 +144,21 @@ class OrderItemsController extends PostsController {
 		$params = array();
 
 		$params['order_id'] = array(
-			'description'       => __( 'Filter order items by order ID.', 'learning-management-system' ),
+			'description'       => 'Filter order items by order ID.',
 			'type'              => 'number',
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 			'required'          => true,
 		);
 		$params['paged']    = array(
-			'description'       => __( 'Paginate the order items.', 'learning-management-system' ),
+			'description'       => 'Paginate the order items.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 			'default'           => 1,
 		);
 		$params['per_page'] = array(
-			'description'       => __( 'Limit items per page.', 'learning-management-system' ),
+			'description'       => 'Limit items per page.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -295,61 +295,61 @@ class OrderItemsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'        => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'order_id'  => array(
-					'description' => __( 'Order ID', 'learning-management-system' ),
+					'description' => 'Order ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id' => array(
-					'description' => __( 'Product ID', 'learning-management-system' ),
+					'description' => 'Product ID',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'name'      => array(
-					'description' => __( 'Order item name', 'learning-management-system' ),
+					'description' => 'Order item name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'      => array(
-					'description' => __( 'Order item type', 'learning-management-system' ),
+					'description' => 'Order item type',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'quantity'  => array(
-					'description' => __( 'Quantity', 'learning-management-system' ),
+					'description' => 'Quantity',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total'     => array(
-					'description' => __( 'Total amount of the order item.', 'learning-management-system' ),
+					'description' => 'Total amount of the order item.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data' => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -510,7 +510,7 @@ class OrderItemsController extends PostsController {
 		if ( ! is_object( $order_item ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -716,7 +716,7 @@ class OrderItemsController extends PostsController {
 		if ( ! is_object( $order_item ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

@@ -313,7 +313,7 @@ class CourseProgress extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $start Course progress start.
+	 * @param string|int $started_at Course progress start: a UTC timestamp, or a datetime string in the site timezone.
 	 */
 	public function set_started_at( $started_at ) {
 		$this->set_date_prop( 'started_at', $started_at );
@@ -324,7 +324,7 @@ class CourseProgress extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $update Course progress update.
+	 * @param string|int $modified_at Course progress update: a UTC timestamp, or a datetime string in the site timezone.
 	 */
 	public function set_modified_at( $modified_at ) {
 		$this->set_date_prop( 'modified_at', $modified_at );
@@ -335,7 +335,7 @@ class CourseProgress extends Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $complete Course progress complete.
+	 * @param string|int|null $completed_at Course progress complete: a UTC timestamp, or a datetime string in the site timezone. Null clears it.
 	 */
 	public function set_completed_at( $completed_at ) {
 		$this->set_date_prop( 'completed_at', $completed_at );

@@ -98,6 +98,9 @@ class MigrationCli {
 	public function migrate( $args, $assoc_args ) {
 		$name = isset( $assoc_args['name'] ) ? masteriyo_kebab_to_snake( $assoc_args['name'] ) : null;
 
+		// An explicit run always consults the history table, even after an idle check (#1111).
+		delete_option( Migrator::CHECKED_OPTION );
+
 		$migrations = masteriyo( 'migrator' )->migrate( $name );
 
 		foreach ( $migrations as $migration ) {

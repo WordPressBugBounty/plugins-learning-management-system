@@ -201,8 +201,9 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 								<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 						<div class="masteriyo-archive-card__content--rating-amount">
 						<div class="masteriyo-archive-card__content--amount">
-									<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
-								<div class="masteriyo-offer-price"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></div>
+									<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course ); ?>
+									<?php if ( $regular_price_html ) : ?>
+								<div class="masteriyo-offer-price"><?php echo wp_kses_post( $regular_price_html ); ?></div>
 								<?php endif; ?>
 								<span class="masteriyo-sale-price"><?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?></span>
 							</div>
@@ -230,18 +231,11 @@ $course = apply_filters( 'masteriyo_course_archive_course', $course );
 					<?php if ( masteriyo_should_show_component( 'showPrice', 'course_archive.components_visibility.price' ) ) : ?>
 						<?php if ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) : ?>
 				<div class="masteriyo-course-price">
-							<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+							<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course, array( 'disable_tax_inclusive_label' => true ) ); ?>
+							<?php if ( $regular_price_html ) : ?>
 						<del class="old-amount">
 								<?php
-								echo wp_kses_post(
-									masteriyo_price(
-										$course->get_regular_price(),
-										array(
-											'currency' => $course->get_currency(),
-											'disable_tax_inclusive_label' => true,
-										)
-									)
-								);
+								echo wp_kses_post( $regular_price_html );
 								?>
 												</del>
 					<?php endif; ?>

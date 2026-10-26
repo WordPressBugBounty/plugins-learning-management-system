@@ -201,7 +201,7 @@ class Helper {
 				)
 			);
 
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			$user_course->set_date_start( time() );
 			$user_course->save();
 			return true;
 		} else {

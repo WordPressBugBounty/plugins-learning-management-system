@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
- * Ability: permanently delete a question from a quiz.
+ * Ability: permanently delete a question.
  *
  * Unlike course/lesson/quiz deletes, questions do not support a trash state —
  * this operation is always permanent.
@@ -59,6 +59,6 @@ class DeleteQuestionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Permanently delete a question from a quiz.', 'learning-management-system' );
+		return 'Permanently delete a question. Questions have no trash, so force=false is not supported.';
 	}
 }

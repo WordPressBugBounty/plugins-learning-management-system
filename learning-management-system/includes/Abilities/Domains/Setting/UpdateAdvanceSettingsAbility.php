@@ -57,8 +57,7 @@ class UpdateAdvanceSettingsAbility extends AbstractScopedSettingsAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Write %s advanced settings (debug, cache, performance flags). Requires administrator privileges. Accepts a partial advance settings object; only provided keys are updated.', 'learning-management-system' ),
+			'Write %s advanced settings (debug, cache, performance flags). Requires administrator privileges. Accepts a partial advance settings object; only provided keys are updated.',
 			masteriyo_get_plugin_name()
 		);
 	}

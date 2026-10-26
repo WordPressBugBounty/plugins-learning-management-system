@@ -82,12 +82,12 @@ class BlocksController extends CrudController {
 			array(
 				'args' => array(
 					'postId' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 						'required'    => true,
 					),
 					'css'    => array(
-						'description' => __( 'Generated CSS for the post/page.', 'learning-management-system' ),
+						'description' => 'Generated CSS for the post/page.',
 						'type'        => 'string',
 					),
 				),
@@ -158,7 +158,7 @@ class BlocksController extends CrudController {
 			$response = rest_ensure_response(
 				array(
 					'success' => false,
-					'message' => __( 'Invalid post ID', 'learning-management-system' ),
+					'message' => __( 'Invalid post ID.', 'learning-management-system' ),
 				)
 			);
 		}

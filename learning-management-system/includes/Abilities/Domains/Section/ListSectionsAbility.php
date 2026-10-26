@@ -57,6 +57,6 @@ class ListSectionsAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of sections, optionally filtered by course.', 'learning-management-system' );
+		return 'Retrieve a paginated list of sections, optionally filtered by course.';
 	}
 }

@@ -13,7 +13,7 @@ use Masteriyo\Abstracts\ShowHideCourseComponents;
 
 defined( 'ABSPATH' ) || exit;
 
-class SHowHideSingleCourseComponents extends ShowHideCourseComponents {
+class ShowHideSingleCourseComponents extends ShowHideCourseComponents {
 
 	/**
 	 * Show hide single course components.

@@ -102,7 +102,7 @@ class CourseReviewsController extends CommentsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -130,12 +130,12 @@ class CourseReviewsController extends CommentsController {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
 						'force_delete' => array(
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
 						'children'     => array(
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -154,7 +154,7 @@ class CourseReviewsController extends CommentsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -184,17 +184,17 @@ class CourseReviewsController extends CommentsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Review IDs.', 'learning-management-system' ),
+							'description' => 'Review IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 						),
 					),
@@ -213,7 +213,7 @@ class CourseReviewsController extends CommentsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Review Ids', 'learning-management-system' ),
+							'description' => 'Review Ids',
 							'type'        => 'array',
 						),
 					),
@@ -236,7 +236,7 @@ class CourseReviewsController extends CommentsController {
 
 		$params['course'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to course reviews assigned to specific course IDs.', 'learning-management-system' ),
+			'description' => 'Limit result set to course reviews assigned to specific course IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -245,8 +245,8 @@ class CourseReviewsController extends CommentsController {
 
 		$params['status'] = array(
 			'default'     => CommentStatus::ALL,
-			'description' => __( 'Limit result set to course reviews assigned a specific status. One of `approved`, `hold`, `spam`, or `trash`.', 'learning-management-system' ),
-			'type'        => 'array | string',
+			'description' => 'Limit result set to course reviews assigned a specific status. One of `approved`, `hold`, `spam`, or `trash`.',
+			'type'        => array( 'array', 'string' ),
 			'items'       => array(
 				'type' => 'string',
 			),
@@ -474,61 +474,61 @@ class CourseReviewsController extends CommentsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'course_id'    => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'name'         => array(
-					'description' => __( 'Course Reviewer Author.', 'learning-management-system' ),
+					'description' => 'Course Reviewer Author.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'email'        => array(
-					'description' => __( 'Course Reviewer Author Email.', 'learning-management-system' ),
+					'description' => 'Course Reviewer Author Email.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'url'          => array(
-					'description' => __( 'Course Reviewer Author URL.', 'learning-management-system' ),
+					'description' => 'Course Reviewer Author URL.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'ip_address'   => array(
-					'description' => __( 'The IP address of the reviewer', 'learning-management-system' ),
+					'description' => 'The IP address of the reviewer',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created' => array(
-					'description' => __( "The date the course was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description'  => array(
-					'description' => __( 'Course Review Description.', 'learning-management-system' ),
+					'description' => 'Course Review Description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'title'        => array(
-					'description' => __( 'Course Review Title.', 'learning-management-system' ),
+					'description' => 'Course Review Title.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content'      => array(
-					'description' => __( 'Course Review Content.', 'learning-management-system' ),
+					'description' => 'Course Review Content.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'required'    => true,
 				),
 				'rating'       => array(
-					'description'       => __( 'Course Review rating.', 'learning-management-system' ),
+					'description'       => 'Course Review rating.',
 					'type'              => 'integer',
 					'context'           => array( 'view', 'edit' ),
 					'validate_callback' => function( $value, $request, $key ) {
@@ -548,72 +548,72 @@ class CourseReviewsController extends CommentsController {
 
 				),
 				'status'       => array(
-					'description' => __( 'Course Review Status.', 'learning-management-system' ),
+					'description' => 'Course Review Status.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'agent'        => array(
-					'description' => __( 'Course Review Agent.', 'learning-management-system' ),
+					'description' => 'Course Review Agent.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'         => array(
-					'description' => __( 'Course Review Type.', 'learning-management-system' ),
+					'description' => 'Course Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent'       => array(
-					'description' => __( 'Course Review Parent.', 'learning-management-system' ),
+					'description' => 'Course Review Parent.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_id'    => array(
-					'description' => __( 'The User ID.', 'learning-management-system' ),
+					'description' => 'The User ID.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'author_name'  => array(
-					'description'       => __( 'Course reviewer display name.', 'learning-management-system' ),
+					'description'       => 'Course reviewer display name.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_text_field',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_email' => array(
-					'description'       => __( 'Course reviewer email address.', 'learning-management-system' ),
+					'description'       => 'Course reviewer email address.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_email',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_url'   => array(
-					'description'       => __( 'Course reviewer URL.', 'learning-management-system' ),
+					'description'       => 'Course reviewer URL.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'esc_url_raw',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'meta_data'    => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -855,7 +855,7 @@ class CourseReviewsController extends CommentsController {
 
 		if ( is_null( $course ) ) {
 			return new \WP_Error(
-				"masteriyo_rest_{$this->post_type}_invalid_id",
+				"masteriyo_rest_{$this->object_type}_invalid_id",
 				__( 'Invalid course ID', 'learning-management-system' ),
 				array(
 					'status' => 404,
@@ -1019,7 +1019,7 @@ class CourseReviewsController extends CommentsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1081,14 +1081,15 @@ class CourseReviewsController extends CommentsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
 			);
 		}
 
-		$rating            = absint( $request['rating'] );
+		// A partial update keeps the stored rating.
+		$rating            = isset( $request['rating'] ) ? absint( $request['rating'] ) : absint( $review->get_rating() );
 		$review_course_id  = $review->get_course_id();
 		$request_course_id = absint( $request['course_id'] );
 

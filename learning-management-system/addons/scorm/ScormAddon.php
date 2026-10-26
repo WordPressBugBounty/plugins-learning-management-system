@@ -112,7 +112,7 @@ class ScormAddon {
 			$schema,
 			array(
 				'scorm_package' => array(
-					'description' => __( 'SCORM package', 'learning-management-system' ),
+					'description' => 'SCORM package',
 					// One package, so an object — masteriyo_get_scorm_meta()
 					// returns the meta of the single package attached to the
 					// course, never a list of them.
@@ -127,27 +127,27 @@ class ScormAddon {
 					'context'     => array( 'view', 'edit' ),
 					'properties'  => array(
 						'path'           => array(
-							'description' => __( 'Scorm file path.', 'learning-management-system' ),
+							'description' => 'Scorm file path.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'url'            => array(
-							'description' => __( 'Scorm file url.', 'learning-management-system' ),
+							'description' => 'Scorm file url.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'scorm_version'  => array(
-							'description' => __( 'Scorm version.', 'learning-management-system' ),
+							'description' => 'Scorm version.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'file_name'      => array(
-							'description' => __( 'Scorm file name.', 'learning-management-system' ),
+							'description' => 'Scorm file name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'scorm_dir_name' => array(
-							'description' => __( 'Directory the package was extracted into.', 'learning-management-system' ),
+							'description' => 'Directory the package was extracted into.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),

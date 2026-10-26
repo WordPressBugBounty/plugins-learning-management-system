@@ -112,7 +112,8 @@ const { sprintf } = wp.i18n;
 			}
 
 			if ('medium' === config.strength || 'high' === config.strength) {
-				if (password.match(/^(?=.*?[\d+]).+/)) {
+				// A character class, so the literal + counted as a number and the server disagreed.
+				if (password.match(/^(?=.*?\d).+/)) {
 					errors.push({
 						valid: true,
 						type: 'number',
@@ -222,7 +223,8 @@ const { sprintf } = wp.i18n;
 	}
 
 	/**
-	 * Highlight password policy which are satisfied.
+	 * Mark each policy rule as satisfied or failing. A rule reads as failing
+	 * only once the visitor has typed something (#1398).
 	 */
 	if (undefined === _MASTERIYO_PASSWORD_STRENGTH_.highlightPasswordPolicy) {
 		_MASTERIYO_PASSWORD_STRENGTH_.highlightPasswordPolicy = function (
@@ -234,12 +236,36 @@ const { sprintf } = wp.i18n;
 			);
 
 			policies.errors.forEach(function (policy) {
-				var color = policy.valid ? 'green' : '';
-				$('.masteriyo-password-strength-information' + ' .' + policy.type).css(
-					'color',
-					color,
-				);
+				$('.masteriyo-password-strength-information' + ' .' + policy.type)
+					.toggleClass('is-valid', policy.valid)
+					.toggleClass('is-invalid', !policy.valid && password.length > 0);
 			});
+		};
+	}
+
+	/**
+	 * The failing rules, in the words the checklist uses.
+	 */
+	if (undefined === _MASTERIYO_PASSWORD_STRENGTH_.failedPolicyLabels) {
+		_MASTERIYO_PASSWORD_STRENGTH_.failedPolicyLabels = function (password) {
+			var labels = {};
+
+			_MASTERIYO_PASSWORD_STRENGTH_.policyList(
+				_MASTERIYO_PASSWORD_STRENGTH_,
+			).forEach(function (info) {
+				labels[info.className] = info.label;
+			});
+
+			return _MASTERIYO_PASSWORD_STRENGTH_.validate(
+				password,
+				_MASTERIYO_PASSWORD_STRENGTH_,
+			)
+				.errors.filter(function (policy) {
+					return !policy.valid;
+				})
+				.map(function (policy) {
+					return labels[policy.type];
+				});
 		};
 	}
 	/**
@@ -275,19 +301,47 @@ const { sprintf } = wp.i18n;
 		};
 	}
 
-	// Allow to submit form only when the password policy is fulfilled.
+	// Allow to submit form only when the password policy is fulfilled. A refused
+	// submit says which rules failed; a silent one looked like a dead button (#1398).
 	$(
 		'#masteriyo-signup--form, #masteriyo-instructor-registration--form, #masteriyo-reset--form',
 	).on('submit', function (e) {
-		var password = $(this).find('#password').val();
-		if (
-			!_MASTERIYO_PASSWORD_STRENGTH_.validate(
-				password,
-				_MASTERIYO_PASSWORD_STRENGTH_,
-			).valid
-		) {
-			e.preventDefault();
+		var $form = $(this);
+		var $passwordField = $form.find('#password');
+
+		// The reset-request form shares this id and carries no password field.
+		if (!$passwordField.length) {
+			return;
 		}
+
+		// The checklist measures the trimmed value and so does the server, which
+		// sanitizes with trim; an untrimmed guard blocked a password both allowed.
+		var password = $passwordField.val().trim();
+
+		$form.find('.masteriyo-password-policy-error').remove();
+
+		var failed = _MASTERIYO_PASSWORD_STRENGTH_.failedPolicyLabels(password);
+
+		if (0 === failed.length) {
+			return;
+		}
+
+		e.preventDefault();
+
+		var message = sprintf(
+			_MASTERIYO_PASSWORD_STRENGTH_.i18n.policyNotMet ||
+				'Your password does not meet the requirements: %s',
+			failed.join(', '),
+		);
+		var $error = $(
+			_MASTERIYO_PASSWORD_STRENGTH_.createMessage(message, 'danger'),
+		).addClass('masteriyo-password-policy-error');
+
+		var $list = $form.find('.masteriyo-password-strength-information');
+		($list.length ? $list : $passwordField).after($error);
+
+		_MASTERIYO_PASSWORD_STRENGTH_.highlightPasswordPolicy(password);
+		$passwordField.trigger('focus');
 	});
 
 	function validatePassword(password) {
@@ -306,7 +360,9 @@ const { sprintf } = wp.i18n;
 		);
 
 		if (0 === password.length) {
-			$('.masteriyo-password-strength-information').find('li').css('color', '');
+			$('.masteriyo-password-strength-information')
+				.find('li')
+				.removeClass('is-valid is-invalid');
 			return;
 		}
 

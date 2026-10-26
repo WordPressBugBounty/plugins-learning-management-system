@@ -55,6 +55,6 @@ class DeleteUserAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Delete a user account from the LMS. Requires id (user ID). Optionally accepts force (boolean). Returns the deleted user object.', 'learning-management-system' );
+		return 'Delete a user account from the LMS. Requires id (user ID). Optionally accepts force (boolean). Returns the deleted user object.';
 	}
 }

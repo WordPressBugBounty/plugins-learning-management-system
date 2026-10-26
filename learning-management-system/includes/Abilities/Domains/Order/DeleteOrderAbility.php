@@ -55,6 +55,6 @@ class DeleteOrderAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Delete an order. Requires id (order ID). Optionally accepts force (boolean, permanently removes the order when true). Returns the deleted order object.', 'learning-management-system' );
+		return 'Delete an order. Requires id (order ID). Optionally accepts force (boolean, permanently removes the order when true). Returns the deleted order object.';
 	}
 }

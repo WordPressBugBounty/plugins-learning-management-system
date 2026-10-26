@@ -405,6 +405,7 @@ class CertificatePDF {
 				'{{masteriyo:course_duration}}'    => __( '10 Hours', 'learning-management-system' ),
 				'{{masteriyo:grade}}'              => '100%',
 				'{{masteriyo:verification_code}}'  => 'XXXX-XXXX-XXXX',
+				'{{masteriyo:certificate_id}}'     => '0000',
 				'{{masteriyo:qr_code}}'            => '',
 				'{{masteriyo:current_date}}'       => date_i18n( get_option( 'date_format' ) ),
 				'{{masteriyo:current_time}}'       => date_i18n( get_option( 'time_format' ) ),
@@ -463,7 +464,8 @@ class CertificatePDF {
 				$instructor_name = $instructor_full ? $instructor_full : $instructor->get_display_name();
 			}
 
-			$verification_code = $course_id . '-' . masteriyo_get_course_certificate_id( $course_id ) . '-' . $student_id;
+			$certificate_id    = masteriyo_get_course_certificate_id( $course_id );
+			$verification_code = $course_id . '-' . $certificate_id . '-' . $student_id;
 
 			$wp_user = get_user_by( 'id', $this->get_student_id() );
 
@@ -484,6 +486,7 @@ class CertificatePDF {
 				'{{masteriyo:course_duration}}'    => masteriyo_minutes_to_time_length_string( $course->get_duration() ),
 				'{{masteriyo:grade}}'              => '',
 				'{{masteriyo:verification_code}}'  => $verification_code,
+				'{{masteriyo:certificate_id}}'     => $certificate_id ? (string) $certificate_id : '',
 				'{{masteriyo:qr_code}}'            => $this->get_pdfdraft_qr_code_html( $verification_code ),
 				'{{masteriyo:current_date}}'       => date_i18n( get_option( 'date_format' ) ),
 				'{{masteriyo:current_time}}'       => date_i18n( get_option( 'time_format' ) ),

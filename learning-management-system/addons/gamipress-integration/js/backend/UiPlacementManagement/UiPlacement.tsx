@@ -29,20 +29,11 @@ import {
 	BelowUsernameLocation,
 	DashboardCardLocation,
 	DashboardNewSectionLocation,
-	LearnPageAccountPopoverBottomLocation,
-	LearnPageAccountPopoverTopLocation,
-	LearnPageInfoBoxPopoverBottomLocation,
-	LearnPageInfoBoxPopoverTopLocation,
-	LearnPageLeftToProfilePicLocation,
 	NewTabLocation,
 } from '../../../../../assets/js/back-end/constants/images';
 import ToolTip from '../../../../../assets/js/back-end/screens/settings/components/ToolTip';
 import { isEmpty } from '../../../../../assets/js/back-end/utils/utils';
-import {
-	AccountPageLocation,
-	LearnPageLocation,
-	PlacementPage,
-} from '../../enums/enums';
+import { AccountPageLocation, PlacementPage } from '../../enums/enums';
 import LocationRadioItem from './LocationRadioItem';
 
 interface LocationType {
@@ -82,39 +73,10 @@ const accountPageLocations: LocationType[] = [
 	},
 ];
 
-const learnPageLocations: LocationType[] = [
-	{
-		location: LearnPageLocation.INFO_BOX_POPOVER_TOP,
-		label: __('Info Box Popover Top', 'learning-management-system'),
-		imageSrc: LearnPageInfoBoxPopoverTopLocation,
-	},
-	{
-		location: LearnPageLocation.INFO_BOX_POPOVER_BOTTOM,
-		label: __('Info Box Popover Bottom', 'learning-management-system'),
-		imageSrc: LearnPageInfoBoxPopoverBottomLocation,
-	},
-	{
-		location: LearnPageLocation.LEFT_TO_PROFILE_PIC,
-		label: __('Left to Profile Pic', 'learning-management-system'),
-		imageSrc: LearnPageLeftToProfilePicLocation,
-	},
-	{
-		location: LearnPageLocation.PROFILE_PIC_POPOVER_TOP,
-		label: __('Profile Pic Popover Top', 'learning-management-system'),
-		imageSrc: LearnPageAccountPopoverTopLocation,
-	},
-	{
-		location: LearnPageLocation.PROFILE_PIC_POPOVER_BOTTOM,
-		label: __('Profile Pic Popover Bottom', 'learning-management-system'),
-		imageSrc: LearnPageAccountPopoverBottomLocation,
-	},
-];
-
 const locationsIndex: {
 	[page: string]: LocationType[];
 } = {
 	[PlacementPage.ACCOUNT_PAGE]: accountPageLocations,
-	[PlacementPage.LEARN_PAGE]: learnPageLocations,
 };
 
 interface Props {
@@ -273,9 +235,6 @@ const UiPlacement: React.FC<Props> = (props) => {
 									>
 										<option value="account-page">
 											{__('Account Page', 'learning-management-system')}
-										</option>
-										<option value="learn-page">
-											{__('Learn Page', 'learning-management-system')}
 										</option>
 									</ChakraSelect>
 								</FormControlTwoCol>

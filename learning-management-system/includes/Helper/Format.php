@@ -305,6 +305,7 @@ function masteriyo_get_price_decimals() {
  *                                      Defaults the result of get_masteriyo_price_format().
  *     @type boolean $html             Whether to format price with HTML or not.
  *                                      Defaults to true.
+ *     @type boolean $is_regular_price Set by masteriyo_get_course_regular_price_html() for the struck-through price.
  * }
  * @return string
  */
@@ -467,6 +468,25 @@ function masteriyo_price( $price, $args = array() ) {
 	 *
 	 */
 	return apply_filters( 'masteriyo_price', $html, $price, $args, $unformatted_price, $course );
+}
+
+/**
+ * Get the struck-through regular price of a course on sale.
+ *
+ * @param \Masteriyo\Models\Course $course Course.
+ * @param array                    $args   Extra masteriyo_price() arguments.
+ *
+ * @return string Price HTML, or empty when the course is not on sale or a filter blanks it.
+ */
+function masteriyo_get_course_regular_price_html( $course, $args = array() ) {
+	if ( ! $course->get_regular_price() || ( '0' !== $course->get_sale_price() && empty( $course->get_sale_price() ) ) ) {
+		return '';
+	}
+
+	// is_regular_price lets masteriyo_price filters tell this call from a current price that happens to be equal.
+	$args = array_merge( array( 'currency' => $course->get_currency() ), $args, array( 'is_regular_price' => true ) );
+
+	return masteriyo_price( $course->get_regular_price(), $args );
 }
 
 /**

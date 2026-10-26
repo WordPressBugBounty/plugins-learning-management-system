@@ -53,7 +53,7 @@ class SaveQuizBuilderAbility extends RestProxyAbility {
 
 		$schema['properties']['confirm_published_overwrite'] = array(
 			'type'        => 'boolean',
-			'description' => __( 'Set to true to confirm that you intend to overwrite a quiz in a published course. Required when the parent course status is "publish".', 'learning-management-system' ),
+			'description' => 'Set to true to confirm that you intend to overwrite a quiz in a published course. Required when the parent course status is "publish".',
 			'default'     => false,
 		);
 
@@ -108,6 +108,6 @@ class SaveQuizBuilderAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Save the ordered list of questions for a quiz. Provide the complete desired question structure.', 'learning-management-system' );
+		return 'Save the ordered list of questions for a quiz. Provide the complete desired question structure.';
 	}
 }

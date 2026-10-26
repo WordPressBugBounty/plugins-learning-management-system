@@ -720,7 +720,7 @@ class EmailHooks {
 		}
 
 		if ( self::is_email_schedule_enabled() ) {
-			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $id ), 'learning-management-system' );
 		} else {
 			$email->trigger( $course_progress );
 		}
@@ -745,7 +745,7 @@ class EmailHooks {
 		}
 
 		if ( self::is_email_schedule_enabled() ) {
-			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $id ), 'learning-management-system' );
 		} else {
 			$email->trigger( $course_progress );
 		}
@@ -772,7 +772,7 @@ class EmailHooks {
 		}
 
 		if ( self::is_email_schedule_enabled() ) {
-			as_enqueue_async_action( $email->get_schedule_handle(), array( 'course_progress' => $course_progress ), 'learning-management-system' );
+			as_enqueue_async_action( $email->get_schedule_handle(), array( 'id' => $id ), 'learning-management-system' );
 		} else {
 			$email->trigger( $course_progress );
 		}

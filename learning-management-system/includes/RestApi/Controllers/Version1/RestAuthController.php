@@ -84,20 +84,20 @@ class RestAuthController extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'user_id'     => array(
-							'description'       => __( 'ID of the user to associate with the API key.', 'learning-management-system' ),
+							'description'       => 'ID of the user to associate with the API key.',
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'required'          => true,
 						),
 						'permissions' => array(
-							'description'       => __( 'Permissions for the API key.', 'learning-management-system' ),
+							'description'       => 'Permissions for the API key.',
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 							'validate_callback' => array( $this, 'validate_permissions' ),
 							'required'          => true,
 						),
 						'description' => array(
-							'description'       => __( 'Description of the API key.', 'learning-management-system' ),
+							'description'       => 'Description of the API key.',
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),
@@ -116,20 +116,20 @@ class RestAuthController extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'user_id'     => array(
-							'description'       => __( 'ID of the user to associate with the API key.', 'learning-management-system' ),
+							'description'       => 'ID of the user to associate with the API key.',
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'required'          => true,
 						),
 						'permissions' => array(
-							'description'       => __( 'New permissions for the API key.', 'learning-management-system' ),
+							'description'       => 'New permissions for the API key.',
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 							'validate_callback' => array( $this, 'validate_permissions' ),
 							'required'          => true,
 						),
 						'description' => array(
-							'description'       => __( 'New description for the API key.', 'learning-management-system' ),
+							'description'       => 'New description for the API key.',
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),

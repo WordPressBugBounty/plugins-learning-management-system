@@ -12,9 +12,8 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
- * Ability: permanently delete a course review.
+ * Ability: move a course review to trash or permanently delete it.
  *
- * Course reviews have no trash state — this operation is always permanent.
  * Requires the `edit_course_reviews` capability.
  */
 class DeleteCourseReviewAbility extends RestProxyAbility {
@@ -58,6 +57,6 @@ class DeleteCourseReviewAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Delete a course review permanently.', 'learning-management-system' );
+		return 'Move a course review to the trash. Pass force=true to delete it permanently.';
 	}
 }

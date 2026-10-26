@@ -59,6 +59,6 @@ class GetQuizAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single quiz by ID including pass mark and time limit settings.', 'learning-management-system' );
+		return 'Retrieve a single quiz by ID including pass mark and time limit settings.';
 	}
 }

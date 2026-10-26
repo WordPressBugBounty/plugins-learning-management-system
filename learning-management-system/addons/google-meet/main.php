@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Google Meet Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: A feature that allows teachers to share virtual lessons with their class directly within Google Meet.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

@@ -1,3 +1,126 @@
+#### [Version 3.5.0](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.3...3.5.0) (2026-10-26)
+
+- Added a redesigned learning page with a new course player layout, mobile app-style navigation, dark mode, a Q&A drawer, and a course completion screen with certificate preview and sharing.
+- Added settings to customize course button labels while blank fields keep the default wording.
+- Added a Certificate ID field that shows the certificate number on generated PDFs.
+- Added a Cards Only option to limit Stripe checkout to card payments.
+- Added printable PDF answer keys with quiz questions, choices, answers, and passing criteria.
+- Added settings to customize single-course and course-tag URL bases.
+- Added a setting to turn off invoice PDFs and hide their download links.
+- Added Immersive as the default single-course layout for new sites.
+- Added configurable expiry warning emails and end dates to course cards.
+- Added an Unanswered tab to the Question and Answers screen.
+- Added configurable redirect destination after WooCommerce purchase.
+- Added a visible coupon field above Payment on mobile checkout.
+- Added full-site export and import for moving content between sites.
+- Added per-question text direction control to quiz questions.
+- Added member course progress tables to the group management screen.
+- Improved certificate search to find templates across all pages.
+- Improved GamiPress rewards layout on the student Account page
+- Improved Learn page button and pagination readability
+- Fixed course progress reports failing for deleted students.
+- Fixed repeated migration database checks on unchanged WordPress page requests.
+- Fixed cached Account pages showing another visitors session notices.
+- Fixed account login forms that reload outside the configured account page.
+- Fixed quiz attempts showing zero questions before learners submit quizzes.
+- Fixed first email verification links leaving new students unable to access their accounts.
+- Fixed the Login Logout banner returning after you navigate away from Dashboard.
+- Fixed password policy forms to show failed password requirements.
+- Fixed missing direction controls and mixed-language text direction in quiz question fields on right-to-left sites.
+- Fixed guest read-only quizzes showing question formatting as literal HTML tags.
+- Fixed checkout pages to select one payment gateway on first load
+- Fixed pages failing to load when course blocks referenced deleted courses.
+- Fixed cohort enrollment to return a JSON error for missing or invalid nonces.
+- Fixed lesson comments failing when a lesson ID does not exist.
+- Fixed the course editor crashing when the classic editor is unavailable.
+- Fixed migration recovery when a background action fails.
+- Fixed login errors revealing whether an account exists
+- Fixed webhook actions accepting requests with missing or empty tokens.
+- Fixed Masteriyo migrations failing when Google Site Kit loads its Mailchimp provider.
+- Fixed the course player to show sign-in or enrollment steps for restricted content.
+- Fixed reCAPTCHA protection on standalone student registration forms.
+- Fixed caching of Masteriyo REST responses by sending no-cache headers.
+- Fixed login OTP verification to invalidate codes after five incorrect attempts.
+- Fixed blank content in Demo Student Preview for draft, pending, and private courses.
+- Fixed User Registration signups to add the Masteriyo Student role without changing the assigned role.
+- Fixed video lesson subtitles that could not be added or displayed.
+- Fixed video lesson captions not appearing until learners selected a track.
+- Fixed subtitle uploads and selection for SRT and VTT files.
+- Fixed self-hosted videos extending beyond text lesson content on narrow screens.
+- Fixed the subtitle dialog retaining the previous label and file when adding a track.
+- Fixed Buy Now sign-in to continue to the cart with the selected course.
+- Fixed course purchase tracking before redirecting learners to their courses after checkout.
+- Fixed PayPal recurring payments to use the discounted order total.
+- Fixed old bundle orders from reactivating courses owned by newer completed orders.
+- Fixed the plugin and add-on links to use the working Masteriyo website.
+- Fixed CSS from Custom HTML blocks appearing as text on course and lesson pages
+- Fixed administrator lesson blocks showing script code and ignoring click actions
+- Fixed course completion status and certificate access after instructors add quizzes.
+- Fixed the account and Learn pages to use the sites selected fonts.
+- Fixed student-facing dates to follow the date and time formats set in WordPress.
+- Fixed featured videos showing in tall boxes in the Immersive course layout.
+- Fixed learners marking quizzes complete without a finished attempt.
+- Fixed unstyled accessibility controls and missing skip links on course lesson pages.
+- Fixed course grades showing 100% when learners had not attempted every graded item.
+- Fixed sequential courses to block quiz starts and completions before learners finish prior items.
+- Fixed PayPal recurring course payments to continue billing on their configured schedule.
+- Fixed repeat WooCommerce orders removing learners access to active courses.
+- Fixed visitors reading unpublished lessons and quizzes without permission.
+- Fixed Masteriyo Pro updates failing when signed package links expire.
+- Fixed scheduled course-completion emails not reaching administrators.
+- Fixed scheduled course-completion emails for learners, with enabled certificate attachments.
+- Fixed scheduled course-completion emails for students, instructors, and administrators.
+- Fixed guest lesson completion in open courses.
+- Fixed guests being unable to complete quizzes in open courses.
+- Fixed sign-in errors when guests start or retake quizzes in open courses.
+- Fixed guest progress recording in open courses.
+- Fixed course progress staying incomplete when duplicate lesson records include a completed record.
+- Fixed failed H5P quizzes unlocking course completion and certificates.
+- Fixed course instructor changes not saving when an editor was already listed.
+- Fixed untouched lesson links in the Modern course curriculum for enrolled students.
+- Fixed Stripe renewals to charge each courses own recurring amount in multi-course orders.
+- Fixed course completion, certificates, and grades when learners have not completed all required course items.
+- Fixed phone layouts and unsaved-change prompts in the course builder.
+- Fixed quiz submissions to keep answers when the server rejects an attempt.
+- Fixed course pages to show draft lessons with a Draft badge and correct counts.
+- Fixed queued course-completion emails for students, instructors, and admins.
+- Fixed certificate download links in completion emails across login sessions.
+- Fixed Vimeo lessons that stayed incomplete after playback reached the end.
+- Fixed wishlist items to show updated course details after a live course edit.
+- Fixed missing wishlist hearts on Layout 2 course cards and single course pages.
+- Fixed the wishlist heart removal to delete each item and its saved course details.
+- Fixed wishlist errors to show the servers message when a course toggle fails.
+- Fixed wishlist course details not updating after course edits.
+- Fixed missing wishlist hearts on Layout 2 course cards and course pages.
+- Fixed wishlist removal to delete a course completely.
+- Fixed wishlist alerts to show why a course could not be added.
+- Fixed PayPal recurring checkout charging the full course price instead of the discounted total.
+- Fixed Tutor LMS migration deleting enrollments that did not transfer.
+- Fixed lesson anchor links blanking the learn page instead of scrolling.
+- Fixed PDF lessons overflowing the screen on mobile portrait view.
+- Fixed enrollment dates showing early on sites using non-UTC timezones
+- Fixed Pro course and quiz features appearing in free version.
+- Fixed YouTube lessons staying on the loading spinner on iPhones
+- Fixed paid processing bundle orders not enrolling bundled courses.
+- Fixed co-instructors opening the quiz builder for their courses.
+- Fixed Learn Page Display sidebar and header options working as one group.
+- Fixed learning page buttons and cookie banner display.
+- Fixed PayPal orders staying on hold after completed payment.
+- Fixed LMS migration removing source courses and enrollments instead of copying
+- Fixed the course progress popover showing English labels always
+- Fixed MCP clients hiding course, lesson and other content actions.
+- Fixed opted-in abilities staying hidden from MCP clients.
+- Fixed delete descriptions to match actual trash behavior
+- Fixed listing a courses sections and a sections lessons.
+- Fixed update abilities rejecting partial updates that omit unchanged fields.
+- Fixed REST updates failing when sending back a course, lesson, user, or order as read.
+- Fixed video player blocking rewind during required full watch.
+- Fixed blank H5P content on the learn page on affected hosts
+- Fixed course PDF export showing Russian text as question marks
+- Fixed the cookie banner showing unstyled on the Learn page
+- Fixed SureCart course cards showing the sale price twice.
+- Fixed students listing lessons, quizzes and sections from draft or unpurchased courses.
+
 ##### [Version 3.4.3](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.2...3.4.3) (2026-09-30)
 
 - Feature - Added a Progress column to the Enrollments list. [PRO]

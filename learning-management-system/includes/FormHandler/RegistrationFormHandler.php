@@ -180,7 +180,7 @@ class RegistrationFormHandler {
 
 		if ( ! masteriyo_registration_is_generate_password() ) {
 			if ( empty( $data['password'] ) ) {
-				$error->add( 'password_required', __( 'Password is required..', 'learning-management-system' ) );
+				$error->add( 'password_required', __( 'Password is required.', 'learning-management-system' ) );
 			}
 
 			if ( empty( $data['confirm-password'] ) ) {

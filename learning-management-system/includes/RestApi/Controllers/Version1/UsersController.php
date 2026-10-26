@@ -141,7 +141,7 @@ class UsersController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -171,12 +171,12 @@ class UsersController extends CrudController {
 						'force'    => array(
 							'default'     => true,
 							'type'        => 'boolean',
-							'description' => __( 'Required to be true, as the resource does not support trashing.', 'learning-management-system' ),
+							'description' => 'Required to be true, as the resource does not support trashing.',
 						),
 						'reassign' => array(
 							'default'     => null,
 							'type'        => array( 'integer', 'null' ),
-							'description' => __( 'Reassign posts and links to new User ID.', 'learning-management-system' ),
+							'description' => 'Reassign posts and links to new User ID.',
 						),
 					),
 				),
@@ -237,13 +237,13 @@ class UsersController extends CrudController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'User IDs.', 'learning-management-system' ),
+							'description' => 'User IDs.',
 							'type'        => 'array',
 						),
 						'reassign' => array(
 							'default'     => null,
 							'type'        => array( 'integer', 'null' ),
-							'description' => __( 'Reassign posts and links to new User ID.', 'learning-management-system' ),
+							'description' => 'Reassign posts and links to new User ID.',
 						),
 					),
 				),
@@ -310,7 +310,7 @@ class UsersController extends CrudController {
 					'permission_callback' => array( $this, 'get_user_preview_link_permissions_check' ),
 					'args'                => array(
 						'id' => array(
-							'description'       => __( 'User ID to preview as.', 'learning-management-system' ),
+							'description'       => 'User ID to preview as.',
 							'type'              => 'integer',
 							'required'          => true,
 							'sanitize_callback' => 'absint',
@@ -330,7 +330,7 @@ class UsersController extends CrudController {
 					'permission_callback' => array( $this, 'get_user_preview_link_permissions_check' ),
 					'args'                => array(
 						'id' => array(
-							'description'       => __( 'Demo student user ID to preview as.', 'learning-management-system' ),
+							'description'       => 'Demo student user ID to preview as.',
 							'type'              => 'integer',
 							'required'          => true,
 							'sanitize_callback' => 'absint',
@@ -360,15 +360,15 @@ class UsersController extends CrudController {
 							)
 						),
 						'umeta_id' => array(
-							'description' => __( 'meta id for user meta information about device information.', 'learning-management-system' ),
+							'description' => 'meta id for user meta information about device information.',
 							'type'        => 'string',
 						),
 						'token'    => array(
-							'description' => __( 'Token for users session that is used to delete the user information.', 'learning-management-system' ),
+							'description' => 'Token for users session that is used to delete the user information.',
 							'type'        => 'string',
 						),
 						'meta_key' => array(
-							'description' => __( 'Token for users session that is used to delete the user information.', 'learning-management-system' ),
+							'description' => 'Token for users session that is used to delete the user information.',
 							'type'        => 'string',
 						),
 					),
@@ -524,7 +524,7 @@ class UsersController extends CrudController {
 		$params = parent::get_collection_params();
 
 		$params['orderby'] = array(
-			'description' => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description' => 'Sort collection by object attribute.',
 			'default'     => 'id',
 			'enum'        => array(
 				'id',
@@ -541,7 +541,7 @@ class UsersController extends CrudController {
 		);
 
 		$params['roles'] = array(
-			'description'       => __( 'Limit result set to users matching at least one specific role provided. Accepts CSV list or single role.', 'learning-management-system' ),
+			'description'       => 'Limit result set to users matching at least one specific role provided. Accepts CSV list or single role.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'string',
@@ -552,7 +552,7 @@ class UsersController extends CrudController {
 		);
 
 		$params['instructor_applied'] = array(
-			'description'       => __( 'Whether the student has applied or not for the instructor.', 'learning-management-system' ),
+			'description'       => 'Whether the student has applied or not for the instructor.',
 			'type'              => 'boolean',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
@@ -1227,302 +1227,307 @@ class UsersController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                      => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'username'                => array(
-					'description' => __( 'User login username.', 'learning-management-system' ),
+					'description' => 'User login username.',
 					'type'        => 'string',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'old_password'            => array(
-					'description' => __( 'User login old password.', 'learning-management-system' ),
+					'description' => 'User login old password.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'password'                => array(
-					'description' => __( 'User login password.', 'learning-management-system' ),
+					'description' => 'User login password.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'nicename'                => array(
-					'description' => __( 'User nickname', 'learning-management-system' ),
+					'description' => 'User nickname',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'email'                   => array(
-					'description' => __( 'User email', 'learning-management-system' ),
+					'description' => 'User email',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'url'                     => array(
-					'description' => __( 'Site url of the user.', 'learning-management-system' ),
+					'description' => 'Site url of the user.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created'            => array(
-					'description' => __( 'User date created', 'learning-management-system' ),
+					'description' => 'User date created',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'activation_key'          => array(
-					'description' => __( 'User activation key.', 'learning-management-system' ),
+					'description' => 'User activation key.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'                  => array(
-					'description' => __( 'User status', 'learning-management-system' ),
+					'description' => 'User status',
 					'type'        => 'integer',
 					'enum'        => UserStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'display_name'            => array(
-					'description' => __( 'Display name', 'learning-management-system' ),
+					'description' => 'Display name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'nickname'                => array(
-					'description' => __( 'User nickname', 'learning-management-system' ),
+					'description' => 'User nickname',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'first_name'              => array(
-					'description' => __( 'User first name', 'learning-management-system' ),
+					'description' => 'User first name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'last_name'               => array(
-					'description' => __( 'User last name', 'learning-management-system' ),
+					'description' => 'User last name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'             => array(
-					'description' => __( 'User description', 'learning-management-system' ),
+					'description' => 'User description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'rich_editing'            => array(
-					'description' => __( 'Enable rich editing.', 'learning-management-system' ),
+					'description' => 'Enable rich editing.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'syntax_highlighting'     => array(
-					'description' => __( 'Enable syntax highlighting.', 'learning-management-system' ),
+					'description' => 'Enable syntax highlighting.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'comment_shortcuts'       => array(
-					'description' => __( 'Enable comment shortcuts.', 'learning-management-system' ),
+					'description' => 'Enable comment shortcuts.',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'spam'                    => array(
-					'description' => __( 'Mark the user as spam. Multi site only.', 'learning-management-system' ),
+					'description' => 'Mark the user as spam. Multi site only.',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'use_ssl'                 => array(
-					'description' => __( 'Use SSL.', 'learning-management-system' ),
+					'description' => 'Use SSL.',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'show_admin_bar_front'    => array(
-					'description' => __( 'Whether to show the admin bar on the frontend.', 'learning-management-system' ),
+					'description' => 'Whether to show the admin bar on the frontend.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'locale'                  => array(
-					'description' => __( 'User specific locale', 'learning-management-system' ),
+					'description' => 'User specific locale',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'roles'                   => array(
-					'description' => __( 'User role', 'learning-management-system' ),
+					'description' => 'User role',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 				),
+				// Read as { id, url }, written as the id or that object sent back.
 				'profile_image'           => array(
-					'description' => __( 'User profile image', 'learning-management-system' ),
-					'type'        => 'string',
+					'description' => 'User profile image',
+					'type'        => array( 'integer', 'string', 'object' ),
+					'properties'  => array(
+						'id'  => array( 'type' => 'integer' ),
+						'url' => array( 'type' => 'string' ),
+					),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'instructor_apply_status' => array(
-					'description' => __( 'Instructor Apply Status', 'learning-management-system' ),
+					'description' => 'Instructor Apply Status',
 					'type'        => 'string',
 					'enum'        => InstructorApplyStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'billing'                 => array(
-					'description' => __( 'User billing details.', 'learning-management-system' ),
+					'description' => 'User billing details.',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'         => 'object',
 						'first_name'   => array(
-							'description' => __( 'User billing first name.', 'learning-management-system' ),
+							'description' => 'User billing first name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'last_name'    => array(
-							'description' => __( 'User billing last name.', 'learning-management-system' ),
+							'description' => 'User billing last name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'company_name' => array(
-							'description' => __( 'User billing company name.', 'learning-management-system' ),
+							'description' => 'User billing company name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'company_id'   => array(
-							'description' => __( 'User billing company id.', 'learning-management-system' ),
+							'description' => 'User billing company id.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_1'    => array(
-							'description' => __( 'User billing address 1.', 'learning-management-system' ),
+							'description' => 'User billing address 1.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_2'    => array(
-							'description' => __( 'User billing address 2.', 'learning-management-system' ),
+							'description' => 'User billing address 2.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'city'         => array(
-							'description' => __( 'User billing city.', 'learning-management-system' ),
+							'description' => 'User billing city.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'postcode'     => array(
-							'description' => __( 'User billing post code.', 'learning-management-system' ),
+							'description' => 'User billing post code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country'      => array(
-							'description' => __( 'User billing country code.', 'learning-management-system' ),
+							'description' => 'User billing country code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'state'        => array(
-							'description' => __( 'User billing state code.', 'learning-management-system' ),
+							'description' => 'User billing state code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country_name' => array(
-							'description' => __( 'Formatted User billing country.', 'learning-management-system' ),
+							'description' => 'Formatted User billing country.',
 							'type'        => 'string',
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'state_name'   => array(
-							'description' => __( 'Formatted User billing state.', 'learning-management-system' ),
+							'description' => 'Formatted User billing state.',
 							'type'        => 'string',
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'email'        => array(
-							'description' => __( 'User billing email address.', 'learning-management-system' ),
+							'description' => 'User billing email address.',
 							'type'        => 'email',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'phone'        => array(
-							'description' => __( 'User billing phone number.', 'learning-management-system' ),
+							'description' => 'User billing phone number.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 					),
 				),
 				'public_profile'          => array(
-					'description' => __( 'User public profile details.', 'learning-management-system' ),
+					'description' => 'User public profile details.',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'              => 'object',
 						'biographical_info' => array(
-							'description' => __( 'User public profile biographical info.', 'learning-management-system' ),
+							'description' => 'User public profile biographical info.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_1'         => array(
-							'description' => __( 'User public profile address 1.', 'learning-management-system' ),
+							'description' => 'User public profile address 1.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_2'         => array(
-							'description' => __( 'User public profile address 2.', 'learning-management-system' ),
+							'description' => 'User public profile address 2.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'city'              => array(
-							'description' => __( 'User public profile city.', 'learning-management-system' ),
+							'description' => 'User public profile city.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'postcode'          => array(
-							'description' => __( 'User public profile post code.', 'learning-management-system' ),
+							'description' => 'User public profile post code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country'           => array(
-							'description' => __( 'User public profile country code.', 'learning-management-system' ),
+							'description' => 'User public profile country code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'state'             => array(
-							'description' => __( 'User public profile state code.', 'learning-management-system' ),
+							'description' => 'User public profile state code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country_name'      => array(
-							'description' => __( 'Formatted User public profile country.', 'learning-management-system' ),
+							'description' => 'Formatted User public profile country.',
 							'type'        => 'string',
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'state_name'        => array(
-							'description' => __( 'Formatted User public profile state.', 'learning-management-system' ),
+							'description' => 'Formatted User public profile state.',
 							'type'        => 'string',
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'phone'             => array(
-							'description' => __( 'User public profile phone number.', 'learning-management-system' ),
+							'description' => 'User public profile phone number.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'facebook_url'      => array(
-							'description' => __( 'User public profile facebook URL.', 'learning-management-system' ),
+							'description' => 'User public profile facebook URL.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'website_url'       => array(
-							'description' => __( 'User public profile website URL.', 'learning-management-system' ),
+							'description' => 'User public profile website URL.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'linkedin_url'      => array(
-							'description' => __( 'User public profile linkedin URL.', 'learning-management-system' ),
+							'description' => 'User public profile linkedin URL.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'behance_url'       => array(
-							'description' => __( 'User public profile behance URL.', 'learning-management-system' ),
+							'description' => 'User public profile behance URL.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'show_email'        => array(
-							'description' => __( 'Whether to show the user email on the public profile.', 'learning-management-system' ),
+							'description' => 'Whether to show the user email on the public profile.',
 							'type'        => 'boolean',
 							'context'     => array( 'view', 'edit' ),
 						),
@@ -1530,30 +1535,30 @@ class UsersController extends CrudController {
 					),
 				),
 				'created_via'             => array(
-					'description' => __( 'How the user was created.', 'learning-management-system' ),
+					'description' => 'How the user was created.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'               => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1688,7 +1693,8 @@ class UsersController extends CrudController {
 
 		// User's profile_image.
 		if ( isset( $request['profile_image'] ) ) {
-			$user->set_profile_image_id( $request['profile_image'] );
+			$profile_image = $request['profile_image'];
+			$user->set_profile_image_id( is_array( $profile_image ) ? ( $profile_image['id'] ?? 0 ) : $profile_image );
 		}
 
 		// User's instructor_apply_status.
@@ -1982,7 +1988,7 @@ class UsersController extends CrudController {
 		if ( masteriyo_is_current_user_instructor() && ! masteriyo_is_instructor_active() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -2023,7 +2029,7 @@ class UsersController extends CrudController {
 		if ( masteriyo_is_current_user_instructor() && ! masteriyo_is_instructor_active() ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_delete',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

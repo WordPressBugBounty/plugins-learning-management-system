@@ -89,7 +89,7 @@ class NotificationsController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -131,7 +131,7 @@ class NotificationsController extends CrudController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'notification Id', 'learning-management-system' ),
+							'description' => 'notification Id',
 							'type'        => 'array',
 						),
 					),
@@ -150,7 +150,7 @@ class NotificationsController extends CrudController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'notification Id', 'learning-management-system' ),
+							'description' => 'notification Id',
 							'type'        => 'array',
 
 						),
@@ -170,43 +170,43 @@ class NotificationsController extends CrudController {
 	public function get_collection_params() {
 		$params = array(
 			'user_id'    => array(
-				'description'       => __( 'Notification for User ID', 'learning-management-system' ),
+				'description'       => 'Notification for User ID',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'created_by' => array(
-				'description'       => __( 'Notification created by.', 'learning-management-system' ),
+				'description'       => 'Notification created by.',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'type'       => array(
-				'description'       => __( 'Notification type.', 'learning-management-system' ),
+				'description'       => 'Notification type.',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_title',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'post_id'    => array(
-				'description'       => __( 'Notification from Post ID', 'learning-management-system' ),
+				'description'       => 'Notification from Post ID',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'topic_url'  => array(
-				'description'       => __( 'Topic URL.', 'learning-management-system' ),
+				'description'       => 'Topic URL.',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_title',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'status'     => array(
-				'description'       => __( 'Notification status.', 'learning-management-system' ),
+				'description'       => 'Notification status.',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_title',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'orderby'    => array(
-				'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+				'description'       => 'Sort collection by object attribute.',
 				'type'              => 'string',
 				'default'           => 'id',
 				'enum'              => array(
@@ -223,14 +223,14 @@ class NotificationsController extends CrudController {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'order'      => array(
-				'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+				'description'       => 'Order sort attribute ascending or descending.',
 				'type'              => 'string',
 				'default'           => 'desc',
 				'enum'              => array( 'asc', 'desc' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'page'       => array(
-				'description'       => __( 'Paginate the notifications.', 'learning-management-system' ),
+				'description'       => 'Paginate the notifications.',
 				'type'              => 'integer',
 				'default'           => 1,
 				'sanitize_callback' => 'absint',
@@ -238,7 +238,7 @@ class NotificationsController extends CrudController {
 				'minimum'           => 1,
 			),
 			'per_page'   => array(
-				'description'       => __( 'Limit items per page.', 'learning-management-system' ),
+				'description'       => 'Limit items per page.',
 				'type'              => 'integer',
 				'default'           => 10,
 				'minimum'           => 1,
@@ -264,19 +264,19 @@ class NotificationsController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'title'       => array(
-					'description' => __( 'Notification title', 'learning-management-system' ),
+					'description' => 'Notification title',
 					'type'        => 'string',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description' => array(
-					'description' => __( 'Notification description.', 'learning-management-system' ),
+					'description' => 'Notification description.',
 					'type'        => 'string',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -292,19 +292,19 @@ class NotificationsController extends CrudController {
 					'context'    => array( 'view', 'edit' ),
 				),
 				'status'      => array(
-					'description' => __( 'Notification status.', 'learning-management-system' ),
+					'description' => 'Notification status.',
 					'type'        => 'string',
 					'enum'        => NotificationStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'        => array(
-					'description' => __( 'Notification type.', 'learning-management-system' ),
+					'description' => 'Notification type.',
 					'type'        => 'string',
 					'enum'        => NotificationType::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'topic_url'   => array(
-					'description' => __( 'Topic URL', 'learning-management-system' ),
+					'description' => 'Topic URL',
 					'type'        => 'string',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -316,18 +316,18 @@ class NotificationsController extends CrudController {
 					'context'  => array( 'view', 'edit' ),
 				),
 				'created_at'  => array(
-					'description' => __( 'Notification created date, in the GMT timezone.', 'learning-management-system' ),
+					'description' => 'Notification created date, in the GMT timezone.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'modified_at' => array(
-					'description' => __( 'Notification modified date, in the GMT timezone.', 'learning-management-system' ),
+					'description' => 'Notification modified date, in the GMT timezone.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'expire_at'   => array(
-					'description' => __( 'Notification expired date, in the GMT timezone.', 'learning-management-system' ),
+					'description' => 'Notification expired date, in the GMT timezone.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
@@ -696,7 +696,7 @@ class NotificationsController extends CrudController {
 		if ( ! $notification ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -740,7 +740,7 @@ class NotificationsController extends CrudController {
 		if ( ! $notification ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -827,7 +827,7 @@ class NotificationsController extends CrudController {
 		if ( ! $notification ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

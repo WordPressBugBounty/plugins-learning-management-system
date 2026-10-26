@@ -59,6 +59,6 @@ class DeleteCourseDifficultyAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Permanently delete a course difficulty level. Requires id (difficulty ID). Deletion is immediate and irreversible. Returns the deleted difficulty object.', 'learning-management-system' );
+		return 'Permanently delete a course difficulty level. Requires id (difficulty ID). Deletion is immediate and irreversible. Returns the deleted difficulty object.';
 	}
 }

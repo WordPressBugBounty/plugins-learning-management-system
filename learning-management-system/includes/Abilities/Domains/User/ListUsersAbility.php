@@ -44,8 +44,7 @@ class ListUsersAbility extends RestProxyAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Retrieve a paginated list of %s users (students and instructors). Optionally filter by role, search term, or enrollment status. Returns data array and pagination metadata.', 'learning-management-system' ),
+			'Retrieve a paginated list of %s users (students and instructors). Optionally filter by role, search term, or enrollment status. Returns data array and pagination metadata.',
 			masteriyo_get_plugin_name()
 		);
 	}

@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Course Announcement
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Provide a streamlined way to share updates and information with students, fostering effective communication in online courses.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

@@ -31,6 +31,11 @@ class GetSettingsAbility extends RestProxyAbility {
 		return 'settings';
 	}
 
+	/** The settings are one object, not a page of records. */
+	protected function returns_collection(): bool {
+		return false;
+	}
+
 	/** {@inheritdoc} */
 	public function get_name(): string {
 		return 'masteriyo/settings-get';
@@ -44,8 +49,7 @@ class GetSettingsAbility extends RestProxyAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Read all %s LMS settings. Accepts no required input. Returns the full settings object including general, payments, emails, course, quiz, and advanced configuration groups.', 'learning-management-system' ),
+			'Read all %s LMS settings. Accepts no required input. Returns the full settings object including general, payments, emails, course, quiz, and advanced configuration groups.',
 			masteriyo_get_plugin_name()
 		);
 	}

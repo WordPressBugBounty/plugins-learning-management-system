@@ -109,7 +109,7 @@ class LessonsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -138,7 +138,7 @@ class LessonsController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -157,24 +157,25 @@ class LessonsController extends PostsController {
 					'permission_callback' => array( $this, 'bulk_update_items_permissions_check' ),
 					'args'                => array(
 						'ids'        => array(
-							'description' => __( 'IDs of the lessons to update.', 'learning-management-system' ),
+							'description' => 'IDs of the lessons to update.',
 							'type'        => 'array',
 							'items'       => array( 'type' => 'integer' ),
 							'required'    => true,
 						),
 						'video_meta' => array(
-							'description'          => __( 'Video settings to apply to every lesson.', 'learning-management-system' ),
+							'description'          => 'Video settings to apply to every lesson.',
 							'type'                 => 'object',
 							'properties'           => array(
 								'enable_video_share' => array( 'type' => 'boolean' ),
 								'enable_right_button_click' => array( 'type' => 'boolean' ),
+								'require_full_watch' => array( 'type' => 'boolean' ),
 							),
 							'additionalProperties' => false,
 							'validate_callback'    => 'rest_validate_request_arg',
 							'sanitize_callback'    => 'rest_sanitize_request_arg',
 						),
 						'status'     => array(
-							'description'       => __( 'Status to apply to every lesson.', 'learning-management-system' ),
+							'description'       => 'Status to apply to every lesson.',
 							'type'              => 'string',
 							'enum'              => array( PostStatus::DRAFT, PostStatus::PUBLISH ),
 							'validate_callback' => 'rest_validate_request_arg',
@@ -196,12 +197,12 @@ class LessonsController extends PostsController {
 					'args'                => array(
 						'ids'   => array(
 							'required'    => true,
-							'description' => __( 'Lesson IDs.', 'learning-management-system' ),
+							'description' => 'Lesson IDs.',
 							'type'        => 'array',
 						),
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -216,7 +217,7 @@ class LessonsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -234,7 +235,7 @@ class LessonsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -365,7 +366,7 @@ class LessonsController extends PostsController {
 			if ( ! $lesson || 0 === $lesson->get_id() ) {
 				$failed[] = array(
 					'id'      => $id,
-					'message' => __( 'Invalid ID', 'learning-management-system' ),
+					'message' => __( 'Invalid ID.', 'learning-management-system' ),
 				);
 				continue;
 			}
@@ -416,38 +417,38 @@ class LessonsController extends PostsController {
 		$params['orderby']['default'] = 'menu_order';
 
 		$params['course_id']  = array(
-			'description'       => __( 'Limit lessons by course id.', 'learning-management-system' ),
+			'description'       => 'Limit lessons by course id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['slug']       = array(
-			'description'       => __( 'Limit result set to lessons with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']     = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to lessons assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['category']   = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific category ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific category ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['tag']        = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific tag ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific tag ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['difficulty'] = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific difficulty ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific difficulty ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -541,7 +542,7 @@ class LessonsController extends PostsController {
 			 * @param \Masteriyo\Models\Lesson $lesson Lesson instance.
 			 * @param string $context Request context ('view' or 'edit').
 			 */
-			$raw = apply_filters( 'masteriyo_lesson_description_pre_shortcode', wp_kses_post( $lesson->get_description() ), $lesson, $context );
+			$raw = apply_filters( 'masteriyo_lesson_description_pre_shortcode', masteriyo_kses_post_for_user( $lesson->get_description(), masteriyo_get_course_author_id( $lesson->get_course_id() ) ), $lesson, $context );
 
 			return masteriyo_format_content_for_view( $raw );
 		}
@@ -729,190 +730,190 @@ class LessonsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                         => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'                       => array(
-					'description' => __( 'Lesson name', 'learning-management-system' ),
+					'description' => 'Lesson name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'                       => array(
-					'description' => __( 'Lesson slug', 'learning-management-system' ),
+					'description' => 'Lesson slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'                  => array(
-					'description' => __( 'Lesson URL', 'learning-management-system' ),
+					'description' => 'Lesson URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'               => array(
-					'description' => __( "The date the lesson was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the lesson was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'           => array(
-					'description' => __( 'The date the lesson was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the lesson was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'              => array(
-					'description' => __( "The date the lesson was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the lesson was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'          => array(
-					'description' => __( 'The date the lesson was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the lesson was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'                     => array(
-					'description' => __( 'Lesson status (post status).', 'learning-management-system' ),
+					'description' => 'Lesson status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'catalog_visibility'         => array(
-					'description' => __( 'Catalog visibility', 'learning-management-system' ),
+					'description' => 'Catalog visibility',
 					'type'        => 'string',
 					'default'     => 'visible',
 					'enum'        => array( 'visible', 'catalog', 'search', 'hidden' ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'                => array(
-					'description' => __( 'Lesson description', 'learning-management-system' ),
+					'description' => 'Lesson description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description'          => array(
-					'description' => __( 'Lesson short description', 'learning-management-system' ),
+					'description' => 'Lesson short description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'reviews_allowed'            => array(
-					'description' => __( 'Allow reviews.', 'learning-management-system' ),
+					'description' => 'Allow reviews.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'average_rating'             => array(
-					'description' => __( 'Reviews average rating.', 'learning-management-system' ),
+					'description' => 'Reviews average rating.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'rating_count'               => array(
-					'description' => __( 'Amount of reviews that the lesson has.', 'learning-management-system' ),
+					'description' => 'Amount of reviews that the lesson has.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'parent_id'                  => array(
-					'description' => __( 'Lesson parent ID', 'learning-management-system' ),
+					'description' => 'Lesson parent ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'                  => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_name'                => array(
-					'description' => __( 'Course name', 'learning-management-system' ),
+					'description' => 'Course name',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'                 => array(
-					'description' => __( 'Menu order, used to custom sort lessons.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort lessons.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured_image'             => array(
-					'description' => __( 'Course featured image.', 'learning-management-system' ),
+					'description' => 'Course featured image.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'video_source'               => array(
-					'description' => __( 'Video source', 'learning-management-system' ),
+					'description' => 'Video source',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'default'     => VideoSource::SELF_HOSTED,
-					'enum'        => array_keys( masteriyo_get_lesson_video_sources() ),
+					'enum'        => array_merge( array_keys( masteriyo_get_lesson_video_sources() ), array( '' ) ),
 				),
 				'video_source_url'           => array(
-					'description' => __( 'Video source URL', 'learning-management-system' ),
+					'description' => 'Video source URL',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'video_playback_time'        => array(
-					'description' => __( 'Video playback time', 'learning-management-system' ),
+					'description' => 'Video playback time',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'download_materials'         => array(
-					'description' => __( 'download_materials', 'learning-management-system' ),
+					'description' => 'download_materials',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'                  => array(
-								'description' => __( 'Download material ID', 'learning-management-system' ),
+								'description' => 'Download material ID',
 								'type'        => 'integer',
 								'default'     => 0,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'title'               => array(
-								'description' => __( 'Download material title', 'learning-management-system' ),
+								'description' => 'Download material title',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'url'                 => array(
-								'description' => __( 'Download material URL', 'learning-management-system' ),
+								'description' => 'Download material URL',
 								'type'        => 'string',
 								'format'      => 'uri',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'preview_url'         => array(
-								'description' => __( 'Download material preview URL (served inline).', 'learning-management-system' ),
+								'description' => 'Download material preview URL (served inline).',
 								'type'        => 'string',
 								'format'      => 'uri',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'mime_type'           => array(
-								'description' => __( 'Download material mime type', 'learning-management-system' ),
+								'description' => 'Download material mime type',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'file_size'           => array(
-								'description' => __( 'Download material file size', 'learning-management-system' ),
+								'description' => 'Download material file size',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'formatted_file_size' => array(
-								'description' => __( 'Download material formatted file size', 'learning-management-system' ),
+								'description' => 'Download material formatted file size',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'created_at'          => array(
-								'description' => __( 'Download material creation/upload date.', 'learning-management-system' ),
+								'description' => 'Download material creation/upload date.',
 								'type'        => 'string',
 								'format'      => 'date-time',
 								'context'     => array( 'view', 'edit' ),
@@ -922,69 +923,69 @@ class LessonsController extends PostsController {
 					),
 				),
 				'download_materials_message' => array(
-					'description' => __( 'Message shown when the current user cannot access the download materials.', 'learning-management-system' ),
+					'description' => 'Message shown when the current user cannot access the download materials.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'audio_source'               => array(
-					'description' => __( 'Audio source', 'learning-management-system' ),
+					'description' => 'Audio source',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'default'     => AudioSource::SELF_HOSTED,
-					'enum'        => array_keys( masteriyo_get_lesson_audio_sources() ),
+					'enum'        => array_merge( array_keys( masteriyo_get_lesson_audio_sources() ), array( '' ) ),
 				),
 				'audio_source_url'           => array(
-					'description' => __( 'Audio source URL', 'learning-management-system' ),
+					'description' => 'Audio source URL',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'audio_source_files'         => array(
-					'description' => __( 'Audio Lesson Files', 'learning-management-system' ),
+					'description' => 'Audio Lesson Files',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'                  => array(
-								'description' => __( 'Audio file ID', 'learning-management-system' ),
+								'description' => 'Audio file ID',
 								'type'        => 'integer',
 								'default'     => 0,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'title'               => array(
-								'description' => __( 'Audio material title', 'learning-management-system' ),
+								'description' => 'Audio material title',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'url'                 => array(
-								'description' => __( 'Audio material URL', 'learning-management-system' ),
+								'description' => 'Audio material URL',
 								'type'        => 'string',
 								'format'      => 'uri',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'mime_type'           => array(
-								'description' => __( 'Audio material mime type', 'learning-management-system' ),
+								'description' => 'Audio material mime type',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'file_size'           => array(
-								'description' => __( 'Audio material file size', 'learning-management-system' ),
+								'description' => 'Audio material file size',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'formatted_file_size' => array(
-								'description' => __( 'Audio material formatted file size', 'learning-management-system' ),
+								'description' => 'Audio material formatted file size',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'created_at'          => array(
-								'description' => __( 'Audio material creation/upload date.', 'learning-management-system' ),
+								'description' => 'Audio material creation/upload date.',
 								'type'        => 'string',
 								'format'      => 'date-time',
 								'context'     => array( 'view', 'edit' ),
@@ -995,47 +996,53 @@ class LessonsController extends PostsController {
 				),
 
 				'video_meta'                 => array(
-					'description' => __( 'Video metadata', 'learning-management-system' ),
+					'description' => 'Video metadata',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'enable_video_share'        => array(
-								'description' => __( 'Whether to share the video.', 'learning-management-system' ),
+								'description' => 'Whether to share the video.',
 								'type'        => 'boolean',
 								'default'     => true,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'enable_right_button_click' => array(
-								'description' => __( 'Whether user is allowed to right click on video.', 'learning-management-system' ),
+								'description' => 'Whether user is allowed to right click on video.',
+								'type'        => 'boolean',
+								'default'     => true,
+								'context'     => array( 'view', 'edit' ),
+							),
+							'require_full_watch'        => array(
+								'description' => 'Whether the Require Full Video Watch setting applies to this lesson.',
 								'type'        => 'boolean',
 								'default'     => true,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'timestamps'                => array(
-								'description' => __( 'Array of timestamps.', 'learning-management-system' ),
+								'description' => 'Array of timestamps.',
 								'type'        => 'object',
 								'properties'  => array(
 									'start_time' => array(
-										'description' => __( 'Start time in seconds.', 'learning-management-system' ),
+										'description' => 'Start time in seconds.',
 										'type'        => 'integer',
 										'default'     => 0,
 										'context'     => array( 'view', 'edit' ),
 									),
 									'end_time'   => array(
-										'description' => __( 'End time in seconds.', 'learning-management-system' ),
+										'description' => 'End time in seconds.',
 										'type'        => 'integer',
 										'default'     => 0,
 										'context'     => array( 'view', 'edit' ),
 									),
 									'label'      => array(
-										'description' => __( 'Label for the timestamp.', 'learning-management-system' ),
+										'description' => 'Label for the timestamp.',
 										'type'        => 'string',
 										'context'     => array( 'view', 'edit' ),
 									),
 									'id'         => array(
-										'description' => __( 'Timestamp ID.', 'learning-management-system' ),
+										'description' => 'Timestamp ID.',
 										'type'        => 'string',
 										'default'     => '',
 										'context'     => array( 'view', 'edit' ),
@@ -1047,33 +1054,33 @@ class LessonsController extends PostsController {
 				),
 
 				'subtitle_meta'              => array(
-					'description' => __( 'subtitle metadata', 'learning-management-system' ),
+					'description' => 'subtitle metadata',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'subtitle_source' => array(
-								'description' => __( 'source of subtitle file', 'learning-management-system' ),
+								'description' => 'source of subtitle file',
 								'type'        => 'array',
 								'default'     => array(),
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subtitle_label'  => array(
-								'description' => __( 'Readable Label for Subtitle', 'learning-management-system' ),
+								'description' => 'Readable Label for Subtitle',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'subtitle_type'   => array(
-								'description' => __( 'Type of subtitle file', 'learning-management-system' ),
+								'description' => 'Type of subtitle file',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
 							),
 
 							'subtitle_kind'   => array(
-								'description' => __( 'Kind of subtitle file like (subtitle/caption/description) etc', 'learning-management-system' ),
+								'description' => 'Kind of subtitle file like (subtitle/caption/description) etc',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
@@ -1083,25 +1090,25 @@ class LessonsController extends PostsController {
 				),
 
 				'meta_data'                  => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1109,13 +1116,13 @@ class LessonsController extends PostsController {
 					),
 				),
 				'custom_fields'              => array(
-					'description' => __( 'Custom fields', 'learning-management-system' ),
+					'description' => 'Custom fields',
 					'type'        => 'object',
 					'default'     => '',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'lesson_type'                => array(
-					'description' => __( 'Lesson Type', 'learning-management-system' ),
+					'description' => 'Lesson Type',
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'view', 'edit' ),
@@ -1155,7 +1162,7 @@ class LessonsController extends PostsController {
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$lesson->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
+			$lesson->set_description( wp_slash( masteriyo_kses_post_for_user( $request['description'], get_current_user_id() ) ) );
 		}
 
 		// Post excerpt.
@@ -1275,7 +1282,18 @@ class LessonsController extends PostsController {
 
 		// Video meta.
 		if ( isset( $request['video_meta'] ) ) {
-			$lesson->set_video_meta( $request['video_meta'] );
+			$video_meta = $request['video_meta'];
+
+			// The editor sends the switch only while the site setting shows it, so an omitted key keeps the stored choice.
+			if ( is_array( $video_meta ) && ! array_key_exists( 'require_full_watch', $video_meta ) ) {
+				$current = (array) $lesson->get_video_meta( 'edit' );
+
+				if ( array_key_exists( 'require_full_watch', $current ) ) {
+					$video_meta['require_full_watch'] = $current['require_full_watch'];
+				}
+			}
+
+			$lesson->set_video_meta( $video_meta );
 		}
 
 		// Subtitle meta.
@@ -1657,13 +1675,11 @@ class LessonsController extends PostsController {
 			return $restriction;
 		}
 
-		if ( ( new Addons() )->is_active( 'multiple-instructors' ) ) {
-			if ( masteriyo_is_instructor_or_additional_instructor( $course->get_id() ) ) {
-				return true;
-			}
+		if ( $this->current_user_co_instructs( $course->get_id() ) ) {
+			return true;
 		}
 
-		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
+		if ( ! $this->can_read_course_item( $course, $lesson ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -1713,11 +1729,15 @@ class LessonsController extends PostsController {
 		global $wpdb;
 
 		try {
+			// The full watch requirement is a lesson setting, not video data, so it survives a new video.
+			$current = (array) $lesson->get_video_meta( 'edit' );
+
 			$lesson->set_video_meta(
 				array(
 					'time_stamps'               => array(),
 					'enable_video_share'        => false,
 					'enable_right_button_click' => false,
+					'require_full_watch'        => $current['require_full_watch'] ?? true,
 				)
 			);
 

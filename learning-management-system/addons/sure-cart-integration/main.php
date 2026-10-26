@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: SureCart Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Addon Type: feature
  * Description: SureCart Integration allows to enroll users using SureCart checkout process and payment methods.
  * Author: Masteriyo

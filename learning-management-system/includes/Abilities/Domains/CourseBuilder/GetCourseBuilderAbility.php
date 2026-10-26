@@ -58,6 +58,6 @@ class GetCourseBuilderAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve the full course structure tree: all sections with their lessons and quizzes in order.', 'learning-management-system' );
+		return 'Retrieve the full course structure tree: all sections with their lessons and quizzes in order.';
 	}
 }

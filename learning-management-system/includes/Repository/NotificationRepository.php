@@ -29,7 +29,7 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 		global $wpdb;
 
 		if ( ! $notification->get_created_at( 'edit' ) ) {
-			$notification->set_created_at( current_time( 'mysql', true ) );
+			$notification->set_created_at( time() );
 		}
 
 		if ( empty( $notification->get_created_by() ) ) {
@@ -172,7 +172,7 @@ class NotificationRepository extends AbstractRepository implements RepositoryInt
 
 		if ( array_intersect( $notification_data_keys, array_keys( $changes ) ) ) {
 			if ( ! isset( $changes['modified_at'] ) ) {
-				$notification->set_modified_at( current_time( 'mysql', true ) );
+				$notification->set_modified_at( time() );
 			}
 
 			$wpdb->update(

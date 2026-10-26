@@ -88,7 +88,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				onClose();
 				toast({
 					title: __(
-						'Withdraw request sent successfully',
+						'Withdrawal request sent successfully',
 						'learning-management-system',
 					),
 					status: 'success',
@@ -103,7 +103,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				onClose();
 				toast({
 					title: __(
-						'Failed to send withdraw request',
+						'Failed to send withdrawal request',
 						'learning-management-system',
 					),
 					status: 'success',
@@ -159,7 +159,7 @@ const WithdrawRequestForm: React.FC<Props> = (props) => {
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader px="10" pt="10">
-						{__('Withdraw Request', 'learning-management-system')}
+						{__('Withdrawal Request', 'learning-management-system')}
 					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody px="10">

@@ -261,31 +261,31 @@ class AnalyticsController extends CrudController {
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
 					'args'                => array(
 						'start_date'      => array(
-							'description'       => __( 'Limit response to resources published after a given ISO8601 compliant date.', 'learning-management-system' ),
+							'description'       => 'Limit response to resources published after a given ISO8601 compliant date.',
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'end_date'        => array(
-							'description'       => __( 'Limit response to resources published after a given ISO8601 compliant date.', 'learning-management-system' ),
+							'description'       => 'Limit response to resources published before a given ISO8601 compliant date.',
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'course_id'       => array(
-							'description'       => __( 'Filter analytics data by a specific course ID.', 'learning-management-system' ),
+							'description'       => 'Filter analytics data by a specific course ID.',
 							'type'              => 'integer',
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
 						'bundle_id'       => array(
-							'description'       => __( 'Filter analytics data by a specific course bundle ID.', 'learning-management-system' ),
+							'description'       => 'Filter analytics data by a specific course bundle ID.',
 							'type'              => 'integer',
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
 						'analytics_scope' => array(
-							'description'       => __( 'Filter analytics data by all, courses, or bundles.', 'learning-management-system' ),
+							'description'       => 'Filter analytics data by all, courses, or bundles.',
 							'type'              => 'string',
 							'enum'              => array( 'all', 'courses', 'bundles' ),
 							'default'           => 'all',
@@ -2285,7 +2285,7 @@ class AnalyticsController extends CrudController {
 				'id'              => $user->ID,
 				'username'        => $user->user_login,
 				'email'           => $user->user_email,
-				'registered_date' => $user->user_registered,
+				'registered_date' => masteriyo_rest_prepare_date_response( $user->user_registered ),
 				'full_name'       => empty( $full_name ) ? _x( 'N/A', 'full name not available', 'learning-management-system' ) : $full_name,
 			);
 		}

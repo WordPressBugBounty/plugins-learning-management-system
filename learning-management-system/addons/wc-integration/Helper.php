@@ -64,6 +64,18 @@ class Helper {
 	}
 
 	/**
+	 * Return the sign-in URL that adds the product to the cart after sign-in.
+	 *
+	 * @param int $product_id WooCommerce product ID.
+	 * @return string
+	 */
+	public static function get_sign_in_url( $product_id ) {
+		$cart_url = add_query_arg( 'add-to-cart', absint( $product_id ), \wc_get_cart_url() );
+
+		return add_query_arg( 'redirect_to', rawurlencode( $cart_url ), masteriyo_get_account_url() ) . '#/sign-in';
+	}
+
+	/**
 	 * Checks if a given course ID is associated with a WooCommerce product.
 	 *
 	 * @since 1.11.3 [Free]

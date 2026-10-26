@@ -76,7 +76,7 @@ class AddToCartAjaxHandler extends AjaxHandler {
 				if ( $wc_guest_disabled || $wc_signup_disabled ) {
 					wp_send_json_error(
 						array(
-							'redirect' => masteriyo_get_account_url() . '#/sign-in',
+							'redirect' => Helper::get_sign_in_url( $product_id ),
 							'message'  => __( 'Please log in to add this course to your cart.', 'learning-management-system' ),
 						),
 						401

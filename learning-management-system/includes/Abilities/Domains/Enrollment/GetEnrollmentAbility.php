@@ -43,6 +43,6 @@ class GetEnrollmentAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a single course enrollment record by its ID. Requires id (enrollment ID). Returns the enrollment object including user_id, course_id, status, and date_start.', 'learning-management-system' );
+		return 'Retrieve a single course enrollment record by its ID. Requires id (enrollment ID). Returns the enrollment object including user_id, course_id, status, and date_start.';
 	}
 }

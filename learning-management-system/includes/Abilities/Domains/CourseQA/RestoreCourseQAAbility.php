@@ -59,6 +59,6 @@ class RestoreCourseQAAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Restore a trashed course Q&A entry to its previous status. Requires id (Q&A entry ID). Only applies to entries currently in the trash. Returns the restored entry object.', 'learning-management-system' );
+		return 'Restore a trashed course Q&A entry to its previous status. Requires id (Q&A entry ID). Only applies to entries currently in the trash. Returns the restored entry object.';
 	}
 }

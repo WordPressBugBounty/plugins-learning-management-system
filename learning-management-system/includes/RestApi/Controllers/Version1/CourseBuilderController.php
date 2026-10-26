@@ -97,7 +97,7 @@ class CourseBuilderController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -164,7 +164,7 @@ class CourseBuilderController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'contents'      => array(
-					'description' => __( 'Course contents(quiz, lesson)', 'learning-management-system' ),
+					'description' => 'Course contents(quiz, lesson)',
 					'type'        => 'array',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
@@ -172,33 +172,33 @@ class CourseBuilderController extends PostsController {
 						'type'       => 'object',
 						'properties' => array(
 							'id'         => array(
-								'description' => __( 'Course content ID.', 'learning-management-system' ),
+								'description' => 'Course content ID.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'name'       => array(
-								'description' => __( 'Course content name.', 'learning-management-system' ),
+								'description' => 'Course content name.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'permalink'  => array(
-								'description' => __( 'Course content permalink.', 'learning-management-system' ),
+								'description' => 'Course content permalink.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'type'       => array(
-								'description' => __( 'Course content type.', 'learning-management-system' ),
+								'description' => 'Course content type.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'menu_order' => array(
-								'description' => __( 'Course content menu order.', 'learning-management-system' ),
+								'description' => 'Course content menu order.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'parent_id'  => array(
-								'description' => __( 'Course content parent id.', 'learning-management-system' ),
+								'description' => 'Course content parent id.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -206,7 +206,7 @@ class CourseBuilderController extends PostsController {
 					),
 				),
 				'sections'      => array(
-					'description' => __( 'Course sections.', 'learning-management-system' ),
+					'description' => 'Course sections.',
 					'type'        => 'array',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -214,33 +214,33 @@ class CourseBuilderController extends PostsController {
 						'type'       => 'object',
 						'properties' => array(
 							'id'         => array(
-								'description' => __( 'Course section ID.', 'learning-management-system' ),
+								'description' => 'Course section ID.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'name'       => array(
-								'description' => __( 'Course section name.', 'learning-management-system' ),
+								'description' => 'Course section name.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'permalink'  => array(
-								'description' => __( 'Course section permalink.', 'learning-management-system' ),
+								'description' => 'Course section permalink.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'type'       => array(
-								'description' => __( 'Course section type.', 'learning-management-system' ),
+								'description' => 'Course section type.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'menu_order' => array(
-								'description' => __( 'Course section menu order.', 'learning-management-system' ),
+								'description' => 'Course section menu order.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'parent_id'  => array(
-								'description' => __( 'Course section parent id.', 'learning-management-system' ),
+								'description' => 'Course section parent id.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -248,7 +248,7 @@ class CourseBuilderController extends PostsController {
 					),
 				),
 				'section_order' => array(
-					'description' => __( 'Course section order.', 'learning-management-system' ),
+					'description' => 'Course section order.',
 					'type'        => 'array',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -276,7 +276,7 @@ class CourseBuilderController extends PostsController {
 		if ( is_null( $course ) || $this->post_type !== $course->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -618,7 +618,7 @@ class CourseBuilderController extends PostsController {
 		if ( is_null( $course ) || $this->post_type !== $course->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 400 )
 			);
 		}

@@ -20,8 +20,8 @@ if ( ! $course_review ) {
 	return;
 }
 
-$created_date = strtotime( $course_review->get_date_created() );
-$created_date = gmdate( 'M j, Y @ g:i a', $created_date );
+// The repository reads the saved local time back as the timestamp, so print it as is.
+$created_date = date_i18n( masteriyo_date_format() . ' ' . masteriyo_time_format(), strtotime( $course_review->get_date_created() ) );
 
 ?>
 <div class="masteriyo-course-review" data-id="<?php echo esc_attr( $course_review->get_id() ); ?>">

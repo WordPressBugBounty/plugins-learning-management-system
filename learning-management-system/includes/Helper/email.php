@@ -733,6 +733,18 @@ if ( ! function_exists( 'masteriyo_get_default_email_contents' ) ) {
 					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Your live session "<span class="email-text--bold">{session_title}</span>" from <span class="email-text--bold">{course_name}</span> is starting soon!</p><p><span class="email-text--bold">Session Details:</span><br />Title: {session_title}<br />Start Time: {session_start_time}</p><p>You can join the session in two ways:<br />1. {meeting_link} - Join directly via Google Meet<br />2. {session_learn_link} - Access through your course dashboard</p><p class="email-template--info">We look forward to seeing you in the session. Make sure you\'re signed in to your Google account to join!</p>',
 					'reminder_offset'  => 120, // Minutes before session
 				),
+				'enrollment_expiry_warning'    => array(
+					'enable'           => true,
+					'recipients'       => array(),
+					'to_address'       => '{student_email}',
+					'from_address'     => '',
+					'from_name'        => '',
+					'reply_to_address' => '',
+					'reply_to_name'    => '',
+					'subject'          => 'Your access to {course_name} ends on {expiry_date}',
+					'content'          => '<p class="email-template--info">Hi {student_first_name},</p><p>Your access to <a href="{course_url}">{course_name}</a> ends on <span class="email-text--bold">{expiry_date}</span>. Make sure to finish what you need before then.</p><p class="email-template--info">If necessary, log in to your account by clicking the button below:</p>{account_login_link}',
+					'reminder_offset'  => 7, // Days before access ends
+				),
 				'new_question_reply'           => array(
 					'enable'           => true,
 					'recipients'       => array(),

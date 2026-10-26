@@ -105,11 +105,11 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 			$course_progress->set_status( 'started' );
 		}
 		if ( ! $course_progress->get_started_at( 'edit' ) ) {
-				$course_progress->set_started_at( current_time( 'mysql', true ) );
+				$course_progress->set_started_at( time() );
 		}
 
 		if ( ! $course_progress->get_modified_at( 'edit' ) ) {
-			$course_progress->set_modified_at( current_time( 'mysql', true ) );
+			$course_progress->set_modified_at( time() );
 		}
 
 		$completed_at = $course_progress->get_completed_at( 'edit' );
@@ -191,7 +191,7 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 			}
 
 			if ( ! isset( $changes['modified_at'] ) ) {
-				$course_progress->set_modified_at( current_time( 'mysql', true ) );
+				$course_progress->set_modified_at( time() );
 			}
 
 			$wpdb->update(
@@ -486,9 +486,13 @@ class CourseProgressRepository extends AbstractRepository implements RepositoryI
 		$items_in_table     = $query->get_course_progress_items();
 		$items_in_table_map = array();
 
-		// Create map of actual course progress item created.
+		// Rows come newest first; with duplicates, keep the newest completed row, else the newest.
 		foreach ( $items_in_table as $item ) {
-			$items_in_table_map[ $item->get_item_id() ] = $item;
+			$mapped = $items_in_table_map[ $item->get_item_id() ] ?? null;
+
+			if ( ! $mapped || ( $item->get_completed() && ! $mapped->get_completed() ) ) {
+				$items_in_table_map[ $item->get_item_id() ] = $item;
+			}
 		}
 
 		// Sync the total progress items with the progress items in table.

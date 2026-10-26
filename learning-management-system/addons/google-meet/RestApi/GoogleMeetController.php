@@ -159,12 +159,12 @@ class GoogleMeetController extends PostsController {
 					'args'                => array(
 						'ids'   => array(
 							'required'    => true,
-							'description' => __( 'Meet IDs.', 'learning-management-system' ),
+							'description' => 'Meet IDs.',
 							'type'        => 'array',
 						),
 						'force' => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -178,7 +178,7 @@ class GoogleMeetController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'string',
 					),
 				),
@@ -207,7 +207,7 @@ class GoogleMeetController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -429,7 +429,7 @@ class GoogleMeetController extends PostsController {
 		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'batch' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -904,7 +904,7 @@ class GoogleMeetController extends PostsController {
 
 			if ( 204 === $status || 404 === $status || 410 === $status ) {
 				if ( ! $event_id || 0 === $event_id['meeting_id'] ) {
-					return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+					return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 				}
 				masteriyo_get_logger()->info(
 					sprintf( 'Google Calendar event deleted or not found. Status: %d', $status ),
@@ -1231,53 +1231,53 @@ class GoogleMeetController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'summary'                      => array(
-					'description' => __( 'Meeting Name', 'learning-management-system' ),
+					'description' => 'Meeting Name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'                  => array(
-					'description' => __( 'Meeting Description.', 'learning-management-system' ),
+					'description' => 'Meeting Description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'time_zone'                    => array(
-					'description' => __( 'User TimeZone', 'learning-management-system' ),
+					'description' => 'User TimeZone',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'starts_at'                    => array(
-					'description' => __( 'Meeting start time', 'learning-management-system' ),
+					'description' => 'Meeting start time',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'ends_at'                      => array(
-					'description' => __( 'Meeting end time', 'learning-management-system' ),
+					'description' => 'Meeting end time',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'participants'                 => array(
-					'description' => __( 'Allow user to join before host.', 'learning-management-system' ),
+					'description' => 'Allow user to join before host.',
 					'type'        => array(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent_id'                    => array(
-					'description' => __( 'Google Meet parent ID', 'learning-management-system' ),
+					'description' => 'Google Meet parent ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'                    => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'add_all_students_as_attendee' => array(
-					'description' => __( 'Add all students as attendee.', 'learning-management-system' ),
+					'description' => 'Add all students as attendee.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

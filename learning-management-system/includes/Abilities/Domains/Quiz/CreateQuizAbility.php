@@ -61,6 +61,6 @@ class CreateQuizAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new quiz inside a section.', 'learning-management-system' );
+		return 'Create a new quiz inside a section.';
 	}
 }

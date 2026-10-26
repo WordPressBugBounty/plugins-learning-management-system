@@ -327,8 +327,8 @@ class CourseCompletionEmailToStudent extends Email {
 
 		$certificate = $this->get( 'certificate_download_url' );
 
-		if ( empty( $certificate ) && $course && function_exists( 'masteriyo_generate_certificate_download_url' ) && masteriyo_get_course_certificate_id( $course->get_id() ) ) {
-			$certificate = masteriyo_generate_certificate_download_url( $course->get_id() );
+		if ( empty( $certificate ) && $course && $student && function_exists( 'masteriyo_generate_certificate_download_url' ) && masteriyo_get_course_certificate_id( $course->get_id() ) ) {
+			$certificate = masteriyo_generate_certificate_download_url( $course->get_id(), $student->get_id() );
 		}
 
 		if ( $student ) {

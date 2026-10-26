@@ -28,7 +28,7 @@ const Withdraw: React.FC = () => {
 
 			<Stack gap={8}>
 				<PageSecondaryHeading
-					title={__('Withdraw Requests History', 'learning-management-system')}
+					title={__('Withdrawal Request History', 'learning-management-system')}
 				>
 					<WithdrawRequestForm data={userDataQuery.data as UserSchema} />
 				</PageSecondaryHeading>

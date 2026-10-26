@@ -511,7 +511,7 @@ function masteriyo_course_has_content( $course ) {
 			// through, seeded into the legacy filter masteriyo_get_course_contents()
 			// applies. Addon items (Google Meet, Zoom) carry addon-registered
 			// statuses (upcoming/active/expired), not publish.
-			'post_status'    => apply_filters( 'masteriyo_course_contents_post_status', masteriyo_get_course_content_post_statuses() ),
+			'post_status'    => apply_filters( 'masteriyo_course_contents_post_status', masteriyo_get_course_content_post_statuses( $course ) ),
 			'fields'         => 'ids',
 			'meta_key'       => '_course_id',
 			'meta_value'     => $course->get_id(),
@@ -659,6 +659,51 @@ function masteriyo_count_posts( $type, $user_id ) {
 	return apply_filters( 'masteriyo_count_posts', $counts, $type, $user_id );
 }
 
+if ( ! function_exists( 'masteriyo_get_cta_button_label' ) ) {
+	/**
+	 * Get an admin-configured call-to-action button label, or the built-in one.
+	 *
+	 * A blank field means the built-in localized string, so no language is ever
+	 * frozen into the settings. A configured label is a site-owner string and
+	 * goes through WPML the way the email contents do.
+	 *
+	 * @param string $key      Key under `general.button_labels`.
+	 * @param string $built_in Built-in label to fall back to.
+	 *
+	 * @return string
+	 */
+	function masteriyo_get_cta_button_label( $key, $built_in = '' ) {
+		$label = masteriyo_get_setting( 'general.button_labels.' . $key );
+		$label = is_scalar( $label ) ? trim( (string) $label ) : '';
+
+		if ( '' === $label ) {
+			return $built_in;
+		}
+
+		return masteriyo_string_translation( 'general.button_labels.' . $key, 'masteriyo-button-label', $label );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_cta_button_labels' ) ) {
+	/**
+	 * Get the configured call-to-action labels for the account app.
+	 *
+	 * Each is empty unless configured, so the React component's own __() default
+	 * keeps doing the translating.
+	 *
+	 * @return array
+	 */
+	function masteriyo_get_cta_button_labels() {
+		$labels = array();
+
+		foreach ( array( 'start_course', 'continue', 'enroll', 'buy_now' ) as $key ) {
+			$labels[ $key ] = masteriyo_get_cta_button_label( $key );
+		}
+
+		return $labels;
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_course_buy_button' ) ) {
 	/**
 	 * Get buy button information for a course.
@@ -798,8 +843,11 @@ if ( ! function_exists( 'masteriyo_user_has_completed_course' ) ) {
 			);
 			$progress = current( $query->get_course_progress() );
 
+			// A stored completion only holds while the curriculum it was derived from is
+			// still complete. Publishing a quiz into a finished course leaves the record
+			// completed with a pending item, and the certificate follows it (issue #944).
 			if ( $progress && CourseProgressStatus::COMPLETED === $progress->get_status() ) {
-				$is_completed = true;
+				$is_completed = ! masteriyo_course_progress_has_pending_items( $progress );
 			}
 		}
 

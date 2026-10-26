@@ -98,7 +98,7 @@ class QuizAttemptsController extends CrudController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -135,17 +135,17 @@ class QuizAttemptsController extends CrudController {
 			array(
 				'args' => array(
 					'id'        => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 						'required'    => true,
 					),
 					'answer_id' => array(
-						'description' => __( 'Answer to update the points.', 'learning-management-system' ),
+						'description' => 'Answer to update the points.',
 						'type'        => 'number',
 						'required'    => true,
 					),
 					'points'    => array(
-						'description' => __( 'The new points.', 'learning-management-system' ),
+						'description' => 'The new points.',
 						'type'        => 'number',
 						'required'    => true,
 					),
@@ -165,17 +165,17 @@ class QuizAttemptsController extends CrudController {
 			array(
 				'args' => array(
 					'id'         => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 						'required'    => true,
 					),
 					'answer_id'  => array(
-						'description' => __( 'Answer to update the points.', 'learning-management-system' ),
+						'description' => 'Answer to update the points.',
 						'type'        => 'number',
 						'required'    => true,
 					),
 					'is_correct' => array(
-						'description' => __( 'The new status. True if correct otherwise false', 'learning-management-system' ),
+						'description' => 'The new status. True if correct otherwise false',
 						'type'        => 'boolean',
 						'required'    => true,
 					),
@@ -200,7 +200,7 @@ class QuizAttemptsController extends CrudController {
 					},
 					'args'                => array(
 						'quiz_id' => array(
-							'description'       => __( 'Quiz ID', 'learning-management-system' ),
+							'description'       => 'Quiz ID',
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 							'validate_callback' => 'rest_validate_request_arg',
@@ -221,7 +221,7 @@ class QuizAttemptsController extends CrudController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Quiz attempt IDs.', 'learning-management-system' ),
+							'description' => 'Quiz attempt IDs.',
 							'type'        => 'array',
 						),
 					),
@@ -240,25 +240,25 @@ class QuizAttemptsController extends CrudController {
 	public function get_collection_params() {
 		$params = array(
 			'quiz_id'  => array(
-				'description'       => __( 'Quiz ID', 'learning-management-system' ),
+				'description'       => 'Quiz ID',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'user_id'  => array(
-				'description'       => __( 'User ID', 'learning-management-system' ),
+				'description'       => 'User ID',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'status'   => array(
-				'description'       => __( 'Quiz attempt status.', 'learning-management-system' ),
+				'description'       => 'Quiz attempt status.',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_title',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'orderby'  => array(
-				'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+				'description'       => 'Sort collection by object attribute.',
 				'type'              => 'string',
 				'default'           => 'id',
 				'enum'              => array(
@@ -271,14 +271,14 @@ class QuizAttemptsController extends CrudController {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'order'    => array(
-				'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+				'description'       => 'Order sort attribute ascending or descending.',
 				'type'              => 'string',
 				'default'           => 'desc',
 				'enum'              => array( 'asc', 'desc' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'page'     => array(
-				'description'       => __( 'Paginate the quiz attempts.', 'learning-management-system' ),
+				'description'       => 'Paginate the quiz attempts.',
 				'type'              => 'integer',
 				'default'           => 1,
 				'sanitize_callback' => 'absint',
@@ -286,7 +286,7 @@ class QuizAttemptsController extends CrudController {
 				'minimum'           => 1,
 			),
 			'per_page' => array(
-				'description'       => __( 'Limit items per page.', 'learning-management-system' ),
+				'description'       => 'Limit items per page.',
 				'type'              => 'integer',
 				'default'           => 10,
 				'minimum'           => 1,
@@ -312,90 +312,90 @@ class QuizAttemptsController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                       => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'course_id'                => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'quiz_id'                  => array(
-					'description' => __( 'Quiz ID', 'learning-management-system' ),
+					'description' => 'Quiz ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'user_id'                  => array(
-					'description' => __( 'User ID', 'learning-management-system' ),
+					'description' => 'User ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_questions'          => array(
-					'description' => __( 'Number of questions.', 'learning-management-system' ),
+					'description' => 'Number of questions.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_answered_questions' => array(
-					'description' => __( 'Number of answered questions.', 'learning-management-system' ),
+					'description' => 'Number of answered questions.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_marks'              => array(
-					'description' => __( 'Total marks.', 'learning-management-system' ),
+					'description' => 'Total marks.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_attempts'           => array(
-					'description' => __( 'Number of attempts.', 'learning-management-system' ),
+					'description' => 'Number of attempts.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_correct_answers'    => array(
-					'description' => __( 'Number of correct answers.', 'learning-management-system' ),
+					'description' => 'Number of correct answers.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total_incorrect_answers'  => array(
-					'description' => __( 'Number of incorrect answers.', 'learning-management-system' ),
+					'description' => 'Number of incorrect answers.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'earned_marks'             => array(
-					'description' => __( 'Total earned marks/points.', 'learning-management-system' ),
+					'description' => 'Total earned marks/points.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answers'                  => array(
-					'description' => __( 'Answers given by user.', 'learning-management-system' ),
+					'description' => 'Answers given by user.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'attempt_status'           => array(
-					'description' => __( 'Quiz attempt status.', 'learning-management-system' ),
+					'description' => 'Quiz attempt status.',
 					'type'        => 'string',
 					'default'     => QuizAttemptStatus::STARTED,
 					'enum'        => QuizAttemptStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'attempt_started_at'       => array(
-					'description' => __( 'Quiz attempt started time.', 'learning-management-system' ),
+					'description' => 'Quiz attempt started time.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'attempt_ended_at'         => array(
-					'description' => __( 'Quiz attempt ended time.', 'learning-management-system' ),
+					'description' => 'Quiz attempt ended time.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'reviewed'                 => array(
-					'description' => __( 'Quiz attempt reviewed.', 'learning-management-system' ),
+					'description' => 'Quiz attempt reviewed.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'passed'                   => array(
-					'description' => __( 'Whether the quiz attempt passed. Null until the attempt has ended.', 'learning-management-system' ),
+					'description' => 'Whether the quiz attempt passed. Null until the attempt has ended.',
 					'type'        => array( 'boolean', 'null' ),
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -749,7 +749,7 @@ class QuizAttemptsController extends CrudController {
 		if ( $id <= 0 ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -759,7 +759,7 @@ class QuizAttemptsController extends CrudController {
 		if ( is_null( $quiz_attempt ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -839,7 +839,7 @@ class QuizAttemptsController extends CrudController {
 		if ( $id <= 0 ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -849,7 +849,7 @@ class QuizAttemptsController extends CrudController {
 		if ( is_null( $quiz_attempt ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -977,6 +977,11 @@ class QuizAttemptsController extends CrudController {
 	protected function get_answers_explanation_data( $quiz_id, $context = 'view' ) {
 		if ( empty( $quiz_id ) ) {
 			return null;
+		}
+
+		// An empty map, not null: the account screen indexes into it by question id.
+		if ( ! masteriyo_is_answer_explanation_enabled() ) {
+			return array();
 		}
 
 		$quiz_questions = masteriyo_get_quiz_questions( $quiz_id );
@@ -1226,7 +1231,7 @@ class QuizAttemptsController extends CrudController {
 		if ( ! $attempt ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1236,7 +1241,7 @@ class QuizAttemptsController extends CrudController {
 		if ( ! $course ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1273,7 +1278,7 @@ class QuizAttemptsController extends CrudController {
 		if ( ! is_object( $quiz_attempt ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1600,7 +1605,7 @@ class QuizAttemptsController extends CrudController {
 		if ( ! $attempt ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->object_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}

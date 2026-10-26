@@ -240,7 +240,10 @@ const Recaptcha: React.FC<Props> = (props) => {
 					</FormControlTwoCol>
 					<FormControlTwoCol>
 						<FormLabel>
-							{__('State the Site & Secret keys', 'learning-management-system')}
+							{__(
+								'Enter the site and secret keys',
+								'learning-management-system',
+							)}
 							<ToolTip
 								label={__(
 									'You can obtain these keys for free by registering for your Google reCAPTCHA.',
@@ -471,7 +474,7 @@ const Recaptcha: React.FC<Props> = (props) => {
 							{__('Error Message', 'learning-management-system')}
 							<ToolTip
 								label={__(
-									'State the message to the users who do not complete the CAPTCHA',
+									'Enter the message shown to users who do not complete the CAPTCHA',
 									'learning-management-system',
 								)}
 							/>

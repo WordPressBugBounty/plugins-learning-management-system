@@ -43,6 +43,6 @@ class UpdateUserAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Update an existing user\'s profile. Requires id (user ID). Optionally accepts display_name, email, or profile fields. Returns the updated user object.', 'learning-management-system' );
+		return 'Update an existing user\'s profile. Requires id (user ID). Optionally accepts display_name, email, or profile fields. Returns the updated user object.';
 	}
 }

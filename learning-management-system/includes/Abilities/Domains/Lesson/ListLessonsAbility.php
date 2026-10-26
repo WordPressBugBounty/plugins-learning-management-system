@@ -58,6 +58,6 @@ class ListLessonsAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of lessons, optionally filtered by course or section.', 'learning-management-system' );
+		return 'Retrieve a paginated list of lessons, optionally filtered by course or section.';
 	}
 }

@@ -106,15 +106,15 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 		} else {
 
 			if ( ! $course_progress_item->get_started_at( 'edit' ) ) {
-				$course_progress_item->set_started_at( current_time( 'mysql', true ) );
+				$course_progress_item->set_started_at( time() );
 			}
 
 			if ( ! $course_progress_item->get_modified_at( 'edit' ) ) {
-				$course_progress_item->set_modified_at( current_time( 'mysql', true ) );
+				$course_progress_item->set_modified_at( time() );
 			}
 
 			if ( $course_progress_item->get_completed( 'edit' ) ) {
-				$course_progress_item->set_completed_at( current_time( 'mysql', true ) );
+				$course_progress_item->set_completed_at( time() );
 			}
 
 			$completed_at = $course_progress_item->get_completed_at( 'edit' );
@@ -456,14 +456,7 @@ class CourseProgressItemRepository extends AbstractRepository implements Reposit
 			return;
 		}
 
-		$total_summary = $course_progress->get_summary( 'total' );
-
-		$status = ( 0 === $total_summary['pending'] ) ? CourseProgressStatus::COMPLETED : CourseProgressStatus::PROGRESS;
-
-		if ( $status !== $course_progress->get_status( 'edit' ) ) {
-			$course_progress->set_status( $status );
-			$course_progress->save();
-		}
+		masteriyo_reconcile_course_progress_status( $course_progress );
 	}
 
 	/**

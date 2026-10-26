@@ -403,8 +403,8 @@ class RevenueSharingAddon {
 	 */
 	public function add_withdraw_submenu( $submenus ) {
 		$submenus['withdraws'] = array(
-			'page_title' => __( 'Withdraws', 'learning-management-system' ),
-			'menu_title' => '↳ ' . __( 'Withdraws', 'learning-management-system' ),
+			'page_title' => __( 'Withdrawals', 'learning-management-system' ),
+			'menu_title' => '↳ ' . __( 'Withdrawals', 'learning-management-system' ),
 			'capability' => 'manage_withdraws',
 			'position'   => 17,
 			'hide'       => true,

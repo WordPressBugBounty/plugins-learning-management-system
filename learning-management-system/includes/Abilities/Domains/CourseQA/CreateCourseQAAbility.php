@@ -60,6 +60,6 @@ class CreateCourseQAAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Post a new question or answer in a course Q&A thread. Requires course_id and content. Omit parent to create a top-level question; set parent to a question ID to post an answer. Returns the created entry with its ID and status.', 'learning-management-system' );
+		return 'Post a new question or answer in a course Q&A thread. Requires course_id and content. Omit parent to create a top-level question; set parent to a question ID to post an answer. Returns the created entry with its ID and status.';
 	}
 }

@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: SCORM Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Seamlessly integrates SCORM, optimizing e-learning by enabling efficient content management and tracking for enhanced user experiences.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

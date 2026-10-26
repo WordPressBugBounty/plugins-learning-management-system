@@ -59,6 +59,6 @@ class UpdateCourseQAAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing Q&A entry content.', 'learning-management-system' );
+		return 'Update an existing Q&A entry content.';
 	}
 }

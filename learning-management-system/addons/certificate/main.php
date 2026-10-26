@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Certificate Builder
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Provide certificates to encourage students in completing the course.
  * Author: Masteriyo
  * Version: 2.3.7

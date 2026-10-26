@@ -8,6 +8,7 @@
 namespace Masteriyo\Addons\DiviIntegration\Modules;
 
 use Masteriyo\Addons\DiviIntegration\DiviModule;
+use Masteriyo\Addons\DiviIntegration\Helper;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\PostType\PostType;
 use Masteriyo\Taxonomy\Taxonomy;
@@ -939,58 +940,10 @@ class CourseListModule extends DiviModule {
 		 *
 		 * @param array $args
 		 */
-		$args    = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
-		$query   = new \WP_Query( $args );
-		$courses = array_filter( array_map( 'masteriyo_get_course', $query->posts ) );
-		$columns = empty( $props['columns'] ) ? masteriyo_get_setting( 'course_archive.display.per_row' ) : absint( $props['columns'] );
+		$args  = apply_filters( 'masteriyo_course_list_module_prepare_query_args', $args );
+		$query = new \WP_Query( $args );
 
-		masteriyo_set_loop_prop( 'columns', $columns );
-
-		\ob_start();
-
-		if ( count( $courses ) > 0 ) {
-			$original_course = isset( $GLOBALS['course'] ) ? $GLOBALS['course'] : null;
-
-			/**
-			 * Fires before course loop in Course List Divi module.
-			 *
-			 * @since 1.6.13
-			 *
-			 * @param \Masteriyo\Models\Course[] $courses The courses objects.
-			 */
-			do_action( 'masteriyo_before_courses_loop', $courses );
-
-			masteriyo_course_loop_start();
-
-			foreach ( $courses as $course ) {
-				$GLOBALS['course'] = $course;
-				\masteriyo_get_template_part( 'content', 'course' );
-			}
-
-			$GLOBALS['course'] = $original_course;
-
-			masteriyo_course_loop_end();
-
-			/**
-			 * Fires after course loop in Course List Divi module.
-			 *
-			 * @since 1.6.13
-			 *
-			 * @param \Masteriyo\Models\Course[] $courses The courses objects.
-			 */
-			do_action( 'masteriyo_after_courses_loop', $courses );
-
-			masteriyo_reset_loop();
-		} else {
-			/**
-			 * Fires when there is no course to display.
-			 *
-			 * @since 1.6.13
-			 */
-			do_action( 'masteriyo_no_courses_found' );
-		}
-
-		return \ob_get_clean();
+		return Helper::render_courses_from_query( $query, $props );
 	}
 
 	/**

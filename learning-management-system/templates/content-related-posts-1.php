@@ -51,6 +51,8 @@ do_action( 'masteriyo_before_related_posts_content' );
 				continue;
 			}
 
+			$GLOBALS['course'] = $course; // Price filters read the global course, not the loop variable.
+
 			$author     = masteriyo_get_user( $course->get_author_id() );
 			$difficulty = $course->get_difficulty();
 			$categories = $course->get_categories( 'name' );
@@ -191,9 +193,10 @@ do_action( 'masteriyo_before_related_posts_content' );
 						?>
 						<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) : ?>
 							<div class="masteriyo-archive-card__content--amount">
-								<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+								<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course ); ?>
+								<?php if ( $regular_price_html ) : ?>
 									<div class="masteriyo-offer-price">
-										<?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?>
+										<?php echo wp_kses_post( $regular_price_html ); ?>
 									</div>
 								<?php endif; ?>
 
@@ -225,6 +228,8 @@ do_action( 'masteriyo_before_related_posts_content' );
 			</div>
 			<?php
 		} // endforeach
+
+		$GLOBALS['course'] = $parent_course;
 		?>
 	</div>
 </div>

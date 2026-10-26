@@ -86,7 +86,7 @@ class CartItemsController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -115,7 +115,7 @@ class CartItemsController extends CrudController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -136,32 +136,32 @@ class CartItemsController extends CrudController {
 		$params = parent::get_collection_params();
 
 		$params['slug']       = array(
-			'description'       => __( 'Limit result set to lessons with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']     = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to lessons assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['category']   = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific category ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific category ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['tag']        = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific tag ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific tag ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['difficulty'] = array(
-			'description'       => __( 'Limit result set to lessons assigned a specific difficulty ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to lessons assigned a specific difficulty ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -366,123 +366,123 @@ class CartItemsController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                  => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'                => array(
-					'description' => __( 'Lesson name', 'learning-management-system' ),
+					'description' => 'Lesson name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'                => array(
-					'description' => __( 'Lesson slug', 'learning-management-system' ),
+					'description' => 'Lesson slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'           => array(
-					'description' => __( 'Lesson URL', 'learning-management-system' ),
+					'description' => 'Lesson URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'        => array(
-					'description' => __( "The date the lesson was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the lesson was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'    => array(
-					'description' => __( 'The date the lesson was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the lesson was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'       => array(
-					'description' => __( "The date the lesson was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the lesson was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'   => array(
-					'description' => __( 'The date the lesson was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the lesson was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'              => array(
-					'description' => __( 'Lesson status (post status).', 'learning-management-system' ),
+					'description' => 'Lesson status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured'            => array(
-					'description' => __( 'Featured lesson', 'learning-management-system' ),
+					'description' => 'Featured lesson',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'catalog_visibility'  => array(
-					'description' => __( 'Catalog visibility', 'learning-management-system' ),
+					'description' => 'Catalog visibility',
 					'type'        => 'string',
 					'default'     => 'visible',
 					'enum'        => array( 'visible', 'catalog', 'search', 'hidden' ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'         => array(
-					'description' => __( 'Lesson description', 'learning-management-system' ),
+					'description' => 'Lesson description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description'   => array(
-					'description' => __( 'Lesson short description', 'learning-management-system' ),
+					'description' => 'Lesson short description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'reviews_allowed'     => array(
-					'description' => __( 'Allow reviews.', 'learning-management-system' ),
+					'description' => 'Allow reviews.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'average_rating'      => array(
-					'description' => __( 'Reviews average rating.', 'learning-management-system' ),
+					'description' => 'Reviews average rating.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'rating_count'        => array(
-					'description' => __( 'Amount of reviews that the lesson has.', 'learning-management-system' ),
+					'description' => 'Amount of reviews that the lesson has.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'parent_id'           => array(
-					'description' => __( 'Lesson parent ID', 'learning-management-system' ),
+					'description' => 'Lesson parent ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'categories'          => array(
-					'description' => __( 'List of categories.', 'learning-management-system' ),
+					'description' => 'List of categories.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Category ID', 'learning-management-system' ),
+								'description' => 'Category ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Category name', 'learning-management-system' ),
+								'description' => 'Category name',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Category slug', 'learning-management-system' ),
+								'description' => 'Category slug',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -491,25 +491,25 @@ class CartItemsController extends CrudController {
 					),
 				),
 				'tags'                => array(
-					'description' => __( 'List of tags', 'learning-management-system' ),
+					'description' => 'List of tags',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Tag ID', 'learning-management-system' ),
+								'description' => 'Tag ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Tag name', 'learning-management-system' ),
+								'description' => 'Tag name',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Tag slug', 'learning-management-system' ),
+								'description' => 'Tag slug',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -518,45 +518,45 @@ class CartItemsController extends CrudController {
 					),
 				),
 				'menu_order'          => array(
-					'description' => __( 'Menu order, used to custom sort lessons.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort lessons.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'video_source'        => array(
-					'description' => __( 'Video source', 'learning-management-system' ),
+					'description' => 'Video source',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'video_source_url'    => array(
-					'description' => __( 'Video source URL', 'learning-management-system' ),
+					'description' => 'Video source URL',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'video_playback_time' => array(
-					'description' => __( 'Video playback time', 'learning-management-system' ),
+					'description' => 'Video playback time',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'           => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),

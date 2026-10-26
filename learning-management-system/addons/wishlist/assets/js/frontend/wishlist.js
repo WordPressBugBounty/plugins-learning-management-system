@@ -72,8 +72,8 @@
 							wishListAddon.toggleWishListIcon(btnDOM, true);
 							var message = error;
 
-							if (xhr.responseJSON && xhr.responseJSON.message) {
-								message = xhr.responseJSON.message;
+							if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+								message = xhr.responseJSON.data.message;
 							}
 							if (!message) {
 								message = __(
@@ -105,8 +105,8 @@
 							wishListAddon.toggleWishListIcon(btnDOM, false);
 							var message = error;
 
-							if (xhr.responseJSON && xhr.responseJSON.message) {
-								message = xhr.responseJSON.message;
+							if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+								message = xhr.responseJSON.data.message;
 							}
 							if (!message) {
 								message = __(

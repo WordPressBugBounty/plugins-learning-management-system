@@ -27,6 +27,14 @@ class ResponseEnvelope {
 	public static function wrap( \WP_REST_Response $response, array $input = array() ): array {
 		$data    = $response->get_data();
 		$headers = $response->get_headers();
+		$meta    = array();
+
+		// Masteriyo's list controllers answer { data: [...], meta: {...} }; the items
+		// are under data and the page counts under meta (#1645).
+		if ( is_array( $data ) && isset( $data['data'] ) && is_array( $data['data'] ) ) {
+			$meta = isset( $data['meta'] ) && is_array( $data['meta'] ) ? $data['meta'] : array();
+			$data = $data['data'];
+		}
 
 		// WP REST list endpoints return numerically-indexed arrays. Guard against
 		// non-arrays and associative arrays, which JSON-encode as objects rather
@@ -37,10 +45,10 @@ class ResponseEnvelope {
 			$data = array_values( $data );
 		}
 
-		$total       = isset( $headers['X-WP-Total'] ) ? (int) $headers['X-WP-Total'] : count( $data );
-		$total_pages = isset( $headers['X-WP-TotalPages'] ) ? (int) $headers['X-WP-TotalPages'] : 1;
-		$page        = isset( $input['page'] ) ? (int) $input['page'] : 1;
-		$per_page    = isset( $input['per_page'] ) ? (int) $input['per_page'] : count( $data );
+		$total       = isset( $headers['X-WP-Total'] ) ? (int) $headers['X-WP-Total'] : (int) ( $meta['total'] ?? count( $data ) );
+		$total_pages = isset( $headers['X-WP-TotalPages'] ) ? (int) $headers['X-WP-TotalPages'] : (int) ( $meta['pages'] ?? 1 );
+		$page        = isset( $input['page'] ) ? (int) $input['page'] : (int) ( $meta['current_page'] ?? 1 );
+		$per_page    = isset( $input['per_page'] ) ? (int) $input['per_page'] : (int) ( $meta['per_page'] ?? count( $data ) );
 
 		return array(
 			'data'       => $data,

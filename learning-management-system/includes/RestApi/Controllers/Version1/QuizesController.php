@@ -115,7 +115,7 @@ class QuizesController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -144,12 +144,12 @@ class QuizesController extends PostsController {
 					'args'                => array(
 						'force'    => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => true,
-							'description' => __( 'Whether to delete the children(questions) under the quiz.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(questions) under the quiz.',
 							'type'        => 'boolean',
 						),
 					),
@@ -164,7 +164,7 @@ class QuizesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 						'required'    => true,
 					),
@@ -183,12 +183,12 @@ class QuizesController extends PostsController {
 			array(
 				'args' => array(
 					'id'   => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 						'required'    => true,
 					),
 					'data' => array(
-						'description' => __( 'Data for checking answers (chosen answers list).', 'learning-management-system' ),
+						'description' => 'Data for checking answers (chosen answers list).',
 						'type'        => 'object',
 						'required'    => true,
 					),
@@ -208,7 +208,7 @@ class QuizesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -227,7 +227,7 @@ class QuizesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -288,7 +288,11 @@ class QuizesController extends PostsController {
 			return $restriction;
 		}
 
-		if ( ! user_can( get_current_user_id(), 'edit_course', $course->get_id() ) && ( ! in_array( $course->get_status(), array( PostStatus::PUBLISH, PostStatus::PVT ), true ) || post_password_required( get_post( $course->get_id() ) ) ) ) {
+		if ( $this->current_user_co_instructs( $course->get_id() ) ) {
+			return true;
+		}
+
+		if ( ! $this->can_read_course_item( $course, $quiz ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -449,38 +453,38 @@ class QuizesController extends PostsController {
 		$params['orderby']['default'] = 'menu_order';
 
 		$params['slug']       = array(
-			'description'       => __( 'Limit result set to quizzes with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to quizzes with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']     = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to quizzes assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to quizzes assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['course_id']  = array(
-			'description'       => __( 'Limit results by course id.', 'learning-management-system' ),
+			'description'       => 'Limit results by course id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['category']   = array(
-			'description'       => __( 'Limit result set to quizzes assigned a specific category ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to quizzes assigned a specific category ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['tag']        = array(
-			'description'       => __( 'Limit result set to quizzes assigned a specific tag ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to quizzes assigned a specific tag ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['difficulty'] = array(
-			'description'       => __( 'Limit result set to quizzes assigned a specific difficulty ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to quizzes assigned a specific difficulty ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -685,6 +689,7 @@ class QuizesController extends PostsController {
 				'course_id'          => $quiz->get_course_id(),
 				'quiz_id'            => $quiz->get_id(),
 				'user_id'            => $user_id,
+				'total_questions'    => count( $quiz_questions ),
 				'total_attempts'     => ++$attempted_count,
 				'answer_explanation' => $answer_explanation,
 			)
@@ -916,7 +921,7 @@ class QuizesController extends PostsController {
 			if ( ! $question || 0 === $question->get_id() ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_invalid_id",
-					__( 'Invalid ID', 'learning-management-system' ),
+					__( 'Invalid ID.', 'learning-management-system' ),
 					array( 'status' => 404 )
 				);
 			}
@@ -1299,104 +1304,104 @@ class QuizesController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                              => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'                            => array(
-					'description' => __( 'Quiz name', 'learning-management-system' ),
+					'description' => 'Quiz name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'                            => array(
-					'description' => __( 'Quiz slug', 'learning-management-system' ),
+					'description' => 'Quiz slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent_id'                       => array(
-					'description' => __( 'Quiz parent ID', 'learning-management-system' ),
+					'description' => 'Quiz parent ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'                       => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_name'                     => array(
-					'description' => __( 'Course name', 'learning-management-system' ),
+					'description' => 'Course name',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'                      => array(
-					'description' => __( 'Menu order, used to custom sort quizzes.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort quizzes.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'                       => array(
-					'description' => __( 'Quiz URL', 'learning-management-system' ),
+					'description' => 'Quiz URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'                    => array(
-					'description' => __( "The date the quiz was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the quiz was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'                => array(
-					'description' => __( 'The date the quiz was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the quiz was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'                   => array(
-					'description' => __( "The date the quiz was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the quiz was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'               => array(
-					'description' => __( 'The date the quiz was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the quiz was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'                          => array(
-					'description' => __( 'Quiz status (post status).', 'learning-management-system' ),
+					'description' => 'Quiz status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'                     => array(
-					'description' => __( 'Quiz description', 'learning-management-system' ),
+					'description' => 'Quiz description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description'               => array(
-					'description' => __( 'Quiz short description', 'learning-management-system' ),
+					'description' => 'Quiz short description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'pass_mark'                       => array(
-					'description' => __( 'Quiz pass points', 'learning-management-system' ),
+					'description' => 'Quiz pass points',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'full_mark'                       => array(
-					'description' => __( 'Quiz total points', 'learning-management-system' ),
+					'description' => 'Quiz total points',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'pass_mark_type'                  => array(
-					'description' => __( 'Quiz pass points type', 'learning-management-system' ),
+					'description' => 'Quiz pass points type',
 					'type'        => 'string',
 					'required'    => false,
 					'default'     => QuizPassMarkType::POINT,
@@ -1404,31 +1409,31 @@ class QuizesController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'duration'                        => array(
-					'description' => __( 'Quiz duration (seconds)', 'learning-management-system' ),
+					'description' => 'Quiz duration (seconds)',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'attempts_allowed'                => array(
-					'description' => __( 'Quiz attempts allowed.', 'learning-management-system' ),
+					'description' => 'Quiz attempts allowed.',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'reveal_mode'                     => array(
-					'description' => __( 'Reveal mode.', 'learning-management-system' ),
+					'description' => 'Reveal mode.',
 					'type'        => 'boolean',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'require_all_questions_attempted' => array(
-					'description' => __( 'Require all questions to be attempted before submission.', 'learning-management-system' ),
+					'description' => 'Require all questions to be attempted before submission.',
 					'type'        => 'boolean',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'question_ids'                    => array(
-					'description' => __( 'Ordered list of question IDs.', 'learning-management-system' ),
+					'description' => 'Ordered list of question IDs.',
 					'type'        => 'array',
 					'items'       => array( 'type' => 'integer' ),
 					'required'    => false,
@@ -1436,31 +1441,31 @@ class QuizesController extends PostsController {
 					'context'     => array( 'view' ),
 				),
 				'questions_display_per_page'      => array(
-					'description' => __( 'Quiz questions per page.', 'learning-management-system' ),
+					'description' => 'Quiz questions per page.',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'                       => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1663,7 +1668,7 @@ class QuizesController extends PostsController {
 		if ( is_null( $post ) || PostType::COURSE !== $post->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -1686,7 +1691,7 @@ class QuizesController extends PostsController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$data = array(

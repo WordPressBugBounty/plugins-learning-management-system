@@ -2539,7 +2539,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_summary' ) 
 		$posts = get_posts(
 			array(
 				'post_type'      => CourseChildrenPostType::all(),
-				'post_status'    => masteriyo_get_course_content_post_statuses(),
+				'post_status'    => masteriyo_get_course_content_post_statuses( $course ),
 				'meta_key'       => '_course_id',
 				'meta_value'     => $course->get_id(),
 				'posts_per_page' => -1,
@@ -2685,7 +2685,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_sum
 		$posts = get_posts(
 			array(
 				'post_type'      => SectionChildrenPostType::all(),
-				'post_status'    => masteriyo_get_course_content_post_statuses(),
+				'post_status'    => masteriyo_get_course_content_post_statuses( $course ),
 				'post_parent'    => $section->get_id(),
 				'posts_per_page' => -1,
 			)
@@ -2869,6 +2869,23 @@ if ( ! function_exists( 'get_lesson_status_class_and_icon' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_course_content_draft_badge' ) ) {
+	/**
+	 * Draft badge for a curriculum row, the course page's counterpart of the learn page's.
+	 *
+	 * @param \Masteriyo\Database\Model $item Course content model.
+	 *
+	 * @return string Empty for anything that is not a draft.
+	 */
+	function masteriyo_course_content_draft_badge( $item ): string {
+		if ( ! masteriyo_is_draft_course_content( $item ) ) {
+			return '';
+		}
+
+		return '<span class="masteriyo-badge masteriyo-badge-draft">' . esc_html__( 'Draft', 'learning-management-system' ) . '</span>';
+	}
+}
+
 if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_content' ) ) {
 	/**
 	 * Render section content (lessons/quizzes) with progress indicators.
@@ -2884,29 +2901,13 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_con
 
 		$course_id           = $course->get_id();
 		$lesson_progress_map = get_course_lesson_progress_map( $course_id );
-		$items               = get_course_section_children_by_section( $section->get_id() );
+		$items               = get_course_section_children_by_section( $section->get_id(), $course );
 
 		foreach ( $items as $item ) {
-			$item_id     = $item->get_id();
-			$post_status = method_exists( $item, 'get_status' ) ? $item->get_status() : '';
-			if ( 'draft' === $post_status ) {
-				continue;
-			}
+			$item_id                            = $item->get_id();
 			$status                             = $lesson_progress_map[ $item_id ] ?? 'not_started';
 			list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $status );
-			$learn_page_url                     = masteriyo_get_page_permalink( 'learn' );
-			$permalink                          = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
-
-			if ( '' === get_option( 'permalink_structure' ) ) {
-				$permalink = add_query_arg(
-					array(
-						'course_name' => $course->get_id(),
-					),
-					$learn_page_url
-				);
-			}
-
-			$permalink .= '#/course/' . $course->get_id() . '/' . $item->get_object_type() . '/' . $item_id;
+			$permalink = masteriyo_get_course_content_learn_url( $course, $item );
 
 			?>
 			<li class="masteriyo-lesson-item masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?> masteriyo-list__item--accordion">
@@ -2914,6 +2915,7 @@ if ( ! function_exists( 'masteriyo_template_single_course_curriculum_section_con
 				<a href="<?php echo esc_url( $permalink ); ?>">
 					<?php echo esc_html( $item->get_name() ); ?>
 				</a>
+				<?php echo wp_kses_post( masteriyo_course_content_draft_badge( $item ) ); ?>
 				<span class="masteriyo-lesson-<?php echo esc_attr( $status_class ); ?> masteriyo-list__item--content--accordion">
 					<?php echo $status_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>

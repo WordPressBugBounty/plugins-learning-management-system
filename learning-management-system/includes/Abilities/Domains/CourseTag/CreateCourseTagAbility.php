@@ -59,6 +59,6 @@ class CreateCourseTagAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new course tag. Tags are flat (no hierarchy). Requires name. Optionally accepts slug and description. Returns the created tag object with its ID.', 'learning-management-system' );
+		return 'Create a new course tag. Tags are flat (no hierarchy). Requires name. Optionally accepts slug and description. Returns the created tag object with its ID.';
 	}
 }

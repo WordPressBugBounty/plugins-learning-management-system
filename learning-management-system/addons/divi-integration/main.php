@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Divi Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Equip your Divi editor with Masteriyo modules. Add components like course lists and categories to any page/post.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

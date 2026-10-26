@@ -10,6 +10,7 @@
 namespace Masteriyo\Addons\WcIntegration;
 
 use Masteriyo\Addons\WcIntegration\Emails\WcEnrollmentEmailToStudent;
+use Masteriyo\Addons\WcIntegration\Enums\AutoRedirectType;
 use Masteriyo\Addons\WcIntegration\Enums\WcCourseProductType;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Query\UserCourseQuery;
@@ -25,6 +26,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class Masteriyo\Addons\WcIntegration
  * @since 2.3.8 Renamed to WcIntegrationAddon
+ *
+ * @phpstan-import-type AutoRedirect from Setting
  */
 
 class WcIntegrationAddon {
@@ -788,9 +791,6 @@ class WcIntegrationAddon {
 					} elseif ( in_array( $to, $this->setting->get( 'unenrollment_status' ), true ) ) {
 						$user_courses->set_status( UserCourseStatus::INACTIVE );
 						delete_user_meta( $user_courses->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_courses->get_course_id() );
-					} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
-						$user_courses->set_status( UserCourseStatus::INACTIVE );
-						delete_user_meta( $user_courses->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_courses->get_course_id() );
 					}
 
 					$user_courses->save();
@@ -822,7 +822,7 @@ class WcIntegrationAddon {
 
 				if ( OrderStatus::COMPLETED === $to ) {
 					$user_course->set_status( UserCourseStatus::ACTIVE );
-				} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
+				} elseif ( in_array( $to, $this->setting->get( 'unenrollment_status' ), true ) ) {
 					$user_course->set_status( UserCourseStatus::INACTIVE );
 					delete_user_meta( $user_course->get_user_id(), 'masteriyo_wc_enrollment_email_sent_' . $user_course->get_course_id() );
 				}
@@ -875,7 +875,7 @@ class WcIntegrationAddon {
 			$wc_signup_disabled      = $masteriyo_guest_enabled && ! $wc_any_account_creation;
 
 			if ( $wc_guest_disabled || $wc_signup_disabled ) {
-				return masteriyo_get_account_url() . '#/sign-in';
+				return Helper::get_sign_in_url( $product_id );
 			}
 		}
 
@@ -1335,19 +1335,10 @@ class WcIntegrationAddon {
 						$user_course->set_date_start( null );
 						$user_course->set_date_modified( null );
 						$user_course->set_date_end( null );
-					} elseif ( in_array( $wc_order->get_status(), array_merge( $this->setting->get( 'unenrollment_status' ), array( OrderStatus::PROCESSING, 'checkout-draft' ) ), true ) ) {
-						$user_course->set_status( UserCourseStatus::INACTIVE );
-						$user_course->set_date_start( null );
-						$user_course->set_date_modified( null );
-						$user_course->set_date_end( null );
 					}
 
 					$user_course->save();
-
-					if ( $user_course->get_id() ) {
-						$user_course->update_meta_data( '_wc_order_id', $wc_order_id );
-						$user_course->save_meta_data();
-					}
+					$this->maybe_link_order( $user_course, $wc_order );
 
 					if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
 						$this->send_wc_enrollment_email( $user_course, $wc_order );
@@ -1396,17 +1387,33 @@ class WcIntegrationAddon {
 				}
 
 				$user_course->save();
-
-				if ( $user_course->get_id() ) {
-					$user_course->update_meta_data( '_wc_order_id', $wc_order_id );
-					$user_course->save_meta_data();
-				}
+				$this->maybe_link_order( $user_course, $wc_order );
 
 				if ( OrderStatus::COMPLETED === $wc_order->get_status() ) {
 					$this->send_wc_enrollment_email( $user_course, $wc_order );
 				}
 			}
 		}
+	}
+
+	/**
+	 * Link the enrollment to the order, unless an active enrollment would lose
+	 * the completed order that granted it.
+	 *
+	 * @param \Masteriyo\Models\UserCourse $user_course User course.
+	 * @param \WC_Order                    $wc_order    WooCommerce order.
+	 */
+	private function maybe_link_order( $user_course, $wc_order ): void {
+		if ( ! $user_course->get_id() ) {
+			return;
+		}
+
+		if ( OrderStatus::COMPLETED !== $wc_order->get_status() && UserCourseStatus::ACTIVE === $user_course->get_status() ) {
+			return;
+		}
+
+		$user_course->update_meta_data( '_wc_order_id', $wc_order->get_id() );
+		$user_course->save_meta_data();
 	}
 
 	/**
@@ -1425,7 +1432,7 @@ class WcIntegrationAddon {
 			&& $user_course->get_date_start( 'edit' );
 
 		if ( ! $access_started ) {
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			$user_course->set_date_start( time() );
 		}
 	}
 
@@ -1547,13 +1554,13 @@ class WcIntegrationAddon {
 					'args'                => array(
 						'course_id'      => array(
 							'default'     => 0,
-							'description' => __( 'Course ID for WC product will be created.', 'learning-management-system' ),
+							'description' => 'Course ID for WC product will be created.',
 							'required'    => true,
 							'type'        => 'integer',
 						),
 						'product_create' => array(
 							'default'     => true,
-							'description' => __( 'Weather product will be created or not.', 'learning-management-system' ),
+							'description' => 'Whether a product will be created.',
 							'required'    => true,
 							'type'        => 'boolean',
 						),
@@ -1572,12 +1579,12 @@ class WcIntegrationAddon {
 					'permission_callback' => array( $controller, 'update_item_permissions_check' ),
 					'args'                => array(
 						'id'         => array(
-							'description' => __( 'Course ID.', 'learning-management-system' ),
+							'description' => 'Course ID.',
 							'required'    => true,
 							'type'        => 'integer',
 						),
 						'product_id' => array(
-							'description' => __( 'WooCommerce product ID to link.', 'learning-management-system' ),
+							'description' => 'WooCommerce product ID to link.',
 							'required'    => true,
 							'type'        => 'integer',
 						),
@@ -1589,7 +1596,7 @@ class WcIntegrationAddon {
 					'permission_callback' => array( $controller, 'update_item_permissions_check' ),
 					'args'                => array(
 						'id' => array(
-							'description' => __( 'Course ID.', 'learning-management-system' ),
+							'description' => 'Course ID.',
 							'required'    => true,
 							'type'        => 'integer',
 						),
@@ -1903,6 +1910,7 @@ class WcIntegrationAddon {
 	 * Tell WooCommerce that Masteriyo course products don't need manual processing.
 	 * When all items in an order return false, WooCommerce natively auto-completes
 	 * the order via maybe_complete_order() — no direct status manipulation needed.
+	 * Only while Auto Redirect has somewhere to go, since it waits for a completed order.
 	 *
 	 * @param bool        $needs_processing Whether the item needs processing.
 	 * @param \WC_Product $product          Product object.
@@ -1910,7 +1918,7 @@ class WcIntegrationAddon {
 	 * @return bool
 	 */
 	public function course_order_item_needs_processing( $needs_processing, $product, $order_id ) {
-		if ( ! $this->setting->get( 'auto_redirect.enable', false ) ) {
+		if ( null === $this->get_auto_redirect_url() ) {
 			return $needs_processing;
 		}
 
@@ -1918,20 +1926,28 @@ class WcIntegrationAddon {
 			return false;
 		}
 
+		// A product another LMS created keeps its own type after a migration; the course link is the meta.
+		// A shippable one still waits for processing.
+		if ( $product->get_meta( '_masteriyo_course_id' ) && $product->is_virtual() ) {
+			return false;
+		}
+
 		return $needs_processing;
 	}
 
 	/**
-	 * Redirect the student to their enrolled courses page after WooCommerce checkout.
+	 * Redirect the student after WooCommerce checkout, to the destination
+	 * get_auto_redirect_url() resolves.
 	 *
-	 * Fires on woocommerce_thankyou (inside the order-received template). WordPress
-	 * output buffering keeps headers available here, so wp_safe_redirect() works.
+	 * The redirect runs in the browser once the order-received page has loaded, so
+	 * later woocommerce_thankyou callbacks, such as purchase tracking, still run.
 	 * Only redirects when order is completed (enrollment is active).
 	 *
 	 * @param int $order_id WooCommerce order ID.
 	 */
 	public function maybe_redirect_to_enrolled_course( $order_id ) {
-		if ( ! $this->setting->get( 'auto_redirect.enable', false ) || ! is_user_logged_in() ) {
+		$url = $this->get_auto_redirect_url();
+		if ( null === $url || ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -1945,8 +1961,41 @@ class WcIntegrationAddon {
 			return;
 		}
 
-		wp_safe_redirect( masteriyo_get_account_url() . '#/courses' );
-		exit;
+		add_action(
+			'wp_footer',
+			function () use ( $url ) {
+				wp_print_inline_script_tag(
+					sprintf( 'window.addEventListener("load",function(){window.location.replace(%s);});', wp_json_encode( $url ) )
+				);
+			}
+		);
+	}
+
+	/**
+	 * Where Auto Redirect sends the student, or null when the chosen page or URL
+	 * does not resolve, so no redirect happens rather than one they did not pick.
+	 *
+	 * No order key is appended, unlike the native checkout: a custom URL may be on
+	 * another site, and WooCommerce's key would leak to it.
+	 *
+	 * @return string|null
+	 */
+	private function get_auto_redirect_url(): ?string {
+		/** @var AutoRedirect $redirect */
+		$redirect = $this->setting->get( 'auto_redirect' );
+
+		switch ( $redirect['display_type'] ) {
+			case AutoRedirectType::COURSES:
+				return masteriyo_get_account_url() . '#/courses';
+			case AutoRedirectType::WP_PAGE:
+				$permalink = $redirect['page_id'] ? get_permalink( $redirect['page_id'] ) : false;
+
+				return $permalink ? $permalink : null;
+			case AutoRedirectType::URL:
+				return '' !== $redirect['custom_url'] ? $redirect['custom_url'] : null;
+			default:
+				return null;
+		}
 	}
 
 	/**

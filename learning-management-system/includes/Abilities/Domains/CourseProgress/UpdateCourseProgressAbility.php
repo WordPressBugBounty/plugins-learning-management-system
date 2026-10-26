@@ -43,6 +43,6 @@ class UpdateCourseProgressAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Update a student\'s course progress record. Requires id (progress ID). Accepts status (started, progress, completed). Returns the updated progress object.', 'learning-management-system' );
+		return 'Update a student\'s course progress record. Requires id (progress ID). Accepts status (started, progress, completed). Returns the updated progress object.';
 	}
 }

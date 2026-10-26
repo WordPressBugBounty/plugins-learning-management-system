@@ -229,7 +229,7 @@ class InstructorsListShortcode extends Shortcode {
 						'username'          => $masteriyo_user->get_username(),
 						'email'             => $masteriyo_user->get_email(),
 						'url'               => $masteriyo_user->get_url(),
-						'date_created'      => gmdate( 'F j, Y', strtotime( $masteriyo_user->get_date_created() ) ),
+						'date_created'      => wp_date( masteriyo_date_format(), strtotime( $masteriyo_user->get_date_created() ) ),
 						'description'       => $masteriyo_user->get_description(),
 						'profile_image_url' => $masteriyo_user->profile_image_url(),
 						'courses_count'     => masteriyo_count_user_courses( $masteriyo_user ),

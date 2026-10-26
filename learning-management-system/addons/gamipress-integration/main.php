@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: GamiPress Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Gamify the learning experience of students like never before. Unlock achievements, earn rewards, and make education a captivating journey.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

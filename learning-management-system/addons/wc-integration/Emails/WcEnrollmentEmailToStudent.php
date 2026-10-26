@@ -170,7 +170,7 @@ class WcEnrollmentEmailToStudent extends Email {
 			$placeholders['{total_price}'] = masteriyo_price( $wc_order->get_total() );
 			$placeholders['{order_id}']    = $wc_order->get_order_number();
 			$placeholders['{order_date}']  = $wc_order->get_date_created()
-				? gmdate( 'd M Y', $wc_order->get_date_created()->getTimestamp() )
+				? $wc_order->get_date_created()->date_i18n( masteriyo_date_format() )
 				: '';
 			$placeholders['{order_table}'] = '';
 		}

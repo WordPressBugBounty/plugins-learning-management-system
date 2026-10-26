@@ -60,6 +60,6 @@ class CloneQuizAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Duplicate a quiz including its questions into the same section.', 'learning-management-system' );
+		return 'Duplicate a quiz including its questions into the same section.';
 	}
 }

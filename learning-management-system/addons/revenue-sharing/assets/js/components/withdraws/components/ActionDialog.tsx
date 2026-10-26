@@ -83,7 +83,7 @@ const ActionDialog: React.FC<Props> = (props) => {
 				reset();
 				toast({
 					title: __(
-						'Withdraw approved successfully',
+						'Withdrawal approved successfully',
 						'learning-management-system',
 					),
 					isClosable: true,
@@ -121,7 +121,7 @@ const ActionDialog: React.FC<Props> = (props) => {
 				reset();
 				toast({
 					title: __(
-						'Withdraw rejected successfully',
+						'Withdrawal rejected successfully',
 						'learning-management-system',
 					),
 					isClosable: true,
@@ -154,8 +154,8 @@ const ActionDialog: React.FC<Props> = (props) => {
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						{'reject' === action
-							? __('Reject Withdraw', 'learning-management-system')
-							: __('Approve Withdraw', 'learning-management-system')}
+							? __('Reject Withdrawal', 'learning-management-system')
+							: __('Approve Withdrawal', 'learning-management-system')}
 					</AlertDialogHeader>
 					<AlertDialogBody>
 						{'reject' === action ? (
@@ -164,7 +164,7 @@ const ActionDialog: React.FC<Props> = (props) => {
 									{sprintf(
 										/* translators: %1$s: withdraw amount, %2$s: user display name */
 										_x(
-											'Are you sure you want to reject %1$s withdraw request from %2$s?',
+											'Are you sure you want to reject the %1$s withdrawal request from %2$s?',
 											'withdrawal rejection confirmation message',
 											'learning-management-system',
 										),
@@ -220,7 +220,7 @@ const ActionDialog: React.FC<Props> = (props) => {
 							sprintf(
 								/* translators: %1$s: withdraw amount, %2$s: user display name */
 								_x(
-									'Are you sure you want to approve %1$s withdraw request from %2$s?',
+									'Are you sure you want to approve the %1$s withdrawal request from %2$s?',
 									'withdrawal approval confirmation message',
 									'learning-management-system',
 								),

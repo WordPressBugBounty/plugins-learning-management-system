@@ -427,7 +427,16 @@
 					}
 
 					var pct = total > 0 ? (completed / total) * 100 : 0;
-					var titleStr = String(title || '').toUpperCase();
+					var progressLabels = mto_data.course_progress_labels || {};
+					var titleStr = String(progressLabels[title] || title || '');
+					var labels = mto_data.labels || {};
+					var completedText = (
+						labels.progress_completed || '%s Completed'
+					).replace('%s', completed);
+					var leftText = (labels.progress_left || '%s Left').replace(
+						'%s',
+						pending,
+					);
 
 					return (
 						'<div class="row">' +
@@ -438,11 +447,11 @@
 						'</div>' +
 						'<div class="progress-details">' +
 						'<div class="progress-completed">' +
-						completed +
-						' Completed</div>' +
+						completedText +
+						'</div>' +
 						'<div class="progress-left">' +
-						pending +
-						' Left</div>' +
+						leftText +
+						'</div>' +
 						'</div>' +
 						'</div>' +
 						'</div>'

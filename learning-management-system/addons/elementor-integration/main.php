@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Elementor Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Equip your Elementor editor with Masteriyo widgets. Add components like course lists and categories to any page/post.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

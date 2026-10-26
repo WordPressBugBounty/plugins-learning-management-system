@@ -121,7 +121,7 @@ class PasswordResetFormHandler {
 			throw new \Exception( esc_html__( 'Confirm password is required...', 'learning-management-system' ) );
 		}
 		if ( $data['password'] !== $data['confirm-password'] ) {
-			throw new \Exception( esc_html__( 'The passwords doesn\'t match', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'The passwords do not match.', 'learning-management-system' ) );
 		}
 
 		/**

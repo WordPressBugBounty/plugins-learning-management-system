@@ -102,7 +102,7 @@ class OnboardingController extends RestController {
 			array(
 				'args' => array(
 					'step' => array(
-						'description'       => __( 'Unique identifier for the onboarding step.', 'learning-management-system' ),
+						'description'       => 'Unique identifier for the onboarding step.',
 						'type'              => 'string',
 						'validate_callback' => array( $this, 'validate_step_parameter' ),
 						'sanitize_callback' => 'sanitize_key',

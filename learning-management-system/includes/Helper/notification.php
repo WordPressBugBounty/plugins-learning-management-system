@@ -146,10 +146,7 @@ if ( ! function_exists( 'masteriyo_set_notification' ) ) {
 			$notification_obj->set_created_by( $course->get_author_id() );
 			$notification_obj->set_title( $course->get_title() );
 
-			$today        = new DateTime( 'now' );
-			$today_string = $today->format( 'Y-m-d H:i:s' );
-
-			$notification_obj->set_created_at( $today_string );
+			$notification_obj->set_created_at( time() );
 			$notification_obj->set_type( $result['type'] );
 			$notification_obj->set_status( 'unread' );
 			$notification_obj->set_description( $result['content'] );

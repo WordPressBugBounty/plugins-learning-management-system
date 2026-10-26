@@ -60,6 +60,8 @@ interface LastCompleted {
 	lms_slug: string;
 	lms_label: string;
 	completed_at: number | null;
+	/** Whether the source plugin still runs, so the user can be offered to switch it off. */
+	source_active: boolean;
 }
 
 interface ActiveSessionResponse {
@@ -79,6 +81,47 @@ const NOTICE_DISMISSED_KEY = 'masteriyo_migration_notice_dismissed';
 
 // Untranslated on purpose so the confirmation gate matches regardless of site locale.
 const CONFIRM_KEYWORD = 'confirm';
+
+/**
+ * What to do once the copy is done. The copy left the source plugin's data in
+ * place, so the only step left is the user's: check, then switch the old plugin off.
+ */
+const AfterCopyGuidance: React.FC<{
+	lmsLabel: string;
+	onDeactivate: () => void;
+	isDeactivating: boolean;
+}> = ({ lmsLabel, onDeactivate, isDeactivating }) => (
+	<Stack spacing="3" mt="3">
+		<Text fontSize="sm" color="gray.700" lineHeight="1.5">
+			{sprintf(
+				// translators: 1: the source LMS name, 2: the product's name.
+				__(
+					'%1$s keeps its courses, students and progress. The only writes to it were a link to the copied course on WooCommerce products, EDD downloads and order items, and the matching Masteriyo role, description and website on each copied user. Check the copied courses in %2$s, then deactivate %1$s. Its data can be removed later through its own uninstall.',
+					'learning-management-system',
+				),
+				lmsLabel,
+				getPluginName(),
+			)}
+		</Text>
+		<Box>
+			<Button
+				size="sm"
+				variant="outline"
+				colorScheme="primary"
+				boxShadow="none"
+				onClick={onDeactivate}
+				isLoading={isDeactivating}
+				loadingText={__('Deactivating…', 'learning-management-system')}
+			>
+				{sprintf(
+					// translators: %s: the source LMS name.
+					__('Deactivate %s', 'learning-management-system'),
+					lmsLabel,
+				)}
+			</Button>
+		</Box>
+	</Stack>
+);
 
 /** Inline "Logs" link used inside migration result notices. */
 const LogsLink: React.FC<{ onClick: () => void }> = ({ onClick }) => (
@@ -366,6 +409,46 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 		},
 	});
 
+	const deactivateMutation = useMutation({
+		mutationFn: (lmsName: string) =>
+			apiFetch<{ lms_slug: string; active: boolean }>({
+				path: urls.migrationDeactivateSource,
+				method: 'POST',
+				data: { lms_name: lmsName },
+			}),
+		onSuccess: (data) => {
+			toast({
+				title: data.active
+					? __('The plugin is still active.', 'learning-management-system')
+					: __('The plugin was deactivated.', 'learning-management-system'),
+				status: data.active ? 'warning' : 'success',
+				isClosable: true,
+			});
+			queryClient.invalidateQueries({ queryKey: ['migrationLMSsList'] });
+			queryClient.invalidateQueries({ queryKey: ['migrationActiveSession'] });
+			setLastCompleted((last) =>
+				last && last.lms_slug === data.lms_slug
+					? { ...last, source_active: data.active }
+					: last,
+			);
+			// The completion notice reads the selected LMS, not the list.
+			setSelectedLMS((lms) =>
+				lms && lms.name === data.lms_slug
+					? { ...lms, active: data.active }
+					: lms,
+			);
+		},
+		onError: (err: { message?: string }) => {
+			toast({
+				title:
+					err?.message ??
+					__('Failed to deactivate the plugin.', 'learning-management-system'),
+				status: 'error',
+				isClosable: true,
+			});
+		},
+	});
+
 	const dismissCompletedNotice = useCallback(() => {
 		localStorage.setItem(NOTICE_DISMISSED_KEY, '1');
 		setNoticeDismissed(true);
@@ -394,7 +477,7 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 				</Text>
 				<Text fontSize="sm" color="gray.500" mt="1">
 					{__(
-						'Select the LMS plugin you want to migrate data from. Only installed and active plugins are available.',
+						'Select the LMS plugin you want to copy data from. Only installed and active plugins are available. The source plugin keeps running and its content is copied, not moved. Running the migration again later picks up new courses, students, enrollments, progress and orders, but not lessons, quizzes or Q&A replies added to a course that was already copied.',
 						'learning-management-system',
 					)}
 				</Text>
@@ -416,8 +499,8 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 								{selectedLMS?.label ?? resumableSession.lms_slug}
 							</Text>{' '}
 							{__('is in progress', 'learning-management-system')} (
-							{resumableSession.overall_pct}%
-							{__(' complete', 'learning-management-system')}).
+							{resumableSession.overall_pct}%{' '}
+							{__('complete', 'learning-management-system')}).
 						</Text>
 						<Button
 							size="sm"
@@ -445,35 +528,46 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 				!lastNoticeDismissed && (
 					<CustomAlert status="info" mb={0}>
 						<HStack justify="space-between" align="flex-start" w="full" gap="2">
-							<Text fontSize="sm" color="gray.700" lineHeight="1.5">
-								{__('Data from', 'learning-management-system')}{' '}
-								<Text as="strong">
-									{lastCompleted.lms_label || lastCompleted.lms_slug}
-								</Text>{' '}
-								{sprintf(
-									// translators: %s: the product's name.
-									__(
-										'was successfully migrated into %s',
-										'learning-management-system',
-									),
-									getPluginName(),
-								)}
-								{lastCompleted.completed_at
-									? ` ${__('on', 'learning-management-system')} ${new Date(lastCompleted.completed_at * 1000).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-									: ''}
-								{'.'}
-								{hasLogsLink && (
-									<>
-										{' '}
-										{__('Open the', 'learning-management-system')}{' '}
-										<LogsLink onClick={handleLogsClick} />{' '}
-										{__(
-											'tab to review the full report.',
+							<Box>
+								<Text fontSize="sm" color="gray.700" lineHeight="1.5">
+									{__('Data from', 'learning-management-system')}{' '}
+									<Text as="strong">
+										{lastCompleted.lms_label || lastCompleted.lms_slug}
+									</Text>{' '}
+									{sprintf(
+										// translators: %s: the product's name.
+										__(
+											'was successfully copied into %s',
 											'learning-management-system',
-										)}
-									</>
+										),
+										getPluginName(),
+									)}
+									{lastCompleted.completed_at
+										? ` ${__('on', 'learning-management-system')} ${new Date(lastCompleted.completed_at * 1000).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+										: ''}
+									{'.'}
+									{hasLogsLink && (
+										<>
+											{' '}
+											{__('Open the', 'learning-management-system')}{' '}
+											<LogsLink onClick={handleLogsClick} />{' '}
+											{__(
+												'tab to review the full report.',
+												'learning-management-system',
+											)}
+										</>
+									)}
+								</Text>
+								{lastCompleted.source_active && (
+									<AfterCopyGuidance
+										lmsLabel={lastCompleted.lms_label || lastCompleted.lms_slug}
+										onDeactivate={() =>
+											deactivateMutation.mutate(lastCompleted.lms_slug)
+										}
+										isDeactivating={deactivateMutation.isPending}
+									/>
 								)}
-							</Text>
+							</Box>
 							<CloseButton
 								size="sm"
 								onClick={() => setLastNoticeDismissed(true)}
@@ -581,45 +675,58 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 					mb={0}
 				>
 					<HStack justify="space-between" align="flex-start" w="full" gap="2">
-						<Text fontSize="sm" color="gray.700" lineHeight="1.5">
-							{migratedTotal === 0 ? (
-								<>
-									{__(
-										'No data was found to migrate from',
-										'learning-management-system',
-									)}{' '}
-									<Text as="strong">{selectedLMS?.label}</Text>
-									{__(
-										'. The source LMS may be empty.',
-										'learning-management-system',
-									)}
-								</>
-							) : (
-								<>
-									{__('All data from', 'learning-management-system')}{' '}
-									<Text as="strong">{selectedLMS?.label}</Text>{' '}
-									{sprintf(
-										// translators: %s: the product's name.
-										__(
-											'has been successfully migrated into %s.',
+						<Box>
+							<Text fontSize="sm" color="gray.700" lineHeight="1.5">
+								{migratedTotal === 0 ? (
+									<>
+										{__(
+											'Nothing new to copy from',
 											'learning-management-system',
-										),
-										getPluginName(),
-									)}
-									{hasLogsLink && (
-										<>
-											{' '}
-											{__('Open the', 'learning-management-system')}{' '}
-											<LogsLink onClick={handleLogsClick} />{' '}
-											{__(
-												'tab to review the full report, including any skipped or failed items.',
+										)}{' '}
+										<Text as="strong">{selectedLMS?.label}</Text>
+										{__(
+											'. Everything in it is already in',
+											'learning-management-system',
+										)}{' '}
+										{getPluginName()}
+										{__(', or it is empty.', 'learning-management-system')}
+									</>
+								) : (
+									<>
+										{__('All data from', 'learning-management-system')}{' '}
+										<Text as="strong">{selectedLMS?.label}</Text>{' '}
+										{sprintf(
+											// translators: %s: the product's name.
+											__(
+												'has been copied into %s.',
 												'learning-management-system',
-											)}
-										</>
-									)}
-								</>
+											),
+											getPluginName(),
+										)}
+										{hasLogsLink && (
+											<>
+												{' '}
+												{__('Open the', 'learning-management-system')}{' '}
+												<LogsLink onClick={handleLogsClick} />{' '}
+												{__(
+													'tab to review the full report, including any skipped or failed items.',
+													'learning-management-system',
+												)}
+											</>
+										)}
+									</>
+								)}
+							</Text>
+							{selectedLMS && selectedLMS.active !== false && (
+								<AfterCopyGuidance
+									lmsLabel={selectedLMS.label}
+									onDeactivate={() =>
+										deactivateMutation.mutate(selectedLMS.name)
+									}
+									isDeactivating={deactivateMutation.isPending}
+								/>
 							)}
-						</Text>
+						</Box>
 						<CloseButton
 							size="sm"
 							onClick={dismissCompletedNotice}
@@ -677,28 +784,27 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 					</ModalHeader>
 					<ModalBody px="6" pb="2">
 						<Stack spacing="5">
-							<CustomAlert status="warning" isAlertIconTop mb={0}>
+							<CustomAlert status="info" isAlertIconTop mb={0}>
 								<Text fontSize="sm" color="gray.700" lineHeight="1.6">
-									<Text as="strong">
-										{__('Important:', 'learning-management-system')}
-									</Text>{' '}
 									{__(
-										'This will permanently migrate all courses, enrollments, and user progress from',
+										'This copies all courses, enrollments and user progress from',
 										'learning-management-system',
 									)}{' '}
 									<Text as="strong">{selectedLMS?.label}</Text>{' '}
 									{sprintf(
 										// translators: %s: the product's name.
-										__('into %s. Always', 'learning-management-system'),
+										__('into %s.', 'learning-management-system'),
 										getPluginName(),
+									)}{' '}
+									<Text as="strong">{selectedLMS?.label}</Text>{' '}
+									{__(
+										'keeps running and its content is copied, not moved. The only writes to it are a link to the copied course on WooCommerce products, EDD downloads and order items, and the matching Masteriyo role, description and website on each copied user. Running it again later copies only what is new. Still,',
+										'learning-management-system',
 									)}{' '}
 									<Text as="strong">
 										{__('back up your database', 'learning-management-system')}
 									</Text>{' '}
-									{__(
-										'and test on a staging site before running on production.',
-										'learning-management-system',
-									)}
+									{__('first.', 'learning-management-system')}
 								</Text>
 							</CustomAlert>
 

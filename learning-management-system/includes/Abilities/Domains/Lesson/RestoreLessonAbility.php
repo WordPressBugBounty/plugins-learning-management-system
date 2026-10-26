@@ -59,6 +59,6 @@ class RestoreLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Restore a trashed lesson back to draft state. Requires id (lesson ID). Only applies to lessons currently in the trash. Returns the restored lesson object.', 'learning-management-system' );
+		return 'Restore a trashed lesson back to draft state. Requires id (lesson ID). A lesson is only in the trash after masteriyo/lesson-delete with force=false. Returns the restored lesson object.';
 	}
 }

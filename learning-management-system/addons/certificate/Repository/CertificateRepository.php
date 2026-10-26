@@ -38,7 +38,7 @@ class CertificateRepository extends AbstractRepository implements RepositoryInte
 	 */
 	public function create( Model &$certificate ) {
 		if ( ! $certificate->get_date_created( 'edit' ) ) {
-			$certificate->set_date_created( current_time( 'mysql', true ) );
+			$certificate->set_date_created( time() );
 		}
 
 		if ( empty( $certificate->get_author_id( 'edit' ) ) ) {

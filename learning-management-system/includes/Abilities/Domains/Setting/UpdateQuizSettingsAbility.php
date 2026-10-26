@@ -32,8 +32,7 @@ class UpdateQuizSettingsAbility extends AbstractScopedSettingsAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Write %s quiz settings (questions per page, passing grade, attempt limits, review visibility). Accepts a partial quiz settings object; only provided keys are updated.', 'learning-management-system' ),
+			'Write %s quiz settings (questions per page, passing grade, attempt limits, review visibility). Accepts a partial quiz settings object; only provided keys are updated.',
 			masteriyo_get_plugin_name()
 		);
 	}

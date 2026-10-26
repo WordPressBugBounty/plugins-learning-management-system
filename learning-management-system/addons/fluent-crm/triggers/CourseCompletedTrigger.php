@@ -93,7 +93,7 @@ class CourseCompletedTrigger extends BaseTrigger {
 				],
 				'subscription_status_info' => [
 					'type'       => 'html',
-					'info'       => '<b>' . __( 'An Automated double-option email will be sent for new subscribers', 'learning-management-system' ) . '</b>',
+					'info'       => '<b>' . __( 'An automated double opt-in email will be sent to new subscribers', 'learning-management-system' ) . '</b>',
 					'dependency' => [
 						'depends_on' => 'subscription_status',
 						'operator'   => '=',

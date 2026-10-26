@@ -152,7 +152,8 @@ class CourseImporter {
 	 * @since 2.15.0
 	 */
 	protected function schedule_tasks( $file ) {
-		as_enqueue_async_action( CoursesImportJob::NAME, array( $file ), CoursesImportJob::GROUP_NAME );
+		// The job runs with nobody logged in, so it needs the importer to author the posts.
+		as_enqueue_async_action( CoursesImportJob::NAME, array( $file, get_current_user_id() ), CoursesImportJob::GROUP_NAME );
 	}
 
 	/**
@@ -179,11 +180,11 @@ class CourseImporter {
 
 			$this->history['post_parents'][ intval( $post['ID'] ) ] = intval( $post['post_parent'] );
 
-			$data_to_insert           = masteriyo_array_except(
+			$data_to_insert                = masteriyo_array_except(
 				$post,
 				array( 'ID', 'terms', 'postmeta', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
 			);
-			$data_to_insert['author'] = get_current_user_id();
+			$data_to_insert['post_author'] = get_current_user_id();
 
 			if ( PostType::QUESTION === $data_to_insert['post_type'] ) {
 				$data_to_insert['post_content'] = addslashes( wp_json_encode( json_decode( $data_to_insert['post_content'] ), JSON_UNESCAPED_UNICODE ) );

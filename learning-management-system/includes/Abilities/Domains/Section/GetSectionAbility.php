@@ -58,6 +58,6 @@ class GetSectionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single section by ID.', 'learning-management-system' );
+		return 'Retrieve a single section by ID.';
 	}
 }

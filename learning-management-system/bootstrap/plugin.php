@@ -90,7 +90,7 @@ if ( masteriyo_is_production() && ! file_exists( MASTERIYO_ASSETS . '/js/build/m
 	masteriyo_bootstrap_failure(
 		sprintf(
 			/* translators: %s: plugin directory name */
-			__( 'Assets are need to be built. Run <code>yarn && yarn build</code> from the wp-content/plugins/%s directory.', 'learning-management-system' ),
+			__( 'Assets need to be built. Run <code>yarn && yarn build</code> from the wp-content/plugins/%s directory.', 'learning-management-system' ),
 			basename( MASTERIYO_PLUGIN_DIR )
 		)
 	);

@@ -10,7 +10,7 @@ import React from 'react';
 import { Td, Tr } from 'react-super-responsive-table';
 import {
 	formatAttemptDuration,
-	getWordpressLocalTime,
+	getSiteDate,
 } from '../../../assets/js/back-end/utils/utils';
 import { H5PQuizAttempt } from '../types/h5pQuizAttempt';
 
@@ -91,10 +91,7 @@ const H5PAttemptInfo: React.FC<Props> = ({
 				<Stack direction="column" spacing="2">
 					<LabeledValue
 						label={__('Date:', 'learning-management-system')}
-						value={getWordpressLocalTime(
-							attempt.started_at ?? '',
-							'm/d/Y, h:i A',
-						)}
+						value={getSiteDate(attempt.started_at ?? '', true)}
 					/>
 					<LabeledValue
 						label={__('Total Attempts:', 'learning-management-system')}

@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Enums\CommentStatus;
 use Masteriyo\Helper\Utils;
 use Masteriyo\Helper\Permission;
+use Masteriyo\Roles;
 
 /**
  * Main class for CommentController.
@@ -109,7 +110,7 @@ class CourseQuestionAnswersController extends CommentsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -139,11 +140,11 @@ class CourseQuestionAnswersController extends CommentsController {
 						'force_delete' => array(
 							'default'     => false,
 							'type'        => 'boolean',
-							'description' => __( 'Required to be true, as the resource does not support trashing.', 'learning-management-system' ),
+							'description' => 'Required to be true, as the resource does not support trashing.',
 						),
 						'children'     => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(replies) under the Q&A.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(replies) under the Q&A.',
 							'type'        => 'boolean',
 						),
 					),
@@ -158,7 +159,7 @@ class CourseQuestionAnswersController extends CommentsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -188,12 +189,12 @@ class CourseQuestionAnswersController extends CommentsController {
 					'args'                => array(
 						'ids'   => array(
 							'required'    => true,
-							'description' => __( 'Question & Answers IDs.', 'learning-management-system' ),
+							'description' => 'Question & Answers IDs.',
 							'type'        => 'array',
 						),
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -212,7 +213,7 @@ class CourseQuestionAnswersController extends CommentsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Question & Answers IDs.', 'learning-management-system' ),
+							'description' => 'Question & Answers IDs.',
 							'type'        => 'array',
 						),
 					),
@@ -237,11 +238,18 @@ class CourseQuestionAnswersController extends CommentsController {
 		// Add course argument.
 		$params['course_id'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to comments assigned to specific course IDs.', 'learning-management-system' ),
+			'description' => 'Limit result set to comments assigned to specific course IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
 			),
+		);
+
+		$params['answered'] = array(
+			'description'       => 'Limit result set to questions that are answered or unanswered.',
+			'type'              => 'string',
+			'enum'              => array( 'yes', 'no' ),
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		return $params;
@@ -277,20 +285,22 @@ class CourseQuestionAnswersController extends CommentsController {
 
 	/**
 	 * Course IDs the current user manages as an instructor, including
-	 * courses assigned to them as an additional author. Resolved once per request.
+	 * courses assigned to them as an additional author. Resolved once per user per process.
 	 *
 	 * @return int[]
 	 */
 	protected function get_current_instructor_course_ids() {
-		static $ids = null;
+		static $ids = array();
 
-		if ( null === $ids ) {
+		$user_id = get_current_user_id();
+
+		if ( ! isset( $ids[ $user_id ] ) ) {
 			// Every status: an instructor moderates the Q&A of their private and
 			// draft courses too, not only the published ones.
-			$ids = array_map( 'absint', masteriyo_get_instructor_course_ids( null, 'any' ) );
+			$ids[ $user_id ] = array_map( 'absint', masteriyo_get_instructor_course_ids( null, 'any' ) );
 		}
 
-		return $ids;
+		return $ids[ $user_id ];
 	}
 
 	/**
@@ -338,6 +348,10 @@ class CourseQuestionAnswersController extends CommentsController {
 			if ( $this->reads_as_learner_only( $query_args['post__in'] ) ) {
 				$query_args['status'] = CommentStatus::APPROVE_STR;
 			}
+		}
+
+		if ( isset( $query_args['answered'] ) ) {
+			$query_args = $this->apply_answered_filter( $query_args );
 		}
 
 		$mto_course_qas = new \WP_Comment_Query( $query_args );
@@ -513,6 +527,10 @@ class CourseQuestionAnswersController extends CommentsController {
 
 		$args['post__in'] = $request['course_id'];
 
+		if ( isset( $request['answered'] ) ) {
+			$args['answered'] = $request['answered'];
+		}
+
 		return $args;
 	}
 
@@ -531,92 +549,92 @@ class CourseQuestionAnswersController extends CommentsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'course_id'       => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'name'            => array(
-					'description' => __( 'Course question answerer user\'s name.', 'learning-management-system' ),
+					'description' => 'Course question answerer user\'s name.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'email'           => array(
-					'description' => __( 'Course question-answerer user Email.', 'learning-management-system' ),
+					'description' => 'Course question-answerer user Email.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'url'             => array(
-					'description' => __( 'Course question answerer user URL.', 'learning-management-system' ),
+					'description' => 'Course question answerer user URL.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'ip_address'      => array(
-					'description' => __( 'The IP address of the question answerer.', 'learning-management-system' ),
+					'description' => 'The IP address of the question answerer.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'created_at'      => array(
-					'description' => __( "The date the course was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content'         => array(
-					'description' => __( 'Course question answer content.', 'learning-management-system' ),
+					'description' => 'Course question answer content.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'status'          => array(
-					'description' => __( 'Course question answer status.', 'learning-management-system' ),
+					'description' => 'Course question answer status.',
 					'type'        => 'string',
 					'default'     => 'approve',
 					'enum'        => array( 'approve', 'hold', 'trash', 'spam' ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'agent'           => array(
-					'description' => __( 'Course question answer agent.', 'learning-management-system' ),
+					'description' => 'Course question answer agent.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent'          => array(
-					'description' => __( 'Course question answer parent.', 'learning-management-system' ),
+					'description' => 'Course question answer parent.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'user_id'         => array(
-					'description' => __( 'The user ID.', 'learning-management-system' ),
+					'description' => 'The user ID.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'user_name'       => array(
-					'description'       => __( 'Question answerer display name.', 'learning-management-system' ),
+					'description'       => 'Question answerer display name.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_text_field',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'user_email'      => array(
-					'description'       => __( 'Question answerer email address.', 'learning-management-system' ),
+					'description'       => 'Question answerer email address.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_email',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'user_url'        => array(
-					'description'       => __( 'Question answerer URL.', 'learning-management-system' ),
+					'description'       => 'Question answerer URL.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'esc_url_raw',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'by_current_user' => array(
-					'description' => __( 'True if this course qa belongs to the current user.', 'learning-management-system' ),
+					'description' => 'True if this course qa belongs to the current user.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -876,7 +894,7 @@ class CourseQuestionAnswersController extends CommentsController {
 		if ( ! is_object( $question_answer ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -927,7 +945,7 @@ class CourseQuestionAnswersController extends CommentsController {
 		if ( ! is_object( $question_answer ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -1022,6 +1040,9 @@ class CourseQuestionAnswersController extends CommentsController {
 
 			$counts[ CommentStatus::APPROVE_STR ] = $approved;
 			$counts['all']                        = $approved;
+			$counts['unanswered']                 = 0;
+		} else {
+			$counts['unanswered'] = $this->get_unanswered_count( $course_ids, $counts['all'] );
 		}
 
 		return array(
@@ -1034,5 +1055,85 @@ class CourseQuestionAnswersController extends CommentsController {
 				'course_qas_count' => $counts,
 			),
 		);
+	}
+
+	/**
+	 * Narrow the query to top-level questions with (`yes`) or without (`no`) a staff reply.
+	 *
+	 * @param array<string, mixed> $query_args WP_Comment_Query args with an `answered` key.
+	 * @return array<string, mixed>
+	 */
+	protected function apply_answered_filter( array $query_args ): array {
+		$answered_ids = array_keys( $this->get_staff_answered_questions( wp_parse_id_list( $query_args['post__in'] ?? array() ) ) );
+
+		if ( 'yes' === $query_args['answered'] ) {
+			$include = wp_parse_id_list( $query_args['comment__in'] ?? array() );
+			$include = empty( $include ) ? $answered_ids : array_values( array_intersect( $include, $answered_ids ) );
+
+			$query_args['comment__in'] = empty( $include ) ? array( 0 ) : $include;
+		} else {
+			$query_args['comment__not_in'] = array_merge( wp_parse_id_list( $query_args['comment__not_in'] ?? array() ), $answered_ids );
+		}
+
+		$query_args['parent__in'] = array( 0 );
+		unset( $query_args['answered'] );
+
+		return $query_args;
+	}
+
+	/**
+	 * Top-level questions with a non-spam, non-trash reply by an instructor,
+	 * manager or administrator.
+	 *
+	 * @param int[] $course_ids Course IDs to scope by, or empty for all.
+	 * @return array<int, string> Question `comment_approved` value keyed by question ID.
+	 */
+	protected function get_staff_answered_questions( array $course_ids ): array {
+		global $wpdb;
+
+		// Serialized role keys are quoted, so match the whole key, not a substring.
+		$role_patterns = array_map(
+			function ( string $role ) use ( $wpdb ): string {
+				return '%' . $wpdb->esc_like( '"' . $role . '"' ) . '%';
+			},
+			array( Roles::INSTRUCTOR, Roles::MANAGER, 'administrator' )
+		);
+
+		$course_ids = wp_parse_id_list( $course_ids );
+		// A zero count disables the course scope.
+		$scope = empty( $course_ids ) ? array( 0 ) : $course_ids;
+		$args  = array_merge( array( $wpdb->get_blog_prefix() . 'capabilities', $this->comment_type, $this->comment_type ), $role_patterns, array( count( $course_ids ) ), $scope );
+
+		// `reply.comment_parent > 0` keeps unscoped lookups on the reply index range.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT question.comment_ID, question.comment_approved FROM {$wpdb->comments} AS question
+				INNER JOIN {$wpdb->comments} AS reply ON reply.comment_parent = question.comment_ID
+				INNER JOIN {$wpdb->usermeta} AS um ON reply.user_id = um.user_id AND um.meta_key = %s
+				WHERE question.comment_type = %s
+					AND question.comment_parent = 0
+					AND reply.comment_parent > 0
+					AND reply.comment_type = %s
+					AND reply.comment_approved NOT IN ('spam', 'trash', 'post-trashed')
+					AND ( um.meta_value LIKE %s OR um.meta_value LIKE %s OR um.meta_value LIKE %s )
+					AND ( %d = 0 OR question.comment_post_ID IN (" . implode( ',', array_fill( 0, count( $scope ), '%d' ) ) . ') )',
+				$args
+			)
+		);
+
+		return array_column( $rows, 'comment_approved', 'comment_ID' );
+	}
+
+	/**
+	 * Count approved and pending top-level questions with no staff reply.
+	 *
+	 * @param int[] $course_ids Course IDs to scope by, or empty for all.
+	 * @param int   $total      Approved and pending top-level questions in the same scope.
+	 * @return int
+	 */
+	protected function get_unanswered_count( array $course_ids, int $total ): int {
+		$active = array_intersect( $this->get_staff_answered_questions( $course_ids ), array( CommentStatus::APPROVE, CommentStatus::HOLD ) );
+
+		return max( 0, $total - count( $active ) );
 	}
 }

@@ -14,6 +14,7 @@ namespace Masteriyo\Addons\MigrationTool\Controllers;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
 use Masteriyo\Addons\MigrationTool\MigratorRegistry;
 use Masteriyo\Helper\Permission;
 use Masteriyo\PostType\PostType;
@@ -146,6 +147,104 @@ class LMSMigrationController extends RestController {
 				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 			)
 		);
+
+		// POST /migrations/deactivate-source — switch the source LMS plugin off once the copy is verified.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/deactivate-source',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'deactivate_source' ),
+				'permission_callback' => array( $this, 'deactivate_source_permissions_check' ),
+				'args'                => array(
+					'lms_name' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Deactivating a plugin is WordPress's own capability, not a course permission.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_Error|boolean
+	 */
+	public function deactivate_source_permissions_check( $request ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error(
+				'masteriyo_rest_cannot_deactivate_plugins',
+				__( 'Sorry, you are not allowed to deactivate plugins.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * POST /migrations/deactivate-source — deactivate the source LMS plugin.
+	 *
+	 * The copy leaves the source plugin's data in place, so this is the only step the
+	 * tool takes against it, and only on request. Its data is removed through that
+	 * plugin's own uninstall.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return WP_Error|\WP_REST_Response
+	 */
+	public function deactivate_source( $request ) {
+		$lms_slug = sanitize_text_field( $request->get_param( 'lms_name' ) );
+
+		if ( empty( $lms_slug ) || ! $this->registry->has( $lms_slug ) ) {
+			return new WP_Error(
+				'migration_invalid_lms',
+				__( 'Please select a valid LMS.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( MigrationSession::get_active() ) {
+			return new WP_Error(
+				'migration_still_running',
+				__( 'A migration is still in progress. Wait for it to finish before deactivating the source LMS.', 'learning-management-system' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$migrator     = $this->registry->get( $lms_slug );
+		$plugin_file  = $migrator->get_plugin_file();
+		$network_wide = is_multisite() && is_plugin_active_for_network( $plugin_file );
+
+		// Core's plugins screen keeps a network-active plugin to network admins; so does this.
+		if ( $network_wide && ! current_user_can( 'manage_network_plugins' ) ) {
+			return new WP_Error(
+				'masteriyo_rest_cannot_deactivate_network_plugins',
+				__( 'Sorry, you are not allowed to deactivate plugins.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( is_plugin_active( $plugin_file ) ) {
+			deactivate_plugins( $plugin_file, false, $network_wide );
+			masteriyo_get_logger()->info(
+				sprintf( 'Migration: deactivated %s (%s) on request after the copy.', $migrator->get_label(), $plugin_file ),
+				array( 'source' => 'migration-tool' )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'lms_slug' => $lms_slug,
+				'active'   => is_plugin_active( $plugin_file ),
+			)
+		);
 	}
 
 	/**
@@ -218,6 +317,9 @@ class LMSMigrationController extends RestController {
 		$steps      = $migrator->get_steps();
 		$session_id = MigrationSession::create( $lms_slug, $steps );
 
+		// The counts below leave out what earlier runs already copied.
+		MigrationMap::ensure_table();
+
 		// Pre-count every step and persist the states immediately so the status
 		// endpoint returns correct values from the very first poll — even on page
 		// refresh before the background job has run. Zero-count steps are already
@@ -244,7 +346,7 @@ class LMSMigrationController extends RestController {
 			}
 		}
 
-		// Nothing to migrate — complete immediately without touching the job queue.
+		// Nothing new to copy — complete immediately without touching the job queue.
 		if ( null === $first_nonempty ) {
 			MigrationSession::update(
 				$session_id,
@@ -254,7 +356,7 @@ class LMSMigrationController extends RestController {
 				)
 			);
 			masteriyo_get_logger()->info(
-				sprintf( 'Migration session %s [%s]: no source data found — completed immediately.', $session_id, $migrator->get_label() ),
+				sprintf( 'Migration session %s [%s]: nothing new to copy — completed immediately.', $session_id, $migrator->get_label() ),
 				array( 'source' => 'migration-tool' )
 			);
 			return rest_ensure_response(
@@ -494,17 +596,25 @@ class LMSMigrationController extends RestController {
 		$last                = MigrationSession::get_last_completed();
 
 		if ( $last ) {
-			$lms_slug  = $last['session']['lms_slug'] ?? '';
-			$lms_label = '';
+			$lms_slug      = $last['session']['lms_slug'] ?? '';
+			$lms_label     = '';
+			$source_active = false;
 
 			if ( $lms_slug && $this->registry->has( $lms_slug ) ) {
-				$lms_label = $this->registry->get( $lms_slug )->get_label();
+				if ( ! function_exists( 'is_plugin_active' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				}
+				$migrator      = $this->registry->get( $lms_slug );
+				$lms_label     = $migrator->get_label();
+				$source_active = is_plugin_active( $migrator->get_plugin_file() );
 			}
 
 			$last_completed_data = array(
-				'lms_slug'     => $lms_slug,
-				'lms_label'    => $lms_label,
-				'completed_at' => $last['session']['completed_at'] ?? null,
+				'lms_slug'      => $lms_slug,
+				'lms_label'     => $lms_label,
+				'completed_at'  => $last['session']['completed_at'] ?? null,
+				// Whether the source plugin still runs, so the UI can offer to switch it off.
+				'source_active' => $source_active,
 			);
 		}
 

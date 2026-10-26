@@ -81,7 +81,7 @@ class Lesson extends Model {
 		'course_id'               => 0,
 		'author_id'               => 0,
 		'reviews_allowed'         => true,
-		'featured_image'          => '',
+		'featured_image'          => 0,
 		'video_source'            => '',
 		'video_source_url'        => '',
 		'enable_preview'          => false,
@@ -95,7 +95,7 @@ class Lesson extends Model {
 			'time_stamps'               => array(),
 			'enable_video_share'        => false,
 			'enable_right_button_click' => false,
-
+			'require_full_watch'        => true,
 		),
 		'starts_at'               => '',
 		'ends_at'                 => '',

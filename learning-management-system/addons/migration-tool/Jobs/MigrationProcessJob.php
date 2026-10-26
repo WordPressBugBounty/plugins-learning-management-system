@@ -8,6 +8,8 @@
 
 namespace Masteriyo\Addons\MigrationTool\Jobs;
 
+use Masteriyo\Addons\MigrationTool\Helper;
+use Masteriyo\Addons\MigrationTool\MigrationMap;
 use Masteriyo\Addons\MigrationTool\MigrationSession;
 
 defined( 'ABSPATH' ) || exit;
@@ -46,7 +48,9 @@ class MigrationProcessJob {
 	 * @return void
 	 */
 	public function handle_failed_action( int $action_id, int $timeout ): void {
-		$action = \ActionScheduler::store()->fetch_by_id( $action_id );
+		// Runs for every failed action on the site, so it must survive ids that
+		// are not ours; fetch_action() returns a null action for an unknown id.
+		$action = \ActionScheduler::store()->fetch_action( $action_id );
 		if ( ! $action || $action->get_hook() !== self::HOOK ) {
 			return;
 		}
@@ -147,9 +151,13 @@ class MigrationProcessJob {
 
 		$migrator = masteriyo( 'migration-tool.registry' )->get( $lms_slug );
 
-		// Remove duplicate failed IDs and build a skip-set.
-		// Self-cleaning steps ignore $cursor, so a failed item stays in the source table and
-		// reappears every batch — the skip-set prevents re-recording the same failure forever.
+		// Copies are recorded against this session; the map is what the batch queries skip on.
+		MigrationMap::ensure_table();
+		MigrationMap::set_current_session( $session_id );
+		Helper::reset_caches();
+
+		// Remove duplicate failed IDs and build a skip-set, so a failed item is never
+		// counted twice within a run. Across runs it is retried: nothing maps it.
 		$state['failed'] = array_values( array_unique( (array) $state['failed'] ) );
 		$failed_set      = array_fill_keys( $state['failed'], true );
 
@@ -208,7 +216,7 @@ class MigrationProcessJob {
 			$wpdb->query( 'START TRANSACTION' );
 
 			foreach ( $ids as $id ) {
-				// Skip previously failed items without retrying.
+				// Skip items that already failed in this run.
 				if ( isset( $failed_set[ (int) $id ] ) ) {
 					$cursor = (int) $id;
 					continue;

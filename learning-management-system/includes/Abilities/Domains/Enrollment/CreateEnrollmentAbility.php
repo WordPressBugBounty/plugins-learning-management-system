@@ -43,6 +43,6 @@ class CreateEnrollmentAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Enroll a student in a course. Requires course_id and user_id. Optionally accepts status (active, inactive). Returns the created enrollment object with its ID.', 'learning-management-system' );
+		return 'Enroll a student in a course. Requires course_id and user_id. Optionally accepts status (active, inactive). Returns the created enrollment object with its ID.';
 	}
 }

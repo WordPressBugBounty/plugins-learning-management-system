@@ -59,6 +59,6 @@ class CloneLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Duplicate a lesson, including its content, into the same section.', 'learning-management-system' );
+		return 'Duplicate a lesson, including its content, into the same section.';
 	}
 }

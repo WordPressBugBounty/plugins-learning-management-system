@@ -11,6 +11,7 @@ use Masteriyo\Enums\CourseAccessMode;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Enums\QuestionType;
+use Masteriyo\Models\Question\Question;
 use Masteriyo\RestApi\Controllers\Version1\PostsController;
 use WP_Error;
 
@@ -134,7 +135,7 @@ class QuestionsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -161,19 +162,20 @@ class QuestionsController extends PostsController {
 					'callback'            => array( $this, 'delete_item' ),
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
+						// The repository always deletes a question permanently; it has no trash.
 						'force'            => array(
-							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'default'     => true,
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'delete_from_bank' => array(
 							'default'     => false,
-							'description' => __( 'Whether the question is from the question bank.', 'learning-management-system' ),
+							'description' => 'Whether the question is from the question bank.',
 							'type'        => 'boolean',
 							'required'    => false,
 						),
 						'quiz_id'          => array(
-							'description' => __( 'Quiz ID', 'learning-management-system' ),
+							'description' => 'Quiz ID',
 							'type'        => 'integer',
 							'required'    => false,
 						),
@@ -193,14 +195,14 @@ class QuestionsController extends PostsController {
 					'permission_callback' => array( $this, 'check_answer_permissions_check' ),
 					'args'                => array(
 						'id'            => array(
-							'description'       => __( 'Question ID', 'learning-management-system' ),
+							'description'       => 'Question ID',
 							'type'              => 'integer',
 							'required'          => true,
 							'sanitize_callback' => 'absint',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'chosen_answer' => array(
-							'description' => __( 'Chosen answer or answers.', 'learning-management-system' ),
+							'description' => 'Chosen answer or answers.',
 							'type'        => 'any',
 							'required'    => true,
 						),
@@ -218,7 +220,7 @@ class QuestionsController extends PostsController {
 				'permission_callback' => array( $this, 'update_bank_questions_permissions_check' ),
 				'args'                => array(
 					'ids'     => array(
-						'description' => __( 'Question IDs', 'learning-management-system' ),
+						'description' => 'Question IDs',
 						'type'        => 'array',
 						'items'       => array(
 							'type' => 'integer',
@@ -226,7 +228,7 @@ class QuestionsController extends PostsController {
 						'required'    => true,
 					),
 					'quiz_id' => array(
-						'description' => __( 'Quiz ID', 'learning-management-system' ),
+						'description' => 'Quiz ID',
 						'type'        => 'integer',
 						'required'    => true,
 					),
@@ -241,7 +243,7 @@ class QuestionsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -296,7 +298,7 @@ class QuestionsController extends PostsController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$chosen_answer        = isset( $request['chosen_answer'] ) ? $request['chosen_answer'] : null;
@@ -329,7 +331,7 @@ class QuestionsController extends PostsController {
 		$params = parent::get_collection_params();
 
 		$params['course_id'] = array(
-			'description'       => __( 'Limit result by course id.', 'learning-management-system' ),
+			'description'       => 'Limit result by course id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -337,7 +339,7 @@ class QuestionsController extends PostsController {
 
 		$params['status'] = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to questions assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to questions assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -345,7 +347,7 @@ class QuestionsController extends PostsController {
 		);
 
 		$params['type'] = array(
-			'description'       => __( 'Limit result set to questions assigned a specific type.', 'learning-management-system' ),
+			'description'       => 'Limit result set to questions assigned a specific type.',
 			'type'              => 'string',
 			'enum'              => QuestionType::all(),
 			'sanitize_callback' => 'sanitize_key',
@@ -353,28 +355,28 @@ class QuestionsController extends PostsController {
 		);
 
 		$params['category'] = array(
-			'description'       => __( 'Limit result set to courses assigned a specific category ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific category ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['tag'] = array(
-			'description'       => __( 'Limit result set to courses assigned a specific tag ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific tag ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['random_id'] = array(
-			'description'       => __( 'Random ID.', 'learning-management-system' ),
+			'description'       => 'Random ID.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['per_page'] = array(
-			'description'       => __( 'Maximum number of items to be returned in result set.', 'learning-management-system' ),
+			'description'       => 'Maximum number of items to be returned in result set.',
 			'type'              => 'integer',
 			'default'           => 10,
 			'minimum'           => 1,
@@ -403,7 +405,8 @@ class QuestionsController extends PostsController {
 				$id = is_a( $object, '\WP_Post' ) ? $object->ID : $object->get_id();
 			}
 
-			$type     = get_post_meta( $id, '_type', true );
+			$type = get_post_meta( $id, '_type', true );
+			/** @var Question $question */
 			$question = masteriyo( "question.$type" );
 			$question->set_id( $id );
 			$question_repo = masteriyo( 'question.store' );
@@ -561,6 +564,7 @@ class QuestionsController extends PostsController {
 			'answers_decode_success' => $question->is_answers_decoded(),
 			'enable_description'     => $question->get_enable_description( $context ),
 			'answer_explanation'     => $answer_explanation,
+			'text_direction'         => $question->get_text_direction( $context ),
 		);
 
 		$answers = $question->get_answers( $context );
@@ -767,146 +771,153 @@ class QuestionsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                     => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'                   => array(
-					'description' => __( 'Question name', 'learning-management-system' ),
+					'description' => 'Question name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'                   => array(
-					'description' => __( 'Question slug', 'learning-management-system' ),
+					'description' => 'Question slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'              => array(
-					'description' => __( 'Question URL', 'learning-management-system' ),
+					'description' => 'Question URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'           => array(
-					'description' => __( "The date the question was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the question was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'       => array(
-					'description' => __( 'The date the question was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the question was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'          => array(
-					'description' => __( "The date the question was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the question was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'      => array(
-					'description' => __( 'The date the question was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the question was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'                 => array(
-					'description' => __( 'Question status (post status).', 'learning-management-system' ),
+					'description' => 'Question status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent_id'              => array(
-					'description' => __( 'Course parent ID.', 'learning-management-system' ),
+					'description' => 'Course parent ID.',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'              => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'             => array(
-					'description' => __( 'Menu order, used to custom sort questions.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort questions.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'            => array(
-					'description' => __( 'Question description.', 'learning-management-system' ),
+					'description' => 'Question description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description'      => array(
-					'description' => __( 'Question short description.', 'learning-management-system' ),
+					'description' => 'Question short description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'                   => array(
-					'description' => __( 'Question type.', 'learning-management-system' ),
+					'description' => 'Question type.',
 					'type'        => 'string',
 					'enum'        => QuestionType::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answer_required'        => array(
-					'description' => __( 'Whether the question is required or not.', 'learning-management-system' ),
+					'description' => 'Whether the question is required or not.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answers'                => array(
-					'description' => __( 'Given answer list for the question.', 'learning-management-system' ),
+					'description' => 'Given answer list for the question.',
 					'type'        => 'object|string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answers_decode_success' => array(
-					'description' => __( 'Return if the answers are decoded successfully.', 'learning-management-system' ),
+					'description' => 'Return if the answers are decoded successfully.',
 					'type'        => 'boolean',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'points'                 => array(
-					'description' => __( 'Points for the correct answer.', 'learning-management-system' ),
+					'description' => 'Points for the correct answer.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'randomize'              => array(
-					'description' => __( 'Whether to randomize answers.', 'learning-management-system' ),
+					'description' => 'Whether to randomize answers.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enable_description'     => array(
-					'description' => __( 'Whether to enable points.', 'learning-management-system' ),
+					'description' => 'Whether to enable points.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'answer_explanation'     => array(
-					'description' => __( 'Description for answer.', 'learning-management-system' ),
+					'description' => 'Description for answer.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
+				'text_direction'         => array(
+					'description' => 'Text direction of the question block: inherit the page, or force ltr or rtl.',
+					'type'        => 'string',
+					'enum'        => Question::text_directions(),
+					'default'     => Question::DIRECTION_INHERIT,
+					'context'     => array( 'view', 'edit' ),
+				),
 				'meta_data'              => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -930,7 +941,8 @@ class QuestionsController extends PostsController {
 	 * @return WP_Error|Masteriyo\Database\Model
 	 */
 	protected function prepare_object_for_database( $request, $creating = false ) {
-		$id       = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		$id = isset( $request['id'] ) ? absint( $request['id'] ) : 0;
+		/** @var Question $question */
 		$question = masteriyo( 'question' );
 
 		if ( 0 !== $id ) {
@@ -964,11 +976,6 @@ class QuestionsController extends PostsController {
 		// Post status.
 		if ( isset( $request['status'] ) ) {
 			$question->set_status( get_post_status_object( $request['status'] ) ? $request['status'] : PostStatus::DRAFT );
-		}
-
-		// Post slug.
-		if ( isset( $request['slug'] ) ) {
-			$question->set_slug( $request['slug'] );
 		}
 
 		// Automatically set the menu order if it's not set and the operation is POST.
@@ -1027,6 +1034,10 @@ class QuestionsController extends PostsController {
 			$question->set_answer_explanation( $request['answer_explanation'] );
 		}
 
+		if ( isset( $request['text_direction'] ) ) {
+			$question->set_text_direction( $request['text_direction'] );
+		}
+
 		// Allow set meta_data.
 		if ( isset( $request['meta_data'] ) && is_array( $request['meta_data'] ) ) {
 			foreach ( $request['meta_data'] as $meta ) {
@@ -1047,31 +1058,6 @@ class QuestionsController extends PostsController {
 		 * @param bool            $creating If is creating a new object.
 		 */
 		return apply_filters( "masteriyo_rest_pre_insert_{$this->post_type}_object", $question, $request, $creating );
-	}
-
-	/**
-	 * Save taxonomy terms.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Question $question  Question instance.
-	 * @param array    $terms    Terms data.
-	 * @param string   $taxonomy Taxonomy name.
-	 *
-	 * @return Question
-	 */
-	protected function save_taxonomy_terms( $question, $terms, $taxonomy = 'cat' ) {
-		$term_ids = wp_list_pluck( $terms, 'id' );
-
-		if ( 'cat' === $taxonomy ) {
-			$question->set_category_ids( $term_ids );
-		} elseif ( 'tag' === $taxonomy ) {
-			$question->set_tag_ids( $term_ids );
-		} elseif ( 'difficulty' === $taxonomy ) {
-			$question->set_difficulty_ids( $term_ids );
-		}
-
-		return $question;
 	}
 
 	/**
@@ -1158,7 +1144,7 @@ class QuestionsController extends PostsController {
 		if ( is_null( $question ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -1204,7 +1190,7 @@ class QuestionsController extends PostsController {
 		if ( is_null( $question ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -1434,7 +1420,7 @@ class QuestionsController extends PostsController {
 			if ( is_null( $question ) ) {
 				return new \WP_Error(
 					"masteriyo_rest_{$this->post_type}_invalid_id",
-					__( 'Invalid ID', 'learning-management-system' ),
+					__( 'Invalid ID.', 'learning-management-system' ),
 					array(
 						'status' => 404,
 					)
@@ -1521,7 +1507,7 @@ class QuestionsController extends PostsController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		/** Case 1: Delete the question from the bank and remove the original question. */

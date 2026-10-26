@@ -43,6 +43,6 @@ class CreateUserAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Register a new user account. Requires username, email, and password. Optionally accepts display_name and roles. Returns the created user object with its ID.', 'learning-management-system' );
+		return 'Register a new user account. Requires username, email, and password. Optionally accepts display_name and roles. Returns the created user object with its ID.';
 	}
 }

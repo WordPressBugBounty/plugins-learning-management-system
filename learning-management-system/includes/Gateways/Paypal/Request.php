@@ -175,7 +175,7 @@ class Request {
 	 *
 	 * @since 2.6.10
 	 * @param Order $order Order object.
-	 * @return array
+	 * @return array{}|array{a3: string, item_name: string, t3: 'Y'|'M'|'W'|'D'|'', p3: int, src?: 1, srt?: int<2, 52>}
 	 */
 	protected function get_subscription_args( $order ) {
 		$order_item = current( $order->get_items() );
@@ -186,16 +186,32 @@ class Request {
 			return array();
 		}
 
-		$args         = array(
-			'a3'        => $course->get_price(),
+		$args = array(
+			'a3'        => $this->number_format( $order->get_total(), $order ),
 			'item_name' => $course->get_title(),
 			't3'        => $this->get_paypal_billing_period( $course->get_billing_period() ),
 			'p3'        => $course->get_billing_interval(),
+			'src'       => 1,
 		);
-		$expire_after = $course->get_billing_expire_after();
 
-		if ( $expire_after ) {
-			$args['srt'] = $expire_after;
+		$expire_after     = absint( $course->get_billing_expire_after() );
+		$months_per_cycle = array(
+			'day'   => 1.0 / 30,
+			'week'  => 7.0 / 30,
+			'month' => 1.0,
+			'year'  => 12.0,
+		);
+		$period           = $course->get_billing_period();
+
+		if ( $expire_after && isset( $months_per_cycle[ $period ] ) ) {
+			$cycles = (int) ceil( $expire_after / ( $months_per_cycle[ $period ] * max( 1, absint( $course->get_billing_interval() ) ) ) );
+
+			// PayPal accepts srt from 2 to 52; a single cycle is a one-off payment.
+			if ( $cycles < 2 ) {
+				unset( $args['src'] );
+			} else {
+				$args['srt'] = min( 52, $cycles );
+			}
 		}
 
 		return $args;
@@ -315,7 +331,7 @@ class Request {
 			$order
 		);
 
-		return $this->fix_request_length( $order, $paypal_args );
+		return $this->fix_request_length( $order, $paypal_args, $order_has_recurring_courses );
 	}
 
 	/**

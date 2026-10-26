@@ -62,6 +62,9 @@ class CourseUserProgress extends BlockHandler {
 		}
 
 		$course = $this->get_block_preview_course( $course_id );
+		if ( ! $course ) {
+			return \ob_get_clean(); // This block opens its buffer before the lookup.
+		}
 
 		if ( ! masteriyo_is_standard_course_type( $course ) ) {
 			?>

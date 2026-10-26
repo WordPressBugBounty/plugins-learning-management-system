@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: H5P Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Integrate interactive H5P content seamlessly into your courses.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

@@ -50,7 +50,7 @@ class CourseCompletionAjaxHandler extends AjaxHandler {
 		if ( ! isset( $_POST['course_id'] ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Course Id is required.', 'learning-management-system' ),
+					'message' => __( 'Course ID is required.', 'learning-management-system' ),
 				)
 			);
 		}
@@ -86,8 +86,8 @@ class CourseCompletionAjaxHandler extends AjaxHandler {
 				'activity_type'   => 'course_progress',
 				'parent_id'       => 0,
 				'activity_status' => CourseProgressStatus::COMPLETED,
-				'created_at'      => current_time( 'mysql' ),
-				'completed_at'    => current_time( 'mysql' ),
+				'created_at'      => current_time( 'mysql', true ),
+				'completed_at'    => current_time( 'mysql', true ),
 			);
 
 			$table_name = $wpdb->prefix . 'masteriyo_user_activities';

@@ -158,12 +158,12 @@ class AddToCourseAction extends BaseAction {
 		$user_course->set_course_id( $courseId );
 		$user_course->set_user_id( $userId );
 		$user_course->set_status( UserCourseStatus::ACTIVE );
-		$user_course->set_date_start( current_time( 'mysql', true ) );
+		$user_course->set_date_start( time() );
 
 		$result = $user_course->save();
 
 		if ( ! $result ) {
-			$funnelMetric->notes  = __( 'User could not be enrolled to the selected course. Maybe course is already enrolled or Academy failed to enroll the course', 'learning-management-system' );
+			$funnelMetric->notes  = __( 'The user could not be enrolled in the selected course. The user may already be enrolled, or enrollment failed.', 'learning-management-system' );
 			$funnelMetric->status = 'failed';
 			$funnelMetric->save();
 			FunnelHelper::changeFunnelSubSequenceStatus( $funnelSubscriberId, $sequence->id, 'skipped' );

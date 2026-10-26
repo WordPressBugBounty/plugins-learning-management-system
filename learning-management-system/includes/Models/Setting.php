@@ -47,14 +47,15 @@ class Setting extends Model {
 				'instructor_registration_page_id' => 'absint',
 				'course_bundles_page_id'          => 'absint',
 				'course_thankyou_page'            => array(
-					'display_type' => 'string',
+					'display_type' => 'sanitize_text_field',
 					'page_id'      => 'absint',
-					'custom_url'   => 'string',
+					// Handed to the browser as a redirect target.
+					'custom_url'   => 'esc_url_raw',
 				),
 				'after_checkout_page'             => array(
-					'display_type' => 'string',
+					'display_type' => 'sanitize_text_field',
 					'page_id'      => 'absint',
-					'custom_url'   => 'string',
+					'custom_url'   => 'esc_url_raw',
 				),
 				'instructors_list_page_id'        => 'absint',
 			),
@@ -68,7 +69,7 @@ class Setting extends Model {
 				'enable_guest_checkout'          => 'masteriyo_string_to_bool',
 			),
 			'editor'        => array(
-				'default_editor' => 'string',
+				'default_editor' => 'sanitize_text_field',
 			),
 			'player'        => array(
 				'enable_watch_full_video'            => 'masteriyo_string_to_bool',
@@ -81,6 +82,12 @@ class Setting extends Model {
 				'video_completion_percentage'        => 'absint',
 				'youtube_api_key'                    => 'sanitize_text_field',
 				'unmuted_autoplay'                   => 'masteriyo_string_to_bool',
+			),
+			'button_labels' => array(
+				'start_course' => 'sanitize_text_field',
+				'continue'     => 'sanitize_text_field',
+				'enroll'       => 'sanitize_text_field',
+				'buy_now'      => 'sanitize_text_field',
 			),
 			'styling'       => array(
 				'primary_color'                => 'sanitize_text_field',
@@ -97,6 +104,7 @@ class Setting extends Model {
 				'auto_load_next_content'    => 'masteriyo_string_to_bool',
 				'enable_content_protection' => 'masteriyo_string_to_bool',
 				'lesson_video_url_type'     => 'sanitize_text_field',
+				'allowed_style_paths'       => 'sanitize_textarea_field',
 			),
 			'display' => array(
 				'enable_questions_answers' => 'masteriyo_string_to_bool',
@@ -113,8 +121,8 @@ class Setting extends Model {
 				'enable_search' => 'masteriyo_string_to_bool',
 				'per_page'      => 'absint',
 				'per_row'       => 'absint',
-				'order_by'      => 'sanitize_text_filed',
-				'order'         => 'sanitize_text_filed',
+				'order_by'      => 'sanitize_text_field',
+				'order'         => 'sanitize_text_field',
 			),
 			'filters_and_sorting'   => array(
 				'enable_ajax'                    => 'masteriyo_string_to_bool',
@@ -183,7 +191,7 @@ class Setting extends Model {
 				 * @since 2.3.1
 				 */
 				'limit'             => 'absint',
-				'related_attribute' => 'sanitize_text',
+				'related_attribute' => 'sanitize_text_field',
 			),
 			'components_visibility' => array(
 				'single_course_visibility' => 'masteriyo_string_to_bool',
@@ -253,6 +261,9 @@ class Setting extends Model {
 				'postcode'          => 'masteriyo_string_to_bool',
 				'state'             => 'masteriyo_string_to_bool',
 				'city'              => 'masteriyo_string_to_bool',
+			),
+			'invoice'         => array(
+				'enable' => 'masteriyo_string_to_bool',
 			),
 		),
 		'emails'         => array(
@@ -466,6 +477,17 @@ class Setting extends Model {
 					'content'          => 'wp_kses_post',
 					'reminder_offset'  => 'absint',
 				),
+				'enrollment_expiry_warning'    => array(
+					'enable'           => 'masteriyo_string_to_bool',
+					'subject'          => 'sanitize_text_field',
+					'from_address'     => 'sanitize_text_field',
+					'from_name'        => 'sanitize_text_field',
+					'reply_to_address' => 'sanitize_text_field',
+					'reply_to_name'    => 'sanitize_text_field',
+					'to_address'       => 'sanitize_text_field',
+					'content'          => 'wp_kses_post',
+					'reminder_offset'  => 'absint',
+				),
 				'new_question_reply'           => array(
 					'enable'           => 'masteriyo_string_to_bool',
 					'subject'          => 'sanitize_text_field',
@@ -527,7 +549,7 @@ class Setting extends Model {
 			'email_verification'        => array(
 				'enable' => 'masteriyo_string_to_bool',
 			),
-			'limit_login_session'       => 'sanitize_number_field',
+			'limit_login_session'       => 'absint',
 			'qr_login'                  => array(
 				'enable'            => 'masteriyo_string_to_bool',
 				'attention_message' => 'sanitize_text_field',
@@ -541,7 +563,7 @@ class Setting extends Model {
 				'category_base'           => 'sanitize_title',
 				'tag_base'                => 'sanitize_title',
 				'difficulty_base'         => 'sanitize_title',
-				'single_course_permalink' => 'sanitize_text',
+				'single_course_permalink' => 'masteriyo_sanitize_permalink_base',
 			),
 			'checkout'          => array(
 				'pay'                        => 'sanitize_title',

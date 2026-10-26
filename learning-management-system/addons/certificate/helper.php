@@ -310,6 +310,19 @@ if ( ! function_exists( 'masteriyo_get_course_certificate_id' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_get_certificate_download_signature' ) ) {
+	/**
+	 * Sign a certificate link for the course and user.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id User ID.
+	 * @return string
+	 */
+	function masteriyo_get_certificate_download_signature( int $course_id, int $user_id ): string {
+		return wp_hash( 'masteriyo_download_certificate|' . $course_id . '|' . $user_id );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_generate_certificate_download_url' ) ) {
 	/**
 	 * Generate certificate download url.
@@ -317,24 +330,30 @@ if ( ! function_exists( 'masteriyo_generate_certificate_download_url' ) ) {
 	 * @since 2.3.7
 	 *
 	 * @param int|\Masteriyo\Models\Course|\WP_Post $course_id
+	 * @param int $user_id Email recipient ID. Zero creates a current-session link.
 	 *
 	 * @return string
 	 */
-	function masteriyo_generate_certificate_download_url( $course_id ) {
+	function masteriyo_generate_certificate_download_url( $course_id, int $user_id = 0 ) {
 		$course = masteriyo_get_course( $course_id );
 
 		if ( is_null( $course ) ) {
 			return '';
 		}
 
-		$url = add_query_arg(
-			array(
-				'masteriyo_download_certificate' => true,
-				'course_id'                      => $course->get_id(),
-				'nonce'                          => wp_create_nonce( 'masteriyo_download_certificate' ),
-			),
-			home_url( '/' )
+		$args = array(
+			'masteriyo_download_certificate' => true,
+			'course_id'                      => $course->get_id(),
 		);
+
+		if ( $user_id > 0 ) {
+			// Email links outlive login sessions; the download still requires this user and a completed course.
+			$args['signature'] = masteriyo_get_certificate_download_signature( $course->get_id(), $user_id );
+		} else {
+			$args['nonce'] = wp_create_nonce( 'masteriyo_download_certificate' );
+		}
+
+		$url = add_query_arg( $args, home_url( '/' ) );
 
 		/**
 		 * Filters certificate download URL.

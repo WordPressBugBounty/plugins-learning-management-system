@@ -111,7 +111,7 @@ class QuizReviewsController extends CommentsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -139,12 +139,12 @@ class QuizReviewsController extends CommentsController {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
 						'force_delete' => array(
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
 						'children'     => array(
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 							'default'     => false,
 						),
@@ -160,7 +160,7 @@ class QuizReviewsController extends CommentsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -190,17 +190,17 @@ class QuizReviewsController extends CommentsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Review IDs.', 'learning-management-system' ),
+							'description' => 'Review IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the replies.', 'learning-management-system' ),
+							'description' => 'Whether to delete the replies.',
 							'type'        => 'boolean',
 						),
 					),
@@ -219,7 +219,7 @@ class QuizReviewsController extends CommentsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Review Ids', 'learning-management-system' ),
+							'description' => 'Review Ids',
 							'type'        => 'array',
 						),
 					),
@@ -242,7 +242,7 @@ class QuizReviewsController extends CommentsController {
 
 		$params['quiz'] = array(
 			'default'     => array(),
-			'description' => __( 'Limit result set to quiz reviews assigned to specific quiz IDs.', 'learning-management-system' ),
+			'description' => 'Limit result set to quiz reviews assigned to specific quiz IDs.',
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -509,131 +509,131 @@ class QuizReviewsController extends CommentsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'quiz_id'      => array(
-					'description' => __( 'Quiz ID', 'learning-management-system' ),
+					'description' => 'Quiz ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'name'         => array(
-					'description' => __( 'Quiz Reviewer Author.', 'learning-management-system' ),
+					'description' => 'Quiz Reviewer Author.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'email'        => array(
-					'description' => __( 'Quiz Reviewer Author Email.', 'learning-management-system' ),
+					'description' => 'Quiz Reviewer Author Email.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'url'          => array(
-					'description' => __( 'Quiz Reviewer Author URL.', 'learning-management-system' ),
+					'description' => 'Quiz Reviewer Author URL.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'ip_address'   => array(
-					'description' => __( 'The IP address of the reviewer', 'learning-management-system' ),
+					'description' => 'The IP address of the reviewer',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created' => array(
-					'description' => __( "The date the quiz was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the quiz was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description'  => array(
-					'description' => __( 'Quiz Review Description.', 'learning-management-system' ),
+					'description' => 'Quiz Review Description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'title'        => array(
-					'description' => __( 'Quiz Review Title.', 'learning-management-system' ),
+					'description' => 'Quiz Review Title.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content'      => array(
-					'description' => __( 'Quiz Review Content.', 'learning-management-system' ),
+					'description' => 'Quiz Review Content.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'required'    => true,
 				),
 				'rating'       => array(
-					'description' => __( 'Quiz Review rating.', 'learning-management-system' ),
+					'description' => 'Quiz Review rating.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'status'       => array(
-					'description' => __( 'Quiz Review Status.', 'learning-management-system' ),
+					'description' => 'Quiz Review Status.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'agent'        => array(
-					'description' => __( 'Quiz Review Agent.', 'learning-management-system' ),
+					'description' => 'Quiz Review Agent.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'         => array(
-					'description' => __( 'Quiz Review Type.', 'learning-management-system' ),
+					'description' => 'Quiz Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent'       => array(
-					'description' => __( 'Quiz Review Parent.', 'learning-management-system' ),
+					'description' => 'Quiz Review Parent.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_id'    => array(
-					'description' => __( 'The User ID.', 'learning-management-system' ),
+					'description' => 'The User ID.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'author_name'  => array(
-					'description'       => __( 'Quiz reviewer display name.', 'learning-management-system' ),
+					'description'       => 'Quiz reviewer display name.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_text_field',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_email' => array(
-					'description'       => __( 'Quiz reviewer email address.', 'learning-management-system' ),
+					'description'       => 'Quiz reviewer email address.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'sanitize_email',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'author_url'   => array(
-					'description'       => __( 'Quiz reviewer URL.', 'learning-management-system' ),
+					'description'       => 'Quiz reviewer URL.',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'esc_url_raw',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'meta_data'    => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -938,7 +938,7 @@ class QuizReviewsController extends CommentsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -989,7 +989,7 @@ class QuizReviewsController extends CommentsController {
 		if ( ! is_object( $review ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_invalid_id',
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

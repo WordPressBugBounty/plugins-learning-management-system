@@ -667,14 +667,72 @@ function masteriyo_current_user_can_student_preview(): bool {
 }
 
 /**
+ * The unpublished course an active student preview session covers, if any.
+ *
+ * Every condition the session has to satisfy lives here, so the query
+ * exception and the template's visibility gate can never drift apart: the
+ * current user is the demo student, the originator cookie verifies, the
+ * originator's WordPress session is still live, and the originator can still
+ * edit the course. A published course needs no exception and a trashed one
+ * never gets it.
+ *
+ * @return \WP_Post|null The covered course post, or null when no session covers one.
+ */
+function masteriyo_get_student_preview_covered_post(): ?\WP_Post {
+	if ( is_admin() || empty( $_COOKIE['mto_preview_originator'] ) ) {
+		return null;
+	}
+
+	if ( ! get_user_meta( get_current_user_id(), '_masteriyo_is_demo_student', true ) ) {
+		return null;
+	}
+
+	$originator = masteriyo_validate_preview_originator_cookie();
+	if ( ! $originator ) {
+		return null;
+	}
+
+	// Match the exit flow: a revoked originator session — logout elsewhere,
+	// password change — invalidates the preview now, not at cookie expiry.
+	if ( ! \WP_Session_Tokens::get_instance( $originator['admin_id'] )->verify( $originator['session_token'] ) ) {
+		return null;
+	}
+
+	$covered_course_id = masteriyo_validate_student_preview_cookie_for_user( $originator['admin_id'] );
+	if ( $covered_course_id <= 0 ) {
+		return null;
+	}
+
+	$covered = get_post( $covered_course_id );
+	if ( ! $covered || 'mto-course' !== $covered->post_type ) {
+		return null;
+	}
+
+	// The cookie stays valid for four hours, but the originator's rights can
+	// change inside that window — the owner can unpublish, a role can go away.
+	// Re-check at request time: the session only shows what its originator
+	// can still edit.
+	if ( ! user_can( $originator['admin_id'], 'edit_post', $covered_course_id ) ) {
+		return null;
+	}
+
+	if ( in_array( $covered->post_status, array( \Masteriyo\Enums\PostStatus::PUBLISH, \Masteriyo\Enums\PostStatus::TRASH ), true ) ) {
+		return null;
+	}
+
+	return $covered;
+}
+
+/**
  * During a validated student preview session, let the impersonated demo
  * student view the covered course even when it is unpublished.
  *
  * WP core lets a singular query pass its status check when the query names
  * the post status explicitly — the same mechanism the private-course filter
- * in FrontendQuery uses. No capability is granted anywhere, so the session
- * changes nothing outside this one main query: not edit checks, not
- * purchasability, not catalog visibility.
+ * in FrontendQuery uses. This is the first of the two exceptions a preview
+ * needs; the masteriyo_course_is_visible filter below is the second, and
+ * opens the templates' visibility gate for the same course. Neither grants a
+ * capability: edit checks and purchasability are untouched.
  *
  * The scope is strict. The query must be the frontend main query for the
  * exact course the preview cookie covers. The current user must be a demo
@@ -683,7 +741,7 @@ function masteriyo_current_user_can_student_preview(): bool {
  * @param \WP_Query $query The WordPress query object.
  */
 function masteriyo_student_preview_show_covered_course( $query ): void {
-	if ( is_admin() || ! $query->is_main_query() || empty( $_COOKIE['mto_preview_originator'] ) ) {
+	if ( ! $query->is_main_query() ) {
 		return;
 	}
 
@@ -692,42 +750,12 @@ function masteriyo_student_preview_show_covered_course( $query ): void {
 		return;
 	}
 
-	if ( ! get_user_meta( get_current_user_id(), '_masteriyo_is_demo_student', true ) ) {
+	$covered = masteriyo_get_student_preview_covered_post();
+	if ( ! $covered ) {
 		return;
 	}
 
-	$originator = masteriyo_validate_preview_originator_cookie();
-	if ( ! $originator ) {
-		return;
-	}
-
-	// Match the exit flow: a revoked originator session — logout elsewhere,
-	// password change — invalidates the preview now, not at cookie expiry.
-	if ( ! \WP_Session_Tokens::get_instance( $originator['admin_id'] )->verify( $originator['session_token'] ) ) {
-		return;
-	}
-
-	$covered_course_id = masteriyo_validate_student_preview_cookie_for_user( $originator['admin_id'] );
-	if ( $covered_course_id <= 0 ) {
-		return;
-	}
-
-	$covered = get_post( $covered_course_id );
-	if ( ! $covered || 'mto-course' !== $covered->post_type ) {
-		return;
-	}
-
-	// The cookie stays valid for four hours, but the originator's rights can
-	// change inside that window — the owner can unpublish, a role can go away.
-	// Re-check at request time: the session only shows what its originator
-	// can still edit.
-	if ( ! user_can( $originator['admin_id'], 'edit_post', $covered_course_id ) ) {
-		return;
-	}
 	$status = $covered->post_status;
-	if ( in_array( $status, array( \Masteriyo\Enums\PostStatus::PUBLISH, \Masteriyo\Enums\PostStatus::TRASH ), true ) ) {
-		return;
-	}
 
 	// Drafts and pending courses resolve by ID; private and scheduled courses
 	// resolve by their pretty permalink. Slug matching is safe only for the
@@ -740,7 +768,7 @@ function masteriyo_student_preview_show_covered_course( $query ): void {
 	);
 	$queried_id   = isset( $query->query_vars['p'] ) ? (int) $query->query_vars['p'] : 0;
 	$queried_name = isset( $query->query_vars['name'] ) ? (string) $query->query_vars['name'] : '';
-	$is_covered   = $queried_id === $covered_course_id
+	$is_covered   = $queried_id === $covered->ID
 		|| ( $slug_safe && '' !== $queried_name && $queried_name === $covered->post_name );
 	if ( ! $is_covered ) {
 		return;
@@ -749,6 +777,32 @@ function masteriyo_student_preview_show_covered_course( $query ): void {
 	$query->set( 'post_status', array( $status ) );
 }
 add_action( 'pre_get_posts', 'masteriyo_student_preview_show_covered_course' );
+
+/**
+ * Let the covered course pass the templates' visibility gate during a preview.
+ *
+ * Forcing the status into the main query stops the 404, but every single-course
+ * template also returns early on Course::is_visible(), which falls back to an
+ * edit_post check no demo student can pass — so the page rendered with an empty
+ * content area (#1487). The exception is the same single course the query
+ * exception already covers, and it is deliberately unconditional for that
+ * course: a creator who asked to preview an unpublished course sees its page
+ * whatever its catalog visibility says.
+ */
+add_filter(
+	'masteriyo_course_is_visible',
+	static function ( $visible, $course_id ) {
+		if ( $visible ) {
+			return $visible;
+		}
+
+		$covered = masteriyo_get_student_preview_covered_post();
+
+		return $covered && $covered->ID === (int) $course_id ? true : $visible;
+	},
+	10,
+	2
+);
 
 /**
  * Force wp-auth-check:false in every Heartbeat response while a student preview

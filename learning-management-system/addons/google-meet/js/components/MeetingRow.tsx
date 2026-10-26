@@ -278,7 +278,7 @@ const MeetingRow: React.FC<Props> = (props) => {
 							fontWeight="semibold"
 						>
 							<RiCalendar2Line />
-							{__('Google Calender', 'learning-management-system')}
+							{__('Google Calendar', 'learning-management-system')}
 						</Button>
 					</Link>
 

@@ -160,18 +160,6 @@ class CoursePasswordProtectionHandler extends AjaxHandler {
 	}
 
 	/**
-	 * Send an error JSON response.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param string $message The error message.
-	 * @param int $status_code The HTTP status code, default is 400.
-	 */
-	private function send_error_response( $message, $status_code = 400 ) {
-		wp_send_json_error( array( 'message' => $message ), $status_code );
-	}
-
-	/**
 	 * Send a successful JSON response.
 	 *
 	 * @since 1.8.0

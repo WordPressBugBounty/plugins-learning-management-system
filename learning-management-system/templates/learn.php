@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 
 <!DOCTYPE html>
-<html lang="en" <?php echo( is_rtl() ? 'dir="rtl"' : '' ); ?> >
+<html <?php language_attributes(); ?>>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 	</head>
 
 	<body <?php body_class(); ?> translate="no">
+		<?php wp_body_open(); ?>
 		<div id="masteriyo-interactive-course"></div>
 		<?php wp_footer(); ?>
 	</body>

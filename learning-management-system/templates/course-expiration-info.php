@@ -10,8 +10,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$date_format     = 'M j, Y';
-$time_format     = 'g:i A';
+$date_format     = masteriyo_date_format();
+$time_format     = masteriyo_time_format();
 $datetime_format = $date_format . ' ' . $time_format;
 
 $layout = masteriyo_get_setting( 'single_course.display.template.layout' );

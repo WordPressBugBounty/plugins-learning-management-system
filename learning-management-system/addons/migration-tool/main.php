@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Migration Tool
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Effortlessly migrate data from various LMS platforms to Masteriyo with the Masteriyo Migration Tool.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

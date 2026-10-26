@@ -59,6 +59,6 @@ class RestoreCourseAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Restore a trashed course back to its previous published or draft state.', 'learning-management-system' );
+		return 'Restore a trashed course back to its previous published or draft state.';
 	}
 }

@@ -58,6 +58,6 @@ class UpdateQuestionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing question text, type, or answer choices.', 'learning-management-system' );
+		return 'Update an existing question text, type, or answer choices.';
 	}
 }

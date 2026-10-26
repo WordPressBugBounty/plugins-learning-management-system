@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: WooCommerce Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Addon Type: integration
  * Description: WooCommerce Integration allows to enroll users using WooCommerce checkout process and payment methods.
  * Author: Masteriyo

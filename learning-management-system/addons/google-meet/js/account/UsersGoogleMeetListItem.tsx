@@ -8,6 +8,7 @@ import StatusBadge from '../../../../assets/js/account/common/StatusBadge';
 import AuthorList from '../../../../assets/js/back-end/components/common/AuthorList';
 import { GoogleMeetStatus } from '../Enums/Enum';
 import { GoogleMeetSchema } from '../schemas';
+import { getSiteDate } from '../../../../assets/js/back-end/utils/utils';
 
 interface Props {
 	data: GoogleMeetSchema;
@@ -17,7 +18,7 @@ const SessionDate: React.FC<{ value?: string | Date }> = ({ value }) => (
 	<Stack direction="row" spacing="2" alignItems="center" color="gray.600">
 		<Icon as={BiCalendar} />
 		<Text as="span" fontSize="sm" fontWeight="normal" color="saint-blue">
-			{value ? new Date(value).toLocaleString() : null}
+			{value ? getSiteDate(value, true) : null}
 		</Text>
 	</Stack>
 );

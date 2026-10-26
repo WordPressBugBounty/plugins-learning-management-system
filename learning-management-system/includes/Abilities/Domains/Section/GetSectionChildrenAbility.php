@@ -35,40 +35,10 @@ class GetSectionChildrenAbility extends RestProxyAbility {
 
 	/**
 	 * {@inheritdoc}
+	 * The section comes from the `section` query param, not a path segment.
 	 */
 	protected function rest_base(): string {
-		return 'sections';
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * Routes to /masteriyo/v1/sections/{id}/children.
-	 */
-	protected function route_suffix(): string {
-		return 'children';
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * Prepends a required 'id' field (the section ID) to the collection params
-	 * so AI callers know which section to fetch children for.
-	 */
-	public function get_input_schema(): array {
-		$schema = parent::get_input_schema();
-
-		$schema['required']   = array( 'id' );
-		$schema['properties'] = array_merge(
-			array(
-				'id' => array(
-					'type'        => 'integer',
-					'description' => __( 'Section ID to retrieve children for.', 'learning-management-system' ),
-					'minimum'     => 1,
-				),
-			),
-			isset( $schema['properties'] ) ? $schema['properties'] : array()
-		);
-
-		return $schema;
+		return 'sections/children';
 	}
 
 	/**
@@ -89,6 +59,6 @@ class GetSectionChildrenAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve all lessons and quizzes belonging to a section.', 'learning-management-system' );
+		return 'Retrieve all lessons and quizzes belonging to a section.';
 	}
 }

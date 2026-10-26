@@ -27,6 +27,27 @@ export type GroupSchema = {
 	} | null;
 };
 
+export type MemberCourseProgress = {
+	course_id: number;
+	enrollment_status: string | null;
+	progress_status: string | null;
+	percentage: number;
+	lessons: { completed: number; total: number };
+	quizzes: { completed: number; total: number };
+	started_at: string | null;
+	modified_at: string | null;
+	completed_at: string | null;
+};
+
+export type GroupProgressSchema = {
+	courses: { id: number; name: string; permalink: string }[];
+	members: {
+		email: string;
+		user: { id: number; display_name: string; avatar_url: string } | null;
+		courses: MemberCourseProgress[];
+	}[];
+};
+
 export type GroupSettingsSchema = {
 	deactivate_enrollment_on_status_change: boolean;
 	deactivate_enrollment_on_member_change: boolean;

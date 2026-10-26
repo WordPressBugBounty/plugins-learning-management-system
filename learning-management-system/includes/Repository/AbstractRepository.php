@@ -91,14 +91,15 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Model $model      Model object.
-	 * @param MetaData $meta    MetaData object.
+	 * @param \Masteriyo\Database\Model $model Model object.
+	 * @param MetaData                  $meta  MetaData object.
 	 *
 	 * @return void
 	 */
 	public function delete_meta( &$model, $meta ) {
 		// TODO Abstract the delete_metadata_by_mid().
 		delete_metadata_by_mid( $this->meta_type, $meta->id );
+		$this->invalidate_metadata_cache( $model->get_id() );
 	}
 
 	/**
@@ -106,13 +107,16 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Model $model      Model object.
-	 * @param MetaData $meta    MetaData object.
+	 * @param \Masteriyo\Database\Model $model Model object.
+	 * @param MetaData                  $meta  MetaData object.
 	 *
 	 * @return int meta ID.
 	 */
 	public function add_meta( &$model, $meta ) {
-		return add_metadata( $this->meta_type, $model->get_id(), $meta->key, $meta->value, false );
+		$meta_id = add_metadata( $this->meta_type, $model->get_id(), $meta->key, $meta->value, false );
+		$this->invalidate_metadata_cache( $model->get_id() );
+
+		return $meta_id;
 	}
 
 	/**
@@ -120,13 +124,14 @@ abstract class AbstractRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Model $mode       Model object.
-	 * @param MetaData $meta    MetaData object.
+	 * @param \Masteriyo\Database\Model $model Model object.
+	 * @param MetaData                  $meta  MetaData object.
 	 *
 	 * @return void
 	 */
 	public function update_meta( &$model, $meta ) {
 		update_metadata_by_mid( $this->meta_type, $meta->id, $meta->value, $meta->key );
+		$this->invalidate_metadata_cache( $model->get_id() );
 	}
 
 	/**

@@ -129,7 +129,7 @@ class OrdersController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -158,7 +158,7 @@ class OrdersController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -173,7 +173,7 @@ class OrdersController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -203,12 +203,12 @@ class OrdersController extends PostsController {
 					'args'                => array(
 						'ids'   => array(
 							'required'    => true,
-							'description' => __( 'Order IDs.', 'learning-management-system' ),
+							'description' => 'Order IDs.',
 							'type'        => 'array',
 						),
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -227,7 +227,7 @@ class OrdersController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Order Ids', 'learning-management-system' ),
+							'description' => 'Order Ids',
 							'type'        => 'array',
 						),
 					),
@@ -262,7 +262,7 @@ class OrdersController extends PostsController {
 		$params = parent::get_collection_params();
 
 		$params['status'] = array(
-			'description'       => __( 'Limit result set to orders assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to orders assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array_keys( masteriyo_get_order_statuses() ), array( 'any', 'trash' ) ),
 			'default'           => 'any',
@@ -271,21 +271,21 @@ class OrdersController extends PostsController {
 		);
 
 		$params['customer'] = array(
-			'description'       => __( 'Limit result set to orders assigned a specific customer.', 'learning-management-system' ),
+			'description'       => 'Limit result set to orders assigned a specific customer.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['course'] = array(
-			'description'       => __( 'Limit result set to orders assigned a specific course.', 'learning-management-system' ),
+			'description'       => 'Limit result set to orders assigned a specific course.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['created_via'] = array(
-			'description'       => __( 'Limit result set to orders that were created through a specific method.', 'learning-management-system' ),
+			'description'       => 'Limit result set to orders that were created through a specific method.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -545,123 +545,122 @@ class OrdersController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                   => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'permalink'            => array(
-					'description' => __( 'Order URL', 'learning-management-system' ),
+					'description' => 'Order URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'         => array(
-					'description' => __( "The date the Order was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the Order was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created_gmt'     => array(
-					'description' => __( 'The date the Order was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the Order was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified'        => array(
-					'description' => __( "The date the Order was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the Order was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'    => array(
-					'description' => __( 'The date the Order was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the Order was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'               => array(
-					'description' => __( 'Order status', 'learning-management-system' ),
+					'description' => 'Order status',
 					'type'        => 'string',
 					'default'     => OrderStatus::PENDING,
 					'enum'        => OrderStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'total'                => array(
-					'description' => __( 'Total amount of the order.', 'learning-management-system' ),
+					'description' => 'Total amount of the order.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'currency'             => array(
-					'description' => __( 'Currency', 'learning-management-system' ),
+					'description' => 'Currency',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'enum'        => masteriyo_get_currency_codes(),
 				),
 				'expiry_date'          => array(
-					'description' => __( 'Expiry date of this order.', 'learning-management-system' ),
+					'description' => 'Expiry date of this order.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'customer_id'          => array(
-					'description' => __( 'Customer ID', 'learning-management-system' ),
+					'description' => 'Customer ID',
 					'type'        => array( 'string', 'number' ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'payment_method'       => array(
-					'description' => __( 'Payment method.', 'learning-management-system' ),
+					'description' => 'Payment method.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
-					'enum'        => $gateway_methods,
+					// Empty on an order no gateway has handled.
+					'enum'        => array_merge( $gateway_methods, array( '' ) ),
 				),
 				'payment_method_title' => array(
-					'description' => __( 'Payment method title.', 'learning-management-system' ),
+					'description' => 'Payment method title.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
-					'enum'        => array( 'Paypal' ),
 				),
 				'transaction_id'       => array(
-					'description' => __( 'Transaction ID', 'learning-management-system' ),
+					'description' => 'Transaction ID',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_paid'            => array(
-					'description' => __( 'Date of payment.', 'learning-management-system' ),
+					'description' => 'Date of payment.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_completed'       => array(
-					'description' => __( 'Date of order completion.', 'learning-management-system' ),
+					'description' => 'Date of order completion.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'created_via'          => array(
-					'description' => __( 'Method of order creation.', 'learning-management-system' ),
+					'description' => 'Method of order creation.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'customer_ip_address'  => array(
-					'description' => __( 'Customer IP address', 'learning-management-system' ),
+					'description' => 'Customer IP address',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'customer_user_agent'  => array(
-					'description' => __( 'Customer user agent', 'learning-management-system' ),
+					'description' => 'Customer user agent',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'version'              => array(
 					'description' => sprintf(
-						/* translators: %s: the product's name */
-						__( 'Version of %s which last updated the order.', 'learning-management-system' ),
+						'Version of %s which last updated the order.',
 						masteriyo_get_plugin_name()
 					),
 					'type'        => 'string',
@@ -669,137 +668,137 @@ class OrdersController extends PostsController {
 					'readonly'    => true,
 				),
 				'order_key'            => array(
-					'description' => __( 'Order key', 'learning-management-system' ),
+					'description' => 'Order key',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'customer_note'        => array(
-					'description' => __( 'Note left by customer during checkout.', 'learning-management-system' ),
+					'description' => 'Note left by customer during checkout.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'payment_sheet_id'     => array(
-					'description' => __( 'Payment invoice number thats saved during offline payment checkout.', 'learning-management-system' ),
+					'description' => 'Payment invoice number thats saved during offline payment checkout.',
 					'type'        => 'number',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'cart_hash'            => array(
-					'description' => __( 'MD5 hash of cart items to ensure orders are not modified.', 'learning-management-system' ),
+					'description' => 'MD5 hash of cart items to ensure orders are not modified.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'billing'              => array(
-					'description' => __( 'Order billing details.', 'learning-management-system' ),
+					'description' => 'Order billing details.',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'first_name' => array(
-							'description' => __( 'Order billing first name.', 'learning-management-system' ),
+							'description' => 'Order billing first name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'last_name'  => array(
-							'description' => __( 'Order billing last name.', 'learning-management-system' ),
+							'description' => 'Order billing last name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'company'    => array(
-							'description' => __( 'Order billing company name.', 'learning-management-system' ),
+							'description' => 'Order billing company name.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_1'  => array(
-							'description' => __( 'Order billing address 1.', 'learning-management-system' ),
+							'description' => 'Order billing address 1.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'address_2'  => array(
-							'description' => __( 'Order billing address 2.', 'learning-management-system' ),
+							'description' => 'Order billing address 2.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'city'       => array(
-							'description' => __( 'Order billing city.', 'learning-management-system' ),
+							'description' => 'Order billing city.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'postcode'   => array(
-							'description' => __( 'Order billing post code.', 'learning-management-system' ),
+							'description' => 'Order billing post code.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'country'    => array(
-							'description' => __( 'Order billing country.', 'learning-management-system' ),
+							'description' => 'Order billing country.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'state'      => array(
-							'description' => __( 'Order billing state.', 'learning-management-system' ),
+							'description' => 'Order billing state.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'email'      => array(
-							'description' => __( 'Order billing email address.', 'learning-management-system' ),
+							'description' => 'Order billing email address.',
 							'type'        => 'email',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'phone'      => array(
-							'description' => __( 'Order billing phone number.', 'learning-management-system' ),
+							'description' => 'Order billing phone number.',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 					),
 				),
 				'set_paid'             => array(
-					'description' => __( 'Set whether the payment is done.', 'learning-management-system' ),
+					'description' => 'Set whether the payment is done.',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_lines'         => array(
-					'description' => __( 'Course items data', 'learning-management-system' ),
+					'description' => 'Course items data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'      => 'object',
 						'id'        => array(
-							'description' => __( 'Item ID', 'learning-management-system' ),
+							'description' => 'Item ID',
 							'type'        => 'integer',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'course_id' => array(
-							'description' => __( 'Order billing last name.', 'learning-management-system' ),
+							'description' => 'Order billing last name.',
 							'type'        => 'integer',
 							'required'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'name'      => array(
-							'description' => __( 'Course name', 'learning-management-system' ),
+							'description' => 'Course name',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'quantity'  => array(
-							'description' => __( 'Quantity ordered.', 'learning-management-system' ),
+							'description' => 'Quantity ordered.',
 							'type'        => 'integer',
 							'default'     => 1,
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
 						),
 						'subtotal'  => array(
-							'description' => __( 'Course total (before discounts).', 'learning-management-system' ),
+							'description' => 'Course total (before discounts).',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'total'     => array(
-							'description' => __( 'Course total (after discounts).', 'learning-management-system' ),
+							'description' => 'Course total (after discounts).',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 						),
 						'price'     => array(
-							'description' => __( 'Course price', 'learning-management-system' ),
+							'description' => 'Course price',
 							'type'        => 'number',
 							'readonly'    => true,
 							'context'     => array( 'view', 'edit' ),
@@ -807,25 +806,25 @@ class OrdersController extends PostsController {
 					),
 				),
 				'meta_data'            => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1019,7 +1018,7 @@ class OrdersController extends PostsController {
 		if ( is_null( $order ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -1624,7 +1623,7 @@ class OrdersController extends PostsController {
 		if ( ! $this->permission->rest_check_post_permissions( $this->post_type, 'batch' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

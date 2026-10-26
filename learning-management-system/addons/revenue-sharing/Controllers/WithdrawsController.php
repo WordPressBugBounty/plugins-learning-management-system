@@ -120,7 +120,7 @@ class WithdrawsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -533,7 +533,7 @@ class WithdrawsController extends PostsController {
 			if ( '1' !== (string) $lock ) {
 				return new WP_Error(
 					'masteriyo_rest_withdraw_in_progress',
-					__( 'Another withdraw request is being processed. Please try again.', 'learning-management-system' ),
+					__( 'Another withdrawal request is being processed. Please try again.', 'learning-management-system' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -548,7 +548,7 @@ class WithdrawsController extends PostsController {
 			if ( $amount <= 0 || $amount > $withdrawable ) {
 				return new WP_Error(
 					'masteriyo_rest_invalid_withdraw_amount',
-					__( 'The withdraw amount must be greater than zero and cannot exceed your withdrawable balance.', 'learning-management-system' ),
+					__( 'The withdrawal amount must be greater than zero and cannot exceed your withdrawable balance.', 'learning-management-system' ),
 					array( 'status' => 400 )
 				);
 			}

@@ -79,7 +79,7 @@ class InstructorsController extends UsersController {
 		$params = parent::get_collection_params();
 
 		$params['approved'] = array(
-			'description'       => __( 'Whether the instructor is approved or not.', 'learning-management-system' ),
+			'description'       => 'Whether the instructor is approved or not.',
 			'type'              => 'boolean',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
@@ -111,7 +111,7 @@ class InstructorsController extends UsersController {
 			$schema['properties'],
 			array(
 				'approved' => array(
-					'description' => __( 'Instructor approved.', 'learning-management-system' ),
+					'description' => 'Instructor approved.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

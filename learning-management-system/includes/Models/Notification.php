@@ -326,7 +326,7 @@ class Notification extends Model {
 	 *
 	 * @since 1.7.1
 	 *
-	 * @param string $created_at Notification created at.
+	 * @param string|int $created_at Notification created at: a UTC timestamp, or a datetime string in the site timezone.
 	 */
 	public function set_created_at( $created_at ) {
 		$this->set_date_prop( 'created_at', $created_at );

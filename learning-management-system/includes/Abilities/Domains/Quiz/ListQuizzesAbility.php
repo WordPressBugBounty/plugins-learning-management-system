@@ -59,6 +59,6 @@ class ListQuizzesAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of quizzes, optionally filtered by course or section.', 'learning-management-system' );
+		return 'Retrieve a paginated list of quizzes, optionally filtered by course or section.';
 	}
 }

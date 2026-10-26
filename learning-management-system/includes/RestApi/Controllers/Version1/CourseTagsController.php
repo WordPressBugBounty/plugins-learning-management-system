@@ -74,13 +74,13 @@ class CourseTagsController extends RestTermsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'        => array(
-					'description' => __( 'Tag name', 'learning-management-system' ),
+					'description' => 'Tag name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'arg_options' => array(
@@ -88,7 +88,7 @@ class CourseTagsController extends RestTermsController {
 					),
 				),
 				'slug'        => array(
-					'description' => __( 'An alphanumeric identifier for the resource unique to its type.', 'learning-management-system' ),
+					'description' => 'An alphanumeric identifier for the resource unique to its type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'arg_options' => array(
@@ -96,7 +96,7 @@ class CourseTagsController extends RestTermsController {
 					),
 				),
 				'description' => array(
-					'description' => __( 'HTML description of the resource.', 'learning-management-system' ),
+					'description' => 'HTML description of the resource.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'arg_options' => array(
@@ -104,12 +104,12 @@ class CourseTagsController extends RestTermsController {
 					),
 				),
 				'term_order'  => array(
-					'description' => __( 'Term order, used to custom sort the resource.', 'learning-management-system' ),
+					'description' => 'Term order, used to custom sort the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'count'       => array(
-					'description' => __( 'Number of published courses for the resource.', 'learning-management-system' ),
+					'description' => 'Number of published courses for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,

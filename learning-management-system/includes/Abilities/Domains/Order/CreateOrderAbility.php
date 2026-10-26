@@ -43,6 +43,6 @@ class CreateOrderAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Create a new course purchase order. Requires customer_id and course_ids (array of course IDs). Optionally accepts payment_method and coupon_code. Returns the created order object with its ID and total.', 'learning-management-system' );
+		return 'Create a new course purchase order. Requires customer_id and course_ids (array of course IDs). Optionally accepts payment_method and coupon_code. Returns the created order object with its ID and total.';
 	}
 }

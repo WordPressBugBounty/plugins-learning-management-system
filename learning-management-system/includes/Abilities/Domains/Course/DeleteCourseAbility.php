@@ -59,6 +59,6 @@ class DeleteCourseAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Move a course to trash. Use force=true to permanently delete.', 'learning-management-system' );
+		return 'Move a course to trash. Use force=true to permanently delete.';
 	}
 }

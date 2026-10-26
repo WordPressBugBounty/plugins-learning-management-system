@@ -37,7 +37,7 @@ const H5PQuizAttemptDetails = () => {
 		<Stack direction="column" spacing="10">
 			<Stack gap={8}>
 				<PageTitle
-					title={__('Quiz Attempts Details', 'learning-management-system')}
+					title={__('Quiz Attempt Details', 'learning-management-system')}
 					beforeTitle={
 						<Tooltip label={__('Back', 'learning-management-system')}>
 							<BackToListButton onClick={() => navigate(-1)} />

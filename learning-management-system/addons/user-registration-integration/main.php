@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: User Registration Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: User Registration Integration addon integrates with User Registration Plugin to maximize registration process.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

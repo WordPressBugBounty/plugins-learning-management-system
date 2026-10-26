@@ -172,6 +172,9 @@ class UserRepository extends AbstractRepository implements RepositoryInterface {
 				array( '%d' )
 			);
 
+			// The row above was cached before this write, so drop it or the next read reports the old status (#881).
+			clean_user_cache( $id );
+
 			$user->set_id( $id );
 			$user->set_object_read( true );
 			$this->update_user_meta( $user, true );

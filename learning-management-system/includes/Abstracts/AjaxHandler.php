@@ -22,4 +22,14 @@ abstract class AjaxHandler {
 	 * @since 1.4.3
 	 */
 	abstract public function register();
+
+	/**
+	 * Send an error JSON response.
+	 *
+	 * @param string $message The error message.
+	 * @param int    $status_code The HTTP status code.
+	 */
+	protected function send_error_response( $message, $status_code = 400 ) {
+		wp_send_json_error( array( 'message' => $message ), $status_code );
+	}
 }

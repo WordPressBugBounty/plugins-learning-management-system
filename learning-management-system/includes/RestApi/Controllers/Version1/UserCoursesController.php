@@ -123,7 +123,7 @@ class UserCoursesController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -152,7 +152,7 @@ class UserCoursesController extends CrudController {
 					'args'                => array(
 						'force' => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -171,7 +171,7 @@ class UserCoursesController extends CrudController {
 	 */
 	public function get_collection_params() {
 		$params['page'] = array(
-			'description'       => __( 'Paginate the course progress.', 'learning-management-system' ),
+			'description'       => 'Paginate the course progress.',
 			'type'              => 'integer',
 			'default'           => 1,
 			'sanitize_callback' => 'absint',
@@ -180,7 +180,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['per_page'] = array(
-			'description'       => __( 'Limit course progress per page.', 'learning-management-system' ),
+			'description'       => 'Limit course progress per page.',
 			'type'              => 'integer',
 			'default'           => 10,
 			'minimum'           => 1,
@@ -189,7 +189,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['user'] = array(
-			'description'       => __( 'Ensure result set specific users.', 'learning-management-system' ),
+			'description'       => 'Ensure result set specific users.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -199,7 +199,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['course'] = array(
-			'description'       => __( 'Ensure result set specific courses.', 'learning-management-system' ),
+			'description'       => 'Ensure result set specific courses.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -209,7 +209,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['user_id'] = array(
-			'description'       => __( 'User ID', 'learning-management-system' ),
+			'description'       => 'User ID',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -217,7 +217,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['status'] = array(
-			'description'       => __( 'User course status', 'learning-management-system' ),
+			'description'       => 'User course status',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_title',
 			'default'           => UserCourseStatus::ANY,
@@ -226,21 +226,21 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['started_at'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['modified_at'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['order'] = array(
-			'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description'       => 'Order sort attribute ascending or descending.',
 			'type'              => 'string',
 			'default'           => 'desc',
 			'enum'              => array( 'asc', 'desc' ),
@@ -248,7 +248,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['orderby'] = array(
-			'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description'       => 'Sort collection by object attribute.',
 			'type'              => 'string',
 			'default'           => 'id',
 			'enum'              => array(
@@ -260,7 +260,7 @@ class UserCoursesController extends CrudController {
 		);
 
 		$params['from_account_dashboard'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'boolean',
 			'default'           => false,
 			'validate_callback' => 'rest_validate_request_arg',
@@ -521,41 +521,41 @@ class UserCoursesController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'user_id'     => array(
-					'description' => __( 'User ID', 'learning-management-system' ),
+					'description' => 'User ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'   => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'type'        => array(
-					'description' => __( 'Item type (e.g. Course)', 'learning-management-system' ),
+					'description' => 'Item type (e.g. Course)',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'status'      => array(
-					'description' => __( 'Course progress status.', 'learning-management-system' ),
+					'description' => 'Course progress status.',
 					'type'        => 'string',
 					'enum'        => UserCourseStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'started_at'  => array(
-					'description' => __( 'Course progress start date in GMT.', 'learning-management-system' ),
+					'description' => 'Course progress start date in GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'modified_at' => array(
-					'description' => __( 'Course progress modified date in GMT.', 'learning-management-system' ),
+					'description' => 'Course progress modified date in GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
@@ -623,7 +623,7 @@ class UserCoursesController extends CrudController {
 			if ( ! empty( $user_courses ) ) {
 				return new \WP_Error(
 					'rest_user_course_exists',
-					__( 'User is already enrolled to the course.', 'learning-management-system' ),
+					__( 'User is already enrolled in the course.', 'learning-management-system' ),
 					array( 'status' => 400 )
 				);
 			}

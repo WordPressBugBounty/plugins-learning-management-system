@@ -33,6 +33,7 @@ use Masteriyo\RestApi\Controllers\Version1\QuizesController;
 use Masteriyo\RestApi\Controllers\Version1\LessonsController;
 use Masteriyo\RestApi\Controllers\Version1\SectionsController;
 use Masteriyo\RestApi\Controllers\Version1\SettingsController;
+use Masteriyo\RestApi\Controllers\Version1\SiteImportExportController;
 use Masteriyo\RestApi\Controllers\Version1\WebhooksController;
 use Masteriyo\RestApi\Controllers\Version1\AnalyticsController;
 use Masteriyo\RestApi\Controllers\Version1\QuestionsController;
@@ -184,6 +185,7 @@ class RestApi {
 			'openai'                      => OpenAIController::class,
 			'users.import-export'         => UsersImportExportController::class,
 			'quizzes.import-export'       => QuizzesImportExportController::class,
+			'site.import-export'          => SiteImportExportController::class,
 			'nav-menu-notice'             => NavMenuController::class,
 			'single-course-layout-notice' => SingleCourseLayoutNoticeController::class,
 			'tools.utilities'             => UtilitiesController::class,

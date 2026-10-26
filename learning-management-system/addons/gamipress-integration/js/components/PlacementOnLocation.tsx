@@ -2,33 +2,39 @@ import { Flex, Stack, Text } from '@chakra-ui/react';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { isEmpty } from '../../../../assets/js/back-end/utils/utils';
-import { RewardType } from '../enums/enums';
+import { AccountPageLocation, RewardType } from '../enums/enums';
+
+type PointTypeData = NonNullable<Props['pointTypes']>[string];
+type RankTypeData = NonNullable<Props['rankTypes']>[string];
+type AchievementTypeData = NonNullable<Props['achievementTypes']>[string];
 
 interface Props {
-	location: string;
+	location: string | string[];
 	page?: string;
 	placementId?: string;
+	showTypeHeading?: boolean;
 	renderPoint: (
-		pointTypeData: { [key: string]: any },
+		pointTypeData: PointTypeData,
 		placement: UiPlacementData,
 	) => React.ReactNode;
 	renderRank: (
-		rankTypeData: { [key: string]: any },
+		rankTypeData: RankTypeData,
 		placement: UiPlacementData,
 	) => React.ReactNode;
 	renderAchievement: (
-		achievementData: {
-			label: string;
-			image_url: string;
-		},
-		achievementTypeData: { [key: string]: any },
+		achievementData: AchievementTypeData['achievements'][number],
+		achievementTypeData: AchievementTypeData,
+		placement: UiPlacementData,
+	) => React.ReactNode;
+	wrapItems?: (
+		items: React.ReactNode[],
 		placement: UiPlacementData,
 	) => React.ReactNode;
 	wrapPlacementGroup?: (
-		contents: React.ReactNode,
+		contents: React.ReactNode[],
 		placement: UiPlacementData,
 	) => React.ReactNode;
-	render?: (contents: React.ReactNode) => React.ReactNode;
+	render?: (contents: React.ReactNode[]) => React.ReactNode;
 
 	uiPlacements?: UiPlacementData[];
 	pointTypes?: {
@@ -62,13 +68,35 @@ interface Props {
 	};
 }
 
+const NON_SIDEBAR_LOCATIONS: string[] = [
+	AccountPageLocation.NEW_TAB,
+	AccountPageLocation.DASHBOARD_NEW_SECTION,
+	AccountPageLocation.DASHBOARD_CARD,
+];
+
 const PlacementOnLocation: React.FC<Props> = (props) => {
 	const {
 		page,
 		location,
+		showTypeHeading = true,
 		renderPoint,
 		renderRank,
 		renderAchievement,
+		wrapItems = (items, placement) => {
+			const isInsideSidebar = !NON_SIDEBAR_LOCATIONS.includes(
+				placement.location ?? '',
+			);
+
+			return (
+				<Stack
+					width={'full'}
+					spacing={isInsideSidebar ? 3 : 6}
+					direction={isInsideSidebar ? 'column' : 'row'}
+				>
+					{items}
+				</Stack>
+			);
+		},
 		wrapPlacementGroup = (contents) => contents,
 		render = (contents) => contents,
 		placementId,
@@ -81,20 +109,21 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 	const alreadyAddedRankTypes: string[] = [];
 	const alreadyAddedAchievementTypes: string[] = [];
 	const allComponents: React.ReactNode[] = [];
+	const locations = Array.isArray(location) ? location : [location];
 
 	uiPlacements
 		?.filter((placement) =>
 			!isEmpty(placementId)
 				? placement.id === placementId
-				: placement.page === page && placement.location === location,
+				: placement.page === page &&
+					locations.includes(placement.location ?? ''),
 		)
 		.forEach((uiPlacement) => {
 			const components: React.ReactNode[] = [];
 
-			const isAccountPlacementPositionInsideSidebar =
-				uiPlacement.location !== 'new-tab' &&
-				uiPlacement.location !== 'dashboard-new-section' &&
-				uiPlacement.location !== 'dashboard-card';
+			const showHeading =
+				showTypeHeading &&
+				!NON_SIDEBAR_LOCATIONS.includes(uiPlacement.location ?? '');
 
 			if (RewardType.POINT === uiPlacement.reward_type && pointTypes) {
 				const pointTypesToShow = isEmpty(uiPlacement.types)
@@ -103,12 +132,7 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				const pointItems: React.ReactNode[] = [];
 
-				if (
-					pointTypesToShow?.length &&
-					uiPlacement.location !== 'new-tab' &&
-					uiPlacement.location !== 'dashboard-new-section' &&
-					uiPlacement.location !== 'dashboard-card'
-				) {
+				if (showHeading && pointTypesToShow?.length) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'}>
 							<Text
@@ -137,16 +161,9 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				if (pointItems.length > 0) {
 					components.push(
-						<Stack
-							width={'full'}
-							key="points-stack"
-							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
-							direction={
-								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
-							}
-						>
-							{pointItems}
-						</Stack>,
+						<React.Fragment key="items">
+							{wrapItems(pointItems, uiPlacement)}
+						</React.Fragment>,
 					);
 				}
 			}
@@ -158,12 +175,7 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				const rankItems: React.ReactNode[] = [];
 
-				if (
-					rankTypesToShow?.length &&
-					uiPlacement.location !== 'new-tab' &&
-					uiPlacement.location !== 'dashboard-new-section' &&
-					uiPlacement.location !== 'dashboard-card'
-				) {
+				if (showHeading && rankTypesToShow?.length) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'}>
 							<Text
@@ -192,16 +204,9 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				if (rankItems.length > 0) {
 					components.push(
-						<Stack
-							key="points-stack"
-							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
-							direction={
-								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
-							}
-							width={'full'}
-						>
-							{rankItems}
-						</Stack>,
+						<React.Fragment key="items">
+							{wrapItems(rankItems, uiPlacement)}
+						</React.Fragment>,
 					);
 				}
 			}
@@ -216,12 +221,7 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				const achievementItems: React.ReactNode[] = [];
 
-				if (
-					achievementTypesToShow?.length &&
-					uiPlacement.location !== 'new-tab' &&
-					uiPlacement.location !== 'dashboard-new-section' &&
-					uiPlacement.location !== 'dashboard-card'
-				) {
+				if (showHeading && achievementTypesToShow?.length) {
 					components.push(
 						<Flex justifyContent={'flex-start'} alignItems={'center'} mr={1}>
 							<Text
@@ -260,16 +260,9 @@ const PlacementOnLocation: React.FC<Props> = (props) => {
 
 				if (achievementItems.length > 0) {
 					components.push(
-						<Stack
-							key="points-stack"
-							spacing={isAccountPlacementPositionInsideSidebar ? 3 : 6}
-							direction={
-								isAccountPlacementPositionInsideSidebar ? 'column' : 'row'
-							}
-							width={'full'}
-						>
-							{achievementItems}
-						</Stack>,
+						<React.Fragment key="items">
+							{wrapItems(achievementItems, uiPlacement)}
+						</React.Fragment>,
 					);
 				}
 			}

@@ -156,7 +156,7 @@ class AddonsController extends RestController {
 			array(
 				'args' => array(
 					'slug' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'string',
 					),
 				),
@@ -184,7 +184,7 @@ class AddonsController extends RestController {
 			'type'       => 'object',
 			'properties' => array(
 				'slug' => array(
-					'description' => __( 'Addon slug.', 'learning-management-system' ),
+					'description' => 'Addon slug.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
@@ -299,7 +299,7 @@ class AddonsController extends RestController {
 		if ( ! isset( $request['slug'] ) || empty( trim( $request['slug'] ) ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_addons',
-				esc_html__( 'Addon slug is a required field', 'learning-management-system' ),
+				esc_html__( 'Addon slug is a required field.', 'learning-management-system' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -473,7 +473,7 @@ class AddonsController extends RestController {
 		$params['context']['default'] = 'view';
 
 		$params['status'] = array(
-			'description'       => __( 'Addon status.', 'learning-management-system' ),
+			'description'       => 'Addon status.',
 			'type'              => 'string',
 			'default'           => 'any',
 			'sanitize_callback' => 'sanitize_text_field',

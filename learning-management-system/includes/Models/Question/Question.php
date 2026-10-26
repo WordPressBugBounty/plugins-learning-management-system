@@ -83,7 +83,26 @@ class Question extends Model {
 		'enable_description' => false,
 		'answer_explanation' => '',
 		'is_from_bank'       => false,
+		'text_direction'     => self::DIRECTION_INHERIT,
 	);
+
+	/** The question follows the page direction. */
+	const DIRECTION_INHERIT = 'inherit';
+
+	/** The question block is laid out left-to-right whatever the page is. */
+	const DIRECTION_LTR = 'ltr';
+
+	/** The question block is laid out right-to-left whatever the page is. */
+	const DIRECTION_RTL = 'rtl';
+
+	/**
+	 * The values a text direction may take.
+	 *
+	 * @return list<'inherit'|'ltr'|'rtl'>
+	 */
+	public static function text_directions() {
+		return array( self::DIRECTION_INHERIT, self::DIRECTION_LTR, self::DIRECTION_RTL );
+	}
 
 	/**
 	 * Get the question if ID.
@@ -474,6 +493,17 @@ class Question extends Model {
 		return $this->get_prop( 'is_from_bank', $context );
 	}
 
+	/**
+	 * The text direction of the question block: inherit, ltr or rtl.
+	 *
+	 * @param string $context What the value is for. Valid values are view and edit.
+	 *
+	 * @return string
+	 */
+	public function get_text_direction( $context = 'view' ) {
+		return $this->get_prop( 'text_direction', $context );
+	}
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -688,6 +718,15 @@ class Question extends Model {
 	 */
 	public function set_is_from_bank( $is_from_bank ) {
 		$this->set_prop( 'is_from_bank', $is_from_bank );
+	}
+
+	/**
+	 * Set the text direction; anything but ltr or rtl means inherit.
+	 *
+	 * @param string $text_direction One of inherit, ltr, rtl.
+	 */
+	public function set_text_direction( $text_direction ) {
+		$this->set_prop( 'text_direction', in_array( $text_direction, self::text_directions(), true ) ? $text_direction : self::DIRECTION_INHERIT );
 	}
 
 	/**

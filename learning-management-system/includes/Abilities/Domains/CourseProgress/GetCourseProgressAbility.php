@@ -43,6 +43,6 @@ class GetCourseProgressAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a course progress record by its ID. Requires id (progress ID). Returns the progress object including user_id, course_id, status (started, progress, completed), and completion percentage.', 'learning-management-system' );
+		return 'Retrieve a course progress record by its ID. Requires id (progress ID). Returns the progress object including user_id, course_id, status (started, progress, completed), and completion percentage.';
 	}
 }

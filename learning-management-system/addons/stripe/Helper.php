@@ -168,21 +168,20 @@ class Helper {
 	/**
 	 * Payment-method portion of the PaymentIntent parameters.
 	 *
-	 * The method list is delegated to the merchant's Stripe dashboard
-	 * (`automatic_payment_methods`), so Klarna, iDEAL, SEPA and the rest appear
-	 * as soon as the merchant enables them there — filtered by currency and
-	 * buyer country on Stripe's side. A cart holding a recurring course asks
-	 * Stripe to save the payment method for off-session renewals, which also
-	 * makes the Payment Element hide every method that cannot be reused
-	 * (Klarna, Affirm) while keeping card, SEPA, and the methods that settle
-	 * into a SEPA mandate (iDEAL, Bancontact).
+	 * The method list is delegated to the Stripe dashboard
+	 * (`automatic_payment_methods`) unless the merchant restricted checkout to
+	 * cards: in Connect mode that dashboard belongs to the platform account,
+	 * which the connected merchant cannot edit. A cart holding a recurring
+	 * course also asks Stripe to save the method for off-session renewals.
 	 *
 	 * @param boolean $has_recurring_course Whether the cart contains a recurring course.
 	 *
 	 * @return array
 	 */
 	public static function get_payment_intent_method_params( $has_recurring_course ) {
-		$params = array( 'automatic_payment_methods' => array( 'enabled' => true ) );
+		$params = Setting::is_card_only()
+			? array( 'payment_method_types' => array( 'card' ) )
+			: array( 'automatic_payment_methods' => array( 'enabled' => true ) );
 
 		if ( $has_recurring_course ) {
 			$params['setup_future_usage'] = 'off_session';
@@ -199,7 +198,8 @@ class Helper {
 	 * cart's recurring flag in both directions: a recurring cart needs the
 	 * payment method saved, and a one-time cart must not save it — an
 	 * `off_session` intent also hides the payment methods that are valid only
-	 * for one-time purchases.
+	 * for one-time purchases. Its method list must also match the Cards Only
+	 * setting, so toggling it reaches visitors with a pending intent.
 	 *
 	 * @param object $payment_intent Payment intent with nested object access.
 	 * @param integer $expected_amount Current cart amount, in the currency's minor unit.
@@ -224,6 +224,10 @@ class Helper {
 		}
 
 		if ( (bool) $has_recurring_course !== ( 'off_session' === ( $payment_intent->setup_future_usage ?? '' ) ) ) {
+			return false;
+		}
+
+		if ( Setting::is_card_only() === ! empty( $payment_intent->automatic_payment_methods->enabled ) ) {
 			return false;
 		}
 

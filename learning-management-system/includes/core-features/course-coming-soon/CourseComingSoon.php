@@ -88,30 +88,30 @@ class CourseComingSoon {
 			$schema,
 			array(
 				'course_coming_soon' => array(
-					'description' => __( 'Course Coming Soon setting', 'learning-management-system' ),
+					'description' => 'Course Coming Soon setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'enable'         => array(
-								'description' => __( 'Enable course coming soon', 'learning-management-system' ),
+								'description' => 'Enable course coming soon',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'ending_date'    => array(
-								'description' => __( 'Course coming soon end date', 'learning-management-system' ),
+								'description' => 'Course coming soon end date',
 								'type'        => 'string',
 								'format'      => 'date',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'hide_meta_data' => array(
-								'description' => __( 'Enable course meta data', 'learning-management-system' ),
+								'description' => 'Enable course meta data',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'hide_date_text' => array(
-								'description' => __( 'Enable single course text', 'learning-management-system' ),
+								'description' => 'Enable single course text',
 								'type'        => 'boolean',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -325,7 +325,7 @@ class CourseComingSoon {
 
 		$course_meta = get_post_meta( $course->get_id() );
 
-		$ending_date = $course_meta['_course_coming_soon_ending_date'];
+		$ending_date = $course_meta['_course_coming_soon_ending_date'] ?? null;
 
 		if ( ! empty( $ending_date ) ) {
 			$ending_date = end( $ending_date );
@@ -333,8 +333,7 @@ class CourseComingSoon {
 			$ending_date = null;
 		}
 
-		$display_ending_date = strtotime( $ending_date );
-		$display_ending_date = gmdate( 'F j, Y', $display_ending_date );
+		$display_ending_date = wp_date( masteriyo_date_format(), strtotime( $ending_date ) );
 
 		$ending_date = $ending_date ? new DateTime( $ending_date ) : null;
 		$ending_date = masteriyo_rest_prepare_date_response( $ending_date );
@@ -342,9 +341,9 @@ class CourseComingSoon {
 		$ending_date = new DateTime( $ending_date );
 		$ending_date = $ending_date->format( 'F j, Y H:i:s' );
 
-		$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'] ? $course_meta['_course_coming_soon_hide_meta_data'] : null;
+		$hide_meta_data = $course_meta['_course_coming_soon_hide_meta_data'] ?? null;
 
-		$hide_date_text = $course_meta['_course_coming_soon_hide_date_text'] ? $course_meta['_course_coming_soon_hide_date_text'] : null;
+		$hide_date_text = $course_meta['_course_coming_soon_hide_date_text'] ?? null;
 
 		if ( ! empty( $hide_meta_data ) ) {
 			$hide_meta_data = end( $hide_meta_data );

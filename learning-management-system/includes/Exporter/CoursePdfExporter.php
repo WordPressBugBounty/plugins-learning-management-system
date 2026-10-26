@@ -16,6 +16,7 @@ namespace Masteriyo\Exporter;
 
 use Exception;
 use Masteriyo\AdminFileDownloadHandler;
+use Masteriyo\Enums\QuizPassMarkType;
 use Masteriyo\FileHandler;
 use Mpdf\Mpdf;
 use Mpdf\Output\Destination;
@@ -109,11 +110,25 @@ class CoursePdfExporter {
 			wp_mkdir_p( $temp_dir );
 		}
 
+		// Release zips omit mPDF's fonts, so use the DejaVu files downloaded for certificates.
+		// Only regular and bold ship there; listing just those makes other styles fall back to them.
+		$font_dirs   = ( new \Mpdf\Config\ConfigVariables() )->getDefaults()['fontDir'];
+		$font_dirs[] = wp_upload_dir()['basedir'] . '/masteriyo/certificate-fonts';
+
 		try {
-			// Try with UTF-8 mode and default fonts
 			$this->mpdf = new Mpdf(
 				array(
 					'tempDir'           => $temp_dir,
+					'fontDir'           => $font_dirs,
+					'fontdata'          => array(
+						'dejavusanscondensed' => array(
+							'R'          => 'DejaVuSansCondensed.ttf',
+							'B'          => 'DejaVuSansCondensed-Bold.ttf',
+							'useOTL'     => 0xFF,
+							'useKashida' => 75,
+						),
+					),
+					'default_font'      => 'dejavusanscondensed',
 					'mode'              => 'utf-8',
 					'format'            => 'A4',
 					'margin_left'       => 20,
@@ -132,6 +147,11 @@ class CoursePdfExporter {
 				)
 			);
 		} catch ( \Exception $e ) {
+			masteriyo_get_logger()->warning(
+				'Course PDF export fell back to core fonts, which cannot render non-Latin text: ' . $e->getMessage(),
+				array( 'source' => 'course-pdf-export' )
+			);
+
 			// If that fails, use core fonts mode which doesn't require TTF files
 			$this->mpdf = new Mpdf(
 				array(
@@ -346,7 +366,7 @@ class CoursePdfExporter {
 		$author       = masteriyo_get_user( $this->course->get_author_id() );
 		$author_name  = $author ? esc_html( $author->get_display_name() ) : __( 'Unknown Author', 'learning-management-system' );
 		$publish_date = $this->course->get_date_created() ?
-			esc_html( masteriyo_format_datetime( $this->course->get_date_created(), 'F j, Y' ) ) :
+			esc_html( masteriyo_format_datetime( $this->course->get_date_created() ) ) :
 			__( 'Unknown Date', 'learning-management-system' );
 
 		$cover_html .= '
@@ -476,7 +496,7 @@ class CoursePdfExporter {
 
 		// Last Updated
 		$modified_date  = strtotime( $this->course->get_date_modified() );
-		$formatted_date = gmdate( 'F j, Y', $modified_date );
+		$formatted_date = wp_date( masteriyo_date_format(), $modified_date );
 		$html          .= '
                         <tr>
                             <td>' . esc_html__( 'Last Updated', 'learning-management-system' ) . '</td>
@@ -545,23 +565,11 @@ class CoursePdfExporter {
 	}
 
 	/**
-	 * Add curriculum section with improved design.
-	 *
-	 * Creates sections for course curriculum including lessons, quizzes,
-	 * assignments, and meetings. Replaces flex layouts with table-based
-	 * layouts for mPDF compatibility.
-	 *
-	 * @since 2.21.0
+	 * Add the styles curriculum items are rendered with.
 	 *
 	 * @return void
-	 * @throws Exception If adding curriculum fails.
 	 */
-	protected function add_curriculum() {
-		$sections = masteriyo_get_course_structure( $this->course->get_id() );
-		if ( empty( $sections ) ) {
-			return;
-		}
-
+	protected function add_curriculum_styles() {
 		$css = '
         <style>
 					.masteriyo-course-curriculum {
@@ -777,6 +785,27 @@ class CoursePdfExporter {
         </style>';
 
 		$this->mpdf->WriteHTML( $css, HTMLParserMode::HEADER_CSS );
+	}
+
+	/**
+	 * Add curriculum section with improved design.
+	 *
+	 * Creates sections for course curriculum including lessons, quizzes,
+	 * assignments, and meetings. Replaces flex layouts with table-based
+	 * layouts for mPDF compatibility.
+	 *
+	 * @since 2.21.0
+	 *
+	 * @return void
+	 * @throws Exception If adding curriculum fails.
+	 */
+	protected function add_curriculum() {
+		$sections = masteriyo_get_course_structure( $this->course->get_id() );
+		if ( empty( $sections ) ) {
+			return;
+		}
+
+		$this->add_curriculum_styles();
 
 		$html = '
         <div class="masteriyo-course-learn masteriyo-course-wrapper">
@@ -1030,7 +1059,7 @@ class CoursePdfExporter {
 				</tr>
 				<tr>
 					<td class="label">' . esc_html__( 'Pass Mark:', 'learning-management-system' ) . '</td>
-					<td class="value">' . esc_html( $quiz->get_pass_mark() ) . '</td>
+					<td class="value">' . esc_html( $quiz->get_pass_mark() . ( QuizPassMarkType::PERCENTAGE === $quiz->get_pass_mark_type() ? '%' : '' ) ) . '</td>
 				</tr>
 				<tr>
 					<td class="label">' . esc_html__( 'Full Mark:', 'learning-management-system' ) . '</td>
@@ -1050,7 +1079,7 @@ class CoursePdfExporter {
 
 		$args = array(
 			'post_parent'    => $quiz->get_id(),
-			'posts_per_page' => 100,
+			'posts_per_page' => max( 1, masteriyo_get_all_questions_count_by_quiz( $quiz->get_id() ) ),
 			'order'          => 'ASC',
 			'orderby'        => 'menu_order',
 		);
@@ -1339,7 +1368,7 @@ class CoursePdfExporter {
 				</div>';
 
 		// Question explanation
-		if ( ! empty( trim( $question->get_answer_explanation() ) ) ) {
+		if ( masteriyo_is_answer_explanation_enabled() && ! empty( trim( $question->get_answer_explanation() ) ) ) {
 			$html .= '
 				<div class="masteriyo-course-curriculum--content_desc-link">
 					<h4 class="masteriyo-title">' . esc_html__( 'Explanation', 'learning-management-system' ) . '</h4>
@@ -1395,7 +1424,7 @@ class CoursePdfExporter {
 					<td width="50%" align="right">
 						<div class="masteriyo-course-curriculum--content_assignment__items">
 							<span class="masteriyo-text">' . esc_html__( 'Due Date:', 'learning-management-system' ) . '</span>
-							<span class="masteriyo-points">' . esc_html( masteriyo_format_datetime( $assignment->get_due_date(), 'Y-m-d, g:i A' ) ) . '</span>
+							<span class="masteriyo-points">' . esc_html( masteriyo_format_datetime( $assignment->get_due_date(), masteriyo_date_format() . ' ' . masteriyo_time_format() ) ) . '</span>
 						</div>
 					</td>';
 		} else {
@@ -1474,7 +1503,7 @@ class CoursePdfExporter {
 			$html .= '
 				<tr>
 					<td class="label">' . esc_html__( 'Start Date:', 'learning-management-system' ) . '</td>
-					<td class="value">' . esc_html( gmdate( 'Y-m-d, g:i A', strtotime( $meet->get_starts_at() ) ) ) . '</td>
+					<td class="value">' . esc_html( wp_date( masteriyo_date_format() . ' ' . masteriyo_time_format(), strtotime( $meet->get_starts_at() ) ) ) . '</td>
 				</tr>';
 		}
 
@@ -1482,7 +1511,7 @@ class CoursePdfExporter {
 			$html .= '
 				<tr>
 					<td class="label">' . esc_html__( 'End Date:', 'learning-management-system' ) . '</td>
-					<td class="value">' . esc_html( gmdate( 'Y-m-d, g:i A', strtotime( $meet->get_ends_at() ) ) ) . '</td>
+					<td class="value">' . esc_html( wp_date( masteriyo_date_format() . ' ' . masteriyo_time_format(), strtotime( $meet->get_ends_at() ) ) ) . '</td>
 				</tr>';
 		}
 
@@ -1564,7 +1593,7 @@ class CoursePdfExporter {
 			$html .= '
 				<tr>
 					<td class="label">' . esc_html__( 'Start Date:', 'learning-management-system' ) . '</td>
-					<td class="value">' . esc_html( masteriyo_format_datetime( $zoom->get_starts_at(), 'Y-m-d, g:i A' ) ) . '</td>
+					<td class="value">' . esc_html( masteriyo_format_datetime( $zoom->get_starts_at(), masteriyo_date_format() . ' ' . masteriyo_time_format() ) ) . '</td>
 				</tr>';
 		}
 
@@ -1668,10 +1697,7 @@ class CoursePdfExporter {
 
 		try {
 			$this->generate();
-			$filename = sanitize_file_name(
-				sanitize_title( $this->course->get_name() ) . '-course-' . gmdate( 'Y-m-d' ) . '.pdf'
-			);
-			$this->mpdf->Output( $filename, Destination::DOWNLOAD );
+			$this->mpdf->Output( $this->get_export_filename(), Destination::DOWNLOAD );
 			exit();
 		} catch ( \Mpdf\MpdfException $e ) {
 			$error_message = sprintf(
@@ -1727,30 +1753,41 @@ class CoursePdfExporter {
 	 */
 	public static function get_file_path() {
 		$upload_dir = wp_upload_dir();
-		$export_dir = DIRECTORY_SEPARATOR . MASTERIYO_UPLOAD_DIR . DIRECTORY_SEPARATOR . self::EXPORT_DIRECTORY;
+		$export_dir = DIRECTORY_SEPARATOR . MASTERIYO_UPLOAD_DIR . DIRECTORY_SEPARATOR . static::EXPORT_DIRECTORY;
 
 		return $upload_dir['basedir'] . $export_dir;
 	}
 
 	/**
-	 * Clean up old exported PDF files.
+	 * Generate the PDF and save it to a new export file.
 	 *
-	 * Removes previously generated PDF files to prevent accumulation
-	 * of unused files in the export directory.
+	 * @return array{filepath: string, filename: string, download_url: string}|\WP_Error File path, name and download URL, or an error.
+	 */
+	public function save_export_file() {
+		$this->generate();
+
+		$file_info = $this->create_export_file();
+
+		if ( ! is_wp_error( $file_info ) ) {
+			$this->mpdf->Output( $file_info['filepath'], Destination::FILE );
+		}
+
+		return $file_info;
+	}
+
+	/**
+	 * Create the export file, replacing previously exported PDF files.
 	 *
 	 * @since 2.21.0
 	 *
-	 * @return void
+	 * @return array{filepath: string, filename: string, download_url: string}|\WP_Error File path, name and download URL, or an error.
 	 */
 	public function create_export_file() {
 		$this->cleanup_old_exports();
 
 		$file_handler = new FileHandler();
 
-		$filename = sanitize_file_name(
-			sanitize_title( $this->course->get_name() ) . '-course-' . gmdate( 'Y-m-d' ) . '.pdf'
-		);
-		$result   = $file_handler->create_file( self::EXPORT_DIRECTORY, $filename );
+		$result = $file_handler->create_file( static::EXPORT_DIRECTORY, $this->get_export_filename() );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -1759,8 +1796,17 @@ class CoursePdfExporter {
 		return array(
 			'filepath'     => $result['file_path'],
 			'filename'     => $result['filename'],
-			'download_url' => AdminFileDownloadHandler::get_download_url( self::FILE_PATH_ID, $result['filename'] ),
+			'download_url' => AdminFileDownloadHandler::get_download_url( static::FILE_PATH_ID, $result['filename'] ),
 		);
+	}
+
+	/**
+	 * Name of the exported PDF file.
+	 *
+	 * @return string
+	 */
+	protected function get_export_filename() {
+		return sanitize_file_name( sanitize_title( $this->course->get_name() ) . '-course-' . gmdate( 'Y-m-d' ) . '.pdf' );
 	}
 
 	/**
@@ -1772,7 +1818,7 @@ class CoursePdfExporter {
 	 */
 	private function cleanup_old_exports() {
 		$file_handler = new FileHandler();
-		$exports_dir  = $file_handler->get_base_dir() . '/' . self::EXPORT_DIRECTORY;
+		$exports_dir  = $file_handler->get_base_dir() . '/' . static::EXPORT_DIRECTORY;
 
 		if ( ! file_exists( $exports_dir ) ) {
 			return;
@@ -1781,7 +1827,9 @@ class CoursePdfExporter {
 		$files = glob( $exports_dir . '/*.pdf' );
 
 		foreach ( $files as $file ) {
-			wp_delete_file( $file );
+			if ( filemtime( $file ) < time() - HOUR_IN_SECONDS ) {
+				wp_delete_file( $file );
+			}
 		}
 	}
 

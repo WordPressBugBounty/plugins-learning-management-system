@@ -58,6 +58,6 @@ class UpdateCourseAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing course. Supply only the fields to change; others remain unchanged.', 'learning-management-system' );
+		return 'Update an existing course. Supply only the fields to change; others remain unchanged.';
 	}
 }

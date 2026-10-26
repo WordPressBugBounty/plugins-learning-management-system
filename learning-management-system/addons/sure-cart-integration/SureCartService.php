@@ -134,7 +134,7 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 					'args'                => array(
 						'course_id' => array(
 							'default'     => 0,
-							'description' => __( 'Course ID.', 'learning-management-system' ),
+							'description' => 'Course ID.',
 							'required'    => true,
 							'type'        => 'integer',
 						),
@@ -551,12 +551,19 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 	 *
 	 * @since 1.12.0 [free]
 	 *
-	 * @param int $id
-	 * @param Masteriyo\Models\Course $course
+	 * @param string                        $html              Price HTML.
+	 * @param string                        $price             Formatted price.
+	 * @param array                         $args              Price arguments.
+	 * @param float                         $unformatted_price Price as a float.
+	 * @param \Masteriyo\Models\Course|null $course            Course being rendered; null when no course global is set.
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function add_course_price_action( $html, $price, $args, $unformatted_price, $course ) {
+		if ( ! $course instanceof \Masteriyo\Models\Course ) {
+			return $html;
+		}
+
 		if ( masteriyo_is_single_course_page() || masteriyo_is_courses_page() ) {
 
 			$prices = $this->masteriyo_check_integration_and_price( $course->get_id() );
@@ -569,13 +576,27 @@ class SureCartService extends IntegrationService implements IntegrationInterface
 
 			$count_prices = count( $prices );
 
+			$amount_key = 'amount';
+
+			// The struck-through regular price shows SureCart's compare-at amount instead.
+			if ( ! empty( $args['is_regular_price'] ) ) {
+				$compare = 1 === $count_prices ? reset( $prices ) : null;
+
+				if ( ! $compare || $compare->scratch_amount <= $compare->amount ) {
+					return '';
+				}
+
+				$prices     = array( $compare );
+				$amount_key = 'scratch_amount';
+			}
+
 			if ( $count_prices > 2 ) {
 				$paid_text = __( 'Paid', 'learning-management-system' );
 				$html      = '<span class="masteriyo-price-amount amount"><bdi> ' . $paid_text . '  </bdi></span>';
 				return $html;
 			} else {
 				foreach ( $prices as $price ) {
-					$now[] = Currency::format( $price->amount, $price->currency );
+					$now[] = Currency::format( $price->{$amount_key}, $price->currency );
 				}
 				$now  = implode( ',</br>', $now );
 				$html = '<span class="masteriyo-price-amount amount"><bdi> ' . $now . '  </bdi></span>';

@@ -176,21 +176,19 @@ abstract class Order extends Model {
 	}
 
 	/**
-	 * Returns a formatted timestamp in 'Y-m-d H:i:s' format.
+	 * Returns the date in the site's date format and timezone.
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param DateTime|int $time
+	 * @param DateTime|int $time A date object or a Unix timestamp.
 	 *
-	 * @return string|void Returns the formatted timestamp if successful, or 'Invalid timestamp format'
+	 * @return string The formatted date, or an empty string for any other value.
 	 */
 	public function get_time_format( $time ) {
 		if ( $time instanceof DateTime ) {
-			return $time->format( 'F j, Y' );
+			return wp_date( masteriyo_date_format(), $time->getTimestamp() );
 		} elseif ( is_numeric( $time ) ) {
-			$date = new DateTime();
-			$date->setTimestamp( $time );
-			return $date->format( 'F j, Y' );
+			return wp_date( masteriyo_date_format(), (int) $time );
 		} else {
 			return '';
 		}
@@ -831,25 +829,24 @@ abstract class Order extends Model {
 	 * @return OrderItem|false
 	 */
 	public function get_item( $item_id, $load_from_db = true ) {
-		// Search for item id.
-		if ( $this->items ) {
-			foreach ( $this->items as $group => $items ) {
-				if ( isset( $items[ $item_id ] ) ) {
-					return $items[ $item_id ];
+		$item_id = absint( $item_id );
+		$type    = $this->repository->get_type( $this, $item_id );
+
+		// Loads and caches the item's group when it is not loaded yet.
+		if ( $type ) {
+			$this->get_items( $type );
+		}
+
+		// Loaded groups are keyed by position, so match on the item's own id.
+		foreach ( $this->items as $items ) {
+			foreach ( $items as $item ) {
+				if ( absint( $item->get_id() ) === $item_id ) {
+					return $item;
 				}
 			}
 		}
 
-		// Load all items of type and cache.
-		$type = $this->repository->get_type( $this, $item_id );
-
-		if ( ! $type ) {
-			return false;
-		}
-
-		$items = $this->get_items( $type );
-
-		return ! empty( $items[ $item_id ] ) ? $items[ $item_id ] : false;
+		return false;
 	}
 
 	/**
@@ -895,9 +892,14 @@ abstract class Order extends Model {
 			return false;
 		}
 
-		// Unset and remove later.
-		$this->items_to_delete[] = $item;
-		unset( $this->items[ $items_key ][ $item->get_id() ] );
+		// Remove on save; the group is keyed by position, so drop the entry holding it.
+		$this->items_to_delete[]   = $item;
+		$this->items[ $items_key ] = array_filter(
+			$this->items[ $items_key ],
+			function ( \Masteriyo\Models\Order\OrderItem $loaded ) use ( $item ): bool {
+				return $loaded !== $item;
+			}
+		);
 	}
 
 	/**

@@ -58,6 +58,6 @@ class GetQuizBuilderAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve the full question list for a quiz in builder format.', 'learning-management-system' );
+		return 'Retrieve the full question list for a quiz in builder format.';
 	}
 }

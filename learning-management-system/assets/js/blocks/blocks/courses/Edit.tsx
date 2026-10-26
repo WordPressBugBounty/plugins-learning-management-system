@@ -155,7 +155,7 @@ const Edit: React.FC<any> = (props) => {
 									)}
 									instructions={
 										response?.message ||
-										__('An error occurred', 'learning-management-system')
+										__('An error occurred.', 'learning-management-system')
 									}
 								/>
 							)}

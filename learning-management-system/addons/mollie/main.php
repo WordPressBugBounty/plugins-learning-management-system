@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Mollie Payment Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: The "Mollie Payment Integration" addon by Masteriyo enables secure and seamless transactions on your site using mollie payment gateway.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

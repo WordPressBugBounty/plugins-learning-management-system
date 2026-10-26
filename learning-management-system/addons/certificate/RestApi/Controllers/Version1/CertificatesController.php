@@ -119,17 +119,17 @@ class CertificatesController extends PostsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Certificate IDs.', 'learning-management-system' ),
+							'description' => 'Certificate IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children under the certificate.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children under the certificate.',
 							'type'        => 'boolean',
 						),
 					),
@@ -148,7 +148,7 @@ class CertificatesController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Certificate Ids', 'learning-management-system' ),
+							'description' => 'Certificate Ids',
 							'type'        => 'array',
 						),
 					),
@@ -162,7 +162,7 @@ class CertificatesController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -191,7 +191,7 @@ class CertificatesController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -206,7 +206,7 @@ class CertificatesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -231,7 +231,7 @@ class CertificatesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -241,7 +241,7 @@ class CertificatesController extends PostsController {
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 					'args'                => array(
 						'name' => array(
-							'description' => __( 'Certificate name', 'learning-management-system' ),
+							'description' => 'Certificate name',
 							'required'    => false,
 							'type'        => 'string',
 						),
@@ -260,7 +260,7 @@ class CertificatesController extends PostsController {
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 					'args'                => array(
 						'template_id' => array(
-							'description' => __( 'Template ID.', 'learning-management-system' ),
+							'description' => 'Template ID.',
 							'type'        => 'string',
 							'required'    => true,
 						),
@@ -363,7 +363,7 @@ class CertificatesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Certificate ID.', 'learning-management-system' ),
+						'description' => 'Certificate ID.',
 						'type'        => 'integer',
 					),
 				),
@@ -381,7 +381,7 @@ class CertificatesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Certificate ID.', 'learning-management-system' ),
+						'description' => 'Certificate ID.',
 						'type'        => 'integer',
 					),
 				),
@@ -391,7 +391,7 @@ class CertificatesController extends PostsController {
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 					'args'                => array(
 						'rendered_html' => array(
-							'description' => __( 'Rendered HTML snapshot from the designer canvas.', 'learning-management-system' ),
+							'description' => 'Rendered HTML snapshot from the designer canvas.',
 							'type'        => 'string',
 							'required'    => true,
 						),
@@ -421,6 +421,7 @@ class CertificatesController extends PostsController {
 			'current_date'      => date_i18n( $date_format ),
 			'current_time'      => date_i18n( $time_format ),
 			'current_timestamp' => date_i18n( $date_format . ' ' . $time_format ),
+			'certificate_id'    => $certificate_id ? (string) $certificate_id : '',
 			'course_title'      => '',
 			'instructor_name'   => '',
 			'course_duration'   => '',
@@ -437,7 +438,7 @@ class CertificatesController extends PostsController {
 				'fields'         => 'ids',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
-						'key'     => '_masteriyo_certificate_id',
+						'key'     => '_certificate_id',
 						'value'   => $certificate_id,
 						'compare' => '=',
 					),
@@ -611,20 +612,20 @@ class CertificatesController extends PostsController {
 		$params = parent::get_collection_params();
 
 		$params['slug']           = array(
-			'description'       => __( 'Limit result set to certificates with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to certificates with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']         = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to certificates assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to certificates assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future', 'trash' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['content_format'] = array(
-			'description'       => __( 'Limit result set to certificates with a specific content format.', 'learning-management-system' ),
+			'description'       => 'Limit result set to certificates with a specific content format.',
 			'type'              => 'string',
 			'enum'              => array( 'gutenberg', 'pdfdraft' ),
 			'sanitize_callback' => 'sanitize_key',
@@ -762,6 +763,11 @@ class CertificatesController extends PostsController {
 			$args['meta_query']          = $this->get_content_format_meta_query( $this->content_format_filter ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 
+		// A template's whole design lives in post_content, so a content match is noise.
+		if ( ! empty( $request['search'] ) ) {
+			$args['search_columns'] = array( 'post_title' );
+		}
+
 		return $args;
 	}
 
@@ -814,100 +820,100 @@ class CertificatesController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'              => array(
-					'description' => __( 'Certificate name', 'learning-management-system' ),
+					'description' => 'Certificate name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'              => array(
-					'description' => __( 'Certificate slug', 'learning-management-system' ),
+					'description' => 'Certificate slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'         => array(
-					'description' => __( 'Certificate URL', 'learning-management-system' ),
+					'description' => 'Certificate URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'      => array(
-					'description' => __( "The date the certificate was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the certificate was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'  => array(
-					'description' => __( 'The date the certificate was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the certificate was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'     => array(
-					'description' => __( "The date the certificate was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the certificate was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt' => array(
-					'description' => __( 'The date the certificate was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the certificate was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'            => array(
-					'description' => __( 'Certificate status (post status).', 'learning-management-system' ),
+					'description' => 'Certificate status (post status).',
 					'type'        => 'string',
 					'default'     => 'draft',
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'html_content'      => array(
-					'description' => __( 'Certificate html content', 'learning-management-system' ),
+					'description' => 'Certificate html content',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'content_format'    => array(
-					'description' => __( 'Certificate builder format (gutenberg or pdfdraft).', 'learning-management-system' ),
+					'description' => 'Certificate builder format (gutenberg or pdfdraft).',
 					'type'        => 'string',
 					'enum'        => array( 'gutenberg', 'pdfdraft' ),
 					'default'     => 'gutenberg',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'rendered_html'     => array(
-					'description' => __( 'Pre-rendered HTML snapshot for PDF generation (pdfdraft format only).', 'learning-management-system' ),
+					'description' => 'Pre-rendered HTML snapshot for PDF generation (pdfdraft format only).',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent_id'         => array(
-					'description' => __( 'Certificate parent ID', 'learning-management-system' ),
+					'description' => 'Certificate parent ID',
 					'type'        => 'integer',
 					'required'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'         => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1238,7 +1244,7 @@ class CertificatesController extends PostsController {
 		}
 
 		if ( empty( $template ) ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$certificate = masteriyo_create_certificate_object();
@@ -1256,7 +1262,7 @@ class CertificatesController extends PostsController {
 		$object = $this->get_object( $certificate->get_id() );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$data     = $this->prepare_object_for_response( $object, $request );

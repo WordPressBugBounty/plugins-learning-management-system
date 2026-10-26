@@ -38,6 +38,44 @@ class PasswordStrength {
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_scripts' ) );
 		add_action( 'masteriyo_enqueue_styles', array( $this, 'enqueue_styles' ), 20 );
+
+		// The policy was enforced in the browser alone, so it was both bypassable and invisible (#1398).
+		add_filter( 'masteriyo_validate_registration_form_data', array( $this, 'validate_password_policy' ), 10, 2 );
+		add_filter( 'masteriyo_validate_password_reset_form_data', array( $this, 'validate_password_policy' ), 10, 2 );
+	}
+
+	/**
+	 * Refuse a password the policy forbids, naming the rules it breaks.
+	 *
+	 * @param \WP_Error $error Error object which should contain validation errors if there is any.
+	 * @param array     $data Submitted form data.
+	 *
+	 * @return \WP_Error
+	 */
+	public function validate_password_policy( $error, $data ) {
+		$password = isset( $data['password'] ) ? (string) $data['password'] : '';
+
+		// An empty field is either the form's own required check or a password generated for the user.
+		if ( '' === $password ) {
+			return $error;
+		}
+
+		$policy = new Policy( $this->global_setting->get() );
+		$failed = $policy->failures( $password );
+
+		if ( empty( $failed ) ) {
+			return $error;
+		}
+
+		$messages = Policy::messages();
+
+		$error->add(
+			'password_policy_not_met',
+			sprintf( $messages['policyNotMet'], implode( ', ', $failed ) ),
+			array( 'failed_rules' => array_keys( $failed ) )
+		);
+
+		return $error;
 	}
 
 	/**
@@ -76,12 +114,13 @@ class PasswordStrength {
 			return true;
 		}
 
-		// Handle instructor registration shortcode.
+		// Handle the account shortcode.
 		if ( $post && has_shortcode( $post->post_content, 'masteriyo_account' ) && ! is_user_logged_in() ) {
 			return true;
 		}
 
-		return masteriyo_is_instructor_registration_page() || masteriyo_is_signup_page();
+		// The student form also renders from its own shortcode, on any page.
+		return masteriyo_is_instructor_registration_page() || masteriyo_is_student_registration_page();
 	}
 
 	/**
@@ -124,19 +163,16 @@ class PasswordStrength {
 	public function localize_scripts( $scripts ) {
 		$settings = masteriyo_array_snake_to_camel( $this->global_setting->get() );
 
-		$settings['i18n'] = array(
-			/* translators: %d: number of characters (minimum). */
-			'minCharacters'       => __( 'Minimum of %d characters', 'learning-management-system' ),
-			/* translators: %d: number of characters (maximum). */
-			'maxCharacters'       => __( 'Maximum of %d characters', 'learning-management-system' ),
-			'atLeastOneUppercase' => __( 'At least one uppercase letter', 'learning-management-system' ),
-			'atLeastOneNumber'    => __( 'At least one number', 'learning-management-system' ),
-			'atLeastOneSpecial'   => __( 'At least one special character', 'learning-management-system' ),
-			'veryWeak'            => __( 'Very Weak', 'learning-management-system' ),
-			'weak'                => __( 'Weak', 'learning-management-system' ),
-			'good'                => __( 'Good', 'learning-management-system' ),
-			'strong'              => __( 'Strong', 'learning-management-system' ),
-			'veryStrong'          => __( 'Very Strong', 'learning-management-system' ),
+		// The rule wording comes from the policy, so the script and the server say the same thing.
+		$settings['i18n'] = array_merge(
+			Policy::messages(),
+			array(
+				'veryWeak'   => __( 'Very Weak', 'learning-management-system' ),
+				'weak'       => __( 'Weak', 'learning-management-system' ),
+				'good'       => __( 'Good', 'learning-management-system' ),
+				'strong'     => __( 'Strong', 'learning-management-system' ),
+				'veryStrong' => __( 'Very Strong', 'learning-management-system' ),
+			)
 		);
 
 		return masteriyo_parse_args(

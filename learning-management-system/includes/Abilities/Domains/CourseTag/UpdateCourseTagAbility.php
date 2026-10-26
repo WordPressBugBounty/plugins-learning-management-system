@@ -59,6 +59,6 @@ class UpdateCourseTagAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing course tag. Requires id (tag ID). Optionally accepts name, slug, or description. Returns the updated tag object.', 'learning-management-system' );
+		return 'Update an existing course tag. Requires id (tag ID). Optionally accepts name, slug, or description. Returns the updated tag object.';
 	}
 }

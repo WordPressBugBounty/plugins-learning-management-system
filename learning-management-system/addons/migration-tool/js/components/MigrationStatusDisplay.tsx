@@ -27,12 +27,7 @@ import {
 } from 'react-icons/bi';
 import { HiAcademicCap } from 'react-icons/hi';
 import { IoMdStar } from 'react-icons/io';
-import {
-	MdCampaign,
-	MdQuiz,
-	MdVideoCall,
-	MdWorkspacePremium,
-} from 'react-icons/md';
+import { MdCampaign, MdQuiz, MdVideoCall } from 'react-icons/md';
 import { MigrationProgress } from './Migration';
 
 interface MigrationStatusDisplayProps {
@@ -63,7 +58,6 @@ const STEP_ICON_MAP: Record<string, React.ElementType> = {
 	google_meet: MdVideoCall,
 	zoom: MdVideoCall,
 	course_bundles: BiCollection,
-	earned_certificates: MdWorkspacePremium,
 	wishlists: BiHeart,
 };
 
@@ -84,7 +78,6 @@ const STEP_LABELS: Record<string, string> = {
 	google_meet: 'Google Meet',
 	zoom: 'Zoom',
 	course_bundles: 'Course Bundles',
-	earned_certificates: 'Certificates',
 	wishlists: 'Wishlists',
 	gradebook: 'Gradebook',
 };
@@ -268,12 +261,9 @@ const MigrationStatusDisplay: React.FC<MigrationStatusDisplayProps> = ({
 								<Text fontSize="xs" color="gray.500" mt="0.5">
 									{isCompleted
 										? isEmptyMigration
-											? __(
-													'No data found to migrate.',
-													'learning-management-system',
-												)
+											? __('Nothing new to copy.', 'learning-management-system')
 											: __(
-													'All data migrated successfully.',
+													'All data copied. The source LMS keeps its content; the only writes to it were course links on products, downloads and order items, and the Masteriyo role, description and website on copied users.',
 													'learning-management-system',
 												)
 										: isFailed
@@ -287,7 +277,7 @@ const MigrationStatusDisplay: React.FC<MigrationStatusDisplayProps> = ({
 														'learning-management-system',
 													)
 												: __(
-														'Migrating your data — this may take a few minutes.',
+														'Copying your data — this may take a few minutes.',
 														'learning-management-system',
 													)}
 								</Text>

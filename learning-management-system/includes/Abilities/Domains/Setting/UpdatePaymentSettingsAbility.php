@@ -57,8 +57,7 @@ class UpdatePaymentSettingsAbility extends AbstractScopedSettingsAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Write %s payment gateway settings. Requires administrator privileges. Accepts a partial payments settings object; only provided keys are updated.', 'learning-management-system' ),
+			'Write %s payment gateway settings. Requires administrator privileges. Accepts a partial payments settings object; only provided keys are updated.',
 			masteriyo_get_plugin_name()
 		);
 	}

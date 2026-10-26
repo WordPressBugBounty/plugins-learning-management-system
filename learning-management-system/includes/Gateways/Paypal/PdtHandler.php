@@ -196,7 +196,12 @@ class PdtHandler extends Response {
 
 		$order = empty( $transaction_result['custom'] ) ? false : $this->get_paypal_order( $transaction_result['custom'] );
 
-		if ( ! $order || ! $order->needs_payment() ) {
+		// An IPN can hold an unpaid order before the buyer returns. A held order
+		// that was already paid (an admin review, a reversal) is never reopened
+		// from a replayed return.
+		$awaiting_payment = $order && ( $order->needs_payment() || ( $order->has_status( OrderStatus::ON_HOLD ) && ! $order->get_date_paid( 'edit' ) ) );
+
+		if ( ! $awaiting_payment ) {
 			return false;
 		}
 

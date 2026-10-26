@@ -44,21 +44,79 @@ function masteriyo_is_course_content_item( $item ) {
 }
 
 /**
+ * Whether a course content item is a draft.
+ *
+ * @param mixed $item Model, or anything at all.
+ *
+ * @return bool
+ */
+function masteriyo_is_draft_course_content( $item ): bool {
+	return method_exists( $item, 'get_status' ) && \Masteriyo\Enums\PostStatus::DRAFT === $item->get_status();
+}
+
+/**
+ * Learn page URL that opens a course content item in the player.
+ *
+ * @param \Masteriyo\Models\Course $course Course the item belongs to.
+ * @param \Masteriyo\Database\Model $item   Course content item model.
+ *
+ * @return string
+ */
+function masteriyo_get_course_content_learn_url( $course, $item ): string {
+	$learn_page_url = masteriyo_get_page_permalink( 'learn' );
+	$url            = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
+
+	// The player lists a draft only in preview mode, which reads course_name as an ID, never a slug.
+	if ( masteriyo_is_draft_course_content( $item ) ) {
+		$url = add_query_arg(
+			array(
+				'course_name' => $course->get_id(),
+				'mto-preview' => 'true',
+			),
+			$learn_page_url
+		);
+	} elseif ( '' === get_option( 'permalink_structure' ) ) {
+		$url = add_query_arg( array( 'course_name' => $course->get_id() ), $learn_page_url );
+	}
+
+	return $url . '#/course/' . $course->get_id() . '/' . $item->get_object_type() . '/' . $item->get_id();
+}
+
+/**
  * Post statuses a course content item may carry and still be shown.
  *
  * Core's own content is simply published. Addons whose content types carry their
  * own statuses — a Zoom meeting is `upcoming` or `active`, never `publish` — add
  * them here, so a curriculum query written in core finds them.
  *
+ * Given the course being read, drafts join the list for a viewer the player lets preview it: anyone who may edit the course.
+ *
+ * @param int|WP_Post|\Masteriyo\Models\Course|null $course Course the curriculum is being read for, when there is one.
+ *
  * @return string[]
  */
-function masteriyo_get_course_content_post_statuses() {
+function masteriyo_get_course_content_post_statuses( $course = null ) {
+	$statuses = array( \Masteriyo\Enums\PostStatus::PUBLISH );
+
+	$course_model = $course ? masteriyo_get_course( $course ) : null;
+
+	// The player's own preview rule, so a draft is listed only where it can also be opened.
+	if ( $course_model && masteriyo_is_course_preview_request(
+		array(
+			'mto-preview' => true,
+			'course_id'   => $course_model->get_id(),
+		)
+	) ) {
+		$statuses[] = \Masteriyo\Enums\PostStatus::DRAFT;
+	}
+
 	/**
 	 * Filters the post statuses a visible course content item may carry.
 	 *
 	 * @param string[] $statuses Post statuses.
+	 * @param int|WP_Post|\Masteriyo\Models\Course|null $course Course the curriculum is being read for, when there is one.
 	 */
-	return array_values( array_unique( (array) apply_filters( 'masteriyo_course_content_post_statuses', array( \Masteriyo\Enums\PostStatus::PUBLISH ) ) ) );
+	return array_values( array_unique( (array) apply_filters( 'masteriyo_course_content_post_statuses', $statuses, $course ) ) );
 }
 
 /**

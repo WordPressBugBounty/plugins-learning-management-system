@@ -93,6 +93,79 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 	}
 
 	/**
+	 * Payload layout version, bumped when groups are added or renamed.
+	 *
+	 * @var int
+	 */
+	const SCHEMA_VERSION = 2;
+
+	/**
+	 * Transient holding the aggregate groups.
+	 *
+	 * @var string
+	 */
+	const AGGREGATES_TRANSIENT = 'masteriyo_tracking_aggregates';
+
+	/**
+	 * Aggregate groups (content, payments, courses), cached for half a day.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_aggregates(): array {
+		$cached = get_transient( self::AGGREGATES_TRANSIENT );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$groups     = $this->aggregate_groups();
+		$aggregates = $this->build_aggregates( $groups );
+
+		// A partial map is not cached, so a group that failed is retried on the next call.
+		if ( count( $aggregates ) === count( $groups ) ) {
+			set_transient( self::AGGREGATES_TRANSIENT, $aggregates, 12 * HOUR_IN_SECONDS );
+		}
+
+		return $aggregates;
+	}
+
+	/**
+	 * Aggregate group builders, keyed by payload group.
+	 *
+	 * @return array<string, callable(): array<string, mixed>>
+	 */
+	protected function aggregate_groups(): array {
+		return array(
+			'content_counts' => array( MasteriyoTrackingInfo::class, 'get_content_counts' ),
+			'payments'       => array( MasteriyoTrackingInfo::class, 'get_payments_data' ),
+			'courses'        => array( MasteriyoTrackingInfo::class, 'get_courses_data' ),
+		);
+	}
+
+	/**
+	 * Run each group builder on its own, so one failure cannot drop the others. Uncached.
+	 *
+	 * @template TKey of array-key
+	 *
+	 * @param array<TKey, callable(): array<string, mixed>> $groups Group key => builder.
+	 *
+	 * @return array<TKey, array<string, mixed>>
+	 */
+	public function build_aggregates( array $groups ): array {
+		$aggregates = array();
+
+		foreach ( $groups as $key => $builder ) {
+			try {
+				$aggregates[ $key ] = call_user_func( $builder );
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+		}
+
+		return $aggregates;
+	}
+
+	/**
 	 * Callback for SDK tracking filter.
 	 *
 	 * @return array Tracking data payload.
@@ -197,8 +270,7 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 			'enrolled_users_count'   => MasteriyoTrackingInfo::masteriyo_count_total_enrolled_users() ?? null,
 			'masteriyo_install_days' => MasteriyoTrackingInfo::get_install_days() ?? null,
 			'users'                  => MasteriyoTrackingInfo::get_users_data(),
-			'content_counts'         => MasteriyoTrackingInfo::get_content_counts(),
-			'payments'               => MasteriyoTrackingInfo::get_payments_data(),
+			'schema_version'         => self::SCHEMA_VERSION,
 			'onboarding_data'        => $data['onboarding_data'] ?? null,
 			'addons'                 => $data['addons'] ?? null,
 			'wp_version'             => $data['wp_version'] ?? null,
@@ -215,6 +287,8 @@ class TrackingServiceProvider extends AbstractServiceProvider implements Bootabl
 			),
 			'last_error_report'      => $last_error_report,
 		);
+
+		$trimmed = array_merge( $trimmed, $this->get_aggregates() );
 
 		$trimmed = array_filter(
 			$trimmed,

@@ -22,9 +22,9 @@ if ( ! function_exists( 'masteriyo_maybe_unserialize' ) ) {
 	 *
 	 * - returns non-strings unchanged (so a second pass is a no-op)
 	 * - unserializes arrays and scalars
-	 * - instantiates only Masteriyo\DateTime — the one class the codebase
-	 *   legitimately persists in meta (course cohort dates), a value object
-	 *   with no __wakeup/__destruct gadget surface
+	 * - instantiates only Masteriyo\DateTime (course cohort dates) and stdClass
+	 *   (matching answers in quiz attempts); neither has a __wakeup/__destruct
+	 *   gadget surface
 	 * - leaves every other object payload a string, at any depth: disallowed
 	 *   classes come back from unserialize() as __PHP_Incomplete_Class, and a
 	 *   payload carrying one anywhere is returned as the original string
@@ -55,7 +55,7 @@ if ( ! function_exists( 'masteriyo_maybe_unserialize' ) ) {
 		}
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
-		$unserialized = @unserialize( $candidate, array( 'allowed_classes' => array( 'Masteriyo\DateTime' ) ) );
+		$unserialized = @unserialize( $candidate, array( 'allowed_classes' => array( 'Masteriyo\DateTime', 'stdClass' ) ) );
 
 		if ( false === $unserialized && 'b:0;' !== $candidate ) {
 			return $data;
@@ -72,17 +72,22 @@ if ( ! function_exists( 'masteriyo_maybe_unserialize' ) ) {
 if ( ! function_exists( 'masteriyo_holds_disallowed_object' ) ) {
 	/**
 	 * Whether a decoded value is, or contains at any depth, an object other
-	 * than Masteriyo\DateTime (typically a __PHP_Incomplete_Class).
+	 * than Masteriyo\DateTime or stdClass (typically a __PHP_Incomplete_Class).
+	 * A stdClass is looked inside, like an array.
 	 *
 	 * @param mixed $value Decoded value.
 	 * @return bool
 	 */
 	function masteriyo_holds_disallowed_object( $value ) {
-		if ( is_object( $value ) ) {
-			return ! $value instanceof \Masteriyo\DateTime;
+		if ( $value instanceof \Masteriyo\DateTime ) {
+			return false;
 		}
 
-		if ( is_array( $value ) ) {
+		if ( is_object( $value ) && 'stdClass' !== get_class( $value ) ) {
+			return true;
+		}
+
+		if ( is_array( $value ) || is_object( $value ) ) {
 			foreach ( $value as $item ) {
 				if ( masteriyo_holds_disallowed_object( $item ) ) {
 					return true;

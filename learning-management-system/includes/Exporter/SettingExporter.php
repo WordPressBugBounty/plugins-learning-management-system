@@ -124,6 +124,50 @@ class SettingExporter {
 			'version'    => masteriyo_get_version(),
 			'created_at' => gmdate( 'D, d M Y H:i:s +0000' ),
 			'base_url'   => home_url(),
+			'pages'      => self::get_page_slugs(),
 		);
+	}
+
+	/**
+	 * URI path of every page the settings point at, keyed by its setting path under general.pages.
+	 *
+	 * Page IDs mean nothing on another site; the importer resolves these paths there instead.
+	 * The full path (`members/account`, not `account`) is what get_page_by_path() matches.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function get_page_slugs(): array {
+		$slugs = array();
+
+		foreach ( self::get_page_setting_paths( (array) masteriyo_get_setting( 'general.pages' ) ) as $path => $page_id ) {
+			$page = $page_id ? get_post( $page_id ) : null;
+
+			if ( $page && 'page' === $page->post_type ) {
+				$slugs[ $path ] = (string) get_page_uri( $page );
+			}
+		}
+
+		return $slugs;
+	}
+
+	/**
+	 * Flatten general.pages to its page ID entries: `account_page_id`, `course_thankyou_page.page_id`, …
+	 *
+	 * @param array<string, mixed> $pages The general.pages setting.
+	 *
+	 * @return array<string, int> Page ID keyed by dotted setting path.
+	 */
+	public static function get_page_setting_paths( array $pages ): array {
+		$paths = array();
+
+		foreach ( $pages as $key => $value ) {
+			if ( is_array( $value ) && array_key_exists( 'page_id', $value ) ) {
+				$paths[ $key . '.page_id' ] = absint( $value['page_id'] );
+			} elseif ( '_page_id' === substr( (string) $key, -8 ) ) {
+				$paths[ $key ] = absint( $value );
+			}
+		}
+
+		return $paths;
 	}
 }

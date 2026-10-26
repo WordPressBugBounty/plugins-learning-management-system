@@ -39,8 +39,9 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 		<?php if ( masteriyo_get_setting( 'course_archive.components_visibility.price' ) ) : ?>
 			<?php if ( ( ! masteriyo_is_user_enrolled_in_course( $course->get_id() ) || ! masteriyo_is_course_order( $course->get_id() ) ) && ! masteriyo_course_order_awaiting_payment( $course->get_id() ) ) : ?>
 		<div class="masteriyo-single-body__aside--price-wrapper">
-				<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
-			<p class="masteriyo-single-body__aside--price-sale"><?php echo wp_kses_post( masteriyo_price( $course->get_regular_price(), array( 'currency' => $course->get_currency() ) ) ); ?></p>
+				<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course ); ?>
+				<?php if ( $regular_price_html ) : ?>
+			<p class="masteriyo-single-body__aside--price-sale"><?php echo wp_kses_post( $regular_price_html ); ?></p>
 		<?php endif; ?>
 		<p class="masteriyo-single-body__aside--price-offer">
 				<?php echo wp_kses_post( masteriyo_price( $course->get_price(), array( 'currency' => $course->get_currency() ) ) ); ?>

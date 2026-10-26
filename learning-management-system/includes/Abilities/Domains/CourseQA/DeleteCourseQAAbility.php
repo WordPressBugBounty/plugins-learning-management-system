@@ -58,6 +58,6 @@ class DeleteCourseQAAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Move a course Q&A entry to trash. Requires id (Q&A entry ID). Trashed entries can be recovered with masteriyo/course-qa-restore. Use force=true to permanently delete. Returns the deleted entry.', 'learning-management-system' );
+		return 'Move a course Q&A entry to trash. Requires id (Q&A entry ID). Trashed entries can be recovered with masteriyo/course-qa-restore. Use force=true to permanently delete. Returns the deleted entry.';
 	}
 }

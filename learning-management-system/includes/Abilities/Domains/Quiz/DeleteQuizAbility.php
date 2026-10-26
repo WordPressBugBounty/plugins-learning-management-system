@@ -60,6 +60,6 @@ class DeleteQuizAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Move a quiz to trash (use force=true to permanently delete).', 'learning-management-system' );
+		return 'Permanently delete a quiz. Pass force=false to move it to the trash instead.';
 	}
 }

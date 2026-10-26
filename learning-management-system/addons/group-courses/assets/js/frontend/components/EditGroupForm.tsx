@@ -23,6 +23,7 @@ import Name from '../../common/components/Name';
 import { urls } from '../../constants/urls';
 import { groupsBackendRoutes } from '../../routes/routes';
 import { GroupSchema } from '../../types/group';
+import GroupProgress from './GroupProgress';
 
 interface Props {
 	group: GroupSchema;
@@ -118,6 +119,7 @@ const EditGroupForm: React.FC<Props> = ({ group, onExpandedGroupsChange }) => {
 							displayStatus={group?.display_status}
 						/>
 						<LinkedCourses courses={group?.courses || []} />{' '}
+						<GroupProgress groupId={group.id} />
 						<ButtonGroup mb={4}>
 							<Button
 								type="submit"

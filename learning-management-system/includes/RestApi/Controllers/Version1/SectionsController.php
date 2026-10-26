@@ -109,7 +109,7 @@ class SectionsController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -138,12 +138,12 @@ class SectionsController extends PostsController {
 					'args'                => array(
 						'force'    => array(
 							'default'     => true,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => true,
-							'description' => __( 'Whether to delete the children(lessons, quizzes and questions) under the section.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(lessons, quizzes and questions) under the section.',
 							'type'        => 'boolean',
 						),
 					),
@@ -159,7 +159,7 @@ class SectionsController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -187,7 +187,7 @@ class SectionsController extends PostsController {
 		$params['orderby']['default'] = 'menu_order';
 
 		$params['course_id'] = array(
-			'description'       => __( 'Limit result by course id.', 'learning-management-system' ),
+			'description'       => 'Limit result by course id.',
 			'type'              => 'integer',
 			'validate_callback' => 'rest_validate_request_arg',
 			'sanitize_callback' => 'absint',
@@ -338,86 +338,86 @@ class SectionsController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'              => array(
-					'description' => __( 'Section name', 'learning-management-system' ),
+					'description' => 'Section name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created'      => array(
-					'description' => __( "The date the section was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the section was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'  => array(
-					'description' => __( 'The date the section was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the section was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'     => array(
-					'description' => __( "The date the section was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the section was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt' => array(
-					'description' => __( 'The date the section was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the section was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'description'       => array(
-					'description' => __( 'Section description', 'learning-management-system' ),
+					'description' => 'Section description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'parent_id'         => array(
-					'description' => __( 'Section parent ID', 'learning-management-system' ),
+					'description' => 'Section parent ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'         => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_name'       => array(
-					'description' => __( 'Course name', 'learning-management-system' ),
+					'description' => 'Course name',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'        => array(
-					'description' => __( 'Menu order, used to custom sort sections.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort sections.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'         => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -567,7 +567,7 @@ class SectionsController extends PostsController {
 		if ( is_null( $section ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -613,7 +613,7 @@ class SectionsController extends PostsController {
 		if ( is_null( $section ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)

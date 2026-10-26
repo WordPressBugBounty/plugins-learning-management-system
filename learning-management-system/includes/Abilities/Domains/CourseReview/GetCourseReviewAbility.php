@@ -57,6 +57,6 @@ class GetCourseReviewAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single course review by its ID. Requires id (review ID). Returns the review including reviewer name, rating (1–5), comment body, status (approved, hold, spam), and course_id.', 'learning-management-system' );
+		return 'Retrieve a single course review by its ID. Requires id (review ID). Returns the review including reviewer name, rating (1–5), comment body, status (approved, hold, spam), and course_id.';
 	}
 }

@@ -59,6 +59,6 @@ class DeleteLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Move a lesson to trash (use force=true to permanently delete).', 'learning-management-system' );
+		return 'Permanently delete a lesson. Pass force=false to move it to the trash instead.';
 	}
 }

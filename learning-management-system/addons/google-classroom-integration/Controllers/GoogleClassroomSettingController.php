@@ -300,17 +300,17 @@ class GoogleClassroomSettingController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'client_id'     => array(
-					'description' => __( 'Client Id', 'learning-management-system' ),
+					'description' => 'Client Id',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'client_secret' => array(
-					'description' => __( 'Client Secret', 'learning-management-system' ),
+					'description' => 'Client Secret',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'access_code'   => array(
-					'description' => __( 'Access Code', 'learning-management-system' ),
+					'description' => 'Access Code',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

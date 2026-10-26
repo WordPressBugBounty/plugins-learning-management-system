@@ -91,23 +91,17 @@ class LoginAjaxHandler extends AjaxHandler {
 			}
 
 			if ( is_email( $username ) ) {
-				$user = get_user_by( 'email', $username );
+				$user_by_email = get_user_by( 'email', $username );
 
-				if ( ! $user ) {
-					throw new \Exception( __( 'No user found with the given email address.', 'learning-management-system' ) );
+				if ( $user_by_email ) {
+					$credentials['user_login'] = $user_by_email->user_login;
 				}
-
-				$credentials['user_login'] = $user->user_login;
 			}
 
 			$user = wp_signon( $credentials, is_ssl() );
 
 			if ( is_wp_error( $user ) ) {
-				if ( 'incorrect_password' === $user->get_error_code() ) {
-					throw new \Exception( __( 'Incorrect password. Please try again.', 'learning-management-system' ) );
-				}
-
-				throw new \Exception( $user->get_error_message() );
+				throw new \Exception( $this->get_signon_error_message( $user ) );
 			}
 
 			wp_send_json_success(
@@ -125,6 +119,29 @@ class LoginAjaxHandler extends AjaxHandler {
 		}
 	}
 
+
+	/**
+	 * Message for a sign-in WordPress refused.
+	 *
+	 * Credential failures all answer the same way. Saying which half was wrong,
+	 * or naming the account, sorts a list of addresses into the ones that are
+	 * registered here and the ones that are not (#718). Refusals that carry a
+	 * reason of their own, such as an unverified email or a plugin blocking the
+	 * attempt, are passed on, since the visitor has to act on those.
+	 *
+	 * @param \WP_Error $error Error returned by wp_signon().
+	 *
+	 * @return string
+	 */
+	protected function get_signon_error_message( $error ) {
+		$credential_errors = array( 'invalid_username', 'invalid_email', 'incorrect_password', 'authentication_failed' );
+
+		if ( in_array( $error->get_error_code(), $credential_errors, true ) ) {
+			return __( 'The username, email address or password is incorrect.', 'learning-management-system' );
+		}
+
+		return $error->get_error_message();
+	}
 
 	/**
 	 * Return redirection url.

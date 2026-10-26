@@ -48,6 +48,7 @@ interface StripePaymentsSettingsMap extends PaymentsSettingsMap {
 		live_secret_key: string;
 		webhook_secret: string;
 		webhook_endpoint: string;
+		card_only: boolean;
 		account: Record<string, any> | null;
 		method: 'connect' | 'manual';
 		nonce: string;
@@ -266,6 +267,26 @@ const StripeGlobalSettings: React.FC<Props> = (props) => {
 					{...register('payments.stripe.description')}
 					defaultValue={paymentsData?.stripe?.description}
 				/>
+			</FormControlTwoCol>
+
+			<FormControlTwoCol mx={0} my={2}>
+				<Stack direction="row">
+					<FormLabel m={0} minW="160px">
+						{__('Cards Only', 'learning-management-system')}
+						<ToolTip
+							label={__(
+								'Offer card payments only at checkout, instead of every payment method enabled in the Stripe dashboard.',
+								'learning-management-system',
+							)}
+						/>
+					</FormLabel>
+					<Controller
+						name="payments.stripe.card_only"
+						render={({ field }) => (
+							<Switch {...field} isChecked={!!field.value} />
+						)}
+					/>
+				</Stack>
 			</FormControlTwoCol>
 
 			<FormControlTwoCol mx={0} my={2}>

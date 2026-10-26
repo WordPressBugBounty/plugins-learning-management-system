@@ -35,6 +35,7 @@ abstract class CachePluginCompatibility {
 	 */
 	public function init() {
 		add_action( 'wp', array( $this, 'do_not_cache_page' ) );
+		add_filter( 'rest_pre_dispatch', array( $this, 'do_not_cache_rest_request' ), 10, 3 );
 
 		add_action( 'wp_optimize_admin_page_wpo_minify_status', array( $this, 'masteriyo_display_wpo_minify_notice' ) );
 
@@ -53,11 +54,6 @@ abstract class CachePluginCompatibility {
 	 * @since 1.5.36
 	 */
 	public function do_not_cache_page() {
-		// Bail early if the associated cache plugin is not active.
-		if ( ! $this->is_plugin_active() ) {
-			return;
-		}
-
 		$is_no_cache_page = (
 			masteriyo_is_checkout_page() ||
 			masteriyo_is_lost_password_page() ||
@@ -72,8 +68,6 @@ abstract class CachePluginCompatibility {
 			return;
 		}
 
-		$this->do_not_cache();
-
 		/**
 		 * Send no-cache HTTP headers so browsers and intermediary proxies do not cache
 		 * these dynamic, nonce-bearing pages.
@@ -85,8 +79,47 @@ abstract class CachePluginCompatibility {
 		 * `rest_cookie_invalid_nonce` ("Cookie check failed"), which surfaces as an
 		 * "invalid nonce / unable to login" error. Sending nocache headers here prevents
 		 * the stale page (and nonce) from being served.
+		 *
+		 * Sent whether or not a known cache plugin is active: CDNs, proxies and the
+		 * browser cache these pages on their own, and a page cache that is active but
+		 * unrecognised served one visitor's Account page to the next (#1395).
 		 */
 		masteriyo_nocache_headers();
+
+		if ( $this->is_plugin_active() ) {
+			$this->do_not_cache();
+		}
+	}
+
+	/**
+	 * Callback for do not cache Masteriyo REST API responses.
+	 *
+	 * The `wp` action never fires for a REST request, so `do_not_cache_page()` cannot
+	 * cover the routes the account and learn pages read their live data from.
+	 *
+	 * @since 3.5.0
+	 *
+	 * @param mixed            $result  Response to replace the requested version with.
+	 * @param \WP_REST_Server  $server  Server instance.
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 *
+	 * @return mixed
+	 */
+	public function do_not_cache_rest_request( $result, $server, $request ) {
+		if ( ! $this->is_plugin_active() ) {
+			return $result;
+		}
+
+		$route = ltrim( $request->get_route(), '/' );
+
+		if ( 'masteriyo' !== $route && 0 !== strpos( $route, 'masteriyo/' ) ) {
+			return $result;
+		}
+
+		$this->do_not_cache();
+		masteriyo_nocache_headers();
+
+		return $result;
 	}
 
 	/**
@@ -229,7 +262,7 @@ abstract class CachePluginCompatibility {
 					wp_kses_post(
 						sprintf(
 							/* translators: %s: the product's name */
-							__( 'For best results, please disable Caching REST API. %s already includes optimized resources, and further caching may cause issues.', 'learning-management-system' ),
+							__( 'For best results, please disable REST API caching. %s already includes optimized resources, and further caching may cause issues.', 'learning-management-system' ),
 							masteriyo_get_plugin_name()
 						)
 					),
@@ -343,7 +376,12 @@ abstract class CachePluginCompatibility {
 	 * @return boolean
 	 */
 	protected function is_plugin_active() {
-		return function_exists( 'is_plugin_active' ) && is_plugin_active( $this->plugin );
+		// is_plugin_active() lives in wp-admin and is not loaded on front-end requests (#1395).
+		if ( in_array( $this->plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
+			return true;
+		}
+
+		return is_multisite() && isset( get_site_option( 'active_sitewide_plugins', array() )[ $this->plugin ] );
 	}
 
 	/**

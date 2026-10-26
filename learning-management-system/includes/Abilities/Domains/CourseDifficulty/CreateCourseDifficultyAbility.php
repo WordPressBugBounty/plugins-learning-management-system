@@ -59,6 +59,6 @@ class CreateCourseDifficultyAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new course difficulty level (e.g. Beginner, Intermediate, Advanced). Requires name. Optionally accepts slug and description. Returns the created difficulty object with its ID.', 'learning-management-system' );
+		return 'Create a new course difficulty level (e.g. Beginner, Intermediate, Advanced). Requires name. Optionally accepts slug and description. Returns the created difficulty object with its ID.';
 	}
 }

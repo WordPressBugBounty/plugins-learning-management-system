@@ -30,6 +30,23 @@ class Migrator {
 	protected $table_name = 'masteriyo_migrations';
 
 	/**
+	 * Option holding a fingerprint of the migration files last found fully applied.
+	 */
+	const CHECKED_OPTION = 'masteriyo_migrations_checked';
+
+	/**
+	 * Seconds an explicit rollback or reset waits for a boot-time migrate() to finish.
+	 */
+	const LOCK_TIMEOUT = 10;
+
+	/**
+	 * Whether setup() has confirmed the history table during this request.
+	 *
+	 * @var bool
+	 */
+	protected $table_ready = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.3.4
@@ -50,7 +67,7 @@ class Migrator {
 
 		$this->connection = $wpdb;
 
-		$this->setup();
+		// The table check waits until a method is about to use the table (#1111).
 	}
 
 	/**
@@ -94,7 +111,12 @@ class Migrator {
 	 * @return bool
 	 */
 	public function setup() {
-		$table = $this->get_table_name();
+		if ( $this->table_ready ) {
+			return false;
+		}
+
+		$this->table_ready = true;
+		$table             = $this->get_table_name();
 
 		$search_table_in_db = $this->connection->get_var(
 			$this->connection->prepare(
@@ -197,16 +219,19 @@ class Migrator {
 	 *
 	 * @since 1.3.4
 	 *
-	 * @param string|null $migration
+	 * @param string|null $migration  Single migration class name to limit the run to.
+	 * @param array|null  $migrations Already discovered migrations (file => name), to avoid a second scan.
 	 * @return array
 	 */
-	protected function get_migrations_to_run( $migration = null ) {
+	protected function get_migrations_to_run( $migration = null, $migrations = null ) {
 		$table          = $this->get_table_name();
 		$ran_migrations = $this->connection->get_col( "SELECT name FROM $table" );
 
-		$migrations = $this->get_migrations( $ran_migrations, $migration );
+		if ( null === $migrations ) {
+			return $this->get_migrations( $ran_migrations, $migration );
+		}
 
-		return $migrations;
+		return array_diff( $migrations, $ran_migrations );
 	}
 
 	/**
@@ -234,42 +259,39 @@ class Migrator {
 	 * @return string[]
 	 */
 	public function migrate( $migration = null ) {
-		global $wpdb;
-
 		$ran_migrations = array();
 		$table          = $this->get_table_name();
-		$migrations     = $this->get_migrations_to_run( $migration );
+		$discovered     = $this->get_migrations( array(), $migration );
+		$fingerprint    = md5( implode( "\n", $discovered ) );
 
-		if ( empty( $migrations ) ) {
+		// The same files were found fully applied before, so a plain boot costs no query (#1111).
+		if ( null === $migration && get_option( self::CHECKED_OPTION ) === $fingerprint ) {
 			return $ran_migrations;
 		}
 
-		// Non-blocking cross-request lock: a long resumable migration otherwise runs
-		// concurrently in every simultaneous request, each redoing the same table work.
-		// Auto-released on disconnect, so a fatal mid-run can never wedge migrations.
-		// Prefixed per site — server-level locks are shared across a multisite network.
-		$lock_name = 'masteriyo_migrate_' . $wpdb->prefix;
+		/*
+		 * Everything past here reads the history and may record the fingerprint, so it
+		 * all runs under the lock. A rollback deleting its rows would otherwise be seen
+		 * half done and remembered as "nothing pending", which skips the rolled-back
+		 * migration on every later boot.
+		 */
+		if ( ! $this->acquire_lock() ) {
+			return $ran_migrations;
+		}
 
-		if ( ! $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 0 )', $lock_name ) ) ) {
-			/*
-			 * '0' means another request holds the lock and is doing the work — yield.
-			 * NULL with a DB error means this host cannot GET_LOCK at all (pooler,
-			 * restricted user); yielding there would silently disable every present
-			 * and future migration, so run unlocked instead — the pre-lock behavior.
-			 */
-			if ( empty( $wpdb->last_error ) ) {
-				return $ran_migrations;
-			}
+		$this->setup();
 
-			if ( function_exists( 'masteriyo_get_logger' ) ) {
-				masteriyo_get_logger()->warning(
-					'GET_LOCK unavailable; running migrations unlocked. DB error: ' . $wpdb->last_error,
-					array( 'source' => 'migrator' )
-				);
-			}
+		$migrations = $this->get_migrations_to_run( $migration, $discovered );
+
+		if ( empty( $migrations ) ) {
+			$this->remember_checked( $fingerprint, $migration );
+			$this->release_lock();
+
+			return $ran_migrations;
 		}
 
 		$current_batch = $this->get_current_batch();
+		$completed     = true;
 
 		foreach ( $migrations as $file => $name ) {
 			/*
@@ -283,6 +305,7 @@ class Migrator {
 			 * legitimately yielding from a permanently failing one.
 			 */
 			if ( false === $this->run_migration( $file, $name ) ) {
+				$completed = false;
 				break;
 			}
 
@@ -298,9 +321,102 @@ class Migrator {
 			);
 		}
 
-		$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $lock_name ) );
+		if ( $completed ) {
+			$this->remember_checked( $fingerprint, $migration );
+		}
+
+		$this->release_lock();
 
 		return $ran_migrations;
+	}
+
+	/**
+	 * Name of the cross-request migration lock.
+	 *
+	 * Prefixed per site, because server-level locks are shared across a multisite network.
+	 *
+	 * @return string
+	 */
+	protected function get_lock_name() {
+		global $wpdb;
+
+		return 'masteriyo_migrate_' . $wpdb->prefix;
+	}
+
+	/**
+	 * Take the migration lock.
+	 *
+	 * A long resumable migration otherwise runs concurrently in every simultaneous
+	 * request, each redoing the same table work. The lock is auto-released on
+	 * disconnect, so a fatal mid-run can never wedge migrations.
+	 *
+	 * @param int $timeout Seconds to wait for the lock. Boot-time runs do not wait.
+	 *
+	 * @return boolean False only when another process holds it.
+	 */
+	protected function acquire_lock( $timeout = 0 ) {
+		global $wpdb;
+
+		if ( $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, %d )', $this->get_lock_name(), $timeout ) ) ) {
+			return true;
+		}
+
+		/*
+		 * '0' means another request holds the lock and is doing the work — yield.
+		 * NULL with a DB error means this host cannot GET_LOCK at all (pooler,
+		 * restricted user); yielding there would silently disable every present
+		 * and future migration, so run unlocked instead — the pre-lock behavior.
+		 */
+		if ( empty( $wpdb->last_error ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'masteriyo_get_logger' ) ) {
+			masteriyo_get_logger()->warning(
+				'GET_LOCK unavailable; running migrations unlocked. DB error: ' . $wpdb->last_error,
+				array( 'source' => 'migrator' )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Record that an explicit command did nothing because migrations were running.
+	 *
+	 * Its return value is indistinguishable from "there was nothing to do", so the
+	 * reason has to be written down somewhere.
+	 *
+	 * @param string $command The command that gave up.
+	 */
+	protected function warn_lock_blocked( $command ) {
+		if ( function_exists( 'masteriyo_get_logger' ) ) {
+			masteriyo_get_logger()->warning(
+				sprintf( 'Migration %s skipped: another process held the migration lock.', $command ),
+				array( 'source' => 'migrator' )
+			);
+		}
+	}
+
+	/**
+	 * Release the migration lock.
+	 */
+	protected function release_lock() {
+		global $wpdb;
+
+		$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $this->get_lock_name() ) );
+	}
+
+	/**
+	 * Record that every discovered migration has run, unless the run was narrowed to one name.
+	 *
+	 * @param string      $fingerprint Fingerprint of the discovered migration names.
+	 * @param string|null $migration   The single migration the run was limited to, if any.
+	 */
+	protected function remember_checked( $fingerprint, $migration ) {
+		if ( null === $migration ) {
+			update_option( self::CHECKED_OPTION, $fingerprint );
+		}
 	}
 
 	/**
@@ -315,8 +431,18 @@ class Migrator {
 	 */
 	public function rollback( $step = 1, $migration = null ) {
 		$ran_migrations = array();
-		$table          = $this->get_table_name();
-		$current_batch  = $this->get_current_batch();
+
+		// An explicit rollback waits for a boot-time migrate() rather than interleaving with it.
+		if ( ! $this->acquire_lock( self::LOCK_TIMEOUT ) ) {
+			$this->warn_lock_blocked( 'rollback' );
+
+			return $ran_migrations;
+		}
+
+		$this->setup();
+
+		$table         = $this->get_table_name();
+		$current_batch = $this->get_current_batch();
 
 		$non_batch_migrations = $this->connection->get_col(
 			$this->connection->prepare(
@@ -343,6 +469,10 @@ class Migrator {
 			);
 		}
 
+		// Last, so a migrate() that ran during the rollback cannot leave its fingerprint behind.
+		delete_option( self::CHECKED_OPTION );
+		$this->release_lock();
+
 		return $ran_migrations;
 	}
 
@@ -355,8 +485,17 @@ class Migrator {
 	 */
 	public function reset() {
 		$ran_migrations = array();
-		$migrations     = $this->get_migrations();
-		$table          = $this->get_table_name();
+
+		if ( ! $this->acquire_lock( self::LOCK_TIMEOUT ) ) {
+			$this->warn_lock_blocked( 'reset' );
+
+			return $ran_migrations;
+		}
+
+		$this->setup();
+
+		$migrations = $this->get_migrations();
+		$table      = $this->get_table_name();
 
 		foreach ( $migrations as $file => $name ) {
 			if ( $this->run_migration( $file, $name, true ) ) {
@@ -373,6 +512,9 @@ class Migrator {
 				)
 			);
 		}
+
+		delete_option( self::CHECKED_OPTION );
+		$this->release_lock();
 
 		return $ran_migrations;
 	}
@@ -422,10 +564,16 @@ class Migrator {
 	 * @return string|boolean
 	 */
 	protected function get_class_with_namespace( $class_name ) {
-		$all_classes = get_declared_classes();
+		// Migration files declare a global class, so a plain match is the answer (#1387).
+		if ( class_exists( $class_name, false ) && is_subclass_of( $class_name, Migration::class ) ) {
+			return $class_name;
+		}
 
-		foreach ( $all_classes as $class ) {
-			if ( substr( $class, - strlen( $class_name ) ) === $class_name ) {
+		// A namespaced migration: match on its short name, never on a name that merely ends alike.
+		$suffix = '\\' . $class_name;
+
+		foreach ( get_declared_classes() as $class ) {
+			if ( substr( $class, - strlen( $suffix ) ) === $suffix && is_subclass_of( $class, Migration::class ) ) {
 				return $class;
 			}
 		}

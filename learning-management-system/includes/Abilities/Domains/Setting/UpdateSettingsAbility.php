@@ -49,8 +49,7 @@ class UpdateSettingsAbility extends RestProxyAbility {
 	/** {@inheritdoc} */
 	public function get_description(): string {
 		return sprintf(
-			/* translators: %s: the product's name */
-			__( 'Write %s LMS settings. Accepts a partial or full settings object. Only provided keys are updated; omitted keys retain their current values. Returns the updated settings object.', 'learning-management-system' ),
+			'Write %s LMS settings. Accepts a partial or full settings object. Only provided keys are updated; omitted keys retain their current values. Returns the updated settings object.',
 			masteriyo_get_plugin_name()
 		);
 	}

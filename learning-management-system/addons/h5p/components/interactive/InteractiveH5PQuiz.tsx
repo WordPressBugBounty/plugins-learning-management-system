@@ -12,16 +12,10 @@ import {
 	Heading,
 	HStack,
 	Icon,
-	List,
-	ListIcon,
-	ListItem,
 	Stack,
 	Text,
-	Tooltip,
 	useColorMode,
-	useColorModeValue,
 	useDisclosure,
-	useMediaQuery,
 	useToast,
 	VStack,
 } from '@chakra-ui/react';
@@ -39,14 +33,12 @@ import {
 	BiCheckDouble,
 	BiChevronRight,
 	BiInfoCircle,
+	BiRepeat,
 	BiTime,
 } from 'react-icons/bi';
-import {
-	BsArrowsCollapseVertical,
-	BsArrowsExpandVertical,
-} from 'react-icons/bs';
 import { useNavigate, useParams } from 'react-router-dom';
 import MasteriyoPagination from '../../../../assets/js/back-end/components/common/MasteriyoPagination';
+import { paginationSx } from '../../../../assets/js/interactive/pages/quiz/components/paginationSx';
 import { Check } from '../../../../assets/js/back-end/constants/images';
 import urls from '../../../../assets/js/back-end/constants/urls';
 import API from '../../../../assets/js/back-end/utils/api';
@@ -54,17 +46,26 @@ import { masteriyoHumanizer } from '../../../../assets/js/back-end/utils/utils';
 import ContentErrorDisplay from '../../../../assets/js/interactive/components/ContentErrorDisplay';
 import ContentNav from '../../../../assets/js/interactive/components/ContentNav';
 import QuizTimer from '../../../../assets/js/interactive/components/QuizTimer';
+import {
+	attemptsLeftOf,
+	passMarkOf,
+	pointsHint,
+} from '../../../../assets/js/interactive/pages/quiz/components/QuizStart';
+import StatCells from '../../../../assets/js/interactive/pages/quiz/components/StatCells';
 import { COLORS_BASED_ON_SCREEN_COLOR_MODE } from '../../../../assets/js/interactive/constants/general';
 import { useCourseContext } from '@interactive/context/CourseContext';
 import { ContentQueryError } from '../../../../assets/js/back-end/schemas';
 import LessonSkeleton from '../../../../assets/js/interactive/skeleton/LessonSkeleton';
-import {
-	getContentWidths,
-	previewFlag,
-} from '../../../../assets/js/interactive/utils/helper';
+import { previewFlag } from '../../../../assets/js/interactive/utils/helper';
+import localized from '../../../../assets/js/interactive/utils/global';
 import RedirectNavigation from '../../../../assets/js/interactive/utils/RedirectNavigation';
 import h5pUrls from '../../constants/urls';
 import H5PScoreBoard, { QuestionScore } from './H5PScoreBoard';
+import {
+	containerFor,
+	useContentWidth,
+} from '../../../../assets/js/interactive/hooks/useContentWidth';
+import ContentWidthButton from '../../../../assets/js/interactive/components/card/ContentWidthButton';
 
 interface H5PQuizSchema {
 	id: number;
@@ -135,22 +136,8 @@ const InteractiveH5PQuiz = () => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
 	const { colorMode } = useColorMode();
-	const [isLargerThan1400] = useMediaQuery('(min-width: 1400px)');
-	const [isLargerThan1100] = useMediaQuery('(min-width: 1100px)');
-	const [contentWidth, setContentWidth] = useState<string>(
-		getContentWidths(isLargerThan1400)[0],
-	);
-	const isLargestContentWidth = useMemo(() => {
-		const widths = getContentWidths(isLargerThan1400);
-		return contentWidth === widths[widths.length - 1];
-	}, [contentWidth, isLargerThan1400]);
-	const updateContentWidth = () => {
-		const widths = getContentWidths(isLargerThan1400);
-		const idx = widths.indexOf(contentWidth);
-		setContentWidth(idx === widths.length - 1 ? widths[0] : widths[idx + 1]);
-	};
-	const { setActiveIndex, setContentData, setActiveContentId } =
-		useCourseContext();
+	const [contentWidth, cycleContentWidth] = useContentWidth();
+	const { setContentData, setActiveContentId } = useCourseContext();
 
 	const cancelRef = useRef<any>();
 
@@ -298,8 +285,6 @@ const InteractiveH5PQuiz = () => {
 		} catch (_) {}
 	}, []);
 
-	const headerColor = useColorModeValue('oxford-night', 'white');
-
 	useEffect(() => {
 		setActiveContentId(h5pQuizId);
 	}, [h5pQuizId, setActiveContentId]);
@@ -325,10 +310,9 @@ const InteractiveH5PQuiz = () => {
 
 	useEffect(() => {
 		if (quizQuery?.isSuccess) {
-			setActiveIndex(quizQuery?.data?.parent_menu_order ?? 0);
 			setContentData(quizQuery?.data);
 		}
-	}, [quizQuery?.data, quizQuery?.isSuccess, setActiveIndex, setContentData]);
+	}, [quizQuery?.data, quizQuery?.isSuccess, setContentData]);
 
 	// Reset attempt-tracking state when navigating to a different H5P quiz.
 	useEffect(() => {
@@ -584,7 +568,7 @@ const InteractiveH5PQuiz = () => {
 				toast({
 					title:
 						err?.message ||
-						__('Unable to start the quiz.', 'learning-management-system'),
+						__('Unable to start the activity.', 'learning-management-system'),
 					status: 'error',
 					isClosable: true,
 				});
@@ -717,48 +701,35 @@ const InteractiveH5PQuiz = () => {
 			? activeAttempt
 			: latestFinished;
 
-	const bgColor =
-		COLORS_BASED_ON_SCREEN_COLOR_MODE[colorMode]
-			?.interactiveAssignmentBgColor || undefined;
-
-	const infoItems = [
-		{
-			icon: BiTime,
-			label: __('Duration: ', 'learning-management-system'),
-			value:
-				quiz.duration === 0
-					? __('No time limit', 'learning-management-system')
-					: masteriyoHumanizer(quiz.duration * 60 * 1000),
-		},
+	// Same cells as the quiz intro, with activities in place of questions.
+	const cells = [
 		{
 			icon: BiInfoCircle,
-			label: __('Questions: ', 'learning-management-system'),
-			value: allContentIds.length,
-		},
-		{
-			icon: BiCheckCircle,
-			label: __('Total Points: ', 'learning-management-system'),
-			value: quiz.full_marks,
+			label: __('Activities', 'learning-management-system'),
+			value: String(allContentIds.length),
+			hint: pointsHint(quiz.full_marks),
 		},
 		{
 			icon: BiCheckDouble,
-			label:
-				quiz.pass_mark_type === 'percentage'
-					? __('Pass Percent: ', 'learning-management-system')
-					: __('Pass Points: ', 'learning-management-system'),
-			value: quiz.pass_mark,
+			label: __('Pass mark', 'learning-management-system'),
+			value: passMarkOf(quiz.pass_mark, quiz.pass_mark_type),
+		},
+		{
+			icon: BiTime,
+			label: __('Time limit', 'learning-management-system'),
+			value:
+				quiz.duration === 0
+					? __('None', 'learning-management-system')
+					: masteriyoHumanizer(quiz.duration * 60 * 1000),
+		},
+		{
+			icon: BiRepeat,
+			label: __('Attempts left', 'learning-management-system'),
+			value: attemptsLeftOf(
+				attemptsAllowed > 0 ? attemptsAllowed - finishedCount : null,
+			),
 		},
 	];
-
-	const listItemStyles = {
-		display: 'flex',
-		alignItems: 'center',
-		borderRight: '1px',
-		borderRightColor: 'rgba(255, 255, 255, 0.2)',
-		px: '3',
-		'.chakra-icon': { fontSize: 'lg' },
-		_last: { borderRightColor: 'transparent' },
-	};
 
 	// Whether this session's attempt has just finished (status from local state).
 	const isFinished = activeAttempt?.status === 'finished';
@@ -773,106 +744,89 @@ const InteractiveH5PQuiz = () => {
 	const isCompleted =
 		completeMutation.isSuccess || Boolean(progressItemQuery?.data?.completed);
 
-	const quizCompletionButton = hasFinishedAttempt ? (
-		<Flex align="center" justify="center">
-			<Button
-				color={isCompleted ? '#07092F' : 'white'}
-				isDisabled={isCompleted}
-				isLoading={completeMutation.isPending}
-				onClick={onCompletePress}
-				variant={isCompleted ? 'link' : 'solid'}
-				rounded="base"
-				fontWeight="medium"
-				colorScheme="button"
-				fontSize="sm"
-				leftIcon={
-					isCompleted ? (
-						<Icon fontSize="xl" as={Check} color={'green.400'} />
-					) : undefined
-				}
-				width={'146px'}
-				height={'44px'}
-			>
-				{isCompleted
-					? __('Completed', 'learning-management-system')
-					: __('Complete Quiz', 'learning-management-system')}
-			</Button>
-		</Flex>
-	) : null;
+	// Same as a native quiz: with Conditional Quiz Completion Button on, a failed
+	// attempt does not offer completion (issue #908).
+	const passGated = localized.hideCompleteQuizButtonOnFail === 'yes';
+	const attemptPassed = resultAttempt?.passed === 'yes';
+
+	const quizCompletionButton =
+		hasFinishedAttempt && (!passGated || attemptPassed) ? (
+			<Flex align="center" justify="center">
+				<Button
+					isDisabled={isCompleted}
+					isLoading={completeMutation.isPending}
+					onClick={onCompletePress}
+					variant="unstyled"
+					display="inline-flex"
+					alignItems="center"
+					gap="8px"
+					h="40px"
+					px="18px"
+					borderRadius="8px"
+					fontSize="14px"
+					fontWeight="600"
+					color={isCompleted ? 'player.success' : 'player.onPrimary'}
+					bg={isCompleted ? 'transparent' : 'player.primaryFill'}
+					_hover={isCompleted ? {} : { bg: 'player.primaryHover' }}
+					_disabled={{ opacity: 1, cursor: 'default' }}
+					leftIcon={
+						isCompleted ? (
+							<Icon fontSize="18px" as={Check} color="player.success" />
+						) : undefined
+					}
+				>
+					{isCompleted
+						? __('Completed', 'learning-management-system')
+						: __('Complete activity', 'learning-management-system')}
+				</Button>
+			</Flex>
+		) : null;
 
 	return (
-		<VStack height={'100vh'} justify={'space-between'}>
+		<VStack minH="100%" justify={'space-between'}>
 			<Container
 				centerContent
-				maxW={
-					contentWidth !== 'full' ? `container.${contentWidth}` : contentWidth
-				}
-				py="16"
+				position="relative"
+				maxW={containerFor(contentWidth)}
+				px={{ base: 0, md: '16px' }}
+				py={{ base: 0, md: '40px' }}
 			>
-				<Box bg={bgColor} shadow="box" w="full" rounded="xl">
+				<ContentWidthButton width={contentWidth} onCycle={cycleContentWidth} />
+				<Box
+					bg="player.card"
+					w="full"
+					border="1px solid"
+					borderColor="player.border"
+					borderWidth={{ base: '0 0 1px', md: '1px' }}
+					borderRadius={{ base: 0, md: '12px' }}
+					// clip, not hidden: hidden would stop the timer sticking.
+					overflow="clip"
+				>
 					{isAttemptActive && quiz.duration > 0 && (
 						<QuizTimer
 							quizId={quiz.id}
 							startedOn={activeAttempt?.started_at}
 							duration={quiz.duration}
 							onQuizExpire={() => handleFinish(completedScores)}
+							px={{ base: '16px', md: '40px' }}
 						/>
 					)}
-					<Box p={['5', null, '14']}>
+					<Box
+						px={{ base: '16px', md: '40px' }}
+						py={{ base: '18px', md: '32px' }}
+					>
 						<Stack direction="column" spacing="8">
 							<HStack>
-								<Heading as="h5" color={headerColor} flex={1}>
+								<Heading
+									as="h1"
+									flex={1}
+									color="player.text"
+									fontSize={{ base: '22px', md: '28px' }}
+									fontWeight="700"
+									lineHeight="1.25"
+								>
 									{quiz.name}
 								</Heading>
-								<Tooltip
-									label={
-										isLargestContentWidth
-											? __(
-													'Collapse Content Width',
-													'learning-management-system',
-												)
-											: __('Expand Content Width', 'learning-management-system')
-									}
-								>
-									<Flex
-										display={isLargerThan1100 ? 'flex' : 'none'}
-										justifyContent="center"
-										alignItems="center"
-										p={2}
-										borderWidth={1}
-										borderColor="transparent"
-										cursor="pointer"
-										sx={{
-											background:
-												colorMode === 'dark'
-													? 'rgba(0,0,0,0.1)'
-													: 'rgba(255,255,255,0.1)',
-											backdropFilter: 'blur(10px)',
-											borderRadius: '50%',
-											transition: 'all 0.3s ease-in-out',
-											'&:hover': {
-												borderColor:
-													colorMode === 'dark' ? 'gray.600' : 'gray.100',
-												boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-												'.icon': {
-													color:
-														colorMode === 'dark' ? 'yellow.500' : 'blue.500',
-												},
-											},
-										}}
-										onClick={updateContentWidth}
-									>
-										<Icon
-											as={
-												isLargestContentWidth
-													? BsArrowsCollapseVertical
-													: BsArrowsExpandVertical
-											}
-											fontSize="larger"
-											className="icon"
-										/>
-									</Flex>
-								</Tooltip>
 							</HStack>
 
 							{/* Hide description on the results screen — consistent with Normal Quiz */}
@@ -913,27 +867,29 @@ const InteractiveH5PQuiz = () => {
 										);
 									})}
 
-									<MasteriyoPagination
-										metaData={{
-											total: orderedIds.length,
-											pages: totalPages,
-											current_page: currentPage + 1,
-											per_page: questionsPerPage,
-										}}
-										setFilterParams={(params: {
-											page?: number;
-											per_page?: number;
-										}) => {
-											if (params.page !== undefined) {
-												setCurrentPage(params.page - 1);
-											}
-										}}
-										perPageText={__(
-											'Questions Per Page:',
-											'learning-management-system',
-										)}
-										showPerPage={false}
-									/>
+									<Box sx={paginationSx}>
+										<MasteriyoPagination
+											metaData={{
+												total: orderedIds.length,
+												pages: totalPages,
+												current_page: currentPage + 1,
+												per_page: questionsPerPage,
+											}}
+											setFilterParams={(params: {
+												page?: number;
+												per_page?: number;
+											}) => {
+												if (params.page !== undefined) {
+													setCurrentPage(params.page - 1);
+												}
+											}}
+											perPageText={__(
+												'Activities per page:',
+												'learning-management-system',
+											)}
+											showPerPage={false}
+										/>
+									</Box>
 								</Stack>
 							) : resultVisible ? (
 								/* Finished — show ScoreBoard-style results */
@@ -960,6 +916,9 @@ const InteractiveH5PQuiz = () => {
 									duration={quiz.duration}
 									startedAt={resultAttempt?.started_at ?? null}
 									finishedAt={resultAttempt?.finished_at ?? null}
+									attemptsLeft={
+										attemptsAllowed > 0 ? attemptsAllowed - finishedCount : null
+									}
 									onStartPress={handleStart}
 									isButtonLoading={startMutation.isPending}
 									limitReached={maxReached}
@@ -969,62 +928,46 @@ const InteractiveH5PQuiz = () => {
 								   Completion/navigation happens via the nav, like normal quizzes. */
 								<Stack spacing="4" align="center" textAlign="center" py="6">
 									<Icon as={BiCheckCircle} color="green.400" fontSize="5xl" />
-									<Heading as="h6" size="md" color={headerColor}>
-										{__(
-											'Your responses have been submitted',
-											'learning-management-system',
-										)}
+									<Heading as="h6" size="md" color="player.text">
+										{__('Activity finished', 'learning-management-system')}
 									</Heading>
-									<Text fontSize="sm" color="gray.500">
+									<Text fontSize="sm" color="player.muted">
 										{__(
-											'Use the navigation below to continue the course.',
+											'Use Next in the footer to continue the course.',
 											'learning-management-system',
 										)}
 									</Text>
 								</Stack>
 							) : (
-								/* Not yet started — info bar + Start button */
-								<Stack spacing="6">
-									<List
-										bg="primary.500"
-										rounded="sm"
-										display="flex"
-										flexDirection={['column', null, 'row']}
-										alignItems={[null, null, 'center']}
-										py="3"
-										color="white"
-										fontSize="xs"
-									>
-										{infoItems.map((item, i) => (
-											<ListItem key={i} sx={listItemStyles}>
-												<ListIcon as={item.icon} />
-												<Text as="strong">{item.label}</Text>
-												<Text ml="1">{item.value}</Text>
-											</ListItem>
-										))}
-									</List>
+								/* Not yet started: stat cells + Start button */
+								<Stack spacing="18px">
+									<StatCells cells={cells} />
 
 									{allContentIds.length > 0 ? (
 										<Button
 											onClick={handleStart}
 											isLoading={startMutation.isPending}
-											colorScheme="button"
-											alignSelf="flex-start"
-											rounded="base"
-											fontWeight="medium"
-											fontSize="sm"
-											width={'146px'}
-											height={'44px'}
-											rightIcon={
-												<Icon as={BiChevronRight} fontSize="x-large" />
-											}
+											variant="unstyled"
+											display="inline-flex"
+											alignItems="center"
+											alignSelf="flex-end"
+											gap="6px"
+											h="44px"
+											px="20px"
+											borderRadius="8px"
+											fontSize="15px"
+											fontWeight="600"
+											color="player.onPrimary"
+											bg="player.primaryFill"
+											_hover={{ bg: 'player.primaryHover' }}
+											rightIcon={<Icon as={BiChevronRight} fontSize="18px" />}
 										>
-											{__('Start Quiz', 'learning-management-system')}
+											{__('Start activity', 'learning-management-system')}
 										</Button>
 									) : (
-										<Text color="red.400">
+										<Text color="player.danger">
 											{__(
-												'No H5P content is linked to this quiz yet.',
+												'No H5P content is linked to this activity yet.',
 												'learning-management-system',
 											)}
 										</Text>
@@ -1048,10 +991,10 @@ const InteractiveH5PQuiz = () => {
 						<AlertDialogContent>
 							<AlertDialogHeader fontSize="lg" fontWeight="bold">
 								{sprintf(
-									/* translators: %s: quiz name */
+									/* translators: %s: activity name */
 									_x(
-										'Submit Quiz: %s',
-										'Quiz submission button label',
+										'Finish activity: %s',
+										'H5P finish dialog title',
 										'learning-management-system',
 									),
 									quiz.name,
@@ -1060,17 +1003,16 @@ const InteractiveH5PQuiz = () => {
 
 							<AlertDialogBody>
 								{__(
-									'Are you sure you want to submit the quiz?',
+									'Your answers so far are recorded. You can do the activity again afterwards.',
 									'learning-management-system',
 								)}
 							</AlertDialogBody>
 
 							<AlertDialogFooter>
 								<Button
-									variant="outline"
+									variant="player-secondary"
 									ref={cancelRef}
 									onClick={onSubmitClose}
-									colorScheme="button"
 								>
 									{__('Cancel', 'learning-management-system')}
 								</Button>
@@ -1080,7 +1022,7 @@ const InteractiveH5PQuiz = () => {
 									onClick={() => handleFinish(completedScores)}
 									ml={3}
 								>
-									{__('Confirm', 'learning-management-system')}
+									{__('Finish activity', 'learning-management-system')}
 								</Button>
 							</AlertDialogFooter>
 						</AlertDialogContent>
@@ -1089,7 +1031,7 @@ const InteractiveH5PQuiz = () => {
 			</Container>
 
 			<ContentNav
-				type="quiz"
+				type="h5p-quiz"
 				navigation={quiz.navigation}
 				courseId={courseId}
 				onCompletePress={onSubmitOpen}
@@ -1099,6 +1041,7 @@ const InteractiveH5PQuiz = () => {
 				// Mirror the normal quiz: false keeps the center empty until the attempt starts (Submit) or finishes (Complete), instead of showing disabled "Completed".
 				isAssignmentSubmitted={false}
 				quizCompletionButton={quizCompletionButton}
+				isCompleted={isCompleted}
 			/>
 		</VStack>
 	);

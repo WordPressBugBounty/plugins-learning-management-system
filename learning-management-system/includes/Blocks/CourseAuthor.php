@@ -57,6 +57,9 @@ class CourseAuthor extends BlockHandler {
 
 		$course            = $this->get_block_preview_course( $course_id );
 		$GLOBALS['course'] = $course;
+		if ( ! $course ) {
+			return '';
+		}
 		\ob_start();
 		?>
 		<style>

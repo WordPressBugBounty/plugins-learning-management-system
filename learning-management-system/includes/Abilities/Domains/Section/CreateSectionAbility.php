@@ -59,6 +59,6 @@ class CreateSectionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new section inside a course.', 'learning-management-system' );
+		return 'Create a new section inside a course.';
 	}
 }

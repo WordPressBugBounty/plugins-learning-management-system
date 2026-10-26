@@ -43,6 +43,6 @@ class GetOrderAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a single order by its ID. Requires id (order ID). Returns the full order object including status, total, customer details, and line items.', 'learning-management-system' );
+		return 'Retrieve a single order by its ID. Requires id (order ID). Returns the full order object including status, total, customer details, and line items.';
 	}
 }

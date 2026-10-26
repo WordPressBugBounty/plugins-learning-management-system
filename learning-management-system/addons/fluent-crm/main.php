@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Fluent CRM Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Addon Type: integration
  * Description: The Fluent CRM Integration Addon for Masteriyo LMS syncs student data, automates email campaigns, and enhances CRM functionality for better engagement and streamlined communication with learners.
  * Author: Masteriyo

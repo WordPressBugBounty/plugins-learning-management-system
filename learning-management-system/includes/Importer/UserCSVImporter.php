@@ -29,6 +29,13 @@ class UserCSVImporter {
 	protected $file_path;
 
 	/**
+	 * Lines the parser could not read, keyed by line number, so the import can report them.
+	 *
+	 * @var array<int, string>
+	 */
+	protected $invalid_lines = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.6.13
@@ -40,7 +47,7 @@ class UserCSVImporter {
 	}
 
 	/**
-	 * Import the CSV data with batch processing.
+	 * Import the CSV data, reporting every row that was not imported.
 	 *
 	 * @since 1.6.13
 	 *
@@ -57,41 +64,99 @@ class UserCSVImporter {
 			return $rows;
 		}
 
-		if ( empty( $rows ) ) {
+		if ( empty( $rows ) && empty( $this->invalid_lines ) ) {
 			return new \WP_Error( 'invalid_csv_format', 'Invalid CSV format. Unable to process data.' );
 		}
 
-		$batch_size = 100;
-		$total_rows = count( $rows );
+		$imported = 0;
+		$skipped  = array();
 
-		for ( $i = 0; $i < $total_rows; $i += $batch_size ) {
-			$batch_rows = array_slice( $rows, $i, $batch_size );
-
-			foreach ( $batch_rows as $row ) {
-				try {
-					$result = $this->create_user_from_csv_row( $row );
-					if ( is_wp_error( $result ) ) {
-						continue;
-					}
-				} catch ( \Exception $e ) {
-					continue;
-				}
-			}
+		foreach ( $this->invalid_lines as $line => $message ) {
+			$skipped[] = array(
+				'row'      => $line,
+				'username' => '',
+				'email'    => '',
+				'code'     => 'invalid_row',
+				'message'  => $message,
+			);
 		}
+
+		foreach ( $rows as $line => $row ) {
+			try {
+				$result = $this->create_user_from_csv_row( $row );
+			} catch ( \Exception $e ) {
+				$result = new \WP_Error( 'user_import_failed', $e->getMessage() );
+			}
+
+			if ( is_wp_error( $result ) ) {
+				$skipped[] = array(
+					'row'      => $line,
+					'username' => (string) ( $row['username'] ?? '' ),
+					'email'    => (string) ( $row['email'] ?? '' ),
+					'code'     => $result->get_error_code(),
+					'message'  => $result->get_error_message(),
+				);
+				continue;
+			}
+
+			++$imported;
+		}
+
+		usort(
+			$skipped,
+			static function ( array $a, array $b ): int {
+				return $a['row'] <=> $b['row'];
+			}
+		);
 
 		return new \WP_REST_Response(
 			array(
-				'message' => __( 'Import successful.', 'learning-management-system' ),
+				'status'   => $skipped ? 'partial' : 'completed',
+				'imported' => $imported,
+				'skipped'  => $skipped,
+				'message'  => self::summary( $imported, $skipped ),
 			)
 		);
 	}
 
 	/**
-	 * Parse the CSV file and return its data as an array of associative arrays.
+	 * One line naming each skipped row, so the admin knows who to add by hand.
+	 *
+	 * @param int                                                                          $imported Users created.
+	 * @param list<array{row: int, username: string, email: string, code: string, message: string}> $skipped  Rows not imported.
+	 *
+	 * @return string
+	 */
+	private static function summary( int $imported, array $skipped ): string {
+		if ( ! $skipped ) {
+			return __( 'Import successful.', 'learning-management-system' );
+		}
+
+		$rows = array_map(
+			static function ( array $row ): string {
+				/* translators: 1: CSV row number, 2: username or email, 3: reason the row was skipped */
+				return sprintf( __( 'row %1$d %2$s (%3$s)', 'learning-management-system' ), $row['row'], $row['username'] ? $row['username'] : $row['email'], $row['message'] );
+			},
+			$skipped
+		);
+
+		return sprintf(
+			/* translators: 1: "N users imported", 2: "N rows skipped", 3: the skipped rows */
+			__( '%1$s, %2$s: %3$s', 'learning-management-system' ),
+			/* translators: %d: number of users imported */
+			sprintf( _n( '%d user imported', '%d users imported', $imported, 'learning-management-system' ), $imported ),
+			/* translators: %d: number of rows skipped */
+			sprintf( _n( '%d row skipped', '%d rows skipped', count( $skipped ), 'learning-management-system' ), count( $skipped ) ),
+			implode( '; ', $rows )
+		);
+	}
+
+	/**
+	 * Parse the CSV file into rows keyed by their line number in the file.
 	 *
 	 * @since 1.6.13
 	 *
-	 * @return array
+	 * @return array<int, array<string, string>>
 	 */
 	protected function parse_csv_file() {
 		$header   = null;
@@ -108,7 +173,8 @@ class UserCSVImporter {
 		$lines        = explode( "\n", $file_content );
 
 		if ( $lines ) {
-			$header = str_getcsv( array_shift( $lines ) );
+			// The exporter writes with no escape character; PHP 8.4 deprecates leaving it implicit.
+			$header = str_getcsv( array_shift( $lines ), ',', '"', '' );
 			$header = array_map(
 				function ( $item ) {
 					return strtolower( str_replace( ' ', '_', $item ) );
@@ -116,21 +182,22 @@ class UserCSVImporter {
 				$header
 			);
 
-			foreach ( $lines as $line ) {
+			foreach ( $lines as $index => $line ) {
 				if ( empty( trim( $line ) ) ) {
 					continue; // Skip empty lines.
 				}
-				$data = array_map( 'masteriyo_unescape_csv_formula', str_getcsv( $line ) );
+				$data = array_map( 'masteriyo_unescape_csv_formula', str_getcsv( $line, ',', '"', '' ) );
 				if ( count( $header ) === count( $data ) ) {
-					$csv_data[] = array_combine( $header, $data );
+					$csv_data[ $index + 2 ] = array_combine( $header, $data );
+				} else {
+					/* translators: 1: number of columns in the header, 2: number of columns in the row */
+					$this->invalid_lines[ $index + 2 ] = sprintf( __( 'Expected %1$d columns, found %2$d.', 'learning-management-system' ), count( $header ), count( $data ) );
 				}
 			}
 		}
 
 		return $csv_data;
 	}
-
-
 
 	/**
 	 * Create a user from the CSV row data.
@@ -202,7 +269,10 @@ class UserCSVImporter {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			$allowed_roles = array_diff( $allowed_roles, array( Roles::MANAGER ) );
 		}
-		if ( ! in_array( $row['roles'], $allowed_roles, true ) ) {
+
+		// The export joins a user's roles with commas; the other roles are dropped, not refused.
+		$roles = array_values( array_intersect( array_map( 'trim', explode( ',', $row['roles'] ) ), $allowed_roles ) );
+		if ( ! $roles ) {
 			return new \WP_Error( 'invalid_role', 'The specified role is not assignable via import.' );
 		}
 
@@ -211,7 +281,7 @@ class UserCSVImporter {
 			$row['email'],
 			$row['username'],
 			'',
-			$row['roles'],
+			$roles,
 			array(
 				'first_name' => sanitize_text_field( $row['first_name'] ),
 				'last_name'  => sanitize_text_field( $row['last_name'] ),
@@ -224,7 +294,7 @@ class UserCSVImporter {
 
 		// Set additional user data for valid keys only.
 		foreach ( $row as $key => $value ) {
-			if ( in_array( $key, array( 'id', 'email', 'username', 'role', 'first_name', 'last_name' ), true ) ) {
+			if ( in_array( $key, array( 'id', 'email', 'username', 'role', 'roles', 'first_name', 'last_name' ), true ) ) {
 				continue;
 			}
 

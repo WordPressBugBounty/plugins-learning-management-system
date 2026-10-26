@@ -129,7 +129,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 									<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--header-misc">
 
 									<?php
-										$lesson_count = get_course_section_children_count_by_section( $section->get_id(), PostType::LESSON );
+										$lesson_count = get_course_section_children_count_by_section( $section->get_id(), PostType::LESSON, $course );
 									if ( $lesson_count > 0 ) :
 										?>
 
@@ -146,7 +146,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 										<?php endif; ?>
 
 										<?php
-										$quiz_count = get_course_section_children_count_by_section( $section->get_id(), PostType::QUIZ );
+										$quiz_count = get_course_section_children_count_by_section( $section->get_id(), PostType::QUIZ, $course );
 
 										if ( $quiz_count > 0 ) :
 											?>
@@ -185,7 +185,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 									</span>
 								</div>
 								<?php
-								$objects = get_course_section_children_by_section( $section->get_id() );
+								$objects = get_course_section_children_by_section( $section->get_id(), $course );
 								?>
 								<?php if ( ! empty( $objects ) ) : ?>
 									<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body">
@@ -201,23 +201,12 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 													<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon">
 														<?php
 														echo $object->get_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-														$learn_page_url = masteriyo_get_page_permalink( 'learn' );
-														$permalink      = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
-
-														if ( '' === get_option( 'permalink_structure' ) ) {
-															$permalink = add_query_arg(
-																array(
-																	'course_name' => $course->get_id(),
-																),
-																$learn_page_url
-															);
-														}
-
-														$permalink .= '#/course/' . $course->get_id() . '/' . $object->get_object_type() . '/' . $lesson_id;
+														$permalink = masteriyo_get_course_content_learn_url( $course, $object );
 														?>
 															<a href="<?php echo esc_url( $permalink ); ?>">
 															<?php echo esc_html( $object->get_name() ); ?>
 														</a>
+														<?php echo wp_kses_post( masteriyo_course_content_draft_badge( $object ) ); ?>
 														<span class="masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">
 															<?php echo $status_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded internal SVG markup from get_lesson_status_class_and_icon(). ?>
 														</span>
@@ -251,7 +240,7 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 
 		<!-- Overview Content -->
 		<div id="masteriyoSingleCourseOverviewTab" class=" tab-content course-overview  masteriyo-single-body__main--overview-content <?php echo $overview_is_hidden ? 'masteriyo-hidden' : ''; ?>">
-			<?php echo do_shortcode( wp_kses_post( ( $course->get_description() ) ) ); ?>
+			<?php echo do_shortcode( masteriyo_kses_post_for_user( $course->get_description(), masteriyo_get_course_author_id( $course ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 
 		<!-- Review Content -->

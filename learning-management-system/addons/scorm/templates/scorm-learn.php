@@ -22,7 +22,6 @@ $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 wp_enqueue_script( 'masteriyo-scorm-pipwerks', Constants::get( 'MASTERIYO_SCORM_URL' ) . 'assets/vendor/scorm/pipwerks' . $suffix . '.js', '', Constants::get( 'MASTERIYO_VERSION' ), true );
 wp_enqueue_script( 'masteriyo-scorm-package', Constants::get( 'MASTERIYO_SCORM_URL' ) . 'assets/js/frontend/scorm' . $suffix . '.js', '', Constants::get( 'MASTERIYO_VERSION' ), true );
-wp_enqueue_style( 'masteriyo-scorm-style', plugins_url( '/assets/css/public.css', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), '', Constants::get( 'MASTERIYO_VERSION' ) );
 wp_enqueue_style( 'masteriyo-scorm-style', plugins_url( '/assets/css/public.css', Constants::get( 'MASTERIYO_PLUGIN_FILE' ) ), array(), Constants::get( 'MASTERIYO_VERSION' ) );
 
 wp_localize_script(
@@ -37,7 +36,7 @@ wp_localize_script(
 ?>
 
 <!DOCTYPE html>
-<html lang="en" <?php echo is_rtl() ? 'dir="rtl"' : ''; ?>>
+<html <?php language_attributes(); ?>>
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,6 +44,7 @@ wp_localize_script(
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?> translate="no">
+<?php wp_body_open(); ?>
 
 	<?php
 

@@ -11,6 +11,8 @@ namespace Masteriyo\RestApi\Controllers\Version1;
 
 defined( 'ABSPATH' ) || exit;
 
+use Masteriyo\Enums\CourseAccessMode;
+use Masteriyo\Enums\PostStatus;
 use Masteriyo\ModelException;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Exceptions\RestException;
@@ -98,7 +100,7 @@ class CourseProgressItemsController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -127,7 +129,7 @@ class CourseProgressItemsController extends CrudController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -146,7 +148,7 @@ class CourseProgressItemsController extends CrudController {
 	 */
 	public function get_collection_params() {
 		$params['page'] = array(
-			'description'       => __( 'Paginate the course progress.', 'learning-management-system' ),
+			'description'       => 'Paginate the course progress.',
 			'type'              => 'integer',
 			'default'           => 1,
 			'sanitize_callback' => 'absint',
@@ -155,7 +157,7 @@ class CourseProgressItemsController extends CrudController {
 		);
 
 		$params['per_page'] = array(
-			'description'       => __( 'Limit course progress per page.', 'learning-management-system' ),
+			'description'       => 'Limit course progress per page.',
 			'type'              => 'integer',
 			'default'           => 10,
 			'minimum'           => 1,
@@ -164,21 +166,21 @@ class CourseProgressItemsController extends CrudController {
 		);
 
 		$params['course_id'] = array(
-			'description'       => __( 'Course progress ID.', 'learning-management-system' ),
+			'description'       => 'Course progress ID.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['user_id'] = array(
-			'description'       => __( 'User ID', 'learning-management-system' ),
+			'description'       => 'User ID',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['item_type'] = array(
-			'description'       => __( 'Course progress (lesson, quiz) item type.', 'learning-management-system' ),
+			'description'       => 'Course progress (lesson, quiz) item type.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'enum'              => array( 'lesson', 'quiz' ),
@@ -186,35 +188,35 @@ class CourseProgressItemsController extends CrudController {
 		);
 
 		$params['completed'] = array(
-			'description'       => __( 'Course progress item completed.', 'learning-management-system' ),
+			'description'       => 'Course progress item completed.',
 			'type'              => 'boolean',
 			'sanitize_callback' => 'masteriyo_string_to_bool',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['started_at'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['completed_at'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['modified_at'] = array(
-			'description'       => __( 'Limit response to resources started after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources started after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['order'] = array(
-			'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description'       => 'Order sort attribute ascending or descending.',
 			'type'              => 'string',
 			'default'           => 'desc',
 			'enum'              => array( 'asc', 'desc' ),
@@ -222,7 +224,7 @@ class CourseProgressItemsController extends CrudController {
 		);
 
 		$params['orderby'] = array(
-			'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description'       => 'Sort collection by object attribute.',
 			'type'              => 'string',
 			'default'           => 'id',
 			'enum'              => array(
@@ -312,7 +314,8 @@ class CourseProgressItemsController extends CrudController {
 		$data = array(
 			'id'                      => $course_progress_item->get_id( $context ),
 			'progress_id'             => $course_progress_item->get_progress_id( $context ),
-			'course_id'               => is_null( $progress ) ? $course_progress_item->get_item_id( $context ) : $progress->get_course_id( $context ),
+			// No progress row (a guest's session item): the item's own course, not its ID.
+			'course_id'               => is_null( $progress ) ? $course_progress_item->get_course_id( $context ) : $progress->get_course_id( $context ),
 			'user_id'                 => $course_progress_item->get_user_id( $context ),
 			'item_id'                 => $course_progress_item->get_item_id( $context ),
 			'item_type'               => $course_progress_item->get_item_type( $context ),
@@ -393,53 +396,53 @@ class CourseProgressItemsController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'course_id'    => array(
-					'description' => __( 'Course progress ID.', 'learning-management-system' ),
+					'description' => 'Course progress ID.',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'user_id'      => array(
-					'description' => __( 'User ID', 'learning-management-system' ),
+					'description' => 'User ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'item_id'      => array(
-					'description' => __( 'Lesson/Quiz ID', 'learning-management-system' ),
+					'description' => 'Lesson/Quiz ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'item_type'    => array(
-					'description' => __( 'Course progress ( Lesson, Quiz) item type.', 'learning-management-system' ),
+					'description' => 'Course progress ( Lesson, Quiz) item type.',
 					'type'        => 'string',
 					'enum'        => CourseProgressItemType::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'completed'    => array(
-					'description' => __( 'Course progress item completed.', 'learning-management-system' ),
+					'description' => 'Course progress item completed.',
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'started_at'   => array(
-					'description' => __( 'Course progress item start date in GMT.', 'learning-management-system' ),
+					'description' => 'Course progress item start date in GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'completed_at' => array(
-					'description' => __( 'Course progress item complete date in GMT.', 'learning-management-system' ),
+					'description' => 'Course progress item complete date in GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'modified_at'  => array(
-					'description' => __( 'Course progress item update date in GMT.', 'learning-management-system' ),
+					'description' => 'Course progress item update date in GMT.',
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
@@ -520,7 +523,7 @@ class CourseProgressItemsController extends CrudController {
 		}
 
 		// previously_visited_page.
-		if ( isset( $request['previously_visited_page'] ) && isset( $request['course_progress_item_id'] ) && ! masteriyo_is_course_preview_request( $request ) ) {
+		if ( isset( $request['previously_visited_page'] ) && isset( $request['course_progress_item_id'] ) && ! masteriyo_is_course_preview_request( $request ) && $this->owns_progress_row( absint( $request['course_progress_item_id'] ), absint( $request['item_id'] ) ) ) {
 			$this->create_or_update_activity_meta( $request['course_progress_item_id'], $request['previously_visited_page'], '_previously_visited_page' );
 		}
 
@@ -691,12 +694,15 @@ class CourseProgressItemsController extends CrudController {
 			);
 		}
 
+		// The item names its course; the request's course_id is not trusted.
+		$item_course = masteriyo_get_course( absint( get_post_meta( absint( $request['item_id'] ), '_course_id', true ) ) );
+
+		// Admins and managers skip feature locks, not the course the item belongs to.
 		if ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() ) {
-			return true;
+			return $this->check_item_course( $request, $item_course );
 		}
 
-		// A completion needs an account; open access grants a guest read only (#754).
-		if ( ! is_user_logged_in() ) {
+		if ( ! is_user_logged_in() && ! $this->is_guest_writable_course( $item_course, absint( $request['item_id'] ) ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_create',
 				__( 'Please sign in to record your progress.', 'learning-management-system' ),
@@ -704,7 +710,67 @@ class CourseProgressItemsController extends CrudController {
 			);
 		}
 
-		return $this->check_progress_item_permission( absint( $request['item_id'] ), $request );
+		// An item the learner cannot open during a quiz attempt, they cannot complete either.
+		$restriction = masteriyo_check_content_restriction_during_quiz( $item_course, absint( $request['item_id'] ) );
+		if ( is_wp_error( $restriction ) ) {
+			return $restriction;
+		}
+
+		// Feature locks first, so a locked item answers as locked whatever course_id it names.
+		$can = $this->check_progress_item_permission( absint( $request['item_id'] ), $request );
+
+		if ( true !== $can ) {
+			return $can;
+		}
+
+		return $this->check_item_course( $request, $item_course );
+	}
+
+	/**
+	 * A guest's progress lives in the session, so only an open course takes it
+	 * (#1446), and only one the guest can read, as LessonsController gates it.
+	 * The item itself must be visible too: published, or an addon's visible
+	 * status such as Zoom's `upcoming`.
+	 *
+	 * @param \Masteriyo\Models\Course|null $item_course The course the item belongs to.
+	 * @param int                           $item_id     The item the guest records.
+	 * @return bool
+	 */
+	private function is_guest_writable_course( $item_course, $item_id ) {
+		return $item_course
+			&& CourseAccessMode::OPEN === $item_course->get_access_mode()
+			&& PostStatus::PUBLISH === $item_course->get_status()
+			&& ! post_password_required( get_post( $item_course->get_id() ) )
+			&& in_array( get_post_status( $item_id ), masteriyo_get_course_content_post_statuses(), true );
+	}
+
+	/**
+	 * The item is saved against the request's course_id, so the item must have a
+	 * course and it must be that one.
+	 *
+	 * @param \WP_REST_Request              $request     Request object.
+	 * @param \Masteriyo\Models\Course|null $item_course The course the item belongs to.
+	 * @return true|\WP_Error
+	 */
+	private function check_item_course( $request, $item_course ) {
+		// No course of its own: it would be saved against whatever course the request names.
+		if ( ! $item_course ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_item_id',
+				__( 'This item does not belong to a course.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( isset( $request['course_id'] ) && absint( $request['course_id'] ) !== $item_course->get_id() ) {
+			return new \WP_Error(
+				'masteriyo_rest_invalid_course_id',
+				__( 'This item does not belong to that course.', 'learning-management-system' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -720,16 +786,26 @@ class CourseProgressItemsController extends CrudController {
 	 * @return bool|\WP_Error
 	 */
 	protected function check_progress_item_permission( $item_id, $request ) {
-		/**
-		 * Filters whether the current user may record progress for a course item.
-		 *
-		 * Lets features such as content drip refuse an item that is not released yet.
-		 *
-		 * @param bool|\WP_Error $can Whether the progress item may be recorded.
-		 * @param int $item_id Lesson, quiz or assignment ID.
-		 * @param \WP_REST_Request $request Request object.
-		 */
-		return apply_filters( 'masteriyo_rest_check_course_progress_item_permission', true, $item_id, $request );
+		$completed = isset( $request['completed'] ) ? $request['completed'] : null;
+
+		// An update that omits `completed` keeps whatever the row already holds, so the
+		// check has to read the value that will actually be saved. Without this, a learner
+		// repointed a completed lesson row at a quiz and kept the completion (issue #1020).
+		if ( is_null( $completed ) && ! empty( $request['id'] ) ) {
+			$stored = masteriyo_get_course_progress_item( absint( $request['id'] ) );
+
+			if ( is_object( $stored ) ) {
+				$completed = $stored->get_completed();
+			}
+		}
+
+		// The user the write records progress for, which an instructor may set to somebody
+		// else. The checks have to measure that learner's activity, not the caller's.
+		$user_id = isset( $request['user_id'] ) && ! empty( $request['user_id'] )
+			? absint( $request['user_id'] )
+			: get_current_user_id();
+
+		return masteriyo_check_course_progress_item_write( $item_id, $completed, $request, $user_id );
 	}
 
 	/**
@@ -847,6 +923,12 @@ class CourseProgressItemsController extends CrudController {
 	 * @return WP_Error|Model
 	 */
 	protected function validate_user_id( $request, $creating = false ) {
+		// A guest writes as the guest; a user_id in the request would borrow that
+		// user's progress row (#1446).
+		if ( ! is_user_logged_in() ) {
+			return get_current_user_id();
+		}
+
 		$user_id = null;
 
 		// User ID.
@@ -854,11 +936,6 @@ class CourseProgressItemsController extends CrudController {
 			$user_id = absint( $request['user_id'] );
 		} else {
 			$user_id = get_current_user_id();
-		}
-
-		// Return the auto generated guest user id.
-		if ( ! is_user_logged_in() ) {
-			return $user_id;
 		}
 
 		// Validate the user ID.
@@ -1099,6 +1176,36 @@ class CourseProgressItemsController extends CrudController {
 		} else {
 			$this->create_activity_meta( $user_activity_id, $data_to_be_updated, $meta_key );
 		}
+	}
+
+	/**
+	 * Whether the current user may write meta on a progress row: the row must be
+	 * the one for this item, and be the user's own unless they are an admin or
+	 * manager. A guest owns no row, their progress lives in the session.
+	 *
+	 * @param int $user_activity_id User activity ID.
+	 * @param int $item_id          The item the request is for.
+	 * @return bool
+	 */
+	private function owns_progress_row( $user_activity_id, $item_id ) {
+		if ( ! is_user_logged_in() ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT user_id, item_id FROM {$wpdb->prefix}masteriyo_user_activities WHERE id = %d",
+				$user_activity_id
+			)
+		);
+
+		if ( ! $row || absint( $row->item_id ) !== $item_id ) {
+			return false;
+		}
+
+		return masteriyo_is_current_user_admin() || masteriyo_is_current_user_manager() || absint( $row->user_id ) === get_current_user_id();
 	}
 
 	/**

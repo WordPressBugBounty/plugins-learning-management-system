@@ -77,6 +77,10 @@ class AddonsIntegration {
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_public_scripts' ) );
 		add_filter( 'masteriyo_admin_submenus', array( $this, 'register_submenus' ) );
 		add_filter( 'masteriyo_course_progress_item_data', array( $this, 'add_locked_status_to_course_progress_item' ), 10, 3 );
+
+		// The lock above is a display cue. These two are the writes it stands in front of.
+		add_filter( 'masteriyo_rest_check_course_progress_item_permission', array( $this, 'restrict_sequentially_locked_progress_item' ), 10, 5 );
+		add_filter( 'masteriyo_rest_check_quiz_start_permission', array( $this, 'restrict_sequentially_locked_quiz_start' ), 10, 2 );
 	}
 
 	/**
@@ -202,71 +206,165 @@ class AddonsIntegration {
 	* @param string $context Context.
 	 */
 	public function add_locked_status_to_course_progress_item( $data, $course_progress_item, $context ) {
-		$locked = false;
-		$course = masteriyo_get_course( $course_progress_item->get_course_id() );
+		$data['locked'] = $this->is_sequentially_locked( $course_progress_item->get_course_id(), $course_progress_item->get_item_id() );
 
-		// Only allow bypass when in preview mode AND user is admin or course author
-		$current_request = masteriyo_current_http_request();
-		$is_preview      = masteriyo_string_to_bool( isset( $current_request['mto-preview'] ) ? $current_request['mto-preview'] : false );
+		return $data;
+	}
 
-		if ( $is_preview && ( masteriyo_is_current_user_admin() || masteriyo_is_current_user_post_author( $course_progress_item->get_course_id() ) ) ) {
-			$data['locked'] = false;
-			return $data;
+	/**
+	 * Whether a sequential course holds this item back because the one before it is incomplete.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $item_id Lesson, quiz or assignment ID.
+	 * @param int $user_id Whose progress decides the lock; 0 means the current user.
+	 *
+	 * @return bool
+	 */
+	public function is_sequentially_locked( $course_id, $item_id, $user_id = 0 ) {
+		$course = masteriyo_get_course( $course_id );
+
+		if ( ! $course || CourseFlow::SEQUENTIAL !== $course->get_flow() ) {
+			return false;
 		}
 
-		if ( $course && CourseFlow::SEQUENTIAL === $course->get_flow() ) {
-			$current_index = 0;
-			$contents      = masteriyo_get_course_contents( $course );
+		// Only allow bypass when in preview mode AND user may preview the course.
+		$current_request = masteriyo_current_http_request();
 
-			$contents = array_values(
-				array_filter(
-					$contents,
-					function( $content ) {
-						return CourseChildrenPostType::SECTION !== $content->get_post_type();
-					}
+		if ( masteriyo_is_course_preview_request(
+			array(
+				'mto-preview' => isset( $current_request['mto-preview'] ) ? $current_request['mto-preview'] : false,
+				'course_id'   => $course_id,
+			)
+		) ) {
+			return false;
+		}
+
+		$contents = array_values(
+			array_filter(
+				masteriyo_get_course_contents( $course ),
+				function( $content ) {
+					return CourseChildrenPostType::SECTION !== $content->get_post_type();
+				}
+			)
+		);
+
+		$current_index = null;
+
+		foreach ( $contents as $index => $content ) {
+			if ( $content->get_id() === absint( $item_id ) ) {
+				$current_index = $index;
+				break;
+			}
+		}
+
+		// An item the published curriculum does not list — a draft, or one belonging to
+		// another course — has no predecessor to measure against. It is held rather than
+		// waved through, so knowing a draft item's ID does not pre-complete it. Items of a
+		// deactivated addon never reach here: validate_course_progress_item() rejects them.
+		if ( is_null( $current_index ) ) {
+			return true;
+		}
+
+		if ( 0 === $current_index ) {
+			return false;
+		}
+
+		$previous_content = $contents[ $current_index - 1 ];
+
+		if ( is_user_logged_in() ) {
+			$query = new CourseProgressItemQuery(
+				array(
+					'item_id' => $previous_content->get_id(),
+					'user_id' => $user_id ? absint( $user_id ) : masteriyo_get_current_user_id(),
+					'limit'   => 1,
 				)
 			);
 
-			foreach ( $contents as $index => $content ) {
-				if ( $content->get_id() === $course_progress_item->get_item_id() ) {
-					$current_index = $index;
-					break;
-				}
-			}
+			$previous_course_progress_item = current( $query->get_course_progress_items() );
+		} else {
+			/** @var \Masteriyo\Session\Session $session */
+			$session = masteriyo( 'session' );
 
-			if ( $current_index > 0 ) {
-				$previous_content = $contents[ $current_index - 1 ];
+			$previous_course_progress_items = $session->get( 'course_progress_items', array() );
 
-				if ( is_user_logged_in() ) {
-					$query = new CourseProgressItemQuery(
-						array(
-							'item_id' => $previous_content->get_id(),
-							'user_id' => masteriyo_get_current_user_id(),
-							'limit'   => 1,
-						)
-					);
-
-					$previous_course_progress_item = current( $query->get_course_progress_items() );
-				} else {
-					/** @var \Masteriyo\Session\Session $session */
-					$session = masteriyo( 'session' );
-
-					$previous_course_progress_items = $session->get( 'course_progress_items', array() );
-
-					if ( isset( $previous_course_progress_items[ $previous_content->get_id() ] ) ) {
-						/** @var \Masteriyo\Models\CourseProgressItem $previous_course_progress_item */
-						$previous_course_progress_item = masteriyo( 'course-progress-item' );
-						$previous_course_progress_item->set_item_id( $previous_content->get_id() );
-						$previous_course_progress_item->set_item_type( str_replace( 'mto-', '', $previous_content->get_post_type() ) );
-						$previous_course_progress_item->set_completed( $previous_course_progress_items[ $previous_content->get_id() ]['completed'] );
-					}
-				}
-				$locked = empty( $previous_course_progress_item ) || ( $previous_course_progress_item && ! $previous_course_progress_item->get_completed() );
+			if ( isset( $previous_course_progress_items[ $previous_content->get_id() ] ) ) {
+				/** @var \Masteriyo\Models\CourseProgressItem $previous_course_progress_item */
+				$previous_course_progress_item = masteriyo( 'course-progress-item' );
+				$previous_course_progress_item->set_item_id( $previous_content->get_id() );
+				$previous_course_progress_item->set_item_type( str_replace( 'mto-', '', $previous_content->get_post_type() ) );
+				$previous_course_progress_item->set_completed( $previous_course_progress_items[ $previous_content->get_id() ]['completed'] );
 			}
 		}
 
-		$data['locked'] = $locked;
+		return empty( $previous_course_progress_item ) || ! $previous_course_progress_item->get_completed();
+	}
 
-		return $data;
+	/**
+	 * Refuse progress on a course item a sequential course has not released yet.
+	 *
+	 * The player draws the lock from serialized progress, so a request sent straight to
+	 * the endpoint walked past it and completed a later quiz first (issue #970).
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param bool|\WP_Error $can Whether the progress item may be recorded.
+	 * @param int $item_id Lesson, quiz or assignment ID.
+	 * @param \WP_REST_Request|null $request Request object.
+	 * @param bool|null $completed The completion the write will record.
+	 * @param int $user_id Whose progress the write records.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public function restrict_sequentially_locked_progress_item( $can, $item_id, $request = null, $completed = null, $user_id = 0 ) {
+		if ( true !== $can || $item_id <= 0 ) {
+			return $can;
+		}
+
+		// Staff completing a quiz on a learner's behalf set the order aside, the same way
+		// they set the attempt requirement aside, and the same way an administrator already
+		// does by never reaching this filter. The predicate checks the quiz is theirs.
+		if ( $request && masteriyo_check_manual_quiz_attempt( $request ) ) {
+			return $can;
+		}
+
+		$course_id = get_post_meta( absint( $item_id ), '_course_id', true );
+
+		if ( ! $this->is_sequentially_locked( $course_id, $item_id, $user_id ) ) {
+			return $can;
+		}
+
+		return new \WP_Error(
+			'masteriyo_rest_course_flow_locked',
+			__( 'Complete the previous course item first.', 'learning-management-system' ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * Refuse to start a quiz a sequential course has not released yet.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param bool|\WP_Error $can_start Whether the quiz can be started.
+	 * @param \Masteriyo\Models\Quiz $quiz Quiz object.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public function restrict_sequentially_locked_quiz_start( $can_start, $quiz ) {
+		if ( true !== $can_start ) {
+			return $can_start;
+		}
+
+		if ( ! $this->is_sequentially_locked( $quiz->get_course_id(), $quiz->get_id() ) ) {
+			return $can_start;
+		}
+
+		return new \WP_Error(
+			'masteriyo_rest_course_flow_locked',
+			__( 'Complete the previous course item first.', 'learning-management-system' ),
+			array( 'status' => 403 )
+		);
 	}
 }

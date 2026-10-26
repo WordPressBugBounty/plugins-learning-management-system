@@ -18,6 +18,7 @@ import {
 	Clock,
 	Globe,
 	GraduationCap,
+	Hash,
 	QrCode,
 	Shield,
 	Star,
@@ -69,6 +70,11 @@ export const MASTERIYO_FIELD_GROUP: WpDataFieldGroup = {
 		{
 			key: 'masteriyo:verification_code',
 			label: 'Verify Code',
+			outputType: 'text',
+		},
+		{
+			key: 'masteriyo:certificate_id',
+			label: 'Certificate ID',
 			outputType: 'text',
 		},
 		{
@@ -154,6 +160,7 @@ const FIELD_ICONS: Record<string, React.ComponentType<any>> = {
 	'masteriyo:completion_date': CalendarCheck,
 	'masteriyo:start_date': Calendar,
 	'masteriyo:verification_code': Shield,
+	'masteriyo:certificate_id': Hash,
 	'masteriyo:grade': Star,
 	'masteriyo:instructor_name': GraduationCap,
 	'masteriyo:co_instructors': Users,
@@ -230,6 +237,7 @@ function resolveFieldForPDF(fieldKey: string, label: string): string {
 
 	const restKeyMap: Record<string, string> = {
 		'masteriyo:course_title': 'course_title',
+		'masteriyo:certificate_id': 'certificate_id',
 		'masteriyo:instructor_name': 'instructor_name',
 		'masteriyo:course_duration': 'course_duration',
 		'masteriyo:current_date': 'current_date',

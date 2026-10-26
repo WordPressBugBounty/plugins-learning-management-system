@@ -12,10 +12,8 @@ defined( 'ABSPATH' ) || exit;
 use Masteriyo\Abilities\Support\RestProxyAbility;
 
 /**
- * Ability: retrieve all content items belonging to a course.
- *
- * Returns a flat list of sections, lessons, and quizzes in their display order.
- * Useful for generating a course outline without navigating the full builder tree.
+ * Ability: list a course's sections in their display order. A section's
+ * lessons and quizzes come from masteriyo/section-children-get.
  */
 class GetCourseChildrenAbility extends RestProxyAbility {
 
@@ -35,40 +33,10 @@ class GetCourseChildrenAbility extends RestProxyAbility {
 
 	/**
 	 * {@inheritdoc}
+	 * The course comes from the `course` query param, not a path segment.
 	 */
 	protected function rest_base(): string {
-		return 'courses';
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * Routes to /masteriyo/v1/courses/{id}/children.
-	 */
-	protected function route_suffix(): string {
-		return 'children';
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * Prepends a required 'id' field (the course ID) to the collection params
-	 * so AI callers know which course to fetch children for.
-	 */
-	public function get_input_schema(): array {
-		$schema = parent::get_input_schema();
-
-		$schema['required']   = array( 'id' );
-		$schema['properties'] = array_merge(
-			array(
-				'id' => array(
-					'type'        => 'integer',
-					'description' => __( 'Course ID to retrieve children for.', 'learning-management-system' ),
-					'minimum'     => 1,
-				),
-			),
-			isset( $schema['properties'] ) ? $schema['properties'] : array()
-		);
-
-		return $schema;
+		return 'courses/children';
 	}
 
 	/**
@@ -89,6 +57,6 @@ class GetCourseChildrenAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve all content items (sections, lessons, quizzes) belonging to a course.', 'learning-management-system' );
+		return 'List the sections of a course in display order. Use masteriyo/section-children-get for the lessons and quizzes in a section.';
 	}
 }

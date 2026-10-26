@@ -22,7 +22,6 @@ use Masteriyo\Importer\CourseImporter;
 use Masteriyo\Jobs\CoursesExportJob;
 use Masteriyo\Jobs\CoursesImportJob;
 use Masteriyo\PostType\PostType;
-use Mpdf\Output\Destination;
 use WP_Error;
 
 /**
@@ -47,6 +46,20 @@ class CoursesImportExportController extends RestController {
 	 * @var string
 	 */
 	protected $rest_base = 'courses';
+
+	/**
+	 * Upload folder for chunked imports, relative to the Masteriyo upload directory.
+	 *
+	 * @var string
+	 */
+	protected $import_folder = 'import/courses';
+
+	/**
+	 * The only file extension an import may have.
+	 *
+	 * @var string
+	 */
+	protected $import_extension = 'json';
 
 	/**
 	 * Constructor.
@@ -162,20 +175,11 @@ class CoursesImportExportController extends RestController {
 		}
 
 		try {
-			$exporter = new CoursePdfExporter( $course );
-
-			// Generate the PDF content first.
-			$exporter->generate();
-
-			// Create the export file.
-			$file_info = $exporter->create_export_file();
+			$file_info = ( new CoursePdfExporter( $course ) )->save_export_file();
 
 			if ( is_wp_error( $file_info ) ) {
 				return $file_info;
 			}
-
-			// Save the PDF to file.
-			$exporter->mpdf->Output( $file_info['filepath'], Destination::FILE );
 
 			return rest_ensure_response(
 				array(
@@ -225,12 +229,12 @@ class CoursesImportExportController extends RestController {
 		if ( $is_chunked ) {
 			// The client names the upload, so the name it gets on disk is derived
 			// rather than taken: a hash of one user's chunks collides with nobody.
-			$storage_name = wp_hash( get_current_user_id() . '|' . $file_name ) . '.json';
+			$storage_name = wp_hash( get_current_user_id() . '|' . $file_name ) . '.' . $this->import_extension;
 
 			$file_handler = new FileHandler();
-			$file_handler->protect_directory( 'import/courses' );
+			$file_handler->protect_directory( $this->import_folder );
 
-			$file_creation = $file_handler->create_file( 'import/courses', $storage_name );
+			$file_creation = $file_handler->create_file( $this->import_folder, $storage_name );
 
 			if ( is_wp_error( $file_creation ) ) {
 				return $file_creation;
@@ -279,14 +283,9 @@ class CoursesImportExportController extends RestController {
 				return $file;
 			}
 
-			$importer = new CourseImporter();
-			$result   = $importer->start_import( $file );
+			$result = $this->import_file( $file );
 
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-
-			if ( $result instanceof \WP_REST_Response ) {
+			if ( is_wp_error( $result ) || $result instanceof \WP_REST_Response ) {
 				return $result;
 			}
 		} catch ( \Exception $e ) {
@@ -308,6 +307,19 @@ class CoursesImportExportController extends RestController {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Import an uploaded file once every chunk has arrived.
+	 *
+	 * @param string $file Path to the uploaded file.
+	 *
+	 * @return \WP_Error|\WP_REST_Response|null Null when the import finished synchronously.
+	 */
+	protected function import_file( string $file ) {
+		$importer = new CourseImporter();
+
+		return $importer->start_import( $file );
 	}
 
 	/**
@@ -472,7 +484,7 @@ class CoursesImportExportController extends RestController {
 	protected function validate_import_file_name( $file_name ) {
 		$extension = strtolower( pathinfo( (string) $file_name, PATHINFO_EXTENSION ) );
 
-		if ( '' === $extension || 'json' !== $extension ) {
+		if ( '' === $extension || $this->import_extension !== $extension ) {
 			return new \WP_Error(
 				'invalid_file_ext',
 				__( 'Invalid file type for import.', 'learning-management-system' ),

@@ -43,6 +43,6 @@ class GetUserAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a single user profile by their ID. Requires id (user ID). Returns the user object including display_name, email, roles, and profile metadata.', 'learning-management-system' );
+		return 'Retrieve a single user profile by their ID. Requires id (user ID). Returns the user object including display_name, email, roles, and profile metadata.';
 	}
 }

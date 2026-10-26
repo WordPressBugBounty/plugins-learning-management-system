@@ -55,6 +55,6 @@ class DeleteEnrollmentAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Unenroll a student from a course. Requires id (enrollment ID). Optionally accepts force (boolean, permanently removes the record when true). Returns the deleted enrollment object.', 'learning-management-system' );
+		return 'Unenroll a student from a course. Requires id (enrollment ID). Optionally accepts force (boolean, permanently removes the record when true). Returns the deleted enrollment object.';
 	}
 }

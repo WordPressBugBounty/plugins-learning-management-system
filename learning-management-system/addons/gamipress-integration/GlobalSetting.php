@@ -11,7 +11,6 @@ defined( 'ABSPATH' ) || exit;
 
 
 use Masteriyo\Addons\GamiPressIntegration\Enums\AccountPageLocation;
-use Masteriyo\Addons\GamiPressIntegration\Enums\LearnPageLocation;
 use Masteriyo\Addons\GamiPressIntegration\Enums\PlacementPage;
 use Masteriyo\Addons\GamiPressIntegration\Enums\RewardType;
 
@@ -47,28 +46,12 @@ class GlobalSetting {
 				'title'       => '',
 			),
 			array(
-				'id'          => 20,
-				'reward_type' => RewardType::POINT,
-				'types'       => array(),
-				'page'        => PlacementPage::LEARN_PAGE,
-				'location'    => LearnPageLocation::INFO_BOX_POPOVER_TOP,
-				'title'       => '',
-			),
-			array(
 				'id'          => 30,
 				'reward_type' => RewardType::ACHIEVEMENT,
 				'types'       => array(),
 				'page'        => PlacementPage::ACCOUNT_PAGE,
 				'location'    => AccountPageLocation::NEW_TAB,
 				'title'       => 'Achievements',
-			),
-			array(
-				'id'          => 40,
-				'reward_type' => RewardType::RANK,
-				'types'       => array(),
-				'page'        => PlacementPage::LEARN_PAGE,
-				'location'    => LearnPageLocation::INFO_BOX_POPOVER_TOP,
-				'title'       => '',
 			),
 		),
 		//note these below are for search functionality only
@@ -177,7 +160,7 @@ class GlobalSetting {
 		}
 
 		$settings = array(
-			'ui_placements' => $new_ui_placements,
+			'ui_placements' => $this->allowed_page_placements( $new_ui_placements ),
 		);
 		$settings = wp_parse_args( $settings, $this->get() );
 
@@ -196,6 +179,8 @@ class GlobalSetting {
 		$settings   = get_option( self::OPTION_NAME, $this->data );
 		$this->data = wp_parse_args( $settings, $this->data );
 
+		$this->data['ui_placements'] = $this->allowed_page_placements( (array) $this->data['ui_placements'] );
+
 		if ( null === $key ) {
 			return $this->data;
 		}
@@ -205,6 +190,28 @@ class GlobalSetting {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Keep only the placements for a page PlacementPage::all() knows.
+	 *
+	 * The learn page shows rewards in one place, the header pill, so rows saved
+	 * for it before that are ignored rather than migrated.
+	 *
+	 * @param array $placements UI placements.
+	 * @return array
+	 */
+	protected function allowed_page_placements( $placements ) {
+		$pages = PlacementPage::all();
+
+		return array_values(
+			array_filter(
+				$placements,
+				function ( $placement ) use ( $pages ) {
+					return in_array( masteriyo_array_get( (array) $placement, 'page' ), $pages, true );
+				}
+			)
+		);
 	}
 
 	/**

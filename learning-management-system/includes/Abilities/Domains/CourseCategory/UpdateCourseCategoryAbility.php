@@ -59,6 +59,6 @@ class UpdateCourseCategoryAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing course category. Requires id (category ID). Optionally accepts name, slug, description, or parent. Returns the updated category object.', 'learning-management-system' );
+		return 'Update an existing course category. Requires id (category ID). Optionally accepts name, slug, description, or parent. Returns the updated category object.';
 	}
 }

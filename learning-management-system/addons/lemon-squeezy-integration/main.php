@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Lemon Squeezy Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Addon Type: feature
  * Description: Lemon Squeezy Integration sales platform with Masteriyo to sell and manage your courses with ease.
  * Author: Masteriyo

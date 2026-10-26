@@ -273,9 +273,8 @@ class H5PRenderer {
 		</body>
 		</html>
 		<?php
-		while ( ob_get_level() > 0 ) {
-			ob_end_flush();
-		}
+		// Do not drain buffers in a loop here. It never ends under zlib.output_compression.
+		// exit flushes every open buffer.
 		exit;
 	}
 

@@ -12,7 +12,7 @@ namespace Masteriyo\Blocks;
 defined( 'ABSPATH' ) || exit;
 
 use Masteriyo\Abstracts\BlockHandler;
-use Masteriyo\AddonsFramework\Addons;
+
 /**
  * Class CourseAuthor
  *
@@ -39,17 +39,6 @@ class CourseComingSoon extends BlockHandler {
 	 * @return string Rendered HTML output.
 	 */
 	protected function build_html( $content ) {
-
-		if ( ! ( new Addons() )->is_active( MASTERIYO_COURSE_COMING_SOON_SLUG ) ) {
-			ob_start();
-			?>
-		<div style="color:red; padding-left:60px;">
-			<?php esc_html_e( 'The ‘Course Coming Soon’ add-on must be enabled to use this block.', 'learning-management-system' ); ?>
-		</div>
-			<?php
-			return ob_get_clean();
-		}
-
 		$attr      = $this->attributes;
 		$block_css = isset( $attr['blockCSS'] ) ? $attr['blockCSS'] : '';
 		$course_id = isset( $attr['courseId'] ) ? (int) $attr['courseId'] : 0;
@@ -67,6 +56,9 @@ class CourseComingSoon extends BlockHandler {
 
 		$course            = $this->get_block_preview_course( $course_id );
 		$GLOBALS['course'] = $course;
+		if ( ! $course ) {
+			return '';
+		}
 
 		ob_start();
 

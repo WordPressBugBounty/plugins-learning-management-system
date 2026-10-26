@@ -192,9 +192,9 @@ if ( ! function_exists( 'masteriyo_sync_wishlist_items_with_course' ) ) {
 		 */
 		$wishlist_item_ids = masteriyo_get_wishlist_items(
 			array(
-				'course'   => $course->get_id(),
-				'per_page' => '',
-				'return'   => 'ids',
+				'course' => $course->get_id(),
+				'limit'  => -1,
+				'return' => 'ids',
 			)
 		);
 
@@ -254,21 +254,26 @@ if ( ! function_exists( 'masteriyo_remove_course_from_wishlist' ) ) {
 	 * @param integer $course_id ID or model object or WP_Post object.
 	 * @param integer $user_id Wishlist owner's ID.
 	 *
-	 * @return integer|false
+	 * @return int<0, max> Number of wishlist items removed.
 	 */
-	function masteriyo_remove_course_from_wishlist( $course_id, $user_id ) {
-		global $wpdb;
-
-		$result = $wpdb->delete(
-			$wpdb->posts,
+	function masteriyo_remove_course_from_wishlist( $course_id, $user_id ): int {
+		$items = masteriyo_get_wishlist_items(
 			array(
-				'post_parent' => absint( $course_id ),
-				'post_author' => absint( $user_id ),
-				'post_type'   => 'mto-wishlist-item',
+				'course' => absint( $course_id ),
+				'author' => absint( $user_id ),
+				'limit'  => -1,
 			)
 		);
 
-		return $result;
+		$store = masteriyo_get_wishlist_item_store();
+		$count = 0;
+
+		foreach ( $items as $item ) {
+			$store->delete( $item, array( 'force_delete' => true ) );
+			++$count;
+		}
+
+		return $count;
 	}
 }
 

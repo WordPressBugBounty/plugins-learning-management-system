@@ -60,6 +60,6 @@ class CreateQuestionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new question for a quiz with type, answers, and correct answer settings.', 'learning-management-system' );
+		return 'Create a new question for a quiz with type, answers, and correct answer settings.';
 	}
 }

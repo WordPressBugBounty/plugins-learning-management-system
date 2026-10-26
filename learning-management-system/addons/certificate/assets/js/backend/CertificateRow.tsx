@@ -372,7 +372,7 @@ const CertificateRow: React.FC<Props> = (props) => {
 							</AlertDialogHeader>
 							<AlertDialogBody>
 								{__(
-									"Are you sure? You can't restore after deleting.",
+									'Are you sure? You can’t restore after deleting.',
 									'learning-management-system',
 								)}
 							</AlertDialogBody>

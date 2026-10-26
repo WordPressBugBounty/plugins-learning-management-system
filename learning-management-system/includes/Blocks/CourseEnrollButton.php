@@ -56,7 +56,10 @@ class CourseEnrollButton extends BlockHandler {
 		}
 
 		$course = $this->get_block_preview_course( $course_id );
-		$query  = new CourseProgressQuery(
+		if ( ! $course ) {
+			return '';
+		}
+		$query = new CourseProgressQuery(
 			array(
 				'course_id' => $course->get_id(),
 				'user_id'   => get_current_user_id(),

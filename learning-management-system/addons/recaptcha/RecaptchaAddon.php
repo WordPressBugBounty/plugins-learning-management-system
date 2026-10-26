@@ -94,7 +94,7 @@ class RecaptchaAddon {
 			return $this->validate_recaptcha( $error, $data );
 		}
 
-		if ( masteriyo_is_signup_page() ) {
+		if ( masteriyo_is_student_registration_page() ) {
 			if ( $this->global_setting->get( 'enable_student_register_form' ) ) {
 				return $this->validate_recaptcha( $error, $data );
 
@@ -230,7 +230,7 @@ class RecaptchaAddon {
 						return true;
 					}
 
-					if ( masteriyo_is_signup_page() ) {
+					if ( masteriyo_is_student_registration_page() ) {
 						if ( $this->global_setting->get( 'enable_student_register_form' ) ) {
 							return true;
 						}
@@ -255,7 +255,7 @@ class RecaptchaAddon {
 					return true;
 				}
 
-				if ( masteriyo_is_signup_page() ) {
+				if ( masteriyo_is_student_registration_page() ) {
 					if ( $this->global_setting->get( 'enable_student_register_form' ) ) {
 						return true;
 					}

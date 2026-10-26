@@ -59,6 +59,6 @@ class CreateCourseAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Create a new course with title, description, pricing, access mode, and category assignments.', 'learning-management-system' );
+		return 'Create a new course with title, description, pricing, access mode, and category assignments.';
 	}
 }

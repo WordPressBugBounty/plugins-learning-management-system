@@ -13,6 +13,7 @@ use Masteriyo\AdminFileDownloadHandler;
 use Masteriyo\Enums\PostStatus;
 use Masteriyo\Enums\SectionChildrenPostType;
 use Masteriyo\Exporter\QuizExporter;
+use Masteriyo\Exporter\QuizPdfExporter;
 use Masteriyo\Helper\Permission;
 use Masteriyo\Importer\QuizImporter;
 use Masteriyo\PostType\PostType;
@@ -97,6 +98,13 @@ class QuizzesImportExportController extends RestController {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'export_item' ),
 				'permission_callback' => array( $this, 'import_items_permission_check' ),
+				'args'                => array(
+					'format' => array(
+						'type'    => 'string',
+						'enum'    => array( 'json', 'pdf' ),
+						'default' => 'json',
+					),
+				),
 			)
 		);
 
@@ -263,6 +271,10 @@ class QuizzesImportExportController extends RestController {
 			);
 		}
 
+		if ( 'pdf' === $request->get_param( 'format' ) ) {
+			return $this->export_item_pdf( $quiz_id );
+		}
+
 		$exporter = new QuizExporter();
 		$data     = $exporter->export( $quiz_id );
 
@@ -276,6 +288,41 @@ class QuizzesImportExportController extends RestController {
 		return rest_ensure_response(
 			array(
 				'download_url' => $download_url,
+				'message'      => __( 'Quiz exported successfully.', 'learning-management-system' ),
+			)
+		);
+	}
+
+	/**
+	 * Export a quiz with its answer key as a printable PDF.
+	 *
+	 * @param int $quiz_id Quiz ID.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	protected function export_item_pdf( $quiz_id ) {
+		$quiz = masteriyo_get_quiz( $quiz_id );
+
+		if ( ! $quiz || ! $this->permission->rest_check_post_permissions( PostType::QUIZ, 'update', $quiz_id ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_cannot_export',
+				__( 'Sorry, you are not allowed to export this quiz.', 'learning-management-system' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		try {
+			$exporter = new QuizPdfExporter( $quiz );
+			$pdf      = $exporter->generate();
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'masteriyo_rest_quiz_export_failure', $e->getMessage(), array( 'status' => 500 ) );
+		}
+
+		// The answer key is returned inline, never written to the uploads folder, so it has no public URL.
+		return rest_ensure_response(
+			array(
+				'filename'     => $exporter->get_export_filename(),
+				'content'      => base64_encode( $pdf ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- binary PDF in a JSON response.
 				'message'      => __( 'Quiz exported successfully.', 'learning-management-system' ),
 			)
 		);

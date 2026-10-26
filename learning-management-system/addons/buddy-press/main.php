@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: BuddyPress Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: Integrate Masteriyo LMS with BuddyPress to sync course progress, activities, and updates, creating an engaging and collaborative learning community.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

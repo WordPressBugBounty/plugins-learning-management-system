@@ -69,27 +69,26 @@ interface MigratorInterface {
 	/**
 	 * Return one batch of source IDs starting after $cursor.
 	 *
-	 * Self-cleaning steps (those that delete or rename the source row on migration)
-	 * must ignore $cursor and always query from the top — processed rows vanish from
-	 * the WHERE clause automatically. Non-self-cleaning steps must use:
-	 * WHERE id > $cursor ORDER BY id LIMIT $limit
-	 *
-	 * $exclude contains IDs that have already failed and must be skipped. Self-cleaning
-	 * steps must apply AND id NOT IN ($exclude) to prevent failed rows (which were never
-	 * cleaned) from permanently blocking later items. Cursor-based steps can ignore it —
-	 * failed IDs never reappear in cursor-based queries.
+	 * The migration copies and never changes the source, so every step pages with
+	 * WHERE id > $cursor ORDER BY id LIMIT $limit and leaves out rows already in the
+	 * migration map (MigrationMap::unmapped_sql()). A failed ID never reappears
+	 * within a run, so $exclude may be ignored; across runs it is retried because
+	 * nothing maps it.
 	 *
 	 * @param string $step    Step name.
 	 * @param int    $limit   Batch size.
 	 * @param int    $cursor  Last processed ID (0 = first batch).
-	 * @param int[]  $exclude IDs to skip (already-failed items).
+	 * @param int[]  $exclude IDs that already failed in this run.
 	 * @return int[]
 	 */
 	public function get_source_ids( string $step, int $limit, int $cursor, array $exclude = array() ): array;
 
 	/**
-	 * Migrate exactly one item. Called inside START TRANSACTION / COMMIT.
-	 * Must be idempotent — safe to call twice for the same item_id.
+	 * Copy exactly one item into Masteriyo. Called inside START TRANSACTION / COMMIT.
+	 *
+	 * Reads the source row, writes Masteriyo rows, and records the pair in the
+	 * migration map; it never renames, deletes or otherwise changes the source. A
+	 * row that cannot be used is recorded with target 0 so it is not fetched again.
 	 *
 	 * @param string $step    Step name.
 	 * @param int    $item_id Source item ID.

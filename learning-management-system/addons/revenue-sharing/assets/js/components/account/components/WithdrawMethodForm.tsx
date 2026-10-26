@@ -25,7 +25,7 @@ import API from '../../../../../../../assets/js/back-end/utils/api';
 import { WithdrawPreferenceDataMap } from '../../../types/withdraw';
 
 const WITHDRAW_METHODS = [
-	{ id: 'paypal', name: __('Paypal', 'learning-management-system') },
+	{ id: 'paypal', name: __('PayPal', 'learning-management-system') },
 	{
 		id: 'bank_transfer',
 		name: __('Bank Transfer', 'learning-management-system'),
@@ -107,7 +107,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 			onClose();
 			toast({
 				title: __(
-					'Withdraw method updated successfully',
+					'Withdrawal method updated successfully',
 					'learning-management-system',
 				),
 				status: 'success',
@@ -121,7 +121,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 				status: 'error',
 				isClosable: true,
 				title: __(
-					'Failed to update withdraw method',
+					'Failed to update withdrawal method',
 					'learning-management-system',
 				),
 				description: error.message,
@@ -139,7 +139,7 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader px="10" pt={10}>
-					{__('Withdraw Preference', 'learning-management-system')}
+					{__('Withdrawal Preference', 'learning-management-system')}
 				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody
@@ -159,11 +159,11 @@ const WithdrawMethodForm: React.FC<Props> = (props) => {
 								<Stack direction="column" spacing="4">
 									<FormControl>
 										<FormLabel>
-											{__('Withdraw Method', 'learning-management-system')}
+											{__('Withdrawal Method', 'learning-management-system')}
 										</FormLabel>
 										<Select
 											placeholder={__(
-												'Select a withdraw method',
+												'Select a withdrawal method',
 												'learning-management-system',
 											)}
 											{...register('method')}

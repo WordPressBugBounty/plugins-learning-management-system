@@ -58,6 +58,6 @@ class GetQuestionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single question by ID including answer choices.', 'learning-management-system' );
+		return 'Retrieve a single question by ID including answer choices.';
 	}
 }

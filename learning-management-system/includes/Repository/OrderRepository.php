@@ -629,22 +629,43 @@ class OrderRepository extends AbstractRepository implements RepositoryInterface,
 	 * @return array
 	 */
 	public function read_items( $order, $type ) {
-		$type        = trim( $type );
-		$order_items = array();
-
-		if ( ! empty( $order_items ) ) {
-			return $order_items;
-		}
-
-		// Fetch from database.
-		$order_items = masteriyo_get_order_items(
+		return masteriyo_get_order_items(
 			array(
-				'order_id' => $order->get_id(),
-				'type'     => $type,
+				'order_id' => $this->items_order_id( $order ),
+				'type'     => trim( $type ),
+			)
+		);
+	}
+
+	/**
+	 * The order whose rows hold this record's items.
+	 *
+	 * @param Model $order Order object.
+	 * @return int
+	 */
+	protected function items_order_id( Model $order ): int {
+		return $order->get_id();
+	}
+
+	/**
+	 * The type of one of the order's items, read from its row.
+	 *
+	 * @param Model $order Order object.
+	 * @param int   $item_id Order item id.
+	 * @return string The item type, or '' when the item is not on this order.
+	 */
+	public function get_type( Model $order, int $item_id ): string {
+		global $wpdb;
+
+		$type = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT order_item_type FROM {$wpdb->prefix}masteriyo_order_items WHERE order_item_id = %d AND order_id = %d",
+				$item_id,
+				$this->items_order_id( $order )
 			)
 		);
 
-		return $order_items;
+		return is_string( $type ) ? trim( $type ) : '';
 	}
 
 	/**

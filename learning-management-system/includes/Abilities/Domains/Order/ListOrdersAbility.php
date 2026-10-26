@@ -43,6 +43,6 @@ class ListOrdersAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of course orders. Optionally filter by status, customer_id, or date range. Returns data array and pagination metadata (total, total_pages, page, per_page).', 'learning-management-system' );
+		return 'Retrieve a paginated list of course orders. Optionally filter by status, customer_id, or date range. Returns data array and pagination metadata (total, total_pages, page, per_page).';
 	}
 }

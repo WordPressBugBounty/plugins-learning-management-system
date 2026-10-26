@@ -472,7 +472,7 @@ class GroupCoursesAddon {
 				'item_type'  => 'user_course',
 				'status'     => $status,
 				'parent_id'  => 0,
-				'date_start' => current_time( 'mysql' ),
+				'date_start' => current_time( 'mysql', true ),
 			);
 
 			if ( $wpdb->insert( $table_name, $user_items_data ) ) {
@@ -2400,20 +2400,20 @@ class GroupCoursesAddon {
 			$schema,
 			array(
 				'group_courses' => array(
-					'description' => __( 'Group courses setting', 'learning-management-system' ),
+					'description' => 'Group courses setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'enabled'        => array(
-								'description' => __( 'Enable selling to groups.', 'learning-management-system' ),
+								'description' => 'Enable selling to groups.',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'pricing_tiers'  => array(
-								'description' => __( 'Group pricing tiers configuration.', 'learning-management-system' ),
+								'description' => 'Group pricing tiers configuration.',
 								'type'        => 'array',
 								'context'     => array( 'view', 'edit' ),
 								'items'       => array(
@@ -2488,14 +2488,14 @@ class GroupCoursesAddon {
 							),
 							// Legacy fields - kept for backwards compatibility
 							'group_price'    => array(
-								'description' => __( 'Group price (legacy).', 'learning-management-system' ),
+								'description' => 'Group price (legacy).',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'max_group_size' => array(
-								'description' => __( 'Maximum Group Size (legacy).', 'learning-management-system' ),
+								'description' => 'Maximum Group Size (legacy).',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),

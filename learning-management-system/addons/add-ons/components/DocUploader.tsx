@@ -13,7 +13,7 @@ import { uploadMedia } from '@wordpress/media-utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Accept, useDropzone } from 'react-dropzone';
 import { useFormContext } from 'react-hook-form';
-import { BiCloudUpload } from 'react-icons/bi';
+import { BiCloudUpload, BiPaperclip } from 'react-icons/bi';
 import MediaUploader from '../../../assets/js/back-end/components/common/MediaUploader';
 import ToolTip from '../../../assets/js/back-end/screens/settings/components/ToolTip';
 import MediaAPI from '../../../assets/js/back-end/utils/media';
@@ -51,6 +51,8 @@ interface Props {
 	multiple?: boolean;
 	showUploader?: boolean;
 	fontSize?: string;
+	/** `compact`: the player's small dashed "Attach a file" button, no label. */
+	variant?: 'zone' | 'compact';
 }
 const defaultAcceptedFileTypes = {
 	'image/*': ['.jpeg', '.png', '.jpg', '.gif'],
@@ -139,6 +141,7 @@ const DocUploader: React.FC<Props> = (props) => {
 		multiple = true,
 		showUploader = true,
 		fontSize,
+		variant = 'zone',
 	} = props;
 
 	const [files, setFiles] = useState<DownloadMaterials>(defaultValue || []);
@@ -216,6 +219,63 @@ const DocUploader: React.FC<Props> = (props) => {
 	// on the interactive app's dark screens.
 	const labelColor = useColorModeValue(undefined, 'white');
 	const instructionColor = useColorModeValue('gray.700', 'gray.200');
+	const zoneBg = useColorModeValue('gray.50', 'whiteAlpha.50');
+	const zoneActiveBg = useColorModeValue('primary.100', 'whiteAlpha.100');
+	const zoneBorder = useColorModeValue('gray.300', 'whiteAlpha.300');
+
+	const sizeLimit = maxUploadFileSize
+		? sprintf(
+				/* translators: %d: maximum upload size in megabytes */
+				_x(
+					'Maximum upload size limit is %d MB.',
+					'File upload size validation message',
+					'learning-management-system',
+				),
+				maxUploadFileSize,
+			)
+		: undefined;
+
+	if (variant === 'compact') {
+		return (
+			<FormControl w="auto">
+				{showUploader ? (
+					<Stack
+						as="div"
+						direction="row"
+						display="inline-flex"
+						align="center"
+						spacing="6px"
+						h="36px"
+						px="12px"
+						border="1px dashed"
+						borderColor={isDragActive ? 'player.primary' : 'player.border2'}
+						borderRadius="8px"
+						bg={isDragActive ? 'player.tint' : 'player.card'}
+						color="player.text3"
+						fontSize="13px"
+						fontWeight="600"
+						cursor="pointer"
+						_hover={{ bg: 'player.bg' }}
+						sx={{ '&:focus-visible': { boxShadow: 'outline' } }}
+						title={sizeLimit}
+						{...getRootProps({ role: 'button' })}
+					>
+						<input {...getInputProps()} multiple={multiple} />
+						<Icon as={BiPaperclip} fontSize="14px" aria-hidden="true" />
+						<Text as="span">
+							{__('Attach a file', 'learning-management-system')}
+						</Text>
+					</Stack>
+				) : null}
+				<DocPreview
+					files={files}
+					onRemove={(file) => onRemove(file)}
+					docPreviewNotice={docPreviewNotice}
+					fontSize={fontSize}
+				/>
+			</FormControl>
+		);
+	}
 
 	return (
 		<FormControl>
@@ -231,14 +291,14 @@ const DocUploader: React.FC<Props> = (props) => {
 						justify="center"
 						align="center"
 						border="1px dashed"
-						borderColor={isDragActive ? 'primary.400' : 'gray.300'}
+						borderColor={isDragActive ? 'primary.400' : zoneBorder}
 						borderRadius="base"
 						px="4"
 						py="6"
 						textAlign="center"
 						cursor="pointer"
 						transition="border-color 0.2s, background-color 0.2s"
-						backgroundColor={isDragActive ? 'primary.100' : 'gray.50'}
+						backgroundColor={isDragActive ? zoneActiveBg : zoneBg}
 						_hover={{ borderColor: 'gray.400' }}
 						{...getRootProps()}
 					>
@@ -278,17 +338,9 @@ const DocUploader: React.FC<Props> = (props) => {
 								size="sm"
 							/>
 						) : null}
-						{maxUploadFileSize ? (
+						{sizeLimit ? (
 							<Text fontSize="xs" color="gray.500">
-								{sprintf(
-									/* translators: %d: maximum upload size in megabytes */
-									_x(
-										'Maximum upload size limit is %d MB.',
-										'File upload size validation message',
-										'learning-management-system',
-									),
-									maxUploadFileSize,
-								)}
+								{sizeLimit}
 							</Text>
 						) : null}
 					</Stack>

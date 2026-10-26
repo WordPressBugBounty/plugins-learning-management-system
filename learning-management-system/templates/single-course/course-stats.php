@@ -72,7 +72,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 					printf(
 						/* translators: %s: last updated date */
 						esc_html__( 'Last Updated: %s', 'learning-management-system' ),
-						esc_html( gmdate( 'F j, Y', $modified_date ) )
+						esc_html( wp_date( masteriyo_date_format(), $modified_date ) )
 					);
 					?>
 				</span>
@@ -96,7 +96,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 						printf(
 							/* translators: %s: course start date */
 							esc_html__( 'Started At: %s', 'learning-management-system' ),
-							esc_html( gmdate( 'F j, Y', $started_date ) )
+							esc_html( wp_date( masteriyo_date_format(), $started_date ) )
 						);
 					?>
 				</span>
@@ -202,7 +202,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 					<?php
 					$modified_date = strtotime( $course->get_date_modified() );
 					/* translators: %s: course last updated date */
-					echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), gmdate( 'F j, Y', $modified_date ) ) );
+					echo esc_html( sprintf( __( 'Last Updated: %s', 'learning-management-system' ), wp_date( masteriyo_date_format(), $modified_date ) ) );
 					?>
 				</span>
 			</div>
@@ -223,7 +223,7 @@ if ( ! function_exists( 'is_component_visible' ) ) {
 					<?php
 					$started_date = strtotime( $progress->get_started_at() );
 					/* translators: %s: course start date */
-					echo esc_html( sprintf( __( 'Started At: %s', 'learning-management-system' ), gmdate( 'F j, Y', $started_date ) ) );
+					echo esc_html( sprintf( __( 'Started At: %s', 'learning-management-system' ), wp_date( masteriyo_date_format(), $started_date ) ) );
 					?>
 				</span>
 			</div>

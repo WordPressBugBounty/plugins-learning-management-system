@@ -59,6 +59,6 @@ class UpdateCourseDifficultyAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing course difficulty level. Requires id (difficulty ID). Optionally accepts name, slug, or description. Returns the updated difficulty object.', 'learning-management-system' );
+		return 'Update an existing course difficulty level. Requires id (difficulty ID). Optionally accepts name, slug, or description. Returns the updated difficulty object.';
 	}
 }

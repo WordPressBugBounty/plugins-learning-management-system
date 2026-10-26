@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Addon Name: Google Classroom Integration
- * Addon URI: https://masteriyo.com/wordpress-lms/
+ * Addon URI: https://masteriyo.com/
  * Description: A feature that allows teachers to share engaging activities and content with their class directly within Google Classroom.
  * Author: Masteriyo
  * Author URI: https://masteriyo.com

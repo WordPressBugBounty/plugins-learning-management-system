@@ -97,7 +97,7 @@ if ( ! function_exists( 'masteriyo_enroll_surecart_user' ) ) {
 			$user_course->set_course_id( $course_id );
 			$user_course->set_user_id( $user_id );
 			$user_course->set_status( UserCourseStatus::ACTIVE );
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			$user_course->set_date_start( time() );
 
 			$user_course->save();
 

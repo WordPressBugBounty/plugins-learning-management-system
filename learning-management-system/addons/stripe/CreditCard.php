@@ -29,6 +29,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Stripe credit card Class.
+ *
+ * @phpstan-type Billable array{product: \Masteriyo\Models\Course, subtotal: float, quantity: positive-int}
  */
 #[\AllowDynamicProperties]
 class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
@@ -84,7 +86,7 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 		$this->order_button_text = __( 'Confirm Payment', 'learning-management-system' );
 		$this->method_title      = __( 'Stripe (Credit Card)', 'learning-management-system' );
 		/* translators: %s: Link to Masteriyo system status page */
-		$this->method_description = __( 'CreditCard Standard redirects customers to CreditCard to enter their payment information.', 'learning-management-system' );
+		$this->method_description = __( 'Stripe collects customers\' payment information at checkout.', 'learning-management-system' );
 
 		// Load the settings.
 		$this->init_settings();
@@ -173,7 +175,7 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 
 			if ( ! $order ) {
 				masteriyo_get_logger()->error( 'Stripe process_payment: Order not found', array( 'source' => 'payment-stripe' ) );
-				throw new Exception( __( 'Invalid order ID or order does not exist', 'learning-management-system' ) );
+				throw new Exception( __( 'Invalid order ID or order does not exist.', 'learning-management-system' ) );
 			}
 
 			if ( ! $session ) {
@@ -337,7 +339,7 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 				'status'                  => SubscriptionStatus::ACTIVE,
 				'parent_id'               => $order->get_id(),
 				'subscription_id'         => $stripe_subscription->id,
-				'recurring_amount'        => $order->get_total(),
+				'recurring_amount'        => $this->get_recurring_total( $this->get_billables( $order ), $order ),
 			)
 		);
 
@@ -353,26 +355,37 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Create a stripe price objects for subscription.
+	 * Create the Stripe subscription items for a recurring order.
 	 *
 	 * @since 2.6.10
 	 *
-	 * @param \Masteriyo\Models\Course[] $courses
-	 * @param string $currency_code
-	 * @param float|string $total
-	 * @param integer $order_id Order the prices belong to, for idempotency.
+	 * @param list<Billable> $billables Each entry pairs the order item with the
+	 *                                   subscription-capable product it resolved to.
+	 * @param \Masteriyo\Models\Order\Order $order Paid order.
 	 *
 	 * @throws Exception When any course's price cannot be created — a partial
 	 *                   result would create a subscription that renews without
 	 *                   some of the paid courses.
 	 *
-	 * @return array
+	 * @return list<array{price: string, quantity: positive-int}> Stripe subscription items.
 	 */
-	protected function create_price_objects( $courses, $currency_code, $total, $order_id ) {
+	protected function create_price_objects( $billables, $order ) {
 		masteriyo_get_logger()->info( 'Stripe create_price_objects: Start', array( 'source' => 'payment-stripe' ) );
-		$price_objects = array_map(
-			function ( $course ) use ( $currency_code, $total, $order_id ) {
-					$price_data = $this->build_price_data( $course, $currency_code, $total );
+
+		$this->reconcile_recurring_prices( $billables, $order );
+
+		$currency_code = $order->get_currency();
+		$order_id      = $order->get_id();
+		$tax_rate      = $this->get_recurring_tax_rate( $order );
+
+		$items = array_map(
+			function ( $billable ) use ( $currency_code, $order_id, $tax_rate ) {
+					$course   = $billable['product'];
+					$quantity = $billable['quantity'];
+
+					// Use the checkout subtotal plus its tax, divided by
+					// quantity, so later price changes do not move the renewal.
+					$price_data = $this->build_price_data( $course, $currency_code, $this->get_line_recurring_amount( $billable, $tax_rate ) / $quantity );
 
 					// One deterministic key per order and course, so a replay
 					// after a crash receives the price the first attempt
@@ -389,16 +402,167 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 					if ( empty( $price->id ) ) {
 						throw new Exception( 'Stripe price response is missing an ID.' );
 					}
-					return $price;
+				} else {
+					$price = Price::create( $price_data, array_merge( Helper::get_stripe_options(), array( 'idempotency_key' => $idempotency_key ) ) );
 				}
-					return Price::create( $price_data, array_merge( Helper::get_stripe_options(), array( 'idempotency_key' => $idempotency_key ) ) );
+
+				return array(
+					'price'    => $price->id,
+					'quantity' => $quantity,
+				);
 			},
-			$courses
+			$billables
 		);
 
 		masteriyo_get_logger()->info( 'Stripe create_price_objects: Success', array( 'source' => 'payment-stripe' ) );
 
-		return array_values( $price_objects );
+		return array_values( $items );
+	}
+
+	/**
+	 * Read one amount off an order item.
+	 *
+	 * Untyped: `Order::get_items()` documents a class that does not exist
+	 * (`Masteriyo\Abstracts\OrderItem`), and the real base `OrderItem` lacks
+	 * `get_subtotal()` and `get_total()`.
+	 *
+	 * @param mixed $order_item Order item to read from.
+	 * @param string $method Accessor to call.
+	 *
+	 * @return float
+	 */
+	private function read_line_amount( $order_item, string $method ): float {
+		if ( ! is_object( $order_item ) || ! is_callable( array( $order_item, $method ) ) ) {
+			return 0.0;
+		}
+
+		return (float) call_user_func( array( $order_item, $method ) );
+	}
+
+	/**
+	 * Pair each of an order's items with the product it resolves to.
+	 *
+	 * The product says how to bill, the item says how much.
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Paid order.
+	 *
+	 * @return list<Billable>
+	 */
+	protected function get_billables( $order ) {
+		$billables = array();
+
+		foreach ( $order->get_items() as $order_item ) {
+			$product = masteriyo_get_order_item_subscription_product( $order_item );
+
+			if ( ! $product ) {
+				continue;
+			}
+
+			$billables[] = array(
+				'product'  => $product,
+				// Pre-discount, and captured at checkout: the renewal base.
+				'subtotal' => $this->read_line_amount( $order_item, 'get_subtotal' ),
+				'quantity' => max( 1, (int) $this->read_line_amount( $order_item, 'get_quantity' ) ),
+			);
+		}
+
+		return $billables;
+	}
+
+	/**
+	 * What the order's recurring lines add up to per period.
+	 *
+	 * The single answer to what this renews at, so the Stripe prices and the
+	 * local subscription cannot drift into showing two different numbers.
+	 *
+	 * @param list<Billable> $billables Order items paired with their products.
+	 * @param \Masteriyo\Models\Order\Order $order Paid order.
+	 *
+	 * @return float
+	 */
+	protected function get_recurring_total( $billables, $order ) {
+		$tax_rate = $this->get_recurring_tax_rate( $order );
+
+		return array_sum(
+			array_map(
+				function ( $billable ) use ( $tax_rate ) {
+					return $this->get_line_recurring_amount( $billable, $tax_rate );
+				},
+				$billables
+			)
+		);
+	}
+
+	/**
+	 * The tax rate the order was charged at, as a fraction.
+	 *
+	 * Tax lands on the order total, never on the item subtotals, so a renewal
+	 * priced from subtotals alone would quietly drop it. The rate is read back
+	 * off the order rather than recomputed from settings, which could have
+	 * changed since checkout.
+	 *
+	 * @param \Masteriyo\Models\Order\Order $order Paid order.
+	 *
+	 * @return float
+	 */
+	protected function get_recurring_tax_rate( $order ): float {
+		$tax_total = (float) $order->get_tax_total();
+
+		if ( $tax_total <= 0 ) {
+			return 0.0;
+		}
+
+		// Tax was charged on the whole pre-tax order — fees included — so that
+		// is the base. Dividing by the lines alone inflates the rate and
+		// recurs the fee's tax.
+		$taxed_base = (float) $order->get_total() - $tax_total;
+
+		return $taxed_base > 0 ? $tax_total / $taxed_base : 0.0;
+	}
+
+	/**
+	 * What one line renews at per period, tax included.
+	 *
+	 * @param Billable $billable Order item paired with its product.
+	 * @param float $tax_rate Rate the order was charged at, as a fraction.
+	 *
+	 * @return float
+	 */
+	protected function get_line_recurring_amount( array $billable, float $tax_rate ): float {
+		return $billable['subtotal'] + ( $billable['subtotal'] * $tax_rate );
+	}
+
+	/**
+	 * Log when the recurring prices do not add up to what the order charged.
+	 *
+	 * Renewals bill each line's pre-discount subtotal plus the order's tax
+	 * rate, so a first-period coupon is exactly that — it discounts the
+	 * checkout charge, not every renewal after it. The divergence is intended, but it is also the first thing to
+	 * check when a customer reports an unexpected renewal, so the log names
+	 * both amounts rather than leaving them to be reconstructed.
+	 *
+	 * @param list<Billable> $billables Order items paired with their products.
+	 * @param \Masteriyo\Models\Order\Order $order Paid order.
+	 */
+	protected function reconcile_recurring_prices( $billables, $order ) {
+		$total           = $order->get_total();
+		$order_id        = $order->get_id();
+		$recurring_total = $this->get_recurring_total( $billables, $order );
+
+		// Major units, so anything under a cent is float noise, not a mismatch.
+		if ( abs( $recurring_total - (float) $total ) < 0.005 ) {
+			return;
+		}
+
+		masteriyo_get_logger()->info(
+			sprintf(
+				'Stripe order %d renews at %s while it charged %s: renewals bill each line its pre-discount subtotal plus the order\'s tax rate, so order-level discounts and fees apply to the first period only.',
+				$order_id,
+				masteriyo_format_decimal( $recurring_total, 2 ),
+				masteriyo_format_decimal( $total, 2 )
+			),
+			array( 'source' => 'payment-stripe' )
+		);
 	}
 
 	/**
@@ -411,14 +575,14 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	 *
 	 * @param \Masteriyo\Models\Course $course Course being billed.
 	 * @param string $currency_code Currency code.
-	 * @param float|string $total Order total in major units.
+	 * @param float|string $amount Per-seat amount to bill each period, in major units.
 	 *
 	 * @return array
 	 */
-	protected function build_price_data( $course, $currency_code, $total ) {
+	protected function build_price_data( $course, $currency_code, $amount ) {
 		return array(
 			'currency'     => $currency_code,
-			'unit_amount'  => Helper::convert_cart_total_to_stripe_amount( $total, $currency_code ),
+			'unit_amount'  => Helper::convert_cart_total_to_stripe_amount( $amount, $currency_code ),
 			'recurring'    => array(
 				'interval_count' => $course->get_billing_interval(),
 				'interval'       => $course->get_billing_period(),
@@ -553,7 +717,7 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	 * @since 2.6.10
 	 *
 	 * @param string $customer_id Stripe customer the payment method is saved on.
-	 * @param array $price_objects Stripe price objects for the order's courses.
+	 * @param list<array{price: string, quantity: positive-int}> $items Stripe subscription items.
 	 * @param object $course Subscription-capable product that sets the billing cycle.
 	 * @param \Masteriyo\Models\Order\Order $order Paid order.
 	 * @param string $default_payment_method Reusable payment method for renewals.
@@ -562,21 +726,12 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	 *
 	 * @return object Stripe subscription.
 	 */
-	protected function create_stripe_subscription( $customer_id, $price_objects, $course, $order, $default_payment_method ) {
+	protected function create_stripe_subscription( $customer_id, $items, $course, $order, $default_payment_method ) {
 		masteriyo_get_logger()->info( 'Stripe create_stripe_subscription: Start', array( 'source' => 'payment-stripe' ) );
 
-		if ( empty( $price_objects ) ) {
+		if ( empty( $items ) ) {
 			throw new Exception( 'No Stripe prices were created for this order.' );
 		}
-
-		$items = array_map(
-			function ( $price_object ) {
-				return array(
-					'price' => $price_object->id,
-				);
-			},
-			$price_objects
-		);
 
 		// Everything below derives from the order, never from the clock, so a
 		// replay after a crash sends the exact request the first attempt sent.
@@ -644,7 +799,8 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 	 * @return object The Masteriyo subscription.
 	 */
 	public function create_subscription_for_paid_order( $order ) {
-		$courses = array_filter( array_map( 'masteriyo_get_order_item_subscription_product', $order->get_items() ) );
+		$billables = $this->get_billables( $order );
+		$courses   = wp_list_pluck( $billables, 'product' );
 
 		if ( empty( $courses ) ) {
 			throw new Exception( esc_html__( 'No subscription product found for this order.', 'learning-management-system' ) );
@@ -709,8 +865,8 @@ class CreditCard extends PaymentGateway implements PaymentGatewayInterface {
 				array( 'source' => 'payment-stripe' )
 			);
 		} else {
-			$price_objects       = $this->create_price_objects( $courses, $order->get_currency(), $order->get_total(), $order->get_id() );
-			$stripe_subscription = $this->create_stripe_subscription( $customer_id, $price_objects, $course, $order, $payment_method );
+			$items               = $this->create_price_objects( $billables, $order );
+			$stripe_subscription = $this->create_stripe_subscription( $customer_id, $items, $course, $order, $payment_method );
 
 			update_post_meta( $order->get_id(), '_stripe_subscription_id', $stripe_subscription->id );
 		}

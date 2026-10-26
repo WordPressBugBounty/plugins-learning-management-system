@@ -95,7 +95,7 @@ class QuizBuilderController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -140,7 +140,7 @@ class QuizBuilderController extends PostsController {
 
 		$quiz_id = absint( $request['id'] );
 
-		if ( ! is_user_logged_in() || ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! masteriyo_is_current_user_post_author( $quiz_id ) ) ) {
+		if ( ! is_user_logged_in() || ( ! masteriyo_is_current_user_admin() && ! masteriyo_is_current_user_manager() && ! masteriyo_is_current_user_post_author( $quiz_id ) && ! $this->permission->rest_check_post_permissions( PostType::QUIZ, 'update', $quiz_id ) ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
 				__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),
@@ -167,7 +167,7 @@ class QuizBuilderController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'questions' => array(
-					'description' => __( 'Quiz contents (question IDs)', 'learning-management-system' ),
+					'description' => 'Quiz contents (question IDs)',
 					'type'        => 'array',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -192,7 +192,7 @@ class QuizBuilderController extends PostsController {
 		if ( is_null( $quiz ) || $this->post_type !== $quiz->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -398,6 +398,7 @@ class QuizBuilderController extends PostsController {
 			// @since 2.13.0
 			'answer_explanation'     => $question->get_answer_explanation( $context ),
 			'is_from_bank'           => $question->get_is_from_bank( $context ),
+			'text_direction'         => $question->get_text_direction( $context ),
 		);
 
 		/**
@@ -485,7 +486,7 @@ class QuizBuilderController extends PostsController {
 		if ( is_null( $quiz ) || $this->post_type !== $quiz->post_type ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 400 )
 			);
 		}

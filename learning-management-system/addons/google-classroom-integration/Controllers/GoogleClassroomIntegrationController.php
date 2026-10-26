@@ -105,7 +105,7 @@ class GoogleClassroomIntegrationController extends CoursesController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -282,7 +282,7 @@ class GoogleClassroomIntegrationController extends CoursesController {
 					'item_id'    => $course_id,
 					'user_id'    => $user,
 					'item_type'  => 'user_course',
-					'date_start' => current_time( 'Y-m-d H:i:s' ),
+					'date_start' => current_time( 'mysql', true ),
 					'status'     => 'active',
 				);
 
@@ -298,8 +298,8 @@ class GoogleClassroomIntegrationController extends CoursesController {
 					'item_id'         => $course_id,
 					'activity_status' => CourseProgressStatus::STARTED,
 					'activity_type'   => 'course_progress',
-					'created_at'      => current_time( 'Y-m-d H:i:s' ),
-					'modified_at'     => current_time( 'Y-m-d H:i:s' ),
+					'created_at'      => current_time( 'mysql', true ),
+					'modified_at'     => current_time( 'mysql', true ),
 				);
 
 				$format = array( '%d', '%d', '%s', '%s' );
@@ -332,7 +332,7 @@ class GoogleClassroomIntegrationController extends CoursesController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 400 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 400 ) );
 		}
 
 		$this->sync_from_classroom();
@@ -381,12 +381,12 @@ class GoogleClassroomIntegrationController extends CoursesController {
 			'type'       => 'object',
 			'properties' => array(
 				'Client ID'     => array(
-					'description' => __( 'Client Id of google cloud console', 'learning-management-system' ),
+					'description' => 'Client Id of google cloud console',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'Client Secret' => array(
-					'description' => __( 'Client secret of google cloud console', 'learning-management-system' ),
+					'description' => 'Client secret of google cloud console',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),

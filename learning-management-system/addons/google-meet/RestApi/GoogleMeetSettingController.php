@@ -294,37 +294,37 @@ class GoogleMeetSettingController extends CrudController {
 			'type'       => 'object',
 			'properties' => array(
 				'client_id'                   => array(
-					'description' => __( 'Client Id', 'learning-management-system' ),
+					'description' => 'Client Id',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'project_id'                  => array(
-					'description' => __( 'Project Id', 'learning-management-system' ),
+					'description' => 'Project Id',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'auth_uri'                    => array(
-					'description' => __( 'Auth Uri', 'learning-management-system' ),
+					'description' => 'Auth Uri',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'token_uri'                   => array(
-					'description' => __( 'Token Uri', 'learning-management-system' ),
+					'description' => 'Token Uri',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'auth_provider_x509_cert_url' => array(
-					'description' => __( 'Auth Provider', 'learning-management-system' ),
+					'description' => 'Auth Provider',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'client_secret'               => array(
-					'description' => __( 'Client Secret', 'learning-management-system' ),
+					'description' => 'Client Secret',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'redirect_uris'               => array(
-					'description' => __( 'Redirect Uri', 'learning-management-system' ),
+					'description' => 'Redirect Uri',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 				),

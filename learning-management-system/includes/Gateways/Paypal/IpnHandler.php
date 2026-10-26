@@ -566,6 +566,16 @@ class IpnHandler extends Response {
 		$txn_type       = $posted['txn_type'];
 		$payment_status = $posted['payment_status'];
 
+		// Not validate_receiver_email(): it puts the order on hold, which would revoke
+		// access over a lifecycle message that was never ours.
+		if (
+			in_array( $txn_type, array( 'subscr_cancel', 'subscr_eot' ), true ) &&
+			0 !== strcasecmp( trim( $posted['receiver_email'] ?? '' ), trim( $this->receiver_email ) )
+		) {
+			Paypal::log( "Ignoring {$txn_type} for another account: " . ( $posted['receiver_email'] ?? '' ) );
+			exit;
+		}
+
 		switch ( $txn_type ) {
 			case 'subscr_payment':
 				$subscription->set_props(
@@ -590,6 +600,7 @@ class IpnHandler extends Response {
 						Paypal::log( "Subscription: #{$subscription->get_id()} has been updated." );
 				}
 				break;
+			case 'subscr_cancel':
 			case 'recurring_payment_profile_cancel':
 			case 'recurring_payment_suspended_due_to_max_failed_payment':
 			case 'recurring_payment_suspended':
@@ -600,6 +611,7 @@ class IpnHandler extends Response {
 				$subscription->set_status( SubscriptionStatus::FAILED );
 				Paypal::log( "Subscription: #{$subscription->get_id()} has failed." );
 				break;
+			case 'subscr_eot':
 			case 'recurring_payment_expired':
 				$subscription->set_status( SubscriptionStatus::EXPIRED );
 				Paypal::log( "Subscription: #{$subscription->get_id()} has expired." );

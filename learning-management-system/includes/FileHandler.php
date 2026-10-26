@@ -370,7 +370,7 @@ class FileHandler {
 		$full_path  = $this->normalize_file_path( $file_path );
 
 		if ( ! $filesystem->exists( $full_path ) ) {
-			return new WP_Error( 'file_not_found', __( 'File not found', 'learning-management-system' ) );
+			return new WP_Error( 'file_not_found', __( 'File not found.', 'learning-management-system' ) );
 		}
 
 		return $filesystem->get_contents( $full_path );
@@ -430,7 +430,7 @@ class FileHandler {
 		$full_path  = $this->normalize_file_path( $file_path );
 
 		if ( ! $filesystem->exists( $full_path ) ) {
-			return new WP_Error( 'file_not_found', __( 'File not found', 'learning-management-system' ) );
+			return new WP_Error( 'file_not_found', __( 'File not found.', 'learning-management-system' ) );
 		}
 
 		return filesize( $full_path );
@@ -452,7 +452,7 @@ class FileHandler {
 		$file_path = $this->normalize_file_path( $file_path );
 
 		if ( ! $filesystem->exists( $file_path ) ) {
-			return new WP_Error( 'file_not_found', __( 'File not found', 'learning-management-system' ) );
+			return new WP_Error( 'file_not_found', __( 'File not found.', 'learning-management-system' ) );
 		}
 
 		$file_time = filemtime( $file_path );

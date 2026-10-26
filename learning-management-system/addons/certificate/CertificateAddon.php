@@ -15,6 +15,7 @@ use Masteriyo\Addons\Certificate\PostType\Certificate;
 use Masteriyo\Addons\Certificate\RestApi\Controllers\Version1\CertificatesController;
 use Masteriyo\Constants;
 use Masteriyo\Enums\PostStatus;
+use Masteriyo\Models\Course;
 use Masteriyo\PostType\PostType;
 use Masteriyo\ScriptStyle;
 use Masteriyo\AddonsFramework\Addons;
@@ -366,15 +367,24 @@ class CertificateAddon {
 					width: 100%; height: 100%;
 					overflow: auto;
 					background: #525659;
+				}
+				body {
 					display: flex;
-					align-items: flex-start;
+					align-items: center;
 					justify-content: center;
-					padding: 16px;
+					padding: min(16px, 3vw);
+				}
+				/* The stage takes the scaled size, so the page centres and never scrolls. */
+				.masteriyo-cert-stage {
+					position: relative;
+					flex: none;
+					width: <?php echo (int) $canvas_w; ?>px;
+					height: <?php echo (int) $canvas_h; ?>px;
 				}
 				.masteriyo-cert-wrap {
 					width: <?php echo (int) $canvas_w; ?>px;
 					height: <?php echo (int) $canvas_h; ?>px;
-					flex-shrink: 0;
+					transform-origin: top left;
 					box-shadow: 0 4px 24px rgba(0,0,0,0.5);
 				}
 				.masteriyo-cert-wrap > * {
@@ -384,7 +394,25 @@ class CertificateAddon {
 			</style>
 		</head>
 		<body>
-			<div class="masteriyo-cert-wrap"><?php echo $html; ?></div>
+			<div class="masteriyo-cert-stage"><div class="masteriyo-cert-wrap"><?php echo $html; ?></div></div>
+			<script>
+				// Fit the page to whatever shows it: the completion screen's small
+				// frame as much as a browser tab. Never enlarged past its own size.
+				(function () {
+					var width = <?php echo (int) $canvas_w; ?>, height = <?php echo (int) $canvas_h; ?>;
+					var stage = document.querySelector('.masteriyo-cert-stage');
+					var wrap = document.querySelector('.masteriyo-cert-wrap');
+					function fit() {
+						var padding = parseFloat(getComputedStyle(document.body).paddingLeft) * 2;
+						var scale = Math.min(1, (window.innerWidth - padding) / width, (window.innerHeight - padding) / height);
+						wrap.style.transform = 'scale(' + scale + ')';
+						stage.style.width = width * scale + 'px';
+						stage.style.height = height * scale + 'px';
+					}
+					fit();
+					window.addEventListener('resize', fit);
+				})();
+			</script>
 		</body>
 		</html>
 		<?php
@@ -851,44 +879,62 @@ class CertificateAddon {
 	 * @since 2.3.7
 	 */
 	public function handle_certificate_download() {
-		if ( isset( $_GET['masteriyo_download_certificate'] ) ) {
-			if ( ! is_user_logged_in() ) {
-				wp_die( esc_html__( 'You must be logged in to download certificates.', 'learning-management-system' ) );
-			}
-			if ( ! isset( $_GET['nonce'] ) ) {
-				wp_die( esc_html__( 'Nonce is required.', 'learning-management-system' ) );
-			}
-			if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_download_certificate' ) ) {
-				wp_die( esc_html__( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
-			}
-			if ( empty( $_GET['course_id'] ) ) {
-				wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
-			}
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- verify_download_request() checks the signature or nonce below.
+		if ( ! isset( $_GET['masteriyo_download_certificate'] ) ) {
+			return;
+		}
 
-			$course = masteriyo_get_course( absint( $_GET['course_id'] ) );
+		if ( ! is_user_logged_in() ) {
+			wp_die( esc_html__( 'You must be logged in to download certificates.', 'learning-management-system' ) );
+		}
+		if ( empty( $_GET['course_id'] ) ) {
+			wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
+		}
 
-			if ( is_null( $course ) ) {
-				wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
+		$course = masteriyo_get_course( absint( $_GET['course_id'] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( is_null( $course ) ) {
+			wp_die( esc_html__( 'Invalid course ID.', 'learning-management-system' ) );
+		}
+
+		$this->verify_download_request( $course );
+
+		$certificate_id = masteriyo_get_course_certificate_id( $course->get_id() );
+		$certificate    = masteriyo_get_certificate( $certificate_id );
+
+		if ( is_null( $certificate ) ) {
+			wp_die( esc_html__( 'Invalid certificate ID. The certificate may not exist.', 'learning-management-system' ) );
+		}
+
+		if ( ! masteriyo_user_has_completed_course( $course, get_current_user_id() ) ) {
+			wp_die( esc_html__( 'Please complete the course to download the certificate.', 'learning-management-system' ) );
+		}
+
+		if ( 'pdfdraft' === $certificate->get_content_format() ) {
+			$this->serve_pdfdraft_client_download( $certificate, $course );
+			return;
+		}
+
+		$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), $certificate->get_html_content(), $certificate_id );
+		$certificate_pdf->serve_download();
+	}
+
+	/**
+	 * Verify the signature or nonce. A signature takes precedence over a nonce.
+	 *
+	 * @param Course $course Course to download a certificate for.
+	 */
+	private function verify_download_request( Course $course ): void {
+		if ( isset( $_GET['signature'] ) ) {
+			$signature = masteriyo_get_certificate_download_signature( $course->get_id(), get_current_user_id() );
+			if ( ! hash_equals( $signature, sanitize_text_field( wp_unslash( $_GET['signature'] ) ) ) ) {
+				wp_die( esc_html__( 'Invalid certificate download link.', 'learning-management-system' ) );
 			}
-
-			$certificate_id = masteriyo_get_course_certificate_id( $course->get_id() );
-			$certificate    = masteriyo_get_certificate( $certificate_id );
-
-			if ( is_null( $certificate ) ) {
-				wp_die( esc_html__( 'Invalid certificate ID. The certificate may not exist.', 'learning-management-system' ) );
-			}
-
-			if ( ! masteriyo_user_has_completed_course( $course, get_current_user_id() ) ) {
-				wp_die( esc_html__( 'Please complete the course to download the certificate.', 'learning-management-system' ) );
-			}
-
-			if ( 'pdfdraft' === $certificate->get_content_format() ) {
-				$this->serve_pdfdraft_client_download( $certificate, $course );
-				return;
-			}
-
-			$certificate_pdf = new CertificatePDF( $course->get_id(), get_current_user_id(), $certificate->get_html_content(), $certificate_id );
-			$certificate_pdf->serve_download();
+		} elseif ( ! isset( $_GET['nonce'] ) ) {
+			wp_die( esc_html__( 'Nonce is required.', 'learning-management-system' ) );
+		} elseif ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'masteriyo_download_certificate' ) ) {
+			wp_die( esc_html__( 'Invalid nonce. Maybe the nonce has expired.', 'learning-management-system' ) );
 		}
 	}
 
@@ -1461,31 +1507,31 @@ class CertificateAddon {
 			$schema,
 			array(
 				'certificate' => array(
-					'description' => __( 'Course certificate setting', 'learning-management-system' ),
+					'description' => 'Course certificate setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'                    => array(
-								'description' => __( 'Course certificate ID', 'learning-management-system' ),
+								'description' => 'Course certificate ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'enable'                => array(
-								'description' => __( 'Enable course certificate', 'learning-management-system' ),
+								'description' => 'Enable course certificate',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'email_enabled'         => array(
-								'description' => __( 'Attach certificate to email after course completion.', 'learning-management-system' ),
+								'description' => 'Attach certificate to email after course completion.',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),
 							),
 							'single_course_enabled' => array(
-								'description' => __( 'Display certificate in single course page after course completion.', 'learning-management-system' ),
+								'description' => 'Display certificate in single course page after course completion.',
 								'type'        => 'boolean',
 								'default'     => false,
 								'context'     => array( 'view', 'edit' ),

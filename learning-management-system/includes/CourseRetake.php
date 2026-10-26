@@ -123,7 +123,7 @@ class CourseRetake {
 			masteriyo_delete_user_course_assignment_submissions( $course->get_id(), get_current_user_id() );
 			masteriyo_delete_user_course_gradebooks( $course->get_id(), get_current_user_id() );
 
-			$user_course->set_date_modified( current_time( 'mysql', true ) );
+			$user_course->set_date_modified( time() );
 			$user_course->save();
 
 			wp_safe_redirect( $course->start_course_url(), 302, 'learning-management-system' );

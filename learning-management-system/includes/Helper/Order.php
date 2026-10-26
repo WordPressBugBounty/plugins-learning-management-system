@@ -451,15 +451,35 @@ function masteriyo_get_account_orders_actions( $order ) {
 }
 
 /**
+ * Whether order invoice PDFs are enabled site-wide.
+ *
+ * @return bool
+ */
+function masteriyo_is_invoice_enabled() {
+	$enabled = masteriyo_string_to_bool( masteriyo_get_setting( 'payments.invoice.enable' ) );
+
+	/**
+	 * Filters whether order invoice PDFs are enabled.
+	 *
+	 * @param bool $enabled True when invoices are enabled.
+	 */
+	return (bool) apply_filters( 'masteriyo_is_invoice_enabled', $enabled );
+}
+
+/**
  * Get order invoice download url.
  *
  * @since 1.8.0
  *
  * @param  int|Masteriyo\Models\Order\Order $order_id Order instance or ID.
  *
- * @return string
+ * @return string Empty when the order is missing or invoices are disabled.
  */
 function masteriyo_generate_order_download_url( $order_id ) {
+
+	if ( ! masteriyo_is_invoice_enabled() ) {
+		return '';
+	}
 
 	$order = masteriyo_get_order( $order_id );
 

@@ -12,7 +12,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { UserCertificate } from '../../../../../assets/js/back-end/constants/images';
 import {
-	getWordpressLocalTime,
+	getSiteDate,
 	isEmpty,
 } from '../../../../../assets/js/back-end/utils/utils';
 
@@ -77,7 +77,7 @@ const UserCertificateItem: React.FC<Props> = (props) => {
 							{sprintf(
 								/* translators: %s: course start date */
 								__('Started on %s', 'learning-management-system'),
-								getWordpressLocalTime(course.started_at, 'm/d/Y'),
+								getSiteDate(course.started_at),
 							)}
 						</Text>
 					)}

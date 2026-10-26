@@ -53,18 +53,11 @@ $class = trim( $class );
 					?>
 	<?php else : ?>
 		<div class="masteriyo-course-price">
-						<?php if ( $course->get_regular_price() && ( '0' === $course->get_sale_price() || ! empty( $course->get_sale_price() ) ) ) : ?>
+						<?php $regular_price_html = masteriyo_get_course_regular_price_html( $course, array( 'disable_tax_inclusive_label' => true ) ); ?>
+						<?php if ( $regular_price_html ) : ?>
 			<del class="old-amount">
 							<?php
-							echo wp_kses_post(
-								masteriyo_price(
-									$course->get_regular_price(),
-									array(
-										'currency' => $course->get_currency(),
-										'disable_tax_inclusive_label' => true,
-									)
-								)
-							);
+							echo wp_kses_post( $regular_price_html );
 							?>
 									</del>
 		<?php endif; ?>

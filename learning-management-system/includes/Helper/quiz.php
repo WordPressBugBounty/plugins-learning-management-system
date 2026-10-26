@@ -295,7 +295,7 @@ function masteriyo_get_all_quiz_attempts( $quiz_id = 0, $user_id = 0 ) {
  * @since 1.0.0
  *
  * @param array $query_vars Query vars.
- * @return QuizAttempt[]
+ * @return \stdClass[] Raw attempt rows, not models; pass an id to masteriyo_get_quiz_attempt() for one.
  */
 function masteriyo_get_quiz_attempts( $query_vars ) {
 	global $wpdb;
@@ -488,6 +488,20 @@ function masteriyo_calculate_quiz_full_points( $quiz, $questions = null ) {
 		 *
 		 */
 	return apply_filters( 'masteriyo_pro_calculate_quiz_full_points', $full_points, $quiz );
+}
+
+/**
+ * Whether answer explanations are shown in attempt reviews and exports. Off in free, which has none; Pro turns it on.
+ *
+ * @return bool
+ */
+function masteriyo_is_answer_explanation_enabled(): bool {
+	/**
+	 * Filters whether answer explanations are shown.
+	 *
+	 * @param bool $enabled Whether answer explanations are shown.
+	 */
+	return (bool) apply_filters( 'masteriyo_answer_explanation_enabled', false );
 }
 
 /**
@@ -751,6 +765,13 @@ if ( ! function_exists( 'masteriyo_check_manual_quiz_attempt' ) ) {
 			) ||
 			'quiz' !== $request['item_type']
 		) {
+			return false;
+		}
+
+		// The quiz has to belong to the course the caller is authorised against. Without
+		// this, a course author pairs their own course ID with another course's quiz and
+		// is treated as staff over a quiz they do not own.
+		if ( absint( get_post_meta( absint( $request['item_id'] ), '_course_id', true ) ) !== absint( $request['course_id'] ) ) {
 			return false;
 		}
 

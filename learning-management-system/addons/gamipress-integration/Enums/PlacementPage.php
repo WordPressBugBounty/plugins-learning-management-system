@@ -26,15 +26,6 @@ class PlacementPage {
 	const ACCOUNT_PAGE = 'account-page';
 
 	/**
-	 * Learn page.
-	 *
-	 * @since 1.6.15
-	 *
-	 * @var string
-	 */
-	const LEARN_PAGE = 'learn-page';
-
-	/**
 	 * Return all the placement pages.
 	 *
 	 * @since 1.6.15
@@ -54,7 +45,6 @@ class PlacementPage {
 				'masteriyo_gamipress_placement_pages',
 				array(
 					self::ACCOUNT_PAGE,
-					self::LEARN_PAGE,
 				)
 			)
 		);

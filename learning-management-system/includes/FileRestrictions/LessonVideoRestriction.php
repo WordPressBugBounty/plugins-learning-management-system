@@ -136,16 +136,16 @@ class LessonVideoRestriction extends FileRestriction {
 	 */
 	public function validate_lesson_video_url() {
 		if ( empty( $_GET['course_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->send_error( __( 'Invalid URL', 'learning-management-system' ) );
+			$this->send_error( __( 'Invalid URL.', 'learning-management-system' ) );
 		}
 		if ( empty( $_GET['lesson_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->send_error( __( 'Invalid URL', 'learning-management-system' ) );
+			$this->send_error( __( 'Invalid URL.', 'learning-management-system' ) );
 		}
 		if ( is_null( masteriyo_get_course( $_GET['course_id'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->send_error( __( 'Invalid URL', 'learning-management-system' ) );
+			$this->send_error( __( 'Invalid URL.', 'learning-management-system' ) );
 		}
 		if ( is_null( masteriyo_get_lesson( $_GET['lesson_id'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->send_error( __( 'Invalid URL', 'learning-management-system' ) );
+			$this->send_error( __( 'Invalid URL.', 'learning-management-system' ) );
 		}
 	}
 }

@@ -59,6 +59,6 @@ class UpdateCourseReviewAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing course review (approve, reject, or edit content).', 'learning-management-system' );
+		return 'Update an existing course review (approve, reject, or edit content).';
 	}
 }

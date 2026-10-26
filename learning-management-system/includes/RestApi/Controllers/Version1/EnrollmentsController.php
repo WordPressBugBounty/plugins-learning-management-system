@@ -111,7 +111,7 @@ class EnrollmentsController extends \WP_REST_Controller {
 								'default'           => 0,
 								'sanitize_callback' => 'absint',
 								'validate_callback' => 'rest_validate_request_arg',
-								'description'       => __( 'Seats already claimed by earlier preview chunks of the same batch, subtracted from the available seats so a chunked preview matches what enrollment will accept.', 'learning-management-system' ),
+								'description'       => 'Seats already claimed by earlier preview chunks of the same batch, subtracted from the available seats so a chunked preview matches what enrollment will accept.',
 							),
 						)
 					),
@@ -129,12 +129,12 @@ class EnrollmentsController extends \WP_REST_Controller {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 					'args'                => array(
 						'id'    => array(
-							'description'       => __( 'Unique identifier for the enrollment (masteriyo_user_items row id).', 'learning-management-system' ),
+							'description'       => 'Unique identifier for the enrollment (masteriyo_user_items row id).',
 							'type'              => 'integer',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'force' => array(
-							'description'       => __( 'Whether to permanently delete the enrollment row instead of revoking access.', 'learning-management-system' ),
+							'description'       => 'Whether to permanently delete the enrollment row instead of revoking access.',
 							'type'              => 'boolean',
 							'default'           => false,
 							'validate_callback' => 'rest_validate_request_arg',
@@ -218,7 +218,7 @@ class EnrollmentsController extends \WP_REST_Controller {
 		return array(
 			'context'   => $this->get_context_param( array( 'default' => 'view' ) ),
 			'page'      => array(
-				'description'       => __( 'Current page of the collection.', 'learning-management-system' ),
+				'description'       => 'Current page of the collection.',
 				'type'              => 'integer',
 				'default'           => 1,
 				'minimum'           => 1,
@@ -226,7 +226,7 @@ class EnrollmentsController extends \WP_REST_Controller {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'per_page'  => array(
-				'description'       => __( 'Maximum number of items to be returned in result set.', 'learning-management-system' ),
+				'description'       => 'Maximum number of items to be returned in result set.',
 				'type'              => 'integer',
 				'default'           => 10,
 				'minimum'           => 1,
@@ -235,19 +235,19 @@ class EnrollmentsController extends \WP_REST_Controller {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'course_id' => array(
-				'description'       => __( 'Limit result set to enrollments in a specific course.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments in a specific course.',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'search'    => array(
-				'description'       => __( 'Limit result set to enrollments matching a student name or email.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments matching a student name or email.',
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'status'    => array(
-				'description'       => __( 'Limit result set to enrollments with a specific status.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments with a specific status.',
 				'type'              => 'string',
 				'default'           => UserCourseStatus::ANY,
 				'enum'              => UserCourseStatus::all(),
@@ -255,7 +255,7 @@ class EnrollmentsController extends \WP_REST_Controller {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'source'    => array(
-				'description'       => __( 'Limit result set to enrollments by origin: manually granted, or produced by an order/integration.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments by origin: manually granted, or produced by an order/integration.',
 				'type'              => 'string',
 				'default'           => 'any',
 				'enum'              => array( 'any', 'manual', 'automatic' ),
@@ -263,27 +263,27 @@ class EnrollmentsController extends \WP_REST_Controller {
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'order'     => array(
-				'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+				'description'       => 'Order sort attribute ascending or descending.',
 				'type'              => 'string',
 				'default'           => 'desc',
 				'enum'              => array( 'asc', 'desc' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'orderby'   => array(
-				'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+				'description'       => 'Sort collection by object attribute.',
 				'type'              => 'string',
 				'default'           => 'id',
 				'enum'              => array( 'id', 'date_start', 'status', 'student', 'course' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'after'     => array(
-				'description'       => __( 'Limit result set to enrollments started after a given ISO8601 compliant date.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments started after a given ISO8601 compliant date.',
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'before'    => array(
-				'description'       => __( 'Limit result set to enrollments started before a given ISO8601 compliant date.', 'learning-management-system' ),
+				'description'       => 'Limit result set to enrollments started before a given ISO8601 compliant date.',
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => 'rest_validate_request_arg',
@@ -305,7 +305,7 @@ class EnrollmentsController extends \WP_REST_Controller {
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
-				'description'       => __( 'Course ID to enroll students into.', 'learning-management-system' ),
+				'description'       => 'Course ID to enroll students into.',
 			),
 			'emails'              => array(
 				'required'          => true,
@@ -314,14 +314,13 @@ class EnrollmentsController extends \WP_REST_Controller {
 				// Above this the client must chunk. Enforced again in code (get_too_many_emails_error()) since hand-rolled REST args like these only get schema-checked when a validate_callback is set.
 				'maxItems'          => self::MAX_EMAILS_PER_REQUEST,
 				'validate_callback' => 'rest_validate_request_arg',
-				/* translators: %d: maximum number of emails allowed per request. */
-				'description'       => sprintf( __( 'List of student email addresses. Maximum %d per request.', 'learning-management-system' ), self::MAX_EMAILS_PER_REQUEST ),
+				'description'       => sprintf( 'List of student email addresses. Maximum %d per request.', self::MAX_EMAILS_PER_REQUEST ),
 			),
 			'override_seat_limit' => array(
 				'type'              => 'boolean',
 				'default'           => false,
 				'validate_callback' => 'rest_validate_request_arg',
-				'description'       => __( 'Enroll even when the course has no seats left under its enrollment_limit.', 'learning-management-system' ),
+				'description'       => 'Enroll even when the course has no seats left under its enrollment_limit.',
 			),
 		);
 	}
@@ -342,26 +341,26 @@ class EnrollmentsController extends \WP_REST_Controller {
 					'type'              => 'boolean',
 					'default'           => true,
 					'validate_callback' => 'rest_validate_request_arg',
-					'description'       => __( 'Send the automatic-registration email to accounts created by this request.', 'learning-management-system' ),
+					'description'       => 'Send the automatic-registration email to accounts created by this request.',
 				),
 				'names'              => array(
 					'type'              => 'object',
 					'default'           => array(),
 					'validate_callback' => 'rest_validate_request_arg',
-					'description'       => __( 'Optional map of email to {first_name, last_name}, applied only to accounts this request creates — never to existing users.', 'learning-management-system' ),
+					'description'       => 'Optional map of email to {first_name, last_name}, applied only to accounts this request creates — never to existing users.',
 				),
 				'create_order'       => array(
 					'type'              => 'boolean',
 					'default'           => false,
 					'validate_callback' => 'rest_validate_request_arg',
-					'description'       => __( 'Create an order for this enrollment. Only honoured for one_time (paid) courses; ignored otherwise.', 'learning-management-system' ),
+					'description'       => 'Create an order for this enrollment. Only honoured for one_time (paid) courses; ignored otherwise.',
 				),
 				'order_amount'       => array(
 					'type'              => 'string',
 					'enum'              => array( 'zero', 'full' ),
 					'default'           => 'zero',
 					'validate_callback' => 'rest_validate_request_arg',
-					'description'       => __( 'Amount to record on the created order: zero, or the course price excluding tax.', 'learning-management-system' ),
+					'description'       => 'Amount to record on the created order: zero, or the course price excluding tax.',
 				),
 			)
 		);

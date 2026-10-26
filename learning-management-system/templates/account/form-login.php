@@ -90,7 +90,7 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 			</form>
 			<?php masteriyo_display_all_notices(); ?>
 
-			<div id="masteriyo-session-limit-warning" class="masteriyo-hidden masteriyo-danger-msg masteriyo-alert">
+			<div id="masteriyo-session-limit-warning" class="masteriyo-hidden masteriyo-danger-msg masteriyo-alert" style="display: none;">
 			<?php
 			echo (
 			sprintf(
@@ -102,7 +102,7 @@ $is_registration_enable = masteriyo_get_setting( 'general.registration.enable_st
 			?>
 			</div>
 
-			<div id="masteriyo-session-limit-clear" class="masteriyo-hidden masteriyo-success-msg masteriyo-alert">
+			<div id="masteriyo-session-limit-clear" class="masteriyo-hidden masteriyo-success-msg masteriyo-alert" style="display: none;">
 			<?php
 			echo (
 			esc_html__( 'Your login session is cleared.', 'learning-management-system' )

@@ -214,7 +214,7 @@ class InstructorRegistrationFormHandler {
 
 		if ( ! masteriyo_registration_is_generate_password() ) {
 			if ( empty( $data['password'] ) ) {
-				$error->add( 'password_required', __( 'Password is required..', 'learning-management-system' ) );
+				$error->add( 'password_required', __( 'Password is required.', 'learning-management-system' ) );
 			}
 
 			if ( empty( $data['confirm-password'] ) ) {
@@ -222,7 +222,7 @@ class InstructorRegistrationFormHandler {
 			}
 
 			if ( $data['password'] !== $data['confirm-password'] ) {
-				$error->add( 'passwords_do_not_match', __( 'The passwords doesn\'t match.', 'learning-management-system' ) );
+				$error->add( 'passwords_do_not_match', __( 'The passwords do not match.', 'learning-management-system' ) );
 			}
 		}
 

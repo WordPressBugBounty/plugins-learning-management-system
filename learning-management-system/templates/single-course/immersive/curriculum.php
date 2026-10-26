@@ -105,7 +105,7 @@ if ( ! $course ) {
 				<h4 class="masteriyo-single-body__main--curriculum-content-bottom__accordion--header-title"><?php echo esc_html( $section->get_name() ); ?></h4>
 
 				<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--header-misc">
-					<?php $section_lesson_count = get_course_section_children_count_by_section( $section->get_id(), PostType::LESSON ); ?>
+					<?php $section_lesson_count = get_course_section_children_count_by_section( $section->get_id(), PostType::LESSON, $course ); ?>
 					<?php if ( $section_lesson_count > 0 ) : ?>
 						<span class="masteriyo-single-body-accordion-info">
 							<?php
@@ -118,7 +118,7 @@ if ( ! $course ) {
 						</span>
 					<?php endif; ?>
 
-					<?php $section_quiz_count = get_course_section_children_count_by_section( $section->get_id(), PostType::QUIZ ); ?>
+					<?php $section_quiz_count = get_course_section_children_count_by_section( $section->get_id(), PostType::QUIZ, $course ); ?>
 					<?php if ( $section_quiz_count > 0 ) : ?>
 						<span class="masteriyo-single-body-accordion-info">
 							<?php
@@ -142,7 +142,7 @@ if ( ! $course ) {
 					</svg>
 				</span>
 			</div>
-			<?php $objects = get_course_section_children_by_section( $section->get_id() ); ?>
+			<?php $objects = get_course_section_children_by_section( $section->get_id(), $course ); ?>
 			<?php if ( ! empty( $objects ) ) : ?>
 				<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body">
 					<ul class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-items">
@@ -152,19 +152,7 @@ if ( ! $course ) {
 							$lesson_status                      = $lesson_progress_map[ $item_id ] ?? 'not_started';
 							list( $status_class, $status_icon ) = get_lesson_status_class_and_icon( $lesson_status );
 
-							$learn_page_url = masteriyo_get_page_permalink( 'learn' );
-							$permalink      = trailingslashit( $learn_page_url ) . 'course/' . $course->get_slug();
-
-							if ( '' === get_option( 'permalink_structure' ) ) {
-								$permalink = add_query_arg(
-									array(
-										'course_name' => $course->get_id(),
-									),
-									$learn_page_url
-								);
-							}
-
-							$permalink .= '#/course/' . $course->get_id() . '/' . $object->get_object_type() . '/' . $item_id;
+							$permalink = masteriyo_get_course_content_learn_url( $course, $object );
 							?>
 							<li class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item">
 								<div class="masteriyo-single-body__main--curriculum-content-bottom__accordion--body-item-icon">
@@ -172,6 +160,7 @@ if ( ! $course ) {
 									<a href="<?php echo esc_url( $permalink ); ?>">
 										<?php echo esc_html( $object->get_name() ); ?>
 									</a>
+									<?php echo wp_kses_post( masteriyo_course_content_draft_badge( $object ) ); ?>
 									<span class="masteriyo-lesson-status-<?php echo esc_attr( $status_class ); ?>">
 										<?php echo $status_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded internal SVG markup from get_lesson_status_class_and_icon(). ?>
 									</span>

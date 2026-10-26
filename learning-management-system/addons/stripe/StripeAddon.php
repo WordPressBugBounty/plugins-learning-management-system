@@ -369,6 +369,10 @@ class StripeAddon {
 			Setting::set( 'webhook_secret', sanitize_textarea_field( $request['payments']['stripe']['webhook_secret'] ) );
 		}
 
+		if ( isset( $request['payments']['stripe']['card_only'] ) ) {
+			Setting::set( 'card_only', masteriyo_string_to_bool( $request['payments']['stripe']['card_only'] ) );
+		}
+
 		delete_transient( 'masteriyo_stripe_account_cache' );
 
 		$this->maybe_register_payment_method_domain();

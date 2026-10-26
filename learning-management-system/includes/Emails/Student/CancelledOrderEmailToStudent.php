@@ -204,7 +204,7 @@ class CancelledOrderEmailToStudent extends Email {
 		if ( $order ) {
 			$placeholders['{total_price}'] = masteriyo_price( $order->get_total() );
 			$placeholders['{order_id}']    = $order->get_order_number();
-			$placeholders['{order_date}']  = gmdate( 'd M Y', $order->get_date_created()->getTimestamp() );
+			$placeholders['{order_date}']  = masteriyo_format_datetime( $order->get_date_created() );
 			$placeholders['{order_table}'] = $this->get_order_table( $order );
 		}
 

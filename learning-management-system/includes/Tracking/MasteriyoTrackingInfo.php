@@ -9,6 +9,7 @@
 
 namespace Masteriyo\Tracking;
 
+use Masteriyo\Constants;
 use Masteriyo\Enums\CommentType;
 use Masteriyo\Enums\OrderStatus;
 use Masteriyo\Enums\PostStatus;
@@ -22,6 +23,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * MasteriyoTrackingInfo class.
+ *
+ * @phpstan-import-type ContentData from ContentTrackingInfo
+ * @phpstan-import-type PaymentsData from PaymentsTrackingInfo
+ * @phpstan-import-type CoursesData from CoursesTrackingInfo
  */
 class MasteriyoTrackingInfo {
 
@@ -45,6 +50,13 @@ class MasteriyoTrackingInfo {
 	 */
 	public static function get_slug() {
 		if ( self::is_premium() ) {
+			// The shipped Pro entry file is lms.php; source checkouts load lms-pro.php.
+			$basename = Constants::get( 'MASTERIYO_PLUGIN_BASENAME' );
+
+			if ( is_string( $basename ) && 0 === strpos( $basename, 'learning-management-system-pro/' ) ) {
+				return $basename;
+			}
+
 			return 'learning-management-system-pro/lms.php';
 		} else {
 			return 'learning-management-system/lms.php';
@@ -70,11 +82,11 @@ class MasteriyoTrackingInfo {
 	 * @return boolean True if the user is using the premium version, false otherwise.
 	 */
 	public static function is_premium() {
-		if ( is_plugin_active( 'learning-management-system-pro/lms.php' ) ) {
+		if ( defined( 'MASTERIYO_IS_PRO' ) && MASTERIYO_IS_PRO ) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return is_plugin_active( 'learning-management-system-pro/lms.php' );
 	}
 
 	/**
@@ -96,23 +108,7 @@ class MasteriyoTrackingInfo {
 	 * @return integer
 	 */
 	public static function get_publish_course_by_ai_count() {
-
-		$meta_query = array(
-			'key'     => '_is_ai_created',
-			'value'   => '1',
-			'compare' => '=',
-		);
-
-		$args = array(
-			'post_type'      => PostType::COURSE,
-			'post_status'    => PostStatus::PUBLISH,
-			'posts_per_page' => -1,
-			'meta_query'     => array( $meta_query ),
-		);
-
-		$query = new \WP_Query( $args );
-
-		return $query->found_posts;
+		return absint( TrackingCounts::by_meta_value( PostType::COURSE, '_is_ai_created' )['1'] ?? 0 );
 	}
 
 	/**
@@ -223,7 +219,6 @@ class MasteriyoTrackingInfo {
 	 */
 	public static function get_meta_data() {
 		return array(
-			'license_key'        => self::get_license_key(),
 			'course_count'       => self::get_publish_course_count(),
 			'course_by_ai_count' => self::get_publish_course_by_ai_count(),
 			'order_count'        => self::get_completed_orders_count(),
@@ -256,16 +251,7 @@ class MasteriyoTrackingInfo {
 	 * @return int Published certificate count.
 	 */
 	public static function total_published_certificates() {
-		$query = new WP_Query(
-			array(
-				'post_type'      => 'mto-certificate',
-				'post_status'    => 'publish',
-				'fields'         => 'ids',
-				'posts_per_page' => -1,
-			)
-		);
-
-		return $query->found_posts;
+		return TrackingCounts::count_published( 'mto-certificate' );
 	}
 
 	/**
@@ -355,32 +341,118 @@ class MasteriyoTrackingInfo {
 	 * @return array Addon statistics.
 	 */
 	protected static function get_addon_stats( $addon_key ) {
-
 		switch ( $addon_key ) {
-
 			case 'certificate':
-				return array(
-					'total_publish_certificates' => self::total_published_certificates(),
-				);
+				$stats = array( 'total_publish_certificates' => self::total_published_certificates() );
+				break;
 
 			case 'coupons':
-				return array(
-					'total_publish_coupons' => self::total_publish_coupons(),
-				);
+				$stats = array( 'total_publish_coupons' => self::total_publish_coupons() );
+				break;
 
 			case 'group-courses':
-				return array(
-					'total_publish_groups' => self::total_publish_groups(),
-				);
+				$stats = array( 'total_publish_groups' => self::total_publish_groups() );
+				break;
 
 			case 'course-announcement':
-				return array(
-					'total_publish_announcement' => self::total_publish_announcement(),
-				);
+				$stats = array( 'total_publish_announcement' => self::total_publish_announcement() );
+				break;
+
+			case 'assignment':
+				$stats = array( 'total_assignments' => self::count_post_type( PostType::ASSIGNMENT ) );
+				break;
+
+			case 'course-bundle':
+				$stats = array( 'total_bundles' => self::count_post_type( PostType::COURSE_BUNDLE ) );
+				break;
+
+			case 'zoom':
+				$stats = array( 'total_meetings' => self::count_post_type( PostType::ZOOM ) );
+				break;
+
+			case 'content-drip':
+				$stats = array( 'courses_with_drip' => self::count_courses_with_content_drip() );
+				break;
 
 			default:
-				return array();
+				$stats = array();
 		}
+
+		/**
+		 * Filters the usage stats an addon reports. Return counts and booleans only.
+		 *
+		 * @param array  $stats     Stats for the addon.
+		 * @param string $addon_key Addon key.
+		 */
+		$stats = apply_filters( 'masteriyo_tracking_addon_stats', $stats, $addon_key );
+
+		return self::sanitize_addon_stats( $stats );
+	}
+
+	/**
+	 * Keep only flat slug => non-negative integer / boolean entries.
+	 *
+	 * @param mixed $stats Stats returned by the filter.
+	 *
+	 * @return array<string, int|bool>
+	 */
+	protected static function sanitize_addon_stats( $stats ) {
+		$clean = array();
+
+		foreach ( is_array( $stats ) ? $stats : array() as $key => $value ) {
+			$key = TrackingCounts::slugify( $key );
+
+			if ( '' === $key ) {
+				continue;
+			}
+
+			if ( is_bool( $value ) ) {
+				$clean[ $key ] = $value;
+			} elseif ( is_numeric( $value ) && (int) $value >= 0 ) {
+				$clean[ $key ] = (int) $value;
+			}
+		}
+
+		return $clean;
+	}
+
+	/**
+	 * Count posts of a type in any non-trashed status.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return int
+	 */
+	protected static function count_post_type( string $post_type ): int {
+		$counts = TrackingCounts::by_post_status( $post_type );
+		unset( $counts['trash'], $counts['auto-draft'] );
+
+		return array_sum( $counts );
+	}
+
+	/**
+	 * Count courses that have content drip switched on.
+	 *
+	 * @return int
+	 */
+	protected static function count_courses_with_content_drip(): int {
+		global $wpdb;
+
+		if ( ! $wpdb ) {
+			return 0;
+		}
+
+		return absint(
+			$wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_content_drip_enable' AND pm.meta_value = '1'
+					WHERE p.post_type = %s AND p.post_status = %s",
+					PostType::COURSE,
+					PostStatus::PUBLISH
+				)
+			)
+		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names only.
 	}
 
 	/**
@@ -420,19 +492,12 @@ class MasteriyoTrackingInfo {
 	}
 
 	/**
-	 * Get published course-structure counts and engagement comment counts.
+	 * Get published course-structure counts, engagement counts and lesson/question type splits.
 	 *
-	 * @return array Content counts.
+	 * @return ContentData Content counts.
 	 */
-	public static function get_content_counts() {
-		return array(
-			'section_count'       => absint( masteriyo_array_get( (array) wp_count_posts( PostType::SECTION ), PostStatus::PUBLISH, 0 ) ),
-			'lesson_count'        => absint( masteriyo_array_get( (array) wp_count_posts( PostType::LESSON ), PostStatus::PUBLISH, 0 ) ),
-			'quiz_count'          => absint( masteriyo_array_get( (array) wp_count_posts( PostType::QUIZ ), PostStatus::PUBLISH, 0 ) ),
-			'question_count'      => absint( masteriyo_array_get( (array) wp_count_posts( PostType::QUESTION ), PostStatus::PUBLISH, 0 ) ),
-			'qa_count'            => self::get_comment_type_count( CommentType::COURSE_QA ),
-			'course_review_count' => self::get_comment_type_count( CommentType::COURSE_REVIEW, true ),
-		);
+	public static function get_content_counts(): array {
+		return ContentTrackingInfo::all();
 	}
 
 	/**
@@ -442,7 +507,7 @@ class MasteriyoTrackingInfo {
 	 * @param boolean $top_level_only Exclude replies (comment_parent > 0).
 	 * @return int Approved comment count.
 	 */
-	protected static function get_comment_type_count( $comment_type, $top_level_only = false ) {
+	public static function count_comments( $comment_type, $top_level_only = false ) {
 		global $wpdb;
 
 		if ( ! $wpdb ) {
@@ -459,15 +524,20 @@ class MasteriyoTrackingInfo {
 	}
 
 	/**
-	 * Get live payment configuration: core gateway toggles and currency.
+	 * Get payment configuration (core toggles, every gateway) and order aggregates.
 	 *
-	 * @return array Payment settings snapshot.
+	 * @return PaymentsData Payment settings snapshot.
 	 */
-	public static function get_payments_data() {
-		return array(
-			'paypal_enabled'  => masteriyo_string_to_bool( masteriyo_get_setting( 'payments.paypal.enable' ) ),
-			'offline_enabled' => masteriyo_string_to_bool( masteriyo_get_setting( 'payments.offline.enable' ) ),
-			'currency'        => masteriyo_get_setting( 'payments.currency.currency' ),
-		);
+	public static function get_payments_data(): array {
+		return PaymentsTrackingInfo::all();
+	}
+
+	/**
+	 * Get published course aggregates.
+	 *
+	 * @return CoursesData Course aggregates.
+	 */
+	public static function get_courses_data(): array {
+		return CoursesTrackingInfo::all();
 	}
 }

@@ -107,7 +107,7 @@ class LogsController extends CrudController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Log IDs.', 'learning-management-system' ),
+							'description' => 'Log IDs.',
 							'type'        => 'array',
 						),
 					),
@@ -121,7 +121,7 @@ class LogsController extends CrudController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'string',
 					),
 				),
@@ -180,7 +180,7 @@ class LogsController extends CrudController {
 		$params = parent::get_collection_params();
 
 		$params['orderby'] = array(
-			'description' => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description' => 'Sort collection by object attribute.',
 			'default'     => 'date',
 			'enum'        => array(
 				'name',
@@ -191,7 +191,7 @@ class LogsController extends CrudController {
 		);
 
 		$params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'default'     => 'desc',
 			'enum'        => array(
 				'asc',
@@ -201,7 +201,7 @@ class LogsController extends CrudController {
 		);
 
 		$params['search'] = array(
-			'description' => __( 'Search log files by name.', 'learning-management-system' ),
+			'description' => 'Search log files by name.',
 			'type'        => 'string',
 			'default'     => '',
 		);

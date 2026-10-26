@@ -110,7 +110,7 @@ class WithdrawRepository extends AbstractRepository {
 		$withdraw_post = get_post( $withdraw->get_id() );
 
 		if ( ! $withdraw->get_id() || ! $withdraw_post || $withdraw->get_post_type() !== $withdraw_post->post_type ) {
-			throw new \Exception( esc_html__( 'Invalid withdraw.', 'learning-management-system' ) );
+			throw new \Exception( esc_html__( 'Invalid withdrawal.', 'learning-management-system' ) );
 		}
 
 		$withdraw->set_props(
@@ -372,7 +372,7 @@ class WithdrawRepository extends AbstractRepository {
 		// phpcs:enable
 		return sprintf(
 				/* translators: %s: Withdraw date */
-			__( 'Withdraw &ndash; %s', 'learning-management-system' ),
+			__( 'Withdrawal &ndash; %s', 'learning-management-system' ),
 			date_i18n( _x( 'M d, Y @ h:i A', 'Withdraw date parsed by date_i18n', 'learning-management-system' ) )
 		);
 		// phpcs:disable

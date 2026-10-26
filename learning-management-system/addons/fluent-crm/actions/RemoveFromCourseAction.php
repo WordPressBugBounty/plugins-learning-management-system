@@ -106,7 +106,7 @@ class RemoveFromCourseAction extends BaseAction {
 		$result = Helper::masteriyo_remove_user_from_course( $userId, $courseId );
 
 		if ( ! $result ) {
-			$funnelMetric->notes = __( 'User is not enrolled in the course', 'learning-management-system' );
+			$funnelMetric->notes = __( 'User is not enrolled in the course.', 'learning-management-system' );
 			$funnelMetric->save();
 			FunnelHelper::changeFunnelSubSequenceStatus( $funnelSubscriberId, $sequence->id, 'skipped' );
 		}

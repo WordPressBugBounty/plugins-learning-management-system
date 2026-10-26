@@ -42,18 +42,18 @@ abstract class CommentsController extends CrudController {
 		$params['context']['default'] = 'view';
 
 		$params['search'] = array(
-			'description' => __( 'Limit results to those matching a string.', 'learning-management-system' ),
+			'description' => 'Limit results to those matching a string.',
 			'type'        => 'string',
 		);
 
 		$params['after'] = array(
-			'description' => __( 'Limit response to comments published after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description' => 'Limit response to comments published after a given ISO8601 compliant date.',
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$params['user'] = array(
-			'description'       => __( 'Limit result set to comments assigned to specific user IDs. Requires authorization.', 'learning-management-system' ),
+			'description'       => 'Limit result set to comments assigned to specific user IDs. Requires authorization.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -62,7 +62,7 @@ abstract class CommentsController extends CrudController {
 		);
 
 		$params['user_exclude'] = array(
-			'description'       => __( 'Ensure result set excludes comments assigned to specific user IDs. Requires authorization.', 'learning-management-system' ),
+			'description'       => 'Ensure result set excludes comments assigned to specific user IDs. Requires authorization.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -72,25 +72,25 @@ abstract class CommentsController extends CrudController {
 
 		$params['user_email'] = array(
 			'default'     => null,
-			'description' => __( 'Limit result set to that from a specific author email. Requires authorization.', 'learning-management-system' ),
+			'description' => 'Limit result set to that from a specific author email. Requires authorization.',
 			'format'      => 'email',
 			'type'        => 'string',
 		);
 
 		$params['before'] = array(
-			'description' => __( 'Limit response to comments published before a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description' => 'Limit response to comments published before a given ISO8601 compliant date.',
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$params['after'] = array(
-			'description' => __( 'Limit response to comments published before a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description' => 'Limit response to comments published before a given ISO8601 compliant date.',
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$params['exclude'] = array(
-			'description'       => __( 'Ensure result set excludes specific IDs.', 'learning-management-system' ),
+			'description'       => 'Ensure result set excludes specific IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -100,7 +100,7 @@ abstract class CommentsController extends CrudController {
 		);
 
 		$params['include'] = array(
-			'description'       => __( 'Limit result set to specific IDs.', 'learning-management-system' ),
+			'description'       => 'Limit result set to specific IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -110,12 +110,12 @@ abstract class CommentsController extends CrudController {
 		);
 
 		$params['offset'] = array(
-			'description' => __( 'Offset the result set by a specific number of items.', 'learning-management-system' ),
+			'description' => 'Offset the result set by a specific number of items.',
 			'type'        => 'integer',
 		);
 
 		$params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description' => 'Order sort attribute ascending or descending.',
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array(
@@ -125,7 +125,7 @@ abstract class CommentsController extends CrudController {
 		);
 
 		$params['orderby'] = array(
-			'description' => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description' => 'Sort collection by object attribute.',
 			'type'        => 'string',
 			'default'     => 'date_gmt',
 			'enum'        => array(
@@ -139,7 +139,7 @@ abstract class CommentsController extends CrudController {
 
 		$params['parent'] = array(
 			'default'           => array(),
-			'description'       => __( 'Limit result set to comments of specific parent IDs.', 'learning-management-system' ),
+			'description'       => 'Limit result set to comments of specific parent IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -149,7 +149,7 @@ abstract class CommentsController extends CrudController {
 
 		$params['parent_exclude'] = array(
 			'default'           => array(),
-			'description'       => __( 'Ensure result set excludes specific parent IDs.', 'learning-management-system' ),
+			'description'       => 'Ensure result set excludes specific parent IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -159,7 +159,7 @@ abstract class CommentsController extends CrudController {
 
 		$params['post'] = array(
 			'default'           => array(),
-			'description'       => __( 'Limit result set to comments assigned to specific post IDs.', 'learning-management-system' ),
+			'description'       => 'Limit result set to comments assigned to specific post IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -169,7 +169,7 @@ abstract class CommentsController extends CrudController {
 
 		$params['status'] = array(
 			'default'           => CommentStatus::ALL,
-			'description'       => __( 'Limit result set to comments assigned a specific status. Requires authorization.', 'learning-management-system' ),
+			'description'       => 'Limit result set to comments assigned a specific status. Requires authorization.',
 			'sanitize_callback' => 'sanitize_key',
 			'type'              => 'string',
 			'enum'              => array_merge( array( CommentStatus::ALL ), CommentStatus::readable() ),
@@ -177,7 +177,7 @@ abstract class CommentsController extends CrudController {
 		);
 
 		$params['password'] = array(
-			'description' => __( 'The password for the post if it is password protected.', 'learning-management-system' ),
+			'description' => 'The password for the post if it is password protected.',
 			'type'        => 'string',
 		);
 
@@ -610,7 +610,7 @@ abstract class CommentsController extends CrudController {
 		$old_comment = get_comment( (int) $request['id'] );
 
 		if ( ! $old_comment ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		if ( $this->comment_type !== $old_comment->comment_type ) {
@@ -650,7 +650,7 @@ abstract class CommentsController extends CrudController {
 		$object = $this->get_object( $new_comment_id );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$data     = $this->prepare_object_for_response( $object, $request );
@@ -877,7 +877,7 @@ abstract class CommentsController extends CrudController {
 		if ( ! $this->permission->rest_check_comment_permissions( 'delete' ) ) {
 			return new \WP_Error(
 				'masteriyo_rest_cannot_read',
-				__( 'Sorry, you are not allowed to delete resources', 'learning-management-system' ),
+				__( 'Sorry, you are not allowed to delete resources.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)

@@ -122,7 +122,7 @@ abstract class CrudController extends RestController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$data     = $this->prepare_object_for_response( $object, $request );
@@ -237,7 +237,7 @@ abstract class CrudController extends RestController {
 		$object = $this->get_object( (int) $request['id'] );
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 400 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->post_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 400 ) );
 		}
 
 		$object = $this->save_object( $request, false );
@@ -494,6 +494,11 @@ abstract class CrudController extends RestController {
 	 * @return bool
 	 */
 	protected function check_item_permission( $post_type, $context = 'read', $object_id = 0 ) {
+		// A controller over several post types checks each item as its own type.
+		if ( 'any' === $post_type && $object_id ) {
+			$post_type = get_post_type( $object_id );
+		}
+
 		return $this->permission->rest_check_post_permissions( $post_type, $context, $object_id );
 	}
 
@@ -588,7 +593,7 @@ abstract class CrudController extends RestController {
 		$result = false;
 
 		if ( ! $object || 0 === $object->get_id() ) {
-			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID', 'learning-management-system' ), array( 'status' => 404 ) );
+			return new \WP_Error( "masteriyo_rest_{$this->object_type}_invalid_id", __( 'Invalid ID.', 'learning-management-system' ), array( 'status' => 404 ) );
 		}
 
 		$supports_trash = EMPTY_TRASH_DAYS > 0 && is_callable( array( $object, 'get_status' ) );
@@ -699,7 +704,7 @@ abstract class CrudController extends RestController {
 		$params['context']['default'] = 'view';
 
 		$params['page']     = array(
-			'description'       => __( 'Current page of the collection.', 'learning-management-system' ),
+			'description'       => 'Current page of the collection.',
 			'type'              => 'integer',
 			'default'           => 1,
 			'sanitize_callback' => 'absint',
@@ -707,7 +712,7 @@ abstract class CrudController extends RestController {
 			'minimum'           => 1,
 		);
 		$params['per_page'] = array(
-			'description'       => __( 'Maximum number of items to be returned in result set.', 'learning-management-system' ),
+			'description'       => 'Maximum number of items to be returned in result set.',
 			'type'              => 'integer',
 			'default'           => 10,
 			'minimum'           => 1,
@@ -716,25 +721,25 @@ abstract class CrudController extends RestController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['search']   = array(
-			'description'       => __( 'Limit results to those matching a string.', 'learning-management-system' ),
+			'description'       => 'Limit results to those matching a string.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['after']    = array(
-			'description'       => __( 'Limit response to resources published after a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources published after a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['before']   = array(
-			'description'       => __( 'Limit response to resources published before a given ISO8601 compliant date.', 'learning-management-system' ),
+			'description'       => 'Limit response to resources published before a given ISO8601 compliant date.',
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['exclude']  = array(
-			'description'       => __( 'Ensure result set excludes specific IDs.', 'learning-management-system' ),
+			'description'       => 'Ensure result set excludes specific IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -743,7 +748,7 @@ abstract class CrudController extends RestController {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['include']  = array(
-			'description'       => __( 'Limit result set to specific ids.', 'learning-management-system' ),
+			'description'       => 'Limit result set to specific ids.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -752,7 +757,7 @@ abstract class CrudController extends RestController {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['author']   = array(
-			'description'       => __( 'Limit result set to specific author ids.', 'learning-management-system' ),
+			'description'       => 'Limit result set to specific author ids.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -761,20 +766,20 @@ abstract class CrudController extends RestController {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['offset']   = array(
-			'description'       => __( 'Offset the result set by a specific number of items.', 'learning-management-system' ),
+			'description'       => 'Offset the result set by a specific number of items.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['order']    = array(
-			'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description'       => 'Order sort attribute ascending or descending.',
 			'type'              => 'string',
 			'default'           => 'desc',
 			'enum'              => array( 'asc', 'desc' ),
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['orderby']  = array(
-			'description'       => __( 'Sort collection by object attribute.', 'learning-management-system' ),
+			'description'       => 'Sort collection by object attribute.',
 			'type'              => 'string',
 			'default'           => 'date',
 			'enum'              => array(
@@ -793,7 +798,7 @@ abstract class CrudController extends RestController {
 
 		if ( $this->hierarchical ) {
 			$params['parent']         = array(
-				'description'       => __( 'Limit result set to those of particular parent IDs.', 'learning-management-system' ),
+				'description'       => 'Limit result set to those of particular parent IDs.',
 				'type'              => 'array',
 				'items'             => array(
 					'type' => 'integer',
@@ -802,7 +807,7 @@ abstract class CrudController extends RestController {
 				'default'           => array(),
 			);
 			$params['parent_exclude'] = array(
-				'description'       => __( 'Limit result set to all items except those of a particular parent ID.', 'learning-management-system' ),
+				'description'       => 'Limit result set to all items except those of a particular parent ID.',
 				'type'              => 'array',
 				'items'             => array(
 					'type' => 'integer',

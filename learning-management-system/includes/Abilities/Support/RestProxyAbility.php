@@ -77,6 +77,17 @@ abstract class RestProxyAbility extends AbstractAbility {
 	}
 
 	/**
+	 * Whether the response is a collection to wrap with pagination. A read of one
+	 * whole object (the settings) uses the list verb for its permission check but
+	 * returns no collection.
+	 *
+	 * @return bool
+	 */
+	protected function returns_collection(): bool {
+		return 'list' === $this->verb();
+	}
+
+	/**
 	 * {@inheritdoc}
 	 * Derived from verb: list/get are read-only.
 	 */
@@ -115,7 +126,9 @@ abstract class RestProxyAbility extends AbstractAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_output_schema(): array {
-		return $this->get_schema_translator()->get_output( $this->get_controller(), $this->verb() );
+		$verb = 'list' === $this->verb() && ! $this->returns_collection() ? 'get' : $this->verb();
+
+		return $this->get_schema_translator()->get_output( $this->get_controller(), $verb );
 	}
 
 	// -------------------------------------------------------------------------
@@ -187,6 +200,20 @@ abstract class RestProxyAbility extends AbstractAbility {
 			$input = $sanitized;
 		}
 
+		// A null means "leave it": the route would sanitize it to an empty value and save that.
+		$input = array_filter(
+			$input,
+			static function ( $value ): bool {
+				return null !== $value;
+			}
+		);
+
+		// The comment-backed routes (reviews, Q&A) call the flag force_delete and let it
+		// override force, so the flag goes under both names.
+		if ( 'delete' === $this->verb() && array_key_exists( 'force', $input ) ) {
+			$input['force_delete'] = $input['force'];
+		}
+
 		$request = RequestSynthesizer::for_execute(
 			$this->rest_namespace(),
 			$this->rest_base(),
@@ -211,7 +238,7 @@ abstract class RestProxyAbility extends AbstractAbility {
 			);
 		}
 
-		if ( 'list' === $this->verb() ) {
+		if ( $this->returns_collection() ) {
 			return ResponseEnvelope::wrap( $response, $input );
 		}
 

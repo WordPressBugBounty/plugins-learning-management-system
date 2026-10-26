@@ -30,7 +30,7 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 						<span>
 						<?php echo esc_html( apply_filters( 'masteriyo_course_coming_soon_message', esc_html_e( 'This course will be available on', 'learning-management-system' ) ) ); ?>
 						</span>
-						<span id="masteriyo_ending_date"></span>
+						<span id="masteriyo_ending_date"><?php echo esc_html( $display_ending_date ?? '' ); ?></span>
 					</div>
 				<?php
 				endif;
@@ -45,7 +45,6 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 
 	function calculateCountdown() {
 		var endDate = new Date("<?php echo esc_html( $utc_ending_date ); ?> UTC");
-		var check = <?php echo esc_html( $hide_date_text ? $hide_date_text : 0 ); ?>;
 		var now = new Date();
 		var nowUTC = new Date(now.toISOString().slice(0, -1) + 'Z');
 		var difference = endDate - nowUTC;
@@ -86,9 +85,6 @@ if ( 'layout1' === $layout && masteriyo_is_single_course_page() ) {
 			</div>`;
 
 			document.getElementById("masteriyo_countdown").innerHTML = countdownText;
-			if(!check){
-			document.getElementById("masteriyo_ending_date").innerHTML = endDate.toLocaleString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
-			}
 		}  else {
 			document.getElementById("masteriyo_coming_soon").remove();
 			clearInterval(countdownInterval);

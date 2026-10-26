@@ -362,7 +362,7 @@ function masteriyo_revoke_enrollment_due_to_expiration_by_user_course( $user_ite
 	}
 
 	$user_course->set_status( UserCourseStatus::INACTIVE );
-	$user_course->set_date_modified( current_time( 'mysql', true ) );
+	$user_course->set_date_modified( time() );
 	$user_course->save();
 
 	/**

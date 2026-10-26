@@ -98,6 +98,21 @@ class Helper {
 	}
 
 	/**
+	 * Points a rank unlocks with, or null when it unlocks another way.
+	 *
+	 * @param int $rank_id Rank post id.
+	 *
+	 * @return int|null
+	 */
+	public static function get_rank_points_to_unlock( $rank_id ): ?int {
+		if ( 'on' !== get_post_meta( $rank_id, '_gamipress_unlock_with_points', true ) ) {
+			return null;
+		}
+
+		return absint( get_post_meta( $rank_id, '_gamipress_points_to_unlock', true ) );
+	}
+
+	/**
 	 * Get rank types.
 	 *
 	 * @since 1.6.15
@@ -111,10 +126,23 @@ class Helper {
 			$rank                                  = gamipress_get_user_rank( get_current_user_id(), $rank_type );
 			$rank_types[ $rank_type ]['rank']      = '';
 			$rank_types[ $rank_type ]['image_url'] = '';
+			$rank_types[ $rank_type ]['points_to_unlock'] = null;
+			$rank_types[ $rank_type ]['next']             = null;
 
 			if ( $rank instanceof \WP_Post && ! in_array( $rank->post_type, array( 'post', 'page' ), true ) ) {
-				$rank_types[ $rank_type ]['rank']      = $rank->post_title;
-				$rank_types[ $rank_type ]['image_url'] = get_the_post_thumbnail_url( $rank->ID );
+				$rank_types[ $rank_type ]['rank']             = $rank->post_title;
+				$rank_types[ $rank_type ]['image_url']        = get_the_post_thumbnail_url( $rank->ID );
+				$rank_types[ $rank_type ]['points_to_unlock'] = self::get_rank_points_to_unlock( $rank->ID );
+
+				// The rank after this one, so the learn page can show the way up.
+				$next = function_exists( 'gamipress_get_next_rank' ) ? gamipress_get_next_rank( $rank->ID ) : null;
+				if ( $next instanceof \WP_Post && $next->ID !== $rank->ID ) {
+					$rank_types[ $rank_type ]['next'] = array(
+						'name'             => $next->post_title,
+						'points_to_unlock' => self::get_rank_points_to_unlock( $next->ID ),
+						'points_type'      => (string) get_post_meta( $next->ID, '_gamipress_points_type_to_unlock', true ),
+					);
+				}
 			}
 
 			if ( empty( $rank_types[ $rank_type ]['image_url'] ) ) {

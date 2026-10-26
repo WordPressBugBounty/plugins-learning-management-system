@@ -106,7 +106,7 @@ class CourseAnnouncementController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -135,7 +135,7 @@ class CourseAnnouncementController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -150,7 +150,7 @@ class CourseAnnouncementController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -180,17 +180,17 @@ class CourseAnnouncementController extends PostsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Announcement IDs.', 'learning-management-system' ),
+							'description' => 'Announcement IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.',
 							'type'        => 'boolean',
 						),
 					),
@@ -209,7 +209,7 @@ class CourseAnnouncementController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Announcement Ids', 'learning-management-system' ),
+							'description' => 'Announcement Ids',
 							'type'        => 'array',
 						),
 					),
@@ -233,25 +233,25 @@ class CourseAnnouncementController extends PostsController {
 		$params['orderby']['default'] = 'menu_order';
 
 		$params['course_id'] = array(
-			'description'       => __( 'Limit course announcements by course id.', 'learning-management-system' ),
+			'description'       => 'Limit course announcements by course id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['author_id'] = array(
-			'description'       => __( 'Limit course announcements by author id.', 'learning-management-system' ),
+			'description'       => 'Limit course announcements by author id.',
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['slug']      = array(
-			'description'       => __( 'Limit result set to course announcements with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to course announcements with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status']    = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to course announcements assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to course announcements assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future', 'trash' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -485,93 +485,93 @@ class CourseAnnouncementController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'title'             => array(
-					'description' => __( 'Course announcement name', 'learning-management-system' ),
+					'description' => 'Course announcement name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'              => array(
-					'description' => __( 'Course announcement slug', 'learning-management-system' ),
+					'description' => 'Course announcement slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'         => array(
-					'description' => __( 'Course announcement URL', 'learning-management-system' ),
+					'description' => 'Course announcement URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'      => array(
-					'description' => __( "The date the course announcement was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course announcement was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'  => array(
-					'description' => __( 'The date the course announcement was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course announcement was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'     => array(
-					'description' => __( "The date the course announcement was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course announcement was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt' => array(
-					'description' => __( 'The date the course announcement was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course announcement was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'            => array(
-					'description' => __( 'Course announcement status (post status).', 'learning-management-system' ),
+					'description' => 'Course announcement status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'       => array(
-					'description' => __( 'Course announcement description', 'learning-management-system' ),
+					'description' => 'Course announcement description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_id'         => array(
-					'description' => __( 'Course ID', 'learning-management-system' ),
+					'description' => 'Course ID',
 					'type'        => 'integer',
 					'required'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'menu_order'        => array(
-					'description' => __( 'Menu order, used to custom sort course announcements.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort course announcements.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'         => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -748,7 +748,7 @@ class CourseAnnouncementController extends PostsController {
 		if ( is_null( $course_announcement ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)
@@ -799,7 +799,7 @@ class CourseAnnouncementController extends PostsController {
 		if ( is_null( $course_announcement ) ) {
 			return new \WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array(
 					'status' => 404,
 				)

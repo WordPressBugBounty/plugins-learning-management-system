@@ -341,4 +341,17 @@ class CoursesExportJob {
 	public static function is_tasks_completed() {
 		return CoursesExportJob::is_task_completed( CoursesExportJob::NAME ) && CoursesExportJob::is_task_completed( CoursesExportJob::NAME_APPEND_POST_DATA );
 	}
+
+	/**
+	 * Whether the user's last background export stopped before its file was complete.
+	 *
+	 * Its arguments are deleted only after the last post type is written.
+	 *
+	 * @param int $user_id User who started the export.
+	 *
+	 * @return bool
+	 */
+	public static function is_export_unfinished( int $user_id ): bool {
+		return false !== get_option( 'masteriyo_exporting_courses_args_' . $user_id );
+	}
 }

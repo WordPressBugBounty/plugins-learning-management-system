@@ -117,7 +117,7 @@ class CoursesController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -146,12 +146,12 @@ class CoursesController extends PostsController {
 					'args'                => array(
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.',
 							'type'        => 'boolean',
 						),
 					),
@@ -166,7 +166,7 @@ class CoursesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -176,7 +176,7 @@ class CoursesController extends PostsController {
 					'permission_callback' => array( $this, 'get_preview_link_permissions_check' ),
 					'args'                => array(
 						'email' => array(
-							'description' => __( 'Email of the registered user to preview as. Omit to use the demo student.', 'learning-management-system' ),
+							'description' => 'Email of the registered user to preview as. Omit to use the demo student.',
 							'type'        => 'string',
 							'format'      => 'email',
 							'required'    => false,
@@ -192,7 +192,7 @@ class CoursesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -222,17 +222,17 @@ class CoursesController extends PostsController {
 					'args'                => array(
 						'ids'      => array(
 							'required'    => true,
-							'description' => __( 'Course IDs.', 'learning-management-system' ),
+							'description' => 'Course IDs.',
 							'type'        => 'array',
 						),
 						'force'    => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 						'children' => array(
 							'default'     => false,
-							'description' => __( 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.', 'learning-management-system' ),
+							'description' => 'Whether to delete the children(sections, lessons, quizzes and questions) under the course.',
 							'type'        => 'boolean',
 						),
 					),
@@ -251,7 +251,7 @@ class CoursesController extends PostsController {
 					'args'                => array(
 						'ids' => array(
 							'required'    => true,
-							'description' => __( 'Course Ids', 'learning-management-system' ),
+							'description' => 'Course Ids',
 							'type'        => 'array',
 						),
 					),
@@ -266,7 +266,7 @@ class CoursesController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -305,14 +305,14 @@ class CoursesController extends PostsController {
 		$params = parent::get_collection_params();
 
 		$params['slug'] = array(
-			'description'       => __( 'Limit result set to courses with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['status'] = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to courses assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future', 'trash' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -320,48 +320,48 @@ class CoursesController extends PostsController {
 		);
 
 		$params['featured'] = array(
-			'description'       => __( 'Limit result set to featured courses.', 'learning-management-system' ),
+			'description'       => 'Limit result set to featured courses.',
 			'type'              => 'boolean',
 			'sanitize_callback' => 'masteriyo_string_to_bool',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['price'] = array(
-			'description'       => __( 'List courses with specific price.', 'learning-management-system' ),
+			'description'       => 'List courses with specific price.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['price_type'] = array(
-			'description'       => __( 'List courses with specific price type (free or paid).', 'learning-management-system' ),
+			'description'       => 'List courses with specific price type (free or paid).',
 			'type'              => 'string',
 			'enum'              => CoursePriceType::all(),
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['category'] = array(
-			'description'       => __( 'Limit result set to courses assigned a specific category ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific category ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['tag'] = array(
-			'description'       => __( 'Limit result set to courses assigned a specific tag ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific tag ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['difficulty'] = array(
-			'description'       => __( 'Limit result set to courses assigned a specific difficulty ID.', 'learning-management-system' ),
+			'description'       => 'Limit result set to courses assigned a specific difficulty ID.',
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['access_mode'] = array(
-			'description'       => __( 'List courses with specific access mode.', 'learning-management-system' ),
+			'description'       => 'List courses with specific access mode.',
 			'type'              => 'string',
 			'enum'              => CourseAccessMode::all(),
 			'validate_callback' => 'rest_validate_request_arg',
@@ -480,7 +480,7 @@ class CoursesController extends PostsController {
 	 */
 	protected function description_data( $course, $context ) {
 		if ( 'view' === $context ) {
-			return masteriyo_format_content_for_view( wp_kses_post( $course->get_description() ) );
+			return masteriyo_format_content_for_view( masteriyo_kses_post_for_user( $course->get_description(), masteriyo_get_course_author_id( $course ) ) );
 		}
 		return $course->get_description( $context );
 	}
@@ -744,190 +744,190 @@ class CoursesController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'                             => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'                           => array(
-					'description' => __( 'Course name', 'learning-management-system' ),
+					'description' => 'Course name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'                           => array(
-					'description' => __( 'Course slug', 'learning-management-system' ),
+					'description' => 'Course slug',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'                      => array(
-					'description' => __( 'Course URL', 'learning-management-system' ),
+					'description' => 'Course URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'preview_permalink'              => array(
-					'description' => __( 'Course Preview URL', 'learning-management-system' ),
+					'description' => 'Course Preview URL',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'page_preview_permalink'         => array(
-					'description' => __( 'Preview URL for the single course page; resolves for every status except trash.', 'learning-management-system' ),
+					'description' => 'Preview URL for the single course page; resolves for every status except trash.',
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'student_preview_permalink'      => array(
-					'description' => __( 'Student preview magic link (admin/instructor only).', 'learning-management-system' ),
+					'description' => 'Student preview magic link (admin/instructor only).',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'student_preview_email'          => array(
-					'description' => __( 'Email of the demo student used for preview (admin/instructor only).', 'learning-management-system' ),
+					'description' => 'Email of the demo student used for preview (admin/instructor only).',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'                   => array(
-					'description' => __( "The date the course was created, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course was created, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_created_gmt'               => array(
-					'description' => __( 'The date the course was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'date_modified'                  => array(
-					'description' => __( "The date the course was last modified, in the site's timezone.", 'learning-management-system' ),
+					'description' => "The date the course was last modified, in the site's timezone.",
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt'              => array(
-					'description' => __( 'The date the course was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'                         => array(
-					'description' => __( 'Course status (post status).', 'learning-management-system' ),
+					'description' => 'Course status (post status).',
 					'type'        => 'string',
 					'default'     => PostStatus::PUBLISH,
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured'                       => array(
-					'description' => __( 'Featured course.', 'learning-management-system' ),
+					'description' => 'Featured course.',
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured_video_source'          => array(
-					'description' => __( 'Featured video source', 'learning-management-system' ),
+					'description' => 'Featured video source',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'default'     => VideoSource::SELF_HOSTED,
-					'enum'        => VideoSource::all(),
+					'enum'        => array_merge( VideoSource::all(), array( '' ) ),
 				),
 				'featured_video_url'             => array(
-					'description' => __( 'Featured video URL or id if self hosted', 'learning-management-system' ),
+					'description' => 'Featured video URL or id if self hosted',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'catalog_visibility'             => array(
-					'description' => __( 'Catalog visibility', 'learning-management-system' ),
+					'description' => 'Catalog visibility',
 					'type'        => 'string',
 					'default'     => 'visible',
 					'enum'        => array( 'visible', 'catalog', 'search', 'hidden' ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'                    => array(
-					'description' => __( 'Course description.', 'learning-management-system' ),
+					'description' => 'Course description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description'              => array(
-					'description' => __( 'Course short description.', 'learning-management-system' ),
+					'description' => 'Course short description.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'price'                          => array(
-					'description' => __( 'Current course price.', 'learning-management-system' ),
+					'description' => 'Current course price.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'regular_price'                  => array(
-					'description' => __( 'Course regular price.', 'learning-management-system' ),
+					'description' => 'Course regular price.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'sale_price'                     => array(
-					'description' => __( 'Course sale price.', 'learning-management-system' ),
+					'description' => 'Course sale price.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'price_type'                     => array(
-					'description' => __( 'Course price type.', 'learning-management-system' ),
+					'description' => 'Course price type.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'reviews_allowed'                => array(
-					'description' => __( 'Allow reviews.', 'learning-management-system' ),
+					'description' => 'Allow reviews.',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'average_rating'                 => array(
-					'description' => __( 'Reviews average rating.', 'learning-management-system' ),
+					'description' => 'Reviews average rating.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'rating_count'                   => array(
-					'description' => __( 'Amount of reviews that the course have.', 'learning-management-system' ),
+					'description' => 'Amount of reviews that the course have.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'parent_id'                      => array(
-					'description' => __( 'Course parent ID.', 'learning-management-system' ),
+					'description' => 'Course parent ID.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured_image'                 => array(
-					'description'       => __( 'Course featured image.', 'learning-management-system' ),
+					'description'       => 'Course featured image.',
 					'type'              => 'integer',
 					'default'           => null,
 					'validate_callback' => array( $this, 'validate_featured_image' ),
 					'context'           => array( 'view', 'edit' ),
 				),
 				'categories'                     => array(
-					'description' => __( 'List of categories.', 'learning-management-system' ),
+					'description' => 'List of categories.',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Category ID', 'learning-management-system' ),
+								'description' => 'Category ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Category name', 'learning-management-system' ),
+								'description' => 'Category name',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Category slug', 'learning-management-system' ),
+								'description' => 'Category slug',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -936,25 +936,25 @@ class CoursesController extends PostsController {
 					),
 				),
 				'tags'                           => array(
-					'description' => __( 'List of tags', 'learning-management-system' ),
+					'description' => 'List of tags',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Tag ID', 'learning-management-system' ),
+								'description' => 'Tag ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Tag name', 'learning-management-system' ),
+								'description' => 'Tag name',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Tag slug', 'learning-management-system' ),
+								'description' => 'Tag slug',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -963,25 +963,25 @@ class CoursesController extends PostsController {
 					),
 				),
 				'difficulty'                     => array(
-					'description' => __( 'Course difficulty', 'learning-management-system' ),
+					'description' => 'Course difficulty',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Difficulty ID.', 'learning-management-system' ),
+								'description' => 'Difficulty ID.',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Difficulty name.', 'learning-management-system' ),
+								'description' => 'Difficulty name.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Difficulty slug.', 'learning-management-system' ),
+								'description' => 'Difficulty slug.',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -990,34 +990,34 @@ class CoursesController extends PostsController {
 					),
 				),
 				'menu_order'                     => array(
-					'description' => __( 'Menu order, used to custom sort courses.', 'learning-management-system' ),
+					'description' => 'Menu order, used to custom sort courses.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enrollment_limit'               => array(
-					'description' => __( 'Course enrollment limit. Default unlimited.', 'learning-management-system' ),
+					'description' => 'Course enrollment limit. Default unlimited.',
 					'type'        => 'integer',
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'duration'                       => array(
-					'description' => __( 'Course duration (minutes).', 'learning-management-system' ),
+					'description' => 'Course duration (minutes).',
 					'type'        => 'integer',
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'access_mode'                    => array(
-					'description' => __( 'Course access mode', 'learning-management-system' ),
+					'description' => 'Course access mode',
 					'type'        => 'string',
 					'default'     => CourseAccessMode::OPEN,
 					'enum'        => CourseAccessMode::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'billing_cycle'                  => array(
-					'description' => __( 'Course billing cycle (1d, 2w, 3m, 4y).', 'learning-management-system' ),
+					'description' => 'Course billing cycle (1d, 2w, 3m, 4y).',
 				),
 				'billing_interval'               => array(
-					'description' => __( 'Course billing interval.', 'learning-management-system' ),
+					'description' => 'Course billing interval.',
 					'type'        => 'integer',
 					'default'     => 1,
 					'min'         => 1,
@@ -1025,124 +1025,124 @@ class CoursesController extends PostsController {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'billing_period'                 => array(
-					'description' => __( 'Course billing period.', 'learning-management-system' ),
+					'description' => 'Course billing period.',
 					'type'        => 'string',
 					'default'     => CourseBillingPeriod::YEAR,
 					'enum'        => CourseBillingPeriod::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'billing_expire_after'           => array(
-					'description' => __( 'Course billing expire after.', 'learning-management-system' ),
+					'description' => 'Course billing expire after.',
 					'type'        => 'integer',
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'show_curriculum'                => array(
-					'description' => __( 'Course show curriculum. ( True = Visible to all, False = Visible to only enrollees)', 'learning-management-system' ),
+					'description' => 'Course show curriculum. ( True = Visible to all, False = Visible to only enrollees)',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 
 				),
 				'review_after_course_completion' => array(
-					'description' => __( 'Course review after completion. ( True = Visible for user to review, False =Invisible for user to review)', 'learning-management-system' ),
+					'description' => 'Course review after completion. ( True = Visible for user to review, False =Invisible for user to review)',
 					'type'        => 'boolean',
 					'default'     => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'highlights'                     => array(
-					'description'       => __( 'Course highlights', 'learning-management-system' ),
+					'description'       => 'Course highlights',
 					'type'              => 'string',
 					'context'           => array( 'view', 'edit' ),
 					'sanitize_callback' => 'wp_kses_post',
 				),
 				'wp_edit_link'                   => array(
-					'description' => __( 'Course WordPress edit link.', 'learning-management-system' ),
+					'description' => 'Course WordPress edit link.',
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'flow'                           => array(
-					'description' => __( 'Course flow', 'learning-management-system' ),
+					'description' => 'Course flow',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'default'     => CourseFlow::FREE_FLOW,
 					'enum'        => CourseFlow::all(),
 				),
 				'students_count'                 => array(
-					'description' => __( 'Enrolled students count', 'learning-management-system' ),
+					'description' => 'Enrolled students count',
 					'type'        => 'integer',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enrollment_expiration_enabled'  => array(
-					'description' => __( 'Indicates if enrollment expiration is enabled for the course', 'learning-management-system' ),
+					'description' => 'Indicates if enrollment expiration is enabled for the course',
 					'type'        => 'boolean',
 					'readonly'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enrollment_expiration_duration' => array(
-					'description' => __( 'Duration for which the enrollment is valid (in days)', 'learning-management-system' ),
+					'description' => 'Duration for which the enrollment is valid (in days)',
 					'type'        => 'integer',
 					'readonly'    => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'end_date'                       => array(
-					'description' => __( 'Course end date', 'learning-management-system' ),
+					'description' => 'Course end date',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_start_date'              => array(
-					'description' => __( 'Course start date', 'learning-management-system' ),
+					'description' => 'Course start date',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enrollment_opens_on'            => array(
-					'description' => __( 'Enrollment opens on', 'learning-management-system' ),
+					'description' => 'Enrollment opens on',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'enrollment_closes_on'           => array(
-					'description' => __( 'Enrollment closes on', 'learning-management-system' ),
+					'description' => 'Enrollment closes on',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'course_badge'                   => array(
-					'description' => __( 'Course Badge', 'learning-management-system' ),
+					'description' => 'Course Badge',
 					'type'        => 'string',
 				),
 				'fake_enrolled_count'            => array(
-					'description' => __( 'Fake enrolled Count. Default zero.', 'learning-management-system' ),
+					'description' => 'Fake enrolled Count. Default zero.',
 					'type'        => 'integer',
 					'default'     => 0,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'custom_fields'                  => array(
-					'description' => __( 'Custom fields', 'learning-management-system' ),
+					'description' => 'Custom fields',
 					'type'        => 'object',
 					'default'     => '',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meta_data'                      => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -1150,7 +1150,7 @@ class CoursesController extends PostsController {
 					),
 				),
 				'is_current_user_course_author'  => array(
-					'description' => __( 'Whether the current user is the course author', 'learning-management-system' ),
+					'description' => 'Whether the current user is the course author',
 					'type'        => 'string',
 					'enum'        => array( 'yes', 'no' ),
 					'context'     => array( 'view' ),
@@ -1187,7 +1187,7 @@ class CoursesController extends PostsController {
 
 		// Post content.
 		if ( isset( $request['description'] ) ) {
-			$course->set_description( wp_slash( wp_kses_post( $request['description'] ) ) );
+			$course->set_description( wp_slash( masteriyo_kses_post_for_user( $request['description'], get_current_user_id() ) ) );
 		}
 
 		// Post excerpt.

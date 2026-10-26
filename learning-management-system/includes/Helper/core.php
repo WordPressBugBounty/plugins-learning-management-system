@@ -1689,6 +1689,31 @@ function masteriyo_get_currencies() {
 }
 
 /**
+ * Sanitize a permalink base that may carry a path and rewrite tags.
+ *
+ * sanitize_title() alone cannot be used: the single course base accepts
+ * structures such as `courses/%course_cat%`, and it would eat both the
+ * separator and the tag.
+ *
+ * @param string $value Permalink base.
+ *
+ * @return string
+ */
+function masteriyo_sanitize_permalink_base( $value ) {
+	$segments = array_filter( explode( '/', trim( (string) $value ) ), 'strlen' );
+
+	$segments = array_map(
+		function ( $segment ) {
+			// A rewrite tag such as %course_cat% is structure, not a slug.
+			return preg_match( '/^%[a-z_]+%$/', $segment ) ? $segment : sanitize_title( $segment );
+		},
+		$segments
+	);
+
+	return implode( '/', array_filter( $segments, 'strlen' ) );
+}
+
+/**
  * Get permalink settings for things like courses and taxonomies.
  *
  * @since  1.0.0
@@ -1901,6 +1926,14 @@ function masteriyo_maybe_define_constant( $name, $value = true ) {
 function masteriyo_nocache_headers() {
 	masteriyo_set_nocache_constants();
 	nocache_headers();
+
+	/**
+	 * Fires after the current response has been marked uncacheable.
+	 *
+	 * Runs even when the HTTP headers could no longer be sent, so a cache or CDN
+	 * integration can still act on the decision.
+	 */
+	do_action( 'masteriyo_nocache_headers' );
 }
 
 
@@ -3592,7 +3625,7 @@ function masteriyo_get_lesson_audio_sources() {
 		array(
 			AudioSource::SELF_HOSTED => __( 'Self Hosted', 'learning-management-system' ),
 			AudioSource::EMBED       => __( 'Embed Audio', 'learning-management-system' ),
-			AudioSource::EXTERNAL    => __( 'External Url', 'learning-management-system' ),
+			AudioSource::EXTERNAL    => __( 'External URL', 'learning-management-system' ),
 		)
 	);
 }
@@ -4287,6 +4320,13 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'youtube_api_key'                    => '',
 					'unmuted_autoplay'                   => false,
 				),
+				// Empty means the built-in localized label, so no language is ever frozen into the option.
+				'button_labels' => array(
+					'start_course' => '',
+					'continue'     => '',
+					'enroll'       => '',
+					'buy_now'      => '',
+				),
 
 			),
 			'course_archive' => array(
@@ -4417,10 +4457,10 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'auto_load_next_content'    => false,
 					'enable_content_protection' => false,
 					'lesson_video_url_type'     => 'masteriyo',
+					'allowed_style_paths'       => '',
 				),
 				'display' => array(
 					'enable_questions_answers' => true,
-					'show_sidebar_initially'   => false,
 					'enable_focus_mode'        => false,
 					'show_sidebar'             => false,
 					'show_header'              => false,
@@ -4507,6 +4547,9 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'display_inclusive'  => false,
 					'regions'            => array(),
 				),
+				'invoice'         => array(
+					'enable' => true,
+				),
 			),
 			'quiz'           => array(
 				'display' => array(
@@ -4590,6 +4633,7 @@ if ( ! function_exists( 'masteriyo_get_default_settings' ) ) {
 					'group_published'              => masteriyo_get_default_email_contents()['student']['group_published'],
 					'zoom_session_reminder'        => masteriyo_get_default_email_contents()['student']['zoom_session_reminder'],
 					'google_meet_session_reminder' => masteriyo_get_default_email_contents()['student']['google_meet_session_reminder'],
+					'enrollment_expiry_warning'    => masteriyo_get_default_email_contents()['student']['enrollment_expiry_warning'],
 					'new_question_reply'           => masteriyo_get_default_email_contents()['student']['new_question_reply'],
 					'new_lesson_comment_reply'     => masteriyo_get_default_email_contents()['student']['new_lesson_comment_reply'],
 					'manual_course_completion'     => array(
@@ -5785,6 +5829,26 @@ if ( ! function_exists( 'masteriyo_add_style_to_post_context' ) ) {
 	}
 }
 
+if ( ! function_exists( 'masteriyo_kses_post_for_user' ) ) {
+	/**
+	 * Sanitize post content unless the user may post unfiltered HTML.
+	 *
+	 * Script bodies are dropped with their tags so they never render as text.
+	 *
+	 * @param string $content Content to sanitize.
+	 * @param int    $user_id User who authored the content.
+	 *
+	 * @return string
+	 */
+	function masteriyo_kses_post_for_user( $content, $user_id ) {
+		if ( user_can( $user_id, 'unfiltered_html' ) ) {
+			return $content;
+		}
+
+		return wp_kses_post( preg_replace( '#<script\b[^>]*>.*?(?:</script\b[^>]*>|$)#is', '', $content ) ?? $content );
+	}
+}
+
 if ( ! function_exists( 'masteriyo_get_current_url' ) ) {
 
 	/**
@@ -6253,7 +6317,7 @@ if ( ! function_exists( 'get_course_section_children_count_by_course' ) ) {
 			$lessons = get_posts(
 				array(
 					'post_type'      => $type,
-					'post_status'    => masteriyo_get_course_content_post_statuses(),
+					'post_status'    => masteriyo_get_course_content_post_statuses( $course_id ),
 					'post_parent'    => $section_id,
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
@@ -6275,16 +6339,17 @@ if ( ! function_exists( 'get_course_section_children_count_by_section' ) ) {
 	 *
 	 * @param int $section_id Course ID.
 	 * @param string $type The type of section items. Default is PostType::LESSON.
+	 * @param int|WP_Post|\Masteriyo\Models\Course|null $course The section's course, when the caller has it.
 	 *
 	 * @return int
 	 */
-	function get_course_section_children_count_by_section( $section_id, $type = PostType::LESSON ) {
+	function get_course_section_children_count_by_section( $section_id, $type = PostType::LESSON, $course = null ) {
 		$count = 0;
 
 		$post_ids = get_posts(
 			array(
 				'post_type'      => $type,
-				'post_status'    => masteriyo_get_course_content_post_statuses(),
+				'post_status'    => masteriyo_get_course_content_post_statuses( $course ),
 				'post_parent'    => $section_id,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -6299,21 +6364,24 @@ if ( ! function_exists( 'get_course_section_children_count_by_section' ) ) {
 
 if ( ! function_exists( 'get_course_section_children_by_section' ) ) {
 	/**
-	 * Get all published child posts of a given section ID.
+	 * Get all visible child posts of a given section ID.
 	 *
-	 * Retrieves all published lessons, quizzes, etc. for a section. Maps them to model objects.
+	 * Retrieves the lessons, quizzes, etc. of a section that the current viewer
+	 * may see — drafts included for anyone who may edit the course, the
+	 * viewers the player lets preview it. Maps them to model objects.
 	 *
 	 * @since 1.10.0 [Free]
 	 *
 	 * @param int $section_id Section ID.
+	 * @param int|WP_Post|\Masteriyo\Models\Course|null $course The section's course, when the caller has it.
 	 *
 	 * @return array Array of model objects for section children.
 	 */
-	function get_course_section_children_by_section( $section_id ) {
+	function get_course_section_children_by_section( $section_id, $course = null ) {
 		$posts = get_posts(
 			array(
 				'post_type'      => SectionChildrenPostType::all(),
-				'post_status'    => masteriyo_get_course_content_post_statuses(),
+				'post_status'    => masteriyo_get_course_content_post_statuses( $course ),
 				'post_parent'    => $section_id,
 				'posts_per_page' => -1,
 				'orderby'        => 'menu_order',
@@ -6721,7 +6789,7 @@ if ( ! function_exists( 'masteriyo_addon_menu_slugs' ) ) {
 		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'payments.revenue_sharing.enable' ) ) ) {
 			$addons_menus['revenue-sharing'] = array(
 				'menu_slug'  => 'withdraws',
-				'menu_title' => '↳ ' . __( 'Withdraws', 'learning-management-system' ),
+				'menu_title' => '↳ ' . __( 'Withdrawals', 'learning-management-system' ),
 				'position'   => 17,
 
 			);

@@ -180,21 +180,23 @@ if ( ! $order ) {
 		);
 		?>
 
-		<p class="masteriyo-order-invoice-download">
-			<?php
-			echo wp_kses_post(
-				apply_filters(
-					'masteriyo_download_invoice_text',
-					sprintf(
-						/* translators: %1$s: opening anchor tag with url, %2$s: closing anchor tag */
-						__( 'Click to %1$s download %2$s the invoice.', 'learning-management-system' ),
-						wp_kses_post( '<a href="' . esc_url( masteriyo_generate_order_download_url( $order->get_id() ) ) . '">' ),
-						wp_kses_post( '</a>' )
+		<?php if ( masteriyo_is_invoice_enabled() ) : ?>
+			<p class="masteriyo-order-invoice-download">
+				<?php
+				echo wp_kses_post(
+					apply_filters(
+						'masteriyo_download_invoice_text',
+						sprintf(
+							/* translators: %1$s: opening anchor tag with url, %2$s: closing anchor tag */
+							__( 'Click to %1$s download %2$s the invoice.', 'learning-management-system' ),
+							wp_kses_post( '<a href="' . esc_url( masteriyo_generate_order_download_url( $order->get_id() ) ) . '">' ),
+							wp_kses_post( '</a>' )
+						)
 					)
-				)
-			);
-			?>
-		</p>
+				);
+				?>
+			</p>
+		<?php endif; ?>
 
 	<?php endif; ?>
 

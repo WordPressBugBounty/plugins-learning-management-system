@@ -121,7 +121,7 @@ class WebhooksController extends PostsController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -150,7 +150,7 @@ class WebhooksController extends PostsController {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'learning-management-system' ),
+							'description' => 'Whether to bypass trash and force deletion.',
 							'type'        => 'boolean',
 						),
 					),
@@ -165,7 +165,7 @@ class WebhooksController extends PostsController {
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -350,7 +350,7 @@ class WebhooksController extends PostsController {
 		if ( ! $post || $this->post_type !== $post->post_type ) {
 			return new WP_Error(
 				"masteriyo_rest_{$this->post_type}_invalid_id",
-				__( 'Invalid ID', 'learning-management-system' ),
+				__( 'Invalid ID.', 'learning-management-system' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -413,6 +413,19 @@ class WebhooksController extends PostsController {
 
 		if ( empty( $provided_token ) ) {
 			$provided_token = $request->get_param( 'token' );
+		}
+
+		// WP_User_Query drops the meta_value comparison for null or '', so an absent
+		// token would match any instructor who holds a token row.
+		if ( empty( $provided_token ) ) {
+			masteriyo_get_logger()->info( 'Webhook request carried no token.', array( 'source' => 'webhook-action' ) );
+			return new \WP_Error(
+				'masteriyo_rest_missing_webhook_token',
+				__( 'A webhook token is required.', 'learning-management-system' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
 		}
 
 		$stored_webhook_settings = get_option( 'MASTERIYO_WEBHOOK_SETTINGS', '' );
@@ -963,7 +976,7 @@ class WebhooksController extends PostsController {
 			$course_progress_item->set_item_type( $item_type );
 			$course_progress_item->set_item_id( $lesson->get_id() );
 			$course_progress_item->set_user_id( $user_id );
-			$course_progress_item->set_started_at( current_time( 'mysql', true ) );
+			$course_progress_item->set_started_at( time() );
 		}
 
 		if ( $course_progress_item->get_id() !== 0 ) {
@@ -982,7 +995,7 @@ class WebhooksController extends PostsController {
 	 * @return object Updated course progress item.
 	 */
 	protected function mark_lesson_completed( $course_progress_item ) {
-		$current_time = current_time( 'mysql', true );
+		$current_time = time();
 		$course_progress_item->set_completed( true );
 		$course_progress_item->set_modified_at( $current_time );
 		$course_progress_item->set_completed_at( $current_time );
@@ -1067,7 +1080,7 @@ class WebhooksController extends PostsController {
 			$user_course->set_user_id( $data['user_id'] );
 			$user_course->set_price( $course->get_price() );
 			$user_course->set_status( UserCourseStatus::ACTIVE );
-			$user_course->set_date_start( current_time( 'mysql', true ) );
+			$user_course->set_date_start( time() );
 			$user_course->save();
 
 			return new WP_REST_Response(
@@ -1220,7 +1233,7 @@ class WebhooksController extends PostsController {
 
 		$params['status'] = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to webhooks assigned a specific status.', 'learning-management-system' ),
+			'description'       => 'Limit result set to webhooks assigned a specific status.',
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any' ), WebhookStatus::all() ),
 			'sanitize_callback' => 'sanitize_key',
@@ -1408,25 +1421,25 @@ class WebhooksController extends PostsController {
 			'type'       => 'object',
 			'properties' => array(
 				'id'           => array(
-					'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+					'description' => 'Unique identifier for the resource.',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'         => array(
-					'description' => __( 'Webhook name', 'learning-management-system' ),
+					'description' => 'Webhook name',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'status'       => array(
-					'description' => __( 'Webhook status', 'learning-management-system' ),
+					'description' => 'Webhook status',
 					'type'        => 'string',
 					'default'     => WebhookStatus::INACTIVE,
 					'enum'        => WebhookStatus::all(),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'events'       => array(
-					'description' => __( 'Webhook events', 'learning-management-system' ),
+					'description' => 'Webhook events',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -1434,46 +1447,46 @@ class WebhooksController extends PostsController {
 					),
 				),
 				'delivery_url' => array(
-					'description'       => __( 'Webhook delivery URL', 'learning-management-system' ),
+					'description'       => 'Webhook delivery URL',
 					'type'              => 'string',
 					'validate_callback' => 'wp_http_validate_url',
 					'context'           => array( 'view', 'edit' ),
 				),
 				'description'  => array(
-					'description' => __( 'Webhook description', 'learning-management-system' ),
+					'description' => 'Webhook description',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'secret'       => array(
-					'description' => __( 'Webhook secret', 'learning-management-system' ),
+					'description' => 'Webhook secret',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author_id'    => array(
-					'description' => __( 'Webhook author ID', 'learning-management-system' ),
+					'description' => 'Webhook author ID',
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'author'       => array(
-					'description' => __( 'Webhook author', 'learning-management-system' ),
+					'description' => 'Webhook author',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 					'type'        => 'object',
 					'properties'  => array(
 						'id'           => array(
-							'description' => __( 'Author ID', 'learning-management-system' ),
+							'description' => 'Author ID',
 							'type'        => 'integer',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'display_name' => array(
-							'description' => __( 'Display name of the author', 'learning-management-system' ),
+							'description' => 'Display name of the author',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
 						),
 						'avatar_url'   => array(
-							'description' => __( 'Avatar URL of the author', 'learning-management-system' ),
+							'description' => 'Avatar URL of the author',
 							'type'        => 'string',
 							'context'     => array( 'view', 'edit' ),
 							'readonly'    => true,
@@ -1481,36 +1494,36 @@ class WebhooksController extends PostsController {
 					),
 				),
 				'created_at'   => array(
-					'description' => __( 'The date the course was created, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course was created, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'modified_at'  => array(
-					'description' => __( 'The date the course was last modified, as GMT.', 'learning-management-system' ),
+					'description' => 'The date the course was last modified, as GMT.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'meta_data'    => array(
-					'description' => __( 'Meta data', 'learning-management-system' ),
+					'description' => 'Meta data',
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID', 'learning-management-system' ),
+								'description' => 'Meta ID',
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key', 'learning-management-system' ),
+								'description' => 'Meta key',
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value', 'learning-management-system' ),
+								'description' => 'Meta value',
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),

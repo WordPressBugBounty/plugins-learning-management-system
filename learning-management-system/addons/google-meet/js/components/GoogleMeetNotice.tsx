@@ -8,7 +8,7 @@ const GoogleMeetNotice = () => {
 		<CustomAlert status="error">
 			<Text>
 				{__(
-					'This meet is created by instructor, You can not make any change in this.',
+					'This meeting was created by the instructor. You cannot make any changes to it.',
 					'learning-management-system',
 				)}
 			</Text>

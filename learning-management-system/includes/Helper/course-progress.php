@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Masteriyo\Enums\CourseProgressPostType;
 use Masteriyo\Enums\CourseProgressStatus;
+use Masteriyo\Enums\SectionChildrenItemType;
 use Masteriyo\Enums\UserCourseStatus;
 use Masteriyo\ModelException;
 use Masteriyo\PostType\PostType;
@@ -14,6 +15,8 @@ use Masteriyo\AddonsFramework\Addons;
 use Masteriyo\Query\CourseProgressItemQuery;
 use Masteriyo\Query\UserCourseQuery;
 use Masteriyo\Query\CourseProgressQuery;
+use Masteriyo\Query\QuizAttemptQuery;
+use Masteriyo\Enums\QuizAttemptStatus;
 /**
  * Course progress functions.
  *
@@ -694,5 +697,263 @@ if ( ! function_exists( 'masteriyo_course_progress_summary' ) ) {
 			$summary = $progress ? $progress->get_summary( 'all' ) : '';
 
 			return $summary;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_course_progress_has_pending_items' ) ) {
+	/**
+	 * Check whether a course progress still has curriculum items left to complete.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param \Masteriyo\Models\CourseProgress|null $course_progress Course progress object.
+	 *
+	 * @return bool
+	 */
+	function masteriyo_course_progress_has_pending_items( $course_progress ) {
+		if ( ! is_object( $course_progress ) || ! $course_progress->get_id() ) {
+			return false;
+		}
+
+		$summary = $course_progress->get_summary( 'total' );
+
+		// A course with no published curriculum has nothing left to do.
+		if ( empty( $summary['total'] ) ) {
+			return false;
+		}
+
+		return $summary['pending'] > 0;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_reconcile_course_progress_status' ) ) {
+	/**
+	 * Re-derive a course progress status from the curriculum as it stands now.
+	 *
+	 * A stored status is a snapshot of a curriculum that can change under it. Publishing
+	 * a quiz into a course a learner already finished leaves the learner completed with a
+	 * pending item, and every downstream promise — the certificate, the completion email —
+	 * follows that stale status.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param \Masteriyo\Models\CourseProgress|null $course_progress Course progress object.
+	 * @param array|null                            $summary         Total summary, when the caller already has it.
+	 *
+	 * @return \Masteriyo\Models\CourseProgress|null The same object, reconciled.
+	 */
+	function masteriyo_reconcile_course_progress_status( $course_progress, $summary = null ) {
+		if ( ! is_object( $course_progress ) || ! $course_progress->get_id() || ! $course_progress->get_user_id( 'edit' ) ) {
+			return $course_progress;
+		}
+
+		$summary = is_array( $summary ) ? $summary : $course_progress->get_summary( 'total' );
+
+		// An empty course must not complete itself when a learner opens it (issue #566).
+		if ( empty( $summary['total'] ) ) {
+			return $course_progress;
+		}
+
+		$status = $summary['pending'] > 0 ? CourseProgressStatus::PROGRESS : CourseProgressStatus::COMPLETED;
+
+		if ( $status === $course_progress->get_status( 'edit' ) ) {
+			return $course_progress;
+		}
+
+		$course_progress->set_status( $status );
+
+		if ( CourseProgressStatus::COMPLETED === $status ) {
+			if ( is_null( $course_progress->get_completed_at( 'edit' ) ) ) {
+				$course_progress->set_completed_at( current_time( 'mysql' ) );
+			}
+		} else {
+			$course_progress->set_completed_at( null );
+		}
+
+		$course_progress->save();
+
+		return $course_progress;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_get_guest_last_ended_quiz_attempt' ) ) {
+	/**
+	 * The current guest's latest finished attempt at a quiz.
+	 *
+	 * A guest's attempts live in their session; the attempts table never holds them.
+	 *
+	 * @param int $quiz_id Quiz ID.
+	 *
+	 * @return \Masteriyo\Models\QuizAttempt|false
+	 */
+	function masteriyo_get_guest_last_ended_quiz_attempt( int $quiz_id ) {
+		/** @var \Masteriyo\Session\Session $session */
+		$session = masteriyo( 'session' );
+
+		$all_attempts = $session->get( 'quiz_attempts', array() );
+		$attempts     = isset( $all_attempts[ $quiz_id ] ) ? array_reverse( (array) $all_attempts[ $quiz_id ] ) : array();
+
+		foreach ( $attempts as $data ) {
+			if ( isset( $data['attempt_status'] ) && QuizAttemptStatus::ENDED === $data['attempt_status'] ) {
+				/** @var \Masteriyo\Models\QuizAttempt $attempt */
+				$attempt = masteriyo_create_quiz_attempt_object();
+				$attempt->set_props( $data );
+
+				return $attempt;
+			}
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_check_quiz_attempt_backs_completion' ) ) {
+	/**
+	 * Refuse a quiz completion that no attempt backs.
+	 *
+	 * Completed quiz progress is a claim about what the learner did. The quiz routes
+	 * persist the attempt and the progress routes persist the claim, and the two were
+	 * independent, so a request could mark a quiz complete with an empty attempt
+	 * history (issue #1020). When the site hides the completion button until the
+	 * learner passes, the same request could also complete a failed quiz (issue #908).
+	 *
+	 * Staff completing a quiz on a learner's behalf are exempt: that path writes the
+	 * attempt itself.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param int                   $item_id   Lesson, quiz or assignment ID.
+	 * @param bool|null             $completed The completion the write would record.
+	 * @param \WP_REST_Request|null $request   Request object.
+	 * @param int                   $user_id   Whose progress the write records; 0 means the current user.
+	 *
+	 * @return true|\WP_Error
+	 */
+	function masteriyo_check_quiz_attempt_backs_completion( $item_id, $completed, $request = null, $user_id = 0 ) {
+		if ( is_null( $completed ) || ! masteriyo_string_to_bool( $completed ) ) {
+			return true;
+		}
+
+		if ( CourseProgressPostType::QUIZ !== get_post_type( $item_id ) ) {
+			return true;
+		}
+
+		if ( $request && masteriyo_check_manual_quiz_attempt( $request ) ) {
+			return true;
+		}
+
+		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
+
+		// A finished attempt, not merely a row. `start_quiz` persists an attempt the moment
+		// a learner opens the quiz, so counting any attempt would let them open one and
+		// mark it complete without answering it.
+		if ( $user_id ) {
+			$query = new QuizAttemptQuery(
+				array(
+					'quiz_id'  => $item_id,
+					'user_id'  => $user_id,
+					'status'   => QuizAttemptStatus::ENDED,
+					'order'    => 'desc',
+					'per_page' => 1,
+				)
+			);
+
+			$attempt = current( $query->get_quiz_attempts() );
+		} else {
+			$attempt = masteriyo_get_guest_last_ended_quiz_attempt( $item_id );
+		}
+
+		if ( ! $attempt ) {
+			return new \WP_Error(
+				'masteriyo_rest_quiz_attempt_required',
+				__( 'Take the quiz before marking it complete.', 'learning-management-system' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( masteriyo_string_to_bool( masteriyo_get_setting( 'quiz.display.quiz_completion_button' ) ) && ! masteriyo_is_quiz_attempt_passed( $attempt ) ) {
+			return new \WP_Error(
+				'masteriyo_rest_quiz_not_passed',
+				__( 'Pass the quiz before marking it complete.', 'learning-management-system' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_check_course_progress_item_write' ) ) {
+	/**
+	 * Decide whether the current user may record progress for a course item.
+	 *
+	 * The single decision point for the course progress items route, which is the only
+	 * live write surface for a progress item. The `items` array the course-progress
+	 * route accepts is parsed by `CourseProgressController::save_course_progress_items()`,
+	 * which nothing calls; route it through here if it is ever revived.
+	 *
+	 * @since 3.4.3
+	 *
+	 * @param int                   $item_id   Lesson, quiz or assignment ID.
+	 * @param bool|null             $completed The completion the write would record.
+	 * @param \WP_REST_Request|null $request   Request object.
+	 * @param int                   $user_id   Whose progress the write records; 0 means the current user.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	function masteriyo_check_course_progress_item_write( $item_id, $completed, $request = null, $user_id = 0 ) {
+		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
+		$backed  = masteriyo_check_quiz_attempt_backs_completion( $item_id, $completed, $request, $user_id );
+
+		if ( is_wp_error( $backed ) ) {
+			return $backed;
+		}
+
+		/**
+		 * Filters whether the current user may record progress for a course item.
+		 *
+		 * Lets features such as content drip and sequential flow refuse an item that is
+		 * not released yet.
+		 *
+		 * `$completed` is the completion the write will actually save, which an update
+		 * that omits the field takes from the stored row. A callback that needs it must
+		 * read this rather than the request.
+		 *
+		 * @since 3.4.3
+		 *
+		 * @param bool|\WP_Error $can Whether the progress item may be recorded.
+		 * @param int $item_id Lesson, quiz or assignment ID.
+		 * @param \WP_REST_Request|null $request Request object.
+		 * @param bool|null $completed The completion the write will record.
+		 * @param int $user_id Whose progress the write records.
+		 */
+		return apply_filters( 'masteriyo_rest_check_course_progress_item_permission', true, $item_id, $request, $completed, $user_id );
+	}
+}
+
+if ( ! function_exists( 'masteriyo_course_progress_item_type_labels' ) ) {
+	/**
+	 * Translated labels for course progress item types (lesson, quiz, ...), keyed the
+	 * same way as masteriyo_course_progress_summary()'s return value. Used to localize
+	 * the JS-rendered course progress popover on the frontend.
+	 *
+	 * @return array<string, string>
+	 */
+	function masteriyo_course_progress_item_type_labels() {
+		$labels = array(
+			SectionChildrenItemType::LESSON => __( 'Lesson', 'learning-management-system' ),
+			SectionChildrenItemType::QUIZ   => __( 'Quiz', 'learning-management-system' ),
+		);
+
+		/**
+		 * Filters translated labels for course progress item types.
+		 *
+		 * Addons that add their own section children item type (e.g. assignment, zoom)
+		 * should add their translated label here so it shows up correctly in the
+		 * frontend course progress popover.
+		 *
+		 * @param array<string, string> $labels Item type => translated label map.
+		 */
+		return apply_filters( 'masteriyo_course_progress_item_type_labels', $labels );
 	}
 }

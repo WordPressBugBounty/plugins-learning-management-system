@@ -60,8 +60,7 @@ class AbilityRegistrar {
 					masteriyo_get_plugin_name()
 				),
 				'description' => sprintf(
-					/* translators: %s: the product's name */
-					__( 'Abilities for %s LMS course authoring and management.', 'learning-management-system' ),
+					'Abilities for %s LMS course authoring and management.',
 					masteriyo_get_plugin_name()
 				),
 			)
@@ -112,6 +111,10 @@ class AbilityRegistrar {
 				continue;
 			}
 
+			// The MCP Adapter reads this meta, so an ability opted in here must say so.
+			$meta                  = $ability->get_meta();
+			$meta['mcp']['public'] = true;
+
 			try {
 				wp_register_ability(
 					$ability->get_name(),
@@ -123,7 +126,7 @@ class AbilityRegistrar {
 						'permission_callback' => $ability->get_permission_callback(),
 						'input_schema'        => $ability->get_input_schema(),
 						'output_schema'       => $ability->get_output_schema(),
-						'meta'                => $ability->get_meta(),
+						'meta'                => $meta,
 					)
 				);
 			} catch ( \Throwable $e ) {

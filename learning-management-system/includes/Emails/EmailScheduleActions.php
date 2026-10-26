@@ -9,13 +9,16 @@
 
 namespace Masteriyo\Emails;
 
+use Masteriyo\Emails\Admin\CourseCompletionEmailToAdmin;
 use Masteriyo\Emails\Admin\InstructorApplyEmailToAdmin;
 use Masteriyo\Emails\Admin\NewOrderEmailToAdmin;
+use Masteriyo\Emails\Instructor\CourseCompletionEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorApplyApprovedEmailToInstructor;
 use Masteriyo\Emails\Instructor\InstructorRegistrationEmailToInstructor;
 use Masteriyo\Emails\Instructor\VerificationEmailToInstructor;
 use Masteriyo\Emails\Student\CancelledOrderEmailToStudent;
 use Masteriyo\Emails\Student\CompletedOrderEmailToStudent;
+use Masteriyo\Emails\Student\CourseCompletionEmailToStudent;
 use Masteriyo\Emails\Student\InstructorApplyRejectedEmailToStudent;
 use Masteriyo\Emails\Student\OnHoldOrderEmailToStudent;
 use Masteriyo\Emails\Student\StudentRegistrationEmailToStudent;
@@ -55,6 +58,11 @@ class EmailScheduleActions {
 
 		add_action( 'masteriyo/schedule/email/student-email-verification/to/student', array( __CLASS__, 'send_student_verification_email_to_student' ) );
 		add_action( 'masteriyo/schedule/email/instructor-email-verification/to/instructor', array( __CLASS__, 'send_instructor_verification_email_to_instructor' ) );
+
+		// Course completion emails.
+		add_action( 'masteriyo/schedule/email/course-completion/to/student', array( __CLASS__, 'send_course_completion_email_to_student' ) );
+		add_action( 'masteriyo/schedule/email/course-completion/to/instructor', array( __CLASS__, 'send_course_completion_email_to_instructor' ) );
+		add_action( 'masteriyo/schedule/email/course-completion/to/admin', array( __CLASS__, 'send_course_completion_email_to_admin' ) );
 
 		// Session reminder emails
 		add_action( 'masteriyo/job/send_google_meet_session_reminder_email', array( __CLASS__, 'send_google_meet_session_reminder_emails' ), 10, 2 );
@@ -453,5 +461,48 @@ class EmailScheduleActions {
 
 		$email = new NewLessonCommentReplyEmailToStudent();
 		$email->trigger( $reply );
+	}
+
+	/**
+	 * Send course completion email to student.
+	 *
+	 * @param int $course_progress_id Course progress ID.
+	 */
+	public static function send_course_completion_email_to_student( $course_progress_id ): void {
+		self::trigger_course_completion_email( CourseCompletionEmailToStudent::class, $course_progress_id );
+	}
+
+	/**
+	 * Send course completion email to instructor.
+	 *
+	 * @param int $course_progress_id Course progress ID.
+	 */
+	public static function send_course_completion_email_to_instructor( $course_progress_id ): void {
+		self::trigger_course_completion_email( CourseCompletionEmailToInstructor::class, $course_progress_id );
+	}
+
+	/**
+	 * Send course completion email to admin.
+	 *
+	 * @param int $course_progress_id Course progress ID.
+	 */
+	public static function send_course_completion_email_to_admin( $course_progress_id ): void {
+		self::trigger_course_completion_email( CourseCompletionEmailToAdmin::class, $course_progress_id );
+	}
+
+	/**
+	 * Trigger a course completion email for a course progress.
+	 *
+	 * @param class-string<CourseCompletionEmailToStudent|CourseCompletionEmailToInstructor|CourseCompletionEmailToAdmin> $email_class Email class.
+	 * @param int $course_progress_id Course progress ID.
+	 */
+	private static function trigger_course_completion_email( string $email_class, $course_progress_id ): void {
+		$course_progress = masteriyo_get_course_progress( $course_progress_id );
+
+		if ( ! $course_progress ) {
+			return;
+		}
+
+		( new $email_class() )->trigger( $course_progress );
 	}
 }

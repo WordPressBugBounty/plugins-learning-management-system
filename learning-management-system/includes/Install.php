@@ -90,6 +90,13 @@ class Install {
 			masteriyo_set_raw_setting( 'general.registration.enable_instructor_registration', false );
 			masteriyo_set_raw_setting( 'accounts_page.display.enable_instructor_apply', false );
 
+			// New sites start on Immersive; a stored `default` is the migration's, not a choice (#889).
+			$single_course_layout = masteriyo_array_get( get_option( 'masteriyo_settings' ), 'single_course.display.template.layout', '' );
+
+			if ( in_array( $single_course_layout, array( '', 'default' ), true ) ) {
+				masteriyo_set_raw_setting( 'single_course.display.template.layout', 'immersive' );
+			}
+
 			// A ccTLD names where the business is, so stamp its money locale once, at
 			// install: Settings, pricing and the wizard then agree from minute one, and
 			// a later domain move never flips a live catalogue. Generic TLDs stamp
@@ -318,6 +325,7 @@ class Install {
 			"{$wpdb->prefix}masteriyo_quiz_attempts",
 			"{$wpdb->prefix}masteriyo_quiz_question_rel",
 			"{$wpdb->prefix}masteriyo_migrations",
+			"{$wpdb->prefix}masteriyo_migration_map",
 			// Dead table (trailing underscore intact) created since 2023 by a typo'd,
 			// since-deleted pro payment-retry migration; nothing ever read or wrote it.
 			"{$wpdb->prefix}masteriyo_subscription_",

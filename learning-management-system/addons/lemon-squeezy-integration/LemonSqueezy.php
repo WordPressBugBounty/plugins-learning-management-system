@@ -178,7 +178,7 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 
 			if ( ! $order ) {
 				masteriyo_get_logger()->error( 'Order not found', array( 'source' => 'payment-lemon-squeezy' ) );
-				throw new Exception( __( 'Invalid order ID or order does not exist', 'learning-management-system' ) );
+				throw new Exception( __( 'Invalid order ID or order does not exist.', 'learning-management-system' ) );
 			}
 
 			if ( ! $session ) {
@@ -197,11 +197,11 @@ class LemonSqueezy extends PaymentGateway implements PaymentGatewayInterface {
 				$item_id     = $order_item->get_course_id();
 				$item        = masteriyo_get_course( $item_id );
 			} else {
-				throw new Exception( __( 'Invalid order item', 'learning-management-system' ) );
+				throw new Exception( __( 'Invalid order item.', 'learning-management-system' ) );
 			}
 
 			if ( ! $item ) {
-				throw new Exception( __( 'Invalid order item', 'learning-management-system' ) );
+				throw new Exception( __( 'Invalid order item.', 'learning-management-system' ) );
 			}
 
 			$request = new Request();

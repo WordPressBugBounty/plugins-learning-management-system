@@ -41,7 +41,7 @@ class UserVerification {
 	 * @return void
 	 */
 	private static function init_hooks() {
-		add_filter( 'wp_authenticate_user', array( __CLASS__, 'masteriyo_custom_authentication_filter' ) );
+		add_filter( 'wp_authenticate_user', array( __CLASS__, 'masteriyo_custom_authentication_filter' ), 10, 2 );
 		add_filter( 'wp_authenticate_user', array( __CLASS__, 'masteriyo_custom_session_limit_check_filter' ), 10, 2 );
 	}
 
@@ -52,14 +52,22 @@ class UserVerification {
 	 *
 	 * @since 1.6.12
 	 *
-	 * @param WP_User|mixed $user The user object or original input.
+	 * @param WP_User|mixed $user     The user object or original input.
+	 * @param string        $password The password used for authentication.
 	 *
 	 * @return WP_User|WP_Error The authenticated user object or error object if unverified.
 	 */
-	public static function masteriyo_custom_authentication_filter( $user ) {
+	public static function masteriyo_custom_authentication_filter( $user, $password = '' ) {
 		// Check if the user is a valid WP_User object.
 		if ( ! masteriyo_is_email_verification_enabled() || ! $user instanceof \WP_User ) {
 			return $user; // Return the user object as it is.
+		}
+
+		// Say nothing about the account until the password is proved, or this
+		// sorts addresses into registered-but-unverified and the rest (#718).
+		// The resend link in the message carries the user id as well.
+		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+			return $user;
 		}
 
 		// Retrieve the user's verification status.

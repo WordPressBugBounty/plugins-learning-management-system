@@ -43,6 +43,6 @@ class UpdateOrderAbility extends RestProxyAbility {
 
 	/** {@inheritdoc} */
 	public function get_description(): string {
-		return __( 'Update an existing order. Requires id (order ID). Optionally accepts status (pending, completed, cancelled, refunded). Returns the updated order object.', 'learning-management-system' );
+		return 'Update an existing order. Requires id (order ID). Optionally accepts status (pending, completed, cancelled, refunded). Returns the updated order object.';
 	}
 }

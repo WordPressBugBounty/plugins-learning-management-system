@@ -82,3 +82,22 @@ if ( ! function_exists( 'masteriyo_get_filesystem_and_folder' ) ) {
 		return array( $filesystem, $export_folder );
 	}
 }
+
+if ( ! function_exists( 'masteriyo_dispatch_import_export_request' ) ) {
+	/**
+	 * Run one of the import/export endpoints in-process, as the current user.
+	 *
+	 * The endpoint applies its own permission check and validation.
+	 *
+	 * @param string                                              $route       Route under masteriyo/v1, e.g. 'settings/export'.
+	 * @param array{file?: array{tmp_name: string, name: string}} $file_params Upload, as the endpoint reads it from $_FILES.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	function masteriyo_dispatch_import_export_request( string $route, array $file_params = array() ): \WP_REST_Response {
+		$request = new \WP_REST_Request( 'POST', '/masteriyo/v1/' . $route );
+		$request->set_file_params( $file_params );
+
+		return rest_do_request( $request );
+	}
+}

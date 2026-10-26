@@ -36,6 +36,7 @@ use Masteriyo\Enums\UserStatus;
 use Masteriyo\Exporter\CourseExporter;
 use Masteriyo\Exporter\CoursePdfExporter;
 use Masteriyo\Exporter\QuizExporter;
+use Masteriyo\Exporter\SiteExporter;
 use Masteriyo\ShowHideComponents\ShowHideCategoryCourseComponents;
 use Masteriyo\ShowHideComponents\ShowHideInstructorCourseComponents;
 use Masteriyo\Roles;
@@ -96,6 +97,7 @@ class Masteriyo {
 
 		Capabilities::init();
 		UserVerification::init();
+		SubtitleUploads::init();
 		Activation::init();
 		Deactivation::init();
 		FileRestrictions::init();
@@ -123,6 +125,7 @@ class Masteriyo {
 		AdminFileDownloadHandler::register_file_path( CourseExporter::FILE_PATH_ID, CourseExporter::get_file_path() );
 		AdminFileDownloadHandler::register_file_path( QuizExporter::FILE_PATH_ID, QuizExporter::get_file_path() );
 		AdminFileDownloadHandler::register_file_path( CoursePdfExporter::FILE_PATH_ID, CoursePdfExporter::get_file_path() );
+		AdminFileDownloadHandler::register_file_path( SiteExporter::FILE_PATH_ID, SiteExporter::get_file_path() );
 
 		$this->define_tables();
 
@@ -1231,7 +1234,7 @@ class Masteriyo {
 					$user_courses->set_status( UserCourseStatus::ACTIVE );
 					$user_courses->set_course_id( $course_id );
 					$user_courses->set_user_id( get_current_user_id() );
-					$user_courses->set_date_start( current_time( 'mysql', true ) );
+					$user_courses->set_date_start( time() );
 					$user_courses->save();
 					$user_courses->set_object_read( true );
 				}
@@ -1475,7 +1478,7 @@ class Masteriyo {
 			return;
 		}
 
-		echo '<svg xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
+		echo '<svg class="masteriyo-course-item-lock" xmlns="http://www.w3.org/2000/svg" fill="#424360" viewBox="0 0 24 24">
   <path d="M19.2 12.91a.905.905 0 0 0-.9-.91H5.7c-.497 0-.9.407-.9.91v6.363c0 .502.403.909.9.909h12.6c.497 0 .9-.407.9-.91V12.91Zm1.8 6.363C21 20.779 19.791 22 18.3 22H5.7C4.209 22 3 20.779 3 19.273v-6.364c0-1.506 1.209-2.727 2.7-2.727h12.6c1.491 0 2.7 1.22 2.7 2.727v6.364Z"/>
   <path d="M15.6 11.09V7.456c0-.965-.38-1.89-1.055-2.571A3.581 3.581 0 0 0 12 3.818a3.58 3.58 0 0 0-2.545 1.066A3.655 3.655 0 0 0 8.4 7.454v3.637a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91V7.456c0-1.447.57-2.834 1.582-3.857A5.372 5.372 0 0 1 12 2c1.432 0 2.805.575 3.818 1.598A5.482 5.482 0 0 1 17.4 7.455v3.636a.905.905 0 0 1-.9.909.905.905 0 0 1-.9-.91Z"/>
 </svg>';

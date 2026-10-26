@@ -38,21 +38,33 @@ class CoursesImportJob {
 	 * @since 2.15.0
 	 */
 	public function register() {
-		add_action( self::NAME, array( $this, 'handle' ) );
+		add_action( self::NAME, array( $this, 'handle' ), 10, 2 );
 	}
 
 	/**
-	 * Handle the export action.
+	 * Handle the import action.
 	 *
 	 * @since 2.15.0
+	 *
+	 * @param string $file_path Export file to import.
+	 * @param int    $user_id   User who started the import; the posts are created in their name.
 	 */
-	public function handle( $file_path ) {
+	public function handle( $file_path, $user_id = 0 ) {
+		$previous_user = get_current_user_id();
+
+		if ( $user_id ) {
+			wp_set_current_user( $user_id );
+		}
+
 		try {
 			$importer = new CourseImporter();
 
 			$importer->import( $file_path );
 		} catch ( \Exception $e ) {
 			masteriyo_get_logger()->error( $e->getMessage(), array( 'source' => 'courses-import' ) );
+		} finally {
+			// Other jobs in the same queue run must not inherit the importer's capabilities.
+			wp_set_current_user( $previous_user );
 		}
 	}
 

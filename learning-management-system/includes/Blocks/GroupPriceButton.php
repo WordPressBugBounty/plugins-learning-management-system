@@ -58,6 +58,9 @@ class GroupPriceButton extends BlockHandler {
 
 		$course            = $this->get_block_preview_course( $course_id );
 		$GLOBALS['course'] = $course;
+		if ( ! $course ) {
+			return '';
+		}
 
 		// Enqueue group pricing tiers script for frontend
 		$this->enqueue_group_pricing_script( $course_id );

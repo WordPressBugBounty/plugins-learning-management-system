@@ -29,5 +29,5 @@ $settings_url = isset( $settings_url ) ? $settings_url : '';
 	<a class="masteriyo-layout-hint__link" href="<?php echo esc_url( $settings_url ); ?>">
 		<?php esc_html_e( 'Explore layouts', 'learning-management-system' ); ?>
 	</a>
-	<button type="button" class="masteriyo-layout-hint__dismiss" aria-label="<?php esc_attr_e( 'Dismiss this notice', 'learning-management-system' ); ?>">&times;</button>
+	<button type="button" class="masteriyo-layout-hint__dismiss" aria-label="<?php esc_attr_e( 'Dismiss this notice.', 'learning-management-system' ); ?>">&times;</button>
 </div>

@@ -72,7 +72,7 @@ abstract class RestTermsController extends CrudController {
 						array(
 							'name' => array(
 								'type'        => 'string',
-								'description' => __( 'Name for the resource.', 'learning-management-system' ),
+								'description' => 'Name for the resource.',
 								'required'    => true,
 							),
 						)
@@ -88,7 +88,7 @@ abstract class RestTermsController extends CrudController {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'learning-management-system' ),
+						'description' => 'Unique identifier for the resource.',
 						'type'        => 'integer',
 					),
 				),
@@ -114,7 +114,7 @@ abstract class RestTermsController extends CrudController {
 						'force' => array(
 							'default'     => false,
 							'type'        => 'boolean',
-							'description' => __( 'Required to be true, as resource does not support trashing.', 'learning-management-system' ),
+							'description' => 'Required to be true, as resource does not support trashing.',
 						),
 					),
 				),
@@ -147,13 +147,13 @@ abstract class RestTermsController extends CrudController {
 					'args'                => array(
 						'ids'   => array(
 							'required'    => true,
-							'description' => __( 'Term IDs.', 'learning-management-system' ),
+							'description' => 'Term IDs.',
 							'type'        => 'array',
 						),
 						'force' => array(
 							'default'     => false,
 							'type'        => 'boolean',
-							'description' => __( 'Required to be true, as resource does not support trashing.', 'learning-management-system' ),
+							'description' => 'Required to be true, as resource does not support trashing.',
 						),
 					),
 				),
@@ -574,7 +574,7 @@ abstract class RestTermsController extends CrudController {
 		$params['context']['default'] = 'view';
 
 		$params['exclude'] = array(
-			'description'       => __( 'Ensure result set excludes specific IDs.', 'learning-management-system' ),
+			'description'       => 'Ensure result set excludes specific IDs.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -583,7 +583,7 @@ abstract class RestTermsController extends CrudController {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['include'] = array(
-			'description'       => __( 'Limit result set to specific ids.', 'learning-management-system' ),
+			'description'       => 'Limit result set to specific ids.',
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -593,14 +593,14 @@ abstract class RestTermsController extends CrudController {
 		);
 		if ( ! $taxonomy->hierarchical ) {
 			$params['page'] = array(
-				'description'       => __( 'Page of the items.', 'learning-management-system' ),
+				'description'       => 'Page of the items.',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			);
 		}
 		$params['order']      = array(
-			'description'       => __( 'Order sort attribute ascending or descending.', 'learning-management-system' ),
+			'description'       => 'Order sort attribute ascending or descending.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'default'           => 'desc',
@@ -611,7 +611,7 @@ abstract class RestTermsController extends CrudController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['orderby']    = array(
-			'description'       => __( 'Sort collection by resource attribute.', 'learning-management-system' ),
+			'description'       => 'Sort collection by resource attribute.',
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'default'           => 'id',
@@ -627,27 +627,27 @@ abstract class RestTermsController extends CrudController {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['hide_empty'] = array(
-			'description'       => __( 'Whether to hide resources not assigned to any courses.', 'learning-management-system' ),
+			'description'       => 'Whether to hide resources not assigned to any courses.',
 			'type'              => 'boolean',
 			'default'           => false,
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		if ( $taxonomy->hierarchical ) {
 			$params['parent'] = array(
-				'description'       => __( 'Limit result set to resources assigned to a specific parent.', 'learning-management-system' ),
+				'description'       => 'Limit result set to resources assigned to a specific parent.',
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 				'validate_callback' => 'rest_validate_request_arg',
 			);
 		}
 		$params['course'] = array(
-			'description'       => __( 'Limit result set to resources assigned to a specific course.', 'learning-management-system' ),
+			'description'       => 'Limit result set to resources assigned to a specific course.',
 			'type'              => 'integer',
 			'default'           => null,
 			'validate_callback' => 'masteriyo_is_course',
 		);
 		$params['slug']   = array(
-			'description'       => __( 'Limit result set to resources with a specific slug.', 'learning-management-system' ),
+			'description'       => 'Limit result set to resources with a specific slug.',
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);

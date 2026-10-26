@@ -58,6 +58,6 @@ class ListCourseDifficultiesAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a paginated list of course difficulty levels. Optionally filter by search term. Returns data array with name, slug, description, and course count per difficulty, plus pagination metadata.', 'learning-management-system' );
+		return 'Retrieve a paginated list of course difficulty levels. Optionally filter by search term. Returns data array with name, slug, description, and course count per difficulty, plus pagination metadata.';
 	}
 }

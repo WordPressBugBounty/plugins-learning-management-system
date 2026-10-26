@@ -43,6 +43,7 @@ class QuestionRepository extends AbstractRepository implements RepositoryInterfa
 		'enable_description' => '_enable_description',
 		'answer_explanation' => '_answer_explanation',
 		'is_from_bank'       => '_is_from_bank',
+		'text_direction'     => '_text_direction',
 	);
 
 	/**

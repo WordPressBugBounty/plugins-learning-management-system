@@ -44,6 +44,7 @@ class Setting {
 		'webhook_secret'       => '',
 		'stripe_user_id'       => '',
 		'use_platform'         => false,
+		'card_only'            => false,
 	);
 
 	/**
@@ -132,6 +133,15 @@ class Setting {
 	 */
 	public static function is_sandbox_enable() {
 		return masteriyo_string_to_bool( self::get( 'sandbox' ) );
+	}
+
+	/**
+	 * Return true if checkout is restricted to card payments.
+	 *
+	 * @return boolean
+	 */
+	public static function is_card_only() {
+		return masteriyo_string_to_bool( self::get( 'card_only' ) );
 	}
 
 	/**

@@ -58,6 +58,6 @@ class UpdateLessonAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Update an existing lesson content, title, or video URL.', 'learning-management-system' );
+		return 'Update an existing lesson content, title, or video URL.';
 	}
 }

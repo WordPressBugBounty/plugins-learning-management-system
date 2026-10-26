@@ -57,6 +57,6 @@ class GetCourseCategoryAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Retrieve a single course category by its ID. Requires id (category ID). Returns the category object including name, slug, description, parent ID, and course count.', 'learning-management-system' );
+		return 'Retrieve a single course category by its ID. Requires id (category ID). Returns the category object including name, slug, description, parent ID, and course count.';
 	}
 }

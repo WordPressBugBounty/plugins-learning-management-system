@@ -59,6 +59,6 @@ class DeleteSectionAbility extends RestProxyAbility {
 	 * {@inheritdoc}
 	 */
 	public function get_description(): string {
-		return __( 'Move a section to trash (use force=true to permanently delete).', 'learning-management-system' );
+		return 'Permanently delete a section. Pass force=false to move it to the trash instead.';
 	}
 }

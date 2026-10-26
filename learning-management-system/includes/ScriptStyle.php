@@ -106,6 +106,9 @@ class ScriptStyle {
 		// JIT late-enqueue catch-all for FSE and Widgets
 		add_filter( 'render_block', array( __CLASS__, 'late_enqueue_for_blocks' ), 10, 2 );
 		add_filter( 'pre_do_shortcode_tag', array( __CLASS__, 'late_enqueue_for_shortcodes' ), 10, 2 );
+
+		// The login form needs its submit handler wherever it renders, not only on the account page (#879).
+		add_action( 'masteriyo_before_login_form_content', array( __CLASS__, 'enqueue_login_form_script' ) );
 	}
 
 
@@ -337,6 +340,55 @@ class ScriptStyle {
 	}
 
 	/**
+	 * Enqueue the login form script when the form itself renders.
+	 *
+	 * The head-time enqueue is gated on masteriyo_is_account_page(), which cannot see a
+	 * form rendered from a post, a synced pattern or a builder template. Without the
+	 * script the form posts natively to the current URL and the page only reloads.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_login_form_script() {
+		if ( wp_script_is( 'masteriyo-login-form', 'enqueued' ) ) {
+			return;
+		}
+
+		$script = self::get_scripts( 'public' )['login-form'] ?? null;
+
+		if ( ! $script ) {
+			return;
+		}
+
+		self::enqueue_script( 'login-form', $script['src'], $script['deps'], $script['version'] );
+
+		// Localization at wp_enqueue_scripts was dropped because the handle was not registered yet.
+		$localized = self::$localized_scripts['login-form'] ?? self::get_login_form_localized_script();
+
+		if ( ! empty( $localized['name'] ) && is_array( $localized['data'] ?? null ) ) {
+			\wp_localize_script( 'masteriyo-login-form', $localized['name'], $localized['data'] );
+		}
+	}
+
+	/**
+	 * Localized data for the login form script.
+	 *
+	 * @return array
+	 */
+	private static function get_login_form_localized_script() {
+		return array(
+			'name' => '_MASTERIYO_',
+			'data' => array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'masteriyo_login_nonce' ),
+				'labels'   => array(
+					'sign_in'    => __( 'Sign In', 'learning-management-system' ),
+					'signing_in' => __( 'Signing In...', 'learning-management-system' ),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Initialization after WordPress is initialized.
 	 *
 	 * @since 1.3.0
@@ -500,7 +552,7 @@ class ScriptStyle {
 				),
 				'backend'                           => array(
 					'src'      => $backend_src,
-					'deps'     => array_merge( self::get_asset_deps( 'masteriyo-backend' ), array( 'wp-core-data', 'wp-components', 'wp-element', 'wp-editor', 'wp-rich-text', 'wp-format-library' ) ),
+					'deps'     => array_merge( self::get_asset_deps( 'masteriyo-backend' ), array( 'wp-core-data', 'wp-components', 'wp-element', 'editor', 'wp-editor', 'wp-rich-text', 'wp-format-library' ) ),
 					'context'  => 'admin',
 					'callback' => 'masteriyo_is_admin_page',
 				),
@@ -553,7 +605,7 @@ class ScriptStyle {
 					'deps'     => array( 'jquery', 'masteriyo-jquery-block-ui' ),
 					'context'  => 'public',
 					'callback' => function () {
-						return masteriyo_is_courses_page() || isset( $_GET['masteriyo-load-courses-js'] ) || ScriptStyle::current_page_has_elementor_course_list_widget(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						return masteriyo_is_courses_page() || isset( $_GET['masteriyo-load-courses-js'] ) || ScriptStyle::current_page_has_elementor_course_list_widget() || ScriptStyle::current_page_has_divi_course_list_module(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					},
 				),
 				'account'                           => array(
@@ -676,6 +728,13 @@ class ScriptStyle {
 					'has_rtl'  => false,
 					'context'  => 'public',
 					'callback' => 'masteriyo_is_masteriyo_public_page',
+				),
+				// The course player's self-hosted mono (IBM Plex Mono).
+				'learn-fonts'            => array(
+					'src'      => self::get_asset_url( '/assets/css/learn-fonts.css' ),
+					'has_rtl'  => false,
+					'context'  => 'public',
+					'callback' => 'masteriyo_is_learn_page',
 				),
 				'dependencies'           => array(
 					'src'      => self::get_asset_url( '/assets/js/build/masteriyo-dependencies.css' ),
@@ -919,6 +978,32 @@ class ScriptStyle {
 	}
 
 	/**
+	 * Whether the current page has a Masteriyo Course List Divi module (memoized per post) — covers the Divi 4 shortcode and the native Divi 5 block, both just a scan of the queried post's content.
+	 *
+	 * @return bool
+	 */
+	public static function current_page_has_divi_course_list_module(): bool {
+		// Keyed by post: a bare memoized boolean would carry one post's answer over to another.
+		static $has_module = array();
+
+		$post_id = get_queried_object_id();
+
+		if ( ! $post_id ) {
+			return false;
+		}
+
+		if ( isset( $has_module[ $post_id ] ) ) {
+			return $has_module[ $post_id ];
+		}
+
+		$content = get_post_field( 'post_content', $post_id );
+
+		$has_module[ $post_id ] = is_string( $content ) && ( has_shortcode( $content, 'masteriyo_course_list' ) || has_block( 'masteriyo/course-list', $content ) );
+
+		return $has_module[ $post_id ];
+	}
+
+	/**
 	 * Recursively check whether any element in Elementor data uses the given widget type.
 	 *
 	 * @param array  $elements    Decoded Elementor elements array.
@@ -1036,7 +1121,8 @@ class ScriptStyle {
 			is_post_type_archive( PostType::COURSE ) ||
 			masteriyo_is_courses_page() ||
 			( function_exists( 'masteriyo_is_valid_public_profile_plain_slug' ) && masteriyo_is_valid_public_profile_plain_slug() ) ||
-			self::current_page_has_elementor_course_list_widget();
+			self::current_page_has_elementor_course_list_widget() ||
+			self::current_page_has_divi_course_list_module();
 
 		if ( $should_enqueue ) {
 			wp_enqueue_script( 'masteriyo-jquery-block-ui' );
@@ -1496,6 +1582,7 @@ class ScriptStyle {
 						'isCurrentUserAdmin'           => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 						'isCurrentUserInstructor'      => masteriyo_bool_to_string( masteriyo_is_current_user_instructor() ),
 						'canManageEnrollments'         => masteriyo_bool_to_string( current_user_can( 'manage_masteriyo_enrollments' ) ),
+						'canManageSettings'            => masteriyo_bool_to_string( current_user_can( 'manage_options' ) || current_user_can( 'manage_masteriyo_settings' ) ),
 						// The Analytics dashboard's default card selection reads this to avoid leading with revenue on a site with no evidence of selling.
 						'isCommerceEnabled'            => masteriyo_bool_to_string( masteriyo_commerce_enabled() ),
 						'editorStyles'                 => function_exists( 'get_block_editor_theme_styles' ) && masteriyo_is_admin_page() ? get_block_editor_theme_styles() : (object) array(),
@@ -1591,6 +1678,13 @@ class ScriptStyle {
 	 * @since 1.0.0
 	 */
 	public static function load_public_localized_scripts() {
+		$pages_visibility = masteriyo_get_setting( 'accounts_page' );
+
+		// The site-wide invoice switch overrides the account page's own.
+		if ( ! masteriyo_is_invoice_enabled() ) {
+			$pages_visibility['display']['enable_invoice'] = false;
+		}
+
 		/**
 		 * Filters the localized public scripts.
 		 *
@@ -1612,6 +1706,7 @@ class ScriptStyle {
 							'saving'                 => __( 'Saving...', 'learning-management-system' ),
 							'profile_update_success' => __( 'Your profile was updated successfully.', 'learning-management-system' ),
 						),
+						'buttonLabels'            => masteriyo_get_cta_button_labels(),
 						'currency'                => array(
 							'code'     => masteriyo_get_currency(),
 							'symbol'   => html_entity_decode( masteriyo_get_currency_symbol( masteriyo_get_currency() ) ),
@@ -1642,7 +1737,7 @@ class ScriptStyle {
 						'isInstructorActive'      => masteriyo_bool_to_string( masteriyo_is_instructor_active() ),
 						'isUserEmailVerified'     => masteriyo_bool_to_string( masteriyo_is_user_email_verified() ),
 						'settings'                => masteriyo_get_setting( 'general' ),
-						'pagesVisibility'         => masteriyo_get_setting( 'accounts_page' ),
+						'pagesVisibility'         => $pages_visibility,
 						'isCurrentUserAdmin'      => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 						'canManageEnrollments'    => masteriyo_bool_to_string( current_user_can( 'manage_masteriyo_enrollments' ) ),
 						'PasswordProtectedNonce'  => wp_create_nonce( 'masteriyo_course_password_protected_nonce' ),
@@ -1653,17 +1748,7 @@ class ScriptStyle {
 						'sidebarCommonLinks'      => SidebarLinkRegistry::get_links(),
 					),
 				),
-				'login-form'              => array(
-					'name' => '_MASTERIYO_',
-					'data' => array(
-						'ajax_url' => admin_url( 'admin-ajax.php' ),
-						'nonce'    => wp_create_nonce( 'masteriyo_login_nonce' ),
-						'labels'   => array(
-							'sign_in'    => __( 'Sign In', 'learning-management-system' ),
-							'signing_in' => __( 'Signing In...', 'learning-management-system' ),
-						),
-					),
-				),
+				'login-form'              => self::get_login_form_localized_script(),
 
 				'single-course'           => array(
 					'name' => 'masteriyo_data',
@@ -1699,6 +1784,10 @@ class ScriptStyle {
 							'password_not_empty'       => __( 'Please enter a password.', 'learning-management-system' ),
 							'already_reviewed_pending' => __( 'You have already submitted a review for this course. It is currently pending approval.', 'learning-management-system' ),
 							'already_reviewed'         => __( 'You have already submitted a review for this course.', 'learning-management-system' ),
+							/* translators: %s: Number of completed course items. */
+							'progress_completed'       => _x( '%s Completed', 'Course progress item count', 'learning-management-system' ),
+							/* translators: %s: Number of course items left to complete. */
+							'progress_left'            => _x( '%s Left', 'Course progress item count', 'learning-management-system' ),
 						),
 						'ajaxURL'                  => admin_url( 'admin-ajax.php' ),
 						'course_id'                => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_id() : 0,
@@ -1709,6 +1798,7 @@ class ScriptStyle {
 						'course_reviews_count'     => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? $GLOBALS['course']->get_review_count() : 0,
 						'user_has_pending_review'  => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) && is_user_logged_in() ) ? masteriyo_bool_to_string( masteriyo_user_has_pending_review_for_course( $GLOBALS['course']->get_id() ) ) : 'no',
 						'course_progress'          => ( isset( $GLOBALS['course'] ) && is_a( $GLOBALS['course'], '\Masteriyo\Models\Course' ) ) ? masteriyo_course_progress_summary( $GLOBALS['course'] ) : array(),
+						'course_progress_labels'   => masteriyo_course_progress_item_type_labels(),
 					),
 				),
 				'masteriyo-single-course' => array(
@@ -1788,7 +1878,12 @@ class ScriptStyle {
 						'password_protected_nonce' => wp_create_nonce( 'masteriyo_course_password_protected_nonce' ),
 						'labels'                   => array(
 							'password_not_empty' => __( 'Please enter a password.', 'learning-management-system' ),
+							/* translators: %s: Number of completed course items. */
+							'progress_completed' => _x( '%s Completed', 'Course progress item count', 'learning-management-system' ),
+							/* translators: %s: Number of course items left to complete. */
+							'progress_left'      => _x( '%s Left', 'Course progress item count', 'learning-management-system' ),
 						),
+						'course_progress_labels'   => masteriyo_course_progress_item_type_labels(),
 					),
 				),
 				'learn'                   => array(
@@ -1816,7 +1911,6 @@ class ScriptStyle {
 						'enableQuizPreviouslyVisitedPage' => masteriyo_bool_to_string( masteriyo_get_setting( 'quiz.display.enable_quiz_previously_visited_page' ) ),
 						'quizAccess'                      => masteriyo_get_setting( 'quiz.general.quiz_access' ),
 						'automaticallySubmitQuiz'         => masteriyo_bool_to_string( masteriyo_get_setting( 'quiz.general.automatically_submit_quiz' ) ),
-						'showSidebarInitially'            => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_sidebar_initially' ) ),
 						'enableFocusMode'                 => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.enable_focus_mode' ) ),
 						'showSidebar'                     => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_sidebar' ) ),
 						'showHeader'                      => masteriyo_bool_to_string( masteriyo_get_setting( 'learn_page.display.show_header' ) ),
@@ -1827,7 +1921,6 @@ class ScriptStyle {
 						'idleTimeThreshold'               => absint( masteriyo_get_setting( 'advance.tracking.idle_time_threshold' ) ),
 						'isCurrentUserAdmin'              => masteriyo_bool_to_string( masteriyo_is_current_user_admin() ),
 						'isAutoApproveReviews'            => masteriyo_bool_to_string( masteriyo_get_setting( 'single_course.display.auto_approve_reviews' ) ),
-						'logoURL'                         => apply_filters( 'masteriyo_learn_page_logo_url', home_url() ),
 					),
 				),
 			)
@@ -1865,27 +1958,128 @@ class ScriptStyle {
 	 * @return void
 	 */
 	public static function remove_styles_from_learn_page() {
-		global $wp_styles;
-
 		// Bail early if the page is not learn.
 		if ( ! masteriyo_is_learn_page() ) {
 			return;
 		}
 
-		$whitelist = self::get_whitelist_styles_in_learn_page();
+		self::remove_styles_except( self::get_whitelist_styles_in_learn_page() );
+	}
+
+	/**
+	 * Drop every style the page does not keep.
+	 *
+	 * A style is kept when its handle is whitelisted, when its URL matches one of
+	 * the paths the site owner allowed, or when something kept depends on it.
+	 *
+	 * @param string[] $whitelist Whitelisted style handles.
+	 *
+	 * @return void
+	 */
+	protected static function remove_styles_except( $whitelist ) {
+		global $wp_styles;
+
+		$allowed = self::get_allowed_style_paths();
+		$keep    = array();
+
+		foreach ( $wp_styles->registered as $style ) {
+			if ( in_array( $style->handle, $whitelist, true ) || self::is_allowed_style_path( $style, $allowed ) ) {
+				$keep[] = $style->handle;
+			}
+		}
+
+		$keep = self::with_style_dependencies( $keep );
 
 		// Dequeue blacklist styles
 		foreach ( $wp_styles->registered as $style ) {
-			if ( ! in_array( $style->handle, $whitelist, true ) ) {
+			if ( ! in_array( $style->handle, $keep, true ) ) {
 				wp_deregister_style( $style->handle );
 			}
 		}
 
 		foreach ( $wp_styles->queue as $handle ) {
-			if ( ! in_array( $handle, $whitelist, true ) ) {
+			if ( ! in_array( $handle, $keep, true ) ) {
 				wp_dequeue_style( $handle );
 			}
 		}
+
+		self::enqueue_site_fonts();
+	}
+
+	/**
+	 * Whether the site owner allowed this stylesheet through by its path.
+	 *
+	 * Handles are hard to discover, so the setting matches on the URL instead:
+	 * a plugin's directory, or a file name, the way CSS optimisers do exclusions.
+	 *
+	 * @param \_WP_Dependency $style   Registered style.
+	 * @param string[]        $allowed Paths the site owner allowed.
+	 *
+	 * @return bool
+	 */
+	protected static function is_allowed_style_path( $style, $allowed ) {
+		if ( empty( $style->src ) || ! is_string( $style->src ) ) {
+			return false;
+		}
+
+		foreach ( $allowed as $path ) {
+			if ( false !== strpos( $style->src, $path ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * The paths the site owner allowed, one per line in the Learn Page settings.
+	 *
+	 * @return string[]
+	 */
+	protected static function get_allowed_style_paths() {
+		$setting = masteriyo_get_setting( 'learn_page.general.allowed_style_paths' );
+
+		if ( ! is_string( $setting ) || '' === trim( $setting ) ) {
+			return array();
+		}
+
+		$paths = array_map( 'trim', preg_split( '/\R/', $setting ) );
+
+		return array_values( array_filter( $paths, 'strlen' ) );
+	}
+
+	/**
+	 * Add each handle's dependencies to the list, recursively.
+	 *
+	 * WP_Dependencies refuses to print a style whose dependency is gone, so a
+	 * kept handle whose dependencies were dropped never reaches the page. That
+	 * is why whitelisting wpa-toolbar alone does nothing: it needs ui-font.
+	 *
+	 * @param string[] $handles Style handles.
+	 *
+	 * @return string[]
+	 */
+	protected static function with_style_dependencies( $handles ) {
+		global $wp_styles;
+
+		$resolved = array();
+		$pending  = $handles;
+
+		while ( $pending ) {
+			$handle = array_shift( $pending );
+
+			if ( isset( $resolved[ $handle ] ) ) {
+				continue;
+			}
+
+			$resolved[ $handle ] = true;
+
+			if ( isset( $wp_styles->registered[ $handle ] ) ) {
+				$pending = array_merge( $pending, $wp_styles->registered[ $handle ]->deps );
+			}
+		}
+
+		return array_keys( $resolved );
 	}
 
 	/**
@@ -1896,8 +2090,6 @@ class ScriptStyle {
 	 * @return void
 	 */
 	public static function remove_styles_from_account_page() {
-		global $wp_styles;
-
 		// Bail early if the page is not learn.
 		if ( ! is_user_logged_in() || ! masteriyo_is_account_page() ) {
 			return;
@@ -1911,20 +2103,37 @@ class ScriptStyle {
 		}
 
 		#TODO make whitelist styles for account page separately.
-		$whitelist = self::get_whitelist_styles_in_learn_page();
+		self::remove_styles_except( self::get_whitelist_styles_in_learn_page() );
+	}
 
-		// Dequeue blacklist styles
-		foreach ( $wp_styles->registered as $style ) {
-			if ( ! in_array( $style->handle, $whitelist, true ) ) {
-				wp_deregister_style( $style->handle );
+
+	/**
+	 * Enqueue the site's body and heading fonts.
+	 *
+	 * The Learn page, and the account page without the theme header and footer,
+	 * remove the theme's styles. The site's fonts must still apply there, but no
+	 * other site typography: its font size and weight break the page layout.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_site_fonts() {
+		$fonts = array(
+			'body'              => wp_get_global_styles( array( 'typography', 'fontFamily' ) ),
+			'h1,h2,h3,h4,h5,h6' => wp_get_global_styles( array( 'elements', 'heading', 'typography', 'fontFamily' ) ),
+		);
+
+		// The preset custom properties that the font values can refer to.
+		$css = wp_get_global_stylesheet( array( 'variables' ) );
+
+		foreach ( $fonts as $selector => $font ) {
+			if ( is_string( $font ) && '' !== $font ) {
+				$css .= $selector . '{font-family:' . str_replace( array( '{', '}', '<' ), '', $font ) . '}';
 			}
 		}
 
-		foreach ( $wp_styles->queue as $handle ) {
-			if ( ! in_array( $handle, $whitelist, true ) ) {
-				wp_dequeue_style( $handle );
-			}
-		}
+		wp_register_style( 'masteriyo-site-fonts', false, array(), Constants::get( 'MASTERIYO_VERSION' ) );
+		wp_enqueue_style( 'masteriyo-site-fonts' );
+		wp_add_inline_style( 'masteriyo-site-fonts', $css );
 	}
 
 
@@ -1990,6 +2199,7 @@ class ScriptStyle {
 				'masteriyo_whitelist_styles_learn_page',
 				array(
 					'masteriyo-learn',
+					'masteriyo-learn-fonts',
 					'masteriyo-dependencies',
 					'colors',
 					'common',
@@ -2073,6 +2283,15 @@ class ScriptStyle {
 					// MonsterInsights.
 					'monsterinsights-style-frontend.css',
 					'monsterinsights-style-vendor.css',
+					// GDPR Cookie Compliance: its banner CSS and inline colours. Issue #1668.
+					'moove_gdpr_frontend',
+
+					// WP Accessibility. Its toolbar is injected by JavaScript, which
+					// this page does not strip, so without the CSS the controls are
+					// left unstyled, buried under the app and inert. Issue #792.
+					'wpa-style',
+					'wpa-toolbar',
+					'ui-fontsize.css',
 				)
 			)
 		);

@@ -249,14 +249,14 @@ class LemonSqueezyIntegrationAddon {
 			$schema,
 			array(
 				'lemon_squeezy_integration' => array(
-					'description' => __( 'Lemon Squeezy Integration setting', 'learning-management-system' ),
+					'description' => 'Lemon Squeezy Integration setting',
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'product_id' => array(
-								'description' => __( 'Product ID.', 'learning-management-system' ),
+								'description' => 'Product ID.',
 								'type'        => 'string',
 								'default'     => '',
 								'context'     => array( 'view', 'edit' ),

@@ -10,6 +10,7 @@ namespace Masteriyo\Addons\GamiPressIntegration;
 defined( 'ABSPATH' ) || exit;
 
 
+use Masteriyo\Addons\GamiPressIntegration\Controllers\RewardsController;
 use Masteriyo\Addons\GamiPressIntegration\Listeners\CourseCompletedListener;
 use Masteriyo\Addons\GamiPressIntegration\Listeners\LessonCompletedListener;
 use Masteriyo\Addons\GamiPressIntegration\Listeners\NewEnrollmentListener;
@@ -50,6 +51,20 @@ class GamiPressIntegrationAddon {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts_styles' ) );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_public_scripts' ) );
 		add_filter( 'masteriyo_localized_admin_scripts', array( $this, 'localize_admin_scripts' ) );
+		add_filter( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_rest_namespaces' ) );
+	}
+
+	/**
+	 * Register the rewards controller.
+	 *
+	 * @param array $namespaces Namespaces and their controllers.
+	 *
+	 * @return array
+	 */
+	public function register_rest_namespaces( $namespaces ) {
+		$namespaces['masteriyo/v1']['gamipress-rewards'] = RewardsController::class;
+
+		return $namespaces;
 	}
 
 	/**
@@ -91,7 +106,6 @@ class GamiPressIntegrationAddon {
 			'point_types'       => $point_types,
 			'rank_types'        => $rank_types,
 			'achievement_types' => $achievement_types,
-			'ui_placements'     => $ui_placements,
 		);
 
 		return $scripts;

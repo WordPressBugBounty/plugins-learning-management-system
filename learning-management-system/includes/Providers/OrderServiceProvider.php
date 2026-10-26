@@ -206,6 +206,10 @@ class OrderServiceProvider extends AbstractServiceProvider implements BootableSe
 	 */
 	public function handle_download_order() {
 		if ( isset( $_GET['masteriyo_download_order'] ) ) {
+			if ( ! masteriyo_is_invoice_enabled() ) {
+				wp_die( esc_html__( 'Invoices are disabled on this site.', 'learning-management-system' ), '', array( 'response' => 404 ) );
+			}
+
 			if ( ! is_user_logged_in() ) {
 				wp_die( esc_html__( 'You must be logged in to download orders.', 'learning-management-system' ) );
 			}
