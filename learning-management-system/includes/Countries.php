@@ -588,7 +588,7 @@ class Countries {
 	public function shipping_to_prefix( $country_code = '' ) {
 		$country_code = $country_code ? $country_code : masteriyo( 'user' )->get_shipping_country();
 		$countries    = array( 'GB', 'US', 'AE', 'CZ', 'DO', 'NL', 'PH', 'USAF' );
-		$return       = in_array( $country_code, $countries, true ) ? __( 'to the', 'learning-management-system' ) : __( 'to', 'learning-management-system' );
+		$return       = in_array( $country_code, $countries, true ) ? _x( 'to the', 'before a country name that takes an article, e.g. to the United States', 'learning-management-system' ) : _x( 'to', 'before a country name, e.g. to France', 'learning-management-system' );
 
 		/**
 		 * Filters prefix string for a shipping country - either 'to the' or 'to'.
@@ -612,7 +612,7 @@ class Countries {
 	public function estimated_for_prefix( $country_code = '' ) {
 		$country_code = $country_code ? $country_code : $this->get_base_country();
 		$countries    = array( 'GB', 'US', 'AE', 'CZ', 'DO', 'NL', 'PH', 'USAF' );
-		$return       = in_array( $country_code, $countries, true ) ? __( 'the', 'learning-management-system' ) . ' ' : '';
+		$return       = in_array( $country_code, $countries, true ) ? _x( 'the', 'article before certain country names, e.g. the United States', 'learning-management-system' ) . ' ' : '';
 
 		/**
 		 * Filters a prefixed string for certain countries with 'the'.

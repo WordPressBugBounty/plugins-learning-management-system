@@ -9,6 +9,7 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { Eye, Restart } from '../../../../assets/js/back-end/constants/images';
@@ -198,19 +199,22 @@ const H5PScoreBoard: React.FC<Props> = ({
 						)}
 					/>
 					<Text fontSize="13px" color="player.muted" pt="14px">
-						{__(
-							'View your complete quiz history from your',
-							'learning-management-system',
-						)}{' '}
-						<Link
-							href={localized?.urls?.account + '#/quiz-attempts'}
-							color="player.primaryText"
-							fontWeight="600"
-							isExternal
-						>
-							{__('account page', 'learning-management-system')}
-						</Link>
-						.
+						{createInterpolateElement(
+							__(
+								'View your complete quiz history from your <a>account page</a>.',
+								'learning-management-system',
+							),
+							{
+								a: (
+									<Link
+										href={localized?.urls?.account + '#/quiz-attempts'}
+										color="player.primaryText"
+										fontWeight="600"
+										isExternal
+									/>
+								),
+							},
+						)}
 					</Text>
 				</Box>
 			</Collapse>

@@ -1,3 +1,10 @@
+##### [Version 3.5.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.5.0...3.5.1) (2026-11-05)
+
+- Fix - Fixed untranslated and split text across admin, account, course player, and course review screens, including lesson durations and singular counts like 1 review.
+- Fix - Fixed the course reviews search field showing only Search instead of its full placeholder.
+- Fix - Fixed the ratings filter arrow overlapping its label on right-to-left sites.
+- Fix - Fixed Zoom and Google Meet curriculum summaries showing list tags as text and cutting large counts short.
+
 #### [Version 3.5.0](https://github.com/Codeinwp/learning-management-system-pro/compare/3.4.3...3.5.0) (2026-10-26)
 
 - Added a redesigned learning page with a new course player layout, mobile app-style navigation, dark mode, a Q&A drawer, and a course completion screen with certificate preview and sharing.

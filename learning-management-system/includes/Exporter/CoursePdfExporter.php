@@ -514,7 +514,13 @@ class CoursePdfExporter {
 		$html .= '
                         <tr>
                             <td>' . esc_html__( 'Rating', 'learning-management-system' ) . '</td>
-                            <td>' . esc_html( masteriyo_format_decimal( $this->course->get_average_rating(), 1, true ) ) . ' (' . esc_html( $this->course->get_review_count() ) . ' ' . esc_html__( 'reviews', 'learning-management-system' ) . ')</td>
+                            <td>' . esc_html( masteriyo_format_decimal( $this->course->get_average_rating(), 1, true ) ) . ' (' . esc_html(
+								sprintf(
+									/* translators: %s: number of reviews */
+									_n( '%s review', '%s reviews', $this->course->get_review_count(), 'learning-management-system' ),
+									number_format_i18n( $this->course->get_review_count() )
+								)
+							) . ')</td>
                         </tr>';
 
 		// Available Seats

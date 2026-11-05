@@ -693,12 +693,29 @@ class Course extends Model {
 		$price_html = masteriyo_price( $this->get_price(), array( 'currency' => $this->get_currency() ) );
 
 		if ( $this->get_price() > 0 && CourseAccessMode::RECURRING === $this->get_access_mode() ) {
-			$separator  = 1 === $this->get_billing_interval() ? '' : CourseBillingPeriod::separator();
+			$interval = $this->get_billing_interval();
+			switch ( $interval ) {
+				case 2:
+					$every = __( 'Every 2nd', 'learning-management-system' );
+					break;
+				case 3:
+					$every = __( 'Every 3rd', 'learning-management-system' );
+					break;
+				case 4:
+				case 5:
+				case 6:
+					/* translators: %d: billing interval, 4 to 6, followed by the billing period, e.g. Every 4th Month */
+					$every = sprintf( __( 'Every %dth', 'learning-management-system' ), $interval );
+					break;
+				default:
+					$every = __( 'Every', 'learning-management-system' );
+			}
+
 			$price_html = masteriyo_price(
 				$this->get_price(),
 				array(
 					'billing_period'   => CourseBillingPeriod::label( $this->get_billing_period() ),
-					'billing_interval' => __( ' Every', 'learning-management-system' ) . masteriyo_number_to_ordinal( $this->get_billing_interval() ),
+					'billing_interval' => $every,
 				)
 			);
 		}

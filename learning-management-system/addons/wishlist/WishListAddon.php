@@ -13,6 +13,7 @@ use Masteriyo\Addons\WishList\PostType\WishlistItem;
 use Masteriyo\Addons\WishList\AjaxHandlers\AddCourseToWishlistAjaxHandler;
 use Masteriyo\Addons\WishList\AjaxHandlers\RemoveCourseFromWishlistAjaxHandler;
 use Masteriyo\Addons\WishList\RestApi\Controllers\Version1\WishListItemsController;
+use Masteriyo\Constants;
 use Masteriyo\Traits\Singleton;
 use Masteriyo\AddonsFramework\Addons;
 
@@ -43,6 +44,8 @@ class WishListAddon {
 		add_action( 'masteriyo_rest_api_get_rest_namespaces', array( $this, 'register_routes' ), 10 );
 		add_filter( 'masteriyo_ajax_handlers', array( $this, 'register_ajax_handlers' ) );
 		add_filter( 'masteriyo_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		// After ScriptStyle registers the public scripts at PHP_INT_MAX - 10.
+		add_action( 'wp_enqueue_scripts', array( $this, 'set_script_translations' ), PHP_INT_MAX - 9 );
 		add_filter( 'masteriyo_localized_public_scripts', array( $this, 'localize_public_scripts' ) );
 		add_filter( 'masteriyo_register_post_types', array( $this, 'register_post_types' ), 10, 1 );
 		add_action( 'masteriyo_after_single_course_title_text', array( $this, 'render_wishlist_toggle_button' ), 10 );
@@ -138,7 +141,8 @@ class WishListAddon {
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		$scripts['wishlist'] = array(
-			'src'      => plugin_dir_url( MASTERIYO_WISHLIST_ADDON_FILE ) . '/assets/js/frontend/wishlist' . $suffix . '.js',
+			// No double slash: WordPress hashes this path to find the JSON translations.
+			'src'      => plugins_url( 'assets/js/frontend/wishlist' . $suffix . '.js', MASTERIYO_WISHLIST_ADDON_FILE ),
 			'deps'     => array( 'jquery', 'wp-i18n' ),
 			'context'  => 'public',
 			'callback' => function() {
@@ -149,6 +153,15 @@ class WishListAddon {
 		);
 
 		return $scripts;
+	}
+
+	/**
+	 * Load the wishlist script's strings from the JSON catalogs.
+	 */
+	public function set_script_translations(): void {
+		if ( wp_script_is( 'masteriyo-wishlist', 'registered' ) ) {
+			wp_set_script_translations( 'masteriyo-wishlist', 'learning-management-system', Constants::get( 'MASTERIYO_LANGUAGES' ) );
+		}
 	}
 
 	/**

@@ -11676,6 +11676,9 @@ body.rtl .masteriyo-single-course--wrapper[data-layout=minimal] .masteriyo-singl
 body.rtl .masteriyo-checkout-main select {
   background-position: left 12px center;
 }
+body.rtl .masteriyo-single-body__main--user-review__rating select {
+  background-position: left 12px center;
+}
 body.rtl .masteriyo-certificate-share__exit-popup {
   right: unset;
   left: 0;

@@ -55,8 +55,8 @@ do_action( 'masteriyo_before_single_course_layout_1_review_count' );
 					<div class="masteriyo-single-body__main--review-showcase__text">
 						<span class="masteriyo-single-body__main--review-showcase__star-count">
 							<?php
-							echo esc_html( $rating );
-							esc_html_e( ' Star', 'learning-management-system' );
+							/* translators: %s: star rating, 1 to 5 */
+							echo esc_html( sprintf( __( '%s Star', 'learning-management-system' ), $rating ) );
 							?>
 
 						</span>

@@ -17,6 +17,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
@@ -295,21 +296,21 @@ const Recaptcha: React.FC<Props> = (props) => {
 								</Stack>
 								<CustomAlert status="info" width="fit-content">
 									<Text>
-										{__('Refer to ', 'learning-management-system')}
-										<Link
-											color="primary.600"
-											textDecoration="underline"
-											href="https://www.google.com/recaptcha/admin"
-											isExternal
-										>
-											{__(
-												'how to get the Google reCAPTCHA keys',
+										{createInterpolateElement(
+											__(
+												'Refer to <a>how to get the Google reCAPTCHA keys</a> if you need help with the process',
 												'learning-management-system',
-											)}
-										</Link>
-										{__(
-											' if you need help with the process',
-											'learning-management-system',
+											),
+											{
+												a: (
+													<Link
+														color="primary.600"
+														textDecoration="underline"
+														href="https://www.google.com/recaptcha/admin"
+														isExternal
+													/>
+												),
+											},
 										)}
 									</Text>
 								</CustomAlert>

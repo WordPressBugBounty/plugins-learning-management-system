@@ -27,6 +27,7 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -494,13 +495,23 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 						gap="2"
 					>
 						<Text fontSize="sm" color="gray.700" lineHeight="1.5">
-							{__('A migration from', 'learning-management-system')}{' '}
-							<Text as="strong">
-								{selectedLMS?.label ?? resumableSession.lms_slug}
-							</Text>{' '}
-							{__('is in progress', 'learning-management-system')} (
-							{resumableSession.overall_pct}%{' '}
-							{__('complete', 'learning-management-system')}).
+							{createInterpolateElement(
+								sprintf(
+									/* translators: %s: percentage complete. <lms /> is the name of the LMS being migrated. */
+									__(
+										'A migration from <lms /> is in progress (%s%% complete).',
+										'learning-management-system',
+									),
+									resumableSession.overall_pct,
+								),
+								{
+									lms: (
+										<Text as="strong">
+											{selectedLMS?.label ?? resumableSession.lms_slug}
+										</Text>
+									),
+								},
+							)}
 						</Text>
 						<Button
 							size="sm"
@@ -786,25 +797,18 @@ const Migration: React.FC<MigrationProps> = ({ onLogsClick }) => {
 						<Stack spacing="5">
 							<CustomAlert status="info" isAlertIconTop mb={0}>
 								<Text fontSize="sm" color="gray.700" lineHeight="1.6">
-									{__(
-										'This copies all courses, enrollments and user progress from',
-										'learning-management-system',
-									)}{' '}
-									<Text as="strong">{selectedLMS?.label}</Text>{' '}
-									{sprintf(
-										// translators: %s: the product's name.
-										__('into %s.', 'learning-management-system'),
-										getPluginName(),
-									)}{' '}
-									<Text as="strong">{selectedLMS?.label}</Text>{' '}
-									{__(
-										'keeps running and its content is copied, not moved. The only writes to it are a link to the copied course on WooCommerce products, EDD downloads and order items, and the matching Masteriyo role, description and website on each copied user. Running it again later copies only what is new. Still,',
-										'learning-management-system',
-									)}{' '}
-									<Text as="strong">
-										{__('back up your database', 'learning-management-system')}
-									</Text>{' '}
-									{__('first.', 'learning-management-system')}
+									{createInterpolateElement(
+										/* translators: <lms /> is the name of the LMS being migrated, <product /> the product's name. */
+										__(
+											'This copies all courses, enrollments and user progress from <lms /> into <product />. <lms /> keeps running and its content is copied, not moved. The only writes to it are a link to the copied course on WooCommerce products, EDD downloads and order items, and the matching Masteriyo role, description and website on each copied user. Running it again later copies only what is new. Still, <strong>back up your database</strong> first.',
+											'learning-management-system',
+										),
+										{
+											lms: <Text as="strong">{selectedLMS?.label}</Text>,
+											product: <>{getPluginName()}</>,
+											strong: <Text as="strong" />,
+										},
+									)}
 								</Text>
 							</CustomAlert>
 

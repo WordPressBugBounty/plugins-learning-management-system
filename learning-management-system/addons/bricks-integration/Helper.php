@@ -275,7 +275,7 @@ class Helper {
 		$json_file_path = __DIR__ . '/json/template-masteriyo-single-course.json';
 
 		if ( ! file_exists( $json_file_path ) ) {
-			echo '<div>No JSON found for Masteriyo Single Course Template</div>';
+			echo '<div>' . esc_html__( 'No JSON found for Masteriyo Single Course Template', 'learning-management-system' ) . '</div>';
 			return;
 		}
 
@@ -313,7 +313,7 @@ class Helper {
 		$json_file_path = __DIR__ . '/json/template-masteriyo-course-archive.json';
 
 		if ( ! file_exists( $json_file_path ) ) {
-			echo '<div>No JSON found for Masteriyo Course Archive Template</div>';
+			echo '<div>' . esc_html__( 'No JSON found for Masteriyo Course Archive Template', 'learning-management-system' ) . '</div>';
 			return;
 		}
 

@@ -198,7 +198,7 @@ class AdminMenu {
 			),
 			'starter-templates'  => array(
 				'page_title' => __( 'Starter Templates', 'learning-management-system' ),
-				'menu_title' => '↳ ' . __( 'Templates', 'learning-management-system' ) . ' <span class="masteriyo-new-badge">New</span>',
+				'menu_title' => '↳ ' . __( 'Templates', 'learning-management-system' ) . ' <span class="masteriyo-new-badge">' . esc_html__( 'New', 'learning-management-system' ) . '</span>',
 				'position'   => 85,
 				'hide'       => true,
 			),

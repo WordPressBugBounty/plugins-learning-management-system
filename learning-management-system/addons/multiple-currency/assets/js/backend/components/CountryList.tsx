@@ -7,7 +7,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { PriceZoneSchema } from '../../types/multiCurrency';
 interface Props {
@@ -32,10 +32,16 @@ const CountryList: React.FC<Props> = (props) => {
 					<Badge
 						colorScheme="green"
 						ml={2}
-						title={
-							remainingCountries?.length.toString() +
-							__(' More Countries', 'learning-management-system')
-						}
+						title={sprintf(
+							/* translators: %d: number of countries not shown */
+							_n(
+								'%d More Country',
+								'%d More Countries',
+								remainingCountries?.length ?? 0,
+								'learning-management-system',
+							),
+							remainingCountries?.length ?? 0,
+						)}
 					>
 						+{remainingCountries?.length}
 					</Badge>

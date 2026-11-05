@@ -48,7 +48,7 @@ class CourseHighlight extends BlockHandler {
 			\ob_start();
 			?>
 			<div style="color:red;padding-left:60px;">
-				Please ensure that only individual course elements are added inside the single course block container.
+				<?php esc_html_e( 'Please ensure that only individual course elements are added inside the single course block container.', 'learning-management-system' ); ?>
 			</div>
 			<?php
 			return \ob_get_clean();

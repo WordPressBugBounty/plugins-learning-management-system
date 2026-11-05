@@ -110,8 +110,8 @@ do_action( 'masteriyo_before_layout_1_single_course_main_tab_content', $course )
 						<?php if ( $course->get_duration() > 0 ) : ?>
 						<li class="masteriyo-single-body__main--curriculum-content-top--shortinfo-item">
 							<?php
-							echo esc_html( masteriyo_minutes_to_time_length_string( $course->get_duration() ) );
-							esc_html_e( ' Duration', 'learning-management-system' );
+							/* translators: %s: course duration, e.g. 2 hours 30 mins */
+							echo esc_html( sprintf( __( '%s Duration', 'learning-management-system' ), masteriyo_minutes_to_time_length_string( $course->get_duration() ) ) );
 							?>
 						</li>
 						<?php endif; ?>

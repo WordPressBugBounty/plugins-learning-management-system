@@ -1,4 +1,5 @@
 import { Box, Link, Text, VStack } from '@chakra-ui/react';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import CustomAlert from '../../../../../../assets/js/back-end/components/common/CustomAlert';
@@ -14,46 +15,54 @@ const BrevoAlertMessage = () => {
 				</Box>
 
 				<Text>
-					{__('1. ', 'learning-management-system')}
-					<Link
-						href="https://login.brevo.com/"
-						isExternal
-						textDecoration="underline"
-						textUnderlineOffset={2}
-					>
-						{__('Log in to your Brevo account.', 'learning-management-system')}
-					</Link>
-					{__(' If you don’t have an account, ', 'learning-management-system')}
-					<Link
-						href="https://onboarding.brevo.com/account/register"
-						isExternal
-						textDecoration="underline"
-						textUnderlineOffset={2}
-					>
-						{__('sign up here.', 'learning-management-system')}
-					</Link>
-				</Text>
-
-				<Text>
-					{__('2. ', 'learning-management-system')}
-					{__(
-						'After logging in, navigate to your API keys section to generate a new API key.',
-						'learning-management-system',
+					{createInterpolateElement(
+						__(
+							'1. <login>Log in to your Brevo account.</login> If you don’t have an account, <signup>sign up here.</signup>',
+							'learning-management-system',
+						),
+						{
+							login: (
+								<Link
+									href="https://login.brevo.com/"
+									isExternal
+									textDecoration="underline"
+									textUnderlineOffset={2}
+								/>
+							),
+							signup: (
+								<Link
+									href="https://onboarding.brevo.com/account/register"
+									isExternal
+									textDecoration="underline"
+									textUnderlineOffset={2}
+								/>
+							),
+						},
 					)}
-					<Link
-						href="https://app.brevo.com/settings/keys/api"
-						isExternal
-						textDecoration="underline"
-						textUnderlineOffset={2}
-					>
-						{__(' Go to API Keys', 'learning-management-system')}
-					</Link>
 				</Text>
 
 				<Text>
-					{__('3. ', 'learning-management-system')}
+					{createInterpolateElement(
+						__(
+							'2. After logging in, navigate to your API keys section to generate a new API key. <a>Go to API Keys</a>',
+							'learning-management-system',
+						),
+						{
+							a: (
+								<Link
+									href="https://app.brevo.com/settings/keys/api"
+									isExternal
+									textDecoration="underline"
+									textUnderlineOffset={2}
+								/>
+							),
+						},
+					)}
+				</Text>
+
+				<Text>
 					{__(
-						'Copy the generated API key and paste it into the "Brevo API Key" field.',
+						'3. Copy the generated API key and paste it into the "Brevo API Key" field.',
 						'learning-management-system',
 					)}
 				</Text>

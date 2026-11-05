@@ -12,7 +12,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { BiCog } from 'react-icons/bi';
@@ -71,8 +71,11 @@ const AddPriceZone: React.FC = () => {
 		addGroup.mutate(deepClean(data), {
 			onSuccess: (data) => {
 				toast({
-					title:
-						data.title + __(' has been added.', 'learning-management-system'),
+					title: sprintf(
+						/* translators: %s: name of the item that was added */
+						__('%s has been added.', 'learning-management-system'),
+						data.title,
+					),
 					status: 'success',
 					isClosable: true,
 				});

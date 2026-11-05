@@ -611,8 +611,8 @@ class GoogleMeetAddon {
 				'wrapper_start' => '<span class="masteriyo-google-meets-count">',
 				'wrapper_end'   => '</span>',
 				'content'       => sprintf(
-					/* translators: %d: Course google meets count */
-					esc_html( _nx( '%d Google Meet', '%d Google Meets', $google_meet_count, 'Google Meets Count', 'learning-management-system' ) ),
+					/* translators: %s: number of Google Meet meetings in the course */
+					esc_html( _nx( '%s Google Meet', '%s Google Meets', $google_meet_count, 'Google Meets Count', 'learning-management-system' ) ),
 					esc_html( number_format_i18n( $google_meet_count ) )
 				),
 			),
@@ -653,11 +653,11 @@ class GoogleMeetAddon {
 
 		$google_meet_summary = array(
 			array(
-				'wrapper_start' => ' < li > ',
-				'wrapper_end'   => ' < / li > ',
+				'wrapper_start' => '<li>',
+				'wrapper_end'   => '</li>',
 				'content'       => sprintf(
-					/* translators: %d: Course google meets count */
-					esc_html( _nx( ' % d Google Meet', ' % d Google Meets', $google_meet_count, 'Google Meets Count', 'learning-management-system' ) ),
+					/* translators: %s: number of Google Meet meetings in the course */
+					esc_html( _nx( '%s Google Meet', '%s Google Meets', $google_meet_count, 'Google Meets Count', 'learning-management-system' ) ),
 					esc_html( number_format_i18n( $google_meet_count ) )
 				),
 			),

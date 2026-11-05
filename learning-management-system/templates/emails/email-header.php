@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 	<?php // Repeats the <html> dir on the outermost element the email keeps: webmail clients routinely drop <html> and <body> and render the rest inside their own LTR document. ?>
 	<div class="email-template" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>">
 		<div class="email-header">
-			<img src="<?php echo esc_url( masteriyo_get_email_template_header_logo() ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ) . esc_html__( ' Logo', 'learning-management-system' ); ?>" />
+			<img src="<?php echo esc_url( masteriyo_get_email_template_header_logo() ); ?>" alt="<?php /* translators: %s: site name */ echo esc_attr( sprintf( __( '%s Logo', 'learning-management-system' ), get_bloginfo( 'name', 'display' ) ) ); ?>" />
 		</div>
 		<?php // dir="auto" so the author's own text picks the direction: a site can be RTL and still send an English email, and vice versa. ?>
 		<div id="content" class="email-body" dir="auto">

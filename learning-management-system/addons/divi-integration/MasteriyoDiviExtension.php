@@ -9,6 +9,8 @@
 
 namespace Masteriyo\Addons\DiviIntegration;
 
+use Masteriyo\Constants;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -100,6 +102,8 @@ class MasteriyoDiviExtension extends \DiviExtension {
 			$this->version,
 			true
 		);
+
+		wp_set_script_translations( 'masteriyo-divi-integration', 'learning-management-system', Constants::get( 'MASTERIYO_LANGUAGES' ) );
 
 		wp_add_inline_script( 'masteriyo-divi-integration', 'var _MASTERIYO_STYLE_TEMPLATES_ = [];' );
 		wp_add_inline_script( 'masteriyo-divi-integration', 'var _MASTERIYO_SPECIAL_SETTINGS_ = {};' );

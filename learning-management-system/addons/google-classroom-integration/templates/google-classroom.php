@@ -38,7 +38,7 @@ if ( $course_code || $is_view_button ) :
 		?>
 		<div class="masteriyo-course--google-classroom__code">
 		<span class="masteriyo-course--google-classroom__code-label">
-			Code: <span class="masteriyo-copy-this-text"><?php echo esc_attr( $course_code ); ?></span>
+			<?php esc_html_e( 'Code:', 'learning-management-system' ); ?> <span class="masteriyo-copy-this-text"><?php echo esc_attr( $course_code ); ?></span>
 		</span>
 
 		<div class="copy-button-code">

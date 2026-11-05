@@ -11,7 +11,7 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -77,8 +77,11 @@ const AddNewAnnouncement: React.FC = () => {
 					data,
 				);
 				toast({
-					title:
-						data.title + __(' has been added.', 'learning-management-system'),
+					title: sprintf(
+						/* translators: %s: name of the item that was added */
+						__('%s has been added.', 'learning-management-system'),
+						data.title,
+					),
 					status: 'success',
 					isClosable: true,
 				});

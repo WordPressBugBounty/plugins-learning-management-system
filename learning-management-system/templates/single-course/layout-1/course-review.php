@@ -92,7 +92,7 @@ $created_date = date_i18n( masteriyo_date_format() . ' ' . masteriyo_time_format
 				<textarea
 					id="masteriyo-reply-content"
 					name="content"
-					placeholder="Write your reply here..."
+					placeholder="<?php echo esc_attr__( 'Write your reply here…', 'learning-management-system' ); ?>"
 				></textarea>
 			</div>
 			<div class="masteriyo-single-form-actions">
