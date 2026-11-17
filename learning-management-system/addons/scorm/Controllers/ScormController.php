@@ -417,9 +417,11 @@ class ScormController extends RestController {
 			);
 		}
 
-		if ( ! $this->permission->rest_check_post_permissions( PostType::COURSE, 'create' ) ) {
+		$course_id = absint( $request->get_param( 'course_id' ) );
+
+		if ( ! current_user_can( 'unfiltered_html' ) || ! $course_id || ! $this->permission->rest_check_post_permissions( PostType::COURSE, 'update', $course_id ) ) {
 			return new \WP_Error(
-				'masteriyo_rest_cannot_create',
+				'masteriyo_rest_cannot_import',
 				__( 'Sorry, you are not allowed to import courses.', 'learning-management-system' ),
 				array(
 					'status' => rest_authorization_required_code(),
@@ -638,6 +640,15 @@ class ScormController extends RestController {
 			$item_name = $r_file['name'];
 			$item_ext  = strtolower( pathinfo( $item_name, PATHINFO_EXTENSION ) );
 
+			if ( ! self::is_safe_archive_path( $item_name ) || self::is_archive_symlink( $zip, $i ) ) {
+				$zip->close();
+				unlink( $file );
+				return new WP_Error(
+					'unsafe_archive_entry',
+					__( 'The package contains an unsafe file path.', 'learning-management-system' )
+				);
+			}
+
 			if ( substr( $item_name, 0, 9 ) === '__MACOSX/' ) {
 				$macosx[] = $item_name;
 				continue;
@@ -710,5 +721,43 @@ class ScormController extends RestController {
 		);
 
 		return $scorm_package;
+	}
+
+	/**
+	 * Whether an archive entry stays within the package extraction directory.
+	 *
+	 * @param string $path Archive entry path.
+	 * @return bool
+	 */
+	private static function is_safe_archive_path( $path ) {
+		if ( ! is_string( $path ) || '' === $path || false !== strpos( $path, "\0" ) ) {
+			return false;
+		}
+
+		$path = str_replace( '\\', '/', $path );
+
+		if ( '/' === $path[0] || preg_match( '/^[a-zA-Z]:\//', $path ) ) {
+			return false;
+		}
+
+		return ! in_array( '..', explode( '/', $path ), true );
+	}
+
+	/**
+	 * Whether an archive entry is a symbolic link.
+	 *
+	 * @param ZipArchive $zip   Open archive.
+	 * @param int        $index Entry index.
+	 * @return bool
+	 */
+	private static function is_archive_symlink( $zip, $index ) {
+		$opsys      = 0;
+		$attributes = 0;
+
+		if ( ! $zip->getExternalAttributesIndex( $index, $opsys, $attributes ) ) {
+			return false;
+		}
+
+		return 0120000 === ( ( $attributes >> 16 ) & 0170000 );
 	}
 }

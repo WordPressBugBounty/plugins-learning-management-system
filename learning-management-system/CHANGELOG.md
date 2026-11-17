@@ -1,3 +1,10 @@
+##### [Version 3.5.2](https://github.com/Codeinwp/learning-management-system-pro/compare/3.5.1...3.5.2) (2026-11-17)
+
+- Fixed issue where editing a meeting overwrites its author with a random user or none.
+- Fixed paid courses enrolling without payment at checkout.
+- Enhanced security.
+- Updated dependencies.
+
 ##### [Version 3.5.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.5.0...3.5.1) (2026-11-05)
 
 - Fix - Fixed untranslated and split text across admin, account, course player, and course review screens, including lesson durations and singular counts like 1 review.

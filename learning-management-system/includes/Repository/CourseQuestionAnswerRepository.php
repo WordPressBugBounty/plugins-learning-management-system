@@ -77,6 +77,11 @@ class CourseQuestionAnswerRepository extends AbstractRepository implements Repos
 			}
 		}
 
+		// Core's filters for new comment content: kses for users without unfiltered_html.
+		// wp_insert_comment() unslashes what it stores, so the model gets the unslashed copy, as stored.
+		$content = apply_filters( 'pre_comment_content', $course_qa->get_content() );
+		$course_qa->set_content( wp_unslash( $content ) );
+
 		$id = wp_insert_comment(
 			/**
 			 * Filters new course question-answer data before creating.
@@ -96,7 +101,7 @@ class CourseQuestionAnswerRepository extends AbstractRepository implements Repos
 					'comment_author_IP'    => $course_qa->get_ip_address( 'edit' ),
 					'comment_date'         => gmdate( 'Y-m-d H:i:s', $course_qa->get_created_at( 'edit' )->getOffsetTimestamp() ),
 					'comment_date_gmt'     => gmdate( 'Y-m-d H:i:s', $course_qa->get_created_at( 'edit' )->getTimestamp() ),
-					'comment_content'      => $course_qa->get_content(),
+					'comment_content'      => $content,
 					'comment_approved'     => $course_qa->get_status( 'edit' ),
 					'comment_agent'        => $course_qa->get_agent( 'edit' ),
 					'comment_type'         => $course_qa->get_type( 'edit' ),
@@ -220,6 +225,9 @@ class CourseQuestionAnswerRepository extends AbstractRepository implements Repos
 			);
 
 			wp_update_comment( array_merge( array( 'comment_ID' => $course_qa->get_id() ), $course_qa_data ) );
+
+			// wp_update_comment() filters what it stores, so the update hook gets the stored content.
+			$course_qa->set_content( get_comment( $course_qa->get_id() )->comment_content );
 		}
 
 		$this->update_comment_meta( $course_qa );

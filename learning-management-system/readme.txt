@@ -4,7 +4,7 @@ Tags: lms, learning management system, elearning, online courses, course builder
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.5.1
+Stable tag: 3.5.2
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -296,12 +296,12 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-##### [Version 3.5.1](https://github.com/Codeinwp/learning-management-system-pro/compare/3.5.0...3.5.1) (2026-11-05)
+##### [Version 3.5.2](https://github.com/Codeinwp/learning-management-system-pro/compare/3.5.1...3.5.2) (2026-11-17)
 
-- Fix - Fixed untranslated and split text across admin, account, course player, and course review screens, including lesson durations and singular counts like 1 review.
-- Fix - Fixed the course reviews search field showing only Search instead of its full placeholder.
-- Fix - Fixed the ratings filter arrow overlapping its label on right-to-left sites.
-- Fix - Fixed Zoom and Google Meet curriculum summaries showing list tags as text and cutting large counts short.
+- Fixed issue where editing a meeting overwrites its author with a random user or none.
+- Fixed paid courses enrolling without payment at checkout.
+- Enhanced security.
+- Updated dependencies.
 
 
 

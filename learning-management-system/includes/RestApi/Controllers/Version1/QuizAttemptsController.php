@@ -625,8 +625,8 @@ class QuizAttemptsController extends CrudController {
 			$args['user_id'] = masteriyo( 'session' )->get_user_id();
 		}
 
-		// Prevent students from viewing other students' quiz attempts if sent request without user_id.
-		if ( ! isset( $request['user_id'] ) && masteriyo_is_current_user_student() ) {
+		// Students only ever see their own attempts, whatever user_id the request carries.
+		if ( masteriyo_is_current_user_student() ) {
 			$args['user_id'] = get_current_user_id();
 		}
 
@@ -1397,7 +1397,8 @@ class QuizAttemptsController extends CrudController {
 
 			// To make sure student don't get quiz attempts using user id param.
 			if ( masteriyo_is_current_user_student() ) {
-				if ( ! empty( $request['user_id'] ) && masteriyo_get_current_user_id() !== absint( $request['user_id'] ) ) {
+				// isset(), not empty(): user_id=0 must not skip the ownership check.
+				if ( isset( $request['user_id'] ) && masteriyo_get_current_user_id() !== absint( $request['user_id'] ) ) {
 					return new \WP_Error(
 						'masteriyo_rest_cannot_read',
 						__( 'Sorry, you are not allowed to read resources.', 'learning-management-system' ),

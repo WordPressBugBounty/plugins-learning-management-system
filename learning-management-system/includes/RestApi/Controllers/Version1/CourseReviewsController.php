@@ -561,6 +561,7 @@ class CourseReviewsController extends CommentsController {
 					'description' => 'Course Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 				'parent'       => array(
 					'description' => 'Course Review Parent.',
@@ -695,7 +696,7 @@ class CourseReviewsController extends CommentsController {
 
 		// Course Review Title.
 		if ( isset( $request['title'] ) ) {
-			$course_review->set_title( $request['title'] );
+			$course_review->set_title( sanitize_text_field( $request['title'] ) );
 		}
 
 		// Course Review Content.
@@ -739,11 +740,6 @@ class CourseReviewsController extends CommentsController {
 		// Course Review Agent.
 		if ( isset( $request['agent'] ) ) {
 			$course_review->set_agent( $request['agent'] );
-		}
-
-		// Course Review Type.
-		if ( isset( $request['type'] ) ) {
-			$course_review->set_type( $request['type'] );
 		}
 
 		// Course Review Parent.

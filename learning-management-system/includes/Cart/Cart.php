@@ -238,7 +238,8 @@ class Cart {
 			$callable = apply_filters( 'masteriyo_add_to_cart_get_item_callable', 'masteriyo_get_course', $values['item_id'] );
 			$item     = call_user_func( $callable, $values['item_id'] );
 
-			if ( empty( $item ) || ! $item->exists() || 0 >= $values['quantity'] ) {
+			// Below 1 also drops a fractional quantity stored before add_to_cart() made it whole.
+			if ( empty( $item ) || ! $item->exists() || 1 > $values['quantity'] ) {
 				continue;
 			}
 
@@ -1128,7 +1129,8 @@ class Cart {
 			 * @param integer $item_id
 			 * @param \Masteriyo\Models\Course|null $course
 			 */
-			$quantity = apply_filters( 'masteriyo_add_to_cart_quantity', $quantity, $item_id, $item );
+			// Whole numbers only: a fraction such as 0.00001 rounds a paid course's total to zero.
+			$quantity = (int) apply_filters( 'masteriyo_add_to_cart_quantity', $quantity, $item_id, $item );
 
 			if ( $quantity <= 0 || ! $item || 'trash' === $item->get_status() ) {
 				return false;

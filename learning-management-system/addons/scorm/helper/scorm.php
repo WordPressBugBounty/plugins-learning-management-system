@@ -38,7 +38,7 @@ if ( ! function_exists( 'masteriyo_get_scorm_meta' ) ) {
 
 		$scorm_package = json_decode( $scorm_package_meta, true );
 
-		if ( empty( $scorm_package ) || ! isset( $scorm_package['file_name'] ) || ! isset( $scorm_package['scorm_dir_name'] ) || ! isset( $scorm_package['scorm_version'] ) ) {
+		if ( ! masteriyo_is_valid_scorm_package_meta( $scorm_package ) ) {
 			return null;
 		}
 
@@ -54,6 +54,37 @@ if ( ! function_exists( 'masteriyo_get_scorm_meta' ) ) {
 		$scorm_package['url'] = trailingslashit( $upload_url ) . "{$scorm_package['scorm_dir_name']}/" . $scorm_package['file_name'];
 
 		return $scorm_package;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_is_valid_scorm_package_meta' ) ) {
+	/**
+	 * Whether stored SCORM package metadata points inside the SCORM upload directory.
+	 *
+	 * Imports name the package directory with digits only and store a file name without
+	 * path separators, so any other value cannot come from an import and must not build a path.
+	 * The file name may be empty (`sanitize_file_name()` empties a name such as `_`); it then
+	 * resolves to the package directory itself.
+	 * The check ignores the viewer's capabilities: `sanitize_file_name()` would change a name
+	 * such as `intro.html.scorm` for a user without `unfiltered_html`.
+	 *
+	 * @param mixed $scorm_package Decoded `_scorm_package` meta.
+	 *
+	 * @return bool
+	 */
+	function masteriyo_is_valid_scorm_package_meta( $scorm_package ) {
+		if ( ! is_array( $scorm_package ) || ! isset( $scorm_package['file_name'], $scorm_package['scorm_dir_name'], $scorm_package['scorm_version'] ) ) {
+			return false;
+		}
+
+		$dir_name  = $scorm_package['scorm_dir_name'];
+		$file_name = $scorm_package['file_name'];
+
+		if ( ! is_scalar( $dir_name ) || ! is_string( $file_name ) || ! ctype_digit( (string) $dir_name ) ) {
+			return false;
+		}
+
+		return ! in_array( $file_name, array( '.', '..' ), true ) && false === strpbrk( $file_name, "/\\\0" );
 	}
 }
 

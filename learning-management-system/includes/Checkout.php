@@ -409,6 +409,9 @@ class Checkout {
 				)
 			);
 
+			// Only this account gets a generated password; the rest of the request keeps the site setting.
+			remove_filter( 'masteriyo_registration_is_generate_password', '__return_true' );
+
 			if ( is_null( $user ) || is_wp_error( $user ) ) {
 				masteriyo_get_logger()->error(
 					$user->get_error_message(),
@@ -432,19 +435,13 @@ class Checkout {
 				throw new \Exception( esc_html__( 'Invalid username or email', 'learning-management-system' ) );
 			}
 
-			if ( masteriyo_registration_is_generate_password() ) {
-				if ( masteriyo_is_email_verification_enabled() ) {
-					$user->set_status( UserStatus::SPAM );
-					masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
-				} else {
-					$user->set_status( UserStatus::ACTIVE );
-					masteriyo_set_customer_auth_cookie( $user->get_id() );
-					masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
-				}
+			if ( masteriyo_is_email_verification_enabled() ) {
+				$user->set_status( UserStatus::SPAM );
+				masteriyo_add_notice( __( 'An email has been sent to your inbox. Please confirm your email before logging in.', 'learning-management-system' ) );
 			} else {
-					$user->set_status( UserStatus::ACTIVE );
-					masteriyo_set_customer_auth_cookie( $user->get_id() );
-					masteriyo_add_notice( __( 'Your account has been created successfully.', 'learning-management-system' ) );
+				$user->set_status( UserStatus::ACTIVE );
+				masteriyo_set_customer_auth_cookie( $user->get_id() );
+				masteriyo_add_notice( __( 'Your account was created successfully and a password has been sent to your email address.', 'learning-management-system' ) );
 			}
 
 			$data['customer_id'] = $user->get_id();

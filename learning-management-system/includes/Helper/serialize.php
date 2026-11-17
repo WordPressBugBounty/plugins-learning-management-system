@@ -73,28 +73,71 @@ if ( ! function_exists( 'masteriyo_holds_disallowed_object' ) ) {
 	/**
 	 * Whether a decoded value is, or contains at any depth, an object other
 	 * than Masteriyo\DateTime or stdClass (typically a __PHP_Incomplete_Class).
-	 * A stdClass is looked inside, like an array.
+	 * A stdClass and a Masteriyo\DateTime are looked inside, like an array.
 	 *
-	 * @param mixed $value Decoded value.
+	 * A serialized value can refer to itself (`r:` and `R:` back-references), so
+	 * the walk goes at most 512 levels deep and into at most 100,000 arrays and
+	 * objects. A value that needs more counts as disallowed. Scalars do not count,
+	 * so a long list of them always decodes.
+	 *
+	 * @param mixed    $value  Decoded value.
+	 * @param int|null $budget Arrays and objects left to visit. Callers leave it out.
+	 * @param int      $depth  Current depth. Callers leave it out.
 	 * @return bool
 	 */
-	function masteriyo_holds_disallowed_object( $value ) {
-		if ( $value instanceof \Masteriyo\DateTime ) {
+	function masteriyo_holds_disallowed_object( $value, &$budget = null, $depth = 0 ) {
+		if ( ! is_array( $value ) && ! is_object( $value ) ) {
 			return false;
 		}
 
-		if ( is_object( $value ) && 'stdClass' !== get_class( $value ) ) {
+		if ( null === $budget ) {
+			$budget = 100000;
+		}
+
+		if ( --$budget < 0 || $depth > 512 ) {
 			return true;
 		}
 
-		if ( is_array( $value ) || is_object( $value ) ) {
-			foreach ( $value as $item ) {
-				if ( masteriyo_holds_disallowed_object( $item ) ) {
-					return true;
-				}
+		if ( is_object( $value ) && ! $value instanceof \Masteriyo\DateTime && 'stdClass' !== get_class( $value ) ) {
+			return true;
+		}
+
+		// The array cast also lists protected properties, such as Masteriyo\DateTime::$utc_offset, which foreach skips.
+		foreach ( (array) $value as $item ) {
+			if ( masteriyo_holds_disallowed_object( $item, $budget, $depth + 1 ) ) {
+				return true;
 			}
 		}
 
 		return false;
+	}
+}
+
+if ( ! function_exists( 'masteriyo_unserialize_import_value' ) ) {
+	/**
+	 * Decode a meta value read from an import file.
+	 *
+	 * Exports carry meta as stored in the database, so a value can be a
+	 * serialized string. It is decoded with masteriyo_maybe_unserialize(), which
+	 * never instantiates a class outside its allow-list. Some meta is stored
+	 * serialized twice (the MasterStudy migration's `_download_materials`), so a
+	 * decoded serialized string is kept as stored. A value that holds a
+	 * disallowed object, directly or inside such a string, or that cannot be
+	 * decoded, is refused: saving it would hand it to any later
+	 * maybe_unserialize() of that meta.
+	 *
+	 * @param mixed $value Meta value from the import file.
+	 * @return mixed|null The decoded value, or null when it must not be saved.
+	 */
+	function masteriyo_unserialize_import_value( $value ) {
+		$value = masteriyo_maybe_unserialize( $value );
+
+		// masteriyo_maybe_unserialize() returns a string it refuses unchanged. One more
+		// level covers readers that decode stored meta a second time.
+		if ( is_string( $value ) && is_serialized( $value ) && masteriyo_maybe_unserialize( $value ) === $value ) {
+			return null;
+		}
+
+		return $value;
 	}
 }

@@ -91,6 +91,11 @@ class CourseReviewRepository extends AbstractRepository implements RepositoryInt
 			}
 		}
 
+		// Core's filters for new comment content: kses for users without unfiltered_html.
+		// wp_insert_comment() unslashes what it stores, so the model gets the unslashed copy, as stored.
+		$content = apply_filters( 'pre_comment_content', $course_review->get_content() );
+		$course_review->set_content( wp_unslash( $content ) );
+
 		$id = wp_insert_comment(
 			/**
 			 * Filters new course review data before creating.
@@ -108,7 +113,7 @@ class CourseReviewRepository extends AbstractRepository implements RepositoryInt
 					'comment_author_email' => $course_review->get_author_email( 'edit' ),
 					'comment_author_url'   => $course_review->get_author_url( 'edit' ),
 					'comment_author_IP'    => $course_review->get_ip_address( 'edit' ),
-					'comment_content'      => $course_review->get_content(),
+					'comment_content'      => $content,
 					'comment_karma'        => $course_review->get_rating( 'edit' ),
 					'comment_approved'     => $course_review->get_status( 'edit' ),
 					'comment_agent'        => $course_review->get_agent( 'edit' ),
@@ -239,6 +244,9 @@ class CourseReviewRepository extends AbstractRepository implements RepositoryInt
 			);
 
 			wp_update_comment( array_merge( array( 'comment_ID' => $course_review->get_id() ), $course_review_data ) );
+
+			// wp_update_comment() filters what it stores, so the update hook gets the stored content.
+			$course_review->set_content( get_comment( $course_review->get_id() )->comment_content );
 		}
 
 		$this->update_comment_meta( $course_review );

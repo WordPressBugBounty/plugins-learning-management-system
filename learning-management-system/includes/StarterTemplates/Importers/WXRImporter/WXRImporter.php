@@ -1051,7 +1051,11 @@ class WXRImporter extends WP_Importer {
 			if ( $key ) {
 				// export gets meta straight from the DB so could have a serialized string
 				if ( ! $value ) {
-					$value = maybe_unserialize( $meta_item['value'] );
+					$value = masteriyo_unserialize_import_value( $meta_item['value'] );
+				}
+
+				if ( null === $value ) {
+					continue;
 				}
 
 				if ( '_elementor_data' === $key ) {
@@ -1427,7 +1431,11 @@ class WXRImporter extends WP_Importer {
 			if ( $key ) {
 				// export gets meta straight from the DB so could have a serialized string
 				if ( ! $value ) {
-					$value = maybe_unserialize( $meta_item['value'] );
+					$value = masteriyo_unserialize_import_value( $meta_item['value'] );
+				}
+
+				if ( null === $value ) {
+					continue;
 				}
 
 				add_term_meta( $term_id, wp_slash( $key ), wp_slash_strings_only( $value ) );

@@ -706,11 +706,6 @@ class CourseQuestionAnswersController extends CommentsController {
 			$mto_course_qa->set_agent( $request['agent'] );
 		}
 
-		// Course question-answer Type.
-		if ( isset( $request['type'] ) ) {
-			$mto_course_qa->set_type( $request['type'] );
-		}
-
 		// Course ID.
 		if ( isset( $request['course_id'] ) ) {
 			$mto_course_qa->set_course_id( $request['course_id'] );

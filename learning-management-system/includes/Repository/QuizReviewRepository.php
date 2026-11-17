@@ -79,6 +79,11 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 			}
 		}
 
+		// Core's filters for new comment content: kses for users without unfiltered_html.
+		// wp_insert_comment() unslashes what it stores, so the model gets the unslashed copy, as stored.
+		$content = apply_filters( 'pre_comment_content', $quiz_review->get_content() );
+		$quiz_review->set_content( wp_unslash( $content ) );
+
 		$id = wp_insert_comment(
 		/**
 		 * Filters new quiz review data before creating.
@@ -96,7 +101,7 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 					'comment_author_email' => $quiz_review->get_author_email( 'edit' ),
 					'comment_author_url'   => $quiz_review->get_author_url( 'edit' ),
 					'comment_author_IP'    => $quiz_review->get_ip_address( 'edit' ),
-					'comment_content'      => $quiz_review->get_content(),
+					'comment_content'      => $content,
 					'comment_karma'        => $quiz_review->get_rating( 'edit' ),
 					'comment_approved'     => $quiz_review->get_status( 'edit' ),
 					'comment_agent'        => $quiz_review->get_agent( 'edit' ),
@@ -227,6 +232,9 @@ class QuizReviewRepository extends AbstractRepository implements RepositoryInter
 			);
 
 			wp_update_comment( array_merge( array( 'comment_ID' => $quiz_review->get_id() ), $quiz_review_data ) );
+
+			// wp_update_comment() filters what it stores, so the update hook gets the stored content.
+			$quiz_review->set_content( get_comment( $quiz_review->get_id() )->comment_content );
 		}
 
 		$this->update_comment_meta( $quiz_review );

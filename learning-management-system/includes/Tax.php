@@ -84,7 +84,7 @@ class Tax {
 
 		$this->calculation_method = $settings['calculation_method'] ?? 'checkout';
 		$this->display_inclusive  = $settings['display_inclusive'] ?? false;
-		$this->regions            = maybe_unserialize( $settings['regions'] ?? '' );
+		$this->regions            = masteriyo_maybe_unserialize( $settings['regions'] ?? '' );
 		$this->default_tax_rate   = floatval( $settings['default_tax_rate'] ?? 0.0 );
 
 		// Check if taxes are enabled.

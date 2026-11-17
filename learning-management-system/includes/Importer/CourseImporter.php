@@ -182,7 +182,7 @@ class CourseImporter {
 
 			$data_to_insert                = masteriyo_array_except(
 				$post,
-				array( 'ID', 'terms', 'postmeta', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
+				array( 'ID', 'terms', 'postmeta', 'meta_input', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
 			);
 			$data_to_insert['post_author'] = get_current_user_id();
 
@@ -285,7 +285,11 @@ class CourseImporter {
 		}
 
 		foreach ( $metas_to_set as $meta_key => $meta_value ) {
-			$value = maybe_unserialize( $meta_value[0] );
+			$value = masteriyo_unserialize_import_value( $meta_value[0] );
+
+			if ( null === $value ) {
+				continue;
+			}
 
 			// Update old category ids with new ones.
 			if ( '_category_ids' === $meta_key && is_array( $value ) ) {
@@ -309,7 +313,7 @@ class CourseImporter {
 				);
 			}
 
-			add_post_meta( $post_id, $meta_key, wp_slash( $value ) );
+			add_post_meta( $post_id, $meta_key, map_deep( $value, 'wp_slash' ) );
 		}
 	}
 
@@ -771,14 +775,18 @@ class CourseImporter {
 	 */
 	protected function set_term_metas( int $term_id, $metas_to_set ) {
 		foreach ( $metas_to_set as $meta_key => $meta_value ) {
-			$value = maybe_unserialize( $meta_value[0] );
+			$value = masteriyo_unserialize_import_value( $meta_value[0] );
+
+			if ( null === $value ) {
+				continue;
+			}
 
 			// Add to history for later.
 			if ( '_featured_image' === $meta_key ) {
 				$this->history['term_featured_images'][ intval( $term_id ) ] = intval( $value );
 			}
 
-			add_term_meta( $term_id, $meta_key, wp_slash( $value ) );
+			add_term_meta( $term_id, $meta_key, map_deep( $value, 'wp_slash' ) );
 		}
 	}
 

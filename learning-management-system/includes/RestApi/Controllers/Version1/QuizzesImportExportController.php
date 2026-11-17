@@ -588,7 +588,7 @@ class QuizzesImportExportController extends RestController {
 
 		$quiz = masteriyo_array_except(
 			$quiz,
-			array( 'ID', 'terms', 'meta', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
+			array( 'ID', 'terms', 'meta', 'meta_input', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
 		);
 
 		$quiz['author'] = get_current_user_id();
@@ -611,9 +611,13 @@ class QuizzesImportExportController extends RestController {
 		}
 
 		foreach ( $metas as $key => $value ) {
-			$value = is_array( $value ) && isset( $value[0] ) ? $value[0] : maybe_unserialize( $value );
+			$value = masteriyo_unserialize_import_value( is_array( $value ) && isset( $value[0] ) ? $value[0] : $value );
 
-			\add_post_meta( $quiz_id, $key, $value );
+			if ( null === $value ) {
+				continue;
+			}
+
+			\add_post_meta( $quiz_id, $key, map_deep( $value, 'wp_slash' ) );
 		}
 
 		return $quiz_id;
@@ -648,7 +652,7 @@ class QuizzesImportExportController extends RestController {
 
 			$question = masteriyo_array_except(
 				$question,
-				array( 'ID', 'terms', 'meta', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
+				array( 'ID', 'terms', 'meta', 'meta_input', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
 			);
 
 			$question['author']       = get_current_user_id();
@@ -661,9 +665,13 @@ class QuizzesImportExportController extends RestController {
 			}
 
 			foreach ( $metas as $key => $value ) {
-				$value = is_array( $value ) && isset( $value[0] ) ? $value[0] : maybe_unserialize( $value );
+				$value = masteriyo_unserialize_import_value( is_array( $value ) && isset( $value[0] ) ? $value[0] : $value );
 
-				\add_post_meta( $question_id, $key, $value );
+				if ( null === $value ) {
+					continue;
+				}
+
+				\add_post_meta( $question_id, $key, map_deep( $value, 'wp_slash' ) );
 			}
 		}
 	}

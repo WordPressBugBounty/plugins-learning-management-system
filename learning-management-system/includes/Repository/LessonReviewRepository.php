@@ -90,6 +90,11 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			}
 		}
 
+		// Core's filters for new comment content: kses for users without unfiltered_html.
+		// wp_insert_comment() unslashes what it stores, so the model gets the unslashed copy, as stored.
+		$content = apply_filters( 'pre_comment_content', $lesson_review->get_content() );
+		$lesson_review->set_content( wp_unslash( $content ) );
+
 		$id = wp_insert_comment(
 			/**
 			 * Filters new lesson review data before creating.
@@ -107,7 +112,7 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 					'comment_author_email' => $lesson_review->get_author_email( 'edit' ),
 					'comment_author_url'   => $lesson_review->get_author_url( 'edit' ),
 					'comment_author_IP'    => $lesson_review->get_ip_address( 'edit' ),
-					'comment_content'      => $lesson_review->get_content(),
+					'comment_content'      => $content,
 					'comment_approved'     => $lesson_review->get_status( 'edit' ),
 					'comment_agent'        => $lesson_review->get_agent( 'edit' ),
 					'comment_type'         => $lesson_review->get_type( 'edit' ),
@@ -234,6 +239,9 @@ class LessonReviewRepository extends AbstractRepository implements RepositoryInt
 			);
 
 			wp_update_comment( array_merge( array( 'comment_ID' => $lesson_review->get_id() ), $lesson_review_data ) );
+
+			// wp_update_comment() filters what it stores, so the update hook gets the stored content.
+			$lesson_review->set_content( get_comment( $lesson_review->get_id() )->comment_content );
 		}
 
 		$this->update_comment_meta( $lesson_review );

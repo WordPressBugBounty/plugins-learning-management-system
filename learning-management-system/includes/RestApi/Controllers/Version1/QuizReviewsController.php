@@ -581,6 +581,7 @@ class QuizReviewsController extends CommentsController {
 					'description' => 'Quiz Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 				'parent'       => array(
 					'description' => 'Quiz Review Parent.',
@@ -728,11 +729,6 @@ class QuizReviewsController extends CommentsController {
 		// Quiz Review Agent.
 		if ( isset( $request['agent'] ) ) {
 			$quiz_review->set_agent( $request['agent'] );
-		}
-
-		// Quiz Review Type.
-		if ( isset( $request['type'] ) ) {
-			$quiz_review->set_type( $request['type'] );
 		}
 
 		// Quiz ID.

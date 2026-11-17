@@ -746,6 +746,7 @@ class LessonReviewsController extends CourseReviewsController {
 					'description' => 'Lesson Review Type.',
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 				'parent'       => array(
 					'description' => 'Lesson Review Parent.',
@@ -908,11 +909,6 @@ class LessonReviewsController extends CourseReviewsController {
 		// Lesson Review Agent.
 		if ( isset( $request['agent'] ) ) {
 			$lesson_review->set_agent( $request['agent'] );
-		}
-
-		// Lesson Review Type.
-		if ( isset( $request['type'] ) ) {
-			$lesson_review->set_type( $request['type'] );
 		}
 
 		// Lesson Review Parent.

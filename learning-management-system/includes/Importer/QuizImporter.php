@@ -151,7 +151,7 @@ class QuizImporter {
 
 			$post_data = masteriyo_array_except(
 				$post,
-				array( 'ID', 'meta', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
+				array( 'ID', 'meta', 'meta_input', 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt', 'post_author' )
 			);
 
 			$post_data['post_author'] = get_current_user_id();
@@ -166,8 +166,13 @@ class QuizImporter {
 			// Insert post meta data.
 			if ( isset( $post['meta'] ) && is_array( $post['meta'] ) ) {
 				foreach ( $post['meta'] as $meta_key => $meta_value ) {
-					$value = maybe_unserialize( $meta_value[0] );
-					add_post_meta( $post_id, $meta_key, wp_slash( $value ) );
+					$value = masteriyo_unserialize_import_value( $meta_value[0] );
+
+					if ( null === $value ) {
+						continue;
+					}
+
+					add_post_meta( $post_id, $meta_key, map_deep( $value, 'wp_slash' ) );
 				}
 			}
 
